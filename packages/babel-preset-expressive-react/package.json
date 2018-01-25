@@ -1,0 +1,24 @@
+{
+  "name": "babel-preset-expressive-react",
+  "version": "1.0.0-rc.1",
+  "description": "An alternative syntax for powerful react constructs using less code",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "babel ./src --out-dir ./lib",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "react",
+    "expressive",
+    "syntax"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "babel-plugin-infer-extends-component": "1.0.0-rc.1",
+    "babel-plugin-transform-expressive-loops": "1.0.0-rc.1",
+    "babel-plugin-transform-expressive-react": "0.9.0-beta"
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.6.1"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "babel-plugin-infer-extends-component",
+  "version": "1.0.0-rc.1",
+  "description": "Automatically extends React.Component for classes that include render method",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "babel ./src --out-dir ./lib",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "babel-types": "^6.25.0"
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.6.1"
+  }
+}
+  
