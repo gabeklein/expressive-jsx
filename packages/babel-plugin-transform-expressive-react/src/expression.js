@@ -110,7 +110,7 @@ class ExternalProps {
     }
 
     static InnerExpression(path){
-        this.add("Expr", {node: path.value})
+        this.add("ExpressionInline", {ast: path.node})
     }
 
     static StringLiteral(path){
