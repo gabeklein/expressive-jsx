@@ -1,6 +1,6 @@
 import transformExpressiveLoops from "babel-plugin-transform-expressive-loops";
 import transformExpressiveReact from "babel-plugin-transform-expressive-react";
-// import inferReactComponent      from "babel-plugin-infer-extends-component";
+import inferReactComponent      from "babel-plugin-infer-extends-component";
 
 const Plugins = require("babel-preset-react-native/plugins")
 
@@ -31,9 +31,9 @@ module.exports = options => {
               {strict: false, allowTopLevelThis: true},
             ],
             
-            // [inferReactComponent, {
-            //     activeOnMethodDo: true
-            // }],
+            [inferReactComponent, {
+                activeOnMethodDo: true
+            }],
             transformExpressiveReact,
             transformExpressiveLoops,
 
