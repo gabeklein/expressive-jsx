@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "babel ./src --out-dir ./lib",
+    "dev": "babel ./src --out-dir ./lib --source-maps --watch",
     "prepare": "npm run build"
   },
   "dependencies": {
