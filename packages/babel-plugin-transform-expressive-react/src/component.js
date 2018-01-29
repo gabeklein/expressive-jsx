@@ -57,28 +57,6 @@ export class Component extends ComponentAttrubutesBody {
     
 }
 
-export class ComponentExpression extends Component {
-
-    constructor(path){
-        super({})
-        path.node.meta = this;
-        this.body = path;
-    }
-
-    didExitOwnScope(path){
-        const output = this.innerAST();
-        path.replaceWith(output)
-    }
-
-    DebuggerStatement(path){
-        throw path.buildCodeFrameError("Cannot place a debugger statement in simple do-block. This doesn't have it's own scope!")
-    }
-
-    VariableDeclarator(path){
-        throw path.buildCodeFrameError("Cannot declare variables in simple do-block. This doesn't have it's own scope!")
-    }
-}
-
 export class ComponentScoped extends Component {
     constructor(parent){
         super(parent);

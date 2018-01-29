@@ -26,6 +26,7 @@ module.exports = options => {
             plugin('transform-flow-strip-types'),
             plugin('transform-react-jsx'),
             plugin('transform-regenerator'),
+
             [
               plugin('transform-es2015-modules-commonjs'),
               {strict: false, allowTopLevelThis: true},
@@ -45,8 +46,8 @@ module.exports = options => {
             plugin('transform-object-rest-spread'),
             plugin('transform-es2015-template-literals'),
             plugin('transform-object-assign'),
-            plugin('transform-react-display-name'),
-            plugin('transform-react-jsx-source')
+            // plugin('transform-react-display-name'),
+            // plugin('transform-react-jsx-source')
         ]
     }
 }

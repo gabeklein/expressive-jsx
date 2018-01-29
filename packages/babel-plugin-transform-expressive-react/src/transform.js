@@ -86,7 +86,7 @@ export class ES6TransformDynamic {
     }
 }
 
-export class ES6FragmentTransformDynamic extends ES6TransformDynamic {
+export class ES6FragmentTransform extends ES6TransformDynamic {
 
     ExplicitStyle(item){
         throw item.buildCodeFrameError("For Loops cannot contain styles as they have nothing to apply to")

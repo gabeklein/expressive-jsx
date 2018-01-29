@@ -2,7 +2,7 @@ import { Component } from "./component";
 
 const t = require("babel-types")
 const { ComponentScoped } = require("./component")
-const { ES6FragmentTransformDynamic } = require("./transform")
+const { ES6FragmentTransform } = require("./transform")
 
 const CREATE_ELEMENT = 
     t.memberExpression(
@@ -10,7 +10,7 @@ const CREATE_ELEMENT =
         t.identifier("createElement")
     );
 
-export function DoMethodsAsRender(paths, classPath){
+export function DoMethodsAsRender(paths, state){
     let found = 0;
     for(let path of paths){
 
@@ -36,7 +36,8 @@ export function DoMethodsAsRender(paths, classPath){
         }
 
         const element = new ComponentMethod(
-            path.get("body")
+            path.get("body"),
+            state
         )
 
         const doExpression = t.doExpression(functionBody);
@@ -58,8 +59,12 @@ export function DoMethodsAsRender(paths, classPath){
 
 export class ComponentMethod extends ComponentScoped {
 
-    constructor(body){
-        super({})
+    constructor(body, state){
+        super({
+            use: {
+                _createElement: state.expressive_init.createElement
+            }
+        })
         this.body = body;
     }
 
@@ -68,18 +73,9 @@ export class ComponentMethod extends ComponentScoped {
     }
 
     render(){
-        const _new 
-            = this.use._createElement 
-            = this.body.scope.generateUidIdentifier("create");
-
         if(this.shouldRenderDynamic)
-            return new ComponentMethodTransformDynamic(this).output;
+            return new ComponentMethodTransform(this).output;
         else return [
-            t.variableDeclaration(
-                "const", [
-                    t.variableDeclarator(_new, CREATE_ELEMENT)
-                ]
-            ),
             ...this.statements,
             t.returnStatement(
                 this.innerAST()
@@ -94,7 +90,7 @@ export class ComponentMethod extends ComponentScoped {
     }
 }
 
-class ComponentMethodTransformDynamic extends ES6FragmentTransformDynamic {
+class ComponentMethodTransform extends ES6FragmentTransform {
     constructor(target){
         super(target)
 
@@ -116,10 +112,8 @@ class ComponentMethodTransformDynamic extends ES6FragmentTransformDynamic {
     get output(){
 
         const { ownArgs } = this;
-        const _new = this.use._createElement;
 
         const initAccumulator = t.variableDeclaration( "const", [
-            t.variableDeclarator(_new, CREATE_ELEMENT),
             t.variableDeclarator(ownArgs, t.arrayExpression([]))
         ])
 

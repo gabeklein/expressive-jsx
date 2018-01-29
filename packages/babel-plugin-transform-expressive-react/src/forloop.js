@@ -1,14 +1,14 @@
 const t = require('babel-types');
 const { ComponentScoped } = require('./component')
 
-const { ES6FragmentTransformDynamic } = require("./transform.js");
+const { ES6FragmentTransform } = require("./transform.js");
 
 const INIT_LOOP_TYPE = {
     of: t.forOfStatement,
     in: t.forInStatement
 }
 
-class DynamicLoopTransform extends ES6FragmentTransformDynamic {
+class DynamicLoopTransform extends ES6FragmentTransform {
 
     constructor(target){
         super(target)
@@ -33,11 +33,13 @@ class DynamicLoopTransform extends ES6FragmentTransformDynamic {
     get output(){
         return [
             ...this.generate(),
-            t.callExpression(
-                t.memberExpression(
-                    this.src.parent.use._accumulate.args,
-                    t.identifier("push")
-                ), [this.acc]
+            t.expressionStatement(
+                t.callExpression(
+                    t.memberExpression(
+                        this.src.parent.use._accumulate.args,
+                        t.identifier("push")
+                    ), [this.acc]
+                )
             )
         ];
     }
