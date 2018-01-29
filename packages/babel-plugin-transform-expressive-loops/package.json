@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-transform-expressive-loops",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Babel transform adds extra bindings to for-in and for-of statements",
   "main": "lib/index.js",
   "author": "Gabe Klein <gabe@termtm.com> (https://github.com/gabeklein)",
