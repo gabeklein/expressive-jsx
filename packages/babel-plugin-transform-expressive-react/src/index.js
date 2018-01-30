@@ -88,7 +88,7 @@ export default () => ({
             }
         },
         Class: {
-            enter(path){
+            enter(path, state){
                 const doFunctions = [];
 
                 for(let item of path.get("body.body"))
