@@ -2,6 +2,15 @@ const t = require("babel-types")
 
 const { ComponentAttrubutesBody } = require("./body");
 
+const CHILD_SEQUENCE = {
+    Statement: -1,
+    Prop: 0,
+    ExplicitStyle: 1,
+    ForLoop: 2,
+    ComponentInline: 2,
+    ComponentSwitch: 3,
+}
+
 export class Component extends ComponentAttrubutesBody {
 
     innerAST(){
@@ -61,6 +70,18 @@ export class ComponentScoped extends Component {
     constructor(parent){
         super(parent);
         this.statements = [];
+        this.sequenceIndex = -1
+    }
+     
+    include(obj){
+        const thisIndex = CHILD_SEQUENCE[obj.type || 3];
+        if(this.sequenceIndex > thisIndex){
+            this.doesHaveDynamicProperties = true;
+            this.include = super.include;
+        }
+        else if(thisIndex < 3) this.sequenceIndex = thisIndex;
+
+        super.include(obj)
     }
 
     VariableDeclaration(path){
@@ -68,6 +89,7 @@ export class ComponentScoped extends Component {
     }
 
     DebuggerStatement(path){
+        this.shouldRenderDynamic = true;
         this.add("Statement", {kind: "Debugger", node: path.node})
     }
 }

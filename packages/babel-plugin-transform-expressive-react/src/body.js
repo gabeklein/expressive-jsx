@@ -28,7 +28,7 @@ export class TraversableBody {
                 const result = cd[fnName](...args); 
                 if(result !== false) return result;
             }
-        
+        debugger
         throw new Error(`No method named ${fnName} in parent-chain of element ${this.constructor.name}`)
     }
 
@@ -59,7 +59,7 @@ export class TraversableBody {
         const arg = path.get("argument");
         const type = UNARY_NAMES[path.node.opperator] + "Expression";
         if(type in this) this[type] (arg);
-        else throw expr.buildCodeFrameError(`Unhandled Unary statement of type ${type}`);
+        else throw arg.buildCodeFrameError(`Unhandled Unary statement of type ${type}`);
         
     }
 
@@ -67,7 +67,7 @@ export class TraversableBody {
         const body = path.get("body");
         const type = `Labeled${body.type}`
         if(type in this) this[type](path); 
-        else throw expr.buildCodeFrameError(`Unhandled Labeled Statement of type ${type}`);
+        else throw body.buildCodeFrameError(`Unhandled Labeled Statement of type ${type}`);
     }
    
 }
@@ -95,13 +95,21 @@ export class ComponentAttrubutesBody extends TraversableBody {
 
     LabeledExpressionStatement(path){
         const { name } = path.node.label;
-        let value = path.get("body.expression").node;
+        const exp = path.get("body.expression")
+        let value = exp.node;
 
         if(value.extra && value.extra.parenthesized)/*do nothing*/;
         else switch(value.type){
-            case "BinaryExpression":
-                throw exp.buildCodeFrameError("CSS values with dash not yet supported");
-
+            case "BinaryExpression": {
+                const {left, right} = value
+                if(
+                    t.isIdentifier(left) && 
+                    t.isIdentifier(right) && 
+                    left.end == right.start - 1
+                ) value = t.stringLiteral(left.name + "-" + right.name);
+                break;
+            }
+                
             case "ArrowFunctionExpression":
                 throw exp.buildCodeFrameError("Dynamic CSS values not yet supported");
 

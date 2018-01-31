@@ -2,14 +2,8 @@
 import syntaxDoExpressions from "babel-plugin-syntax-do-expressions";
 
 const t = require("babel-types");
-const { ComponentExpression } = require('./doExpression.js');
+const { ComputeNewComponentExpression } = require('./doExpression.js');
 const { DoMethodsAsRender } = require('./method.js');
-
-const THIS_PROPS = 
-    t.memberExpression(
-        t.thisExpression(),
-        t.identifier("props")
-    )
 
 export default () => ({
     inherits: syntaxDoExpressions,
@@ -108,7 +102,7 @@ export default () => ({
                 if(node._visited) return
 
                 if(!meta)
-                    meta = new ComponentExpression(path, state);
+                    meta = ComputeNewComponentExpression(path, state);
 
                 meta.didEnterOwnScope(path, state, this)
 

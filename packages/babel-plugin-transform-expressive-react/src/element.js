@@ -10,14 +10,6 @@ const CREATE_ELEMENT =
         t.identifier("React"),
         t.identifier("createElement")
     );
-const CHILD_SEQUENCE = {
-    Statement: -1,
-    Prop: 0,
-    ExplicitStyle: 1,
-    ForLoop: 2,
-    ComponentInline: 2,
-    ComponentSwitch: 3,
-}
 
 const { ES6TransformDynamic, determineType } = require("./transform.js");
 
@@ -56,17 +48,6 @@ export class ComponentInline extends Do.ComponentScoped {
     mayReceiveConditionalAttrubutes(){
         this.doesHaveDynamicProperties = true;
         this.bubble("mayIncludeAccumulatingChildren")
-    }
-
-    include(obj){
-        const thisIndex = CHILD_SEQUENCE[obj.type || 3];
-        if(this.sequenceIndex > thisIndex){
-            this.doesHaveDynamicProperties = true;
-            this.include = super.include;
-        }
-        else if(thisIndex < 3) this.sequenceIndex = thisIndex;
-        
-        super.include(obj)
     }
 
     setIterableKey(_key, indicies){

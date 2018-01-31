@@ -1,11 +1,11 @@
-# infer-extends-component
+# infer-react-class
 
 > Automatically extends classes with `React.Component` that contain a render method.
 
 ## Install
 
 ```sh
-npm install --save-dev babel-plugin-infer-extends-component
+npm install --save-dev babel-plugin-infer-react-class
 ```
 
 ### Before

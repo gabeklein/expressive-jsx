@@ -4,6 +4,12 @@ const t = require("babel-types")
 const { ComponentScoped } = require("./component")
 const { ES6FragmentTransform } = require("./transform")
 
+const THIS_PROPS = 
+t.memberExpression(
+    t.thisExpression(),
+    t.identifier("props")
+)
+
 const CREATE_ELEMENT = 
     t.memberExpression(
         t.identifier("React"),

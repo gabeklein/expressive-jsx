@@ -1,5 +1,5 @@
 {
-  "name": "babel-plugin-infer-extends-component",
+  "name": "babel-plugin-infer-react-class",
   "version": "1.1.0",
   "description": "Automatically extends React.Component for classes that include render method",
   "main": "lib/index.js",

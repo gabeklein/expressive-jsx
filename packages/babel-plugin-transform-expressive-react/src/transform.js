@@ -78,8 +78,13 @@ export class ES6TransformDynamic {
         if(this.chain) this.chain.push(node)
         else this.stats.push(
             t.expressionStatement(
+                // t.nullLiteral()
                 t.callExpression(
-                    t.memberExpression(this.use._accumulate.args, t.identifier("push")), this.chain = [node]
+                    t.memberExpression(
+                        this.use._accumulate.args, 
+                        t.identifier("push")
+                    ), 
+                    this.chain = [node]
                 )
             )
         )

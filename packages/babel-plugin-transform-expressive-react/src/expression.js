@@ -114,7 +114,11 @@ class ExternalProps {
     }
 
     static StringLiteral(path){
-        this.InnerExpression(path);
+        this.add("ExpressionInline", {ast: path.node})
+    }
+
+    static TemplateLiteral(path){
+        this.add("ExpressionInline", {ast: path.node})
     }
 
     static TaggedTemplateExpression(path){
