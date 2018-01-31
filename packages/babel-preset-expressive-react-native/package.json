@@ -1,6 +1,6 @@
 {
   "name": "babel-preset-expressive-react-native",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Expressive-React preset for Native React",
   "main": "lib/index.js",
   "scripts": {
@@ -15,9 +15,9 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "babel-plugin-infer-react-class": "^1.1.0",
+    "babel-plugin-infer-react-class": "^1.2.0",
     "babel-plugin-transform-expressive-loops": "^1.0.1",
-    "babel-plugin-transform-expressive-react": "^0.9.0-beta.4",
+    "babel-plugin-transform-expressive-react": "^0.9.0-beta.5",
     "babel-preset-react-native": "^4.0.0"
   },
   "devDependencies": {
