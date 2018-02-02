@@ -1,5 +1,5 @@
 const t = require("babel-types")
-const { Component, ComponentScoped } = require("./component")
+const { ComponentScopedFragment } = require("./component")
 const { ES6FragmentTransform } = require("./transform")
 
 export function ComputeNewComponentExpression(path, state) {
@@ -8,38 +8,34 @@ export function ComputeNewComponentExpression(path, state) {
         : new ComponentExpression(path, state)
 }
 
-class ComponentGenericExpression extends ComponentScoped {
+class ComponentGenericExpression extends ComponentScopedFragment {
     constructor(path, state){
+        const init = state.expressive_init;
         super({
             use: {
-                _createElement: state.expressive_init.createElement
+                _createElement: init.createElement,
+                _createApplied: init.createApplied,
+                _Fragment     : init.Fragment
             }
         })
         path.node.meta = this;
         this.body = path;
-    }
-    
-    mayIncludeAccumulatingChildren(){
-        this.shouldRenderDynamic = true;
-    }
-
-    set doesHaveDynamicProperties(bool){
-        this.shouldRenderDynamic = bool;
     }
 }
  
 class ComponentExpression extends ComponentGenericExpression {
 
     didExitOwnScope(path){
-
-        const body = new ES6ScopedTransform(this).output;
-
+        
+        
         path.replaceWith(
             this.shouldRenderDynamic
                 ? t.callExpression(
-                    t.arrowFunctionExpression([], body), []
+                    t.arrowFunctionExpression([], 
+                        new ES6ScopedTransform(this).output
+                    ), []
                 )
-                : this.innerAST()
+                : this.classifyChildren().output
         )
     }
 
@@ -47,9 +43,10 @@ class ComponentExpression extends ComponentGenericExpression {
         throw path.buildCodeFrameError("Cannot place a debugger statement in simple do-block. This doesn't have it's own scope!")
     }
 
-    // VariableDeclaration(path){
-    //     throw path.buildCodeFrameError("Cannot declare variables in simple do-block. This doesn't have it's own scope!")
-    // }
+    VariableDeclaration(path){
+        this.shouldRenderDynamic = true;
+        super.VariableDeclaration(path);
+    }
 }
 
 class ComponentFunctionExpression extends ComponentGenericExpression {
@@ -57,19 +54,18 @@ class ComponentFunctionExpression extends ComponentGenericExpression {
     didExitOwnScope(path){
         const parentFn = path.parentPath;
         const {params} = parentFn.node;
-        const stats = [];
-        for(const x of this.children){
-            if(x.type == "Statement") stats.push(x.node);
-            else break;
-        }
-        const body = this.shouldRenderDynamic
-            ? new ES6ScopedTransform(this).output
-            : t.blockStatement([
+
+        let body;
+
+        if(this.shouldRenderDynamic)
+            body = new ES6ScopedTransform(this).output
+        else {
+            const { stats, output } = this.classifyChildren();
+            body = t.blockStatement([
                 ...stats,
-                t.returnStatement(
-                    this.innerAST()
-                )
-            ]);
+                t.returnStatement(output)
+            ])
+        }
 
         parentFn.replaceWith(
             t.functionExpression(null, params, body)

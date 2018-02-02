@@ -1,7 +1,7 @@
 import { Component } from "./component";
 
 const t = require("babel-types")
-const { ComponentScoped } = require("./component")
+const { ComponentScopedFragment } = require("./component")
 const { ES6FragmentTransform } = require("./transform")
 
 const THIS_PROPS = 
@@ -10,35 +10,25 @@ t.memberExpression(
     t.identifier("props")
 )
 
-const CREATE_ELEMENT = 
-    t.memberExpression(
-        t.identifier("React"),
-        t.identifier("createElement")
-    );
-
 export function DoMethodsAsRender(paths, state){
     let found = 0;
     for(let path of paths){
 
         if(++found > 1) throw path.buildCodeFrameError("multiple do methods not (yet) supported!")
 
-        const { params, body: functionBody } = path.node;
-        const [argument_props, argument_state] = params;
+        const [argument_props, argument_state] = path.get("params");
+        const { body: functionBody } = path.node;
 
         if(argument_props){
-            const bindings =
-                t.isAssignmentPattern(argument_props)
-                ? [ argument_props.left, argument_props.right ]
-                : [ argument_props ]
 
-            const var_props = 
-                t.variableDeclaration("var",
-                    bindings
-                    .map( binding => t.variableDeclarator(binding, THIS_PROPS) )
-                    .reverse()
-                )
+            if(argument_props.isAssignmentPattern)
+                argument_props.buildCodeFrameError("Props Argument will always resolve to `this.props`")
 
-            functionBody.body.push(var_props)
+            path.scope.push({
+                kind: "var",
+                id: argument_props.node,
+                init: THIS_PROPS
+            })
         }
 
         const element = new ComponentMethod(
@@ -59,18 +49,22 @@ export function DoMethodsAsRender(paths, state){
         )
 
         path.replaceWith(output)
-
     }
 }
 
-export class ComponentMethod extends ComponentScoped {
+export class ComponentMethod extends ComponentScopedFragment {
 
     constructor(body, state){
+
+        const init = state.expressive_init;
         super({
             use: {
-                _createElement: state.expressive_init.createElement
+                _createElement: init.createElement,
+                _createApplied: init.createApplied,
+                _Fragment     : init.Fragment
             }
         })
+
         this.body = body;
     }
 
@@ -81,12 +75,16 @@ export class ComponentMethod extends ComponentScoped {
     render(){
         if(this.shouldRenderDynamic)
             return new ComponentMethodTransform(this).output;
-        else return [
-            ...this.statements,
-            t.returnStatement(
-                this.innerAST()
-            )
-        ]
+        else {
+            let { stats, output } = this.classifyChildren();
+            return [
+                ...stats,
+                output.expressiveEnclosure
+                    ? output.callee.body
+                    : t.returnStatement(output)
+                
+            ]
+        }
     }
 
     didExitOwnScope(path){

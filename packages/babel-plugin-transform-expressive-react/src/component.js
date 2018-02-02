@@ -14,16 +14,48 @@ const CHILD_SEQUENCE = {
 export class Component extends ComponentAttrubutesBody {
 
     innerAST(){
-        const list = [];
-        for(const child of this.children){
-            const output = child.ast;
-            if(output) list.push(output)
-            else console.log(`skipped ${child.type}`)
+        return this.classifyChildren().output;
+    }
+
+    classifyChildren(children = this.children){
+        const statements = [];
+        const styles = [];
+        const props = [];
+        const output = [];
+
+        const accumulate_to = {
+            Statement: statements,
+            StyleInclusion: styles,
+            ExplicitStyle: styles,
+            PropInclusion: props,
+            Prop: props
         }
-        switch(list.length){
-            case 0: return t.booleanLiteral(false);
-            case 1: return list[0]
-            default: return t.arrayExpression(list);
+
+        for(const child of children){
+            const { ast, type, node, name } = child;
+            if(ast) 
+                output.push(ast);
+            else 
+                accumulate_to[type].push(
+                    type == "Statement" ? 
+                        node :
+                    ~type.indexOf("Inclusion") ?
+                        t.spreadProperty(node) :
+                        t.objectProperty(t.identifier(name), node)
+                )
+        }
+
+        return {
+            stats: statements,
+            props,
+            style: styles.length ? styles : undefined,
+            contains: output,
+            output: 
+                output.length < 1 ? 
+                    t.booleanLiteral(false) :
+                output.length > 1 ? 
+                    t.arrayExpression(output) :
+                    output[0] 
         }
     }
 
@@ -69,7 +101,6 @@ export class Component extends ComponentAttrubutesBody {
 export class ComponentScoped extends Component {
     constructor(parent){
         super(parent);
-        this.statements = [];
         this.sequenceIndex = -1
     }
      
@@ -84,6 +115,14 @@ export class ComponentScoped extends Component {
         super.include(obj)
     }
 
+    set doesHaveDynamicProperties(bool){
+        this.shouldRenderDynamic = bool;
+    }
+
+    mayIncludeAccumulatingChildren(){
+        this.shouldRenderDynamic = true;
+    }
+
     VariableDeclaration(path){
         this.add("Statement", {kind: "Var", node: path.node})
     }
@@ -91,6 +130,16 @@ export class ComponentScoped extends Component {
     DebuggerStatement(path){
         this.shouldRenderDynamic = true;
         this.add("Statement", {kind: "Debugger", node: path.node})
+    }
+}
+
+export class ComponentScopedFragment extends ComponentScoped {
+    LabeledExpressionStatement(path){
+        path.buildCodeFrameError("Styles have nothing to apply to here!")
+    }
+
+    AssignmentExpression(path){
+        path.buildCodeFrameError("Props have nothing to apply to here!")
     }
 }
 

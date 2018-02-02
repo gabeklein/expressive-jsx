@@ -9,11 +9,31 @@ export function determineType(name){
     )(name)
 }
 
+const CHILD_TYPE_TO = {
+    Statement: "statements",
+
+    ExplicitStyle: "style",
+    StyleInclusion: "style",
+
+    Prop: "props",
+    PropInclusion: "props",
+
+    ComponentSwitch: "children",
+    ComponentRepeating: "children",
+    ComponentInline: "children",
+    Default: "children"
+}
+
 export class ES6TransformDynamic {
     constructor(target){
         this.source = target;
         this.use = target.use;
         this.stats = [];
+    }
+
+    preprocess(src = this.data){
+        for(const item of src)
+            (this[item.type] || this.Default).call(this, item)
     }
 
     applyAll(src = this.data){
@@ -32,18 +52,44 @@ export class ES6TransformDynamic {
         )
     }
 
+    spread(into, src){
+        const acc = this.use._accumulate;
+        acc['n_' + into]++;
+        into = acc[into];
+        this.stats.push(
+            t.expressionStatement(
+                t.callExpression(
+                    t.memberExpression(
+                        t.identifier("Object"),
+                        t.identifier("assign")
+                    ), [
+                        into, src.node
+                    ]
+                )
+            )
+        )
+    }
+
     ExplicitStyle(item){
         delete this.chain;
         const {_accumulate: acc} = this.use;
-        acc.nStyle++;
+        acc.n_style++;
         this.assign(acc.style, item.name, item.node)
     }
 
     Prop(item){
         delete this.chain;
         const {_accumulate: acc} = this.use;
-        acc.nProps++;
+        acc.n_props++;
         this.assign(acc.props, item.name, item.node)
+    }
+
+    PropInclusion(item){
+        this.spread("props", item)
+    }
+
+    StyleInclusion(item){
+        this.spread("style", item)
     }
 
     Statement(item){
@@ -78,7 +124,6 @@ export class ES6TransformDynamic {
         if(this.chain) this.chain.push(node)
         else this.stats.push(
             t.expressionStatement(
-                // t.nullLiteral()
                 t.callExpression(
                     t.memberExpression(
                         this.use._accumulate.args, 
@@ -94,10 +139,10 @@ export class ES6TransformDynamic {
 export class ES6FragmentTransform extends ES6TransformDynamic {
 
     ExplicitStyle(item){
-        throw item.buildCodeFrameError("For Loops cannot contain styles as they have nothing to apply to")
+        throw item.buildCodeFrameError("This error really shouldnt occur, file a bug report")
     }
 
     Prop(){
-        throw item.buildCodeFrameError("For Loops cannot contain props as they have nothing to apply to")
+        throw item.buildCodeFrameError("This error really shouldnt occur, file a bug report")
     }
 }

@@ -38,8 +38,8 @@ module.exports = options => {
             transformExpressiveReact,
             transformExpressiveLoops,
 
-            plugin('syntax-async-functions'),
             plugin('transform-es2015-classes'),
+            plugin('syntax-async-functions'),
             plugin('transform-es2015-arrow-functions'),
             plugin('check-es2015-constants'),
             plugin('transform-es2015-spread'),

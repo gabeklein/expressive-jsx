@@ -12,27 +12,15 @@ export default () => ({
             enter(path, state){
                 const {scope}  = path;
 
-                const identifiers = state.expressive_init = {};
+                const ids = state.expressive_init = {
+                    createElement: "create",
+                    createClass: "class",
+                    createApplied: "apply",
+                    Fragment: "fragment"
+                };
 
-                const createElement = scope.generateUidIdentifier("create");
-                const createClass = scope.generateUidIdentifier("class");
-                
-                Object.defineProperties(identifiers, {
-                    createElement: {
-                        get: expressiveWasUsed,
-                        configurable: true
-                    },
-                    createClass: {
-                        value: createClass
-                    }
-                })
-
-                function expressiveWasUsed(){
-                    state.expressive_used = true;
-                    Object.defineProperty(identifiers, "createElement", { value: createElement })
-                    return createElement;
-                }
-                
+                for(const x in ids)
+                    ids[x] = scope.generateUidIdentifier(ids[x]);
             },
             exit(path, state){
                 if(state.expressive_used){
@@ -56,7 +44,7 @@ export default () => ({
                     }
 
                     const init = state.expressive_init;
-                    const imports = ["createElement"].map(
+                    const imports = ["createElement", "Fragment"].map(
                         p => {
                             scope.push({
                                 kind: "const",
@@ -65,6 +53,20 @@ export default () => ({
                             })
                         }
                     )
+
+                    const pass = t.identifier("from");
+
+                    scope.push({
+                        kind: "const",
+                        id: init.createApplied,
+                        init: t.arrowFunctionExpression(
+                            [pass],
+                            t.callExpression(
+                                t.memberExpression(init.createElement, t.identifier("apply")),
+                                [ t.identifier("undefined"), pass ]
+                            )
+                        )
+                    })
                 }
 
                 if(process.execArgv.join().indexOf("inspect-brk") > -1)
@@ -90,7 +92,10 @@ export default () => ({
                         doFunctions.push(item)
                         // item.remove()
                     }
-                if(doFunctions.length) DoMethodsAsRender(doFunctions, state, path)
+                if(doFunctions.length) {
+                    DoMethodsAsRender(doFunctions, state, path)
+                    state.expressive_used = true;
+                }
             }
         },
         DoExpression: {
@@ -107,6 +112,7 @@ export default () => ({
                 meta.didEnterOwnScope(path, state, this)
 
                 node._visited = true;
+                state.expressive_used = true;
             },
 
             exit(path, state){

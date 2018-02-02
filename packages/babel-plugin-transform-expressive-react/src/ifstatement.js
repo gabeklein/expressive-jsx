@@ -95,8 +95,16 @@ class ComponentSwitchOption extends ComponentScoped {
     }
 
     get ast(){
-        const output = this.innerAST();
-        if(output.value !== false) return output;
+        const { stats, output } = this.classifyChildren();
+        return !stats.length
+            ? output
+            : t.callExpression(
+                t.arrowFunctionExpression([], t.blockStatement(
+                    stats.concat(
+                        t.returnStatement(output)
+                    )
+                )), []
+            )
     }
 }
 

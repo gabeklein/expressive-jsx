@@ -55,9 +55,14 @@ function ForOfStatement(path){
             )
         break;
 
+        case "UnaryExpression":
         case "NumericLiteral": {
-            const number = _objectIterated.value;
-            if(!Number.isInteger(number)) bind.source.buildCodeFrameError("For range must be an integer")
+            const { argument, value } = _objectIterated;
+            if(argument)
+                _objectIterated = argument
+            else if(!Number.isInteger(value)) 
+                bind.source.buildCodeFrameError("For range must be an integer")
+            
             _objectIterated = t.callExpression(
                 t.memberExpression(
                     t.callExpression(
@@ -67,6 +72,7 @@ function ForOfStatement(path){
                 ), []
             )
         } break;
+        
     }
 
     let output;

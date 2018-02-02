@@ -1,6 +1,5 @@
 const t = require('babel-types')
 
-const { elementShouldSkipTransform } = require("./utility")
 export { CreateComponentsFromExpression };
 const { ComponentInline } = require("./element");
 
@@ -34,9 +33,13 @@ function CreateComponentsFromExpression(path, parent){
         const {path, props} = level;
         let inner;
 
-        if(elementShouldSkipTransform(path))
+        if( path.node 
+        &&( path.node.extra
+        &&  path.node.extra.parenthesized === true
+        ||  ~["StringLiteral", "TemplateLiteral"].indexOf(path.type))
+        ){
             inner = { ast: head.node, type: "ExpressionInline" }
-        else {
+        } else {
             inner = new ComponentInline(parent)
             InlineProps.apply(inner, path);
             if(props) ExternalProps.apply(inner, props);
@@ -165,10 +168,8 @@ class ExternalProps {
                 this.add("PropInclusion", {node: argument})
                 break;
             case "~": 
-                if(t.isIdentifier(argument))
-                    this.add("StyleInclusion", {node: argument})
-                else throw path.buildCodeFrameError("Bad Style Inclusion: must be an identifier referencing an object to be rest-spread into element styles")
-                break
+                this.add("StyleInclusion", {node: argument})
+               break;
         } 
     }
 

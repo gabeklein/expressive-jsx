@@ -5,11 +5,6 @@ const Do = require("./component");
 
 const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
 const UNDERSCORE_AND = t.memberExpression(t.stringLiteral("_"), t.identifier("concat"));
-const CREATE_ELEMENT = 
-    t.memberExpression(
-        t.identifier("React"),
-        t.identifier("createElement")
-    );
 
 const { ES6TransformDynamic, determineType } = require("./transform.js");
 
@@ -19,7 +14,7 @@ export class ComponentInline extends Do.ComponentScoped {
         super(parent)
         this.type = "ComponentInline"
         this.classList = []
-        this.sequenceIndex = 0
+        this.sequenceIndex = -1
     }
 
     didEnterOwnScope(path){
@@ -27,13 +22,84 @@ export class ComponentInline extends Do.ComponentScoped {
     }
 
     get isSelfContained(){
-        return !this.doesHaveDynamicProperties;
+        return !this.shouldRenderDynamic;
+    }
+
+    get typeInformation(){
+        let elementType = ELEMENT_TYPE_DEFAULT;
+        const classList = [];
+        const included = [];
+
+        for(const item of this.classList){
+            const {name} = item;
+            const include = this.use[name];
+
+            if(include)
+                included.push(...include.children)
+
+            else if(item.head == true)
+                elementType = determineType(name)
+
+            else classList.push(name)
+        }
+
+        return {
+            elementType, classList, included
+        }
+    }
+
+    get transform(){
+
+        const {
+            included, elementType, classList
+        } = this.typeInformation;
+
+        const {
+            contains, style, props, stats
+        } = this.classifyChildren(
+            included.concat(this.children)
+        );
+
+        const { _createElement } = this.use;
+
+        if(style)
+            props.push(
+                t.objectProperty(
+                    t.identifier("style"),
+                    t.objectExpression(style)
+                )
+            )
+
+        if(classList.length)
+            props.push(
+                t.objectProperty(
+                    t.identifier("className"),
+                    t.stringLiteral(classList.reverse().join(" "))
+                )
+            )
+
+        const generator = t.callExpression(_createElement, [elementType, t.objectExpression(props), ...contains]);
+
+        //if only child is an encapsulated scope, we can strip the iife, using its own return value
+        if(stats.length){
+            const iife = t.callExpression(
+                t.arrowFunctionExpression([], t.blockStatement(
+                    stats.concat(
+                        t.returnStatement(generator)
+                    )
+                )), []
+            );
+            iife.expressiveEnclosure = true;
+            return iife;
+        }
+        else return generator;
     }
 
     get ast(){
-        if(this.doesHaveDynamicProperties)
+        if(this.shouldRenderDynamic)
             return new DynamicElementTransform(this).wrapped;
-        else return ES6InlineTransform(this)
+        else
+            return this.transform;
     }
 
     dynamic(_acc){
@@ -70,78 +136,8 @@ export class ComponentInline extends Do.ComponentScoped {
     }
 
     didExitOwnScope(){
-        // debugger
-        // this.flattenChildren();
+        return void 0;
     }
-}
-
-function ES6InlineTransform(target){
-    let   _type = ELEMENT_TYPE_DEFAULT;
-    const _props = [];
-    const _style = [];
-    const _classList = [];
-    const _children = [];
-
-    const { children } = target;
-
-    let item, i = -1;
-
-    for(const item of target.classList){
-        const {name} = item;
-        const include = target.use[name];
-
-        if(include)
-            children.splice(i+1, 0, ...include.children)
-
-        else if(item.head == true)
-            _type = determineType(name)
-
-        else _classList.push(name)
-    }
-
-    while(item = children[++i])
-        switch(item.type){
-            case "ExpressionInline" :
-            case "ComponentSwitch" : 
-            case "ComponentInline" : {
-                _children.push(item.ast)
-            } break;
-
-            case "Prop" : {
-                _props.push(
-                    t.objectProperty(
-                        t.identifier(item.name),
-                        item.node
-                    )
-                )
-            } break;
-
-            case "ExplicitStyle" : {
-                _style.push(
-                    t.objectProperty(
-                        t.identifier(item.name), 
-                        item.node
-                    )
-                )
-            } break;
-        }
-    
-    if(_style.length)
-        _props.push(t.objectProperty(
-            t.identifier("style"),
-            t.objectExpression(_style)
-        ))
-
-    if(_classList.length)
-        _props.push(t.objectProperty(
-            t.identifier("className"),
-            t.stringLiteral(_classList.reverse().join(" "))
-        ))
-
-    const create_element = target.use._createElement || CREATE_ELEMENT;
-
-    return t.callExpression(create_element, [_type, t.objectExpression(_props), ..._children])
-
 }
 
 class DynamicElementTransform extends ES6TransformDynamic {
@@ -160,8 +156,8 @@ class DynamicElementTransform extends ES6TransformDynamic {
             args: this.args = scope.generateUidIdentifier("e"),
             props: scope.generateUidIdentifier("p"),
             style: scope.generateUidIdentifier("s"),
-            nProps: 0,
-            nStyle: 0
+            n_props: 0,
+            n_style: 0
         }
 
         this.data = Array.from(target.children)
@@ -198,7 +194,7 @@ class DynamicElementTransform extends ES6TransformDynamic {
     include(_acc){
         const {
             _accumulate,
-            _createElement
+            _createApplied
         } = this.use;
 
         return [
@@ -206,7 +202,10 @@ class DynamicElementTransform extends ES6TransformDynamic {
             t.expressionStatement(
                 t.callExpression(
                     t.memberExpression(_acc, t.identifier("push")), [
-                        t.callExpression(_createElement, [_accumulate.args])
+                        t.callExpression(
+                            _createApplied, 
+                            [ _accumulate.args ]
+                        )
                     ]
                 )
 
@@ -216,15 +215,12 @@ class DynamicElementTransform extends ES6TransformDynamic {
 
     get wrapped(){
 
-        const create_element = this.use._createElement || CREATE_ELEMENT;
+        const { _createApplied } = this.use;
         const {args: _args} = this;
-
         const returns = 
             t.returnStatement(
                 t.callExpression(
-                    create_element, [
-                        t.spreadElement(_args)
-                    ]
+                    _createApplied, [ _args ]
                 )
             )
 
@@ -241,7 +237,7 @@ class DynamicElementTransform extends ES6TransformDynamic {
     get output(){
 
         const {stats, use} = this;
-        const {args: _args, props: _props, style: _style, nStyle} = use._accumulate
+        const {args: _args, props: _props, style: _style, n_style} = use._accumulate
 
         let init = [
             t.variableDeclarator( _props, t.objectExpression([]) ),
@@ -250,7 +246,7 @@ class DynamicElementTransform extends ES6TransformDynamic {
             ]))
         ]
 
-        if(nStyle){
+        if(n_style){
             init.push(
                 t.variableDeclarator( _style, t.objectExpression([]) ),
             )
