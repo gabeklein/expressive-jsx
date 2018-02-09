@@ -1,11 +1,27 @@
 const t = require('babel-types');
 
-const { ComponentScoped } = require('./component')
+const { ComponentGroup } = require('./component')
+const { transform } = require('./shared');
 
 export class ComponentSwitch {
 
+    groupType = "inner"
+    precedence = 3
+
+    static applyTo(parent, src){
+        parent.add(
+            new this(src, parent)
+        )
+    }
+
+    outputAccumulating(){
+        
+    }
+
     constructor(path, parent){
         this.parent = parent;
+
+        this.effectivePrecedence = parent.sequenceIndex;
         
         const children = this.children = [];
         this.type = "ComponentSwitch"
@@ -14,8 +30,8 @@ export class ComponentSwitch {
 
         while(true){
             children.push(
-                new ComponentSwitchOption(
-                    parent, 
+                new ComponentConsequent(
+                    parent, this,
                     current.get("consequent"),
                     current.get("test")
                 )
@@ -26,7 +42,7 @@ export class ComponentSwitch {
             else {
                 if(current.node)
                     children.push(
-                        new ComponentSwitchOption(parent, current)
+                        new ComponentConsequent(parent, this, current)
                     )
                 break;
             }
@@ -54,19 +70,25 @@ export class ComponentSwitch {
     }
 }
 
-class ComponentSwitchOption extends ComponentScoped {
-    constructor(parent, body, test){
-        super(parent)
-
-        this.queueTransform(body)
-        this.test = test;
+class ComponentConsequent extends ComponentGroup {
+    constructor(parent, conditional, path, test){
+        super(path, parent)
+        this.logicalParent = conditional
+        this.sequenceIndex = conditional.effectivePrecedence
+        this.test = test
+        this.props = []
+        this.style = []
     }
 
     mayReceiveConditionalAttrubutes(){
         return false
     }
 
-    queueTransform(path){
+    set doesHaveDynamicProperties(bool){
+        // this.logicalParent.bubble("scopeDoesHaveDynamicProperties")
+    }
+
+    insertDoIntermediate(path){
         var {node: consequent, type} = path;
 
         const doTransform = t.doExpression(
@@ -79,9 +101,24 @@ class ComponentSwitchOption extends ComponentScoped {
         this.doTransform = doTransform;
     }
 
+    // outputAccumulating(ex_scope){
+    //     const 
+    // }
+
     didEnterOwnScope(path){
         this.body = path;
         super.didEnterOwnScope(path)
+    }
+
+    outputSelfContained(){
+        const { stats, output } = this.classifyChildren();
+        return !stats.length
+            ? output
+            : transform.IIFE(
+                stats.concat(
+                    t.returnStatement(output)
+                )
+            )
     }
 
     AssignmentExpression(path){
@@ -92,47 +129,6 @@ class ComponentSwitchOption extends ComponentScoped {
     LabeledExpressionStatement(path){
         this.bubble("mayReceiveConditionalAttrubutes", path)
         super.LabeledExpressionStatement(path);
-    }
-
-    get ast(){
-        const { stats, output } = this.classifyChildren();
-        return !stats.length
-            ? output
-            : t.callExpression(
-                t.arrowFunctionExpression([], t.blockStatement(
-                    stats.concat(
-                        t.returnStatement(output)
-                    )
-                )), []
-            )
-    }
-}
-
-const { ES6TransformDynamic } = require("./transform.js")
-
-export class ES6ConditionalTransform extends ES6TransformDynamic {
-
-    get output(){
-        let alternate = null
-
-        for(const target of this.source.children.reverse()){
-
-            const stats = this.stats = [];
-            this.use = target.use;
-            this.applyAll(target.children)
-
-            const option = t.blockStatement(stats);
-            
-            alternate = target.test
-                ? t.ifStatement(target.test.node, option, alternate)
-                : option
-        }
-
-        const statements = [
-            alternate
-        ]
-
-        return statements
     }
 
 }

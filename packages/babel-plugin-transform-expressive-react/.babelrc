@@ -2,10 +2,13 @@
   "presets": [
     [ "env", {
         "targets": {
-            "node": "6.10"
+            "node": "current"
         },
         "modules": "commonjs"
     }]
+  ],
+  "plugins": [
+    "transform-class-properties"
   ],
   "sourceMaps": "inline",
   "compact": "false"

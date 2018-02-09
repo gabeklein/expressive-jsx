@@ -1,5 +1,6 @@
 const t = require('babel-types');
-const { ComponentScopedFragment } = require('./component')
+const { ComponentFragment } = require('./component')
+const { Shared, transform } = require("./shared");
 
 const { ES6FragmentTransform } = require("./transform.js");
 
@@ -8,15 +9,24 @@ const INIT_LOOP_TYPE = {
     in: t.forInStatement
 }
 
-export class ComponentRepeating extends ComponentScopedFragment {
+export class ComponentRepeating extends ComponentFragment {
+
+    groupType = "inner"
+    precedence = -1
+
+    static applyTo(parent, src, kind){
+        parent.add(
+            new this(src, parent, kind)
+        )
+    }
+
     constructor(path, parent, kind){
         super(parent)
-        this.type = "ComponentRepeating"
         this.kind = kind || null;
         this.sourceNode = path.node;
-        this.queueTransform(path)
+        this.insertDoIntermediate(path)
 
-        this.bubble("mayIncludeAccumulatingChildren")
+        // this.bubble("mayIncludeAccumulatingChildren")
     }
 
     dynamic(){
@@ -27,7 +37,7 @@ export class ComponentRepeating extends ComponentScopedFragment {
         return t.booleanLiteral(false)
     }
 
-    queueTransform(path){
+    insertDoIntermediate(path){
         let action = path.get("body").node;
 
         if(action.type != "BlockStatement")
@@ -62,7 +72,7 @@ class DynamicLoopTransform extends ES6FragmentTransform {
         } = target;
 
         this.src = target;
-;
+
         use._accumulate = {
             args: this.acc = scope.generateUidIdentifier("loop")
         }
@@ -93,18 +103,9 @@ class DynamicLoopTransform extends ES6FragmentTransform {
 
     get wrapped(){
         this.applyAll();
-        return encapsulate(
+        return transform.IIFE(
             this.generate()
         );
-    }
-
-    encapsulate(inner){
-        return  t.callExpression(
-            t.arrowFunctionExpression(
-                [ /*no parameters*/ ], 
-                t.blockStatement(inner)
-            ), [ /*no arguments*/ ]
-        )
     }
 
     generate(){
