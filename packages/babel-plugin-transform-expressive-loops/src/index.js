@@ -16,6 +16,8 @@ function ForOfStatement(path){
     if(path.node.expressive_binds)
         return
 
+    const { node } = path;
+
     let {
         source,
         bindings,
@@ -32,6 +34,7 @@ function ForOfStatement(path){
             [_itemDestructure, _itemReference, _itemKey] = bindings;
             break;
         default:
+            // console.log(bindings[0].type)
             [_itemReference, _itemKey] = bindings
     }
     
@@ -128,6 +131,13 @@ function ForOfStatement(path){
     }
 
     output.expressive_binds = bindings;
+    if(path.node.expressive_setKey){
+        path.node.expressive_setKey(_itemKey || 
+            t.callExpression(
+                t.memberExpression(_itemReference, t.identifier("toString")), []
+            )
+        )
+    }
 
     path.replaceWith(output)
 
@@ -161,7 +171,7 @@ function ForInStatement(path){
             break;
         case 1:
             [_key] = bindings;
-            if(t.isObjectPattern(_key)){
+            if(t.isObjectPattern(_key) || t.isArrayPattern(_key)){
                 _struct = _key;
                 _key = path.scope.generateUidIdentifier("_key");
             }
@@ -210,6 +220,9 @@ function ForInStatement(path){
     )
 
     loop.expressive_binds = bind;
+    if(path.node.expressive_setKey){
+        path.node.expressive_setKey(_key)
+    }
 
     path.replaceWith(
         loop

@@ -12,23 +12,28 @@ export function RenderFromDoMethods(paths, state, opts){
 }
 
 class ComponentEntry extends ComponentFragment {
-    constructor(parent){
-        super(parent);
+
+    constructor(path){
+        super(path)
+        this.scope = path.scope;
+        this.context.root = this;
+    }
+
+    mayReceiveAttributes(style, props){
+        const complainAbout = props || style;
+        const description = style ? "Style" : "Prop";
+        throw complainAbout.path.buildCodeFrameError(`${description} has nothing to apply to in this context!`)
     }
 
     didEnterOwnScope(path){
         super.didEnterOwnScope(path)
-        this.use.scope 
+        this.context.scope 
             = this.scope 
             = path.get("body").scope;
     }
 }
 
 class ComponentMethod extends ComponentEntry {
-
-    constructor(path){
-        super(path.get("body"))
-    }
 
     insertDoIntermediate(path){
         const doExpression = t.doExpression(path.node.body);
@@ -64,8 +69,18 @@ class ComponentMethod extends ComponentEntry {
     }
 
     didExitOwnScope(path){
-        this.render()
-        // path.parentPath.replaceWithMultiple()
+        const { body, output }
+            = this.collateChildren();
+
+        const returned = 
+            output.length > 1
+                ? transform.createFragment(output)
+                : output[0] || t.booleanLiteral(false)
+
+        path.parentPath.replaceWithMultiple([
+            ...body, 
+            t.returnStatement(returned)
+        ])
     }
 }
 
@@ -76,13 +91,13 @@ export class ComponentFunctionExpression extends ComponentEntry {
     }
 
     outputBodyDynamic(){
-        const { body, exported }
-            = this.accumulatedChildren();
+        const { body, output }
+            = this.collateChildren();
 
         const returned = 
-            exported.length > 1
-                ? transform.createFragment(exported)
-                : exported[0] || t.booleanLiteral(false)
+            output.length > 1
+                ? transform.createFragment(output)
+                : output[0] || t.booleanLiteral(false)
 
         return [
             ...body, 
@@ -108,47 +123,21 @@ export class ComponentFunctionExpression extends ComponentEntry {
  
 export class ComponentInlineExpression extends ComponentFunctionExpression {
 
-    outputSelfContained(){
-        let body;
-        const { stats } = this;
-
-        if(this.shouldOutputDynamic)
-            body = this.outputBodyDynamic()
-        else {
-            const { stats, inner } = this.transformDataInline();
-            body = [
-                ...stats,
-                t.returnStatement( 
-                    this.outputInline(inner)
-                )
-            ]
-        }
-        return transform.IIFE(body)
-    }
-
-    outputBodyDynamic(){
-
-        const { body, refs }
-            = this.accumulatedChildren();
-
-        const returned = 
-            refs.length > 1
-                ? transform.createFragment(refs)
-                : refs[0] || t.booleanLiteral(false)
-
-        return [
-            ...body, 
-            t.returnStatement(returned)
-        ]
-    }
-
     didExitOwnScope(path){
-        this.shouldOutputDynamic = true;
+        const { body, output: product }
+            = this.collateChildren();
+
+        const output = product.length > 1
+            ? transform.createFragment(product)
+            : product[0] || t.booleanLiteral(false)
+
         path.replaceWith(
-           (this.stats.length || this.shouldOutputDynamic)
-                ? this.outputSelfContained()
-                : this.outputInline()
+            !body.length
+                ? output
+                : transform.IIFE([
+                    ...body, 
+                    t.returnStatement(output)
+                ])
         )
     }
-
 }

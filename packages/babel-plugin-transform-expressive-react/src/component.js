@@ -4,25 +4,31 @@ const { transform } = require("./shared")
 
 const UNARY_NAMES = {
     "~": "Tilde",
-    "+": "Plus",
-    "-": "Minus",
-    "!": "Not"
+    "+": "Positive",
+    "-": "Negitive",
+    "!": "Anti"
 }
 
 class TraversableBody {
 
-    constructor(parent){
-        if(!parent)
-            throw new Error("TraversableBody must be initialized given parent")
+    children = [];
 
-        const { use } = parent;
+    constructor(path, parent){
 
-        this.parent = parent;
-        this.children = [];
-        this.use = use ? Object.create(use) : {};
+        if(parent){
+            if(!parent.context) debugger
+            this.context = Object.create(parent.context)
+            this.parent = parent
+        } else 
+            this.context = {};
+
+        this.insertDoIntermediate(path)
     }
 
     add(obj){
+        const { inlineType } = obj;
+        if(inlineType)
+            this[inlineType].push(obj);
         this.children.push(obj);
     }
 
@@ -37,11 +43,11 @@ class TraversableBody {
     }
 
     didEnterOwnScope(path){
-        const body = path.get("body.body")
-        for(const item of body)
+        const src = path.get("body.body")
+        for(const item of src)
             if(item.type in this) 
                 this[item.type](item);
-            else throw item.buildCodeFrameError(`Unhandled node ${item.type} in style block`)
+            else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
     }
 
     didExitOwnScope(){
@@ -60,24 +66,27 @@ class TraversableBody {
 
     UnaryExpression(path){
         const arg = path.get("argument");
-        const type = UNARY_NAMES[path.node.opperator] + "Expression";
+        const type = UNARY_NAMES[path.node.operator] + "Expression";
         if(type in this) this[type] (arg);
         else throw arg.buildCodeFrameError(`Unhandled Unary statement of type ${type}`);   
     }
 
     LabeledStatement(path){
-        const body = path.get("body");
-        const type = `Labeled${body.type}`
+        const src = path.get("body");
+        const type = `Labeled${src.type}`
         if(type in this) this[type](path); 
-        else throw body.buildCodeFrameError(`Unhandled Labeled Statement of type ${type}`);
+        else throw src.buildCodeFrameError(`Unhandled Labeled Statement of type ${type}`);
     }
 
 }
 
-class AttrubutesBody extends TraversableBody {
+export class AttrubutesBody extends TraversableBody {
 
-    LabeledLabeledStatement(exp){
-        throw exp.get("body").buildCodeFrameError("Multiple assignment of styles not yet supported");
+    props = [];
+    style = [];
+
+    AntiExpression(path){
+        return
     }
 
     AssignmentExpression(path){
@@ -88,46 +97,29 @@ class AttrubutesBody extends TraversableBody {
         Style.applyTo(this, path)
     }
 
+    LabeledLabeledStatement(exp){
+        throw exp.get("body").buildCodeFrameError("Multiple assignment of styles not yet supported");
+    }
+
     LabeledBlockStatement(path){
         ComponentAttributes.applyTo(this, path)
     }
 }
 
-export class ComponentAttributes extends AttrubutesBody {
-
-    static applyTo(parent, path){
-        const { name } = path.node.label;  
-        parent.use[name] = new this(path, parent);
-    }
-
-    constructor(path, parent){
-        super(parent)
-        const { node } = path;
-
-        node.meta = this;
-        this.name = node.label.name;
-    }
-
-    didExitOwnScope(){
-        this.parent.use[this.name] = this;
-    }
-}
-
 class ComponentBody extends AttrubutesBody {
 
-    add(obj){
-        const { groupType } = obj;
-        if(groupType)
-            this[groupType].push(obj);
-        this.children.push(obj);
-    }
+    child = [];
 
     ExpressionDefault(path){
-        ComponentInline.applyTo(this, path)
+        CollateInlineComponentsTo(this, path)
     }
 
     IfStatement(path){
         ComponentSwitch.applyTo(this, path)
+    }
+
+    StringLiteral(path){
+        ChildNonComponent.applyTo(this, path)
     }
 
     ArrayExpression(path){
@@ -154,117 +146,101 @@ class ComponentBody extends AttrubutesBody {
 
 export class ComponentGroup extends ComponentBody {
 
-    constructor(path, parent){
-        super(parent || {})
-
-        this.stats = []
-        this.inner = []
-
-        this.sequenceIndex = 0;
-        this.scope = path.scope;
-        this.insertDoIntermediate(path)
-    }
+    stats = []
+    segue = 0;
 
     add(obj){
         const thisIndex = obj.precedence || 4;
-        if(this.sequenceIndex > thisIndex){
-            this.doesHaveDynamicProperties = true;
+        if(this.segue > thisIndex){
+            this.flagDisordered();
             this.add = super.add; //disable check since no longer needed
         }
-        else if(thisIndex < 4) this.sequenceIndex = thisIndex;
+        else if(thisIndex < 4){
+            this.segue = thisIndex
+        };
 
         super.add(obj)
     }
 
-    get innerOutputInline(){
-        return this.inner.map( e => e.outputInline() )
+    flagDisordered(){
+        this.disordered = true;
+        this.doesHaveDynamicProperties = true;
     }
 
-    accumulatedChildren(scope = this.scope, onExternalType){
+    collateChildren(onAppliedType){
 
-        function rejectItem(){
-            return false;
-        }
+        const { scope } = this;
+        const body = [];
+        const output = [];
+        let adjacent;
+
+        const child_props = [];
 
         function flushInline(done) {
-            if(inlineAdjacent == null) return;
+            if(adjacent == null) return;
 
-            if(done && !exported.length){
-                exported.push(...inlineAdjacent)
+            if(done && !output.length){
+                output.push(...adjacent)
                 return;
             }
 
-            const name = scope.generateUidIdentifier("inl");
+            const name = scope.generateUidIdentifier("e");
             let ref, stat;
 
-            if(inlineAdjacent.length > 1) {
-                stat = transform.declare("const", name, t.arrayExpression(inlineAdjacent))
+            if(adjacent.length > 1) {
+                stat = transform.declare("const", name, t.arrayExpression(adjacent))
                 ref  = t.spreadElement(name)
             } else {
-                stat = transform.declare("const", name, inlineAdjacent[0])
+                stat = transform.declare("const", name, adjacent[0])
                 ref  = name
             }
 
             body.push(stat)
-            exported.push(ref)
+            output.push(ref)
 
-            inlineAdjacent = null;
+            adjacent = null;
         }
 
-        function incorperate(product, factory, body, item){
-            const {scope} = item.body.get("body");
-            const id = scope.generateUidIdentifier("e");
-            flushInline();
-            exported.push(id);
-        
-            // for(const binding in scope.bindings){
-            //     if(!item.scope.bindings[binding]) continue;
-            //     else scope.rename(binding, item.scope.generateUid(binding))
-            // }
+        for(const item of this.children) 
+            switch(item.inlineType){
 
-            body.push(
-                transform.declare("let", id),
-                t.blockStatement([
-                    ...factory,
-                    t.expressionStatement(
-                        t.assignmentExpression("=", id, product)
-                    )
-                ])
-            );
-        }
+                case "child": {
+                    const { product, factory } = item.transform();
 
-        const body = [];
-        const exported = [];
-        let inlineAdjacent;
+                    if(!factory){
+                        if(adjacent) adjacent.push(product);
+                        else adjacent = [product]
+                        continue;
+                    } else {
+                        flushInline();
+                        output.push(product);
+                        body.push(...factory)
+                    }
+                    
+                } break;
+                
+                case "stats": {
+                    flushInline();
+                    const out = item.output()
+                    if(out) body.push(out)
 
-        for(const item of this.children){
-            switch(item.groupType){
-                case "inner": {
-                    const { product, factory } = item.outputAccumulating(scope);
-                    if(factory && factory.length) incorperate(product, factory, body, item)
-                    else if(inlineAdjacent) inlineAdjacent.push(product);
-                    else inlineAdjacent = [product]
                 } break;
 
-                case "stats":
-                    flushInline();
-                    body.push(
-                        item.output()
-                    )
-                break;
+                case "attrs": break;
 
-                default: {
-                    const add = (onExternalType || rejectItem)(item);
-                    if(add){
-                        flushInline();
-                        body.push(add)
+                default: 
+                    if(onAppliedType){
+                        const add = onAppliedType(item);
+                        if(add){
+                            flushInline();
+                            body.push(add);
+                        }
                     }
-                }
             }
-        }
+        
         flushInline(true);
 
-        return { exported, body }
+        return { output, body }
     }
 
     VariableDeclaration(path){ 
@@ -273,6 +249,10 @@ export class ComponentGroup extends ComponentBody {
 
     DebuggerStatement(path){ 
         Statement.applyTo(this, path, "debug")
+    }
+
+    BlockStatement(path){ 
+        Statement.applyTo(this, path, "block")
     }
 }
 
@@ -285,23 +265,12 @@ export class ComponentFragment extends ComponentGroup {
     AssignmentExpression(path){
         throw path.buildCodeFrameError("Props have nothing to apply to here!")
     }
-
-    outputInline(inner){
-        if(!inner) 
-            ({ inner } = this.transformDataInline())
-        return (
-            inner.length >  1 ?
-                transform.createFragment(inner) :
-            inner.length == 1 ?
-                inner[0] :
-            t.booleanLiteral(false)
-        )
-    }
 }
 
-//imported last; modules require from this one, so exports must already be initialized.
+//import last. modules here themselves import from this one, so exports must already be initialized.
 
-const { Prop, Style, Statement, ChildNonComponent } = require("./item")
-const { ComponentInline } = require("./inline");
+const { Prop, Style, Statement, ChildNonComponent } = require("./item");
+const { CollateInlineComponentsTo } = require("./inline");
+const { ComponentAttributes } = require("./attributes");
 const { ComponentSwitch } = require("./ifstatement");
-// const { ComponentRepeating } = require("./forloop");
+const { ComponentRepeating } = require("./forloop");

@@ -5,8 +5,8 @@ const { transform } = require('./shared');
 
 export class ComponentSwitch {
 
-    groupType = "inner"
-    precedence = 3
+    inlineType = "child"
+    precedence = -1
 
     static applyTo(parent, src){
         parent.add(
@@ -14,21 +14,18 @@ export class ComponentSwitch {
         )
     }
 
-    outputAccumulating(){
-        
+    mayReceiveAttributes(){
+        this.shouldOutputDynamic = true;
+        return false;
     }
 
     constructor(path, parent){
         this.parent = parent;
-
-        this.effectivePrecedence = parent.sequenceIndex;
-        
+        this.scope = path.scope;
+        this.effectivePrecedence = parent.segue;
         const children = this.children = [];
-        this.type = "ComponentSwitch"
 
-        let current = path;
-
-        while(true){
+        for(let current = path; true;){
             children.push(
                 new ComponentConsequent(
                     parent, this,
@@ -38,8 +35,7 @@ export class ComponentSwitch {
             )
             current = current.get("alternate")
 
-            if(current.isIfStatement()) continue;
-            else {
+            if(current.type != "IfStatement"){
                 if(current.node)
                     children.push(
                         new ComponentConsequent(parent, this, current)
@@ -53,20 +49,60 @@ export class ComponentSwitch {
         ));
     }
 
-    dynamic(){
-        return new ES6ConditionalTransform(this).output
+    transform(){
+        if(this.shouldOutputDynamic)
+            return this.dynamic();
+        else
+            return this.inline();
     }
 
-    get ast(){
-        const opt = this.children;
-        let output = t.booleanLiteral(false);
+    transform(){
+        let product;
+        let factory;
 
-        for(let child, i = opt.length; child = opt[--i];)
-            output = child.test 
-                ? t.conditionalExpression(child.test.node, child.ast, output)
-                : child.ast
+        if(!this.shouldOutputDynamic)
+            product = this.inline();
         
-        return output;
+        else {
+            const id = product = this.scope.generateUidIdentifier("c");
+
+            const statement = this.children.reduceRight(
+                function(alt, option){
+                    const body = t.blockStatement(
+                        option.outputDynamic(id).factory
+                    )
+                    return option.test
+                        ? t.ifStatement(option.test.node, body, alt)
+                        : body
+                },
+                null
+            )
+
+            factory = [
+                transform.declare("let", id),
+                statement
+            ]
+        }
+
+        return { factory, product }
+    }
+
+    inline(){
+        return this.children.reduceRight(
+            function(cond, item){
+                const { test } = item;
+                const { output } = item.collateChildren();
+                
+                const product = output.length > 1
+                    ? transform.createFragment(output)
+                    : output[0] || t.booleanLiteral(false)
+
+                return test 
+                    ? t.conditionalExpression(test.node, product, cond)
+                    : product
+            },
+            t.booleanLiteral(false)
+        )
     }
 }
 
@@ -74,18 +110,19 @@ class ComponentConsequent extends ComponentGroup {
     constructor(parent, conditional, path, test){
         super(path, parent)
         this.logicalParent = conditional
-        this.sequenceIndex = conditional.effectivePrecedence
         this.test = test
+        this.segue = conditional.effectivePrecedence
         this.props = []
         this.style = []
     }
 
-    mayReceiveConditionalAttrubutes(){
-        return false
-    }
+    didEnterOwnScope(path){
+        super.didEnterOwnScope(path)
+        this.body = path;
 
-    set doesHaveDynamicProperties(bool){
-        // this.logicalParent.bubble("scopeDoesHaveDynamicProperties")
+        this.logicalParent.shouldOutputDynamic = true;
+        const p = this.props[0], s = this.style[0];
+        if(p || s) this.bubble("mayReceiveAttributes", p, s);
     }
 
     insertDoIntermediate(path){
@@ -101,34 +138,30 @@ class ComponentConsequent extends ComponentGroup {
         this.doTransform = doTransform;
     }
 
-    // outputAccumulating(ex_scope){
-    //     const 
-    // }
+    outputDynamic(as){
+        const factory = [];
+        const { _accumulate } = this.context;
 
-    didEnterOwnScope(path){
-        this.body = path;
-        super.didEnterOwnScope(path)
-    }
+        const { body, output } = this.collateChildren(
+            function insertAttribute(x){
+                const target = _accumulate[x.inlineType];
+                if(target) return x.asAssignedTo(target);
+            }
+        );
 
-    outputSelfContained(){
-        const { stats, output } = this.classifyChildren();
-        return !stats.length
-            ? output
-            : transform.IIFE(
-                stats.concat(
-                    t.returnStatement(output)
+        const product = output.length > 1
+            ? transform.createFragment(output)
+            : output[0] || t.booleanLiteral(false)
+        
+        return {
+            factory: [
+                ...body,
+                t.expressionStatement(
+                    t.assignmentExpression(
+                        "=", as, product
+                    )
                 )
-            )
+            ]
+        }
     }
-
-    AssignmentExpression(path){
-        this.bubble("mayReceiveConditionalAttrubutes", path)
-        super.AssignmentExpression(path);
-    }
-
-    LabeledExpressionStatement(path){
-        this.bubble("mayReceiveConditionalAttrubutes", path)
-        super.LabeledExpressionStatement(path);
-    }
-
 }

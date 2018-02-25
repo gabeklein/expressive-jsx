@@ -2,8 +2,6 @@ const t = require('babel-types');
 const { ComponentFragment } = require('./component')
 const { Shared, transform } = require("./shared");
 
-const { ES6FragmentTransform } = require("./transform.js");
-
 const INIT_LOOP_TYPE = {
     of: t.forOfStatement,
     in: t.forInStatement
@@ -11,8 +9,10 @@ const INIT_LOOP_TYPE = {
 
 export class ComponentRepeating extends ComponentFragment {
 
-    groupType = "inner"
+    inlineType = "child"
+    insert = "fragment"
     precedence = -1
+    shouldOutputDynamic = true;
 
     static applyTo(parent, src, kind){
         parent.add(
@@ -20,21 +20,90 @@ export class ComponentRepeating extends ComponentFragment {
         )
     }
 
+    mayReceiveAttributes(){
+        this.shouldOutputDynamic = true;
+        return false;
+    }
+
     constructor(path, parent, kind){
-        super(parent)
+        const node = path.node;
+        super(path, parent)
+        this.scope = path.scope;
         this.kind = kind || null;
-        this.sourceNode = path.node;
-        this.insertDoIntermediate(path)
-
-        // this.bubble("mayIncludeAccumulatingChildren")
+        this.node = node;
+        this.path = path
     }
 
-    dynamic(){
-        return new DynamicLoopTransform(this).output
+    didEnterOwnScope(path){
+        super.didEnterOwnScope(path)
+        Shared.state.expressive_for_used = true;
+        this.body = path;
     }
 
-    get ast(){
-        return t.booleanLiteral(false)
+    transform(){
+        const accumulator = this.scope.generateUidIdentifier("l");
+        const { node } = this;
+
+        let { body, output } = this.collateChildren(
+            function onAttributes(x){
+                //error
+            }
+        )
+
+        let key = this.keyConstruct;
+        const fragment_props = key
+            ? [ t.objectProperty( t.identifier("key"), key ) ]
+            : []
+
+        output = output.length > 0
+            ? transform.createFragment(output, fragment_props)
+            : t.booleanLiteral(false)
+
+        body = t.blockStatement([
+            ...body,
+            t.expressionStatement(
+                t.callExpression(
+                    t.memberExpression(accumulator, t.identifier("push")), 
+                    [ output ]
+                )
+            )
+        ]);
+
+        const loop = this.kind
+            ? INIT_LOOP_TYPE[this.kind](
+                node.left,
+                node.right,
+                body
+            )
+            : t.forStatement(
+                node.init,
+                node.test,
+                node.update,
+                body
+            );
+
+        if(!key){
+            key = t.identifier("key")
+            loop.expressive_setKey = (name) => {
+                fragment_props.push(
+                    t.objectProperty(t.identifier("key"), name)
+                )
+            }
+        }
+
+        const factory = [
+            transform.declare("const", accumulator, t.arrayExpression([])),
+            loop
+        ]
+
+        const product = 
+            this.insert == "fragment" ?
+                t.callExpression( Shared.createIterated, [accumulator] ) :
+            this.insert == "array" ?
+                accumulator :
+                null;
+
+        return { factory, product }
     }
 
     insertDoIntermediate(path){
@@ -52,96 +121,26 @@ export class ComponentRepeating extends ComponentFragment {
         )
     }
 
-    didEnterOwnScope(path){
-        this.body = path;
-        super.didEnterOwnScope(path)
-    }
-
-}
-
-class DynamicLoopTransform extends ES6FragmentTransform {
-
-    constructor(target){
-        super(target)
-
-        const {
-            body: { scope },
-            use,
-            kind,
-            sourceNode
-        } = target;
-
-        this.src = target;
-
-        use._accumulate = {
-            args: this.acc = scope.generateUidIdentifier("loop")
-        }
-
-        this.data = Array.from(target.children)
-        this.applyAll()
-    }
-
-    get output(){
-        const { _Fragment, _createApplied } = this.src.use;
-        // debugger
-        return [
-            ...this.generate(),
-            t.expressionStatement(
-                t.callExpression(
-                    t.memberExpression(
-                        this.src.parent.use._accumulate.args,
-                        t.identifier("push")
-                    ), [
-                        t.callExpression(
-                            _createApplied, [this.acc]
-                        )
-                    ]
-                )
-            )
-        ];
-    }
-
-    get wrapped(){
-        this.applyAll();
-        return transform.IIFE(
-            this.generate()
-        );
-    }
-
-    generate(){
-        const {
-            acc,
-            src: {
-                sourceNode: src,
-                use: { _Fragment },
-                kind
+    AssignmentExpression(path){
+        if(path.get("left").isIdentifier()){
+            const {name} = path.node.left;
+            if(name == "key")
+                this.keyConstruct = path.node.right;
+            else if(name == "insert"){
+                if(path.get("right").isStringLiteral()){
+                    const { value } = path.node.right;
+                    if(~["fragment", "array"].indexOf(value))
+                        this.insert = value;
+                    else throw path.buildCodeFrameError(`
+                        Invalid value '${value}' for insert property of for-loop. Acceptable value is "array" or "fragment" (default).
+                    `)
+                }
+                else throw path.buildCodeFrameError(`
+                    Property "insert" in for-loop must be a string with value [ fragment | array ]
+                `)
             }
-        } = this;
-
-        let loop;
-
-        if(kind){
-            loop = INIT_LOOP_TYPE[kind](
-                src.left,
-                src.right,
-                t.blockStatement(this.stats)
-            )
-        } else {
-            loop = t.forStatement(
-                src.init,
-                src.test,
-                src.update,
-                t.blockStatement(this.stats)
-            )
+            else super.AssignmentExpression(path);
         }
-
-        return [
-            t.variableDeclaration("const", [ 
-                t.variableDeclarator(acc, t.arrayExpression([
-                    _Fragment, t.objectExpression([])
-                ]))
-            ]),
-            loop
-        ]
+        else super.AssignmentExpression(path);
     }
 }

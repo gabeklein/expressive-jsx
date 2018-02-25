@@ -19,11 +19,11 @@ export const transform = {
         )
     },
 
-    createFragment(elements){
+    createFragment(elements, props){
         const { Fragment } = Shared;
         return this.createElement(
             Fragment, 
-            t.objectExpression([]),
+            t.objectExpression(props || []),
             ...elements
         )
     },

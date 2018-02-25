@@ -1,198 +1,289 @@
+
 const t = require('babel-types')
-const { Shared, transform } = require("./shared");
+const { html_tags_obvious } = require('./html-types');
+const { Shared, Opts, transform } = require("./shared");
 const { ChildNonComponent, Prop, Style } = require("./item")
 const { ComponentGroup } = require("./component")
 
 const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
 
-class ComponentInlineConstruct extends ComponentGroup {
-    static applyTo(parent, path){
-        if(path.node 
-        && path.node.extra
-        && path.node.extra.parenthesized === true)
-            return new ChildNonComponent(path)
+export function CollateInlineComponentsTo(parent, path){
 
-        let props = [];
+    if(path.node 
+    && path.node.extra
+    && path.node.extra.parenthesized === true)
+        return new ChildNonComponent(path)
 
-        if(path.isSequenceExpression())
-            [path, ...props] = path.get('expressions');
+    let props = [];
 
-        if(path.isBinaryExpression({operator: ">"})){
-            props.push({type: "ChildLiteral", node: path.get("right").node})
-            path = path.get("left")
-        }
+    if(path.isSequenceExpression())
+        [path, ...props] = path.get('expressions');
 
-        const stack = [{props}];
-
-        while(path.isBinaryExpression({operator: ">>"})){
-            stack[0].path = path.get("right")
-            path = path.get("left")
-            stack.unshift({})
-        }
-        stack[0].path = path;
-
-        for(const {path, props} of stack){
-
-            if(path.node == undefined)
-                throw path.buildCodeFrameError("Invalid child has no value")
-
-            if(path.node.extra && path.node.extra.parenthesized === true)
-                throw path.buildCodeFrameError("Children in Parenthesis are not allowed, for direct insertion used an Array literal")
-
-            if(path.type == "TemplateLiteral")
-                throw path.buildCodeFrameError("Template literal is not a valid element")
-
-            const inner = new this(path, parent)
-
-            this.InlineProps.apply(inner, path);
-            this.ExternalProps.apply(inner, props);
-
-            parent.add(inner);
-            parent = inner;
-        }
-    }
-    
-    static InlineProps = {
-
-        apply(target, tag){
-
-            const { text: type_text = t.identifier("Text") } = target.use._defaultType || {}; 
-
-            if(tag.isBinaryExpression({operator: "-"})){
-                const left = tag.get("left")
-                if(left.isIdentifier())
-                    target.prefix = left.node.name
-                else
-                    left.buildCodeFrameError("Improper element prefix");
-                tag = tag.get("right")
-            }
-
-            while(!tag.node.extra && tag.type in this)
-                tag = this[tag.type].call(target, tag);
-
-            if(tag.isIdentifier())
-                target.classList.push({name: tag.node.name, path: tag, head: true})
-
-            else if(tag.isStringLiteral){
-                target.classList.push({name: "Text", node: type_text, head: true})
-            }
-
-            else throw tag.buildCodeFrameError("Expression must start with an identifier")
-
-        },
-
-        TaggedTemplateExpression(tag){
-            this.add("ExpressionInline", {kind: "text", ast: tag.node.quasi})
-            return tag.get("tag")
-        },
-
-        CallExpression(tag){
-            const args = tag.get("arguments");
-            ExternalProps.apply(this, args)
-            return tag.get("callee");
-        },
-
-        MemberExpression(tag){
-
-            const selector = tag.get("property");
-
-            if(tag.node.computed === true)
-                throw selector.buildCodeFrameError("Due to how parser works, a semicolon is required after the element preceeding escaped children.")
-
-            this.classList.push({
-                name: selector.node.name, 
-                path: selector
-            })
-
-            return tag.get("object");
-        }
+    if(path.isBinaryExpression({operator: ">"})){
+        const item = Object.create(path.get("right"));
+        item.type = "ChildLiteral";
+        props.push(item);
+        path = path.get("left")
     }
 
-    static ExternalProps = {
+    const stack = [{props}];
 
-        apply(target, props){
-            if(!props) return;
-            for(let item of props){
-                const handle = this[item.type];
-                if(handle == undefined) 
-                    if(~item.type.indexOf("Literal")) target.add(new ChildNonComponent(item))
-                    else throw item.buildCodeFrameError(`Unhandled prop of type ${item.type}`)
-                else if(item = handle.call(target, item)) target.add(item)
-            }
-        },
+    while(path.isBinaryExpression({operator: ">>"})){
+        stack[0].path = path.get("right")
+        path = path.get("left")
+        stack.unshift({})
+    }
+    stack[0].path = path;
 
-        TaggedTemplateExpression(path){
-            const {tag, quasi} = path.node;
-            if(tag.type != "Identifier") 
-                throw path.buildCodeFrameError("Prop must be an Identifier");
-            return new Prop(tag, quasi)
-        },
+    for(const {path, props} of stack){
 
-        AssignmentExpression(path){
-            if(path.node.operator != "=")
-                throw path.get("operator").buildCodeFrameError("Props may only be assigned with `=` or using tagged templates.");
+        if(path.node == undefined)
+            throw path.buildCodeFrameError("Invalid child has no value")
 
-            const left = path.get("left");
-            if(left.isMemberExpression())
-                throw left.buildCodeFrameError("Member Expressions can't be prop names");
+        if(path.node.extra && path.node.extra.parenthesized === true)
+            throw path.buildCodeFrameError("Children in Parenthesis are not allowed, for direct insertion used an Array literal")
 
-            return new Prop(left.node, path.node.right)
-        },
+        if(path.type == "TemplateLiteral")
+            throw path.buildCodeFrameError("Template literal is not a valid element")
 
-        Identifier(path){
-            return new Prop(
-                path.node.name,
-                path.node
-            )
-        },
+        const child = new ComponentInline(path, parent)
 
-        UnaryExpression(path){
-            let { operator, argument } = path.node;
-            let Type = Prop, 
-                name = null;
+        InlineLayers.apply(child, path);
+        InlineProps.applyTo(child, props);
 
-            if(operator == "!"){
-                let bool = true;
-                if(t.isUnaryExpression(argument, {operator: "!"}))
-                    bool = false, argument = argument.argument;
-                if(argument.type != "Identifier")
-                    throw path.buildCodeFrameError("Bad Boolean Prop: must be an identifier denoting prop name. `!prop` for true and `!!prop` for false")
-
-                name = argument;
-                argument = t.buildCodeFrameError(bool)
-            } 
-            else if(operator == "~")
-                Type = Style
-
-            return new Type(name, argument)
-        },
-
-        DoExpression(path){
-            if(this.body) throw path.buildCodeFrameError("Do Expression was already declared!")
-            this.body = path;
-            path.node.meta = this;
-        },
-
-        SpreadElement(path){
-            const arg = path.node.argument;
-            let spread = "inclusion"
-            if(t.isIdentifier(arg))
-                spread = arg.name;
-            throw path.buildCodeFrameError(`Spread Element depreciated, use \`+${spread}\` instead.`)
-        }
+        parent.add(child);
+        parent = child;
     }
 }
 
-export class ComponentInline extends ComponentInlineConstruct {
+const InlineLayers = {
 
-    groupType = "inner"
+    apply(target, tag){
+
+        const { default_type_text } = Opts;
+
+        if(tag.isBinaryExpression({operator: "-"})){
+            const left = tag.get("left")
+            if(left.isIdentifier())
+                target.prefix = left.node.name
+            else
+                left.buildCodeFrameError("Improper element prefix");
+            tag = tag.get("right")
+        }
+
+        while(!tag.node.extra && tag.type in this)
+            tag = this[tag.type].call(target, tag);
+
+        if(tag.isIdentifier())
+            target.class.push({name: tag.node.name, path: tag, head: true})
+
+        else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
+            target.class.push({name: default_type_text, node: type_text, head: true})
+            target.add(new ChildNonComponent(tag))
+        }
+
+        else throw tag.buildCodeFrameError("Expression must start with an identifier")
+
+    },
+
+    TaggedTemplateExpression(tag){
+        ChildNonComponent.applyTo(this, 
+            tag.get("quasi")
+        )
+        const stripped = tag.get("tag");
+        //temportary means of preventing ES6 transformer from creating corresponding shim.
+        // tag.replaceWith(stripped.node)
+        return stripped
+    },
+
+    CallExpression(tag){
+        const args = tag.get("arguments");
+        InlineProps.applyTo(this, args)
+        return tag.get("callee");
+    },
+
+    MemberExpression(tag){
+
+        const selector = tag.get("property");
+
+        if(tag.node.computed === true)
+            throw selector.buildCodeFrameError("Due to how parser works, a semicolon is required after the element preceeding escaped children.")
+
+        this.class.push({
+            name: selector.node.name, 
+            path: selector
+        })
+
+        return tag.get("object");
+    }
+}
+
+var util = require('util');
+
+class InlineProps extends Prop {
+    inlineType = "attrs"
+    precedence = 0
+
+    static applyTo(target, props){
+        if(!props) return;
+        for(let path of props){
+            switch(path.type){
+                case "DoExpression":
+                    if(target.body) throw path.buildCodeFrameError("Do Expression was already declared!")
+                    target.body = path;
+                    target.scope = path.get("body").scope;
+                    path.node.meta = target;
+                break;
+
+                case "StringLiteral":
+                    debugger
+                case "TemplateLiteral":
+                case "ChildLiteral":
+                    target.add(new ChildNonComponent(path))
+                break;
+
+                default: 
+                    target.add(new this(path))
+            }
+        }
+    }
+
+    init(){
+        const { path } = this;
+        const { node, type } = path;
+        let name, value;
+
+        if(!type) debugger
+
+        switch(type){
+            case "TaggedTemplateExpression": {
+                const {tag, quasi} = path.node;
+
+                if(tag.type != "Identifier") 
+                    throw path.buildCodeFrameError("Prop must be an Identifier");
+
+                name = tag.name
+                value = path.get("quasi");
+
+                //collapsing prevents down-line transformers from adding useless polyfill
+                //replaced instead of removed because value itself must remain in-line to receive transforms
+                path.replaceWith(value)
+
+                break;
+            }
+
+            case "UnaryExpression": {
+                const { operator: op } = node;
+                const target = { "+": "props", "~": "style" }[op];
+                if(!target) throw path.buildCodeFrameError(`"${op}" is not a recognized operator for props`)
+
+                value = path.get("argument")
+                this.kind = target;
+                this.isSpread = true;
+                break;
+            }
+
+            case "Identifier": 
+                name = node.name
+                value = {
+                    node: t.booleanLiteral(true)
+                }
+            break;
+
+            case "AssignmentExpression": {
+                if(node.operator != "=")
+                    throw path.get("operator").buildCodeFrameError("Props may only be assigned with `=` or using tagged templates.");
+
+                const left = path.get("left");
+                if(left.isMemberExpression())
+                    throw left.buildCodeFrameError("Member Expressions can't be prop names");
+
+                if(node.left.type == "Identifier")
+                    name = node.left.name;
+
+                else path.get("left").buildCodeFrameError("Prop assignment only works on an identifier to denote name")
+
+                value = path.get("right")
+
+                break;
+            } 
+
+            case "SpreadElement": {
+                value = path.get("argument")
+
+                const arg = node.argument;
+                let spread = "inclusion"
+                if(t.isIdentifier(arg))
+                    spread = arg.name;
+                throw path.buildCodeFrameError(`Spread Element depreciated, use \`+${spread}\` instead.`)
+            }
+
+            case "ArrowFunctionExpression": {
+                value = path;
+                name = "callback"
+                break;
+            }
+
+            default:
+                debugger
+                throw path.buildCodeFrameError(`There is no such property inferred from an ${type}.`)
+        }
+
+
+        this.path_value = value;
+
+        this.type = type;
+        this.name = name;
+    }
+
+    get value(){
+        if(!this.path_value) throw new Error("Prop has no path_value set, this is an internal error")
+        return this.path_value.node;
+    }
+
+    // get value(){
+    //     const {target, type, path: { node }} = this;
+    //     let thing;
+
+    //     if(target)
+    //         thing = node.argument;
+
+    //     switch(type){
+    //         case "TaggedTemplateExpression":
+    //             thing = this.quasi.node;
+    //             break;
+
+    //         case "AssignmentExpression":
+    //             thing = node.right
+    //             break;
+
+    //         case "Identifier":  
+    //             thing = t.booleanLiteral(true)
+    //             break;
+    //     }
+        
+    //     return thing
+    // }
+}
+
+export class ComponentInline extends ComponentGroup {
+
+    inlineType = "child"
+
+    props = []
+    style = []
+    attrs = []
+    class = []
+    segue = 0
+    precedence = 3
+    // doesReceive = {}
 
     constructor(path, parent){
         super(path, parent)
-        this.props = []
-        this.style = []
-        this.classList = []
-        this.sequenceIndex = 0
+
+        this.classifiedStyles = {};
+        this.scope = path.get("body").scope;
+        this.context = parent.context
     }
 
     insertDoIntermediate(){ /*ExternalProps does binding to existing one.*/ }
@@ -201,158 +292,232 @@ export class ComponentInline extends ComponentInlineConstruct {
         super.didEnterOwnScope(path)
     }
 
-    typeInformation(){
-        let elementType = ELEMENT_TYPE_DEFAULT;
-        const classList = [];
-        const included = [];
-
-        for(const item of this.classList){
-            const {name} = item;
-            const include = this.use[name];
-
-            if(include) included.push(...include.children)
-            else if(item.head == true){
-                const type = /^[A-Z]/.test(name)
-                    ? t.identifier : t.stringLiteral
-                elementType = type(name);
-            }
-            else classList.push(name)
-        }
-
-        return { elementType, classList, included }
+    didExitOwnScope(){
+        // this.transform = this.body
+        //     ? this.outputDynamic
+        //     : thsi.outputInline;
     }
 
-    outputAccumulating(scope){
-        if(!this.body)
-            return {
-                product: this.outputInline
+    mayReceiveAttributes(style, props){
+        ({ style = style, props = props } = this.doesReceiveDynamic || {});
+        this.doesReceiveDynamic = { style, props };
+    }
+
+    seperateItems(inline, dynamic){
+        let output = [];
+        let layer = [];
+        for(const style of inline)
+            if(style.type == "SpreadProperty"){
+                if(layer.length) output.push(t.objectExpression[layer])
+                output.push(style.argument);
+                layer = [];
+            }
+            else layer.push(style)
+
+        if(layer.length) output.push(t.objectExpression(layer))
+        if(dynamic) output.push(dynamic)
+
+        return output;
+    }
+
+    standardCombinedStyleFormatFor(inline, dynamic){
+        if(Opts.applicationType == "native"){
+            let output = this.seperateItems(inline, dynamic);
+
+            if(output.length == 1){
+                output = output[0]
+                if(output.type == "SpreadElement") return output.argument;
+                else return output
+            }
+            else return t.arrayExpression(output)
+
+        } else{
+            if(dynamic) inline.push(t.spreadProperty(dynamic))
+            return t.objectExpression(inline);
+        }
+
+        
+    }
+
+    standardCombinedPropsFormatFor(inline, dynamic){
+        let output = this.seperateItems(inline, dynamic);
+        if(output.length < 2){
+            return output[0] || t.objectExpression([])
+        } else {
+            return t.callExpression(
+                Shared.extends,
+                output
+            )
+        }
+    }
+
+    typeInformationAppliedTo(inline_attributes){ 
+
+        const _classNames = [];
+        let _type = ELEMENT_TYPE_DEFAULT, _className;
+
+        for(const item of this.class){
+            const {name} = item;
+            const include = this.context[name];
+ 
+            if(include) 
+                include.into(inline_attributes, _classNames)
+
+            else if(item.head == true){
+                if(/^[A-Z]/.test(name))
+                    _type = t.identifier(name)
+                else {
+                    if(this.prefix == "html" || html_tags_obvious.has(name))
+                        _type = t.stringLiteral(name);
+                    else 
+                        _classNames.push(name);
+                }
             }
 
-        const { elementType, classList, included } = this.typeInformation();
+            else _classNames.push(name)
+        }
 
-        const _init = [];
-        let _style, _props, _props_init = [];
-        let _directPropertiesArgument;
+        if(_classNames.length) 
+            _className = 
+                t.objectProperty(
+                    t.identifier("className"),
+                    t.stringLiteral(_classNames.reverse().join(" "))
+                )
 
-        if(this.style.length){
-            _style = scope.generateUidIdentifier("s");
-            _init.push(
-                t.variableDeclarator(_style, t.objectExpression([]))
-            )
+        return { _className, _type };
+
+    }
+
+    transform(){
+
+        const  _init = [];
+        let _style, _props;
+
+        const { scope, doesReceiveDynamic } = this;
+
+        const inline = {
+            props: [], 
+            style: []
         }
-        if(this.props.length){
-            _props = scope.generateUidIdentifier("p");
-            _init.push(
-                t.variableDeclarator(_props, t.objectExpression([]))
-            )
-            _directPropertiesArgument = _props;
+
+        let { _type, _className } = this.typeInformationAppliedTo(inline)
+
+        let _propsPassed = t.objectExpression(inline.props);
+        let _stylePassed;
+        
+        if(this.attrs.length)
+            for(const attr of this.attrs)
+                inline[attr.kind || "props"].push(
+                    attr.asProperty
+                )
+
+        if(this.disordered || this.stats.length || doesReceiveDynamic){
+
+            if(_type.type == "Identifier"){
+                const existing = scope.getBinding(_type.name);
+                if(existing && 0 > ["const", "module"].indexOf(
+                   existing.kind
+                )){
+                    const _actualType = _type;
+                    _type = scope.generateUidIdentifier("t");
+                    _init.push(
+                        t.variableDeclarator(_type, _actualType)
+                    )
+                }
+            }
+
+            const acc = this.context._accumulate = {};
+
+            if(this.style.length || doesReceiveDynamic && doesReceiveDynamic.style){
+                _style
+                    = acc.style 
+                    = scope.generateUidIdentifier("s");
+                _init.push(
+                    t.variableDeclarator(_style, t.objectExpression([]))
+                )
+            }
+            if(inline.style.length){
+                _stylePassed = scope.generateUidIdentifier("ss");
+                _init.push(
+                    t.variableDeclarator(
+                        _stylePassed, 
+                        this.standardCombinedStyleFormatFor(inline.style, _style)
+                    )
+                )
+            } else {
+                _stylePassed = _style
+            }
+
+            if(this.props.length || doesReceiveDynamic && doesReceiveDynamic.props){
+                _props
+                    = acc.props
+                    = scope.generateUidIdentifier("p");
+                _init.push(
+                    t.variableDeclarator(_props, this.standardCombinedPropsFormatFor(inline.props))
+                )
+                _propsPassed = _props;
+            } 
+            else if(_stylePassed){
+                inline.props.push(t.objectProperty(t.identifier("style"), _stylePassed))
+            }
+        } else {
+            if(this.props.length)
+                inline.props.push(...this.props.map(x => x.asProperty))
+            inline.style.push(...this.style.map(x => x.asProperty));
+            if(inline.style.length){
+                inline.props.push(t.objectProperty(
+                    t.identifier("style"), 
+                    this.standardCombinedStyleFormatFor(inline.style)
+                ))
+            }
         }
-        else {
-            const init_props = _style ? 
-                [ t.objectProperty(t.identifier("props"), _style) ] :
-                [ /*empty*/ ];
-            _directPropertiesArgument = t.objectExpression(init_props);
-        }
+
+        if(_className) inline.props.push(_className);
 
         const _quoteTarget = { props: _props, style: _style };
-        const onIncorperatedProp = x => x.asAssignedTo[x.groupType];
+        const { output, body } = this.collateChildren( 
+            (x) => {
+                const target = _quoteTarget[x.inlineType];
+                if(target) return x.asAssignedTo(target);
+            }
+        );
 
         const stats = [];
-        const { exported, body } = this.accumulatedChildren(scope, onIncorperatedProp);
 
         if(_init.length) stats.push(
             t.variableDeclaration("const", _init)
         )
 
-        stats.push( ...body )
+        stats.push(...body)
 
-        if(_props && _style)
-        stats.push(
-            t.expressionStatement(
-                t.assignmentExpression("=",
-                    t.memberExpression(_props, t.identifier("style")), _style
-                )
-            )
-        )
-
-        const product =
-            transform.createElement(
-                elementType, _directPropertiesArgument, ...exported
-            )
-
-        return {product, factory: stats};
-    }
-
-    output(){
-        return this.outputInline();
-    }
-
-    get outputInline(){
-        const { included, elementType, classList } 
-            = this.typeInformation();
-
-        let { inner, style, props } = this;
-
-        const inline = x => x.asProperty;
-        inner = inner.map(x => x.outputInline)
-        props = props.map(inline)
-
-        if(style.length) props.push(
-            t.objectProperty(
-                t.identifier("style"),
-                t.objectExpression(
-                    style.map()
-                )
-            )
-        )
-
-        if(classList.length) props.push(
-            t.objectProperty(
-                t.identifier("className"),
-                t.stringLiteral(classList.reverse().join(" "))
-            )
-        )
-
-        return transform.createElement(
-            elementType, t.objectExpression(props), ...inner
-        )
-    }
-
-    renderDynamicStatements(){
-        const {use} = this;
-        const {args: _args, props: _props, style: _style} = use._accumulate
-
-        let init = [
-            t.variableDeclarator( _props, t.objectExpression([]) ),
-            t.variableDeclarator( _args,  t.arrayExpression([
-                this._type, _props
-            ]))
-        ]
-
-        const stats = this.collateChildren();
-
-        if(this.doesInvokeStyle){
-            init.push(
-                t.variableDeclarator( _style, t.objectExpression([]) ),
-            )
+        if(t.isIdentifier(_props) && _stylePassed)
             stats.push(
                 t.expressionStatement(
-                    t.assignmentExpression("=", 
-                        t.memberExpression(_props, t.identifier("style")), _style
+                    t.assignmentExpression("=",
+                        t.memberExpression(_props, t.identifier("style")), _stylePassed
                     )
                 )
-
             )
-        } 
 
-        return [
-            t.variableDeclaration("const", init),
-            ...stats
-        ]
+        const product = transform.createElement( _type, this.standardCombinedPropsFormatFor(inline.props, _props), ...output )
+
+        if(stats.length) {
+            const id = this.scope.generateUidIdentifier("e");
+
+            const factory = [
+                transform.declare("let", id),
+                t.blockStatement([
+                    ...stats,
+                    t.expressionStatement(
+                        t.assignmentExpression("=", id, product)
+                    )
+                ])
+            ]
+            return { product: id, factory }
+        }
+        else return { product }
     }
 
-    renderDynamicInline(){
-        return transform.IIFE(statements)
-    }
+    
 }
 

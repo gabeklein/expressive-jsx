@@ -3,6 +3,30 @@ import { transform } from './shared';
 const t = require('babel-types')
 const { Opts } = require("./shared");
 
+function HEX_COLOR(n){
+    let raw = n.substring(2), out;
+
+    if(raw.length % 4 == 0){
+        let decimal = [];
+
+        if(raw.length == 4)
+            // (shorthand) 'F...' -> "FF" -> 0xFF
+            decimal = Array.from(raw).map(x => parseInt(x+x, 16))
+
+        else for(let i = 0; i < 4; i++){
+            decimal.push(
+                parseInt(raw.slice(i, i+2), 16)
+            );
+        }
+            
+
+        //range 0:1 for opacity, fixed to prevent long decimals like 1/3
+        decimal[3] = (decimal[3] / 255).toFixed(2)
+
+        return `rgba(${ decimal.join(",") })`
+    }
+    else return "#" + raw;
+}
 
 class Attribute {
 
@@ -10,37 +34,61 @@ class Attribute {
         this.path = path;
     }
 
+    get id(){
+        return t.identifier(this.name);
+    }
+
+    get value(){
+        const value = this.static_value;
+        if(value) switch(typeof value){
+            case "string": return t.stringLiteral(value)
+            case "number": return t.numericLiteral(value)
+        }
+    }
+
     get asProperty(){
-        return this.id
-            ? t.objectProperty(this.id, this.value)
-            : t.spreadProperty(this.value)
+        const { name, value, isSpread } = this;
+        if(isSpread){
+            return t.spreadProperty(this.value)
+        } else {
+            if(!name) {
+                debugger
+                throw new Error("Internal Error: Prop has no name!")
+            }
+            return t.objectProperty(t.identifier(this.name), this.value)
+        }
     }
 
     asAssignedTo(target){
-        const assignment = this.id
-            ? t.assignmentExpression("=",
-                t.memberExpression(target, this.id), t.value
-            )
-            : t.callExpression(
+        const { name, isSpread } = this;
+        let assign;
+
+        if(isSpread){
+            assign = t.callExpression(
                 t.memberExpression(
                     t.identifier("Object"),
                     t.identifier("assign")
                 ), 
-                [   target, t.value   ]
+                [   target, this.value   ]
             )
-        return t.expressionStatement(assignment);
+        } else {
+            if(!name) {
+                debugger
+                throw new Error("Internal Error: Prop has no name!")
+            }
+            assign = t.assignmentExpression("=",
+                t.memberExpression(target, t.identifier(name)), this.value
+            )
+        }
+
+        return t.expressionStatement(assign);
     }
 }
 
 export class Prop extends Attribute {
 
-    groupType = "props"
+    inlineType = "props"
     precedence = 1
-
-    constructor(path){
-        super(path)
-        this.name = path.node.left.name;
-    }
 
     static applyTo(parent, path){
         if(path.node.operator != "=") 
@@ -50,24 +98,33 @@ export class Prop extends Attribute {
         )
     }
 
-    get id(){
-        return this.path.node.left;
+    constructor(path){
+        super(path)
+        this.init()
+    }
+
+    init(){
+        let value;
+        const { node } = this.path;
+        const { extra } = value = node.right;
+
+        this.name = node.left.name;
+
+        if( t.isNumericLiteral(value) && /^0x/.test(extra.raw) )
+            this.static_value = HEX_COLOR(extra.raw)
+        else if(t.isStringLiteral(value))
+            this.static_value = value.value;
     }
 
     get value(){
-        return this.path.node.left;
+        return super.value || this.path.node.right;
     }
 }
 
 export class Style extends Attribute {
 
-    groupType = "style"
+    inlineType = "style"
     precedence = 2
-
-    constructor(path){
-        super(path)
-        this.name = path.node.label.name;
-    }
 
     static applyTo(parent, path){
         parent.add( 
@@ -75,62 +132,71 @@ export class Style extends Attribute {
         );
     }
 
-    get id(){
-        return path.node.label;
+    constructor(path){
+        super(path.get("body.expression"))
+        this.name = path.node.label.name;
+        this.static_value = this.computed;
     }
 
     get value(){
-        const exp = this.path.get("body.expression")
-        let value = exp.node;
+        return super.value || this.path.node;
+    }
 
-        if(value.extra && value.extra.parenthesized) /*don't format*/;
-        else switch(value.type){
+    get computed(){
+        const { path } = this;
+        const { node } = path;
+        const { extra } = node;
+
+        if(extra && extra.parenthesized) return;
+
+        switch(node.type){
+
+            case "Identifier":
+                return node.name
+
             case "BinaryExpression": {
-                const {left, right} = value
+                const {left, right} = node
                 if(
                     t.isIdentifier(left) && 
                     t.isIdentifier(right) && 
-                    left.end == right.start - 1
-                ) value = t.stringLiteral(left.name + "-" + right.name);
-                break;
+                    right.start == left.end + 1
+                ) 
+                    return left.name + "-" + right.name;
             }
 
-            case "ArrowFunctionExpression":
-                throw exp.buildCodeFrameError("Dynamic CSS values not yet supported");
+            case "StringLiteral":
+                return node.value;
 
             case "NumericLiteral": {
-                const {extra} = value;
                 if(extra && /^0x/.test(extra.raw))
-                    value = t.stringLiteral(extra.raw.replace("0x", "#"))
-                break;
+                    return HEX_COLOR(extra.raw)
+                else
+                    return extra.rawValue;
             }
 
             case "SequenceExpression": {
-                const {expressions: e} = value;
-                let val = "";
+                const {expressions: e} = node;
+                let value = "";
                 if(e[0].type == "NumericLiteral"){
-                    val += e[0].value;
+                    value += e[0].value;
                     if(e[1].type == "Identifier")
-                        val += e[1].name;
+                        value += e[1].name;
                 }
-                value = t.stringLiteral(val);
-                break;
+                return value;
             }
 
-            case "Identifier":
-                value = t.stringLiteral(value.name);
-            break;
+            case "ArrowFunctionExpression":
+                throw path.buildCodeFrameError("Dynamic CSS values not yet supported");
         }
-        
-        return value;
     }
+
+    
     
 }
 
 export class Statement {
 
-    groupType = "stats"
-    precedence = 0
+    inlineType = "stats"
 
     static applyTo(parent, path, mod){
         parent.add( 
@@ -151,7 +217,8 @@ export class Statement {
 
 export class ChildNonComponent {
 
-    groupType = "inner"
+    inlineType = "child"
+    
     precedence = 3
 
     static applyMultipleTo(parent, src){
@@ -168,12 +235,24 @@ export class ChildNonComponent {
             )
     }
 
-    get outputInline(){
+    static applyTo(parent, path){
+        parent.add(
+            new this(path)
+        )
+    }
+
+    outputInline(){
         return this.path.node;
     }
 
-    outputAccumulating(){
+    transform(){
         return { product: this.path.node }
+    }
+
+    collateChildren(){
+        return {
+            output: [ this.path.node ]
+        }
     }
 
     constructor(src){

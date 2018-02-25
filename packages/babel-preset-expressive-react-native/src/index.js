@@ -35,7 +35,9 @@ module.exports = options => {
             [inferReactComponent, {
                 activeOnMethodDo: true
             }],
-            transformExpressiveReact,
+            [transformExpressiveReact, {
+                applicationType: "native"
+            }],
             transformExpressiveLoops,
 
             plugin('transform-es2015-classes'),
