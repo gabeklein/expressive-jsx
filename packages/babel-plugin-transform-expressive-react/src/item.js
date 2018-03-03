@@ -39,7 +39,7 @@ class Attribute {
     }
 
     get value(){
-        const value = this.static_value;
+        const value = this.static;
         if(value) switch(typeof value){
             case "string": return t.stringLiteral(value)
             case "number": return t.numericLiteral(value)
@@ -52,7 +52,6 @@ class Attribute {
             return t.spreadProperty(this.value)
         } else {
             if(!name) {
-                debugger
                 throw new Error("Internal Error: Prop has no name!")
             }
             return t.objectProperty(t.identifier(this.name), this.value)
@@ -100,20 +99,26 @@ export class Prop extends Attribute {
 
     constructor(path){
         super(path)
-        this.init()
+        const { computed } = this;
+        if(computed){
+            this.static = computed;
+            delete this.precedence;
+        }
     }
 
-    init(){
+    get computed(){
         let value;
         const { node } = this.path;
         const { extra } = value = node.right;
 
         this.name = node.left.name;
 
-        if( t.isNumericLiteral(value) && /^0x/.test(extra.raw) )
-            this.static_value = HEX_COLOR(extra.raw)
+        if( t.isNumericLiteral(value))
+            return /^0x/.test(extra.raw)
+                ? HEX_COLOR(extra.raw)
+                : extra.rawValue
         else if(t.isStringLiteral(value))
-            this.static_value = value.value;
+            return value.value;
     }
 
     get value(){
@@ -135,7 +140,12 @@ export class Style extends Attribute {
     constructor(path){
         super(path.get("body.expression"))
         this.name = path.node.label.name;
-        this.static_value = this.computed;
+
+        const { computed } = this;
+        if(computed){
+            this.static = computed;
+            delete this.precedence;
+        }
     }
 
     get value(){
@@ -189,9 +199,6 @@ export class Style extends Attribute {
                 throw path.buildCodeFrameError("Dynamic CSS values not yet supported");
         }
     }
-
-    
-    
 }
 
 export class Statement {

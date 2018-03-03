@@ -11,7 +11,7 @@ export function RenderFromDoMethods(paths, state, opts){
     }
 }
 
-class ComponentEntry extends ComponentFragment {
+export class ComponentEntry extends ComponentFragment {
 
     constructor(path){
         super(path)
@@ -31,6 +31,16 @@ class ComponentEntry extends ComponentFragment {
             = this.scope 
             = path.get("body").scope;
     }
+
+    // declareStyle(from){
+    //     const id = this.scope.generateUidIdentifier("S")
+    //     this.scope.push({
+    //         kind: "const",
+    //         id, 
+    //         init: t.stringLiteral("lol")
+    //     })
+    //     return id;
+    // }
 }
 
 class ComponentMethod extends ComponentEntry {

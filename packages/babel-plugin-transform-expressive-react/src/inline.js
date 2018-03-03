@@ -148,7 +148,7 @@ class InlineProps extends Prop {
         }
     }
 
-    init(){
+    get computed(){
         const { path } = this;
         const { node, type } = path;
         let name, value;
@@ -166,7 +166,7 @@ class InlineProps extends Prop {
                 value = path.get("quasi");
 
                 //collapsing prevents down-line transformers from adding useless polyfill
-                //replaced instead of removed because value itself must remain in-line to receive transforms
+                //replaced instead of removed because value itself must remain in-line to receive legitiment transforms
                 path.replaceWith(value)
 
                 break;
@@ -229,7 +229,6 @@ class InlineProps extends Prop {
                 throw path.buildCodeFrameError(`There is no such property inferred from an ${type}.`)
         }
 
-
         this.path_value = value;
 
         this.type = type;
@@ -237,7 +236,10 @@ class InlineProps extends Prop {
     }
 
     get value(){
-        if(!this.path_value) throw new Error("Prop has no path_value set, this is an internal error")
+        if(!this.path_value){
+            debugger
+            throw new Error("Prop has no path_value set, this is an internal error")
+        }
         return this.path_value.node;
     }
 

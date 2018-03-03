@@ -1,6 +1,5 @@
 const t = require("babel-types")
-const Opts = require("./shared")
-const { transform } = require("./shared")
+const { Opts, transform } = require("./shared")
 
 const UNARY_NAMES = {
     "~": "Tilde",
@@ -97,18 +96,54 @@ export class AttrubutesBody extends TraversableBody {
         Style.applyTo(this, path)
     }
 
+    LabeledStatement(path){
+
+        if(Opts.applicationType != "native")
+        if(~["self", "screen"].indexOf(path.node.label.name))
+            return SpecialModifier.applyTo(this, path)
+        
+        super.LabeledStatement(path)
+    }
+
     LabeledLabeledStatement(exp){
-        throw exp.get("body").buildCodeFrameError("Multiple assignment of styles not yet supported");
+        throw exp.get("body").buildCodeFrameError("Cannot chain style modifiers, or whatever you're trying to do");
     }
 
     LabeledBlockStatement(path){
-        ComponentAttributes.applyTo(this, path)
+        ComponentModifier.applyTo(this, path)
     }
 }
 
-class ComponentBody extends AttrubutesBody {
+export class Component extends AttrubutesBody {
 
     child = [];
+
+    static enter(path, state){
+
+        let { node } = path,
+            { meta } = node;
+
+        if(node.expressive_visited) return
+
+        if(!meta){
+            meta = path.parentPath.isArrowFunctionExpression()
+                ? new ComponentFunctionExpression(path)
+                : new ComponentInlineExpression(path)
+        }
+
+        meta.didEnterOwnScope(path)
+
+        state.expressive_used = true;
+    }
+
+    static exit(path, state){
+        const { node } = path;
+        
+        if(node.expressive_visited) return
+        else node.expressive_visited = true;
+
+        node.meta.didExitOwnScope(path)
+    }
 
     ExpressionDefault(path){
         CollateInlineComponentsTo(this, path)
@@ -144,20 +179,19 @@ class ComponentBody extends AttrubutesBody {
     
 }
 
-export class ComponentGroup extends ComponentBody {
+export class ComponentGroup extends Component {
 
     stats = []
     segue = 0;
 
     add(obj){
-        const thisIndex = obj.precedence || 4;
-        if(this.segue > thisIndex){
+        const { precedence: newPrec = 4 } = obj;
+        if(this.segue > newPrec){
             this.flagDisordered();
             this.add = super.add; //disable check since no longer needed
         }
-        else if(thisIndex < 4){
-            this.segue = thisIndex
-        };
+        else if(newPrec < 4)
+            this.segue = newPrec;
 
         super.add(obj)
     }
@@ -173,6 +207,7 @@ export class ComponentGroup extends ComponentBody {
         const body = [];
         const output = [];
         let adjacent;
+        if(!scope) debugger
 
         const child_props = [];
 
@@ -183,6 +218,7 @@ export class ComponentGroup extends ComponentBody {
                 output.push(...adjacent)
                 return;
             }
+
 
             const name = scope.generateUidIdentifier("e");
             let ref, stat;
@@ -271,6 +307,8 @@ export class ComponentFragment extends ComponentGroup {
 
 const { Prop, Style, Statement, ChildNonComponent } = require("./item");
 const { CollateInlineComponentsTo } = require("./inline");
-const { ComponentAttributes } = require("./attributes");
+const { ComponentModifier } = require("./attributes");
 const { ComponentSwitch } = require("./ifstatement");
 const { ComponentRepeating } = require("./forloop");
+const { ComponentInlineExpression, ComponentFunctionExpression } = require("./entry");
+const { SpecialModifier } = require("./modifier");

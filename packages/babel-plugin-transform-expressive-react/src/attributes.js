@@ -3,7 +3,7 @@ const { createHash } = require('crypto');
 const t = require("babel-types");
 const { Opts, Shared, transform } = require("./shared");
 
-export class ComponentAttributes extends AttrubutesBody {
+export class ComponentModifier extends AttrubutesBody {
 
     inlineType = "stats"
     precedence = 0
@@ -15,9 +15,7 @@ export class ComponentAttributes extends AttrubutesBody {
         parent.add(attr);
     }
 
-    static generateJSXStyleNode(mods){
-
-    }
+    static generateJSXStyleNode(mods){}
 
     constructor(path, parent, name){
         super(...arguments)
@@ -27,12 +25,6 @@ export class ComponentAttributes extends AttrubutesBody {
             .update(path.getSource())
             .digest('hex')
             .substring(0, 6);
-
-        path.replaceWith(
-            t.expressionStatement(
-                this.doTransform
-            )
-        )
     }   
 
     insertDoIntermediate(path){
@@ -42,6 +34,16 @@ export class ComponentAttributes extends AttrubutesBody {
 
         doTransform.meta = this;
         this.doTransform = doTransform;
+
+        path.replaceWith(
+            t.expressionStatement(
+                t.sequenceExpression([
+                    t.nullLiteral(),
+                    doTransform
+
+                ])
+            )
+        )
     }
 
     didEnterOwnScope(path){
@@ -51,6 +53,19 @@ export class ComponentAttributes extends AttrubutesBody {
 
         const root = this.context.root;
         // root.classifiedStyles[`__${this.hid}`] = this;
+    }
+
+    didExitOwnScope(path){
+        this.parent.context[this.name] = this;
+        if(this.props.length && this.style.length)
+            this.hasBoth = true;
+
+        // const styles = this.output();
+
+        // if(styles)
+        //     this.id = this.context.root.declareStyle(styles)
+
+        // path.parentPath.remove()
     }
 
     output(){
@@ -79,6 +94,8 @@ export class ComponentAttributes extends AttrubutesBody {
 
         const id = this.id = this.scope.generateUidIdentifier(this.name)
 
+        // return declaration
+
         if(declaration)
             return t.variableDeclaration("const", [
                 t.variableDeclarator(
@@ -102,17 +119,12 @@ export class ComponentAttributes extends AttrubutesBody {
                 )
             ))
         }
-        else inline[this.type].push(
-            t.spreadProperty(id)
-        );
+        else {
+            inline[this.type].push(
+                t.spreadProperty(id)
+            );
+        }
     }
-
-    didExitOwnScope(){
-        this.parent.context[this.name] = this;
-        if(this.props.length && this.style.length)
-            this.hasBoth = true;
-    }
-
     LabeledBlockStatement(path){
         throw path.buildCodeFrameError("I'm sorry Dave but I can't do that.")
     }

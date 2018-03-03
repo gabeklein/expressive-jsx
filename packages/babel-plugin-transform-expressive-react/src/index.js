@@ -4,6 +4,7 @@ import syntaxDoExpressions from "babel-plugin-syntax-do-expressions";
 const t = require("babel-types");
 const template = require("babel-template");
 const { Shared, Opts } = require("./shared");
+const { Component } = require("./component")
 const { 
     RenderFromDoMethods, 
     ComponentInlineExpression, 
@@ -54,6 +55,10 @@ export default (options) => {
     return {
         inherits: syntaxDoExpressions,
         visitor: {
+            DoExpression: {
+                enter: Component.enter,
+                exit: Component.exit
+            },
             Program: {
                 enter(path, state){
                     Object.assign(Opts, state.opts)
@@ -64,7 +69,7 @@ export default (options) => {
                         Shared[x] = path.scope.generateUidIdentifier(registerIDs[x]);
                 },
                 exit(path, state){
-                    if(process.execArgv.join().indexOf("inspect-brk") > -1)
+                    if(~process.execArgv.join().indexOf("inspect-brk"))
                         console.log("done")
 
                     if(!state.expressive_used) return;
@@ -114,7 +119,6 @@ export default (options) => {
                     }
 
                     {
-                        // debugger
                         const fn = fnExtends({});
                         scope.push({
                             kind: "const",
@@ -149,33 +153,6 @@ export default (options) => {
                         RenderFromDoMethods(doFunctions)
                         state.expressive_used = true;
                     }
-                }
-            },
-            DoExpression: {
-                enter(path, state){
-
-                    let { node } = path,
-                        { meta } = node;
-
-                    if(node.expressive_visited) return
-
-                    if(!meta){
-                        meta = path.parentPath.isArrowFunctionExpression()
-                            ? new ComponentFunctionExpression(path)
-                            : new ComponentInlineExpression(path)
-                    }
-
-                    meta.didEnterOwnScope(path)
-
-                    state.expressive_used = true;
-                },
-
-                exit(path){
-                    const { node } = path;
-                    if(node.expressive_visited) return
-                    
-                    node.meta.didExitOwnScope(path)
-                    node.expressive_visited = true;
                 }
             }
         }
