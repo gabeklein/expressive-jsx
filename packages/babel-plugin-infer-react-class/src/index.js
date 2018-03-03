@@ -52,17 +52,20 @@ const t = require("babel-types");
 function isClassComponent(path, opts){
     const alreadyExtended = path.get("superClass");
 
+    const hello = "hello"
+
     if(alreadyExtended.isNullLiteral()){
         path.node.superClass = null;
         return false;
     }
     return path.node.body.body.find(
-        x => {
+        function(x){
             const {name} = x.key;
             return x.type == "ClassMethod" 
                 && name == "render" 
                 || opts.activeOnMethodDo != false  
                 && name == "do"
+                || name == path.node.id.name
         }
     )
 }

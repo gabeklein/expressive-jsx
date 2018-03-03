@@ -145,9 +145,11 @@ export default (options) => {
                     const doFunctions = [];
 
                     for(let item of path.get("body.body"))
-                        if(item.isClassMethod({kind: "method"}) 
-                        && item.get("key").isIdentifier({name: "do"}))
-                            doFunctions.push(item)
+                        if(item.isClassMethod({kind: "method"}) && item.get("key").isIdentifier()){
+                            const { name } = item.node.key;
+                            if(name == "do" || name == path.node.id.name)
+                                doFunctions.push(item)
+                        }
                         
                     if(doFunctions.length) {
                         RenderFromDoMethods(doFunctions)
