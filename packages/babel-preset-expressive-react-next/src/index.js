@@ -10,7 +10,8 @@ module.exports = options => {
             }],
             transformExpressiveLoops,
             [transformExpressiveReact, {
-                styleMode: "next"
+                styleMode: "next",
+                applicationType: "next"
             }],
         ]
     }

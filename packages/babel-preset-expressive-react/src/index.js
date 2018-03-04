@@ -9,7 +9,9 @@ module.exports = options => {
                 activeOnMethodDo: true
             }],
             transformExpressiveLoops,
-            transformExpressiveReact,
+            [transformExpressiveReact, {
+                applicationType: "dom"
+            }],
         ]
     }
 }
