@@ -3,6 +3,25 @@ import { transform } from './shared';
 const t = require('babel-types')
 const { Opts } = require("./shared");
 
+const CSS_EXPECTING_UNITS = new Set(`
+    width
+    height
+    maxWidth
+    maxHeight
+    margin
+    marginTop
+    marginBottom
+    marginLeft
+    marginRight
+    padding
+    paddingLeft
+    paddingRight
+    paddingTop
+    paddingBottom
+    fontSize
+    lineHeight
+`.trim().split(/[\n\r\s]+/));
+
 function HEX_COLOR(n){
     let raw = n.substring(2), out;
 
@@ -180,8 +199,9 @@ export class Style extends Attribute {
             case "NumericLiteral": {
                 if(extra && /^0x/.test(extra.raw))
                     return HEX_COLOR(extra.raw)
-                else
-                    return extra.rawValue;
+                else if(Opts.applicationType != "native" && CSS_EXPECTING_UNITS.has(this.name))
+                    return `${extra.rawValue}px`
+                else return extra.rawValue;
             }
 
             case "SequenceExpression": {
