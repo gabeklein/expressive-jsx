@@ -62,10 +62,11 @@ function isClassComponent(path, opts){
         function(x){
             const {name} = x.key;
             return x.type == "ClassMethod" 
-                && name == "render" 
+                    && name == "render" 
                 || opts.activeOnMethodDo != false  
-                && name == "do"
-                || name == path.node.id.name
+                    && name == "do"
+                || path.node.id
+                    && name == path.node.id.name
         }
     )
 }

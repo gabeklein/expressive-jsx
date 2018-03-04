@@ -147,7 +147,7 @@ export default (options) => {
                     for(let item of path.get("body.body"))
                         if(item.isClassMethod({kind: "method"}) && item.get("key").isIdentifier()){
                             const { name } = item.node.key;
-                            if(name == "do" || name == path.node.id.name)
+                            if(name == "do" || path.node.id && name == path.node.id.name)
                                 doFunctions.push(item)
                         }
                         
