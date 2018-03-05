@@ -47,7 +47,7 @@ function HEX_COLOR(n){
     else return "#" + raw;
 }
 
-class Attribute {
+export class Attribute {
 
     constructor(path){
         this.path = path;

@@ -15,7 +15,6 @@ class TraversableBody {
     constructor(path, parent){
 
         if(parent){
-            if(!parent.context) debugger
             this.context = Object.create(parent.context)
             this.parent = parent
         } else 

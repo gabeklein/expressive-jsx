@@ -11,6 +11,7 @@ export class ComponentModifier extends AttrubutesBody {
     static applyTo(parent, path){
         const { name } = path.node.label;
         const attr = new this(path, parent, name);
+
         parent.context[name] = attr;
         parent.add(attr);
     }
@@ -21,7 +22,7 @@ export class ComponentModifier extends AttrubutesBody {
         super(...arguments)
 
         this.name = name
-        this.hid = createHash("md5")
+        this.hash = createHash("md5")
             .update(path.getSource())
             .digest('hex')
             .substring(0, 6);
@@ -52,7 +53,7 @@ export class ComponentModifier extends AttrubutesBody {
         super.didEnterOwnScope(path)
 
         const root = this.context.root;
-        // root.classifiedStyles[`__${this.hid}`] = this;
+        // root.classifiedStyles[`__${this.hash}`] = this;
     }
 
     didExitOwnScope(path){
@@ -69,8 +70,8 @@ export class ComponentModifier extends AttrubutesBody {
     }
 
     output(){
-        if(Opts.styleMode == "next")
-            return false;
+        // if(Opts.styleMode == "next")
+        //     return false;
 
         let { props, style } = this;
         let declaration;

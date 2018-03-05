@@ -285,7 +285,7 @@ export class ComponentInline extends ComponentGroup {
 
         this.classifiedStyles = {};
         this.scope = path.get("body").scope;
-        this.context = parent.context
+        // this.context = parent.context ???
     }
 
     insertDoIntermediate(){ /*ExternalProps does binding to existing one.*/ }
