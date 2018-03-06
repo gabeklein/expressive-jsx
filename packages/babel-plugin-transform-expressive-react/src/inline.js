@@ -328,17 +328,21 @@ export class ComponentInline extends ComponentGroup {
 
             if(output.length == 1){
                 output = output[0]
-                if(output.type == "SpreadElement") return output.argument;
-                else return output
+                if(output.type == "SpreadElement") 
+                    return output.argument;
+                else
+                    return output
             }
             else return t.arrayExpression(output)
 
         } else{
             if(dynamic) inline.push(t.spreadProperty(dynamic))
+
+            if(inline.length == 1 && inline[0].type == "SpreadProperty")
+                return inline[0].argument
+
             return t.objectExpression(inline);
         }
-
-        
     }
 
     standardCombinedPropsFormatFor(inline, dynamic){
@@ -353,59 +357,68 @@ export class ComponentInline extends ComponentGroup {
         }
     }
 
-    typeInformationAppliedTo(inline_attributes){ 
+    get typeInformation(){ 
 
-        const _classNames = [];
-        let _type = ELEMENT_TYPE_DEFAULT, _className;
-
-        for(const item of this.class){
-            const {name} = item;
-            const include = this.context[name];
- 
-            if(include) 
-                include.into(inline_attributes, _classNames)
-
-            else if(item.head == true){
-                if(/^[A-Z]/.test(name))
-                    _type = t.identifier(name)
-                else {
-                    if(this.prefix == "html" || html_tags_obvious.has(name))
-                        _type = t.stringLiteral(name);
-                    else 
-                        _classNames.push(name);
-                }
-            }
-
-            else _classNames.push(name)
-        }
-
-        if(_classNames.length) 
-            _className = 
-                t.objectProperty(
-                    t.identifier("className"),
-                    t.stringLiteral(_classNames.reverse().join(" "))
-                )
-
-        return { _className, _type };
-
-    }
-
-    transform(){
-
-        const  _init = [];
-        let _style, _props;
-
-        const { scope, doesReceiveDynamic } = this;
+        const css = Opts.applicationType != "native" ? [] : false;
+        let type;
 
         const inline = {
+            css,
             props: [], 
             style: []
         }
 
-        let { _type, _className } = this.typeInformationAppliedTo(inline)
+        for(const { name, head } of this.class){
+            
+            if(head){
+                if(/^[A-Z]/.test(name))
+                    type = t.identifier(name)
+                    
+                else if(this.prefix == "html" || html_tags_obvious.has(name))
+                    type = t.stringLiteral(name);
+            }
+ 
+            const modify = this.context[name];
 
-        let _propsPassed = t.objectExpression(inline.props);
-        let _stylePassed;
+            if(modify)
+                modify.into(inline)
+
+            else if(css && !head)
+                css.push(name);
+        }
+
+        if(!css.length) 
+            delete inline.css;
+        
+        if(!inline.type)
+            inline.type = type || ELEMENT_TYPE_DEFAULT
+
+        return inline;
+    }
+
+    transform(){
+
+        const own_declarations = [];
+        let accumulated_style, computed_props;
+
+        const { 
+            scope, 
+            doesReceiveDynamic = false,
+
+            typeInformation: inline,
+            
+            props: declared_props,
+            style: declared_style
+
+        } = this;
+
+        let { 
+            type: computed_type,
+            props: static_props,
+            style: static_style
+        } = inline;
+
+        let computed_style;
         
         if(this.attrs.length)
             for(const attr of this.attrs)
@@ -415,107 +428,119 @@ export class ComponentInline extends ComponentGroup {
 
         if(this.disordered || this.stats.length || doesReceiveDynamic){
 
-            if(_type.type == "Identifier"){
-                const existing = scope.getBinding(_type.name);
+            if(computed_type.type == "Identifier"){
+                const existing = scope.getBinding(computed_type.name);
                 if(existing && 0 > ["const", "module"].indexOf(
                    existing.kind
                 )){
-                    const _actualType = _type;
-                    _type = scope.generateUidIdentifier("t");
-                    _init.push(
-                        t.variableDeclarator(_type, _actualType)
+                    const _actualType = computed_type;
+                    computed_type = scope.generateUidIdentifier("t");
+                    own_declarations.push(
+                        t.variableDeclarator(computed_type, _actualType)
                     )
                 }
             }
 
             const acc = this.context._accumulate = {};
 
-            if(this.style.length || doesReceiveDynamic && doesReceiveDynamic.style){
-                _style
+            if(declared_style.length || doesReceiveDynamic.style){
+                accumulated_style
                     = acc.style 
                     = scope.generateUidIdentifier("s");
-                _init.push(
-                    t.variableDeclarator(_style, t.objectExpression([]))
+                own_declarations.push(
+                    t.variableDeclarator(accumulated_style, t.objectExpression([]))
                 )
             }
-            if(inline.style.length){
-                _stylePassed = scope.generateUidIdentifier("ss");
-                _init.push(
+            if(static_style.length){
+                computed_style = scope.generateUidIdentifier("ss");
+                own_declarations.push(
                     t.variableDeclarator(
-                        _stylePassed, 
-                        this.standardCombinedStyleFormatFor(inline.style, _style)
+                        computed_style, 
+                        this.standardCombinedStyleFormatFor(static_style, accumulated_style)
                     )
                 )
             } else {
-                _stylePassed = _style
+                computed_style = accumulated_style
             }
 
-            if(this.props.length || doesReceiveDynamic && doesReceiveDynamic.props){
-                _props
+            if(declared_props.length || doesReceiveDynamic.props){
+                computed_props
                     = acc.props
                     = scope.generateUidIdentifier("p");
-                _init.push(
-                    t.variableDeclarator(_props, this.standardCombinedPropsFormatFor(inline.props))
+                own_declarations.push(
+                    t.variableDeclarator(computed_props, this.standardCombinedPropsFormatFor(static_props))
                 )
-                _propsPassed = _props;
             } 
-            else if(_stylePassed){
-                inline.props.push(t.objectProperty(t.identifier("style"), _stylePassed))
+            else if(computed_style){
+                static_props.push(t.objectProperty(t.identifier("style"), computed_style))
             }
+
         } else {
-            if(this.props.length)
-                inline.props.push(...this.props.map(x => x.asProperty))
-            inline.style.push(...this.style.map(x => x.asProperty));
-            if(inline.style.length){
-                inline.props.push(t.objectProperty(
+
+            if(declared_props.length)
+                static_props.push(...declared_props.map(x => x.asProperty))
+
+            static_style.push(...declared_style.map(x => x.asProperty));
+
+            if(static_style.length){
+                static_props.push(t.objectProperty(
                     t.identifier("style"), 
-                    this.standardCombinedStyleFormatFor(inline.style)
+                    this.standardCombinedStyleFormatFor(static_style)
                 ))
             }
+
         }
 
-        if(_className) inline.props.push(_className);
+        if(inline.css) static_props.push(
+            t.objectProperty(
+                t.identifier("className"),
+                t.stringLiteral(inline.css.reverse().join(" "))
+            )
+        );
 
-        const _quoteTarget = { props: _props, style: _style };
-        const { output, body } = this.collateChildren( 
+        const _quoteTarget = { props: computed_props, style: accumulated_style };
+
+        const { output: computed_children, body: compute_children } = this.collateChildren( 
             (x) => {
                 const target = _quoteTarget[x.inlineType];
                 if(target) return x.asAssignedTo(target);
             }
         );
 
-        const stats = [];
+        const compute_instructions = [];
 
-        if(_init.length) stats.push(
-            t.variableDeclaration("const", _init)
+        if(own_declarations.length) compute_instructions.push(
+            t.variableDeclaration("const", own_declarations)
         )
 
-        stats.push(...body)
+        compute_instructions.push(...compute_children)
 
-        if(t.isIdentifier(_props) && _stylePassed)
-            stats.push(
+        if(t.isIdentifier(computed_props) && computed_style)
+            compute_instructions.push(
                 t.expressionStatement(
                     t.assignmentExpression("=",
-                        t.memberExpression(_props, t.identifier("style")), _stylePassed
+                        t.memberExpression(computed_props, t.identifier("style")), computed_style
                     )
                 )
             )
 
-        const product = transform.createElement( _type, this.standardCombinedPropsFormatFor(inline.props, _props), ...output )
+        const product = transform.createElement( 
+            computed_type, this.standardCombinedPropsFormatFor(static_props, computed_props), ...computed_children
+        )
 
-        if(stats.length) {
-            const id = this.scope.generateUidIdentifier("e");
+        if(compute_instructions.length) {
+            const reference = this.scope.generateUidIdentifier("e");
 
             const factory = [
-                transform.declare("let", id),
+                transform.declare("let", reference),
                 t.blockStatement([
-                    ...stats,
+                    ...compute_instructions,
                     t.expressionStatement(
-                        t.assignmentExpression("=", id, product)
+                        t.assignmentExpression("=", reference, product)
                     )
                 ])
             ]
-            return { product: id, factory }
+            return { product: reference, factory }
         }
         else return { product }
     }

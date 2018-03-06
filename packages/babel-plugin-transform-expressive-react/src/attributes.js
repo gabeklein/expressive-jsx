@@ -105,8 +105,8 @@ export class ComponentModifier extends AttrubutesBody {
             ])
     }
 
-    into(inline, classlist){
-        const { style, props } = inline;
+    into(inline){
+        const { style, props, css } = inline;
         const { id } = this; 
         if(this.hasBoth){
             props.push(t.spreadProperty(
