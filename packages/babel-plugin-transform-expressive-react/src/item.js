@@ -34,10 +34,9 @@ function HEX_COLOR(n){
 
         else for(let i = 0; i < 4; i++){
             decimal.push(
-                parseInt(raw.slice(i, i+2), 16)
+                parseInt(raw.slice(i*2, i*2+2), 16)
             );
         }
-            
 
         //range 0:1 for opacity, fixed to prevent long decimals like 1/3
         decimal[3] = (decimal[3] / 255).toFixed(2)
@@ -249,7 +248,12 @@ export class ChildNonComponent {
     precedence = 3
 
     static applyMultipleTo(parent, src){
-        for(const inclusion of src.get("elements"))
+        const elem = src.get("elements");
+        if(elem.length == 1 && elem[0].isSpreadElement())
+            parent.add(
+                new this(elem[0].get("argument"))
+            )
+        else for(const inclusion of src.get("elements"))
             parent.add(
                 new this(inclusion)
             )
