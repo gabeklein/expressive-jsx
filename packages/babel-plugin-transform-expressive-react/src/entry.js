@@ -3,18 +3,37 @@ const t = require("babel-types")
 const { ComponentFragment } = require("./component")
 const { Shared, transform } = require("./shared")
 
-export function RenderFromDoMethods(paths, state, opts){
+export function RenderFromDoMethods(renders, subs){
     let found = 0;
-    for(let path of paths){
+    const subComponentNames = subs.map(
+        x => x.node.key.name
+    );
+
+    for(let path of subs){
+        const { name } = path.node.key;
+        new ComponentMethod(path, {
+            context: {
+                rootNamed: name,
+                relativeComponentsAccessable: subComponentNames
+            }
+        });
+    }
+
+    for(let path of renders){
         if(++found > 1) throw path.buildCodeFrameError("multiple do methods not (yet) supported!")
-        new ComponentMethod(path, state);
+        new ComponentMethod(path, {
+            context: {
+                rootNamed: "render",
+                relativeComponentsAccessable: subComponentNames
+            }
+        });
     }
 }
 
 export class ComponentEntry extends ComponentFragment {
 
-    constructor(path){
-        super(path)
+    constructor(path, parent){
+        super(path, parent)
         this.scope = path.scope;
         this.context.root = this;
     }
@@ -56,22 +75,48 @@ class ComponentMethod extends ComponentEntry {
     generateMethodRender(path, doExpression){
         const [argument_props, argument_state] = path.get("params");
         const body = path.get("body");
+        const src = body.getSource();
+        const name = this.context.rootNamed;
+        
+        const bindRelatives = this.context.relativeComponentsAccessable.reduce(
+            (acc, name) => {
+                if(new RegExp(`[^a-zA-Z]${name}[^a-zA-Z]`).test(src)){
+                    name = t.identifier(name);
+                    acc.push(
+                        t.objectProperty(name, name, false, true)
+                    )
+                }
+                return acc;
+            }, []
+        )
 
-        if(argument_props){
-            if(argument_props.isAssignmentPattern())
-                argument_props.buildCodeFrameError("Props Argument will always resolve to `this.props`")
-
+        if(bindRelatives.length){
             body.scope.push({
-                kind: "var",
-                id: argument_props.node,
-                init: t.memberExpression( t.thisExpression(), t.identifier("props") )
+                kind: "const",
+                id: t.objectPattern(bindRelatives),
+                init: t.thisExpression()
             })
         }
 
+        let params = [];
+        
+        if(argument_props)
+            if(name == "render"){
+                if(argument_props.isAssignmentPattern())
+                    argument_props.buildCodeFrameError("Props Argument will always resolve to `this.props`")
+                
+                body.scope.push({
+                    kind: "var",
+                    id: argument_props.node,
+                    init: t.memberExpression( t.thisExpression(), t.identifier("props") )
+                })
+            } 
+            else params = [argument_props.node]
+
         return t.classMethod(
             "method", 
-            t.identifier("render"), 
-            [ /*no parameters*/ ],
+            t.identifier(name), 
+            params,
             t.blockStatement([
                 t.returnStatement(doExpression)
             ])
