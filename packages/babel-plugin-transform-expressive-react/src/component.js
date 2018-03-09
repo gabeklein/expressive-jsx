@@ -70,10 +70,13 @@ class TraversableBody {
     }
 
     LabeledStatement(path){
-        const src = path.get("body");
-        const type = `Labeled${src.type}`
-        if(type in this) this[type](path); 
-        else throw src.buildCodeFrameError(`Unhandled Labeled Statement of type ${type}`);
+
+        return GeneralModifier.handle(this, path);
+
+        // const src = path.get("body");
+        // const type = `Labeled${src.type}`
+        // if(type in this) this[type](path); 
+        // else throw src.buildCodeFrameError(`Unhandled Labeled Statement of type ${type}`);
     }
 
 }
@@ -91,26 +94,26 @@ export class AttrubutesBody extends TraversableBody {
         Prop.applyTo(this, path)
     }
 
-    LabeledExpressionStatement(path){
-        Style.applyTo(this, path)
-    }
+    // LabeledExpressionStatement(path){
+    //     Style.applyTo(this, path)
+    // }
 
-    LabeledStatement(path){
+    // LabeledStatement(path){
 
-        if(Opts.applicationType != "native")
-        if(~["self", "screen"].indexOf(path.node.label.name))
-            return SpecialModifier.applyTo(this, path)
+    //     if(Opts.applicationType != "native")
+    //     if(~["self", "screen"].indexOf(path.node.label.name))
+    //         return SpecialModifier.applyTo(this, path)
         
-        super.LabeledStatement(path)
-    }
+    //     super.LabeledStatement(path)
+    // }
 
-    LabeledLabeledStatement(exp){
-        throw exp.get("body").buildCodeFrameError("Cannot chain style modifiers, or whatever you're trying to do");
-    }
+    // LabeledLabeledStatement(exp){
+    //     throw exp.get("body").buildCodeFrameError("Cannot chain style modifiers, or whatever you're trying to do");
+    // }
 
-    LabeledBlockStatement(path){
-        ComponentModifier.applyTo(this, path)
-    }
+    // LabeledBlockStatement(path){
+    //     ComponentModifier.applyTo(this, path)
+    // }
 }
 
 export class Component extends AttrubutesBody {
@@ -184,13 +187,14 @@ export class ComponentGroup extends Component {
     segue = 0;
 
     add(obj){
-        const { precedence: newPrec = 4 } = obj;
-        if(this.segue > newPrec){
+        const updated = obj.precedence || 4;
+
+        if(this.segue > updated){
             this.flagDisordered();
             this.add = super.add; //disable check since no longer needed
         }
-        else if(newPrec < 4)
-            this.segue = newPrec;
+        else if(updated < 4)
+            this.segue = updated;
 
         super.add(obj)
     }
@@ -293,9 +297,9 @@ export class ComponentGroup extends Component {
 
 export class ComponentFragment extends ComponentGroup {
 
-    LabeledExpressionStatement(path){
-        throw path.buildCodeFrameError("Styles have nothing to apply to here!")
-    }
+    // LabeledExpressionStatement(path){
+    //     throw path.buildCodeFrameError("Styles have nothing to apply to here!")
+    // }
 
     AssignmentExpression(path){
         throw path.buildCodeFrameError("Props have nothing to apply to here!")
@@ -310,4 +314,4 @@ const { ComponentModifier } = require("./attributes");
 const { ComponentSwitch } = require("./ifstatement");
 const { ComponentRepeating } = require("./forloop");
 const { ComponentInlineExpression, ComponentFunctionExpression } = require("./entry");
-const { SpecialModifier } = require("./modifier");
+const { GeneralModifier } = require("./modifier");
