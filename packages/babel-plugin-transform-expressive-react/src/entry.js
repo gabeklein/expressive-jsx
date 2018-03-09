@@ -90,13 +90,16 @@ class ComponentMethod extends ComponentEntry {
             }, []
         )
 
-        if(bindRelatives.length){
-            body.scope.push({
-                kind: "const",
-                id: t.objectPattern(bindRelatives),
-                init: t.thisExpression()
-            })
-        }
+        if(bindRelatives.length)
+            if(name == render)
+                body.scope.push({
+                    kind: "const",
+                    id: t.objectPattern(bindRelatives),
+                    init: t.thisExpression()
+                })
+            } 
+            else throw new Error("fix WIP: no this context to make sibling elements visible")
+            
 
         let params = [];
         
