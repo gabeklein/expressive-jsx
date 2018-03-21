@@ -108,11 +108,12 @@ export class ComponentSwitch {
 
 class ComponentConsequent extends ComponentGroup {
     constructor(parent, conditional, path, test){
-        super(path, parent)
+        super()
+        this.insertDoIntermediate(path)
         this.scope = path.scope;
         this.logicalParent = conditional
         this.test = test
-        this.segue = conditional.effectivePrecedence
+        this.precedent = conditional.effectivePrecedence
         this.props = []
         this.style = []
     }

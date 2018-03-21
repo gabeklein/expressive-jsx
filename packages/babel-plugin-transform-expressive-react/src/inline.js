@@ -276,23 +276,20 @@ export class ComponentInline extends ComponentGroup {
     style = []
     attrs = []
     class = []
-    segue = 0
+    precedent = 0
     precedence = 3
     // doesReceive = {}
 
     constructor(path, parent){
-        super(path, parent)
-
+        super();
+        this.insertDoIntermediate(path)
         this.classifiedStyles = {};
         this.scope = path.get("body").scope;
-        // this.context = parent.context ???
+        this.context = parent.context;
+        this.parent = parent;
     }
 
     insertDoIntermediate(){ /*ExternalProps does binding to existing one.*/ }
-
-    didEnterOwnScope(path){
-        super.didEnterOwnScope(path)
-    }
 
     didExitOwnScope(){
         // this.transform = this.body
@@ -323,7 +320,7 @@ export class ComponentInline extends ComponentGroup {
     }
 
     standardCombinedStyleFormatFor(inline, dynamic){
-        if(Opts.applicationType == "native"){
+        if(Opts.reactEnv == "native"){
             let output = this.seperateItems(inline, dynamic);
 
             if(output.length == 1){
@@ -359,7 +356,7 @@ export class ComponentInline extends ComponentGroup {
 
     get typeInformation(){ 
 
-        const css = Opts.applicationType != "native" ? [] : false;
+        const css = Opts.reactEnv != "native" ? [] : false;
         let type;
 
         const inline = {
@@ -378,10 +375,10 @@ export class ComponentInline extends ComponentGroup {
                     type = t.stringLiteral(name);
             }
  
-            const modify = this.context[name];
+            const modify = this.context[`__${name}`];
 
             if(modify)
-                modify.into(inline)
+                modify.invoke(this, inline)
 
             else if(css && !head)
                 css.push(name);

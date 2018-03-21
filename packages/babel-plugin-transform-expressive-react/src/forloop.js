@@ -27,11 +27,13 @@ export class ComponentRepeating extends ComponentFragment {
 
     constructor(path, parent, kind){
         const node = path.node;
-        super(path, parent)
+
+        super();
         this.scope = path.scope;
         this.kind = kind || null;
         this.node = node;
         this.path = path
+        this.insertDoIntermediate(path)
     }
 
     didEnterOwnScope(path){

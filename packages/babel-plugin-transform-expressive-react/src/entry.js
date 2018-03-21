@@ -11,32 +11,16 @@ export function RenderFromDoMethods(renders, subs){
 
     for(let path of subs){
         const { name } = path.node.key;
-        new ComponentMethod(path, {
-            context: {
-                rootNamed: name,
-                relativeComponentsAccessable: subComponentNames
-            }
-        });
+        new ComponentMethod(name, path, subComponentNames);
     }
 
     for(let path of renders){
         if(++found > 1) throw path.buildCodeFrameError("multiple do methods not (yet) supported!")
-        new ComponentMethod(path, {
-            context: {
-                rootNamed: "render",
-                relativeComponentsAccessable: subComponentNames
-            }
-        });
+        new ComponentMethod("render", path, subComponentNames);
     }
 }
 
 export class ComponentEntry extends ComponentFragment {
-
-    constructor(path, parent){
-        super(path, parent)
-        this.scope = path.scope;
-        this.context.root = this;
-    }
 
     mayReceiveAttributes(style, props){
         const complainAbout = props || style;
@@ -64,23 +48,25 @@ export class ComponentEntry extends ComponentFragment {
 
 class ComponentMethod extends ComponentEntry {
 
+    constructor(name, path, subComponentNames) {
+        super();
+        this.attendantComponentNames = subComponentNames;
+        this.methodNamed = name;
+        this.insertDoIntermediate(path)
+    }
+
     insertDoIntermediate(path){
         const doExpression = t.doExpression(path.node.body);
               doExpression.meta = this;
-        path.replaceWith(
-            this.generateMethodRender(path, doExpression)
-        )
-    }
 
-    generateMethodRender(path, doExpression){
         const [argument_props, argument_state] = path.get("params");
         const body = path.get("body");
         const src = body.getSource();
-        const name = this.context.rootNamed;
-        
-        const bindRelatives = this.context.relativeComponentsAccessable.reduce(
+        const name = this.methodNamed;
+
+        const bindRelatives = this.attendantComponentNames.reduce(
             (acc, name) => {
-                if(new RegExp(`[^a-zA-Z]${name}[^a-zA-Z]`).test(src)){
+                if(new RegExp(`\W${name}\W`).test(src)){
                     name = t.identifier(name);
                     acc.push(
                         t.objectProperty(name, name, false, true)
@@ -91,7 +77,7 @@ class ComponentMethod extends ComponentEntry {
         )
 
         if(bindRelatives.length)
-            if(name == render)
+            if(name == "render"){
                 body.scope.push({
                     kind: "const",
                     id: t.objectPattern(bindRelatives),
@@ -99,15 +85,15 @@ class ComponentMethod extends ComponentEntry {
                 })
             } 
             else throw new Error("fix WIP: no this context to make sibling elements visible")
-            
+
 
         let params = [];
-        
+
         if(argument_props)
             if(name == "render"){
                 if(argument_props.isAssignmentPattern())
                     argument_props.buildCodeFrameError("Props Argument will always resolve to `this.props`")
-                
+
                 body.scope.push({
                     kind: "var",
                     id: argument_props.node,
@@ -116,13 +102,15 @@ class ComponentMethod extends ComponentEntry {
             } 
             else params = [argument_props.node]
 
-        return t.classMethod(
-            "method", 
-            t.identifier(name), 
-            params,
-            t.blockStatement([
-                t.returnStatement(doExpression)
-            ])
+        path.replaceWith(
+            t.classMethod(
+                "method", 
+                t.identifier(name), 
+                params,
+                t.blockStatement([
+                    t.returnStatement(doExpression)
+                ])
+            )
         )
     }
 

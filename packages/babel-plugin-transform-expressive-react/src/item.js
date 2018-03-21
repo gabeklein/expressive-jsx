@@ -29,7 +29,7 @@ function HEX_COLOR(n){
         let decimal = [];
 
         if(raw.length == 4)
-            // (shorthand) 'F...' -> "FF" -> 0xFF
+            // (shorthand) 'F.' -> "FF..." -> 0xFF
             decimal = Array.from(raw).map(x => parseInt(x+x, 16))
 
         else for(let i = 0; i < 4; i++){
@@ -149,15 +149,15 @@ export class Style extends Attribute {
     inlineType = "style"
     precedence = 2
 
-    static applyTo(parent, path){
+    static applyTo(name, parent, path){
         parent.add( 
-            new this(path)
+            new this(name, path)
         );
     }
 
-    constructor(path){
-        super(path.get("body.expression"))
-        this.name = path.node.label.name;
+    constructor(name, path){
+        super(path.get("expression"))
+        this.name = name;
 
         const { computed } = this;
         if(computed){
@@ -198,7 +198,7 @@ export class Style extends Attribute {
             case "NumericLiteral": {
                 if(extra && /^0x/.test(extra.raw))
                     return HEX_COLOR(extra.raw)
-                else if(Opts.applicationType != "native" && CSS_EXPECTING_UNITS.has(this.name))
+                else if(Opts.reactEnv != "native" && CSS_EXPECTING_UNITS.has(this.name))
                     return `${extra.rawValue}px`
                 else return extra.rawValue;
             }

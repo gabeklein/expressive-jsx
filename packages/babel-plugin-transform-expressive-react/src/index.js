@@ -5,6 +5,7 @@ const t = require("babel-types");
 const template = require("babel-template");
 const { Shared, Opts } = require("./shared");
 const { Component } = require("./component")
+const { createSharedStack } = require("./modifier")
 const { 
     RenderFromDoMethods, 
     ComponentInlineExpression, 
@@ -45,6 +46,8 @@ const fnExtends = template(`
     }
 `)
 
+
+
 export default (options) => {
 
     const REACT_MODULE_NAME = options.reactRequires || "react";
@@ -62,8 +65,8 @@ export default (options) => {
             Program: {
                 enter(path, state){
                     Object.assign(Opts, state.opts)
-                    const ref = Shared.PROVIDED = {};
                     Shared.state = state;
+                    Shared.stack = createSharedStack(state.opts.modifiers);
 
                     for(const x in registerIDs)
                         Shared[x] = path.scope.generateUidIdentifier(registerIDs[x]);

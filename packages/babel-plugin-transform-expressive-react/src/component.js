@@ -1,5 +1,5 @@
 const t = require("babel-types")
-const { Opts, transform } = require("./shared")
+const { Opts, transform, Shared } = require("./shared")
 
 const UNARY_NAMES = {
     "~": "Tilde",
@@ -11,17 +11,6 @@ const UNARY_NAMES = {
 class TraversableBody {
 
     children = [];
-
-    constructor(path, parent){
-
-        if(parent){
-            this.context = Object.create(parent.context)
-            this.parent = parent
-        } else 
-            this.context = {};
-
-        this.insertDoIntermediate(path)
-    }
 
     add(obj){
         const { inlineType } = obj;
@@ -41,6 +30,8 @@ class TraversableBody {
     }
 
     didEnterOwnScope(path){
+        Shared.stack.push(this);
+
         const src = path.get("body.body")
         for(const item of src)
             if(item.type in this) 
@@ -49,7 +40,7 @@ class TraversableBody {
     }
 
     didExitOwnScope(){
-        return void 0;
+        Shared.stack.pop();
     }
 
     //  Node Type Specifiers
@@ -69,16 +60,6 @@ class TraversableBody {
         else throw arg.buildCodeFrameError(`Unhandled Unary statement of type ${type}`);   
     }
 
-    LabeledStatement(path){
-
-        return GeneralModifier.handle(this, path);
-
-        // const src = path.get("body");
-        // const type = `Labeled${src.type}`
-        // if(type in this) this[type](path); 
-        // else throw src.buildCodeFrameError(`Unhandled Labeled Statement of type ${type}`);
-    }
-
 }
 
 export class AttrubutesBody extends TraversableBody {
@@ -86,34 +67,14 @@ export class AttrubutesBody extends TraversableBody {
     props = [];
     style = [];
 
-    AntiExpression(path){
-        return
+    LabeledStatement(path){
+        HandleModifier(path, this);
     }
 
     AssignmentExpression(path){
         Prop.applyTo(this, path)
     }
 
-    // LabeledExpressionStatement(path){
-    //     Style.applyTo(this, path)
-    // }
-
-    // LabeledStatement(path){
-
-    //     if(Opts.applicationType != "native")
-    //     if(~["self", "screen"].indexOf(path.node.label.name))
-    //         return SpecialModifier.applyTo(this, path)
-        
-    //     super.LabeledStatement(path)
-    // }
-
-    // LabeledLabeledStatement(exp){
-    //     throw exp.get("body").buildCodeFrameError("Cannot chain style modifiers, or whatever you're trying to do");
-    // }
-
-    // LabeledBlockStatement(path){
-    //     ComponentModifier.applyTo(this, path)
-    // }
 }
 
 export class Component extends AttrubutesBody {
@@ -151,16 +112,20 @@ export class Component extends AttrubutesBody {
         CollateInlineComponentsTo(this, path)
     }
 
-    IfStatement(path){
-        ComponentSwitch.applyTo(this, path)
-    }
-
     StringLiteral(path){
         ChildNonComponent.applyTo(this, path)
     }
 
     ArrayExpression(path){
         ChildNonComponent.applyMultipleTo(this, path)
+    }
+
+    EmptyStatement(path){ 
+        ChildNonComponent.applyVoidTo(this)
+    };
+
+    IfStatement(path){
+        ComponentSwitch.applyTo(this, path)
     }
 
     ForStatement(path, mod){
@@ -174,32 +139,27 @@ export class Component extends AttrubutesBody {
     ForOfStatement(path){
         this.ForStatement(path, "of")
     }
-
-    EmptyStatement(path){ 
-        ChildNonComponent.applyVoidTo(this)
-     };
     
 }
 
 export class ComponentGroup extends Component {
 
     stats = []
-    segue = 0;
+    precedent = 0;
 
     add(obj){
         const updated = obj.precedence || 4;
 
-        if(this.segue > updated){
-            this.flagDisordered();
-            this.add = super.add; //disable check since no longer needed
-        }
-        else if(updated < 4)
-            this.segue = updated;
+        if(this.precedent > updated) this.flagDisordered();
+        else if(updated < 4) this.precedent = updated;
 
         super.add(obj)
     }
 
     flagDisordered(){
+        //disable check since no longer needed
+        this.add = super.add;
+
         this.disordered = true;
         this.doesHaveDynamicProperties = true;
     }
@@ -221,7 +181,6 @@ export class ComponentGroup extends Component {
                 output.push(...adjacent)
                 return;
             }
-
 
             const name = scope.generateUidIdentifier("e");
             let ref, stat;
@@ -265,7 +224,8 @@ export class ComponentGroup extends Component {
 
                 } break;
 
-                case "attrs": break;
+                case "attrs": 
+                    break;
 
                 default: 
                     if(onAppliedType){
@@ -310,8 +270,7 @@ export class ComponentFragment extends ComponentGroup {
 
 const { Prop, Style, Statement, ChildNonComponent } = require("./item");
 const { CollateInlineComponentsTo } = require("./inline");
-const { ComponentModifier } = require("./attributes");
 const { ComponentSwitch } = require("./ifstatement");
 const { ComponentRepeating } = require("./forloop");
 const { ComponentInlineExpression, ComponentFunctionExpression } = require("./entry");
-const { GeneralModifier } = require("./modifier");
+const { HandleModifier } = require("./modifier");

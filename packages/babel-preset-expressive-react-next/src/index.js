@@ -2,6 +2,8 @@ import inferReactComponent      from "babel-plugin-infer-react-class";
 import transformExpressiveLoops from "babel-plugin-transform-expressive-loops";
 import transformExpressiveReact from "babel-plugin-transform-expressive-react";
 
+const WebStyles = require("expressive-react-web-styles");
+
 module.exports = options => {
     return {
         plugins: [
@@ -10,8 +12,10 @@ module.exports = options => {
             }],
             transformExpressiveLoops,
             [transformExpressiveReact, {
-                styleMode: "next",
-                applicationType: "next"
+                reactEnv: "next",
+                modifiers: [
+                    WebStyles
+                ]
             }],
         ]
     }
