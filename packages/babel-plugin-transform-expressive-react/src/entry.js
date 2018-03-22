@@ -91,7 +91,7 @@ class ComponentMethod extends ComponentEntry {
         )
 
         if(bindRelatives.length)
-            if(name == render)
+            if(name == "render"){
                 body.scope.push({
                     kind: "const",
                     id: t.objectPattern(bindRelatives),
