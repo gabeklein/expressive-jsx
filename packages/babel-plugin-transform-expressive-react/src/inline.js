@@ -129,6 +129,7 @@ class InlineProps extends Prop {
         for(let path of props){
             switch(path.type){
                 case "DoExpression":
+                    debugger
                     if(target.body) throw path.buildCodeFrameError("Do Expression was already declared!")
                     target.body = path;
                     target.scope = path.get("body").scope;

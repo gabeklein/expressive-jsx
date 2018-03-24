@@ -100,12 +100,11 @@ export class Component extends AttrubutesBody {
         if(node.expressive_visited) return
 
         if(!meta){
-            meta = path.parentPath.isArrowFunctionExpression()
+            meta = node.meta = path.parentPath.isArrowFunctionExpression()
                 ? new ComponentFunctionExpression(path)
                 : new ComponentInlineExpression(path)
         }
  
-        if()
         meta.didEnterOwnScope(path)
 
         state.expressive_used = true;
