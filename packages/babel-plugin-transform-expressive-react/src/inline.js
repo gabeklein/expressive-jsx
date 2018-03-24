@@ -282,14 +282,11 @@ export class ComponentInline extends ComponentGroup {
 
     constructor(path, parent){
         super();
-        this.insertDoIntermediate(path)
         this.classifiedStyles = {};
         this.scope = path.get("body").scope;
         this.context = parent.context;
         this.parent = parent;
     }
-
-    insertDoIntermediate(){ /*ExternalProps does binding to existing one.*/ }
 
     didExitOwnScope(){
         // this.transform = this.body
@@ -378,7 +375,7 @@ export class ComponentInline extends ComponentGroup {
             const modify = this.context[`__${name}`];
 
             if(modify)
-                modify.invoke(this, inline)
+                modify.invoke(this, [], inline)
 
             else if(css && !head)
                 css.push(name);
@@ -411,8 +408,8 @@ export class ComponentInline extends ComponentGroup {
 
         let { 
             type: computed_type,
-            props: static_props,
-            style: static_style
+            props: initial_props,
+            style: initial_style
         } = inline;
 
         let computed_style;
@@ -448,12 +445,12 @@ export class ComponentInline extends ComponentGroup {
                     t.variableDeclarator(accumulated_style, t.objectExpression([]))
                 )
             }
-            if(static_style.length){
+            if(initial_style.length){
                 computed_style = scope.generateUidIdentifier("ss");
                 own_declarations.push(
                     t.variableDeclarator(
                         computed_style, 
-                        this.standardCombinedStyleFormatFor(static_style, accumulated_style)
+                        this.standardCombinedStyleFormatFor(initial_style, accumulated_style)
                     )
                 )
             } else {
@@ -465,30 +462,30 @@ export class ComponentInline extends ComponentGroup {
                     = acc.props
                     = scope.generateUidIdentifier("p");
                 own_declarations.push(
-                    t.variableDeclarator(computed_props, this.standardCombinedPropsFormatFor(static_props))
+                    t.variableDeclarator(computed_props, this.standardCombinedPropsFormatFor(initial_props))
                 )
             } 
             else if(computed_style){
-                static_props.push(t.objectProperty(t.identifier("style"), computed_style))
+                initial_props.push(t.objectProperty(t.identifier("style"), computed_style))
             }
 
         } else {
 
             if(declared_props.length)
-                static_props.push(...declared_props.map(x => x.asProperty))
+                initial_props.push(...declared_props.map(x => x.asProperty))
 
-            static_style.push(...declared_style.map(x => x.asProperty));
+            initial_style.push(...declared_style.map(x => x.asProperty));
 
-            if(static_style.length){
-                static_props.push(t.objectProperty(
+            if(initial_style.length){
+                initial_props.push(t.objectProperty(
                     t.identifier("style"), 
-                    this.standardCombinedStyleFormatFor(static_style)
+                    this.standardCombinedStyleFormatFor(initial_style)
                 ))
             }
 
         }
 
-        if(inline.css) static_props.push(
+        if(inline.css) initial_props.push(
             t.objectProperty(
                 t.identifier("className"),
                 t.stringLiteral(inline.css.reverse().join(" "))
@@ -522,7 +519,7 @@ export class ComponentInline extends ComponentGroup {
             )
 
         const product = transform.createElement( 
-            computed_type, this.standardCombinedPropsFormatFor(static_props, computed_props), ...computed_children
+            computed_type, this.standardCombinedPropsFormatFor(initial_props, computed_props), ...computed_children
         )
 
         if(compute_instructions.length) {

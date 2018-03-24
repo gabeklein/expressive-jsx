@@ -29,6 +29,17 @@ class TraversableBody {
         throw new Error(`No method named ${fnName} in parent-chain of element ${this.constructor.name}`)
     }
 
+    insertDoIntermediate(path, node){
+        const doTransform = t.doExpression(node || path.node);
+
+        doTransform.meta = this;
+        this.doTransform = doTransform;
+
+        path.replaceWith(
+            t.expressionStatement(doTransform)
+        )
+    }
+
     didEnterOwnScope(path){
         Shared.stack.push(this);
 

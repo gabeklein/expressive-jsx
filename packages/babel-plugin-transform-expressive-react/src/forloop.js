@@ -114,13 +114,7 @@ export class ComponentRepeating extends ComponentFragment {
         if(action.type != "BlockStatement")
             action = t.blockStatement([action])
 
-        const doTransform = t.doExpression(action)
-
-        doTransform.meta = this;
-
-        path.replaceWith(
-            t.expressionStatement(doTransform)
-        )
+        super.insertDoIntermediate(path, action)
     }
 
     AssignmentExpression(path){

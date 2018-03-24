@@ -130,14 +130,11 @@ class ComponentConsequent extends ComponentGroup {
     insertDoIntermediate(path){
         var {node: consequent, type} = path;
 
-        const doTransform = t.doExpression(
+        const body = 
             type == "BlockStatement"
-                ? consequent
-                : t.blockStatement([consequent])
-        )
+                ? consequent : t.blockStatement([consequent])
 
-        doTransform.meta = this;
-        this.doTransform = doTransform;
+        super.insertDoIntermediate(path, body)
     }
 
     outputDynamic(as){

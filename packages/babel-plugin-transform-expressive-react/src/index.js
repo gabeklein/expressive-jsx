@@ -5,7 +5,7 @@ const t = require("babel-types");
 const template = require("babel-template");
 const { Shared, Opts } = require("./shared");
 const { Component } = require("./component")
-const { createSharedStack } = require("./modifier")
+const { createSharedStack, StyleModifier } = require("./modifier")
 const { 
     RenderFromDoMethods, 
     ComponentInlineExpression, 
@@ -45,7 +45,6 @@ const fnExtends = template(`
         return Object.assign.apply(null, [{}].concat(args));
     }
 `)
-
 
 
 export default (options) => {
