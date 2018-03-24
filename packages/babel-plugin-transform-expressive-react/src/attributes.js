@@ -58,7 +58,7 @@ export function invocationArguments(exp){
                 return rawValue
             else {
                 const value = HEX_COLOR(raw);
-                value.fromHex = raw;
+                // value.fromHex = raw;
                 return value;
             }
         }
@@ -154,7 +154,7 @@ class NativeComponentModifier extends ComponentModifier {
 
     invoke(target, args, inline){
         if(!inline && !args.length) return;
-        debugger
+        this.into(inline)
     }
 
     output(){
@@ -181,6 +181,7 @@ class NativeComponentModifier extends ComponentModifier {
             ])
         }
     }
+
 
     into(inline){
 

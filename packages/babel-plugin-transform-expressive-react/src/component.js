@@ -104,7 +104,8 @@ export class Component extends AttrubutesBody {
                 ? new ComponentFunctionExpression(path)
                 : new ComponentInlineExpression(path)
         }
-
+ 
+        if()
         meta.didEnterOwnScope(path)
 
         state.expressive_used = true;
@@ -115,6 +116,8 @@ export class Component extends AttrubutesBody {
         
         if(node.expressive_visited) return
         else node.expressive_visited = true;
+
+        if(!node.meta) debugger
 
         node.meta.didExitOwnScope(path)
     }

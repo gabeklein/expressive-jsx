@@ -111,7 +111,7 @@ class StyleModifier {
         if(typeof a == "number" && typeof b == "string")
             output = `${a}${b}`;
         else
-            output = a.toString();
+            output = (a || "").toString();
 
         return {
             style: {
