@@ -51,7 +51,7 @@ class TraversableBody {
     }
 
     didExitOwnScope(){
-        Shared.stack.pop();
+        this.context.pop();
     }
 
     //  Node Type Specifiers

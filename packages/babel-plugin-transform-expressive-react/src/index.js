@@ -105,29 +105,25 @@ export default (options) => {
                         }
                     )
 
-                    {
-                        const pass = t.identifier("from");
-                        scope.push({
-                            kind: "const",
-                            id: Shared.createApplied,
-                            init: t.arrowFunctionExpression(
-                                [pass],
-                                t.callExpression(
-                                    t.memberExpression(Shared.createElement, t.identifier("apply")),
-                                    [ t.identifier("undefined"), pass ]
-                                )
+                    const pass = t.identifier("from");
+                    scope.push({
+                        kind: "const",
+                        id: Shared.createApplied,
+                        init: t.arrowFunctionExpression(
+                            [pass],
+                            t.callExpression(
+                                t.memberExpression(Shared.createElement, t.identifier("apply")),
+                                [ t.identifier("undefined"), pass ]
                             )
-                        })
-                    }
+                        )
+                    })
 
-                    {
-                        const fn = fnExtends({});
-                        scope.push({
-                            kind: "const",
-                            id: Shared.extends,
-                            init: fn.expression
-                        })
-                    }
+                    const fn = fnExtends({});
+                    scope.push({
+                        kind: "const",
+                        id: Shared.extends,
+                        init: fn.expression
+                    })
 
                     if(state.expressive_for_used){
                         const fn = fnCreateIterated({ 

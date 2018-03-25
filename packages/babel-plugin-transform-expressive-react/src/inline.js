@@ -129,7 +129,6 @@ class InlineProps extends Prop {
         for(let path of props){
             switch(path.type){
                 case "DoExpression":
-                    debugger
                     if(target.body) throw path.buildCodeFrameError("Do Expression was already declared!")
                     target.body = path;
                     target.scope = path.get("body").scope;
@@ -290,6 +289,7 @@ export class ComponentInline extends ComponentGroup {
     }
 
     didExitOwnScope(){
+        super.didExitOwnScope();
         // this.transform = this.body
         //     ? this.outputDynamic
         //     : thsi.outputInline;
@@ -373,6 +373,7 @@ export class ComponentInline extends ComponentGroup {
                     type = t.stringLiteral(name);
             }
  
+            if(!this.context) debugger
             const modify = this.context[`__${name}`];
 
             if(modify)

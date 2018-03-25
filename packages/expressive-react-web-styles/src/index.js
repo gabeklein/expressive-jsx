@@ -1,31 +1,83 @@
 const Mods = module.exports = {
     size,
     absolute,
+    border,
     fixed
 };
 
-function pxStyleSimple(value, unit) {
-    if(typeof value == "string"); else
-    if(typeof value != "number") throw ({
-        index: 0,
-        message: "TypeError: argument must be number or string with unit value."
-    });
-    else value = `${value}${typeof unit == "string" ? unit : "px"}`
+for(const style of [
+    "top",
+    "left",
+    "right",
+    "bottom",
+    "width",
+    "height",
+    "maxWidth",
+    "maxHeight",
+    "marginTop",
+    "marginBottom",
+    "marginLeft",
+    "marginRight",
+    "paddingLeft",
+    "paddingRight",
+    "paddingTop",
+    "paddingBottom",
+    "fontSize",
+    "lineHeight",
+    "outlineWidth"
+]) Mods[style] = nToNUnits;
 
-    return {
-        style: {
-            [this.name]: value
+for(const style of [
+    "margin",
+    "padding"
+]) Mods[style] = spacing(style)
+
+for(const kind of [
+    "border",
+    "borderTop",
+    "borderLeft",
+    "borderRight",
+    "borderBottom",
+]) Mods[kind] = border(kind)
+
+function border(kind){
+    return function (color = "black", width = 1, style = "solid"){
+        width = appendUnitToN(width);
+
+        let value = color == "none"
+            ? "none"
+            : [color, style, width].join(" ")
+
+        return {
+            style: { [kind]: value  }
         }
     }
 }
 
-function size(value){
-    if(typeof value == "number")
-        value = value.toString() + "px";
+function spacing(style){
+    return function(keyword){
+        let value 
+
+        if(arguments.length == 1 && keyword == "auto" || keyword == "none" || / /.test(keyword))
+            value = keyword
+        else {
+            let args = rect(...arguments);
+            if(arguments.length == 2)
+                args = args.slice(0,2)
+            value = args.map(x => appendUnitToN(x)).join(" ")
+        }
+
+        return {
+            style: { [style]: value }
+        }
+    }
+}
+
+function size(width, height){
+    width = appendUnitToN(width);
     return {
         style: {
-            width: value,
-            height: value
+            width, height: appendUnitToN(height) || width
         }
     }
 }
@@ -43,16 +95,33 @@ function fixed(){
 }
 
 function _cover(){
-    const { length } = arguments;
-    const args = Array.from(arguments).map(x => {
-        return x ? x + "px" : "0"
-    })
+    const [top, right, bottom, left] = 
+        rect(...arguments).map(x => appendUnitToN(x))
 
+    return {
+        style: { top, right, bottom, left }
+    }
+}
+
+function appendUnitToN(val, unit = "px") {
+    return (
+        typeof val == "number" 
+            ? val == 0 
+                ? "0"
+                : val + unit
+        : typeof val == "undefined"
+            ? ""
+            : val
+    )
+}
+
+function rect(a, b, c, d){
+    const { length } = arguments;
     let top, left, right, bottom;
-    let [a = "0", b, c, d] = args;
 
     switch(arguments.length){
         case 0:
+            a = 0
         case 1:
             top = left = right = bottom = a;
             break;
@@ -62,38 +131,22 @@ function _cover(){
             break;
         case 3:
             top = a
-            left = right = b
             bottom = c
+            left = right = b
             break
         case 4:
-            [top, right, bottom, left] = arguments;
-            break;
+            return Array.from(arguments);
+        default:
+            throw new Error("Too many arguments for css 4-way value.")
     }
-    
-    return {
-        style: {
-            left, right, top, bottom
-        }
-    }
+
+    return [top, right, bottom, left]
 }
 
-for(const style of [
-    "width",
-    "height",
-    "maxWidth",
-    "maxHeight",
-    "margin",
-    "marginTop",
-    "marginBottom",
-    "marginLeft",
-    "marginRight",
-    "padding",
-    "paddingLeft",
-    "paddingRight",
-    "paddingTop",
-    "paddingBottom",
-    "fontSize",
-    "lineHeight"
-]){
-    Mods[style] = pxStyleSimple;
+function nToNUnits(value) {
+    return {
+        style: {
+            [this.name]: appendUnitToN(value)
+        }
+    }
 }

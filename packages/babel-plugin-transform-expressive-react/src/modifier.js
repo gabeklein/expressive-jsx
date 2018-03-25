@@ -2,13 +2,7 @@ import { Modifier, invocationArguments } from "./attributes";
 import { AttrubutesBody } from "./component";
 const { Prop, Style, Statement, ChildNonComponent } = require("./item");
 const { Opts, Shared } = require("./shared");
-const t = require("babel-types")
-
-const ReservedModifiers = { 
-    is(){
-        debugger
-    }
-};
+const t = require("babel-types");
 
 const StackFrame = {
     push(node){
@@ -17,16 +11,15 @@ const StackFrame = {
         frame.current = node;
     },
     pop(){
-        delete Shared.stack.node.context;
+        // delete Shared.stack.current.context;
         Shared.stack = Object.getPrototypeOf(this);
     },
     get(name){
-        const mod = this[name];
+        const mod = this[`__${name}`];
         return mod && mod.handler;
     },
     declare(modifier){
         const { name } = modifier;
-
         if(this.hasOwnProperty(name))
             throw body.buildCodeFrameError(`Duplicate declaration of named modifier!`)
 
@@ -34,6 +27,11 @@ const StackFrame = {
     }
 }
 
+const ReservedModifiers = { 
+    is(){
+        debugger
+    }
+};
 
 export function createSharedStack(included = []){
     let Stack = StackFrame;
@@ -42,7 +40,7 @@ export function createSharedStack(included = []){
         Stack = Object.create(Stack)
 
         for(const name in inclusion){
-            Stack[name] = new StyleModifier(name, inclusion[name])
+            Stack[`__${name}`] = new StyleModifier(name, inclusion[name])
         }
     }
 
@@ -65,7 +63,15 @@ class ExplicitStyle {
 
     constructor(name, value) {
         this.id = t.identifier(name);
-        this.value = t.stringLiteral(value.toString());
+        switch(typeof value){
+            case "number":
+                value = value.toString()
+            case "string":
+                this.value = t.stringLiteral(value)
+                break
+            default:
+                this.value = value;
+        }
     }
 
     get asProperty(){
@@ -89,29 +95,65 @@ class StyleModifier {
             this.transform = transform;
     }
 
-    invoke(body, target){
-        const args = invocationArguments(body.get("expression"));
+    get handler(){
+        return (body, recipient) => {
+            if(body.type == "ExpressionStatement")
+                this.apply(body.get("expression"), recipient);
+        }
+    }
 
-        const { style } = this.transform.apply(this, [].concat(args));
+    apply(args, target){
+        const { style, props, attrs } = this.invoke(
+            invocationArguments(args), 
+            target
+        );
+
+        // for(const item in attrs){
+        //     const mod = 
+        //         target.context.get(item) ||
+        //         new StyleModifier(item)
+
+        //     const {
+        //         style: nestedStyle,
+        //         props: nestedProps,
+        //         attrs: nestedAttrs
+        //     } = mod.invoke(attrs[item], target);
+
+        //     if(style && style.length)
+        // }
+
         for(const item in style)
             target.add(
                 new ExplicitStyle(item, style[item])
             )
     }
 
-    get handler(){
-        return (body, recipient) => {
-            if(body.type == "ExpressionStatement")
-                this.invoke(body, recipient);
+    invoke(args, target){
+
+        args = [].concat(args)
+        for(const argument of args){
+            if(typeof argument == "object" && argument.named){
+                const { inner, named } = argument;
+                const mod = target.context.get(named)
+
+                argument.computed = mod
+                    ? mod.invoke(inner, target).value || ""
+                    : `${named}(${inner.join(" ")})`
+            }
         }
+
+        return this.transform.apply(this, args);
     }
 
-    transform(a, b, c){
+    transform(){
         let output;
-        if(typeof a == "number" && typeof b == "string")
-            output = `${a}${b}`;
+
+        const args = Array.from(arguments).map(x => x.computed || x)
+
+        if(args[0] == undefined)
+            output = ""
         else
-            output = (a || "").toString();
+            output = Array.from(args).join(" ")
 
         return {
             style: {
@@ -125,7 +167,7 @@ const LabeledStatementDefault = (name) =>
     (body, recipient) => {
         switch(body.type){
             case "ExpressionStatement": 
-                new StyleModifier(name).invoke(body, recipient);
+                new StyleModifier(name).apply(body.get("expression"), recipient);
                 return;
 
             case "BlockStatement":

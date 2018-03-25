@@ -31,6 +31,8 @@ function HEX_COLOR(n){
 }
 
 export function invocationArguments(exp){
+    let sign = 1;
+
     switch(exp.type){
 
         case "Identifier": {
@@ -52,15 +54,36 @@ export function invocationArguments(exp){
         case "StringLiteral": 
             return exp.node.value;
 
+        case "UnaryExpression": {
+            const arg = exp.get("argument")
+            if(exp.node.operator == "-" && arg.isNumericLiteral())
+                sign = -1, exp = arg;
+                //continue to numeric case
+            else return exp.node;
+        }
+
         case "NumericLiteral": {
             const { raw, rawValue, parenthesized } = exp.node.extra;
             if(parenthesized || !/^0x/.test(raw))
-                return rawValue
+                return sign*rawValue;
             else {
-                const value = HEX_COLOR(raw);
-                // value.fromHex = raw;
-                return value;
+                if(sign < 0)
+                    throw exp.buildCodeFrameError(`Hexadecimal numbers are converted into HEX coloration so negative sign doesn't mean anything here.\nParenthesize the number if you really need "-${rawValue}" for some reason...`)
+                return HEX_COLOR(raw);
             }
+        }
+
+        case "CallExpression": {
+            const callee = exp.get("callee");
+            
+            if(!callee.isIdentifier())
+                throw callee.buildCodeFrameError("Only the identifier of another modifier may be called within another modifier.")
+
+            return {
+                named: callee.node.name,
+                location: callee,
+                inner: exp.get("arguments").map(invocationArguments)
+            };
         }
 
         case "SequenceExpression":
@@ -68,6 +91,9 @@ export function invocationArguments(exp){
 
         case "ArrowFunctionExpression":
             throw exp.buildCodeFrameError("ok what? you're putting a function here why?")
+
+        default:
+            return exp.node;
     }
 }
 

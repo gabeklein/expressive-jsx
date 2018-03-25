@@ -63,10 +63,10 @@ class ComponentMethod extends ComponentEntry {
         const body = path.get("body");
         const src = body.getSource();
         const name = this.methodNamed;
-
+        
         const bindRelatives = this.attendantComponentNames.reduce(
             (acc, name) => {
-                if(new RegExp(`\W${name}\W`).test(src)){
+                if(new RegExp(`[^a-zA-Z_]${name}[^a-zA-Z_]`).test(src)){
                     name = t.identifier(name);
                     acc.push(
                         t.objectProperty(name, name, false, true)
