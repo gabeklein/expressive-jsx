@@ -27,9 +27,22 @@ const StackFrame = {
     }
 }
 
+const { assign: Assign } = Object;
+
 const ReservedModifiers = { 
-    is(){
-        debugger
+    is(...args){
+        const out = { 
+            attrs: {}, props: {}, style: {}
+        };
+        let computed;
+        for(const arg of args){
+            if(typeof arg == "object" && (computed = arg.computed))
+                for(const x in computed)
+                    Assign(out[x], computed[x])
+            else 
+                out.attrs[arg] = [];
+        }
+        return out
     }
 };
 
@@ -97,58 +110,90 @@ class StyleModifier {
 
     get handler(){
         return (body, recipient) => {
-            if(body.type == "ExpressionStatement")
-                this.apply(body.get("expression"), recipient);
+            // if(body.type == "ExpressionStatement")
+            this.apply(body, recipient);
         }
     }
 
-    apply(args, target){
-        const { style, props, attrs } = this.invoke(
-            invocationArguments(args), 
-            target
-        );
+    apply(src, target){
+        if(t.isExpressionStatement(src))
+            src = invocationArguments(src.get("expression"));
+        else 
+            src = [];
 
-        // for(const item in attrs){
-        //     const mod = 
-        //         target.context.get(item) ||
-        //         new StyleModifier(item)
-
-        //     const {
-        //         style: nestedStyle,
-        //         props: nestedProps,
-        //         attrs: nestedAttrs
-        //     } = mod.invoke(attrs[item], target);
-
-        //     if(style && style.length)
-        // }
+        const { style, props } = this.invoke( src, target );
 
         for(const item in style)
-            target.add(
-                new ExplicitStyle(item, style[item])
-            )
+            if(style[item] !== null)
+                target.add(
+                    new ExplicitStyle(item, style[item])
+                )
     }
 
     invoke(args, target){
 
+        const { assign, getPrototypeOf } = Object;
+
         args = [].concat(args)
         for(const argument of args){
-            if(typeof argument == "object" && argument.named){
+            if(typeof argument == "object" && argument && argument.named){
                 const { inner, named } = argument;
-                const mod = target.context.get(named)
+                const mod = target.context[`__${named}`]
 
-                argument.computed = mod
-                    ? mod.invoke(inner, target).value || ""
-                    : `${named}(${inner.join(" ")})`
+                if(mod){
+                    argument.computed = mod.invoke(inner, target);
+                }
+                else 
+                    argument.computed = {value: `${named}(${inner.join(" ")})`}
             }
         }
 
-        return this.transform.apply(this, args);
+        const computedStyle = {}, computedProps = {};
+        const { style, props, attrs } = this.transform.apply(this, args);
+
+        for(const named in attrs){
+            let ctx = target.context;
+            const value = attrs[named];
+
+            if(value == null) continue;
+
+            if(named == this.name){
+                let seeking;
+                do { 
+                    seeking = !ctx.hasOwnProperty(`__${named}`);
+                    ctx = getPrototypeOf(ctx);
+                }
+                while(seeking);
+            }
+
+            const mod = 
+                ctx[`__${named}`] ||
+                new StyleModifier(named)
+
+            const {
+                style,
+                props
+            } = mod.invoke(value, target);
+
+            assign(computedStyle, style)
+            assign(computedProps, props)
+        }
+
+        if(style) assign(computedStyle, style);
+        if(props) assign(computedProps, props);
+
+        return {
+            style: computedStyle,
+            props: computedProps
+        }
     }
 
     transform(){
         let output;
 
-        const args = Array.from(arguments).map(x => x.computed || x)
+        const args = Array.from(arguments).map(x => {
+            return x && typeof x == "object" && x.computed && x.computed.value || x
+        })
 
         if(args[0] == undefined)
             output = ""
@@ -166,8 +211,9 @@ class StyleModifier {
 const LabeledStatementDefault = (name) => 
     (body, recipient) => {
         switch(body.type){
+            case "EmptyStatement":
             case "ExpressionStatement": 
-                new StyleModifier(name).apply(body.get("expression"), recipient);
+                new StyleModifier(name).apply(body, recipient);
                 return;
 
             case "BlockStatement":

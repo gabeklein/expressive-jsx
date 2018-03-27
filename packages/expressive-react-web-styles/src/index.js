@@ -2,8 +2,33 @@ const Mods = module.exports = {
     size,
     absolute,
     border,
-    fixed
+    fixed,
+    backgroundImage,
+    zIndex,
+    outline,
+    font
 };
+
+function zIndex(a){
+    return {
+        style: { zIndex: a }
+    }
+}
+
+function outline(a, b){
+    return b == undefined
+        ? {style: { outline: `1px dashed ${a || "green"}` }}
+        : {attrs: { outline: Array.from(arguments) }}
+}
+
+function font(a, b = null){
+    return {
+        attrs: {
+            fontSize: a,
+            fontWeight: b
+        }
+    }
+}
 
 for(const style of [
     "top",
@@ -14,6 +39,8 @@ for(const style of [
     "height",
     "maxWidth",
     "maxHeight",
+    "minWidth",
+    "minHeight",
     "marginTop",
     "marginBottom",
     "marginLeft",
@@ -24,7 +51,8 @@ for(const style of [
     "paddingBottom",
     "fontSize",
     "lineHeight",
-    "outlineWidth"
+    "outlineWidth",
+    "borderRadius"
 ]) Mods[style] = nToNUnits;
 
 for(const style of [
@@ -40,13 +68,42 @@ for(const kind of [
     "borderBottom",
 ]) Mods[kind] = border(kind)
 
+for(const kind of [
+    "padding",
+    "margin"
+]) 
+for(let [direction, a, b] of [
+    ["Vertical", "Top", "Bottom"],
+    ["Horizontal", "Left", "Right"] 
+])
+{
+    a = kind + a;
+    b = kind + b;
+    Mods[kind + direction] = (aIn, bIn) => ({
+        attrs: {
+            [a]: aIn,
+            [b]: bIn || aIn
+        }
+    })
+}
+
+function backgroundImage(a){
+    if(typeof a == "object" && !a.named)
+        return { style: {
+            background: a
+        }}
+    else 
+        return { attrs: {
+            background: Array.from(arguments)
+        }} 
+}
+
 function border(kind){
     return function (color = "black", width = 1, style = "solid"){
-        width = appendUnitToN(width);
 
         let value = color == "none"
             ? "none"
-            : [color, style, width].join(" ")
+            : [ color, style, appendUnitToN(width) ].join(" ")
 
         return {
             style: { [kind]: value  }
@@ -63,7 +120,7 @@ function spacing(style){
         else {
             let args = rect(...arguments);
             if(arguments.length == 2)
-                args = args.slice(0,2)
+                args = args.slice(0, 2)
             value = args.map(x => appendUnitToN(x)).join(" ")
         }
 
@@ -74,45 +131,31 @@ function spacing(style){
 }
 
 function size(width, height){
-    width = appendUnitToN(width);
     return {
-        style: {
-            width, height: appendUnitToN(height) || width
+        attrs: {
+            width, 
+            height: height || width
         }
     }
 }
 
 function absolute(){
     const out = _cover(...arguments);
-    out.style.position = "absolute";
+    out.style = {position: "absolute"};
     return out;
 }
 
 function fixed(){
     const out = _cover(...arguments);
-    out.style.position = "fixed";
+    out.style = {position: "fixed"};
     return out;
 }
 
 function _cover(){
-    const [top, right, bottom, left] = 
-        rect(...arguments).map(x => appendUnitToN(x))
-
+    const [top, right, bottom, left] = rect(...arguments)
     return {
-        style: { top, right, bottom, left }
+        attrs: { top, right, bottom, left }
     }
-}
-
-function appendUnitToN(val, unit = "px") {
-    return (
-        typeof val == "number" 
-            ? val == 0 
-                ? "0"
-                : val + unit
-        : typeof val == "undefined"
-            ? ""
-            : val
-    )
 }
 
 function rect(a, b, c, d){
@@ -149,4 +192,16 @@ function nToNUnits(value) {
             [this.name]: appendUnitToN(value)
         }
     }
+}
+
+function appendUnitToN(val, unit = "px") {
+    return (
+        typeof val == "number" 
+            ? val == 0 
+                ? "0"
+                : val + unit
+        : typeof val == "undefined"
+            ? ""
+            : val
+    )
 }

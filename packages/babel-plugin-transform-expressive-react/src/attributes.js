@@ -6,6 +6,14 @@ const { Opts, Shared, transform } = require("./shared");
 function HEX_COLOR(n){
     let raw = n.substring(2), out;
 
+    if(raw.length == 1)
+        raw = "000" + raw[0]
+    else 
+    if(raw.length == 2){
+        const [a, b] = raw;
+        raw = a + a + a + b;
+    }
+    
     if(raw.length % 4 == 0){
         let decimal = [];
 
@@ -32,16 +40,20 @@ function HEX_COLOR(n){
 
 export function invocationArguments(exp){
     let sign = 1;
+    let { node } = exp;
+
+    if(node.extra && node.extra.parenthesized)
+        return node;
 
     switch(exp.type){
 
         case "Identifier": {
-            const value = exp.node.name;
+            const value = node.name;
             return value;
         }
 
         case "BinaryExpression": {
-            const {left, right, operator} = exp.node;
+            const {left, right, operator} = node;
             if(operator != "-")
                 throw exp.buildCodeFrameError(`only "-" operator is allowed here`)
             if( t.isIdentifier(left) && t.isIdentifier(right) && right.start == left.end + 1 )
@@ -52,18 +64,19 @@ export function invocationArguments(exp){
         }
 
         case "StringLiteral": 
-            return exp.node.value;
+            return node.value;
 
         case "UnaryExpression": {
-            const arg = exp.get("argument")
+            const arg = exp.get("argument");
+            node = arg.node;
             if(exp.node.operator == "-" && arg.isNumericLiteral())
                 sign = -1, exp = arg;
                 //continue to numeric case
-            else return exp.node;
+            else return node;
         }
 
         case "NumericLiteral": {
-            const { raw, rawValue, parenthesized } = exp.node.extra;
+            const { raw, rawValue, parenthesized } = node.extra;
             if(parenthesized || !/^0x/.test(raw))
                 return sign*rawValue;
             else {
@@ -86,6 +99,9 @@ export function invocationArguments(exp){
             };
         }
 
+        case "NullLiteral":
+            return null;
+
         case "SequenceExpression":
             return exp.get("expressions").map(invocationArguments);
 
@@ -93,7 +109,7 @@ export function invocationArguments(exp){
             throw exp.buildCodeFrameError("ok what? you're putting a function here why?")
 
         default:
-            return exp.node;
+            return node;
     }
 }
 
@@ -115,6 +131,10 @@ class ComponentModifier extends AttrubutesBody {
                 case "ExpressionStatement":
                     const params = [].concat( this.invocationArguments( body.get("expression") ) );
                     this.invoke( recipient, params, false )
+                    break;
+
+                case "EmptyStatement":
+                    this.invoke( recipient, [ null ], false );
                     break;
 
                 case "BlockStatement": 
@@ -166,7 +186,6 @@ class WebComponentModifier extends ComponentModifier {
         super.declare(recipient)
         // recipient.context.root.declareStyle
     }
-    
 }
 
 class NativeComponentModifier extends ComponentModifier {
@@ -207,7 +226,6 @@ class NativeComponentModifier extends ComponentModifier {
             ])
         }
     }
-
 
     into(inline){
 
