@@ -3,7 +3,7 @@ const { createHash } = require('crypto');
 const t = require("babel-types");
 const { Opts, Shared, transform } = require("./shared");
 
-function HEX_COLOR(n){
+export function HEX_COLOR(n){
     let raw = n.substring(2), out;
 
     if(raw.length == 1)
@@ -120,6 +120,10 @@ class ComponentModifier extends AttrubutesBody {
     constructor(name, body, inherited){
         super()
         this.name = name;
+        this.hash = createHash("md5")
+            .update(body.getSource())
+            .digest('hex')
+            .substring(0, 3);
         if(inherited)
             this.inherits = inherited;
         this.insertDoIntermediate(body)
@@ -129,7 +133,7 @@ class ComponentModifier extends AttrubutesBody {
         return (body, recipient) => {
             switch(body.type){
                 case "ExpressionStatement":
-                    const params = [].concat( this.invocationArguments( body.get("expression") ) );
+                    const params = [].concat( invocationArguments( body.get("expression") ) );
                     this.invoke( recipient, params, false )
                     break;
 
@@ -140,7 +144,7 @@ class ComponentModifier extends AttrubutesBody {
                 case "BlockStatement": 
                     const usingName = this.name;
                     const inheriting = this;
-                    new Modifier(usingName, body, inheriting).declare(recipient);
+                    new exports[Opts.reactEnv](usingName, body, inheriting).declare(recipient);
                     break;
 
                 case "IfStatement":
@@ -167,28 +171,7 @@ class ComponentModifier extends AttrubutesBody {
     }
 }
 
-class WebComponentModifier extends ComponentModifier {
-
-    constructor(name, body, inherited) {
-        super(...arguments)
-        this.insertDoIntermediate(path)
-        this.hash = createHash("md5")
-            .update(path.getSource())
-            .digest('hex')
-            .substring(0, 6);
-    }
-
-    generateJSXStyleNode(){
-        
-    }
-
-    declare(recipient){
-        super.declare(recipient)
-        // recipient.context.root.declareStyle
-    }
-}
-
-class NativeComponentModifier extends ComponentModifier {
+export class NativeComponentModifier extends ComponentModifier {
 
     inlineType = "stats"
 
@@ -228,8 +211,9 @@ class NativeComponentModifier extends ComponentModifier {
     }
 
     into(inline){
+        if(this.inherits) this.inherits.into(inline);
 
-        if(this.also) this.also.into(inline);
+        if(!this.style.length) return
 
         const { style, props, css } = inline;
         const { id } = this; 
@@ -254,7 +238,41 @@ class NativeComponentModifier extends ComponentModifier {
     }
 }
 
-export const Modifier = 
-    Opts.reactEnv != "native"
-        ? NativeComponentModifier 
-        : WebComponentModifier;
+export class NextJSComponentModifier extends NativeComponentModifier {
+
+    style_static = [];
+
+    constructor(name, body, inherited) {
+        super(...arguments)
+        this.classname = `${this.name}-${this.hash}`
+    }
+
+    declare(recipient){
+        super.declare(recipient);
+        recipient.context.entry.styleBlockMayInclude(this);
+    }
+
+    invoke(target, args, inline){
+        if(!inline && !args.length) return;
+        this.into(inline)
+    }
+
+    into(inline){
+        if(this.style_static !== this.style && this.style_static.length)
+            inline.css.push(this.classname)
+        super.into(inline);
+    }
+ 
+    generateCSS(){
+        let { style_static: style, classname } = this;
+        return `.${classname} { ${
+            style.map(x => x.asString).join("")
+        } }`
+    }
+}
+
+export {
+    NativeComponentModifier as native,
+    NativeComponentModifier as next
+    // NextJSComponentModifier as next
+}

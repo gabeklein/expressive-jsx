@@ -6,11 +6,7 @@ const template = require("babel-template");
 const { Shared, Opts } = require("./shared");
 const { Component } = require("./component")
 const { createSharedStack, StyleModifier } = require("./modifier")
-const { 
-    RenderFromDoMethods, 
-    ComponentInlineExpression, 
-    ComponentFunctionExpression 
-} = require('./entry.js');
+const { RenderFromDoMethods, ComponentInlineExpression, ComponentFunctionExpression } = require('./entry.js');
 
 const registerIDs = {
     createElement: "create",

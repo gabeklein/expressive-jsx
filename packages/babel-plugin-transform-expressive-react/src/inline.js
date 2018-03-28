@@ -2,8 +2,9 @@
 const t = require('babel-types')
 const { html_tags_obvious } = require('./html-types');
 const { Shared, Opts, transform } = require("./shared");
-const { ChildNonComponent, Prop, Style } = require("./item")
+const { ChildNonComponent, Prop } = require("./item")
 const { ComponentGroup } = require("./component")
+const { createHash } = require('crypto');
 
 const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
 
@@ -288,11 +289,22 @@ export class ComponentInline extends ComponentGroup {
         this.parent = parent;
     }
 
+    didEnterOwnScope(){
+        // debugger
+        super.didEnterOwnScope(...arguments)
+    }
+
     didExitOwnScope(){
+        this.output = this.build();
         super.didExitOwnScope();
         // this.transform = this.body
         //     ? this.outputDynamic
         //     : thsi.outputInline;
+    }
+
+    transform(){
+        
+        return this.output || this.build()
     }
 
     mayReceiveAttributes(style, props){
@@ -318,6 +330,7 @@ export class ComponentInline extends ComponentGroup {
     }
 
     standardCombinedStyleFormatFor(inline, dynamic){
+
         if(Opts.reactEnv == "native"){
             let output = this.seperateItems(inline, dynamic);
 
@@ -374,17 +387,16 @@ export class ComponentInline extends ComponentGroup {
             }
  
             if(!this.context) debugger
-            const modify = this.context[`__${name}`];
+            const modify = this.context[`$${name}`];
 
-            if(modify)
+            if(modify){
+                if(typeof modify.invoke != "function") debugger
                 modify.invoke(this, [], inline)
+            }
 
             else if(css && !head)
                 css.push(name);
         }
-
-        if(!css.length) 
-            delete inline.css;
         
         if(!inline.type)
             inline.type = type || ELEMENT_TYPE_DEFAULT
@@ -392,7 +404,33 @@ export class ComponentInline extends ComponentGroup {
         return inline;
     }
 
-    transform(){
+    includeComputedStyle(inline){
+        if(Opts.reactEnv == "next"){
+            // const name = this.class.reverse().map(x => x.name).join(".");
+            const 
+                classname = 
+                this.classname = 
+                    createHash("md5")
+                        .update(Math.random().toString())
+                        .digest('hex')
+                        .substring(0, 6);
+            this.context.entry.styleBlockMayInclude(this);
+            inline.css.push(classname)
+        }
+        else 
+            inline.style.push(...this.style_static.map(x => x.asProperty));
+    }
+
+    generateCSS(){
+        let { style_static: style, classname } = this;
+        return `.${classname} {${
+            style.map(x => x.asString).join("")
+        }}`
+    }
+
+    
+
+    build(){
 
         const own_declarations = [];
         let accumulated_style, computed_props;
@@ -413,6 +451,9 @@ export class ComponentInline extends ComponentGroup {
             props: initial_props,
             style: initial_style
         } = inline;
+
+        if(this.style_static.length)
+            this.includeComputedStyle(inline);
 
         let computed_style;
         
@@ -487,7 +528,7 @@ export class ComponentInline extends ComponentGroup {
 
         }
 
-        if(inline.css) initial_props.push(
+        if(inline.css && inline.css.length) initial_props.push(
             t.objectProperty(
                 t.identifier("className"),
                 t.stringLiteral(inline.css.reverse().join(" "))

@@ -28,22 +28,82 @@ export class ComponentEntry extends ComponentFragment {
         throw complainAbout.path.buildCodeFrameError(`${description} has nothing to apply to in this context!`)
     }
 
-    didEnterOwnScope(path){
-        super.didEnterOwnScope(path)
+    init(path){
+        this.context.entry = this;
         this.context.scope 
             = this.scope 
             = path.get("body").scope;
     }
 
-    // declareStyle(from){
-    //     const id = this.scope.generateUidIdentifier("S")
-    //     this.scope.push({
-    //         kind: "const",
-    //         id, 
-    //         init: t.stringLiteral("lol")
-    //     })
-    //     return id;
-    // }
+    styleBlockMayInclude(from){
+        this.style.push(from);
+    }
+
+    generateJSXStyleNode(){
+        let styles = this.style.filter(x => {
+            if(!x.style_static.length) debugger
+            return x.style_static.length
+        })
+        if(!styles.length) return
+        
+        styles = styles.map(x => x.generateCSS()).join("     ");
+        // styles = `\n${styles}\n`
+        const styleBlock = transform.createElement(
+            t.stringLiteral("style"), 
+            t.objectExpression([
+                t.objectProperty(
+                    t.identifier("global"), t.stringLiteral("true")
+                ),
+                t.objectProperty(
+                    t.identifier("jsx"), t.stringLiteral("true")
+                ),
+                t.objectProperty(
+                    t.identifier("dangerouslySetInnerHTML"), t.objectExpression([
+                        t.objectProperty(
+                            t.identifier("cheesy"), t.booleanLiteral(true)
+                        ),
+                        t.objectProperty(
+                            t.identifier("__html"), 
+                            // t.stringLiteral(styles)
+                            t.templateLiteral([
+                                t.templateElement({
+                                    cooked: styles,
+                                    raw: styles,
+                                    tail: true
+                                })
+                            ], [])
+                        )
+                    ])
+                )
+            ])
+            
+            // t.templateLiteral([
+            //     t.templateElement(styles, styles)
+            // ])
+        )
+        this.children.splice(0, 0, {
+            inlineType: "child",
+            transform: () => ({ product: styleBlock })
+        });
+    }
+
+    outputBodyDynamic(){
+        if(this.style.length)
+            this.generateJSXStyleNode()
+
+        const { body, output }
+            = this.collateChildren();
+
+        const returned = 
+            output.length > 1
+                ? transform.createFragment(output)
+                : output[0] || t.booleanLiteral(false)
+
+        return [
+            ...body, 
+            t.returnStatement(returned)
+        ]
+    }
 }
 
 class ComponentMethod extends ComponentEntry {
@@ -115,18 +175,7 @@ class ComponentMethod extends ComponentEntry {
     }
 
     didExitOwnScope(path){
-        const { body, output }
-            = this.collateChildren();
-
-        const returned = 
-            output.length > 1
-                ? transform.createFragment(output)
-                : output[0] || t.booleanLiteral(false)
-
-        path.parentPath.replaceWithMultiple([
-            ...body, 
-            t.returnStatement(returned)
-        ])
+        path.parentPath.replaceWithMultiple(this.outputBodyDynamic())
     }
 }
 
@@ -134,21 +183,6 @@ export class ComponentFunctionExpression extends ComponentEntry {
 
     insertDoIntermediate(path){
         path.node.meta = this;
-    }
-
-    outputBodyDynamic(){
-        const { body, output }
-            = this.collateChildren();
-
-        const returned = 
-            output.length > 1
-                ? transform.createFragment(output)
-                : output[0] || t.booleanLiteral(false)
-
-        return [
-            ...body, 
-            t.returnStatement(returned)
-        ]
     }
 
     didExitOwnScope(path){

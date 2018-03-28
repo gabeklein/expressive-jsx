@@ -16,8 +16,8 @@ function zIndex(a){
 }
 
 function outline(a, b){
-    return b == undefined
-        ? {style: { outline: `1px dashed ${a || "green"}` }}
+    return a == "none"     ? {style: { outline: "none" }}
+        :  b == undefined  ? {style: { outline: `1px dashed ${a || "green"}` }}
         : {attrs: { outline: Array.from(arguments) }}
 }
 

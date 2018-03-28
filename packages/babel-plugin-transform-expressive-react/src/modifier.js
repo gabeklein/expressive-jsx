@@ -1,6 +1,7 @@
-import { Modifier, invocationArguments } from "./attributes";
+import { invocationArguments } from "./attributes";
+import * as ModifierEnv from "./attributes";
 import { AttrubutesBody } from "./component";
-const { Prop, Style, Statement, ChildNonComponent } = require("./item");
+const { Prop, Statement, ChildNonComponent } = require("./item");
 const { Opts, Shared } = require("./shared");
 const t = require("babel-types");
 
@@ -23,7 +24,7 @@ const StackFrame = {
         if(this.hasOwnProperty(name))
             throw body.buildCodeFrameError(`Duplicate declaration of named modifier!`)
 
-        this[`__${name}`] = modifier;
+        this[`$${name}`] = modifier;
     }
 }
 
@@ -65,26 +66,38 @@ export function HandleModifier(src, recipient) {
     const body = src.get("body");
 
     const modifier = 
-        recipient.context.get(name) || 
-        LabeledStatementDefault(name);
+        body.isExpressionStatement() && 
+        recipient.context.get(name)  || 
+        LabeledStatementDefault(name)
 
     modifier(body, recipient);
 }
 
 class ExplicitStyle {
-    inlineType = "style"
 
     constructor(name, value) {
         this.id = t.identifier(name);
+        this.name = name;
+        this.static = value;
         switch(typeof value){
             case "number":
                 value = value.toString()
             case "string":
                 this.value = t.stringLiteral(value)
+                this.inlineType = "style_static";
                 break
             default:
+                this.static = false;
+                this.inlineType = "style";
                 this.value = value;
         }
+    }
+
+    get asString(){
+        const name = this.name.replace(/([A-Z]+)/g, "-$1").toLowerCase();
+        let { static: value } = this;
+
+        return `${name}: ${value};\n`
     }
 
     get asProperty(){
@@ -195,9 +208,9 @@ class StyleModifier {
             return x && typeof x == "object" && x.computed && x.computed.value || x
         })
 
-        if(args[0] == undefined)
-            output = ""
-        else
+        if(typeof args[0] == "object")
+            output = args[0]
+        else 
             output = Array.from(args).join(" ")
 
         return {
@@ -217,7 +230,7 @@ const LabeledStatementDefault = (name) =>
                 return;
 
             case "BlockStatement":
-                const mod = new Modifier(name, body);
+                const mod = new ModifierEnv[Opts.reactEnv](name, body);
                 return mod.declare(recipient);
         }
     }

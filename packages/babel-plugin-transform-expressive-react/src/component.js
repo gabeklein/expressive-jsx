@@ -14,7 +14,7 @@ class TraversableBody {
 
     add(obj){
         const { inlineType } = obj;
-        if(inlineType)
+        if(this[inlineType])
             this[inlineType].push(obj);
         this.children.push(obj);
     }
@@ -42,6 +42,9 @@ class TraversableBody {
 
     didEnterOwnScope(path){
         Shared.stack.push(this);
+        
+        if(typeof this.init == "function")
+            this.init(path);
 
         const src = path.get("body.body")
         for(const item of src)
@@ -75,8 +78,11 @@ class TraversableBody {
 
 export class AttrubutesBody extends TraversableBody {
 
-    props = [];
-    style = [];
+    constructor(params) {
+        super();
+        this.props = [];
+        this.style = this.style_static = []
+    }
 
     LabeledStatement(path){
         HandleModifier(path, this);
@@ -281,7 +287,7 @@ export class ComponentFragment extends ComponentGroup {
 
 //import last. modules here themselves import from this one, so exports must already be initialized.
 
-const { Prop, Style, Statement, ChildNonComponent } = require("./item");
+const { Prop, Statement, ChildNonComponent } = require("./item");
 const { CollateInlineComponentsTo } = require("./inline");
 const { ComponentSwitch } = require("./ifstatement");
 const { ComponentRepeating } = require("./forloop");
