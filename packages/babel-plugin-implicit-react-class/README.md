@@ -5,7 +5,7 @@
 ## Install
 
 ```sh
-npm install --save-dev babel-plugin-infer-react-class
+npm install --save-dev babel-plugin-implicit-react-class
 ```
 
 ### Before
