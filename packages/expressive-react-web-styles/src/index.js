@@ -52,7 +52,8 @@ for(const style of [
     "fontSize",
     "lineHeight",
     "outlineWidth",
-    "borderRadius"
+    "borderRadius",
+    "backgroundSize"
 ]) Mods[style] = nToNUnits;
 
 for(const style of [
@@ -90,11 +91,11 @@ for(let [direction, a, b] of [
 function backgroundImage(a){
     if(typeof a == "object" && !a.named)
         return { style: {
-            background: a
+            backgroundImage: a
         }}
     else 
         return { attrs: {
-            background: Array.from(arguments)
+            backgroundImage: Array.from(arguments)
         }} 
 }
 

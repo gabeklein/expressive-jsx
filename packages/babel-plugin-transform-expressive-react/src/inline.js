@@ -1,4 +1,3 @@
-
 const t = require('babel-types')
 const { html_tags_obvious } = require('./html-types');
 const { Shared, Opts, transform } = require("./shared");
@@ -289,26 +288,25 @@ export class ComponentInline extends ComponentGroup {
         this.parent = parent;
     }
 
-    didEnterOwnScope(){
-        // debugger
+    didEnterOwnScope(body){
+        this.hash = createHash("md5")
+            .update(body.getSource())
+            .digest('hex')
+            .substring(0, 6);
         super.didEnterOwnScope(...arguments)
     }
 
-    didExitOwnScope(){
-        this.output = this.build();
-        super.didExitOwnScope();
-        // this.transform = this.body
-        //     ? this.outputDynamic
-        //     : thsi.outputInline;
+    didExitOwnScope(body){
+        super.didExitOwnScope(body);
+        this.output = this.build()
     }
 
     transform(){
-        
         return this.output || this.build()
     }
 
     mayReceiveAttributes(style, props){
-        ({ style = style, props = props } = this.doesReceiveDynamic || {});
+        ({ style = style, props = props } = this.doesReceiveDynamic || false);
         this.doesReceiveDynamic = { style, props };
     }
 
@@ -377,7 +375,6 @@ export class ComponentInline extends ComponentGroup {
         }
 
         for(const { name, head } of this.class){
-            
             if(head){
                 if(/^[A-Z]/.test(name))
                     type = t.identifier(name)
@@ -406,29 +403,20 @@ export class ComponentInline extends ComponentGroup {
 
     includeComputedStyle(inline){
         if(Opts.reactEnv == "next"){
-            // const name = this.class.reverse().map(x => x.name).join(".");
-            const 
-                classname = 
-                this.classname = 
-                    createHash("md5")
-                        .update(Math.random().toString())
-                        .digest('hex')
-                        .substring(0, 6);
-            this.context.entry.styleBlockMayInclude(this);
+            // const name = "inline." this.class.reverse().map(x => x.name).join("-").replace("div.", "");
+            const classname = this.classname = 
+            this.class[this.class.length - 1].name + "-" + createHash("md5")
+                    .update(this.hash)
+                    .digest('hex')
+                    .substring(0, 6);
+
+            this.context.program.computedStyleMayInclude(this);
+            this.context.entry.computedStyleMayInclude(this);
             inline.css.push(classname)
         }
         else 
             inline.style.push(...this.style_static.map(x => x.asProperty));
     }
-
-    generateCSS(){
-        let { style_static: style, classname } = this;
-        return `.${classname} {${
-            style.map(x => x.asString).join("")
-        }}`
-    }
-
-    
 
     build(){
 

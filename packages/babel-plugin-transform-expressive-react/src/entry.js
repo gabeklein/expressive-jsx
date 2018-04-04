@@ -2,6 +2,7 @@
 const t = require("babel-types")
 const { ComponentFragment } = require("./component")
 const { Shared, transform } = require("./shared")
+const { createHash } = require('crypto');
 
 export function RenderFromDoMethods(renders, subs){
     let found = 0;
@@ -22,6 +23,14 @@ export function RenderFromDoMethods(renders, subs){
 
 export class ComponentEntry extends ComponentFragment {
 
+    constructor(body) {
+        super();
+        this.hash = createHash("md5")
+            .update(body.getSource())
+            .digest('hex')
+            .substring(0, 6);
+    }
+
     mayReceiveAttributes(style, props){
         const complainAbout = props || style;
         const description = style ? "Style" : "Prop";
@@ -35,61 +44,34 @@ export class ComponentEntry extends ComponentFragment {
             = path.get("body").scope;
     }
 
-    styleBlockMayInclude(from){
-        this.style.push(from);
+    computedStyleMayInclude(from){
+        const { classname } = from;
+        const { style } = this;
+        if(style.indexOf(classname) < 0)
+            style.push(classname)
     }
 
-    generateJSXStyleNode(){
-        let styles = this.style.filter(x => {
-            if(!x.style_static.length) debugger
-            return x.style_static.length
-        })
-        if(!styles.length) return
-        
-        styles = styles.map(x => x.generateCSS()).join("     ");
-        // styles = `\n${styles}\n`
-        const styleBlock = transform.createElement(
-            t.stringLiteral("style"), 
-            t.objectExpression([
-                t.objectProperty(
-                    t.identifier("global"), t.stringLiteral("true")
-                ),
-                t.objectProperty(
-                    t.identifier("jsx"), t.stringLiteral("true")
-                ),
-                t.objectProperty(
-                    t.identifier("dangerouslySetInnerHTML"), t.objectExpression([
+    makeRuntimeStyleContextClaim(){
+
+        this.children.push({
+            inlineType: "child",
+            transform: () => ({
+                product: transform.createElement(
+                    Shared.claimStyle, 
+                    t.objectExpression([
                         t.objectProperty(
-                            t.identifier("cheesy"), t.booleanLiteral(true)
-                        ),
-                        t.objectProperty(
-                            t.identifier("__html"), 
-                            // t.stringLiteral(styles)
-                            t.templateLiteral([
-                                t.templateElement({
-                                    cooked: styles,
-                                    raw: styles,
-                                    tail: true
-                                })
-                            ], [])
+                            t.identifier("css"),
+                            t.stringLiteral(this.style.join(", "))
                         )
                     ])
                 )
-            ])
-            
-            // t.templateLiteral([
-            //     t.templateElement(styles, styles)
-            // ])
-        )
-        this.children.splice(0, 0, {
-            inlineType: "child",
-            transform: () => ({ product: styleBlock })
-        });
+            })
+        })
     }
 
     outputBodyDynamic(){
         if(this.style.length)
-            this.generateJSXStyleNode()
+            this.makeRuntimeStyleContextClaim()
 
         const { body, output }
             = this.collateChildren();
@@ -109,7 +91,7 @@ export class ComponentEntry extends ComponentFragment {
 class ComponentMethod extends ComponentEntry {
 
     constructor(name, path, subComponentNames) {
-        super();
+        super(path);
         this.attendantComponentNames = subComponentNames;
         this.methodNamed = name;
         this.insertDoIntermediate(path)
@@ -176,6 +158,7 @@ class ComponentMethod extends ComponentEntry {
 
     didExitOwnScope(path){
         path.parentPath.replaceWithMultiple(this.outputBodyDynamic())
+        super.didExitOwnScope(path)
     }
 }
 
@@ -198,6 +181,7 @@ export class ComponentFunctionExpression extends ComponentEntry {
                 async
             )
         )
+        super.didExitOwnScope(path)
     }
 }
  
@@ -219,5 +203,6 @@ export class ComponentInlineExpression extends ComponentFunctionExpression {
                     t.returnStatement(output)
                 ])
         )
+        super.didExitOwnScope(path)
     }
 }

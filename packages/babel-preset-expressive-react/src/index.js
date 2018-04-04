@@ -1,4 +1,4 @@
-import inferReactComponent      from "babel-plugin-infer-react-class";
+import inferReactComponent      from "babel-plugin-implicit-react-class";
 import transformExpressiveLoops from "babel-plugin-transform-expressive-loops";
 import transformExpressiveReact from "babel-plugin-transform-expressive-react";
 
@@ -10,7 +10,7 @@ module.exports = options => {
             }],
             transformExpressiveLoops,
             [transformExpressiveReact, {
-                applicationType: "dom"
+                applicationType: "native"
             }],
         ]
     }

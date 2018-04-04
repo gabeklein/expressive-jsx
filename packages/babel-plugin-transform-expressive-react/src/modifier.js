@@ -61,6 +61,19 @@ export function createSharedStack(included = []){
     return Stack;
 }
 
+export function initComputedStyleAccumulator(Stack, build_state){
+    const targets = build_state.expressive_computeTargets = [];
+    return Object.assign(
+        Object.create(Stack),
+        //add listener to context
+        { program: {
+            computedStyleMayInclude(element){
+                targets.push(element)
+            }
+        }}
+    )
+}
+
 export function HandleModifier(src, recipient) {
     const name = src.node.label.name;
     const body = src.get("body");
@@ -97,7 +110,7 @@ class ExplicitStyle {
         const name = this.name.replace(/([A-Z]+)/g, "-$1").toLowerCase();
         let { static: value } = this;
 
-        return `${name}: ${value};\n`
+        return `${name}: ${value}; `
     }
 
     get asProperty(){

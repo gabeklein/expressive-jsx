@@ -92,6 +92,13 @@ export class AttrubutesBody extends TraversableBody {
         Prop.applyTo(this, path)
     }
 
+    computeStyles(){
+        let { style_static: style, classname } = this;
+        return (
+            `.${classname} { ${ style.map(x => x.asString).join("") } }`
+        )
+    }
+
 }
 
 export class Component extends AttrubutesBody {

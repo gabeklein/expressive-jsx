@@ -123,7 +123,7 @@ class ComponentModifier extends AttrubutesBody {
         this.hash = createHash("md5")
             .update(body.getSource())
             .digest('hex')
-            .substring(0, 3);
+            .substring(0, 6);
         if(inherited)
             this.inherits = inherited;
         this.insertDoIntermediate(body)
@@ -163,15 +163,16 @@ class ComponentModifier extends AttrubutesBody {
         super.didEnterOwnScope(path)
     }
 
-    didExitOwnScope(){
+    didExitOwnScope(path){
         if(this.props.length)
             this.type = "props"
         if(this.style.length)
             this.type = this.type ? "both" : "style"
+        super.didExitOwnScope(path)
     }
 }
 
-export class NativeComponentModifier extends ComponentModifier {
+export class InlineComponentModifier extends ComponentModifier {
 
     inlineType = "stats"
 
@@ -238,7 +239,7 @@ export class NativeComponentModifier extends ComponentModifier {
     }
 }
 
-export class NextJSComponentModifier extends NativeComponentModifier {
+export class NextJSComponentModifier extends InlineComponentModifier {
 
     style_static = [];
 
@@ -249,7 +250,8 @@ export class NextJSComponentModifier extends NativeComponentModifier {
 
     declare(recipient){
         super.declare(recipient);
-        recipient.context.entry.styleBlockMayInclude(this);
+        recipient.context.program.computedStyleMayInclude(this);
+        recipient.context.entry.computedStyleMayInclude(this);
     }
 
     invoke(target, args, inline){
@@ -262,17 +264,10 @@ export class NextJSComponentModifier extends NativeComponentModifier {
             inline.css.push(this.classname)
         super.into(inline);
     }
- 
-    generateCSS(){
-        let { style_static: style, classname } = this;
-        return `.${classname} { ${
-            style.map(x => x.asString).join("")
-        } }`
-    }
 }
 
 export {
-    NativeComponentModifier as native,
-    NativeComponentModifier as next
-    // NextJSComponentModifier as next
+    InlineComponentModifier as native,
+    NextJSComponentModifier as next
+    // NativeComponentModifier as next
 }
