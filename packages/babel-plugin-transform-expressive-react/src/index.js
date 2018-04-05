@@ -44,7 +44,7 @@ const TEMPLATE = {
     `),
 
     fnBindMethods: template(`
-        function expressive_methods(instance, methods: Array) {
+        function expressive_methods(instance, methods) {
             for(const name of methods){
                 instance[name] = instance[name].bind(instance)
             }
@@ -208,10 +208,7 @@ function includeImports(path, state, file, { reactRequires = "react" }) {
     // else
     bootstrap.push(
         t.importDeclaration(reactRequired, t.stringLiteral(reactRequires))
-        // requirement(
-        //     reactRequires,
-        //     reactRequired
-        // )
+        // requirement(reactRequires, reactRequired)
     )
 
     const expressiveStyleRequired = [
@@ -241,9 +238,9 @@ function includeImports(path, state, file, { reactRequires = "react" }) {
         TEMPLATE.createApplied({ NAME: Shared.createApplied })
     )
 
-    bootstrap.push(
-        TEMPLATE.fnExtends({ NAME: Shared.extends })
-    )
+    // bootstrap.push(
+    //     TEMPLATE.fnExtends({ NAME: Shared.extends })
+    // )
 
     if(state.expressive_for_used)
     bootstrap.push(

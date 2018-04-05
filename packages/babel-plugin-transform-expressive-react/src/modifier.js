@@ -1,4 +1,4 @@
-import { invocationArguments } from "./attributes";
+import { parsedArgumentBody } from "./attributes";
 import * as ModifierEnv from "./attributes";
 import { AttrubutesBody } from "./component";
 const { Prop, Statement, ChildNonComponent } = require("./item");
@@ -31,6 +31,7 @@ const StackFrame = {
 const { assign: Assign } = Object;
 
 const ReservedModifiers = { 
+
     is(...args){
         const out = { 
             attrs: {}, props: {}, style: {}
@@ -44,7 +45,10 @@ const ReservedModifiers = {
                 out.attrs[arg] = [];
         }
         return out
-    }
+    },
+
+
+
 };
 
 export function createSharedStack(included = []){
@@ -136,18 +140,17 @@ class StyleModifier {
 
     get handler(){
         return (body, recipient) => {
-            // if(body.type == "ExpressionStatement")
-            this.apply(body, recipient);
+            this.apply(
+                recipient, body
+            );
         }
     }
 
-    apply(src, target){
-        if(t.isExpressionStatement(src))
-            src = invocationArguments(src.get("expression"));
-        else 
-            src = [];
-
-        const { style, props } = this.invoke( src, target );
+    apply(target, args){
+        debugger
+        const { style, props } = this.invoke( 
+            target, new parsedArgumentBody(args)
+        );
 
         for(const item in style)
             if(style[item] !== null)
@@ -156,11 +159,12 @@ class StyleModifier {
                 )
     }
 
-    invoke(args, target){
+    invoke(target, args = []){
 
         const { assign, getPrototypeOf } = Object;
 
-        args = [].concat(args)
+        debugger
+
         for(const argument of args){
             if(typeof argument == "object" && argument && argument.named){
                 const { inner, named } = argument;
@@ -199,7 +203,7 @@ class StyleModifier {
             const {
                 style,
                 props
-            } = mod.invoke(value, target);
+            } = mod.invoke(target, new parsedArgumentBody(value));
 
             assign(computedStyle, style)
             assign(computedProps, props)
@@ -239,7 +243,7 @@ const LabeledStatementDefault = (name) =>
         switch(body.type){
             case "EmptyStatement":
             case "ExpressionStatement": 
-                new StyleModifier(name).apply(body, recipient);
+                new StyleModifier(name).apply(recipient, body);
                 return;
 
             case "BlockStatement":

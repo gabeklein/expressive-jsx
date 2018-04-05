@@ -38,78 +38,92 @@ export function HEX_COLOR(n){
     else return "#" + raw;
 }
 
-export function invocationArguments(exp){
-    let sign = 1;
-    let { node } = exp;
+export class parsedArgumentBody {
+    constructor(e) {
+        if(e.type in this)
+            return [].concat(
+                this.Type(e)
+            )
+    }
 
-    if(node.extra && node.extra.parenthesized)
-        return node;
+    Type(e){
+        if(!e.node) debugger
+        if(e.node.extra && e.node.extra.parenthesized)
+            return e.node;
 
-    switch(exp.type){
+        return this[e.type] 
+            && this[e.type](e) 
+            || e.node;
+    }
 
-        case "Identifier": {
-            const value = node.name;
-            return value;
+    ExpressionStatement(e){
+        return this.Type(e.get("expression"))
+    }
+
+    Identifier(e){
+        return e.node.name;
+    }
+
+    StringLiteral(e){
+        return e.node.value;
+    }
+
+    BinaryExpression(e){
+        const {left, right, operator} = e.node;
+        if(operator != "-")
+            throw e.buildCodeFrameError(`only "-" operator is allowed here`)
+        if( t.isIdentifier(left) && t.isIdentifier(right) && right.start == left.end + 1 )
+            return left.name + "-" + right.name;
+        else 
+            throw e.buildCodeFrameError(`expression must only be comprised of identifiers`)
+    }
+
+    UnaryExpression(e){
+        const arg = e.get("argument");
+        node = arg.node;
+        if(e.node.operator == "-" && arg.isNumericLiteral())
+            return this.NumericLiteral(e, -1)
+        else return node;
+    }
+
+    NumericLiteral(e, sign = 1){
+        const { raw, rawValue, parenthesized } = e.node.extra;
+        if(parenthesized || !/^0x/.test(raw))
+            return sign*rawValue;
+        else {
+            if(sign < 0)
+                throw e.buildCodeFrameError(`Hexadecimal numbers are converted into HEX coloration so negative sign doesn't mean anything here.\nParenthesize the number if you really need "-${rawValue}" for some reason...`)
+            return HEX_COLOR(raw);
         }
+    }
 
-        case "BinaryExpression": {
-            const {left, right, operator} = node;
-            if(operator != "-")
-                throw exp.buildCodeFrameError(`only "-" operator is allowed here`)
-            if( t.isIdentifier(left) && t.isIdentifier(right) && right.start == left.end + 1 )
-                return left.name + "-" + right.name;
-            else 
-                throw exp.buildCodeFrameError(`expression must only be comprised of identifiers`)
-            break;
-        }
+    SequenceExpression(e){
+        return e.get("expressions").map(e => this.Type(e))
+    }
 
-        case "StringLiteral": 
-            return node.value;
+    ArrowFunctionExpression(e){
+        throw e.buildCodeFrameError("Arrow Function not supported yet")
+    }
 
-        case "UnaryExpression": {
-            const arg = exp.get("argument");
-            node = arg.node;
-            if(exp.node.operator == "-" && arg.isNumericLiteral())
-                sign = -1, exp = arg;
-                //continue to numeric case
-            else return node;
-        }
+    CallExpression(e){
+        const callee = e.get("callee");
 
-        case "NumericLiteral": {
-            const { raw, rawValue, parenthesized } = node.extra;
-            if(parenthesized || !/^0x/.test(raw))
-                return sign*rawValue;
-            else {
-                if(sign < 0)
-                    throw exp.buildCodeFrameError(`Hexadecimal numbers are converted into HEX coloration so negative sign doesn't mean anything here.\nParenthesize the number if you really need "-${rawValue}" for some reason...`)
-                return HEX_COLOR(raw);
-            }
-        }
+        if(!callee.isIdentifier())
+            throw callee.buildCodeFrameError("Only the identifier of another modifier may be called within another modifier.")
 
-        case "CallExpression": {
-            const callee = exp.get("callee");
-            
-            if(!callee.isIdentifier())
-                throw callee.buildCodeFrameError("Only the identifier of another modifier may be called within another modifier.")
+        return {
+            named: callee.node.name,
+            location: callee,
+            inner: e.get("arguments").map(e => this.Type(e))
+        };
+    }
 
-            return {
-                named: callee.node.name,
-                location: callee,
-                inner: exp.get("arguments").map(invocationArguments)
-            };
-        }
+    EmptyStatement(){
+        return null;
+    }
 
-        case "NullLiteral":
-            return null;
-
-        case "SequenceExpression":
-            return exp.get("expressions").map(invocationArguments);
-
-        case "ArrowFunctionExpression":
-            throw exp.buildCodeFrameError("ok what? you're putting a function here why?")
-
-        default:
-            return node;
+    NullLiteral(){
+        return null;
     }
 }
 
@@ -131,24 +145,14 @@ class ComponentModifier extends AttrubutesBody {
 
     get handler(){
         return (body, recipient) => {
-            switch(body.type){
-                case "ExpressionStatement":
-                    const params = [].concat( invocationArguments( body.get("expression") ) );
-                    this.invoke( recipient, params, false )
-                    break;
-
-                case "EmptyStatement":
-                    this.invoke( recipient, [ null ], false );
-                    break;
-
-                case "BlockStatement": 
-                    const usingName = this.name;
-                    const inheriting = this;
-                    new exports[Opts.reactEnv](usingName, body, inheriting).declare(recipient);
-                    break;
-
-                case "IfStatement":
-                    throw body.buildCodeFrameError("IDK what to do with this")
+            if(body.type == "BlockStatement"){
+                const usingName = this.name;
+                const inheriting = this;
+                new exports[Opts.reactEnv](usingName, body, inheriting).declare(recipient);
+            }
+            else {
+                const params = new parsedArgumentBody(body);
+                this.invoke( recipient, params, false )
             }
         }
     }

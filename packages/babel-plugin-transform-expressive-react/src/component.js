@@ -95,7 +95,7 @@ export class AttrubutesBody extends TraversableBody {
     computeStyles(){
         let { style_static: style, classname } = this;
         return (
-            `.${classname} { ${ style.map(x => x.asString).join("") } }`
+            `.${classname} { ${ style.map(x => x.asString).join("") }}`
         )
     }
 
