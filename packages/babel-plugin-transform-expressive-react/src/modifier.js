@@ -147,7 +147,6 @@ class StyleModifier {
     }
 
     apply(target, args){
-        debugger
         const { style, props } = this.invoke( 
             target, new parsedArgumentBody(args)
         );
@@ -162,8 +161,6 @@ class StyleModifier {
     invoke(target, args = []){
 
         const { assign, getPrototypeOf } = Object;
-
-        debugger
 
         for(const argument of args){
             if(typeof argument == "object" && argument && argument.named){

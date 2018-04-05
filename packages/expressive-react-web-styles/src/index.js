@@ -18,7 +18,7 @@ function zIndex(a){
 function outline(a, b){
     return a == "none"     ? {style: { outline: "none" }}
         :  b == undefined  ? {style: { outline: `1px dashed ${a || "green"}` }}
-        : {attrs: { outline: Array.from(arguments) }}
+        :  {attrs: { outline: Array.from(arguments) }}
 }
 
 function font(a, b = null){
@@ -153,6 +153,7 @@ function fixed(){
 }
 
 function _cover(){
+    debugger
     const [top, right, bottom, left] = rect(...arguments)
     return {
         attrs: { top, right, bottom, left }

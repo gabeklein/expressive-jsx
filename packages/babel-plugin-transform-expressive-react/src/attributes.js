@@ -44,16 +44,18 @@ export class parsedArgumentBody {
             return [].concat(
                 this.Type(e)
             )
+        else if(typeof e != "object")
+            return [e]
     }
 
     Type(e){
         if(!e.node) debugger
         if(e.node.extra && e.node.extra.parenthesized)
-            return e.node;
+            return e;
 
         return this[e.type] 
             && this[e.type](e) 
-            || e.node;
+            || e;
     }
 
     ExpressionStatement(e){
@@ -83,7 +85,7 @@ export class parsedArgumentBody {
         node = arg.node;
         if(e.node.operator == "-" && arg.isNumericLiteral())
             return this.NumericLiteral(e, -1)
-        else return node;
+        else return e;
     }
 
     NumericLiteral(e, sign = 1){
