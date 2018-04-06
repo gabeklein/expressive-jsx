@@ -106,7 +106,7 @@ class ExplicitStyle {
             default:
                 this.static = false;
                 this.inlineType = "style";
-                this.value = value;
+                this.value = value.node;
         }
     }
 
@@ -147,8 +147,9 @@ class StyleModifier {
     }
 
     apply(target, args){
+        args = new parsedArgumentBody(args)
         const { style, props } = this.invoke( 
-            target, new parsedArgumentBody(args)
+            target, args
         );
 
         for(const item in style)
@@ -158,9 +159,13 @@ class StyleModifier {
                 )
     }
 
-    invoke(target, args = []){
+    invoke(target, args){
 
         const { assign, getPrototypeOf } = Object;
+
+        // if(!args.length) debugger
+        if(args === undefined) args = [];
+        else args = [].concat(args);
 
         for(const argument of args){
             if(typeof argument == "object" && argument && argument.named){
@@ -180,7 +185,7 @@ class StyleModifier {
 
         for(const named in attrs){
             let ctx = target.context;
-            const value = attrs[named];
+            let value = attrs[named];
 
             if(value == null) continue;
 
@@ -197,10 +202,13 @@ class StyleModifier {
                 ctx[`__${named}`] ||
                 new StyleModifier(named)
 
+            if(value.type)
+                value = new parsedArgumentBody(value);
+
             const {
                 style,
                 props
-            } = mod.invoke(target, new parsedArgumentBody(value));
+            } = mod.invoke(target, value);
 
             assign(computedStyle, style)
             assign(computedProps, props)

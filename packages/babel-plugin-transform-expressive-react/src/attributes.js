@@ -44,8 +44,7 @@ export class parsedArgumentBody {
             return [].concat(
                 this.Type(e)
             )
-        else if(typeof e != "object")
-            return [e]
+        return e
     }
 
     Type(e){
@@ -53,9 +52,14 @@ export class parsedArgumentBody {
         if(e.node.extra && e.node.extra.parenthesized)
             return e;
 
-        return this[e.type] 
-            && this[e.type](e) 
-            || e;
+        if(e.type in this){
+            const x = this[e.type](e);
+            // if(x.type) debugger
+            return x;
+        } else {
+            // debugger
+            return e
+        }
     }
 
     ExpressionStatement(e){
@@ -82,9 +86,8 @@ export class parsedArgumentBody {
 
     UnaryExpression(e){
         const arg = e.get("argument");
-        node = arg.node;
         if(e.node.operator == "-" && arg.isNumericLiteral())
-            return this.NumericLiteral(e, -1)
+            return this.NumericLiteral(arg, -1)
         else return e;
     }
 
@@ -220,10 +223,12 @@ export class InlineComponentModifier extends ComponentModifier {
     into(inline){
         if(this.inherits) this.inherits.into(inline);
 
-        if(!this.style.length) return
+        if(!this.style.length || !this.id) return
 
         const { style, props, css } = inline;
         const { id } = this; 
+
+        
         
         if(this.props.length && this.style.length){
             props.push(t.spreadProperty(
