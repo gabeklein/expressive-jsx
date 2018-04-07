@@ -33,7 +33,7 @@ const TEMPLATE = {
             for(const item of arguments){
                 if(!item) throw new Error("Included properties object is undefined!")
             }
-            return Object.assign.apply(null, [{}].concat(args));
+            return Object.assign.apply(null, [{}].concat(Array.from(arguments)));
         }
     `),
 
@@ -176,17 +176,17 @@ function includeImports(path, state, file, { reactRequires = "react" }) {
 
     const { body } = path.scope.block;
 
-   // const reactRequired = [
-   //     t.objectProperty(t.identifier("createElement"), Shared.createElement),
-   //     t.objectProperty(t.identifier("Fragment"), Shared.Fragment),
-   //     t.objectProperty(t.identifier("createClass"), Shared.createClass)
-   // ]
+   const reactRequired = [
+       t.objectProperty(t.identifier("createElement"), Shared.createElement),
+       t.objectProperty(t.identifier("Fragment"), Shared.Fragment),
+       t.objectProperty(t.identifier("createClass"), Shared.createClass)
+   ]
 
-    const reactRequired = [
-        t.importSpecifier(Shared.createElement, t.identifier("createElement")),
-        t.importSpecifier(Shared.Fragment, t.identifier("Fragment")),
-        t.importSpecifier(Shared.createClass, t.identifier("createClass"))
-    ]
+    // const reactRequired = [
+    //     t.importSpecifier(Shared.createElement, t.identifier("createElement")),
+    //     t.importSpecifier(Shared.Fragment, t.identifier("Fragment")),
+    //     t.importSpecifier(Shared.createClass, t.identifier("createClass"))
+    // ]
 
     let pasteAt = 0;
     let existingImport = body.find(
@@ -203,12 +203,12 @@ function includeImports(path, state, file, { reactRequires = "react" }) {
         }
     )
 
-    // if(existingImport)
-    //     existingImport.reactInitializer.push(...reactRequired)
-    // else
+    if(existingImport)
+        existingImport.reactInitializer.push(...reactRequired)
+    else
     bootstrap.push(
-        t.importDeclaration(reactRequired, t.stringLiteral(reactRequires))
-        // requirement(reactRequires, reactRequired)
+        // t.importDeclaration(reactRequired, t.stringLiteral(reactRequires))
+        requirement(reactRequires, reactRequired)
     )
 
     const expressiveStyleRequired = [
@@ -238,9 +238,9 @@ function includeImports(path, state, file, { reactRequires = "react" }) {
         TEMPLATE.createApplied({ NAME: Shared.createApplied })
     )
 
-    // bootstrap.push(
-    //     TEMPLATE.fnExtends({ NAME: Shared.extends })
-    // )
+    bootstrap.push(
+        TEMPLATE.fnExtends({ NAME: Shared.extends })
+    )
 
     if(state.expressive_for_used)
     bootstrap.push(

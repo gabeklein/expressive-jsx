@@ -88,7 +88,10 @@ export class parsedArgumentBody {
         const arg = e.get("argument");
         if(e.node.operator == "-" && arg.isNumericLiteral())
             return this.NumericLiteral(arg, -1)
-        else return e;
+        else if(e.node.operator == "!" && arg.isCallExpression())
+            return arg
+        else throw e.buildCodeFrameError("Unary operator here doesn't do anything")
+        // else return e;
     }
 
     NumericLiteral(e, sign = 1){
