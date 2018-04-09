@@ -3,10 +3,12 @@ const Mods = module.exports = {
     absolute,
     border,
     fixed,
+    relative,
     backgroundImage,
     zIndex,
     outline,
-    font
+    font,
+    aspRect
 };
 
 function zIndex(a){
@@ -131,11 +133,24 @@ function spacing(style){
     }
 }
 
-function size(width, height){
+function size(x, y, unit){
     return {
         attrs: {
-            width, 
-            height: height || width
+            width: [x,      unit], 
+            height: [y || x, unit]
+        }
+    }
+}
+
+function aspRect(x, y, unit){
+    const y2 = Math.abs(y);
+    if(y2 && y2 < 1)
+        if(y > 0) y = x, x = x * y2;
+        else y = x * y2;
+    return {
+        attrs: {
+            width: [x,      unit], 
+            height: [y || x, unit]
         }
     }
 }
@@ -152,8 +167,13 @@ function fixed(){
     return out;
 }
 
+function relative(){
+    return {
+        style: {position: "relative"}
+    };
+}
+
 function _cover(){
-    debugger
     const [top, right, bottom, left] = rect(...arguments)
     return {
         attrs: { top, right, bottom, left }
@@ -188,10 +208,10 @@ function rect(a, b, c, d){
     return [top, right, bottom, left]
 }
 
-function nToNUnits(value) {
+function nToNUnits(value, unit) {
     return {
         style: {
-            [this.name]: appendUnitToN(value)
+            [this.name]: appendUnitToN(value, unit)
         }
     }
 }
