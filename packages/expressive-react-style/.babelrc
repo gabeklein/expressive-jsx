@@ -1,0 +1,15 @@
+{
+  "presets": [
+    [ "env", {
+        "targets": {
+            "node": "current"
+        },
+        "modules": "commonjs"
+    }]
+  ],
+  "plugins": [
+    "transform-class-properties"
+  ],
+  "sourceMaps": "inline",
+  "compact": "false"
+}

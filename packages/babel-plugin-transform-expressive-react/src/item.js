@@ -2,49 +2,7 @@ import { transform } from './shared';
 
 const t = require('babel-types')
 const { Opts } = require("./shared");
-
-const CSS_EXPECTING_UNITS = new Set(`
-    width
-    height
-    maxWidth
-    maxHeight
-    margin
-    marginTop
-    marginBottom
-    marginLeft
-    marginRight
-    padding
-    paddingLeft
-    paddingRight
-    paddingTop
-    paddingBottom
-    fontSize
-    lineHeight
-`.trim().split(/[\n\r\s]+/));
-
-function HEX_COLOR(n){
-    let raw = n.substring(2), out;
-
-    if(raw.length % 4 == 0){
-        let decimal = [];
-
-        if(raw.length == 4)
-            // (shorthand) 'F...' -> "FF" -> 0xFF
-            decimal = Array.from(raw).map(x => parseInt(x+x, 16))
-
-        else for(let i = 0; i < 4; i++){
-            decimal.push(
-                parseInt(raw.slice(i*2, i*2+2), 16)
-            );
-        }
-
-        //range 0:1 for opacity, fixed to prevent long decimals like 1/3
-        decimal[3] = (decimal[3] / 255).toFixed(2)
-
-        return `rgba(${ decimal.join(",") })`
-    }
-    else return "#" + raw;
-}
+const { HEX_COLOR } = require("./attributes")
 
 export class Attribute {
 
@@ -141,82 +99,6 @@ export class Prop extends Attribute {
 
     get value(){
         return super.value || this.path.node.right;
-    }
-}
-
-export class Style extends Attribute {
-
-    inlineType = "style"
-    precedence = 2
-
-    static applyTo(parent, path){
-        parent.add( 
-            new this(path)
-        );
-    }
-
-    constructor(path){
-        super(path.get("body.expression"))
-        this.name = path.node.label.name;
-
-        const { computed } = this;
-        if(computed){
-            this.static = computed;
-            delete this.precedence;
-        }
-    }
-
-    get value(){
-        return super.value || this.path.node;
-    }
-
-    get computed(){
-        const { path } = this;
-        const { node } = path;
-        const { extra } = node;
-
-        if(extra && extra.parenthesized) return;
-
-        switch(node.type){
-
-            case "Identifier":
-                return node.name
-
-            case "BinaryExpression": {
-                const {left, right} = node
-                if(
-                    t.isIdentifier(left) && 
-                    t.isIdentifier(right) && 
-                    right.start == left.end + 1
-                ) 
-                    return left.name + "-" + right.name;
-            }
-
-            case "StringLiteral":
-                return node.value;
-
-            case "NumericLiteral": {
-                if(extra && /^0x/.test(extra.raw))
-                    return HEX_COLOR(extra.raw)
-                else if(Opts.applicationType != "native" && CSS_EXPECTING_UNITS.has(this.name))
-                    return `${extra.rawValue}px`
-                else return extra.rawValue;
-            }
-
-            case "SequenceExpression": {
-                const {expressions: e} = node;
-                let value = "";
-                if(e[0].type == "NumericLiteral"){
-                    value += e[0].value;
-                    if(e[1].type == "Identifier")
-                        value += e[1].name;
-                }
-                return value;
-            }
-
-            case "ArrowFunctionExpression":
-                throw path.buildCodeFrameError("Dynamic CSS values not yet supported");
-        }
     }
 }
 

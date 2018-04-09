@@ -108,11 +108,12 @@ export class ComponentSwitch {
 
 class ComponentConsequent extends ComponentGroup {
     constructor(parent, conditional, path, test){
-        super(path, parent)
+        super()
+        this.insertDoIntermediate(path)
         this.scope = path.scope;
         this.logicalParent = conditional
         this.test = test
-        this.segue = conditional.effectivePrecedence
+        this.precedent = conditional.effectivePrecedence
         this.props = []
         this.style = []
     }
@@ -129,14 +130,11 @@ class ComponentConsequent extends ComponentGroup {
     insertDoIntermediate(path){
         var {node: consequent, type} = path;
 
-        const doTransform = t.doExpression(
+        const body = 
             type == "BlockStatement"
-                ? consequent
-                : t.blockStatement([consequent])
-        )
+                ? consequent : t.blockStatement([consequent])
 
-        doTransform.meta = this;
-        this.doTransform = doTransform;
+        super.insertDoIntermediate(path, body)
     }
 
     outputDynamic(as){

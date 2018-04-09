@@ -2,6 +2,7 @@
 const t = require("babel-types")
 const { ComponentFragment } = require("./component")
 const { Shared, transform } = require("./shared")
+const { createHash } = require('crypto');
 
 export function RenderFromDoMethods(renders, subs){
     let found = 0;
@@ -11,31 +12,23 @@ export function RenderFromDoMethods(renders, subs){
 
     for(let path of subs){
         const { name } = path.node.key;
-        new ComponentMethod(path, {
-            context: {
-                rootNamed: name,
-                relativeComponentsAccessable: subComponentNames
-            }
-        });
+        new ComponentMethod(name, path, subComponentNames);
     }
 
     for(let path of renders){
         if(++found > 1) throw path.buildCodeFrameError("multiple do methods not (yet) supported!")
-        new ComponentMethod(path, {
-            context: {
-                rootNamed: "render",
-                relativeComponentsAccessable: subComponentNames
-            }
-        });
+        new ComponentMethod("render", path, subComponentNames);
     }
 }
 
 export class ComponentEntry extends ComponentFragment {
 
-    constructor(path, parent){
-        super(path, parent)
-        this.scope = path.scope;
-        this.context.root = this;
+    constructor(body) {
+        super();
+        this.hash = createHash("md5")
+            .update(body.getSource())
+            .digest('hex')
+            .substring(0, 6);
     }
 
     mayReceiveAttributes(style, props){
@@ -44,43 +37,78 @@ export class ComponentEntry extends ComponentFragment {
         throw complainAbout.path.buildCodeFrameError(`${description} has nothing to apply to in this context!`)
     }
 
-    didEnterOwnScope(path){
-        super.didEnterOwnScope(path)
+    init(path){
+        this.context.entry = this;
         this.context.scope 
             = this.scope 
             = path.get("body").scope;
     }
 
-    // declareStyle(from){
-    //     const id = this.scope.generateUidIdentifier("S")
-    //     this.scope.push({
-    //         kind: "const",
-    //         id, 
-    //         init: t.stringLiteral("lol")
-    //     })
-    //     return id;
-    // }
+    computedStyleMayInclude(from){
+        const { classname } = from;
+        const { style } = this;
+        if(style.indexOf(classname) < 0)
+            style.push(classname)
+    }
+
+    makeRuntimeStyleContextClaim(){
+
+        this.children.push({
+            inlineType: "child",
+            transform: () => ({
+                product: transform.createElement(
+                    Shared.claimStyle, 
+                    t.objectExpression([
+                        t.objectProperty(
+                            t.identifier("css"),
+                            t.stringLiteral(this.style.join(", "))
+                        )
+                    ])
+                )
+            })
+        })
+    }
+
+    outputBodyDynamic(){
+        if(this.style.length)
+            this.makeRuntimeStyleContextClaim()
+
+        const { body, output }
+            = this.collateChildren();
+
+        const returned = 
+            output.length > 1
+                ? transform.createFragment(output)
+                : output[0] || t.booleanLiteral(false)
+
+        return [
+            ...body, 
+            t.returnStatement(returned)
+        ]
+    }
 }
 
 class ComponentMethod extends ComponentEntry {
 
+    constructor(name, path, subComponentNames) {
+        super(path);
+        this.attendantComponentNames = subComponentNames;
+        this.methodNamed = name;
+        this.insertDoIntermediate(path)
+    }
+
     insertDoIntermediate(path){
         const doExpression = t.doExpression(path.node.body);
               doExpression.meta = this;
-        path.replaceWith(
-            this.generateMethodRender(path, doExpression)
-        )
-    }
 
-    generateMethodRender(path, doExpression){
         const [argument_props, argument_state] = path.get("params");
         const body = path.get("body");
         const src = body.getSource();
-        const name = this.context.rootNamed;
+        const name = this.methodNamed;
         
-        const bindRelatives = this.context.relativeComponentsAccessable.reduce(
+        const bindRelatives = this.attendantComponentNames.reduce(
             (acc, name) => {
-                if(new RegExp(`[^a-zA-Z]${name}[^a-zA-Z]`).test(src)){
+                if(new RegExp(`[^a-zA-Z_]${name}[^a-zA-Z_]`).test(src)){
                     name = t.identifier(name);
                     acc.push(
                         t.objectProperty(name, name, false, true)
@@ -99,15 +127,15 @@ class ComponentMethod extends ComponentEntry {
                 })
             } 
             else throw new Error("fix WIP: no this context to make sibling elements visible")
-            
+
 
         let params = [];
-        
+
         if(argument_props)
             if(name == "render"){
                 if(argument_props.isAssignmentPattern())
                     argument_props.buildCodeFrameError("Props Argument will always resolve to `this.props`")
-                
+
                 body.scope.push({
                     kind: "var",
                     id: argument_props.node,
@@ -116,29 +144,21 @@ class ComponentMethod extends ComponentEntry {
             } 
             else params = [argument_props.node]
 
-        return t.classMethod(
-            "method", 
-            t.identifier(name), 
-            params,
-            t.blockStatement([
-                t.returnStatement(doExpression)
-            ])
+        path.replaceWith(
+            t.classMethod(
+                "method", 
+                t.identifier(name), 
+                params,
+                t.blockStatement([
+                    t.returnStatement(doExpression)
+                ])
+            )
         )
     }
 
     didExitOwnScope(path){
-        const { body, output }
-            = this.collateChildren();
-
-        const returned = 
-            output.length > 1
-                ? transform.createFragment(output)
-                : output[0] || t.booleanLiteral(false)
-
-        path.parentPath.replaceWithMultiple([
-            ...body, 
-            t.returnStatement(returned)
-        ])
+        path.parentPath.replaceWithMultiple(this.outputBodyDynamic())
+        super.didExitOwnScope(path)
     }
 }
 
@@ -146,21 +166,6 @@ export class ComponentFunctionExpression extends ComponentEntry {
 
     insertDoIntermediate(path){
         path.node.meta = this;
-    }
-
-    outputBodyDynamic(){
-        const { body, output }
-            = this.collateChildren();
-
-        const returned = 
-            output.length > 1
-                ? transform.createFragment(output)
-                : output[0] || t.booleanLiteral(false)
-
-        return [
-            ...body, 
-            t.returnStatement(returned)
-        ]
     }
 
     didExitOwnScope(path){
@@ -176,6 +181,7 @@ export class ComponentFunctionExpression extends ComponentEntry {
                 async
             )
         )
+        super.didExitOwnScope(path)
     }
 }
  
@@ -197,5 +203,6 @@ export class ComponentInlineExpression extends ComponentFunctionExpression {
                     t.returnStatement(output)
                 ])
         )
+        super.didExitOwnScope(path)
     }
 }

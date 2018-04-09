@@ -27,11 +27,13 @@ export class ComponentRepeating extends ComponentFragment {
 
     constructor(path, parent, kind){
         const node = path.node;
-        super(path, parent)
+
+        super();
         this.scope = path.scope;
         this.kind = kind || null;
         this.node = node;
         this.path = path
+        this.insertDoIntermediate(path)
     }
 
     didEnterOwnScope(path){
@@ -112,13 +114,7 @@ export class ComponentRepeating extends ComponentFragment {
         if(action.type != "BlockStatement")
             action = t.blockStatement([action])
 
-        const doTransform = t.doExpression(action)
-
-        doTransform.meta = this;
-
-        path.replaceWith(
-            t.expressionStatement(doTransform)
-        )
+        super.insertDoIntermediate(path, action)
     }
 
     AssignmentExpression(path){

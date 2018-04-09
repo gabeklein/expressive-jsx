@@ -1,9 +1,9 @@
-
 const t = require('babel-types')
 const { html_tags_obvious } = require('./html-types');
 const { Shared, Opts, transform } = require("./shared");
-const { ChildNonComponent, Prop, Style } = require("./item")
+const { ChildNonComponent, Prop } = require("./item")
 const { ComponentGroup } = require("./component")
+const { createHash } = require('crypto');
 
 const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
 
@@ -276,32 +276,37 @@ export class ComponentInline extends ComponentGroup {
     style = []
     attrs = []
     class = []
-    segue = 0
+    precedent = 0
     precedence = 3
     // doesReceive = {}
 
     constructor(path, parent){
-        super(path, parent)
-
+        super();
         this.classifiedStyles = {};
         this.scope = path.get("body").scope;
-        // this.context = parent.context ???
+        this.context = parent.context;
+        this.parent = parent;
     }
 
-    insertDoIntermediate(){ /*ExternalProps does binding to existing one.*/ }
-
-    didEnterOwnScope(path){
-        super.didEnterOwnScope(path)
+    didEnterOwnScope(body){
+        this.hash = createHash("md5")
+            .update(body.getSource())
+            .digest('hex')
+            .substring(0, 6);
+        super.didEnterOwnScope(...arguments)
     }
 
-    didExitOwnScope(){
-        // this.transform = this.body
-        //     ? this.outputDynamic
-        //     : thsi.outputInline;
+    didExitOwnScope(body){
+        super.didExitOwnScope(body);
+        this.output = this.build()
+    }
+
+    transform(){
+        return this.output || this.build()
     }
 
     mayReceiveAttributes(style, props){
-        ({ style = style, props = props } = this.doesReceiveDynamic || {});
+        ({ style = style, props = props } = this.doesReceiveDynamic || false);
         this.doesReceiveDynamic = { style, props };
     }
 
@@ -323,7 +328,8 @@ export class ComponentInline extends ComponentGroup {
     }
 
     standardCombinedStyleFormatFor(inline, dynamic){
-        if(Opts.applicationType == "native"){
+
+        if(Opts.reactEnv == "native"){
             let output = this.seperateItems(inline, dynamic);
 
             if(output.length == 1){
@@ -359,7 +365,7 @@ export class ComponentInline extends ComponentGroup {
 
     get typeInformation(){ 
 
-        const css = Opts.applicationType != "native" ? [] : false;
+        const css = Opts.reactEnv != "native" ? [] : false;
         let type;
 
         const inline = {
@@ -369,7 +375,6 @@ export class ComponentInline extends ComponentGroup {
         }
 
         for(const { name, head } of this.class){
-            
             if(head){
                 if(/^[A-Z]/.test(name))
                     type = t.identifier(name)
@@ -378,17 +383,17 @@ export class ComponentInline extends ComponentGroup {
                     type = t.stringLiteral(name);
             }
  
-            const modify = this.context[name];
+            if(!this.context) debugger
+            const modify = this.context[`$${name}`];
 
-            if(modify)
-                modify.into(inline)
+            if(modify){
+                if(typeof modify.invoke != "function") debugger
+                modify.invoke(this, [], inline)
+            }
 
             else if(css && !head)
                 css.push(name);
         }
-
-        if(!css.length) 
-            delete inline.css;
         
         if(!inline.type)
             inline.type = type || ELEMENT_TYPE_DEFAULT
@@ -396,7 +401,24 @@ export class ComponentInline extends ComponentGroup {
         return inline;
     }
 
-    transform(){
+    includeComputedStyle(inline){
+        if(Opts.reactEnv == "next"){
+            // const name = "inline." this.class.reverse().map(x => x.name).join("-").replace("div.", "");
+            const classname = this.classname = 
+            this.class[this.class.length - 1].name + "-" + createHash("md5")
+                    .update(this.hash)
+                    .digest('hex')
+                    .substring(0, 6);
+
+            this.context.program.computedStyleMayInclude(this);
+            this.context.entry.computedStyleMayInclude(this);
+            inline.css.push(classname)
+        }
+        else 
+            inline.style.push(...this.style_static.map(x => x.asProperty));
+    }
+
+    build(){
 
         const own_declarations = [];
         let accumulated_style, computed_props;
@@ -414,9 +436,12 @@ export class ComponentInline extends ComponentGroup {
 
         let { 
             type: computed_type,
-            props: static_props,
-            style: static_style
+            props: initial_props,
+            style: initial_style
         } = inline;
+
+        if(this.style_static.length)
+            this.includeComputedStyle(inline);
 
         let computed_style;
         
@@ -451,12 +476,12 @@ export class ComponentInline extends ComponentGroup {
                     t.variableDeclarator(accumulated_style, t.objectExpression([]))
                 )
             }
-            if(static_style.length){
+            if(initial_style.length){
                 computed_style = scope.generateUidIdentifier("ss");
                 own_declarations.push(
                     t.variableDeclarator(
                         computed_style, 
-                        this.standardCombinedStyleFormatFor(static_style, accumulated_style)
+                        this.standardCombinedStyleFormatFor(initial_style, accumulated_style)
                     )
                 )
             } else {
@@ -468,30 +493,30 @@ export class ComponentInline extends ComponentGroup {
                     = acc.props
                     = scope.generateUidIdentifier("p");
                 own_declarations.push(
-                    t.variableDeclarator(computed_props, this.standardCombinedPropsFormatFor(static_props))
+                    t.variableDeclarator(computed_props, this.standardCombinedPropsFormatFor(initial_props))
                 )
             } 
             else if(computed_style){
-                static_props.push(t.objectProperty(t.identifier("style"), computed_style))
+                initial_props.push(t.objectProperty(t.identifier("style"), computed_style))
             }
 
         } else {
 
             if(declared_props.length)
-                static_props.push(...declared_props.map(x => x.asProperty))
+                initial_props.push(...declared_props.map(x => x.asProperty))
 
-            static_style.push(...declared_style.map(x => x.asProperty));
+            initial_style.push(...declared_style.map(x => x.asProperty));
 
-            if(static_style.length){
-                static_props.push(t.objectProperty(
+            if(initial_style.length){
+                initial_props.push(t.objectProperty(
                     t.identifier("style"), 
-                    this.standardCombinedStyleFormatFor(static_style)
+                    this.standardCombinedStyleFormatFor(initial_style)
                 ))
             }
 
         }
 
-        if(inline.css) static_props.push(
+        if(inline.css && inline.css.length) initial_props.push(
             t.objectProperty(
                 t.identifier("className"),
                 t.stringLiteral(inline.css.reverse().join(" "))
@@ -525,7 +550,7 @@ export class ComponentInline extends ComponentGroup {
             )
 
         const product = transform.createElement( 
-            computed_type, this.standardCombinedPropsFormatFor(static_props, computed_props), ...computed_children
+            computed_type, this.standardCombinedPropsFormatFor(initial_props, computed_props), ...computed_children
         )
 
         if(compute_instructions.length) {

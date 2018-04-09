@@ -15,7 +15,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "babel-plugin-infer-react-class": "^1.2.1",
+    "babel-plugin-implicit-react-class": "^1.2.1",
     "babel-plugin-transform-expressive-loops": "^1.1.1",
     "babel-plugin-transform-expressive-react": "^0.9.0-beta.8",
     "babel-preset-react-native": "^4.0.0"

@@ -1,7 +1,7 @@
 {
-  "name": "babel-plugin-infer-react-class",
+  "name": "babel-plugin-implicit-react-class",
   "version": "1.2.1",
-  "description": "Automatically extends React.Component for classes that include render method",
+  "description": "Automatically extends React.Component for classes that include an Expressive-recognized render method.",
   "main": "lib/index.js",
   "license": "MIT",
   "scripts": {

@@ -1,0 +1,25 @@
+{
+  "name": "expressive-react-web-styles",
+  "version": "0.0.1",
+  "description": "Style Modifiers for most CSS keywords",
+  "main": "lib/index.js",
+  "author": {
+    "name": "Gabe Klein",
+    "email": "gabe@termtm.com"
+  },
+  "scripts": {
+    "build": "babel ./src --out-dir ./lib",
+    "dev": "babel ./src --out-dir ./lib --source-maps --watch",
+    "prepare": "npm run build"
+  },
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "expressive-react",
+    "expressive"
+  ],
+  "devDependencies": {
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-preset-env": "^1.6.1"
+  }
+}

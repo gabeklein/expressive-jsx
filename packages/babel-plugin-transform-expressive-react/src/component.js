@@ -1,5 +1,5 @@
 const t = require("babel-types")
-const { Opts, transform } = require("./shared")
+const { Opts, transform, Shared } = require("./shared")
 
 const UNARY_NAMES = {
     "~": "Tilde",
@@ -12,20 +12,9 @@ class TraversableBody {
 
     children = [];
 
-    constructor(path, parent){
-
-        if(parent){
-            this.context = Object.create(parent.context)
-            this.parent = parent
-        } else 
-            this.context = {};
-
-        this.insertDoIntermediate(path)
-    }
-
     add(obj){
         const { inlineType } = obj;
-        if(inlineType)
+        if(this[inlineType])
             this[inlineType].push(obj);
         this.children.push(obj);
     }
@@ -40,7 +29,23 @@ class TraversableBody {
         throw new Error(`No method named ${fnName} in parent-chain of element ${this.constructor.name}`)
     }
 
+    insertDoIntermediate(path, node){
+        const doTransform = t.doExpression(node || path.node);
+
+        doTransform.meta = this;
+        this.doTransform = doTransform;
+
+        path.replaceWith(
+            t.expressionStatement(doTransform)
+        )
+    }
+
     didEnterOwnScope(path){
+        Shared.stack.push(this);
+        
+        if(typeof this.init == "function")
+            this.init(path);
+
         const src = path.get("body.body")
         for(const item of src)
             if(item.type in this) 
@@ -49,7 +54,7 @@ class TraversableBody {
     }
 
     didExitOwnScope(){
-        return void 0;
+        this.context.pop();
     }
 
     //  Node Type Specifiers
@@ -69,48 +74,31 @@ class TraversableBody {
         else throw arg.buildCodeFrameError(`Unhandled Unary statement of type ${type}`);   
     }
 
-    LabeledStatement(path){
-        const src = path.get("body");
-        const type = `Labeled${src.type}`
-        if(type in this) this[type](path); 
-        else throw src.buildCodeFrameError(`Unhandled Labeled Statement of type ${type}`);
-    }
-
 }
 
 export class AttrubutesBody extends TraversableBody {
 
-    props = [];
-    style = [];
+    constructor(params) {
+        super();
+        this.props = [];
+        this.style = this.style_static = []
+    }
 
-    AntiExpression(path){
-        return
+    LabeledStatement(path){
+        HandleModifier(path, this);
     }
 
     AssignmentExpression(path){
         Prop.applyTo(this, path)
     }
 
-    LabeledExpressionStatement(path){
-        Style.applyTo(this, path)
+    computeStyles(){
+        let { style_static: style, classname } = this;
+        return (
+            `.${classname} { ${ style.map(x => x.asString).join("") }}`
+        )
     }
 
-    LabeledStatement(path){
-
-        if(Opts.applicationType != "native")
-        if(~["self", "screen"].indexOf(path.node.label.name))
-            return SpecialModifier.applyTo(this, path)
-        
-        super.LabeledStatement(path)
-    }
-
-    LabeledLabeledStatement(exp){
-        throw exp.get("body").buildCodeFrameError("Cannot chain style modifiers, or whatever you're trying to do");
-    }
-
-    LabeledBlockStatement(path){
-        ComponentModifier.applyTo(this, path)
-    }
 }
 
 export class Component extends AttrubutesBody {
@@ -125,11 +113,11 @@ export class Component extends AttrubutesBody {
         if(node.expressive_visited) return
 
         if(!meta){
-            meta = path.parentPath.isArrowFunctionExpression()
+            meta = node.meta = path.parentPath.isArrowFunctionExpression()
                 ? new ComponentFunctionExpression(path)
                 : new ComponentInlineExpression(path)
         }
-
+ 
         meta.didEnterOwnScope(path)
 
         state.expressive_used = true;
@@ -141,15 +129,13 @@ export class Component extends AttrubutesBody {
         if(node.expressive_visited) return
         else node.expressive_visited = true;
 
+        if(!node.meta) debugger
+
         node.meta.didExitOwnScope(path)
     }
 
     ExpressionDefault(path){
         CollateInlineComponentsTo(this, path)
-    }
-
-    IfStatement(path){
-        ComponentSwitch.applyTo(this, path)
     }
 
     StringLiteral(path){
@@ -158,6 +144,14 @@ export class Component extends AttrubutesBody {
 
     ArrayExpression(path){
         ChildNonComponent.applyMultipleTo(this, path)
+    }
+
+    EmptyStatement(path){ 
+        ChildNonComponent.applyVoidTo(this)
+    };
+
+    IfStatement(path){
+        ComponentSwitch.applyTo(this, path)
     }
 
     ForStatement(path, mod){
@@ -171,31 +165,27 @@ export class Component extends AttrubutesBody {
     ForOfStatement(path){
         this.ForStatement(path, "of")
     }
-
-    EmptyStatement(path){ 
-        ChildNonComponent.applyVoidTo(this)
-     };
     
 }
 
 export class ComponentGroup extends Component {
 
     stats = []
-    segue = 0;
+    precedent = 0;
 
     add(obj){
-        const { precedence: newPrec = 4 } = obj;
-        if(this.segue > newPrec){
-            this.flagDisordered();
-            this.add = super.add; //disable check since no longer needed
-        }
-        else if(newPrec < 4)
-            this.segue = newPrec;
+        const updated = obj.precedence || 4;
+
+        if(this.precedent > updated) this.flagDisordered();
+        else if(updated < 4) this.precedent = updated;
 
         super.add(obj)
     }
 
     flagDisordered(){
+        //disable check since no longer needed
+        this.add = super.add;
+
         this.disordered = true;
         this.doesHaveDynamicProperties = true;
     }
@@ -217,7 +207,6 @@ export class ComponentGroup extends Component {
                 output.push(...adjacent)
                 return;
             }
-
 
             const name = scope.generateUidIdentifier("e");
             let ref, stat;
@@ -261,7 +250,8 @@ export class ComponentGroup extends Component {
 
                 } break;
 
-                case "attrs": break;
+                case "attrs": 
+                    break;
 
                 default: 
                     if(onAppliedType){
@@ -293,9 +283,9 @@ export class ComponentGroup extends Component {
 
 export class ComponentFragment extends ComponentGroup {
 
-    LabeledExpressionStatement(path){
-        throw path.buildCodeFrameError("Styles have nothing to apply to here!")
-    }
+    // LabeledExpressionStatement(path){
+    //     throw path.buildCodeFrameError("Styles have nothing to apply to here!")
+    // }
 
     AssignmentExpression(path){
         throw path.buildCodeFrameError("Props have nothing to apply to here!")
@@ -304,10 +294,9 @@ export class ComponentFragment extends ComponentGroup {
 
 //import last. modules here themselves import from this one, so exports must already be initialized.
 
-const { Prop, Style, Statement, ChildNonComponent } = require("./item");
+const { Prop, Statement, ChildNonComponent } = require("./item");
 const { CollateInlineComponentsTo } = require("./inline");
-const { ComponentModifier } = require("./attributes");
 const { ComponentSwitch } = require("./ifstatement");
 const { ComponentRepeating } = require("./forloop");
 const { ComponentInlineExpression, ComponentFunctionExpression } = require("./entry");
-const { SpecialModifier } = require("./modifier");
+const { HandleModifier } = require("./modifier");
