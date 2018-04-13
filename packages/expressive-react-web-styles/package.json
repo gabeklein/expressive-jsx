@@ -1,6 +1,6 @@
 {
   "name": "expressive-react-web-styles",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Style Modifiers for most CSS keywords",
   "main": "lib/index.js",
   "author": {
