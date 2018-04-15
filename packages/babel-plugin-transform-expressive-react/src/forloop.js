@@ -1,5 +1,5 @@
 const t = require('babel-types');
-const { ComponentFragment } = require('./component')
+const { ComponentGroup } = require('./component')
 const { Shared, transform } = require("./shared");
 
 const INIT_LOOP_TYPE = {
@@ -7,7 +7,7 @@ const INIT_LOOP_TYPE = {
     in: t.forInStatement
 }
 
-export class ComponentRepeating extends ComponentFragment {
+export class ComponentRepeating extends ComponentGroup {
 
     inlineType = "child"
     insert = "fragment"
@@ -18,6 +18,10 @@ export class ComponentRepeating extends ComponentFragment {
         parent.add(
             new this(src, parent, kind)
         )
+    }
+
+    AssignmentExpression(path){
+        throw path.buildCodeFrameError("Props have nothing to apply to here!")
     }
 
     mayReceiveAttributes(){

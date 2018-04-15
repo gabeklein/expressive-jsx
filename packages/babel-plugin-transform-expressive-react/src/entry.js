@@ -1,6 +1,7 @@
+import { ComponentInline } from "./inline";
 
 const t = require("babel-types")
-const { ComponentFragment } = require("./component")
+const { ComponentGroup } = require("./component")
 const { Shared, transform } = require("./shared")
 const { createHash } = require('crypto');
 
@@ -21,21 +22,9 @@ export function RenderFromDoMethods(renders, subs){
     }
 }
 
-export class ComponentEntry extends ComponentFragment {
+export class ComponentEntry extends ComponentInline {
 
-    constructor(body) {
-        super();
-        this.hash = createHash("md5")
-            .update(body.getSource())
-            .digest('hex')
-            .substring(0, 6);
-    }
-
-    mayReceiveAttributes(style, props){
-        const complainAbout = props || style;
-        const description = style ? "Style" : "Prop";
-        throw complainAbout.path.buildCodeFrameError(`${description} has nothing to apply to in this context!`)
-    }
+    styleGroups = [];
 
     init(path){
         this.context.entry = this;
@@ -46,13 +35,12 @@ export class ComponentEntry extends ComponentFragment {
 
     computedStyleMayInclude(from){
         const { classname } = from;
-        const { style } = this;
-        if(style.indexOf(classname) < 0)
-            style.push(classname)
+        const { styleGroups } = this;
+        if(styleGroups.indexOf(classname) < 0)
+            styleGroups.push(classname)
     }
 
-    makeRuntimeStyleContextClaim(){
-
+    insertRuntimeStyleContextClaim(){
         this.children.push({
             inlineType: "child",
             transform: () => ({
@@ -61,7 +49,7 @@ export class ComponentEntry extends ComponentFragment {
                     t.objectExpression([
                         t.objectProperty(
                             t.identifier("css"),
-                            t.stringLiteral(this.style.join(", "))
+                            t.stringLiteral(this.styleGroups.join(", "))
                         )
                     ])
                 )
@@ -70,30 +58,39 @@ export class ComponentEntry extends ComponentFragment {
     }
 
     outputBodyDynamic(){
-        if(this.style.length)
-            this.makeRuntimeStyleContextClaim()
+        if(this.styleGroups.length || this.style_static.length)
+            this.insertRuntimeStyleContextClaim()
+        
+        let body, output;
+        const { style, props } = this;
 
-        const { body, output }
-            = this.collateChildren();
-
-        const returned = 
-            output.length > 1
+        if(style.length || this.style_static.length || props.length)
+            ({ 
+                product: output, 
+                factory: body = [] 
+            } = this.build());
+        else {
+            ({ body, output } = this.collateChildren());
+            output = output.length > 1
                 ? transform.createFragment(output)
                 : output[0] || t.booleanLiteral(false)
+        }
 
-        return [
-            ...body, 
-            t.returnStatement(returned)
-        ]
+        return body.concat(
+            t.returnStatement(
+                output
+            )
+        )
     }
 }
 
 class ComponentMethod extends ComponentEntry {
 
     constructor(name, path, subComponentNames) {
-        super(path);
+        super(path.get("body"));
         this.attendantComponentNames = subComponentNames;
         this.methodNamed = name;
+        this.tags.push({ name });
         this.insertDoIntermediate(path)
     }
 
@@ -164,6 +161,11 @@ class ComponentMethod extends ComponentEntry {
 
 export class ComponentFunctionExpression extends ComponentEntry {
 
+    constructor(path, name) {
+        super(path);
+        this.tags.push({name})
+    }
+
     insertDoIntermediate(path){
         path.node.meta = this;
     }
@@ -181,7 +183,7 @@ export class ComponentFunctionExpression extends ComponentEntry {
                 async
             )
         )
-        super.didExitOwnScope(path)
+        this.context.pop();
     }
 }
  
@@ -190,19 +192,12 @@ export class ComponentInlineExpression extends ComponentFunctionExpression {
     didExitOwnScope(path){
         const { body, output: product }
             = this.collateChildren();
-
-        const output = product.length > 1
-            ? transform.createFragment(product)
-            : product[0] || t.booleanLiteral(false)
-
+            
         path.replaceWith(
             !body.length
-                ? output
-                : transform.IIFE([
-                    ...body, 
-                    t.returnStatement(output)
-                ])
+                ? product
+                : transform.IIFE(this.outputBodyDynamic())
         )
-        super.didExitOwnScope(path)
+        this.context.pop();
     }
 }

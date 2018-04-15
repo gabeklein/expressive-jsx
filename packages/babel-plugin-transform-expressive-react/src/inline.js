@@ -46,7 +46,12 @@ export function CollateInlineComponentsTo(parent, path){
         if(path.type == "TemplateLiteral")
             throw path.buildCodeFrameError("Template literal is not a valid element")
 
-        const child = new ComponentInline(path, parent)
+        const child = new ComponentInline(path, parent);
+
+        child.scope = path.get("body").scope;
+        child.context = parent.context;
+        child.parent = parent;
+
 
         InlineLayers.apply(child, path);
         InlineProps.applyTo(child, props);
@@ -75,10 +80,10 @@ const InlineLayers = {
             tag = this[tag.type].call(target, tag);
 
         if(tag.isIdentifier())
-            target.class.push({name: tag.node.name, path: tag, head: true})
+            target.tags.push({name: tag.node.name, path: tag, head: true})
 
         else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
-            target.class.push({name: default_type_text, node: type_text, head: true})
+            target.tags.push({name: default_type_text, node: type_text, head: true})
             target.add(new ChildNonComponent(tag))
         }
 
@@ -91,7 +96,7 @@ const InlineLayers = {
             tag.get("quasi")
         )
         const stripped = tag.get("tag");
-        //temportary means of preventing ES6 transformer from creating corresponding shim.
+        //temporary means of preventing ES6 transformer from creating corresponding shim.
         // tag.replaceWith(stripped.node)
         return stripped
     },
@@ -109,7 +114,7 @@ const InlineLayers = {
         if(tag.node.computed === true)
             throw selector.buildCodeFrameError("Due to how parser works, a semicolon is required after the element preceeding escaped children.")
 
-        this.class.push({
+        this.tags.push({
             name: selector.node.name, 
             path: selector
         })
@@ -273,32 +278,29 @@ export class ComponentInline extends ComponentGroup {
     inlineType = "child"
 
     props = []
-    style = []
+    doesReceive = {}
+    
     attrs = []
-    class = []
+    style = []
+    tags = []
     precedent = 0
     precedence = 3
-    // doesReceive = {}
-
-    constructor(path, parent){
-        super();
-        this.classifiedStyles = {};
-        this.scope = path.get("body").scope;
-        this.context = parent.context;
-        this.parent = parent;
-    }
 
     didEnterOwnScope(body){
-        this.hash = createHash("md5")
-            .update(body.getSource())
-            .digest('hex')
-            .substring(0, 6);
-        super.didEnterOwnScope(...arguments)
+        super.didEnterOwnScope(...arguments);
+
+        this.classname = 
+            (this.classname || this.tags[this.tags.length - 1].name)
+            + "-"
+            + createHash("md5")
+                .update(body.getSource())
+                .digest('hex')
+                .substring(0, 6);
     }
 
     didExitOwnScope(body){
         super.didExitOwnScope(body);
-        this.output = this.build()
+        this.output = this.build();
     }
 
     transform(){
@@ -341,7 +343,7 @@ export class ComponentInline extends ComponentGroup {
             }
             else return t.arrayExpression(output)
 
-        } else{
+        } else {
             if(dynamic) inline.push(t.spreadProperty(dynamic))
 
             if(inline.length == 1 && inline[0].type == "SpreadProperty")
@@ -374,7 +376,7 @@ export class ComponentInline extends ComponentGroup {
             style: []
         }
 
-        for(const { name, head } of this.class){
+        for(const { name, head } of this.tags){
             if(head){
                 if(/^[A-Z]/.test(name))
                     type = t.identifier(name)
@@ -390,9 +392,6 @@ export class ComponentInline extends ComponentGroup {
                 if(typeof modify.invoke != "function") debugger
                 modify.invoke(this, [], inline)
             }
-
-            else if(css && !head)
-                css.push(name);
         }
         
         if(!inline.type)
@@ -403,16 +402,9 @@ export class ComponentInline extends ComponentGroup {
 
     includeComputedStyle(inline){
         if(Opts.reactEnv == "next"){
-            // const name = "inline." this.class.reverse().map(x => x.name).join("-").replace("div.", "");
-            const classname = this.classname = 
-            this.class[this.class.length - 1].name + "-" + createHash("md5")
-                    .update(this.hash)
-                    .digest('hex')
-                    .substring(0, 6);
-
             this.context.program.computedStyleMayInclude(this);
             this.context.entry.computedStyleMayInclude(this);
-            inline.css.push(classname)
+            inline.css.push(this.classname)
         }
         else 
             inline.style.push(...this.style_static.map(x => x.asProperty));

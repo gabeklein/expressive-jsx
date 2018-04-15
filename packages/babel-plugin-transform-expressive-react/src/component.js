@@ -78,7 +78,7 @@ class TraversableBody {
 
 export class AttrubutesBody extends TraversableBody {
 
-    constructor(params) {
+    constructor() {
         super();
         this.props = [];
         this.style = this.style_static = []
@@ -101,7 +101,7 @@ export class AttrubutesBody extends TraversableBody {
 
 }
 
-export class Component extends AttrubutesBody {
+export class ComponentBody extends AttrubutesBody {
 
     child = [];
 
@@ -113,9 +113,32 @@ export class Component extends AttrubutesBody {
         if(node.expressive_visited) return
 
         if(!meta){
-            meta = node.meta = path.parentPath.isArrowFunctionExpression()
-                ? new ComponentFunctionExpression(path)
-                : new ComponentInlineExpression(path)
+
+            let immediateParent = path.parentPath;
+            let Handler = ComponentInlineExpression;
+
+            if(immediateParent.isArrowFunctionExpression()){
+                Handler = ComponentFunctionExpression;
+                immediateParent = immediateParent.parentPath;
+            } else debugger
+
+            let { type, node: parent } = immediateParent;
+            let name;
+
+            if(type == "ExportDefaultDeclaration")
+                name = "default"
+            else if(type == "ReturnStatement")
+                name = "returned"
+            else {
+                name = parent[{
+                    VariableDeclarator: "id",
+                    AssignmentExpression: "left",
+                    AssignmentPattern: "left",
+                    ObjectProperty: "key"
+                }[type]].name
+            }
+
+            meta = node.meta = new Handler(path, name)
         }
  
         meta.didEnterOwnScope(path)
@@ -168,7 +191,7 @@ export class Component extends AttrubutesBody {
     
 }
 
-export class ComponentGroup extends Component {
+export class ComponentGroup extends ComponentBody {
 
     stats = []
     precedent = 0;
@@ -228,6 +251,7 @@ export class ComponentGroup extends Component {
         for(const item of this.children) 
             switch(item.inlineType){
 
+                case "self":
                 case "child": {
                     const { product, factory } = item.transform();
 
@@ -278,17 +302,6 @@ export class ComponentGroup extends Component {
 
     BlockStatement(path){ 
         Statement.applyTo(this, path, "block")
-    }
-}
-
-export class ComponentFragment extends ComponentGroup {
-
-    // LabeledExpressionStatement(path){
-    //     throw path.buildCodeFrameError("Styles have nothing to apply to here!")
-    // }
-
-    AssignmentExpression(path){
-        throw path.buildCodeFrameError("Props have nothing to apply to here!")
     }
 }
 

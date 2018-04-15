@@ -4,7 +4,7 @@ import syntaxDoExpressions from "babel-plugin-syntax-do-expressions";
 const t = require("babel-types");
 const template = require("babel-template");
 const { Shared, Opts } = require("./shared");
-const { Component } = require("./component")
+const { ComponentBody } = require("./component")
 const { createSharedStack, StyleModifier, initComputedStyleAccumulator } = require("./modifier")
 const { RenderFromDoMethods, ComponentInlineExpression, ComponentFunctionExpression } = require('./entry.js');
 
@@ -61,8 +61,8 @@ export default (options) => {
         inherits: syntaxDoExpressions,
         visitor: {
             DoExpression: {
-                enter: Component.enter,
-                exit: Component.exit
+                enter: ComponentBody.enter,
+                exit: ComponentBody.exit
             },
             Program: {
                 enter(path, state){
@@ -182,12 +182,6 @@ function includeImports(path, state, file, { reactRequires = "react" }) {
        t.objectProperty(t.identifier("createClass"), Shared.createClass)
    ]
 
-    // const reactRequired = [
-    //     t.importSpecifier(Shared.createElement, t.identifier("createElement")),
-    //     t.importSpecifier(Shared.Fragment, t.identifier("Fragment")),
-    //     t.importSpecifier(Shared.createClass, t.identifier("createClass"))
-    // ]
-
     let pasteAt = 0;
     let existingImport = body.find(
         (statement, index) => {
@@ -206,10 +200,9 @@ function includeImports(path, state, file, { reactRequires = "react" }) {
     if(existingImport)
         existingImport.reactInitializer.push(...reactRequired)
     else
-    bootstrap.push(
-        // t.importDeclaration(reactRequired, t.stringLiteral(reactRequires))
-        requirement(reactRequires, reactRequired)
-    )
+        bootstrap.push(
+            requirement(reactRequires, reactRequired)
+        )
 
     const expressiveStyleRequired = [
         t.importSpecifier(Shared.cacheStyle, t.identifier("Cache")),
