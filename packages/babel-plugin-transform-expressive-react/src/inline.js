@@ -52,7 +52,6 @@ export function CollateInlineComponentsTo(parent, path){
         child.context = parent.context;
         child.parent = parent;
 
-
         InlineLayers.apply(child, path);
         InlineProps.applyTo(child, props);
 
@@ -286,8 +285,15 @@ export class ComponentInline extends ComponentGroup {
     precedent = 0
     precedence = 3
 
+    //Protocal Traversable
+
     didEnterOwnScope(body){
         super.didEnterOwnScope(...arguments);
+
+        Object.defineProperty(this, "typeInformation", {
+            configurable: true,
+            value: this.typeInformation
+        })
 
         this.classname = 
             (this.classname || this.tags[this.tags.length - 1].name)
@@ -302,6 +308,41 @@ export class ComponentInline extends ComponentGroup {
         super.didExitOwnScope(body);
         this.output = this.build();
     }
+
+    //Protocol Style Integration
+
+    collateChildren(propHandler){
+        if(this.styleGroups && this.styleGroups.length){
+            this.insertRuntimeStyleContextClaim()
+        }
+        return super.collateChildren(propHandler);
+    }
+
+    computedStyleMayInclude(from){
+        const { classname } = from;
+        const styleGroups = this.styleGroups || (this.styleGroups = []);
+        if(styleGroups.indexOf(classname) < 0)
+            styleGroups.push(classname)
+    }
+
+    insertRuntimeStyleContextClaim(){
+        this.children.push({
+            inlineType: "child",
+            transform: () => ({
+                product: transform.createElement(
+                    Shared.claimStyle, 
+                    t.objectExpression([
+                        t.objectProperty(
+                            t.identifier("css"),
+                            t.stringLiteral(this.styleGroups.join(", "))
+                        )
+                    ])
+                )
+            })
+        })
+    }
+
+    //Protocol Renderable Element
 
     transform(){
         return this.output || this.build()
@@ -378,14 +419,17 @@ export class ComponentInline extends ComponentGroup {
 
         for(const { name, head } of this.tags){
             if(head){
-                if(/^[A-Z]/.test(name))
+                if(/^[A-Z]/.test(name)){
                     type = t.identifier(name)
+                    if(name == Shared.styledApplicationComponentName){
+                        this.context.styleRoot = this;
+                    }
+                }
                     
                 else if(this.prefix == "html" || html_tags_obvious.has(name))
                     type = t.stringLiteral(name);
             }
  
-            if(!this.context) debugger
             const modify = this.context[`$${name}`];
 
             if(modify){
@@ -403,7 +447,7 @@ export class ComponentInline extends ComponentGroup {
     includeComputedStyle(inline){
         if(Opts.reactEnv == "next"){
             this.context.program.computedStyleMayInclude(this);
-            this.context.entry.computedStyleMayInclude(this);
+            this.context.styleRoot.computedStyleMayInclude(this);
             inline.css.push(this.classname)
         }
         else 

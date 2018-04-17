@@ -52,6 +52,15 @@ const TEMPLATE = {
     `)
 }
 
+function checkForStyleImport(body){
+    for(const {type, source, specifiers} of body)
+        if(type == "ImportDeclaration")
+        if(source.value == "expressive-react-style")
+        for(const {type, local} of specifiers)
+            if(type == "ImportDefaultSpecifier")
+                Shared.styledApplicationComponentName = local.name
+}
+
 export default (options) => {
 
     Opts.ignoreExtraSemicolons = true;
@@ -67,6 +76,9 @@ export default (options) => {
             Program: {
                 enter(path, state){
                     Object.assign(Opts, state.opts)
+
+                    if(Opts.reactEnv == "next")
+                        checkForStyleImport(path.scope.block.body);
 
                     for(const x in registerIDs)
                         Shared[x] = path.scope.generateUidIdentifier(registerIDs[x]);

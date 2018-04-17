@@ -24,42 +24,16 @@ export function RenderFromDoMethods(renders, subs){
 
 export class ComponentEntry extends ComponentInline {
 
-    styleGroups = [];
-
     init(path){
-        this.context.entry = this;
+        this.context.styleRoot = this;
         this.context.scope 
             = this.scope 
             = path.get("body").scope;
     }
-
-    computedStyleMayInclude(from){
-        const { classname } = from;
-        const { styleGroups } = this;
-        if(styleGroups.indexOf(classname) < 0)
-            styleGroups.push(classname)
-    }
-
-    insertRuntimeStyleContextClaim(){
-        this.children.push({
-            inlineType: "child",
-            transform: () => ({
-                product: transform.createElement(
-                    Shared.claimStyle, 
-                    t.objectExpression([
-                        t.objectProperty(
-                            t.identifier("css"),
-                            t.stringLiteral(this.styleGroups.join(", "))
-                        )
-                    ])
-                )
-            })
-        })
-    }
-
+    
     outputBodyDynamic(){
-        if(this.styleGroups.length || this.style_static.length)
-            this.insertRuntimeStyleContextClaim()
+        // if(this.styleGroups.length || this.style_static.length)
+        //     this.insertRuntimeStyleContextClaim()
         
         let body, output;
         const { style, props } = this;
@@ -82,6 +56,8 @@ export class ComponentEntry extends ComponentInline {
             )
         )
     }
+
+
 }
 
 class ComponentMethod extends ComponentEntry {

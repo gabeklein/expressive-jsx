@@ -2,32 +2,6 @@
 import PropTypes from 'prop-types';
 import { Component, createElement, Fragment } from "react";
 
-export class Enable extends Component {
-    static contextTypes = {
-        compiler: PropTypes.object.isRequired
-    }
-
-    constructor(props, context) {
-        super(props, context)
-    }
-
-    render(){
-        const { context, props } = this;
-        const { didRender } = props;
-
-        if(context.compiler)
-            context.compiler.push(props.css.split(", "))
-
-        if(didRender) didRender();
-        return null
-    }
-}
-
-/*
-    Singleton class keeps track of all computed styles 
-    import/required from expressive-transformed modules.
-*/
-
 export const Cache = new class {
 
     blocks = {};
@@ -50,20 +24,14 @@ export const Cache = new class {
 }
 
 class Compiler {
-    registered = {}
-
-    constructor(inBody) {
-        this.parent = inBody;
-    }
+    registered = {};
+    // initialStyle = "#styledApplication { display: none }"
 
     push(classNames){
         const { registered, parent } = this;
         for(const x of classNames)
             if(!registered[x]){
                 registered[x] = true;
-                // parent.setState({
-                //     styleOutput: parent.state.styleOutput + `\t.` + select + Cache.get(select) + `\n`
-                // })
             }
     }
 
@@ -74,112 +42,102 @@ class Compiler {
             output += `\t.` + select + Cache.get(select) + `\n`;
         }
 
-        return output;
+        if(output.length > 1)
+            return output;
+        else 
+            return "";
     }
 }
 
-class ApplicationBody extends Component {   
+export class Enable extends Component {
 
     static contextTypes = {
-        compiler: PropTypes.object.isRequired
+        compiler: PropTypes.instanceOf(Compiler)
     }
-    
+
     render(){
-        return createElement("div", {id: "styledApplication"}, this.props.children || null);
-    } 
+        const { context, props } = this;
 
-    componentDidMount(){
-        this.renderDidComplete()
+        context.compiler.push(props.css.split(", "))
+
+        return null
     }
+}
 
-    componentDidUpdate(){
-        this.renderDidComplete()
+class StyledOutput extends Component {
+    render(){
+        return createElement("style", {
+            jsx: "true",
+            global: "true",
+            dangerouslySetInnerHTML: {
+                __html: this.props.compiler.generate()
+            }
+        })
+
     }
+}
 
-    renderDidComplete(){
-        this.props.stylesDidUpdate()
-    }
-
-    shouldComponentUpdate(props){
-        return props.shouldContentsUpdate;
+class StyledContent extends Component {
+    render(){
+        return [].concat(this.props.content)
     }
 }
 
 export default class StyledApplication extends Component {
 
-    static childContextTypes = {
-        compiler: PropTypes.object
+    static propTypes = {
+        children: PropTypes.oneOfType([
+            PropTypes.arrayOf(PropTypes.node),
+            PropTypes.node
+        ])
     }
 
-    buildStyles = () => {
-        this.setState({
-            styleOutput: this.state.compiler.generate(),
-            isUpdatingStyleNode: true,
-            compiler: new Compiler()
-        })
+    static childContextTypes = {
+        compiler: PropTypes.object
     }
 
     constructor(props, context) {
         super(props, context);
         this.state = {
-            styleOutput: "#styledApplication { display: none }",
             compiler: new Compiler(this)
         }
     }
-    
+
     getChildContext(){
         return {
             compiler: this.state.compiler
         };
     }
 
-    shouldComponentUpdate(newProps, newState){
-        if(this.state.isUpdatingStyleNode == true
-        && newState.isUpdatingStyleNode == false)
-            return false;
-        else 
-            return true;
-    }
-
-    componentDidUpdate(){
-        if(this.state.isUpdatingStyleNode == true)
-            this.setState({
-                isUpdatingStyleNode: false
-            })
-    }
-
     render(){
-        const { children = [] } = this.props;
+        const { compiler } = this.state;
+        const children = [].concat(this.props.children);
         //  Provider which listens to build-time placed style claims.
 
         return createElement(Fragment, {},
             /*
-            Generated style element containing all selectors needed for this 
-            pageload. Output pulls style rules from cache while only
-            including those which were "claimed" by elements generated within
-            the StyleRegister's context.
-            */
-            createElement("style", {
-                jsx: "true",
-                global: "true",
-                dangerouslySetInnerHTML: {
-                    __html: this.state.styleOutput
-                }
-            }),
-            /*
             Children of Styled Application are passed forward with style
             useage logged for subsequent style complication.
 
-            Claims (EnableStyle) are automatically inserted at build=time
+            Claims (Enable) are automatically inserted at build-time
             to inform StyledApplication which styles need to be included 
-            from cache, as cache contains all styles computed from all 
-            required modules, application-wide, which may or may not not 
-            be used for a given page build. 
+            from cache. This tree-shakes the cache which contains all 
+            styles computed from all required modules, application-wide, 
+            which may or may not not be used for a given page build. 
             */
-            createElement(ApplicationBody, {
-                shouldContentsUpdate: !this.state.isUpdatingStyleNode,
-                stylesDidUpdate: this.buildStyles
-            }, children)
+            createElement(StyledContent, {
+                compiler, content: children
+            }),
+
+            /*
+            Generated style element containing all selectors needed for given 
+            page render. Output pulls style rules from cache while only
+            including those which were "claimed" by elements generated within
+            the StyleRegister's context.
+            */
+           createElement(StyledOutput, {
+               compiler
+           })
         )
     }
 }
