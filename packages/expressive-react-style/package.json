@@ -24,6 +24,7 @@
     "babel-preset-expressive-react": "^1.1.2"
   },
   "dependencies": {
-    "react": "^16.3.0"
+    "react": "^16.3.0",
+    "react-hot-loader": "^4.1.0"
   }
 }
