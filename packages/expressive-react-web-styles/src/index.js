@@ -155,14 +155,32 @@ function aspRect(x, y, unit){
     }
 }
 
-function absolute(){
-    const out = _cover(...arguments);
+function position(){
+    let data = {};
+    if(typeof a != "number")
+    for(const item of arguments)
+        if(item.named)
+            data[item.named] = item.inner[0]
+        else {
+            data = null;
+            break;
+        }
+
+    const out = data 
+        ? { attrs: data } 
+        : _cover(...arguments);
+        
+    return out
+}
+
+function absolute(a){
+    const out = position(...arguments)
     out.style = {position: "absolute"};
     return out;
 }
 
 function fixed(){
-    const out = _cover(...arguments);
+    const out = position(...arguments);
     out.style = {position: "fixed"};
     return out;
 }
