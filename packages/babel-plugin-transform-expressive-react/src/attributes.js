@@ -7,11 +7,10 @@ export function HEX_COLOR(n){
     let raw = n.substring(2), out;
 
     if(raw.length == 1)
-        raw = "000" + raw[0]
+        raw = "000" + raw
     else 
     if(raw.length == 2){
-        const [a, b] = raw;
-        raw = a + a + a + b;
+        raw = "000000" + raw
     }
     
     if(raw.length % 4 == 0){
@@ -31,7 +30,7 @@ export function HEX_COLOR(n){
         }
 
         //decimal for opacity, fixed to prevent repeating like 1/3
-        decimal[3] = (decimal[3] / 255).toFixed(2)
+        decimal[3] = (decimal[3] / 255).toFixed(3)
 
         return `rgba(${ decimal.join(",") })`
     }
