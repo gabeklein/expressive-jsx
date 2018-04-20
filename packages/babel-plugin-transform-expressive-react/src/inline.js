@@ -328,17 +328,29 @@ export class ComponentInline extends ComponentGroup {
     insertRuntimeStyleContextClaim(){
         this.children.push({
             inlineType: "child",
-            transform: () => ({
-                product: transform.createElement(
-                    Shared.claimStyle, 
-                    t.objectExpression([
-                        t.objectProperty(
-                            t.identifier("css"),
-                            t.stringLiteral(this.styleGroups.join(", "))
-                        )
-                    ])
-                )
-            })
+            transform: () => {
+                const styles = this.styleGroups.join(", ");
+                return {
+                    product: transform.createElement(
+                        Shared.claimStyle, 
+                        t.objectExpression([
+                            t.objectProperty(
+                                t.identifier("css"),
+                                t.stringLiteral(styles)
+                            ),
+                            t.objectProperty(
+                                t.identifier("hid"),
+                                t.stringLiteral(
+                                    createHash("md5")
+                                        .update(styles)
+                                        .digest('hex')
+                                        .substring(0, 6)
+                                )
+                            ),
+                        ])
+                    )
+                }
+            }
         })
     }
 

@@ -1,3 +1,5 @@
+//needed only to prevent a webpack "no instrumentation found" error
+import { hot } from 'react-hot-loader'
 
 import PropTypes from 'prop-types';
 import { Component, createElement, Fragment } from "react";
@@ -25,14 +27,22 @@ export const Cache = new class {
 
 class Compiler {
     registered = {};
-    // initialStyle = "#styledApplication { display: none }"
+    knownBlocks = {};
 
-    push(classNames){
-        const { registered, parent } = this;
-        for(const x of classNames)
-            if(!registered[x]){
-                registered[x] = true;
-            }
+    push(hashID, classNames){
+        const { registered, parent, knownBlocks, outputElement } = this;
+
+        if(!knownBlocks[hashID]){
+            if(outputElement) 
+                outputElement.setState({
+                    mostRecentBlock: hashID
+                })
+            knownBlocks[hashID] = true;
+            for(const x of classNames)
+                if(!registered[x]){
+                    registered[x] = true;
+                }
+        }
     }
 
     generate(){
@@ -55,16 +65,25 @@ export class Enable extends Component {
         compiler: PropTypes.instanceOf(Compiler)
     }
 
-    render(){
+    declareStyles(){
         const { context, props } = this;
+        const { hid, css } = props;
 
-        context.compiler.push(props.css.split(", "))
+        context.compiler.push(hid, css.split(", "))
+    }
 
+    render(){
+        this.declareStyles();
         return null
     }
 }
 
 class StyledOutput extends Component {
+
+    componentWillMount(){
+        this.props.compiler.outputElement = this;
+    }
+
     render(){
         return createElement("style", {
             jsx: "true",
@@ -73,7 +92,6 @@ class StyledOutput extends Component {
                 __html: this.props.compiler.generate()
             }
         })
-
     }
 }
 
@@ -125,9 +143,8 @@ export default class StyledApplication extends Component {
             styles computed from all required modules, application-wide, 
             which may or may not not be used for a given page build. 
             */
-            createElement(StyledContent, {
-                compiler, content: children
-            }),
+
+            ...children,
 
             /*
             Generated style element containing all selectors needed for given 
