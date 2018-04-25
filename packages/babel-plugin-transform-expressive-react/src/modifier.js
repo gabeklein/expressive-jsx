@@ -16,7 +16,7 @@ const StackFrame = {
         Shared.stack = Object.getPrototypeOf(this);
     },
     get(name){
-        const mod = this[`__${name}`];
+        const mod = this[`$${name}`];
         return mod && mod.handler;
     },
     declare(modifier){
@@ -82,8 +82,8 @@ export function HandleModifier(src, recipient) {
     const name = src.node.label.name;
     const body = src.get("body");
 
+    if(name == "hello") debugger
     const modifier = 
-        body.isExpressionStatement() && 
         recipient.context.get(name)  || 
         LabeledStatementDefault(name)
 

@@ -151,10 +151,10 @@ class ComponentModifier extends AttrubutesBody {
     }   
 
     get handler(){
+        const inheriting = this;
+        const usingName = this.name;
         return (body, recipient) => {
             if(body.type == "BlockStatement"){
-                const usingName = this.name;
-                const inheriting = this;
                 new exports[Opts.reactEnv](usingName, body, inheriting).declare(recipient);
             }
             else {
@@ -224,7 +224,7 @@ export class InlineComponentModifier extends ComponentModifier {
 
     into(inline){
         if(this.inherits) this.inherits.into(inline);
-
+        
         if(!this.style.length || !this.id) return
 
         const { style, props, css } = inline;
