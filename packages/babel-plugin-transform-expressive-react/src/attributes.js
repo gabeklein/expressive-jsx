@@ -141,10 +141,6 @@ class ComponentModifier extends AttrubutesBody {
     constructor(name, body, inherited){
         super()
         this.name = name;
-        this.hash = createHash("md5")
-            .update(body.getSource())
-            .digest('hex')
-            .substring(0, 6);
         if(inherited)
             this.inherits = inherited;
         this.insertDoIntermediate(body)
@@ -154,13 +150,10 @@ class ComponentModifier extends AttrubutesBody {
         const inheriting = this;
         const usingName = this.name;
         return (body, recipient) => {
-            if(body.type == "BlockStatement"){
+            if(body.type == "BlockStatement")
                 new exports[Opts.reactEnv](usingName, body, inheriting).declare(recipient);
-            }
-            else {
-                const params = new parsedArgumentBody(body);
-                this.invoke( recipient, params, false )
-            }
+            else 
+                this.invoke( recipient, new parsedArgumentBody(body), false )
         }
     }
 
@@ -179,6 +172,13 @@ class ComponentModifier extends AttrubutesBody {
             this.type = "props"
         if(this.style.length)
             this.type = this.type ? "both" : "style"
+
+        if(this.style_static)
+            this.hash = createHash("md5")
+                .update(this.style_static.reduce((x,y) => x + y.asString, ""))
+                .digest('hex')
+                .substring(0, 6);
+        
         super.didExitOwnScope(path)
     }
 }
@@ -213,7 +213,7 @@ export class InlineComponentModifier extends ComponentModifier {
             : props || style;
 
         if(declaration){
-            const id = this.id = this.scope.generateUidIdentifier(this.name)
+            const id = this.id || (this.id = this.scope.generateUidIdentifier(this.name)); 
             return t.variableDeclaration("const", [
                 t.variableDeclarator(
                     id, declaration
@@ -225,13 +225,11 @@ export class InlineComponentModifier extends ComponentModifier {
     into(inline){
         if(this.inherits) this.inherits.into(inline);
         
-        if(!this.style.length || !this.id) return
+        if(!this.style.length && !this.props.length) return
 
         const { style, props, css } = inline;
-        const { id } = this; 
+        const id = this.id || (this.id = this.scope.generateUidIdentifier(this.name)); 
 
-        
-        
         if(this.props.length && this.style.length){
             props.push(t.spreadProperty(
                 t.memberExpression(
@@ -258,7 +256,6 @@ export class NextJSComponentModifier extends InlineComponentModifier {
 
     constructor(name, body, inherited) {
         super(...arguments)
-        this.classname = `${this.name}-${this.hash}`
     }
 
     declare(recipient){
@@ -270,6 +267,11 @@ export class NextJSComponentModifier extends InlineComponentModifier {
     invoke(target, args, inline){
         if(!inline && !args.length) return;
         this.into(inline)
+    }
+
+    didExitOwnScope(path){
+        super.didExitOwnScope(path)
+        this.classname = `${this.name}-${this.hash}`
     }
 
     into(inline){
