@@ -14,7 +14,7 @@ const registerIDs = {
     createApplied: "apply",
     Fragment: "fragment",
     createIterated: "iterated",
-    extends: "expressive_extends",
+    extends: "flatten",
     cacheStyle: "Cache",
     claimStyle: "Enable"
 }
