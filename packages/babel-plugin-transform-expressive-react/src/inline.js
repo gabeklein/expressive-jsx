@@ -64,7 +64,7 @@ const InlineLayers = {
 
     apply(target, tag){
 
-        const { default_type_text } = Opts;
+        const { default_type_text = {name: "span"} } = Opts;
 
         if(tag.isBinaryExpression({operator: "-"})){
             const left = tag.get("left")
@@ -82,7 +82,7 @@ const InlineLayers = {
             target.tags.push({name: tag.node.name, path: tag, head: true})
 
         else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
-            target.tags.push({name: default_type_text, node: type_text, head: true})
+            target.tags.push({name: default_type_text.name, head: true})
             target.add(new ChildNonComponent(tag))
         }
 
@@ -294,18 +294,18 @@ export class ComponentInline extends ComponentGroup {
             configurable: true,
             value: this.typeInformation
         })
-
-        this.classname = 
-            (this.classname || this.tags[this.tags.length - 1].name)
-            + "-"
-            + createHash("md5")
-                .update(body.getSource())
-                .digest('hex')
-                .substring(0, 6);
     }
 
     didExitOwnScope(body){
         super.didExitOwnScope(body);
+        if(this.style_static)
+            this.classname = 
+                (this.classname || this.tags[this.tags.length - 1].name)
+                + "-"
+                + createHash("md5")
+                    .update(this.style_static.reduce((x,y) => x + y.asString, ""))
+                    .digest('hex')
+                    .substring(0, 6);
         this.output = this.build();
     }
 
