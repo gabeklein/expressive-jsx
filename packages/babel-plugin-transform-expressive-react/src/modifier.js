@@ -1,7 +1,7 @@
 import { parsedArgumentBody } from "./attributes";
 import * as ModifierEnv from "./attributes";
 import { AttrubutesBody } from "./component";
-const { Prop, Statement, ChildNonComponent } = require("./item");
+const { SyntheticProp, Statement, ChildNonComponent } = require("./item");
 const { Opts, Shared } = require("./shared");
 const t = require("babel-types");
 
@@ -82,7 +82,6 @@ export function HandleModifier(src, recipient) {
     const name = src.node.label.name;
     const body = src.get("body");
 
-    if(name == "hello") debugger
     const modifier = 
         recipient.context.get(name)  || 
         LabeledStatementDefault(name)
@@ -147,40 +146,46 @@ class StyleModifier {
     }
 
     apply(target, args){
-        args = new parsedArgumentBody(args)
-        const { style, props } = this.invoke( 
-            target, args
+        const style = {};
+        const props = {};
+        const computed = { props, style };
+
+        this.invoke( 
+            target, 
+            new parsedArgumentBody(args), 
+            computed
         );
 
-        for(const item in style)
-            if(style[item] !== null)
-                target.add(
-                    new ExplicitStyle(item, style[item])
-                )
+        for(const [type, handler] of [
+            [style, ExplicitStyle], 
+            [props, SyntheticProp]
+        ])
+        for(const item in type)
+            if(type[item] !== null)
+                target.add(new handler(item, type[item]))
+                
     }
 
-    invoke(target, args){
+    invoke(target, args, computed){
 
         const { assign, getPrototypeOf } = Object;
 
-        // if(!args.length) debugger
         if(args === undefined) args = [];
         else args = [].concat(args);
 
-        for(const argument of args){
+        for(const argument of args)
             if(typeof argument == "object" && argument && argument.named){
-                const { inner, named } = argument;
+                const { inner, named, location } = argument;
                 const mod = target.context[`__${named}`]
 
-                if(mod){
-                    argument.computed = mod.invoke(inner, target);
-                }
-                else 
-                    argument.computed = {value: `${named}(${inner.join(" ")})`}
+                if(mod) try {
+                    argument.computed = mod.transform(...inner)
+                } catch(err) {
+                    throw location && location.buildCodeFrameError(err.message) || err
+                } else argument.computed = {value: `${named}(${inner.join(" ")})`}
+                
             }
-        }
 
-        const computedStyle = {}, computedProps = {};
         const { style, props, attrs } = this.transform.apply(this, args);
 
         for(const named in attrs){
@@ -189,7 +194,7 @@ class StyleModifier {
 
             if(value == null) continue;
 
-            if(named == this.name){
+            if(named == this.name){ //get "super" of this modifier
                 let seeking;
                 do { 
                     seeking = !ctx.hasOwnProperty(`__${named}`);
@@ -198,29 +203,18 @@ class StyleModifier {
                 while(seeking);
             }
 
-            const mod = 
-                ctx[`__${named}`] ||
-                new StyleModifier(named)
+            const mod = ctx[`__${named}`] || new StyleModifier(named);
 
             if(value.type)
                 value = new parsedArgumentBody(value);
 
-            const {
-                style,
-                props
-            } = mod.invoke(target, value);
-
-            assign(computedStyle, style)
-            assign(computedProps, props)
+            mod.invoke(target, value, computed);
         }
 
-        if(style) assign(computedStyle, style);
-        if(props) assign(computedProps, props);
+        if(style) assign(computed.style, style);
+        if(props) assign(computed.props, props);
 
-        return {
-            style: computedStyle,
-            props: computedProps
-        }
+        return computed;
     }
 
     transform(){

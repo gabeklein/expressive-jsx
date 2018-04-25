@@ -60,6 +60,19 @@ export class Attribute {
     }
 }
 
+export class SyntheticProp extends Attribute {
+
+    inlineType = "props"
+    precedence = 1
+
+    constructor(name, value) {
+        this.name = name;
+        Object.defineProperty(this, "value", {
+            value, configurable: true
+        })
+    }
+}
+
 export class Prop extends Attribute {
 
     inlineType = "props"

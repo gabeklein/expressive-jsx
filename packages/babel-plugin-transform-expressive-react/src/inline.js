@@ -321,15 +321,15 @@ export class ComponentInline extends ComponentGroup {
     computedStyleMayInclude(from){
         const { classname } = from;
         const styleGroups = this.styleGroups || (this.styleGroups = []);
-        if(styleGroups.indexOf(classname) < 0)
-            styleGroups.push(classname)
+        if(styleGroups.indexOf(from) < 0)
+            styleGroups.push(from)
     }
 
     insertRuntimeStyleContextClaim(){
         this.children.push({
             inlineType: "child",
             transform: () => {
-                const styles = this.styleGroups.join(", ");
+                const styles = this.styleGroups.map(x => x.classname).join(", ");
                 return {
                     product: transform.createElement(
                         Shared.claimStyle, 
@@ -444,10 +444,8 @@ export class ComponentInline extends ComponentGroup {
  
             const modify = this.context[`$${name}`];
 
-            if(modify){
-                if(typeof modify.invoke != "function") debugger
+            if(modify)
                 modify.invoke(this, [], inline)
-            }
         }
         
         if(!inline.type)
