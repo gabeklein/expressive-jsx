@@ -8,8 +8,21 @@ const Mods = module.exports = {
     zIndex,
     outline,
     font,
-    aspRect
+    aspRect,
+    rgba,
+    rgb: rgba
 };
+
+function rgba(r,g,b,a = 1){
+    for(const x of [r,g,b])
+        if(typeof x != "number") 
+            throw new Error("malformed arguments in rgb statement")
+
+    const rgb = [r,g,b].join(",");
+    return {
+        value: a == 1 ? `rgb(${rgb})` : `rgba(${rgb},${a})`
+    }
+}
 
 function zIndex(a){
     return {
