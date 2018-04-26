@@ -243,7 +243,7 @@ class StyleModifier {
     }
 }
 
-const LabeledStatementDefault = (name) => 
+export const LabeledStatementDefault = (name) => 
     (body, recipient) => {
         switch(body.type){
             case "EmptyStatement":

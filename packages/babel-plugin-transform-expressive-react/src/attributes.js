@@ -260,8 +260,10 @@ export class NextJSComponentModifier extends InlineComponentModifier {
 
     declare(recipient){
         super.declare(recipient);
-        recipient.context.program.computedStyleMayInclude(this);
-        recipient.context.styleRoot.computedStyleMayInclude(this);
+        const { program, styleRoot } = recipient.context;
+        program.computedStyleMayInclude(this);
+        if(styleRoot)
+            styleRoot.computedStyleMayInclude(this);
     }
 
     invoke(target, args, inline){

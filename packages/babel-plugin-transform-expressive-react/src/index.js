@@ -6,7 +6,7 @@ const template = require("babel-template");
 const { Shared, Opts } = require("./shared");
 const { ComponentBody } = require("./component")
 const { createSharedStack, StyleModifier, initComputedStyleAccumulator } = require("./modifier")
-const { RenderFromDoMethods, ComponentInlineExpression, ComponentFunctionExpression } = require('./entry.js');
+const { ComponentClass, ComponentInlineExpression, ComponentFunctionExpression } = require('./entry.js');
 
 const registerIDs = {
     createElement: "create",
@@ -103,24 +103,8 @@ export default (options) => {
                 }
             },
             Class: {
-                enter(path, state){
-                    const doFunctions = [];
-                    const subComponents = [];
-
-                    for(let item of path.get("body.body"))
-                        if(item.isClassMethod({kind: "method"}) && item.get("key").isIdentifier()){
-                            const { name } = item.node.key;
-                            if(name == "do" || path.node.id && name == path.node.id.name)
-                                doFunctions.push(item)
-                            else if(/^[A-Z]/.test(name))
-                                subComponents.push(item)
-                        }
-                        
-                    if(doFunctions.length) {
-                        RenderFromDoMethods(doFunctions, subComponents)
-                        state.expressive_used = true;
-                    }
-                }
+                enter: ComponentClass.enter,
+                exit: ComponentClass.exit
             }
         }
     }

@@ -64,7 +64,7 @@ const InlineLayers = {
 
     apply(target, tag){
 
-        const { default_type_text = {name: "span"} } = Opts;
+        const { default_type_text = {name: "div"} } = Opts;
 
         if(tag.isBinaryExpression({operator: "-"})){
             const left = tag.get("left")
@@ -82,7 +82,7 @@ const InlineLayers = {
             target.tags.push({name: tag.node.name, path: tag, head: true})
 
         else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
-            target.tags.push({name: default_type_text.name, head: true})
+            target.tags.push({name: "div", head: true})
             target.add(new ChildNonComponent(tag))
         }
 
@@ -299,14 +299,18 @@ export class ComponentInline extends ComponentGroup {
     didExitOwnScope(body){
         super.didExitOwnScope(body);
         if(this.style_static)
-            this.classname = 
-                (this.classname || this.tags[this.tags.length - 1].name)
-                + "-"
-                + createHash("md5")
-                    .update(this.style_static.reduce((x,y) => x + y.asString, ""))
-                    .digest('hex')
-                    .substring(0, 6);
+            this.generateClassName();
         this.output = this.build();
+    }
+
+    generateClassName(){
+        this.classname = 
+            (this.classname || this.tags[this.tags.length - 1].name)
+            + "-"
+            + createHash("md5")
+                .update(this.style_static.reduce((x,y) => x + y.asString, ""))
+                .digest('hex')
+                .substring(0, 6);
     }
 
     //Protocol Style Integration
@@ -428,7 +432,7 @@ export class ComponentInline extends ComponentGroup {
             props: [], 
             style: []
         }
-
+        
         for(const { name, head } of this.tags){
             if(head){
                 if(/^[A-Z]/.test(name)){
@@ -458,6 +462,7 @@ export class ComponentInline extends ComponentGroup {
         if(Opts.reactEnv == "next"){
             this.context.program.computedStyleMayInclude(this);
             this.context.styleRoot.computedStyleMayInclude(this);
+            if(!this.classname) debugger
             inline.css.push(this.classname)
         }
         else 

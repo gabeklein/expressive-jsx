@@ -2,8 +2,9 @@ import { ComponentInline } from "./inline";
 
 const t = require("babel-types")
 const { ComponentGroup } = require("./component")
-const { Shared, transform } = require("./shared")
+const { Opts, Shared, transform } = require("./shared")
 const { createHash } = require('crypto');
+import * as ModifierEnv from "./attributes";
 
 export function RenderFromDoMethods(renders, subs){
     let found = 0;
@@ -17,8 +18,51 @@ export function RenderFromDoMethods(renders, subs){
     }
 
     for(let path of renders){
-        if(++found > 1) throw path.buildCodeFrameError("multiple do methods not (yet) supported!")
+        if(++found > 1) throw path.buildCodeFrameError("multiple do methods not supported")
         new ComponentMethod("render", path, subComponentNames);
+    }
+}
+
+export class ComponentClass {
+    static enter(path, state){
+
+        const doFunctions = [], 
+              subComponents = [];
+        let componentStyles;
+
+        for(let item of path.get("body.body"))
+            if(item.isClassMethod({kind: "method"}) 
+            && item.get("key").isIdentifier()){
+                const { name } = item.node.key;
+
+                if(name == "do" || path.node.id && name == path.node.id.name){
+                    doFunctions.push(item)
+                }
+                else if(name == "Style"){
+                    // componentStyles = item
+                    new ComponentStyleMethod(item)
+                }
+                else if(/^[A-Z]/.test(name))
+                    subComponents.push(item)
+            }
+
+        if(doFunctions.length) {
+            const modifierInsertions = [];
+            const context = {
+                classContextNamed: path.node.id && path.node.id.name || "Anonymous",
+                stats: modifierInsertions
+            }
+            
+            Shared.stack.push(context);
+            Shared.stack.modifierInsertions = modifierInsertions
+            Shared.stack.styleRoot = null;
+            RenderFromDoMethods(doFunctions, subComponents);
+            state.expressive_used = true;
+        }
+    }
+
+    static exit(path, state){
+        Shared.stack.pop();
     }
 }
 
@@ -32,9 +76,6 @@ export class ComponentEntry extends ComponentInline {
     }
     
     outputBodyDynamic(){
-        // if(this.styleGroups.length || this.style_static.length)
-        //     this.insertRuntimeStyleContextClaim()
-        
         let body, output;
         const { style, props } = this;
 
@@ -129,11 +170,78 @@ class ComponentMethod extends ComponentEntry {
         )
     }
 
+    didEnterOwnScope(path){
+        super.didEnterOwnScope(path)
+    }
+
     didExitOwnScope(path){
+
+        const insertStats = this.context.modifierInsertions;
+        this.children.splice(0, 0, ...insertStats);
+        for(const item of insertStats)
+            this.context.styleRoot.computedStyleMayInclude(item);
+
         path.parentPath.replaceWithMultiple(this.outputBodyDynamic())
         super.didExitOwnScope(path)
     }
 }
+
+class ComponentStyleMethod {
+    constructor(path) {
+        this.insertDoIntermediate(path);
+    }
+
+    insertDoIntermediate(path){
+        const doExpression = t.doExpression(path.node.body);
+            doExpression.meta = this;
+            
+        path.replaceWith(
+            t.classMethod(
+                "method", 
+                t.identifier("Style"), 
+                [ /*no params*/ ],
+                t.blockStatement([
+                    t.expressionStatement(doExpression)
+                ])
+            )
+        )
+    }
+
+    didEnterOwnScope(path){
+        const src = path.get("body.body")
+        for(const item of src)
+            if(item.type in this) 
+                this[item.type](item);
+            else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
+    }
+
+    didExitOwnScope(path){
+        path.getAncestry().find(x => x.type == "ClassMethod").remove();
+    }
+
+    LabeledStatement(path){
+        const name = path.node.label.name;
+        const body = path.get("body");
+
+        if(body.type != "BlockStatement")
+            throw path.buildCodeFrameError("Only modifier declarations are allowed here")
+
+        const recipient = { 
+            context: Shared.stack,
+            add(mod){
+                this.context.current.stats.push(mod)
+            }
+        };
+        const modifier = recipient.context.get(name)
+        
+        if(modifier) modifier(body, recipient);
+        else {
+            const mod = new ModifierEnv[Opts.reactEnv](name, body);
+            mod.declare(recipient);
+        }
+    }
+}
+
 
 export class ComponentFunctionExpression extends ComponentEntry {
 
@@ -149,6 +257,9 @@ export class ComponentFunctionExpression extends ComponentEntry {
     didExitOwnScope(path){
         const parentFn = path.parentPath;
         const {params, generator, async} = parentFn.node;
+
+        if(this.style_static)
+            this.generateClassName();
 
         parentFn.replaceWith(
             t.functionExpression(
