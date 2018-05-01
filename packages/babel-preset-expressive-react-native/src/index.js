@@ -1,6 +1,7 @@
 import transformExpressiveLoops from "babel-plugin-transform-expressive-loops";
 import transformExpressiveReact from "babel-plugin-transform-expressive-react";
 import inferReactComponent      from "babel-plugin-implicit-react-class";
+import transformInIterable      from "babel-plugin-transform-in-iterable";
 
 const Plugins = require("babel-preset-react-native/plugins")
 
@@ -39,6 +40,7 @@ module.exports = options => {
                 applicationType: "native"
             }],
             transformExpressiveLoops,
+            transformInIterable,
 
             plugin('transform-es2015-classes'),
             plugin('syntax-async-functions'),
