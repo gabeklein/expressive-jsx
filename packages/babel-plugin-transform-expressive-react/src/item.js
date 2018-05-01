@@ -153,14 +153,7 @@ export class ChildNonComponent {
                 new this(inclusion)
             )
     }
-
-    static applyVoidTo(parent){
-        if(Opts.ignoreExtraSemicolons == false)
-            parent.add(
-                new this(t.booleanLiteral(false))
-            )
-    }
-
+    
     static applyTo(parent, path){
         parent.add(
             new this(path)
