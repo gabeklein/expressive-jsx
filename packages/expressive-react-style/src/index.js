@@ -1,8 +1,10 @@
 //needed only to prevent a webpack "no instrumentation found" error
-import { hot } from 'react-hot-loader'
+
 
 import PropTypes from 'prop-types';
 import { Component, createElement, Fragment } from "react";
+
+import StyledOutput from "./output"
 
 export const Cache = new class {
 
@@ -59,10 +61,10 @@ class Compiler {
     }
 }
 
-export class Enable extends Component {
+export class Include extends Component {
 
     static contextTypes = {
-        compiler: PropTypes.instanceOf(Compiler)
+        compiler: PropTypes.instanceOf(Compiler).isRequired
     }
 
     declareStyles(){
@@ -75,23 +77,6 @@ export class Enable extends Component {
     render(){
         this.declareStyles();
         return null
-    }
-}
-
-class StyledOutput extends Component {
-
-    componentWillMount(){
-        this.props.compiler.outputElement = this;
-    }
-
-    render(){
-        return createElement("style", {
-            jsx: "true",
-            global: "true",
-            dangerouslySetInnerHTML: {
-                __html: this.props.compiler.generate()
-            }
-        })
     }
 }
 
@@ -137,7 +122,7 @@ export default class StyledApplication extends Component {
             Children of Styled Application are passed forward with style
             useage logged for subsequent style complication.
 
-            Claims (Enable) are automatically inserted at build-time
+            Claims (Include) are automatically inserted at build-time
             to inform StyledApplication which styles need to be included 
             from cache. This tree-shakes the cache which contains all 
             styles computed from all required modules, application-wide, 
