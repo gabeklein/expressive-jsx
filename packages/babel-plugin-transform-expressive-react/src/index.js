@@ -5,8 +5,28 @@ const t = require("babel-types");
 const template = require("babel-template");
 const { Shared, Opts } = require("./shared");
 const { ComponentBody } = require("./component")
-const { createSharedStack, StyleModifier, initComputedStyleAccumulator } = require("./modifier")
-const { ComponentClass, ComponentInlineExpression, ComponentFunctionExpression } = require('./entry.js');
+const { ComponentClass } = require('./entry.js');
+const { createSharedStack, initComputedStyleAccumulator } = require("./modifier")
+
+export default (options) => {
+    return {
+        inherits: syntaxDoExpressions,
+        visitor: {
+            DoExpression: {
+                enter: ComponentBody.enter,
+                exit: ComponentBody.exit
+            },
+            Program: {
+                enter: ComponentProgram.enter,
+                exit: ComponentProgram.onExit(options)
+            },
+            Class: {
+                enter: ComponentClass.enter,
+                exit: ComponentClass.exit
+            }
+        }
+    }
+}
 
 const registerIDs = {
     createElement: "create",
@@ -16,7 +36,7 @@ const registerIDs = {
     createIterated: "iterated",
     extends: "flatten",
     cacheStyle: "Cache",
-    claimStyle: "Enable"
+    claimStyle: "Include"
 }
 
 const TEMPLATE = {
@@ -52,6 +72,41 @@ const TEMPLATE = {
     `)
 }
 
+class ComponentProgram {
+    static enter(path, state){
+        Object.assign(Opts, state.opts)
+
+        if(Opts.reactEnv == "next")
+            checkForStyleImport(path.scope.block.body);
+
+        for(const x in registerIDs)
+            Shared[x] = path.scope.generateUidIdentifier(registerIDs[x]);
+
+        let Stack = createSharedStack(state.opts.modifiers);
+            Stack = Shared.stack = initComputedStyleAccumulator(Stack, state);
+        Shared.state = state;
+
+    }
+
+    static exit(path, state, options){
+
+        const { expressive_computeTargets: compute } = state;
+
+        if(state.expressive_used){
+            let index = 0;
+            index = includeImports(path, state, this.file, options);
+            index = generateComputedStylesExport(path, compute, index);
+        }
+
+        if(~process.execArgv.join().indexOf("inspect-brk"))
+            console.log("done")
+    }
+
+    static onExit(options){
+        return (path, state) => this.exit(path, state, options)
+    }
+}
+
 function checkForStyleImport(body){
     for(const {type, source, specifiers} of body)
         if(type == "ImportDeclaration")
@@ -61,53 +116,13 @@ function checkForStyleImport(body){
                 Shared.styledApplicationComponentName = local.name
 }
 
-export default (options) => {
-
-    Opts.ignoreExtraSemicolons = true;
-    Opts.default_type_text = t.identifier("span")
-
-    return {
-        inherits: syntaxDoExpressions,
-        visitor: {
-            DoExpression: {
-                enter: ComponentBody.enter,
-                exit: ComponentBody.exit
-            },
-            Program: {
-                enter(path, state){
-                    Object.assign(Opts, state.opts)
-
-                    if(Opts.reactEnv == "next")
-                        checkForStyleImport(path.scope.block.body);
-
-                    for(const x in registerIDs)
-                        Shared[x] = path.scope.generateUidIdentifier(registerIDs[x]);
-
-                    let Stack = createSharedStack(state.opts.modifiers);
-                        Stack = Shared.stack = initComputedStyleAccumulator(Stack, state);
-                    Shared.state = state;
-
-                },
-                exit(path, state){
-
-                    const { expressive_computeTargets: compute } = state;
-
-                    if(state.expressive_used){
-                        let index = 0;
-                        index = includeImports(path, state, this.file, options);
-                        index = generateComputedStylesExport(path, compute, index);
-                    }
-
-                    if(~process.execArgv.join().indexOf("inspect-brk"))
-                        console.log("done")
-                }
-            },
-            Class: {
-                enter: ComponentClass.enter,
-                exit: ComponentClass.exit
-            }
-        }
-    }
+function checkForStyleImport(body){
+    for(const {type, source, specifiers} of body)
+        if(type == "ImportDeclaration")
+        if(source.value == "expressive-react-style")
+        for(const {type, local} of specifiers)
+            if(type == "ImportDefaultSpecifier")
+                Shared.styledApplicationComponentName = local.name
 }
 
 function generateComputedStylesExport(path, compute, index){
@@ -182,13 +197,16 @@ function includeImports(path, state, file, { reactRequires = "react" }) {
     let existingImport = body.find(
         (statement, index) => {
             if(statement.type == "VariableDeclaration")
-            for(let { init: { callee, arguments: args }, id } of statement.declarations)
-            if(callee && callee.name == "require")
-            if(args[0] && args[0].value == reactRequires)
-            if(id.type == "ObjectPattern"){
-                pasteAt = index;
-                statement.reactInitializer = id.properties;
-                return true;
+            for(const { init, id } of statement.declarations)
+            if(init){
+                let { callee, arguments: args } = init;
+                if(callee && callee.name == "require")
+                if(args[0] && args[0].value == reactRequires)
+                if(id.type == "ObjectPattern"){
+                    pasteAt = index;
+                    statement.reactInitializer = id.properties;
+                    return true;
+                }
             }
         }
     )
@@ -202,7 +220,7 @@ function includeImports(path, state, file, { reactRequires = "react" }) {
 
     const expressiveStyleRequired = [
         t.importSpecifier(Shared.cacheStyle, t.identifier("Cache")),
-        t.importSpecifier(Shared.claimStyle, t.identifier("Enable"))
+        t.importSpecifier(Shared.claimStyle, t.identifier("Include"))
     ]
 
     existingImport = body.find(

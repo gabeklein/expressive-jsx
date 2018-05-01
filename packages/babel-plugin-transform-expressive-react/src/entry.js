@@ -29,40 +29,115 @@ export class ComponentClass {
         const doFunctions = [], 
               subComponents = [];
         let componentStyles;
+        let constructor;
 
-        for(let item of path.get("body.body"))
-            if(item.isClassMethod({kind: "method"}) 
-            && item.get("key").isIdentifier()){
-                const { name } = item.node.key;
+        for(let item of path.get("body.body")){
 
-                if(name == "do" || path.node.id && name == path.node.id.name){
-                    doFunctions.push(item)
+            if(item.isClassMethod({kind: "constructor"}))
+                constructor = item
+
+            else if(item.isClassMethod({kind: "method"})){
+                if(item.get("key").isIdentifier()){
+                    const { name } = item.node.key;
+                    
+                    if(name == "do" || path.node.id && name == path.node.id.name)
+                        doFunctions.push(item)
+
+                    else if(name == "Style")
+                        new ComponentStyleMethod(item)
+
+                    else if(/^[A-Z]/.test(name))
+                        subComponents.push(item)
                 }
-                else if(name == "Style"){
-                    // componentStyles = item
-                    new ComponentStyleMethod(item)
-                }
-                else if(/^[A-Z]/.test(name))
-                    subComponents.push(item)
             }
+        }
 
         if(doFunctions.length) {
+            if(constructor)
+                repairConstructor(constructor);
             const modifierInsertions = [];
-            const context = {
+            const current = {
                 classContextNamed: path.node.id && path.node.id.name || "Anonymous",
                 stats: modifierInsertions
             }
-            
-            Shared.stack.push(context);
+
+            Shared.stack.push(current);
+            Shared.stack.currentlyParsingClass = path;
             Shared.stack.modifierInsertions = modifierInsertions
             Shared.stack.styleRoot = null;
+
             RenderFromDoMethods(doFunctions, subComponents);
             state.expressive_used = true;
         }
     }
 
     static exit(path, state){
-        Shared.stack.pop();
+        if(Shared.stack.currentlyParsingClass == path)
+            Shared.stack.pop();
+    }
+}
+
+function repairConstructor(item){
+
+    const body = item.node.body.body;
+    let superAt, thisFirstUsedAt, thisFirstUsedTimes = 1;
+
+    for(let item, i = 0; item = body[i]; i++){
+        if(item.type != "ExpressionStatement") continue;
+            item = item.expression
+        if(item.type != "CallExpression") continue;
+            item = item.callee
+        if(item.type != "Super") continue;
+        superAt = i;
+        break;
+    }
+
+    for(
+        let item, i = 0, stopAt = superAt || body.length; 
+        i < stopAt;
+        i++
+    ){
+        let item = body[i];
+        if(item.type != "ExpressionStatement") continue;
+            item = item.expression
+        if(item.type != "AssignmentExpression") continue;
+            item = item.left
+        if(item.type != "MemberExpression") continue;
+            item = item.object
+        if(item.type != "ThisExpression") continue;
+        if(!thisFirstUsedAt)
+            thisFirstUsedAt = i;
+        else
+            thisFirstUsedTimes++
+    }
+
+    if(thisFirstUsedAt < superAt){
+        const format = Array.from(body);
+        const probablyClassParams = format.splice(thisFirstUsedAt, thisFirstUsedTimes);
+
+        format.splice(superAt + 1, 0, ...probablyClassParams); 
+
+        item.get("body").replaceWith(
+            t.blockStatement(format)
+        )
+    }
+    else if(!superAt && thisFirstUsedAt !== undefined){
+        const format = Array.from(body);
+
+        format.splice(thisFirstUsedAt, 0,
+            t.expressionStatement(
+                t.callExpression(
+                    t.identifier("super"),
+                    [t.spreadElement(
+                        t.identifier("arguments")
+                    )]
+                )
+            )
+        ); 
+
+        item.get("body").replaceWith(
+            t.blockStatement(format)
+        )
     }
 }
 
