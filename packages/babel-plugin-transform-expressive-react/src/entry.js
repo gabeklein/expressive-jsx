@@ -5,7 +5,7 @@ const { createHash } = require('crypto');
 
 const { ComponentGroup } = require("./component")
 const { Opts, Shared, transform } = require("./shared")
-const { SpecialModifier } = require("./modifier");
+const { TagNamedModifier } = require("./modifier");
 const { ComponentInline } = require("./inline");
 
 export function RenderFromDoMethods(renders, subs){
@@ -311,7 +311,7 @@ class ComponentStyleMethod {
         
         if(modifier) modifier(body, recipient);
         else {
-            const mod = new SpecialModifier[Opts.reactEnv](name, body);
+            const mod = new TagNamedModifier[Opts.reactEnv](name, body);
             mod.declare(recipient);
         }
     }

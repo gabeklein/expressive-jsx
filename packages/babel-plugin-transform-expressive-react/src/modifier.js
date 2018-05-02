@@ -23,7 +23,7 @@ export function HandleModifier(src, recipient) {
         return;
 
         case "BlockStatement":
-            const mod = new SpecialModifier[Opts.reactEnv](name, body);
+            const mod = new TagNamedModifier[Opts.reactEnv](name, body);
             mod.declare(recipient);
         return 
     } 
@@ -292,7 +292,7 @@ class NextJSComponentModifier extends InlineComponentModifier {
     }
 }
 
-export const SpecialModifier = {
+export const TagNamedModifier = {
     native: InlineComponentModifier,
     next:   NextJSComponentModifier
 }

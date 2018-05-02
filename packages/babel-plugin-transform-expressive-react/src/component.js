@@ -296,4 +296,4 @@ const { CollateInlineComponentsTo } = require("./inline");
 const { ComponentSwitch } = require("./ifstatement");
 const { ComponentRepeating } = require("./forloop");
 const { ComponentInlineExpression, ComponentFunctionExpression } = require("./entry");
-const { HandleModifier, SpecialModifier } = require("./modifier");
+const { HandleModifier, TagNamedModifier } = require("./modifier");
