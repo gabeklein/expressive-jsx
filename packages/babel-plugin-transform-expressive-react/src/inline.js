@@ -1,9 +1,10 @@
 const t = require('babel-types')
+const { createHash } = require('crypto');
+
 const { html_tags_obvious } = require('./html-types');
 const { Shared, Opts, transform } = require("./shared");
-const { ChildNonComponent, Prop } = require("./item")
+const { NonComponent, Prop } = require("./item")
 const { ComponentGroup } = require("./component")
-const { createHash } = require('crypto');
 
 const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
 
@@ -12,7 +13,7 @@ export function CollateInlineComponentsTo(parent, path){
     if(path.node 
     && path.node.extra
     && path.node.extra.parenthesized === true)
-        return new ChildNonComponent(path)
+        return new NonComponent(path)
 
     let props = [];
 
@@ -83,7 +84,7 @@ const InlineLayers = {
 
         else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
             target.tags.push({name: "div", head: true})
-            target.add(new ChildNonComponent(tag))
+            target.add(new NonComponent(tag))
         }
 
         else throw tag.buildCodeFrameError("Expression must start with an identifier")
@@ -91,7 +92,7 @@ const InlineLayers = {
     },
 
     TaggedTemplateExpression(tag){
-        ChildNonComponent.applyTo(this, 
+        NonComponent.applyTo(this, 
             tag.get("quasi")
         )
         const stripped = tag.get("tag");
@@ -143,7 +144,7 @@ class InlineProps extends Prop {
                     debugger
                 case "TemplateLiteral":
                 case "ChildLiteral":
-                    target.add(new ChildNonComponent(path))
+                    target.add(new NonComponent(path))
                 break;
 
                 default: 
@@ -246,30 +247,6 @@ class InlineProps extends Prop {
         }
         return this.path_value.node;
     }
-
-    // get value(){
-    //     const {target, type, path: { node }} = this;
-    //     let thing;
-
-    //     if(target)
-    //         thing = node.argument;
-
-    //     switch(type){
-    //         case "TaggedTemplateExpression":
-    //             thing = this.quasi.node;
-    //             break;
-
-    //         case "AssignmentExpression":
-    //             thing = node.right
-    //             break;
-
-    //         case "Identifier":  
-    //             thing = t.booleanLiteral(true)
-    //             break;
-    //     }
-        
-    //     return thing
-    // }
 }
 
 export class ComponentInline extends ComponentGroup {
@@ -623,4 +600,3 @@ export class ComponentInline extends ComponentGroup {
 
     
 }
-

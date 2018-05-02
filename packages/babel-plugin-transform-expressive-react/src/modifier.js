@@ -1,206 +1,104 @@
-import { parsedArgumentBody } from "./attributes";
-import * as ModifierEnv from "./attributes";
-import { AttrubutesBody } from "./component";
-const { SyntheticProp, Statement, ChildNonComponent } = require("./item");
-const { Opts, Shared } = require("./shared");
+
 const t = require("babel-types");
+const { createHash } = require('crypto');
 
-const StackFrame = {
-    push(node){
-        node.parent = this.current;
-        const frame = node.context = Shared.stack = Object.create(Shared.stack);
-        frame.current = node;
-    },
-    pop(){
-        // delete Shared.stack.current.context;
-        Shared.stack = Object.getPrototypeOf(this);
-    },
-    getModifier(name){
-        const mod = this[`__${name}`];
-        return mod && mod.handler;
-    },
-    get(name){
-        const mod = this[`$${name}`];
-        return mod && mod.handler;
-    },
-    declare(modifier){
-        const { name } = modifier;
-        if(this.hasOwnProperty(name))
-            throw body.buildCodeFrameError(`Duplicate declaration of named modifier!`)
-
-        this[`$${name}`] = modifier;
-    }
-}
-
-const { assign: Assign } = Object;
-
-const ReservedModifiers = { 
-
-    is(...args){
-        const out = { 
-            attrs: {}, props: {}, style: {}
-        };
-        let computed;
-        for(const arg of args){
-            if(typeof arg == "object" && (computed = arg.computed))
-                for(const x in computed)
-                    Assign(out[x], computed[x])
-            else 
-                out.attrs[arg] = [];
-        }
-        return out
-    },
-
-
-
-};
-
-export function createSharedStack(included = []){
-    let Stack = StackFrame;
-
-    for(const inclusion of [ReservedModifiers].concat(included)){
-        Stack = Object.create(Stack)
-
-        for(const name in inclusion){
-            Stack[`__${name}`] = new StyleModifier(name, inclusion[name])
-        }
-    }
-
-    return Stack;
-}
-
-export function initComputedStyleAccumulator(Stack, build_state){
-    const targets = build_state.expressive_computeTargets = [];
-    return Object.assign(
-        Object.create(Stack),
-        //add listener to context
-        { program: {
-            computedStyleMayInclude(element){
-                targets.push(element)
-            }
-        }}
-    )
-}
+const { AttrubutesBody } = require("./component");
+const { SyntheticProp, ExplicitStyle, Statement, NonComponent } = require("./item");
+const { parsedArgumentBody } = require("./attributes");
+const { Opts, Shared } = require("./shared");
 
 export function HandleModifier(src, recipient) {
     const name = src.node.label.name;
     const body = src.get("body");
 
-    const modifier = 
-        body.type == "ExpressionStatement" && 
-        recipient.context.getModifier(name) ||
-        recipient.context.get(name) ||
-        LabeledStatementDefault(name)
+    switch(body.type){
+        case "EmptyStatement":
+        case "ExpressionStatement": 
+            const modifier = 
+                recipient.context.getModifier(name) ||
+                recipient.context.get(name);
 
-    modifier(body, recipient);
+            if(modifier) modifier(body, recipient);
+            else new GeneralModifier(name).apply(body, recipient);
+        return;
+
+        case "BlockStatement":
+            const mod = new SpecialModifier[Opts.reactEnv](name, body);
+            mod.declare(recipient);
+        return 
+    } 
 }
 
-class ExplicitStyle {
+export class GeneralModifier {
 
-    constructor(name, value) {
-        this.id = t.identifier(name);
-        this.name = name;
-        this.static = value;
-        switch(typeof value){
-            case "number":
-                value = value.toString()
-            case "string":
-                this.value = t.stringLiteral(value)
-                this.inlineType = "style_static";
-                break
-            default:
-                this.static = false;
-                this.inlineType = "style";
-                this.value = value.node;
-        }
-    }
-
-    get asString(){
-        const name = this.name.replace(/([A-Z]+)/g, "-$1").toLowerCase();
-        let { static: value } = this;
-
-        return `${name}: ${value}; `
-    }
-
-    get asProperty(){
-        return t.objectProperty(this.id, this.value);
-    }
-
-    asAssignedTo(target){
-        return t.expressionStatement(
-            t.assignmentExpression("=",
-                t.memberExpression(target, this.id), this.value
-            )
-        )
-    }
-}
-
-class StyleModifier {
-
-    constructor(name, transform) {
+    constructor(name, transform){
         this.name = name;
         if(transform)
             this.transform = transform;
     }
 
     get handler(){
-        return (body, recipient) => {
-            this.apply(
-                recipient, body
-            );
-        }
+        return (...args) => this.apply(...args)
     }
 
-    apply(target, args){
+    apply(args, target){
+
         const style = {};
         const props = {};
-        const computed = { props, style };
+        const computed = { 
+            props, 
+            style
+        };
 
         this.invoke( 
-            target, 
+            target.context, 
             new parsedArgumentBody(args), 
             computed
         );
 
-        for(const [type, handler] of [
+        for(const [typeTarget, AttributeType] of [
             [style, ExplicitStyle], 
             [props, SyntheticProp]
         ])
-        for(const item in type)
-            if(type[item] !== null)
-                target.add(new handler(item, type[item]))
+        for(const item in typeTarget)
+            if(typeTarget[item] !== null)
+                target.add(new AttributeType(item, typeTarget[item]))
                 
     }
 
-    invoke(target, args, computed){
+    invoke(context, args, computed){
 
         const { assign, getPrototypeOf } = Object;
 
-        if(args === undefined) args = [];
-        else args = [].concat(args);
+        args = args === undefined
+            ? [] : [].concat(args)
 
         for(const argument of args)
-            if(typeof argument == "object" && argument && argument.named){
+            if(argument && typeof argument == "object" && argument.named){
                 const { inner, named, location } = argument;
-                const mod = target.context[`__${named}`]
+                const mod = context[`__${named}`]
 
                 if(mod) try {
                     argument.computed = mod.transform(...inner)
+
                 } catch(err) {
                     throw location && location.buildCodeFrameError(err.message) || err
-                } else argument.computed = {value: `${named}(${inner.join(" ")})`}
-                
+
+                } else {
+                    argument.computed = {value: `${named}(${inner.join(" ")})`}
+                }
             }
 
-        const { style, props, attrs } = this.transform.apply(this, args);
-
-        for(const named in attrs){
-            let ctx = target.context;
-            let value = attrs[named];
+        if(typeof this.transform != "function") debugger
+        const modify = this.transform(...args);
+        
+        for(const named in modify.attrs){
+            let ctx = context;
+            let value = modify.attrs[named];
 
             if(value == null) continue;
 
-            if(named == this.name){ //get "super" of this modifier
+            if(named == this.name){
                 let seeking;
                 do { 
                     seeking = !ctx.hasOwnProperty(`__${named}`);
@@ -209,31 +107,33 @@ class StyleModifier {
                 while(seeking);
             }
 
-            const mod = ctx[`__${named}`] || new StyleModifier(named);
+            const mod = ctx[`__${named}`] || new GeneralModifier(named);
 
             if(value.type)
                 value = new parsedArgumentBody(value);
 
-            mod.invoke(target, value, computed);
+            mod.invoke(context, value, computed);
         }
 
-        if(style) assign(computed.style, style);
-        if(props) assign(computed.props, props);
+        assign(computed.style, modify.style);
+        assign(computed.props, modify.props);
 
         return computed;
     }
 
     transform(){
-        let output;
-
-        const args = Array.from(arguments).map(x => {
-            return x && typeof x == "object" && x.computed && x.computed.value || x
+        const args = [].map.call(arguments, (arg) => {
+            return arg 
+                && typeof arg == "object" 
+                && arg.computed 
+                && arg.computed.value 
+                || arg
         })
 
-        if(typeof args[0] == "object")
-            output = args[0]
-        else 
-            output = Array.from(args).join(" ")
+        const output = 
+            typeof args[0] == "object"
+                ? args[0]
+                : Array.from(args).join(" ")
 
         return {
             style: {
@@ -243,17 +143,156 @@ class StyleModifier {
     }
 }
 
-export const LabeledStatementDefault = (name) => 
-    (body, recipient) => {
-        switch(body.type){
-            case "EmptyStatement":
-            case "ExpressionStatement": 
-                new StyleModifier(name).apply(recipient, body);
-                return;
+class ComponentModifier extends AttrubutesBody {
 
-            case "BlockStatement":
-                const mod = new ModifierEnv[Opts.reactEnv](name, body);
-                return mod.declare(recipient);
+    precedence = 0
+
+    constructor(name, body, inherited){
+        super()
+        this.name = name;
+        if(inherited)
+            this.inherits = inherited;
+        this.insertDoIntermediate(body)
+    }   
+
+    get handler(){
+        const inheriting = this;
+        const usingName = this.name;
+        return (body, recipient) => {
+            if(body.type == "BlockStatement")
+                new exports[Opts.reactEnv](usingName, body, inheriting).declare(recipient);
+            else 
+                this.invoke( recipient, new parsedArgumentBody(body), false )
         }
     }
 
+    declare(recipient){
+        recipient.context.declare(this);
+    }
+
+    didEnterOwnScope(path){
+        //TODO GET RID OF SCOPE
+        this.scope = path.scope
+        super.didEnterOwnScope(path)
+    }
+
+    didExitOwnScope(path){
+        if(this.props.length)
+            this.type = "props"
+        if(this.style.length)
+            this.type = this.type ? "both" : "style"
+
+        if(this.style_static)
+            this.hash = createHash("md5")
+                .update(this.style_static.reduce((x,y) => x + y.asString, ""))
+                .digest('hex')
+                .substring(0, 6);
+        
+        super.didExitOwnScope(path)
+    }
+}
+
+class InlineComponentModifier extends ComponentModifier {
+
+    inlineType = "stats"
+
+    declare(recipient){
+        super.declare(recipient);
+        recipient.add(this);
+    }
+
+    invoke(target, args, inline){
+        if(!inline && !args.length) return;
+        this.into(inline)
+    }
+
+    output(){
+        let { props, style } = this;
+        let declaration;
+
+        props = props.length && t.objectExpression(props.map(x => x.asProperty));
+        style = style.length && t.objectExpression(style.map(x => x.asProperty));
+
+        declaration = 
+            ( this.type == "both" )
+            ? t.objectExpression([
+                t.objectProperty(t.identifier("props"), props),
+                t.objectProperty(t.identifier("style"), style)
+            ]) 
+            : props || style;
+
+        if(declaration){
+            const id = this.id || (this.id = this.scope.generateUidIdentifier(this.name)); 
+            return t.variableDeclaration("const", [
+                t.variableDeclarator(
+                    id, declaration
+                )
+            ])
+        }
+    }
+
+    into(inline){
+        if(this.inherits) this.inherits.into(inline);
+        
+        if(!this.style.length && !this.props.length) return
+
+        const { style, props, css } = inline;
+        const id = this.id || (this.id = this.scope.generateUidIdentifier(this.name)); 
+
+        if(this.props.length && this.style.length){
+            props.push(t.spreadProperty(
+                t.memberExpression(
+                    id, t.identifier("props")
+                )
+            ))
+            style.push(t.spreadProperty(
+                t.memberExpression(
+                    id, t.identifier("style")
+                )
+            ))
+        }
+        else {
+            inline[this.type].push(
+                t.spreadProperty(id)
+            );
+        }
+    }
+}
+
+class NextJSComponentModifier extends InlineComponentModifier {
+
+    style_static = [];
+
+    constructor(name, body, inherited) {
+        super(...arguments)
+    }
+
+    declare(recipient){
+        super.declare(recipient);
+        const { program, styleRoot } = recipient.context;
+        program.computedStyleMayInclude(this);
+        if(styleRoot)
+            styleRoot.computedStyleMayInclude(this);
+    }
+
+    invoke(target, args, inline){
+        if(!inline && !args.length) return;
+        this.into(inline)
+    }
+
+    didExitOwnScope(path){
+        super.didExitOwnScope(path)
+        this.classname = `${this.name}-${this.hash}`
+    }
+
+    into(inline){
+        if(this.style_static !== this.style && this.style_static.length)
+            inline.css.push(this.classname)
+        super.into(inline);
+    }
+}
+
+export const SpecialModifier = {
+    native: InlineComponentModifier,
+    next:   NextJSComponentModifier
+}

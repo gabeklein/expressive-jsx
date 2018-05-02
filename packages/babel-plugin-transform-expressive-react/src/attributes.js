@@ -1,5 +1,4 @@
-const { AttrubutesBody } = require("./component");
-const { createHash } = require('crypto');
+
 const t = require("babel-types");
 const { Opts, Shared, transform } = require("./shared");
 
@@ -61,6 +60,18 @@ export class parsedArgumentBody {
         }
     }
 
+    NumericLiteral(e, sign = 1){
+        const { raw, rawValue, parenthesized } = e.node.extra;
+        if(parenthesized || !/^0x/.test(raw))
+            return sign*rawValue;
+        else {
+            if(sign < 0)
+                throw e.buildCodeFrameError(`Hexadecimal numbers are converted into HEX coloration so negative sign doesn't mean anything here.\nParenthesize the number if you really need "-${rawValue}" for some reason...`)
+            return HEX_COLOR(raw);
+        }
+    }
+
+
     ExpressionStatement(e){
         return this.Type(e.get("expression"))
     }
@@ -92,18 +103,6 @@ export class parsedArgumentBody {
         else throw e.buildCodeFrameError("Unary operator here doesn't do anything")
         // else return e;
     }
-
-    NumericLiteral(e, sign = 1){
-        const { raw, rawValue, parenthesized } = e.node.extra;
-        if(parenthesized || !/^0x/.test(raw))
-            return sign*rawValue;
-        else {
-            if(sign < 0)
-                throw e.buildCodeFrameError(`Hexadecimal numbers are converted into HEX coloration so negative sign doesn't mean anything here.\nParenthesize the number if you really need "-${rawValue}" for some reason...`)
-            return HEX_COLOR(raw);
-        }
-    }
-
     SequenceExpression(e){
         return e.get("expressions").map(e => this.Type(e))
     }
@@ -132,159 +131,4 @@ export class parsedArgumentBody {
     NullLiteral(){
         return null;
     }
-}
-
-class ComponentModifier extends AttrubutesBody {
-
-    precedence = 0
-
-    constructor(name, body, inherited){
-        super()
-        this.name = name;
-        if(inherited)
-            this.inherits = inherited;
-        this.insertDoIntermediate(body)
-    }   
-
-    get handler(){
-        const inheriting = this;
-        const usingName = this.name;
-        return (body, recipient) => {
-            if(body.type == "BlockStatement")
-                new exports[Opts.reactEnv](usingName, body, inheriting).declare(recipient);
-            else 
-                this.invoke( recipient, new parsedArgumentBody(body), false )
-        }
-    }
-
-    declare(recipient){
-        recipient.context.declare(this);
-    }
-
-    didEnterOwnScope(path){
-        //TODO GET RID OF SCOPE
-        this.scope = path.scope
-        super.didEnterOwnScope(path)
-    }
-
-    didExitOwnScope(path){
-        if(this.props.length)
-            this.type = "props"
-        if(this.style.length)
-            this.type = this.type ? "both" : "style"
-
-        if(this.style_static)
-            this.hash = createHash("md5")
-                .update(this.style_static.reduce((x,y) => x + y.asString, ""))
-                .digest('hex')
-                .substring(0, 6);
-        
-        super.didExitOwnScope(path)
-    }
-}
-
-export class InlineComponentModifier extends ComponentModifier {
-
-    inlineType = "stats"
-
-    declare(recipient){
-        super.declare(recipient);
-        recipient.add(this);
-    }
-
-    invoke(target, args, inline){
-        if(!inline && !args.length) return;
-        this.into(inline)
-    }
-
-    output(){
-        let { props, style } = this;
-        let declaration;
-
-        props = props.length && t.objectExpression(props.map(x => x.asProperty));
-        style = style.length && t.objectExpression(style.map(x => x.asProperty));
-
-        declaration = 
-            ( this.type == "both" )
-            ? t.objectExpression([
-                t.objectProperty(t.identifier("props"), props),
-                t.objectProperty(t.identifier("style"), style)
-            ]) 
-            : props || style;
-
-        if(declaration){
-            const id = this.id || (this.id = this.scope.generateUidIdentifier(this.name)); 
-            return t.variableDeclaration("const", [
-                t.variableDeclarator(
-                    id, declaration
-                )
-            ])
-        }
-    }
-
-    into(inline){
-        if(this.inherits) this.inherits.into(inline);
-        
-        if(!this.style.length && !this.props.length) return
-
-        const { style, props, css } = inline;
-        const id = this.id || (this.id = this.scope.generateUidIdentifier(this.name)); 
-
-        if(this.props.length && this.style.length){
-            props.push(t.spreadProperty(
-                t.memberExpression(
-                    id, t.identifier("props")
-                )
-            ))
-            style.push(t.spreadProperty(
-                t.memberExpression(
-                    id, t.identifier("style")
-                )
-            ))
-        }
-        else {
-            inline[this.type].push(
-                t.spreadProperty(id)
-            );
-        }
-    }
-}
-
-export class NextJSComponentModifier extends InlineComponentModifier {
-
-    style_static = [];
-
-    constructor(name, body, inherited) {
-        super(...arguments)
-    }
-
-    declare(recipient){
-        super.declare(recipient);
-        const { program, styleRoot } = recipient.context;
-        program.computedStyleMayInclude(this);
-        if(styleRoot)
-            styleRoot.computedStyleMayInclude(this);
-    }
-
-    invoke(target, args, inline){
-        if(!inline && !args.length) return;
-        this.into(inline)
-    }
-
-    didExitOwnScope(path){
-        super.didExitOwnScope(path)
-        this.classname = `${this.name}-${this.hash}`
-    }
-
-    into(inline){
-        if(this.style_static !== this.style && this.style_static.length)
-            inline.css.push(this.classname)
-        super.into(inline);
-    }
-}
-
-export {
-    InlineComponentModifier as native,
-    NextJSComponentModifier as next
-    // NativeComponentModifier as next
 }

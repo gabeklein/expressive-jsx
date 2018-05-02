@@ -1,10 +1,12 @@
-import { ComponentInline } from "./inline";
+
 
 const t = require("babel-types")
+const { createHash } = require('crypto');
+
 const { ComponentGroup } = require("./component")
 const { Opts, Shared, transform } = require("./shared")
-const { createHash } = require('crypto');
-import * as ModifierEnv from "./attributes";
+const { SpecialModifier } = require("./modifier");
+const { ComponentInline } = require("./inline");
 
 export function RenderFromDoMethods(renders, subs){
     let found = 0;
@@ -172,8 +174,6 @@ export class ComponentEntry extends ComponentInline {
             )
         )
     }
-
-
 }
 
 class ComponentMethod extends ComponentEntry {
@@ -311,12 +311,11 @@ class ComponentStyleMethod {
         
         if(modifier) modifier(body, recipient);
         else {
-            const mod = new ModifierEnv[Opts.reactEnv](name, body);
+            const mod = new SpecialModifier[Opts.reactEnv](name, body);
             mod.declare(recipient);
         }
     }
 }
-
 
 export class ComponentFunctionExpression extends ComponentEntry {
 

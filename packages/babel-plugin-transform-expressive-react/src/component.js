@@ -1,13 +1,6 @@
 const t = require("babel-types")
 const { Opts, transform, Shared } = require("./shared")
 
-const UNARY_NAMES = {
-    "~": "Tilde",
-    "+": "Positive",
-    "-": "Negitive",
-    "!": "Anti"
-}
-
 class TraversableBody {
 
     children = [];
@@ -65,13 +58,6 @@ class TraversableBody {
         else if(this.ExpressionDefault) this.ExpressionDefault(expr);
         else throw expr.buildCodeFrameError(`Unhandled expressionary statement of type ${expr.type}`)
         
-    }
-
-    UnaryExpression(path){
-        const arg = path.get("argument");
-        const type = UNARY_NAMES[path.node.operator] + "Expression";
-        if(type in this) this[type] (arg);
-        else throw arg.buildCodeFrameError(`Unhandled Unary statement of type ${type}`);   
     }
 
 }
@@ -162,23 +148,17 @@ export class ComponentBody extends AttrubutesBody {
     }
 
     StringLiteral(path){
-        ChildNonComponent.applyTo(this, path)
+        NonComponent.applyTo(this, path)
     }
 
     ArrayExpression(path){
-        ChildNonComponent.applyMultipleTo(this, path)
+        NonComponent.applyMultipleTo(this, path)
     }
 
-    EmptyStatement(path){ 
-        ChildNonComponent.applyVoidTo(this)
-    };
+    EmptyStatement(){};
 
     IfStatement(path){
         ComponentSwitch.applyTo(this, path)
-    }
-
-    ForStatement(path, mod){
-        ComponentRepeating.applyTo(this, path, mod)
     }
 
     ForInStatement(path){
@@ -187,6 +167,10 @@ export class ComponentBody extends AttrubutesBody {
 
     ForOfStatement(path){
         this.ForStatement(path, "of")
+    }
+
+    ForStatement(path, mod){
+        ComponentRepeating.applyTo(this, path, mod)
     }
     
 }
@@ -307,9 +291,9 @@ export class ComponentGroup extends ComponentBody {
 
 //import last. modules here themselves import from this one, so exports must already be initialized.
 
-const { Prop, Statement, ChildNonComponent } = require("./item");
+const { Prop, Statement, NonComponent } = require("./item");
 const { CollateInlineComponentsTo } = require("./inline");
 const { ComponentSwitch } = require("./ifstatement");
 const { ComponentRepeating } = require("./forloop");
 const { ComponentInlineExpression, ComponentFunctionExpression } = require("./entry");
-const { HandleModifier } = require("./modifier");
+const { HandleModifier, SpecialModifier } = require("./modifier");

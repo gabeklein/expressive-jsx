@@ -115,6 +115,46 @@ export class Prop extends Attribute {
     }
 }
 
+export class ExplicitStyle {
+
+    constructor(name, value) {
+        this.id = t.identifier(name);
+        this.name = name;
+        this.static = value;
+        switch(typeof value){
+            case "number":
+                value = value.toString()
+            case "string":
+                this.value = t.stringLiteral(value)
+                this.inlineType = "style_static";
+                break
+            default:
+                this.static = false;
+                this.inlineType = "style";
+                this.value = value.node;
+        }
+    }
+
+    get asString(){
+        const name = this.name.replace(/([A-Z]+)/g, "-$1").toLowerCase();
+        let { static: value } = this;
+
+        return `${name}: ${value}; `
+    }
+
+    get asProperty(){
+        return t.objectProperty(this.id, this.value);
+    }
+
+    asAssignedTo(target){
+        return t.expressionStatement(
+            t.assignmentExpression("=",
+                t.memberExpression(target, this.id), this.value
+            )
+        )
+    }
+}
+
 export class Statement {
 
     inlineType = "stats"
@@ -131,17 +171,19 @@ export class Statement {
 
     constructor(path, kind){
         this.kind = kind;
-        if(kind != "debug")
-            this.node = path.node;
+        this.node = path.node;
     }
 }
 
-export class ChildNonComponent {
+export class NonComponent {
 
     inlineType = "child"
-    
     precedence = 3
 
+    constructor(src){
+        this.path = src
+    }
+    
     static applyMultipleTo(parent, src){
         const elem = src.get("elements");
         if(elem.length == 1 && elem[0].isSpreadElement())
@@ -174,7 +216,4 @@ export class ChildNonComponent {
         }
     }
 
-    constructor(src){
-        this.path = src
-    }
 }

@@ -6,7 +6,7 @@ const template = require("babel-template");
 const { Shared, Opts } = require("./shared");
 const { ComponentBody } = require("./component")
 const { ComponentClass } = require('./entry.js');
-const { createSharedStack, initComputedStyleAccumulator } = require("./modifier")
+const { createSharedStack } = require("./scope")
 
 export default (options) => {
     return {
@@ -123,6 +123,19 @@ function checkForStyleImport(body){
         for(const {type, local} of specifiers)
             if(type == "ImportDefaultSpecifier")
                 Shared.styledApplicationComponentName = local.name
+}
+
+function initComputedStyleAccumulator(Stack, build_state){
+    const targets = build_state.expressive_computeTargets = [];
+    return Object.assign(
+        Object.create(Stack),
+        //add listener to context
+        { program: {
+            computedStyleMayInclude(element){
+                targets.push(element)
+            }
+        }}
+    )
 }
 
 function generateComputedStylesExport(path, compute, index){
