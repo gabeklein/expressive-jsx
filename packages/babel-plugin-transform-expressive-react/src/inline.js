@@ -426,7 +426,7 @@ export class ComponentInline extends ComponentGroup {
             const modify = this.context[`$${name}`];
 
             if(modify)
-                modify.invoke(this, [], inline)
+                modify.insert(this, [], inline)
         }
         
         if(!inline.type)

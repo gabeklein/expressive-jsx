@@ -51,7 +51,7 @@ export class GeneralModifier {
         };
 
         this.invoke( 
-            target.context, 
+            target, 
             new parsedArgumentBody(args), 
             computed
         );
@@ -66,7 +66,9 @@ export class GeneralModifier {
                 
     }
 
-    invoke(context, args, computed){
+    invoke(target, args, computed){
+
+        const { context } = target;
 
         const { assign, getPrototypeOf } = Object;
 
@@ -112,7 +114,7 @@ export class GeneralModifier {
             if(value.type)
                 value = new parsedArgumentBody(value);
 
-            mod.invoke(context, value, computed);
+            mod.invoke(target, value, computed);
         }
 
         assign(computed.style, modify.style);
@@ -162,7 +164,7 @@ class ComponentModifier extends AttrubutesBody {
             if(body.type == "BlockStatement")
                 new exports[Opts.reactEnv](usingName, body, inheriting).declare(recipient);
             else 
-                this.invoke( recipient, new parsedArgumentBody(body), false )
+                this.insert( recipient, new parsedArgumentBody(body), false )
         }
     }
 
@@ -201,7 +203,7 @@ class InlineComponentModifier extends ComponentModifier {
         recipient.add(this);
     }
 
-    invoke(target, args, inline){
+    insert(target, args, inline){
         if(!inline && !args.length) return;
         this.into(inline)
     }
@@ -263,10 +265,6 @@ class NextJSComponentModifier extends InlineComponentModifier {
 
     style_static = [];
 
-    constructor(name, body, inherited) {
-        super(...arguments)
-    }
-
     declare(recipient){
         super.declare(recipient);
         const { program, styleRoot } = recipient.context;
@@ -275,7 +273,7 @@ class NextJSComponentModifier extends InlineComponentModifier {
             styleRoot.computedStyleMayInclude(this);
     }
 
-    invoke(target, args, inline){
+    insert(target, args, inline){
         if(!inline && !args.length) return;
         this.into(inline)
     }
