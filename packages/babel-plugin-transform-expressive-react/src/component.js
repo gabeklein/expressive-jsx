@@ -106,7 +106,13 @@ export class ComponentBody extends AttrubutesBody {
             if(immediateParent.isArrowFunctionExpression()){
                 Handler = ComponentFunctionExpression;
                 immediateParent = immediateParent.parentPath;
-            } else debugger
+            } 
+            else if(immediateParent.isSequenceExpression()){
+                throw immediateParent.getAncestry()
+                    .find(x => x.type == "ArrowFunctionExpression")
+                    .get("body")
+                    .buildCodeFrameError("Component Syntax `..., do {}` found outside expressive context! Did you forget to arrow-return a do expression?")
+            }
 
             let { type, node: parent } = immediateParent;
             let name;
