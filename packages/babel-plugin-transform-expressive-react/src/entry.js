@@ -181,7 +181,8 @@ class ComponentMethod extends ComponentEntry {
     constructor(name, path, subComponentNames) {
         super(path.get("body"));
         this.attendantComponentNames = subComponentNames;
-        this.methodNamed = name;
+        this.methodNamed = name; 
+        name == "render" ? Shared.stack.current.classContextNamed : name;
         this.tags.push({ name });
         this.insertDoIntermediate(path)
     }
@@ -256,8 +257,8 @@ class ComponentMethod extends ComponentEntry {
         for(const item of insertStats)
             this.context.styleRoot.computedStyleMayInclude(item);
 
+        super.didExitOwnScope(path, true)
         path.parentPath.replaceWithMultiple(this.outputBodyDynamic())
-        super.didExitOwnScope(path)
     }
 }
 

@@ -61,6 +61,14 @@ const ReservedModifiers = {
                 out.attrs[arg] = [];
         }
         return out
+    },
+
+    css(){
+        const { classList } = this.target;
+        for(const arg of arguments)
+            if(typeof arg == "string")
+                if(classList.indexOf(arg) < 0)
+                    classList.push(arg);
     }
 
 };

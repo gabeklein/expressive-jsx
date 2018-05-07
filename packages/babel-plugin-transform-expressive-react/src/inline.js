@@ -259,6 +259,7 @@ export class ComponentInline extends ComponentGroup {
     attrs = []
     style = []
     tags = []
+    classList = [];
     precedent = 0
     precedence = 3
 
@@ -273,11 +274,12 @@ export class ComponentInline extends ComponentGroup {
         })
     }
 
-    didExitOwnScope(body){
+    didExitOwnScope(body, preventDefault){
         super.didExitOwnScope(body);
         if(this.style_static)
             this.generateClassName();
-        this.output = this.build();
+        if(!preventDefault)
+            this.output = this.build();
     }
 
     generateClassName(){
@@ -541,15 +543,21 @@ export class ComponentInline extends ComponentGroup {
                     this.standardCombinedStyleFormatFor(initial_style)
                 ))
             }
-
         }
 
-        if(inline.css && inline.css.length) initial_props.push(
-            t.objectProperty(
-                t.identifier("className"),
-                t.stringLiteral(inline.css.reverse().join(" "))
-            )
-        );
+        
+
+        if(inline.css && inline.css.length)
+            this.classList.push(...inline.css);
+        
+        if(this.classList.length)
+            initial_props.push(
+                t.objectProperty(
+                    t.identifier("className"),
+                    t.stringLiteral(this.classList.reverse().join(" "))
+                )
+            );
+        
 
         const _quoteTarget = { props: computed_props, style: accumulated_style };
 

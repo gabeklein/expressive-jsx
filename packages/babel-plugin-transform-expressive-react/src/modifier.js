@@ -23,6 +23,7 @@ export function HandleModifier(src, recipient) {
         return;
 
         case "BlockStatement":
+            // debugger
             const mod = new TagNamedModifier[Opts.reactEnv](name, body);
             mod.declare(recipient);
         return 
@@ -38,7 +39,7 @@ export class GeneralModifier {
     }
 
     get handler(){
-        return (...args) => this.apply(...args)
+        return this.apply.bind(this)
     }
 
     apply(args, target){
@@ -56,14 +57,15 @@ export class GeneralModifier {
             computed
         );
 
-        for(const [typeTarget, AttributeType] of [
-            [style, ExplicitStyle], 
-            [props, SyntheticProp]
+        for(const [AttributeType, typeTarget] of [
+            [ExplicitStyle, style], 
+            [SyntheticProp, props]
         ])
         for(const item in typeTarget)
             if(typeTarget[item] !== null)
-                target.add(new AttributeType(item, typeTarget[item]))
-                
+                target.add(
+                    new AttributeType(item, typeTarget[item])
+                )
     }
 
     invoke(target, args, computed){
@@ -92,8 +94,10 @@ export class GeneralModifier {
             }
 
         if(typeof this.transform != "function") debugger
-        const modify = this.transform(...args);
+        const modify = this.transform.apply({ target, name: this.name }, args);
         
+        if(!modify) return
+
         for(const named in modify.attrs){
             let ctx = context;
             let value = modify.attrs[named];
@@ -148,6 +152,7 @@ export class GeneralModifier {
 class ComponentModifier extends AttrubutesBody {
 
     precedence = 0
+    classList = [];
 
     constructor(name, body, inherited){
         super()
@@ -233,7 +238,7 @@ class InlineComponentModifier extends ComponentModifier {
         }
     }
 
-    into(inline){
+    into(inline, target){
         if(this.inherits) this.inherits.into(inline);
         
         if(!this.style.length && !this.props.length) return
@@ -258,6 +263,7 @@ class InlineComponentModifier extends ComponentModifier {
                 t.spreadProperty(id)
             );
         }
+
     }
 }
 
@@ -275,7 +281,7 @@ class NextJSComponentModifier extends InlineComponentModifier {
 
     insert(target, args, inline){
         if(!inline && !args.length) return;
-        this.into(inline)
+        this.into(inline, target)
     }
 
     didExitOwnScope(path){
@@ -283,10 +289,15 @@ class NextJSComponentModifier extends InlineComponentModifier {
         this.classname = `${this.name}-${this.hash}`
     }
 
-    into(inline){
+    into(inline, target){
         if(this.style_static !== this.style && this.style_static.length)
             inline.css.push(this.classname)
-        super.into(inline);
+        super.into(inline, target);
+
+        for(const name of this.classList)
+            if(typeof name == "string")
+                if(target.classList.indexOf(name) < 0)
+                    target.classList.push(name);
     }
 }
 
