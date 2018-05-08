@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-transform-in-iterable",
-  "version": "0.0.9",
+  "version": "1.0.0",
   "description": "Babel transform detects use of iterable in binary `in` expression and transforms to indexOf check.",
   "main": "lib/index.js",
   "author": "Gabe Klein <gabe@termtm.com> (https://github.com/gabeklein)",
