@@ -118,7 +118,13 @@ export class Prop extends Attribute {
 export class ExplicitStyle {
 
     constructor(name, value) {
-        this.id = t.identifier(name);
+        if(name[0] == "$"){
+            name = "--" + name.slice(1)
+            this.id = t.stringLiteral(name);
+        } else {
+            this.id = t.identifier(name);
+        }
+        
         this.name = name;
         this.static = value;
         switch(typeof value){
