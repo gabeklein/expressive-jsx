@@ -141,10 +141,14 @@ class InlineProps extends Prop {
                 break;
 
                 case "StringLiteral":
-                    debugger
                 case "TemplateLiteral":
                 case "ChildLiteral":
                     target.add(new NonComponent(path))
+                break;
+
+                case "ObjectExpression": 
+                    for(const property of path.get("properties"))
+                        target.add(new this(property))
                 break;
 
                 default: 
@@ -158,9 +162,14 @@ class InlineProps extends Prop {
         const { node, type } = path;
         let name, value;
 
-        if(!type) debugger
-
         switch(type){
+            case "ObjectProperty": {
+                const { key } = node;
+                name = key.name || key.value;
+                value = path.get("value");
+                break;
+            }
+
             case "TaggedTemplateExpression": {
                 const {tag, quasi} = path.node;
 
@@ -178,22 +187,41 @@ class InlineProps extends Prop {
             }
 
             case "UnaryExpression": {
-                const { operator: op } = node;
-                const target = { "+": "props", "~": "style" }[op];
-                if(!target) throw path.buildCodeFrameError(`"${op}" is not a recognized operator for props`)
+
+                let { 
+                    operator: op, 
+                    argument: { type, name: id_name }
+                } = node;
 
                 value = path.get("argument")
-                this.kind = target;
-                this.isSpread = true;
+
+                switch(op){
+                    case "+": 
+                        if(type == "Identifier")
+                            name = id_name;
+                        else throw path.buildCodeFrameError(
+                            `"Bad Prop! + only works when in conjuction with Identifier, got ${type}"`)
+                    break;
+
+                    case "~":
+                        this.kind = "style"
+                        this.isSpread = true
+                    break;
+
+                    default:
+                        throw path.buildCodeFrameError(`"${op}" is not a recognized operator for props`)
+                }
+
                 break;
             }
 
-            case "Identifier": 
+            case "Identifier": {
                 name = node.name
                 value = {
                     node: t.booleanLiteral(true)
                 }
-            break;
+                break;
+            }
 
             case "AssignmentExpression": {
                 if(node.operator != "=")
@@ -215,12 +243,9 @@ class InlineProps extends Prop {
 
             case "SpreadElement": {
                 value = path.get("argument")
-
-                const arg = node.argument;
-                let spread = "inclusion"
-                if(t.isIdentifier(arg))
-                    spread = arg.name;
-                throw path.buildCodeFrameError(`Spread Element depreciated, use \`+${spread}\` instead.`)
+                this.kind = "props";
+                this.isSpread = true;
+                break;
             }
 
             case "ArrowFunctionExpression": {
@@ -230,21 +255,18 @@ class InlineProps extends Prop {
             }
 
             default:
-                debugger
-                throw path.buildCodeFrameError(`There is no such property inferred from an ${type}.`)
+                throw path.buildCodeFrameError(`There is no property inferred from an ${type}.`)
         }
 
         this.path_value = value;
-
         this.type = type;
         this.name = name;
     }
 
     get value(){
-        if(!this.path_value){
-            debugger
+        if(!this.path_value)
             throw new Error("Prop has no path_value set, this is an internal error")
-        }
+        
         return this.path_value.node;
     }
 }
@@ -353,7 +375,7 @@ export class ComponentInline extends ComponentGroup {
         let layer = [];
         for(const style of inline)
             if(style.type == "SpreadProperty"){
-                if(layer.length) output.push(t.objectExpression[layer])
+                if(layer.length) output.push(t.objectExpression(layer))
                 output.push(style.argument);
                 layer = [];
             }
@@ -366,7 +388,6 @@ export class ComponentInline extends ComponentGroup {
     }
 
     standardCombinedStyleFormatFor(inline, dynamic){
-
         if(Opts.reactEnv == "native"){
             let output = this.seperateItems(inline, dynamic);
 
