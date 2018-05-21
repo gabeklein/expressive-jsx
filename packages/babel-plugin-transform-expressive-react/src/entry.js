@@ -55,8 +55,8 @@ export class ComponentClass {
         }
 
         if(doFunctions.length) {
-            if(constructor)
-                repairConstructor(constructor);
+            // if(constructor)
+            //     repairConstructor(constructor);
             const modifierInsertions = [];
             const current = {
                 classContextNamed: path.node.id && path.node.id.name || "Anonymous",
@@ -76,70 +76,6 @@ export class ComponentClass {
     static exit(path, state){
         if(Shared.stack.currentlyParsingClass == path)
             Shared.stack.pop();
-    }
-}
-
-function repairConstructor(item){
-
-    const body = item.node.body.body;
-    let superAt, thisFirstUsedAt, thisFirstUsedTimes = 1;
-
-    for(let item, i = 0; item = body[i]; i++){
-        if(item.type != "ExpressionStatement") continue;
-            item = item.expression
-        if(item.type != "CallExpression") continue;
-            item = item.callee
-        if(item.type != "Super") continue;
-        superAt = i;
-        break;
-    }
-
-    for(
-        let item, i = 0, stopAt = superAt || body.length; 
-        i < stopAt;
-        i++
-    ){
-        let item = body[i];
-        if(item.type != "ExpressionStatement") continue;
-            item = item.expression
-        if(item.type != "AssignmentExpression") continue;
-            item = item.left
-        if(item.type != "MemberExpression") continue;
-            item = item.object
-        if(item.type != "ThisExpression") continue;
-        if(!thisFirstUsedAt)
-            thisFirstUsedAt = i;
-        else
-            thisFirstUsedTimes++
-    }
-
-    if(thisFirstUsedAt < superAt){
-        const format = Array.from(body);
-        const probablyClassParams = format.splice(thisFirstUsedAt, thisFirstUsedTimes);
-
-        format.splice(superAt + 1, 0, ...probablyClassParams); 
-
-        item.get("body").replaceWith(
-            t.blockStatement(format)
-        )
-    }
-    else if(!superAt && thisFirstUsedAt !== undefined){
-        const format = Array.from(body);
-
-        format.splice(thisFirstUsedAt, 0,
-            t.expressionStatement(
-                t.callExpression(
-                    t.identifier("super"),
-                    [t.spreadElement(
-                        t.identifier("arguments")
-                    )]
-                )
-            )
-        ); 
-
-        item.get("body").replaceWith(
-            t.blockStatement(format)
-        )
     }
 }
 
@@ -355,11 +291,12 @@ export class ComponentInlineExpression extends ComponentFunctionExpression {
         const { body, output: product }
             = this.collateChildren();
             
-        path.replaceWith(
+        path.replaceWithMultiple(
             !body.length
                 ? product
-                : transform.IIFE(this.outputBodyDynamic())
+                : [transform.IIFE(this.outputBodyDynamic())]
         )
+
         this.context.pop();
     }
 }

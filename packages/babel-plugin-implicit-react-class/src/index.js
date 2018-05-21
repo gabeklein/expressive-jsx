@@ -9,23 +9,25 @@ export default function babel_plugin_inferred_react_component(options){
                     const { body } = path.scope.block;
                     const { reactRequires = "react" } = options;
 
-                    // const reactRequired = t.objectProperty(t.identifier("Component"), state.ref_component)
-                    const reactRequired = t.importSpecifier(state.ref_component, t.identifier("Component"))
+                    const reactRequired = t.objectProperty(t.identifier("Component"), state.ref_component)
+                    const reactImport = t.importSpecifier(state.ref_component, t.identifier("Component"))
                     
                     const existingImport = body.find(
                         statement => statement.source && statement.source.value == reactRequires
                     )
                     
-                    if(existingImport)
-                        existingImport.specifiers.push(reactRequired)
-                    else 
+                    if(!state.extention_used)
+                        return
 
-                    body.unshift(
-                        // requirement(reactRequires, [reactRequired])
-                        t.importDeclaration(
-                            [reactRequired], t.stringLiteral(reactRequires)
+                    if(existingImport)
+                        existingImport.specifiers.push(reactImport)
+                    else 
+                        body.unshift(
+                            requirement(reactRequires, [reactRequired])
+                            // t.importDeclaration(
+                            //     [reactRequired], t.stringLiteral(reactRequires)
+                            // )
                         )
-                    )
                 }
             },
             Class: {
@@ -41,6 +43,85 @@ export default function babel_plugin_inferred_react_component(options){
 }
 
 const t = require("babel-types");
+
+function repairConstructor(constructor, params){
+
+    const body = constructor.node.body.body;
+    let superAt, thisFirstUsedAt, thisFirstUsedTimes = 1;
+
+
+    for(let item, i = 0; item = body[i]; i++){
+        if(item.type != "ExpressionStatement") continue;
+            item = item.expression
+        if(item.type != "CallExpression") continue;
+            item = item.callee
+        if(item.type == "Super"
+        || item.type == "Identifier"
+        && item.name == "super"){
+            superAt = i;
+            break;
+        } else continue;
+    }
+
+
+    for(
+        let item, i = 0, stopAt = superAt || body.length; 
+        i < stopAt;
+        i++
+    ){
+        let item = body[i];
+        if(item.type != "ExpressionStatement") continue;
+            item = item.expression
+        if(item.type != "AssignmentExpression") continue;
+            item = item.left
+        if(item.type != "MemberExpression") continue;
+            item = item.object
+        if(item.type != "ThisExpression") continue;
+        if(thisFirstUsedAt === undefined)
+            thisFirstUsedAt = i;
+        else
+            thisFirstUsedTimes++
+    }
+
+    const format = Array.from(body);
+
+    if(thisFirstUsedAt < superAt){
+        const probablyClassParams = format.splice(thisFirstUsedAt, thisFirstUsedTimes);
+
+        format.splice(superAt + 1, 0, ...probablyClassParams); 
+    }
+    else if(superAt === undefined && thisFirstUsedAt !== undefined){
+        let _props = params[0];
+        let _struct;
+
+        if(!_props || (_props.type == "ObjectPattern")){
+            _struct = _props
+            _props = params[0] = constructor.scope.generateUidIdentifier("props")
+        }
+
+        if(_struct)
+            constructor.scope.push({
+                type: "const",
+                id: _struct,
+                init: _props
+            })
+
+        format.splice(thisFirstUsedAt, 0,
+            t.expressionStatement(
+                t.callExpression(
+                    t.identifier("super"),
+                    [_props]
+                )
+            )
+        ); 
+    }
+    else return;
+
+    constructor.get("body").replaceWith(
+        t.blockStatement(format)
+    )
+}
+
 
 function requirement(from, destructure){
     return t.variableDeclaration("const", [
@@ -78,46 +159,11 @@ function isClassComponent(path, opts){
 
 function polyfillComponent(path, _component){
     path.node.superClass = _component;
-    path.get("body.body").find(
-        x => {
-            const {type, key, params} = x.node;
-            if(type == "ClassMethod")
-            if(key.name == "constructor")
-            try {
-                const body = x.get("body.body");
-                if(
-                    !body.find(path => {
-                        try {
-                            return path.get("expression.callee").isSuper()
-                        } catch(e) {
-                            return false;
-                        }
-                    })
-                ) {
-                    throw new Error("well ok then")
-                    let _props = params[0];
-                    let _struct;
-                    if(!_props || (_props.type == "ObjectPattern")){
-                        _struct = _props
-                        _props = params[0] = x.scope.generateUidIdentifier("props")
-                    }
 
-                    if(_struct)
-                        x.scope.push({
-                            type: "const",
-                            id: _struct,
-                            init: _props
-                        })
-
-                    body[0].insertBefore(
-                        t.expressionStatement(
-                            t.callExpression(
-                                t.identifier("super"), [_props]
-                            )
-                        )
-                    )
-                }
-            } catch(e) { return false }  
-        }
-    )    
+    for(const statement of path.get("body.body")){
+        const {type, key, params} = statement.node;
+        if(type == "ClassMethod" && key.name == "constructor")
+            repairConstructor(statement, params)
+        
+    }  
 }

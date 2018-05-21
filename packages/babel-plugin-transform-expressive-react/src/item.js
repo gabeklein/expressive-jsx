@@ -129,7 +129,9 @@ export class ExplicitStyle {
         this.static = value;
         switch(typeof value){
             case "number":
-                value = value.toString()
+                this.value = t.numericLiteral(value)
+                this.inlineType = "style_static";
+                break;
             case "string":
                 this.value = t.stringLiteral(value)
                 this.inlineType = "style_static";

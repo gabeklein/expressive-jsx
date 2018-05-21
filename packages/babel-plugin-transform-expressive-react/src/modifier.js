@@ -23,7 +23,6 @@ export function HandleModifier(src, recipient) {
         return;
 
         case "BlockStatement":
-            // debugger
             const mod = new TagNamedModifier[Opts.reactEnv](name, body);
             mod.declare(recipient);
         return 
@@ -137,7 +136,7 @@ export class GeneralModifier {
         })
 
         const output = 
-            typeof args[0] == "object"
+            typeof args[0] == "object" || args.length == 1
                 ? args[0]
                 : Array.from(args).join(" ")
 
