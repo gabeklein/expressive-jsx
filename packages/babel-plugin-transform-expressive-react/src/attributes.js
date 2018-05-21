@@ -48,8 +48,8 @@ export class parsedArgumentBody {
     Type(e){
         if(!e.node) debugger
         if(e.node.extra && e.node.extra.parenthesized)
-            return e;
-
+             return e;
+        
         if(e.type in this){
             const x = this[e.type](e);
             // if(x.type) debugger
@@ -86,12 +86,13 @@ export class parsedArgumentBody {
 
     BinaryExpression(e){
         const {left, right, operator} = e.node;
-        if(operator != "-")
-            throw e.buildCodeFrameError(`only "-" operator is allowed here`)
-        if( t.isIdentifier(left) && t.isIdentifier(right) && right.start == left.end + 1 )
+        if(operator == "-" 
+        && left.type == "Identifier"
+        && right.type == "Identifier"
+        && right.start == left.end + 1 )
             return left.name + "-" + right.name;
         else 
-            throw e.buildCodeFrameError(`expression must only be comprised of identifiers`)
+            return e;
     }
 
     UnaryExpression(e){
