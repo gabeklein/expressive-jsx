@@ -1,7 +1,6 @@
-import transformExpressiveLoops from "babel-plugin-transform-expressive-loops";
 import transformExpressiveReact from "babel-plugin-transform-expressive-react";
 import inferReactComponent      from "babel-plugin-implicit-react-class";
-import transformInIterable      from "babel-plugin-transform-in-iterable";
+import ExpressiveEnhancements from "babel-preset-expressive-enhancements"
 
 const Plugins = require("babel-preset-react-native/plugins")
 
@@ -12,17 +11,19 @@ function plugin(name) {
 
 module.exports = options => {
     return {
+        presets: [
+            ExpressiveEnhancements
+        ],
         plugins: [
 
-            plugin('syntax-class-properties'),
+            // plugin('syntax-class-properties'),
+
             plugin('syntax-trailing-function-commas'),
-            plugin('transform-class-properties'),
             plugin('transform-es2015-block-scoping'),
             plugin('transform-es2015-computed-properties'),
             plugin('transform-es2015-destructuring'),
             plugin('transform-es2015-function-name'),
             plugin('transform-es2015-literals'),
-            plugin('transform-es2015-parameters'),
             plugin('transform-es2015-shorthand-properties'),
             plugin('transform-flow-strip-types'),
             plugin('transform-react-jsx'),
@@ -32,17 +33,8 @@ module.exports = options => {
               plugin('transform-es2015-modules-commonjs'),
               {strict: false, allowTopLevelThis: true},
             ],
-            
-            [inferReactComponent, {
-                activeOnMethodDo: true
-            }],
-            [transformExpressiveReact, {
-                applicationType: "native"
-            }],
-            transformExpressiveLoops,
-            transformInIterable,
-
-            plugin('transform-es2015-classes'),
+            plugin('transform-es2015-parameters'),
+            plugin('transform-class-properties'),
             plugin('syntax-async-functions'),
             plugin('transform-es2015-arrow-functions'),
             plugin('check-es2015-constants'),
@@ -50,6 +42,15 @@ module.exports = options => {
             plugin('transform-object-rest-spread'),
             plugin('transform-es2015-template-literals'),
             plugin('transform-object-assign'),
+            
+            // plugin('transform-es2015-classes'),
+            
+            [inferReactComponent, {
+                activeOnMethodDo: true
+            }],
+            [transformExpressiveReact, {
+                reactEnv: "native"
+            }],
             // plugin('transform-react-display-name'),
             // plugin('transform-react-jsx-source')
         ]

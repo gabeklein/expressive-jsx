@@ -17,10 +17,9 @@
   "license": "MIT",
   "dependencies": {
     "babel-plugin-implicit-react-class": "^1.2.2",
-    "babel-plugin-transform-expressive-loops": "^1.1.1",
+    "expressive-react-web-styles": "^0.1.1",
     "babel-plugin-transform-expressive-react": "^0.9.0-beta.10",
-    "babel-plugin-transform-in-iterable": "^1.0.0",
-    "expressive-react-web-styles": "^0.1.1"
+    "babel-preset-expressive-enhancements": "^1.0.1"
   },
   "devDependencies": {
     "babel-preset-env": "^1.6.1"
