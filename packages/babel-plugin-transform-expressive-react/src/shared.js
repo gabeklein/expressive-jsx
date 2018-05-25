@@ -29,8 +29,7 @@ export const transform = {
     },
 
     createElement(){
-        const { createElement } = Shared;
-        return t.callExpression(createElement, Array.from(arguments))
+        return t.callExpression(Shared.createElement, Array.from(arguments))
     },
 
     declare(type, id, value){

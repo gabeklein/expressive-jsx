@@ -16,8 +16,6 @@ module.exports = options => {
         ],
         plugins: [
 
-            // plugin('syntax-class-properties'),
-
             plugin('syntax-trailing-function-commas'),
             plugin('transform-es2015-block-scoping'),
             plugin('transform-es2015-computed-properties'),
@@ -28,7 +26,6 @@ module.exports = options => {
             plugin('transform-flow-strip-types'),
             plugin('transform-react-jsx'),
             plugin('transform-regenerator'),
-
             [
               plugin('transform-es2015-modules-commonjs'),
               {strict: false, allowTopLevelThis: true},
@@ -43,7 +40,6 @@ module.exports = options => {
             plugin('transform-es2015-template-literals'),
             plugin('transform-object-assign'),
             
-            // plugin('transform-es2015-classes'),
             
             [inferReactComponent, {
                 activeOnMethodDo: true
@@ -51,6 +47,9 @@ module.exports = options => {
             [transformExpressiveReact, {
                 reactEnv: "native"
             }],
+
+            plugin('transform-es2015-classes'),
+            
             // plugin('transform-react-display-name'),
             // plugin('transform-react-jsx-source')
         ]

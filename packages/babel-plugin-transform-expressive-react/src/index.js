@@ -36,7 +36,9 @@ const registerIDs = {
     createIterated: "iterated",
     extends: "flatten",
     cacheStyle: "Cache",
-    claimStyle: "Include"
+    claimStyle: "Include",
+    View: "View",
+    Text: "Text"
 }
 
 const TEMPLATE = {
@@ -181,10 +183,21 @@ function generateComputedStylesExport(path, compute, index){
     return index;
 }
 
-function requirement(from, destructure){
+function destructure(list){
+    const destructure = [];
+
+    for(const i of list)
+        destructure.push(
+            t.objectProperty(t.identifier(i), Shared[i])
+        )
+
+    return destructure;
+}
+
+function requirement(from, imports){
     return t.variableDeclaration("const", [
         t.variableDeclarator(
-            t.objectPattern(destructure), 
+            t.objectPattern(destructure(imports)), 
             t.callExpression(
                 t.identifier("require"), [
                     t.stringLiteral(from)
@@ -194,17 +207,15 @@ function requirement(from, destructure){
     ])
 }
 
-function includeImports(path, state, file, { reactRequires = "react" }) {
+function includeImports(path, state, file) {
 
     const bootstrap = [];
+    const reactRequires = "react"
+    const reactRequired = [
+        "createElement", "Fragment", "createClass"
+    ]
 
     const { body } = path.scope.block;
-
-   const reactRequired = [
-       t.objectProperty(t.identifier("createElement"), Shared.createElement),
-       t.objectProperty(t.identifier("Fragment"), Shared.Fragment),
-       t.objectProperty(t.identifier("createClass"), Shared.createClass)
-   ]
 
     let pasteAt = 0;
     let existingImport = body.find(
@@ -225,10 +236,17 @@ function includeImports(path, state, file, { reactRequires = "react" }) {
     )
 
     if(existingImport)
-        existingImport.reactInitializer.push(...reactRequired)
+        existingImport.reactInitializer.push(...destructure(reactRequired))
     else
         bootstrap.push(
             requirement(reactRequires, reactRequired)
+        )
+
+    if(Opts.reactEnv == "native")
+        bootstrap.push(
+            requirement("react-native", [
+                "View", "Text"
+            ])
         )
 
     const expressiveStyleRequired = [

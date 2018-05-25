@@ -109,14 +109,14 @@ function repairConstructor(constructor, params){
         format.splice(thisFirstUsedAt, 0,
             t.expressionStatement(
                 t.callExpression(
-                    t.identifier("super"),
+                    t.super(),
                     [_props]
                 )
             )
         ); 
     }
     else return;
-
+    
     constructor.get("body").replaceWith(
         t.blockStatement(format)
     )
@@ -143,11 +143,14 @@ function isClassComponent(path, opts){
         path.node.superClass = null;
         return false;
     }
+    if(alreadyExtended.node)
+        return false;
 
     return path.node.body.body.find(
         function(x){
             const {name} = x.key;
             return x.type == "ClassMethod" 
+                && opts.activeOnMethodRender != false  
                     && name == "render" 
                 || opts.activeOnMethodDo != false  
                     && name == "do"

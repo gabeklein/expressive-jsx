@@ -83,7 +83,12 @@ const InlineLayers = {
             target.tags.push({name: tag.node.name, path: tag, head: true})
 
         else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
-            target.tags.push({name: "div", head: true})
+            const default_type_text = 
+                Opts.reactEnv == "native"
+                    ? Shared.Text
+                    : "div";
+
+            target.tags.push({name: default_type_text, head: true})
             target.add(new NonComponent(tag))
         }
 
@@ -317,7 +322,7 @@ export class ComponentInline extends ComponentGroup {
     //Protocol Style Integration
 
     collateChildren(propHandler){
-        if(this.styleGroups && this.styleGroups.length){
+        if(this.styleGroups && this.styleGroups.length && Opts.reactEnv != "native"){
             this.insertRuntimeStyleContextClaim()
         }
         return super.collateChildren(propHandler);
@@ -435,15 +440,20 @@ export class ComponentInline extends ComponentGroup {
         
         for(const { name, head } of this.tags){
             if(head){
-                if(/^[A-Z]/.test(name)){
-                    type = t.identifier(name)
-                    if(name == Shared.styledApplicationComponentName){
-                        this.context.styleRoot = this;
+                if(typeof name == "string"){
+                    if(/^[A-Z]/.test(name)){
+                        type = t.identifier(name)
+                        if(name == Shared.styledApplicationComponentName){
+                            this.context.styleRoot = this;
+                        }
                     }
+                        
+                    else if(this.prefix == "html" || html_tags_obvious.has(name))
+                        type = t.stringLiteral(name);
                 }
-                    
-                else if(this.prefix == "html" || html_tags_obvious.has(name))
-                    type = t.stringLiteral(name);
+                else if(name && name.type == "Identifier"){
+                    type = name
+                }
             }
  
             const modify = this.context[`$${name}`];
@@ -451,9 +461,17 @@ export class ComponentInline extends ComponentGroup {
             if(modify)
                 modify.insert(this, [], inline)
         }
-        
+
+        const hasOneNonElement = this.child.length == 1 && this.child[0].constructor.name == "NonComponent"
+
         if(!inline.type)
-            inline.type = type || ELEMENT_TYPE_DEFAULT
+            inline.type = type || (
+                Opts.reactEnv == "native" 
+                    ? hasOneNonElement
+                        ? Shared.Text
+                        : Shared.View
+                    : ELEMENT_TYPE_DEFAULT
+            )
 
         return inline;
     }

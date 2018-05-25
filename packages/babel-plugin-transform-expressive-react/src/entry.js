@@ -228,7 +228,11 @@ class ComponentStyleMethod {
     }
 
     didExitOwnScope(path){
-        path.getAncestry().find(x => x.type == "ClassMethod").remove();
+        path.getAncestry().find(x => 
+            x.type == "ClassMethod" ||
+            x.type == "ObjectExpression" &&
+            x.node.properties.length == 2
+        ).remove();
     }
 
     LabeledStatement(path){
