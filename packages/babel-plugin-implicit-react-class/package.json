@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-implicit-react-class",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "description": "Automatically extends React.Component for classes that include an Expressive-recognized render method.",
   "main": "lib/index.js",
   "license": "MIT",
