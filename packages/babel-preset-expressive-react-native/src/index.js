@@ -2,7 +2,7 @@ import transformExpressiveReact from "babel-plugin-transform-expressive-react";
 import inferReactComponent      from "babel-plugin-implicit-react-class";
 import ExpressiveEnhancements from "babel-preset-expressive-enhancements"
 
-const NativeStyles = require("expressive-react-native-styles");
+const NativeStyles = require("expressive-modify-react-native");
 
 const Plugins = require("babel-preset-react-native/plugins")
 
