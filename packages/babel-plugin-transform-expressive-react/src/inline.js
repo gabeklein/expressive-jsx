@@ -303,14 +303,14 @@ export class ComponentInline extends ComponentGroup {
 
     didExitOwnScope(body, preventDefault){
         super.didExitOwnScope(body);
-        if(this.style_static)
+        if(this.style_static && !this.classname)
             this.generateClassName();
         if(!preventDefault)
             this.output = this.build();
     }
 
     generateClassName(){
-        this.classname = 
+        return this.classname = 
             (this.classname || this.tags[this.tags.length - 1].name)
             + "-"
             + createHash("md5")
@@ -587,7 +587,9 @@ export class ComponentInline extends ComponentGroup {
         
 
         if(inline.css && inline.css.length)
-            this.classList.push(...inline.css);
+            for(const item of inline.css)
+                if(this.classList.indexOf(item) < 0)
+                    this.classList.push(item);
         
         if(this.classList.length)
             initial_props.push(

@@ -127,19 +127,34 @@ export class ExplicitStyle {
         
         this.name = name;
         this.static = value;
+        this.inlineType = "style_static";
+
         switch(typeof value){
             case "number":
                 this.value = t.numericLiteral(value)
-                this.inlineType = "style_static";
                 break;
             case "string":
                 this.value = t.stringLiteral(value)
-                this.inlineType = "style_static";
                 break
+            case "object": {
+                const { require: requires } = value;
+                if(requires){
+                    this.value = t.callExpression(
+                        t.identifier("require"), 
+                        [
+                            typeof requires == "string"
+                                ? t.stringLiteral(requires)
+                                : requires
+                        ]
+                    )
+                    break;
+                }
+            }
+            
             default:
                 this.static = false;
                 this.inlineType = "style";
-                this.value = value.node;
+                this.value = value.node || value;
         }
     }
 

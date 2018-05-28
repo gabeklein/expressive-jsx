@@ -1,5 +1,6 @@
+const t = require('babel-types')
 const { GeneralModifier } = require("./modifier")
-const { Shared } = require("./shared");
+const { Shared, transform } = require("./shared");
 
 export function createSharedStack(included = []){
     let Stack = new StackFrame;
@@ -69,6 +70,33 @@ const ReservedModifiers = {
             if(typeof arg == "string")
                 if(classList.indexOf(arg) < 0)
                     classList.push(arg);
+    }, 
+
+    style(content){
+        const { target } = this;
+
+        if(!target.generateClassName)
+            throw new Error("Modifier style can only apply to components!")
+        const classname = target.generateClassName();
+        target.classList.push(classname);
+        target.children.push({
+            inlineType: "child",
+            transform: () => ({
+                product: transform.createElement(
+                    t.stringLiteral("style"),
+                    t.objectExpression([]),
+                    t.binaryExpression("+", 
+                        t.binaryExpression("+",
+                            t.stringLiteral(`.${classname} {`),
+                            typeof content == "string"
+                                ? t.stringLiteral(content)
+                                : content.node
+                        ),
+                        t.stringLiteral(`}`)
+                    )
+                )
+            }) 
+        })
     }
 
 };

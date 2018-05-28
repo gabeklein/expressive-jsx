@@ -82,7 +82,11 @@ export class GeneralModifier {
                 const mod = context[`__${named}`]
 
                 if(mod) try {
-                    argument.computed = mod.transform(...inner)
+                    const computed = mod.transform(...inner)
+
+                    if(computed.value) argument.computed = computed;
+                    else 
+                    if(computed.require) argument.requires = computed.require;
 
                 } catch(err) {
                     throw location && location.buildCodeFrameError(err.message) || err
@@ -128,11 +132,27 @@ export class GeneralModifier {
 
     transform(){
         const args = [].map.call(arguments, (arg) => {
-            return arg 
-                && typeof arg == "object" 
-                && arg.computed 
-                && arg.computed.value 
-                || arg
+
+            if(!!arg && typeof arg == "object" ){
+                const { computed, requires } = arg;
+
+                if(computed) 
+                    return computed.value || "undefined";
+
+                else if(requires)
+                    return t.callExpression(
+                        t.identifier("require"), 
+                        [
+                            typeof requires == "string"
+                                ? t.stringLiteral(requires)
+                                : requires
+                        ]
+                    )
+                    
+                else
+                    return arg;
+            }
+            else return arg;
         })
 
         const output = 
