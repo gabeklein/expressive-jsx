@@ -2,6 +2,8 @@ import transformExpressiveReact from "babel-plugin-transform-expressive-react";
 import inferReactComponent      from "babel-plugin-implicit-react-class";
 import ExpressiveEnhancements from "babel-preset-expressive-enhancements"
 
+const NativeStyles = require("expressive-react-native-styles");
+
 const Plugins = require("babel-preset-react-native/plugins")
 
 function plugin(name) {
@@ -45,7 +47,10 @@ module.exports = options => {
                 activeOnMethodDo: true
             }],
             [transformExpressiveReact, {
-                reactEnv: "native"
+                reactEnv: "native",
+                modifiers: [
+                    NativeStyles
+                ]
             }],
 
             plugin('transform-es2015-classes'),
