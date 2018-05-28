@@ -1,9 +1,3 @@
-const EXPORT = exports;
-
-export * from "./position"
-export * from "./units"
-export * from "./frame"
-
 export { rgba as rgb }
 
 export function rgba(r,g,b,a = 1){
@@ -17,16 +11,6 @@ export function rgba(r,g,b,a = 1){
     }
 }
 
-
-export function font(a, b = null){
-    return {
-        attrs: {
-            fontSize: a,
-            fontWeight: b
-        }
-    }
-}
-
 export function backgroundImage(a){
     if(typeof a == "object" && !a.named)
         return { style: {
@@ -37,4 +21,3 @@ export function backgroundImage(a){
             backgroundImage: Array.from(arguments)
         }} 
 }
-
