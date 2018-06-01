@@ -153,8 +153,12 @@ export class ComponentBody extends AttrubutesBody {
         CollateInlineComponentsTo(this, path)
     }
 
+    TemplateLiteral(path){
+        this.StringLiteral(path)
+    }
+
     StringLiteral(path){
-        NonComponent.applyTo(this, path)
+        RNTextNode(this, path)
     }
 
     ArrayExpression(path){
@@ -209,7 +213,7 @@ export class ComponentGroup extends ComponentBody {
         const body = [];
         const output = [];
         let adjacent;
-        if(!scope) debugger
+        // if(!scope) debugger
 
         const child_props = [];
 
@@ -298,7 +302,7 @@ export class ComponentGroup extends ComponentBody {
 //import last. modules here themselves import from this one, so exports must already be initialized.
 
 const { Prop, Statement, NonComponent } = require("./item");
-const { CollateInlineComponentsTo } = require("./inline");
+const { CollateInlineComponentsTo, RNTextNode } = require("./inline");
 const { ComponentSwitch } = require("./ifstatement");
 const { ComponentRepeating } = require("./forloop");
 const { ComponentInlineExpression, ComponentFunctionExpression } = require("./entry");

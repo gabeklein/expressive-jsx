@@ -1,5 +1,5 @@
 const t = require('babel-types')
-const { GeneralModifier } = require("./modifier")
+const { GeneralModifier, ComponentModifier } = require("./modifier")
 const { Shared, transform } = require("./shared");
 
 export function createSharedStack(included = []){
@@ -62,6 +62,28 @@ const ReservedModifiers = {
                 out.attrs[arg] = [];
         }
         return out
+    },
+
+    on(){
+        const { target, name } = this;
+
+        if(target instanceof ComponentModifier);
+        else throw new Error(`Default modifier "on" may only be used in other modifiers.`);
+        
+        let temp;
+        const clone = Object.create(target);
+
+        for(const alias of arguments)
+            if(typeof alias == "string")
+                if(temp = target.context["$" + alias])
+                    if(temp == target)
+                        throw new Error("Bad argument, a component really shouldn't alias itself")
+                    else if(temp.inherits)
+                        clone.inherits = temp.inherits,
+                        temp.inherits = clone;
+                    else temp.inherits = clone;
+                else Object.getPrototypeOf(target.context)["$" + alias] = clone;
+            else throw new Error("Bad argument,\"on\" modifiers expect identifiers or strings.")
     },
 
     css(){

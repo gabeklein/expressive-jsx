@@ -8,6 +8,18 @@ const { ComponentGroup } = require("./component")
 
 const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
 
+export function RNTextNode(parent, path){
+    const node = new ComponentInline(path, parent);
+    node.context = parent.context;
+    node.tags.push({name: "string", head: true});
+    node.tags.push({
+        name: Opts.reactEnv == "native" ? Shared.Text : "span", 
+        head: true
+    });
+    NonComponent.applyTo(node, path)
+    parent.add(node);
+}
+
 export function CollateInlineComponentsTo(parent, path){
 
     if(path.node 
@@ -43,9 +55,6 @@ export function CollateInlineComponentsTo(parent, path){
 
         if(path.node.extra && path.node.extra.parenthesized === true)
             throw path.buildCodeFrameError("Children in Parenthesis are not allowed, for direct insertion used an Array literal")
-
-        if(path.type == "TemplateLiteral")
-            throw path.buildCodeFrameError("Template literal is not a valid element")
 
         const child = new ComponentInline(path, parent);
 
@@ -93,7 +102,6 @@ const InlineLayers = {
         }
 
         else throw tag.buildCodeFrameError("Expression must start with an identifier")
-
     },
 
     TaggedTemplateExpression(tag){
@@ -430,7 +438,11 @@ export class ComponentInline extends ComponentGroup {
     get typeInformation(){ 
 
         const css = Opts.reactEnv != "native" ? [] : false;
-        let type;
+        let type, modify;
+
+        const {
+            context
+        } = this;
 
         const inline = {
             css,
@@ -438,13 +450,16 @@ export class ComponentInline extends ComponentGroup {
             style: []
         }
         
+        if(context.hasOwnProperty("$all"))
+            context.$all.insert(this, [], inline)
+        
         for(const { name, head } of this.tags){
             if(head){
                 if(typeof name == "string"){
                     if(/^[A-Z]/.test(name)){
                         type = t.identifier(name)
                         if(name == Shared.styledApplicationComponentName){
-                            this.context.styleRoot = this;
+                            context.styleRoot = this;
                         }
                     }
                         
@@ -456,10 +471,12 @@ export class ComponentInline extends ComponentGroup {
                 }
             }
  
-            const modify = this.context[`$${name}`];
+            if(typeof name == "string")
+                modify = context[`$${name}`];
 
             if(modify)
                 modify.insert(this, [], inline)
+
         }
 
         const hasOneNonElement = this.child.length == 1 && this.child[0].constructor.name == "NonComponent"

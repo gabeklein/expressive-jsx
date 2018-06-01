@@ -168,7 +168,7 @@ export class GeneralModifier {
     }
 }
 
-class ComponentModifier extends AttrubutesBody {
+export class ComponentModifier extends AttrubutesBody {
 
     precedence = 0
     classList = [];
@@ -194,6 +194,7 @@ class ComponentModifier extends AttrubutesBody {
 
     declare(recipient){
         recipient.context.declare(this);
+        this.context = this;
     }
 
     didEnterOwnScope(path){
