@@ -2,3 +2,5 @@ src
 node_modules
 .map
 *.log
+.babelrc
+.DS_Store
