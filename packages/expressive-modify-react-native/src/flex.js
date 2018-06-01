@@ -5,17 +5,18 @@ const DIRECTION = {
     down: "column"
 }
 
-export function flex(mode, direction = "right"){
+export function flexAlign(mode, direction = "right"){
 
     const style = {
-        display: flex
+        display: "flex"
     }
 
     if(mode == "center")
         style.justifyContent = 
-        style.alignItems = "center"
+        style.alignItems = 
+        "center"
 
-    if(direction = DIRECTION[direction])
+    if(direction = DIRECTION[direction] || direction)
         style.flexDirection = direction;
 
     return { style };

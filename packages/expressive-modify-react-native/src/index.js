@@ -1,6 +1,6 @@
 const EXPORT = exports;
 
-export { flex } from "./flex"
+export * from "./flex"
 
 export { rgba as rgb }
 
