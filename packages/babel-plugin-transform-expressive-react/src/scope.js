@@ -23,6 +23,10 @@ class StackFrame {
         frame.current = node;
     }
 
+    get parent(){
+        return Object.getPrototypeOf(this);
+    }
+
     pop(){
         // delete Shared.stack.current.context;
         Shared.stack = Object.getPrototypeOf(this);

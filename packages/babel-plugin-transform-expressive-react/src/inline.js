@@ -10,7 +10,7 @@ const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
 
 export function RNTextNode(parent, path){
     const node = new ComponentInline(path, parent);
-    node.context = parent.context;
+    node.context = Object.create(parent.context);
     node.tags.push({name: "string", head: true});
     node.tags.push({
         name: Opts.reactEnv == "native" ? Shared.Text : "span", 
@@ -102,6 +102,7 @@ const InlineLayers = {
         }
 
         else throw tag.buildCodeFrameError("Expression must start with an identifier")
+        
     },
 
     TaggedTemplateExpression(tag){
@@ -432,7 +433,7 @@ export class ComponentInline extends ComponentGroup {
                 Shared.extends,
                 output
             )
-        }
+        } 
     }
 
     get typeInformation(){ 
@@ -450,9 +451,9 @@ export class ComponentInline extends ComponentGroup {
             style: []
         }
         
-        if(context.hasOwnProperty("$all"))
+        if(context.parent.hasOwnProperty("$all"))
             context.$all.insert(this, [], inline)
-        
+
         for(const { name, head } of this.tags){
             if(head){
                 if(typeof name == "string"){
@@ -476,8 +477,9 @@ export class ComponentInline extends ComponentGroup {
 
             if(modify)
                 modify.insert(this, [], inline)
-
         }
+        
+        
 
         const hasOneNonElement = this.child.length == 1 && this.child[0].constructor.name == "NonComponent"
 
