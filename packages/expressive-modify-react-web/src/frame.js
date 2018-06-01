@@ -11,6 +11,14 @@ export function size(x, y, unit){
     }
 }
 
+export function radius(a){
+    return {
+        attrs: {
+            borderRadius: a
+        }
+    }    
+}
+
 export function aspRect(x, y, unit){
     const y2 = Math.abs(y);
     if(y2 && y2 < 1)
