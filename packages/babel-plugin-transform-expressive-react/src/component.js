@@ -121,6 +121,8 @@ export class ComponentBody extends AttrubutesBody {
                 name = "default"
             else if(type == "ReturnStatement")
                 name = "returned"
+            else if(type == "SequenceExpression")
+                name = "callback"
             else {
                 name = parent[{
                     VariableDeclarator: "id",
