@@ -124,5 +124,7 @@ const ReservedModifiers = {
             }) 
         })
     }
-
 };
+
+ReservedModifiers.also = ReservedModifiers.on;
+ReservedModifiers.by = ReservedModifiers.on;

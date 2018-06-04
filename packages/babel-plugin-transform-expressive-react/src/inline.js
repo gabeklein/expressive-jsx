@@ -11,6 +11,8 @@ const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
 export function RNTextNode(parent, path){
     const node = new ComponentInline(path, parent);
     node.context = Object.create(parent.context);
+    node.parentDeclaresAll = parent.context.hasOwnProperty("$all");
+    // node.context.current = node;
     node.tags.push({name: "string", head: true});
     node.tags.push({
         name: Opts.reactEnv == "native" ? Shared.Text : "span", 
@@ -451,7 +453,11 @@ export class ComponentInline extends ComponentGroup {
             style: []
         }
         
-        if(context.parent.hasOwnProperty("$all"))
+        if(
+            (context.current != this && context.hasOwnProperty("$all")) ||
+            (context.current == this && context.parent.hasOwnProperty("$all")) ||
+            this.parentDeclaresAll 
+        )
             context.$all.insert(this, [], inline)
 
         for(const { name, head } of this.tags){
