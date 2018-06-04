@@ -18,7 +18,7 @@ export function hsla(h, s, l, a = 1){
         if(typeof x != "number") 
             throw new Error("malformed arguments in hsl statement")
 
-    const hsl = [h,s+"%",l+"%"].join(",");
+    const hsl = [ h, s+"%", l+"%" ].join(",");
     return {
         value: a == 1 ? `hsl(${hsl})` : `hsla(${hsl},${a})`
     }
