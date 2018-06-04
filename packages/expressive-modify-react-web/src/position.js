@@ -18,6 +18,16 @@ export function fixed(){
     return out;
 }
 
+export function select(a){
+    if(a == "none") return {
+        style: {
+            WebkitUserSelect: "none",
+            MoxUserSelect: "none",
+            UserSelect: "none"
+        }
+    }
+}
+
 export function relative(){
     return {
         style: {position: "relative"}
