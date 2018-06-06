@@ -66,7 +66,11 @@ export class SyntheticProp extends Attribute {
     precedence = 1
 
     constructor(name, value) {
+        super()
         this.name = name;
+        if(typeof value == "string")
+            value = t.stringLiteral(value)
+        
         Object.defineProperty(this, "value", {
             value, configurable: true
         })
