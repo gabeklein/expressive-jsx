@@ -92,10 +92,16 @@ const ReservedModifiers = {
 
     css(){
         const { classList } = this.target;
+        let props = {};
         for(const arg of arguments)
             if(typeof arg == "string")
-                if(classList.indexOf(arg) < 0)
+                if(arg[0] == "$")
+                    props.id = arg.substring(1)
+                else if(classList.indexOf(arg) < 0)
                     classList.push(arg);
+        if(props.id)
+            return { props }
+            
     }, 
 
     style(content){
@@ -127,4 +133,3 @@ const ReservedModifiers = {
 };
 
 ReservedModifiers.also = ReservedModifiers.on;
-ReservedModifiers.by = ReservedModifiers.on;
