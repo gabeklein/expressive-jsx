@@ -117,8 +117,11 @@ class ComponentMethod extends ComponentEntry {
     constructor(name, path, subComponentNames) {
         super(path.get("body"));
         this.attendantComponentNames = subComponentNames;
-        this.methodNamed = name; 
-        name == "render" ? Shared.stack.current.classContextNamed : name;
+        this.methodNamed = name;
+        if(name == "render"){
+            this.isRender = true; 
+            name = Shared.stack.current.classContextNamed;
+        }
         this.tags.push({ name });
         this.insertDoIntermediate(path)
     }
@@ -145,7 +148,7 @@ class ComponentMethod extends ComponentEntry {
         )
 
         if(bindRelatives.length)
-            if(name == "render"){
+            if(this.isRender){
                 body.scope.push({
                     kind: "const",
                     id: t.objectPattern(bindRelatives),
