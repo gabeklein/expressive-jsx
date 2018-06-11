@@ -1,71 +1,116 @@
 <h1 align="center">Expressive-React</h1>
 
 <h4 align="center">
-    A babel build system that introduce a new syntax<br/>for writing clean, meaningful, <i>expressive</i> React markup.
+    A babel build system that introduces a new syntax<br/>for writing clean, meaningful, <i>expressive</i> React markup.
 </h4>
 
 
 
-> Because this is an up-start project which pention for paradigm shift,
-> this Readme (for now) will be mostly serve as a pitch, to explain what
-> exactly this project is for and why it might be for you. 
+> Because this is a start-up project pushing a different paradigm,
+> this Readme (for now) will be mostly serve as a pitch, explaining what
+> this project does, and why it might be for you. 
 > 
-> *If you want to learn **how** to use the library, consult the wiki.*
+> *If you want to learn **how** to use the library, [consult the wiki](https://github.com/gabeklein/expressive-react/wiki).*
 <br />
 
-## So what exactly is all this?
+# XJS
 
-If you're familar with React then you're probably well aquainted with JSX, the de-facto language used to generate the ES5 code which the `React` runtime uses to generate visual elements in DOM, Native, NEXT.js or what have you. To achieve this, JSX will use [babel-preset-react](https://babeljs.io/docs/plugins/preset-react/), a suite of babel plugins you're probably already using right now.
+If you use React, chances are you're pretty familiar with JSX, its de-facto language so to speak. Expressive, or **XJS** for short, is an alternative syntax, which aims to let React developers write their components and apps in a more readable and far more elegant way.
 
-Expressive-React is an alternative to JSX, in this respect, which aims to let React developers write their components and apps in a more readable and far more elegant way. 
+Generally, XJS is able to vastly outstrip the feature set of JSX by taking a factory approach, as well as relying on a deep build-time process. Instead of simply converting markup into a pyramid of `createElement` calls, it will construct and output a [factory](https://en.wikipedia.org/wiki/Factory_(object-oriented_programming)) which assembles element trees consumed by react. This makes it so a developer doesn't need to manage common logic patterns themselves, but instead easily [and dryly](https://en.wikipedia.org/wiki/Don't_repeat_yourself) declare anything from simple to the most complex of elements.
 
-More aptly this is a [DSL (Domain Specific Language)](https://en.wikipedia.org/wiki/Domain-specific_language) to code in, for your React apps. 
+>  Think of it like this: Where JSX is a markup language, Expressive is more like a script.
 
->  Think of it like this: Where JSX is a markup, Expressive is more like a script.
-
-### Expressive-React provides, for-starters, these benefits:
+<h4>Expressive-React provides, for-starters, these benefits:</h4>
 
 * you don't need closing tags
 * you don't need to `{}` escape data or props
 * uses actual `if` and `for` statements for conditionals and iteration
 * automatically imports `React`
-* implicit `extends Component` for obviously-component classes
+* implicitly `extends Component` for obviously-component classes
 
-**And a whole subject matter unto itself**
+**And particularly, it attempts to solve the long standing problem of style with**
 
 &nbsp;&nbsp;🔥&nbsp; first-class support for styles <br />
-&nbsp;&nbsp;🚨&nbsp; dedicated composition system (like sass) for said styles
+&nbsp;&nbsp;⚡️&nbsp; integrated composition system of "modfiiers"
 
-### For those looking for gotchas, here are a few assurances about expressive-react:
+<h4>And for those looking for gotchas, here are a few assurances</h4>
 
+* XJS is not its own file format, similarly to JSX, it merely extends javascript
 * there are no build requirements besides babel, which you already have
-* you only need to include your preferred preset in `.babelrc`
-* expressive works fine alongside JSX, just as well as completely replace it
-* it will not break existing react/javascript code when introduced to your project
-* full feature parity with JSX and then some
+* usage only requires you add your preferred preset to `.babelrc`
+* XJS works fine alongside JSX, in same project, even the same files
+* when added, it will not break existing react/javascript code of your project
+* XJS has full feature parity with JSX and then some
 
 <br />
 
-## OK so what does it actually look like?
+## So what does it actually look like?
 
-[Check out the wiki](https://github.com/gabeklein/expressive-react/wiki) to get a feel for expressive as a language.
+Documenting Expressive's capabilities is an ongoing process but:
 
+[Check out the wiki](https://github.com/gabeklein/expressive-react/wiki) to get a feel for XJS as a language. <br />
 Or jump right into [comparing it against JSX](https://github.com/gabeklein/expressive-react/wiki/The-basics-(by-comparison)).
 
 <br />
 
-## Install and Getting Started
+# Install and Getting Started
 
 The easiest way to add Expressive to your project is to use one of the plugins. There is one for each of the most common environments.
 * React  `babel-preset-expressive-react`
-* Native `babel-preset-expressive-react-native`
 * NextJS `babel-preset-expressive-react-next`
-<br/>
+* Native `babel-preset-expressive-react-native`
 
-### For React Native
+<br />
+### React.js / NEXT.js
+
+> Replace `*` with your intended version.
 
 ```bash
-npm install babel-preset-expressive-react
+npm install babel-preset-expressive-*
+```
+
+**.babelrc**
+> Add `expressive-react` to your babel presets, keep `react` if you intend to use JSX
+```
+{
+    "presets": [
+    	["env", { ... }],
+    	"react",
+        "expressive-*"
+    ]
+}
+```
+**index.js**
+>Unless disabled, `expressive-react-style` must be installed with `default`
+<br/>as the root (of any styled elements), otherwise exceptions will be thrown.
+>
+>Use `["expressive-*", { styleMode: "inline" }]` if you wish to disable run-time style collation. Expressive will instead insert all styles in-line per element, and `StyledApp` wrapper will not be required. 
+ 
+
+```js
+import StyledApp from "expressive-react-style";
+
+export default () => do { 
+  StyledApp() >> App()
+}
+
+const App = () => do {
+  span, do {
+    color: "blue";
+    font: "20px";
+
+    "Hello World!"
+  }
+}
+
+```
+<br/>
+
+### React Native
+
+```bash
+npm install babel-preset-expressive-react-native
 ```
 
 **.babelrc**
@@ -77,43 +122,29 @@ npm install babel-preset-expressive-react
     ]
 }
 ```
-<br/>
 
-### For NEXT.js
-
-Expressive uses `expressive-react-style` as a runtime dependency by default. However this is optional.
-
-```bash
-npm install babel-preset-expressive-react-next expressive-react-style
-```
-
-**.babelrc**
-```
-{
-    "presets": [
-        "expressive-react-next"
-    ]
-}
-```
-
-**pages/index.js**
+**index.js**
 ```js
-import StyledApp from "expressive-react-style";
-
-export default () => do { 
-  StyledApp() >> App()
-}
+import { AppRegistry } from 'react-native';
 
 class App {
-  do(){
-    /* your app */
-  }
+	App(){
+      view, do {
+        text `Hello World`
+      }
+    }
 }
+
+AppRegistry.registerComponent('Expressive', () => App);
 
 ```
 
 <br/>
 
-## Contributing and Conversation
+# Contributing and Conversation
 
-I made a [Slack](https://join.slack.com/t/expressive-react/shared_invite/enQtMzc3NDkyMTAzNzMwLWE2NGIyMmExMzVkZWEyNTBhOTkwNGViMjcwNzM3Yzk5YWM1ZDhlNjEzMDRlNDkzNjcyODI3NDcyNmUwNmViZjU) group if anyone wants to chat. 🙂
+I made a [Slack](https://join.slack.com/t/expressive-react/shared_invite/enQtMzc3NDkyMTAzNzMwLWE2NGIyMmExMzVkZWEyNTBhOTkwNGViMjcwNzM3Yzk5YWM1ZDhlNjEzMDRlNDkzNjcyODI3NDcyNmUwNmViZjU) group if anyone wants to chat. 🙂 
+
+<br/>
+<br/>
+
