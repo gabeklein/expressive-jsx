@@ -15,6 +15,8 @@ export function flexAlign(mode, direction = "right"){
         style.justifyContent = 
         style.alignItems = 
         "center"
+    else
+        style.justifyContent = mode;
 
     if(direction = DIRECTION[direction] || direction)
         style.flexDirection = direction;
