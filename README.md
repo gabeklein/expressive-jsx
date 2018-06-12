@@ -17,7 +17,7 @@
 
 If you use React, chances are you're pretty familiar with JSX, its de-facto language so to speak. Expressive, or **XJS** for short, is an alternative syntax, which aims to let React developers write their components and apps in a more readable and far more elegant way.
 
-Generally, XJS is able to vastly outstrip the feature set of JSX by taking a factory approach, as well as relying on a deep build-time process. Instead of simply converting markup into a pyramid of `createElement` calls, it will construct and output a [factory](https://en.wikipedia.org/wiki/Factory_(object-oriented_programming)) which assembles element trees consumed by react. This makes it so a developer doesn't need to manage common logic patterns themselves, but instead easily [and dryly](https://en.wikipedia.org/wiki/Don't_repeat_yourself) declare anything from simple to the most complex of elements.
+Generally, XJS is able to vastly outstrip the feature set of JSX by taking what is a factory approach, as-well as relying on a deep build-time process. Instead of simply transforming markup into a tree of `createElement` calls, it will construct and output a [factory](https://en.wikipedia.org/wiki/Factory_(object-oriented_programming)) which assembles  component-objects consumed by react. Among other things, this makes it so a developer doesn't need to manage common logic patterns themselves. Instead it allows you to easily [and dryly](https://en.wikipedia.org/wiki/Don't_repeat_yourself) declare anything from simple to the most complex of elements.
 
 >  Think of it like this: Where JSX is a markup language, Expressive is more like a script.
 
@@ -62,6 +62,7 @@ The easiest way to add Expressive to your project is to use one of the plugins. 
 * Native `babel-preset-expressive-react-native`
 
 <br />
+
 ### React.js / NEXT.js
 
 > Replace `*` with your intended version.
