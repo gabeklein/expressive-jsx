@@ -1,6 +1,6 @@
 {
   "name": "expressive-modify-react-native",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Style Modifiers to make styling in react-native more convenient",
   "main": "lib/index.js",
   "author": {
