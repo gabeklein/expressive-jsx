@@ -1,6 +1,13 @@
 const t = require("babel-types")
 const { Opts, transform, Shared } = require("./shared")
 
+const TARGET_FOR = {
+    VariableDeclarator: "id",
+    AssignmentExpression: "left",
+    AssignmentPattern: "left",
+    ObjectProperty: "key"
+}
+
 class TraversableBody {
 
     children = [];
@@ -124,12 +131,8 @@ export class ComponentBody extends AttrubutesBody {
             else if(type == "SequenceExpression")
                 name = "callback"
             else {
-                name = parent[{
-                    VariableDeclarator: "id",
-                    AssignmentExpression: "left",
-                    AssignmentPattern: "left",
-                    ObjectProperty: "key"
-                }[type]].name
+                const ident = parent[TARGET_FOR[type]];
+                name = ident ? ident.name : "do" 
             }
 
             meta = node.meta = new Handler(path, name)
