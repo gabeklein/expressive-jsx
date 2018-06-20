@@ -14,7 +14,7 @@ module.exports = options => {
                 activeOnMethodDo: true
             }],
             [transformExpressiveReact, {
-                reactEnv: "native",
+                reactEnv: "next",
                 modifiers: [
                     WebStyles
                 ]

@@ -78,7 +78,7 @@ class ComponentProgram {
     static enter(path, state){
         Object.assign(Opts, state.opts)
 
-        if(Opts.reactEnv == "next")
+        if(Opts.reactEnv != "native")
             checkForStyleImport(path.scope.block.body);
 
         for(const x in registerIDs)
@@ -263,7 +263,7 @@ function includeImports(path, state, file) {
         }
     )
 
-    if(Opts.formatStyles === undefined && Opts.reactEnv == "next")
+    if(Opts.formatStyles === undefined && Opts.reactEnv != "native")
     if(existingImport){
         existingImport.specifiers.push(...expressiveStyleRequired)
     }

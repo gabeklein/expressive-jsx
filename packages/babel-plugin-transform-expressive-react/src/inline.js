@@ -502,7 +502,7 @@ export class ComponentInline extends ComponentGroup {
     }
 
     includeComputedStyle(inline){
-        if(Opts.reactEnv == "next"){
+        if(Opts.reactEnv != "native"){
             this.context.program.computedStyleMayInclude(this);
             this.context.styleRoot.computedStyleMayInclude(this);
             if(!this.classname) debugger
