@@ -5,19 +5,19 @@
 </h4>
 
 
+<br/> 
 
-> Because this is a start-up project pushing a different paradigm,
-> this Readme (for now) will be mostly serve as a pitch, explaining what
+> This Readme (for now) will mostly serve as a pitch,<br/> explaining what
 > this project does, and why it might be for you. 
 > 
-> *If you want to learn **how** to use the library, [consult the wiki](https://github.com/gabeklein/expressive-react/wiki).*
+> *If you want to learn how how this works or how to use it, [consult the wiki](https://github.com/gabeklein/expressive-react/wiki).*
 <br />
 
 # XJS
 
-If you use React, chances are you're pretty familiar with JSX, its de-facto language so to speak. Expressive, or **XJS** for short, is an alternative syntax, which aims to let React developers write their components and apps in a more readable and far more elegant way.
+If you develop with React, chances are you know JSX, its de-facto language so to speak. Expressive, or **XJS** for short, is an alternative syntax. It aims to let React developers write their components and apps in a more readable and elegant way.
 
-Generally, XJS is able to vastly outstrip the feature set of JSX by taking what is a factory approach, as-well as relying on a deep build-time process. Instead of simply transforming markup into a tree of `createElement` calls, it will construct and output a [factory](https://en.wikipedia.org/wiki/Factory_(object-oriented_programming)) which assembles  component-objects consumed by react. Among other things, this makes it so a developer doesn't need to manage common logic patterns themselves. Instead it allows you to easily [and dryly](https://en.wikipedia.org/wiki/Don't_repeat_yourself) declare anything from simple to the most complex of elements.
+XJS is able to outstrip the feature set of JSX by taking what is a factory approach, as-well as relying on a deep build-time process. Instead of simply transforming markup into a tree of `createElement` calls, it will construct and output a [factory](https://en.wikipedia.org/wiki/Factory_(object-oriented_programming)) which assembles  component-objects consumed by react. Among other things, this causes a developer to not need to write much of the logic they'd use to make anything beyond dead simple. Instead it allows you to easily [and dryly](https://en.wikipedia.org/wiki/Don't_repeat_yourself) declare anything from simple to the most complex of elements.
 
 >  Think of it like this: Where JSX is a markup language, Expressive is more like a script.
 
@@ -31,8 +31,8 @@ Generally, XJS is able to vastly outstrip the feature set of JSX by taking what 
 
 **And particularly, it attempts to solve the long standing problem of style with**
 
-&nbsp;&nbsp;🔥&nbsp; first-class support for styles <br />
-&nbsp;&nbsp;⚡️&nbsp; integrated composition system of "modfiiers"
+&nbsp;&nbsp;⚡️🔥&nbsp; first-class support for styles <br />
+&nbsp;&nbsp;&nbsp; integrated composition system using a 'modfier' concept
 
 <h4>And for those looking for gotchas, here are a few assurances</h4>
 
@@ -45,7 +45,7 @@ Generally, XJS is able to vastly outstrip the feature set of JSX by taking what 
 
 <br />
 
-## So what does it actually look like?
+# Getting Started
 
 Documenting Expressive's capabilities is an ongoing process but:
 
@@ -54,7 +54,7 @@ Or jump right into [comparing it against JSX](https://github.com/gabeklein/expre
 
 <br />
 
-# Install and Getting Started
+# Install
 
 The easiest way to add Expressive to your project is to use one of the plugins. There is one for each of the most common environments.
 * React  `babel-preset-expressive-react`
