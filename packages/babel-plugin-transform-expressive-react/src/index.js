@@ -118,15 +118,6 @@ function checkForStyleImport(body){
                 Shared.styledApplicationComponentName = local.name
 }
 
-function checkForStyleImport(body){
-    for(const {type, source, specifiers} of body)
-        if(type == "ImportDeclaration")
-        if(source.value == "expressive-react-style")
-        for(const {type, local} of specifiers)
-            if(type == "ImportDefaultSpecifier")
-                Shared.styledApplicationComponentName = local.name
-}
-
 function initComputedStyleAccumulator(Stack, build_state){
     const targets = build_state.expressive_computeTargets = [];
     return Object.assign(
