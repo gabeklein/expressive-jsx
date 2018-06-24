@@ -13,9 +13,8 @@ class TraversableBody {
     children = [];
 
     add(obj){
-        const { inlineType } = obj;
-        if(this[inlineType])
-            this[inlineType].push(obj);
+        const acc = this[obj.inlineType];
+        if(acc) acc.push(obj);
         this.children.push(obj);
     }
 
@@ -176,6 +175,10 @@ export class ComponentBody extends AttrubutesBody {
         ComponentSwitch.applyTo(this, path)
     }
 
+    ForStatement(path, mod){
+        ComponentRepeating.applyTo(this, path, mod)
+    }
+
     ForInStatement(path){
         this.ForStatement(path, "in")
     }
@@ -184,10 +187,6 @@ export class ComponentBody extends AttrubutesBody {
         this.ForStatement(path, "of")
     }
 
-    ForStatement(path, mod){
-        ComponentRepeating.applyTo(this, path, mod)
-    }
-    
 }
 
 export class ComponentGroup extends ComponentBody {

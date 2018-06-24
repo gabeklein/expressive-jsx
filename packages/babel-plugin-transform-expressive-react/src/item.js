@@ -141,7 +141,7 @@ export class ExplicitStyle {
                 this.value = t.stringLiteral(value)
                 break
             case "object": {
-                const { require: requires } = value;
+                const requires = value.require;
                 if(requires){
                     this.value = t.callExpression(
                         t.identifier("require"), 
