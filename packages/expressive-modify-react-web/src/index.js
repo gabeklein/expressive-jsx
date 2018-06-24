@@ -5,12 +5,8 @@ export * from "./units"
 export * from "./frame"
 export * from "./flex"
 export * from "./background"
+export * from "./advanced"
+export * from "./text"
 
-export function font(a, b = null){
-    return {
-        attrs: {
-            fontSize: a,
-            fontWeight: b
-        }
-    }
-}
+import * as Helpers from "./helpers"
+export { Helpers }
