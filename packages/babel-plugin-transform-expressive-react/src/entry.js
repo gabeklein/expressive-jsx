@@ -99,9 +99,7 @@ export class ComponentEntry extends ComponentInline {
             } = this.build());
         else {
             ({ body, output } = this.collateChildren());
-            output = output.length > 1
-                ? transform.createFragment(output)
-                : output[0] || t.booleanLiteral(false)
+            output = this.bundle(output)
         }
 
         return body.concat(
@@ -109,6 +107,12 @@ export class ComponentEntry extends ComponentInline {
                 output
             )
         )
+    }
+
+    bundle(output){
+        return output.length > 1
+            ? transform.createFragment(output)
+            : output[0] || t.booleanLiteral(false)
     }
 }
 
@@ -300,7 +304,7 @@ export class ComponentInlineExpression extends ComponentFunctionExpression {
             
         path.replaceWithMultiple(
             !body.length
-                ? product
+                ? this.bundle(product)
                 : [transform.IIFE(this.outputBodyDynamic())]
         )
 
