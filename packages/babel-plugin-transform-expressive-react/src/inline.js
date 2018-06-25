@@ -441,7 +441,7 @@ export class ComponentInline extends ComponentGroup {
     get typeInformation(){ 
 
         const css = Opts.reactEnv != "native" ? [] : false;
-        let type, modify;
+        let type;
 
         const {
             context
@@ -478,8 +478,7 @@ export class ComponentInline extends ComponentGroup {
                 }
             }
  
-            if(typeof name == "string")
-                modify = context[`$${name}`];
+            const modify = context.get(name);
 
             if(modify)
                 modify.insert(this, [], inline)

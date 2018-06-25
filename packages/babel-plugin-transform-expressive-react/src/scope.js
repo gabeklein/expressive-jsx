@@ -13,10 +13,10 @@ export function createSharedStack(included = []){
 
         if(Helpers)
         for(const name in Helpers)
-            Stack['$' + name] = Helpers[name];
+            Stack.getModifier(name) = Helpers[name];
 
         for(const name in Modifiers)
-            Stack['__' + name] = Modifiers[name];
+            Stack.get(name) = Modifiers[name];
     }
 
     return Stack;
@@ -39,6 +39,10 @@ class StackFrame {
 
     get(name){
         return this["__" + name];
+    }
+
+    getModifier(name){
+        return this["$" + name];
     }
 
     declare(modifier){
