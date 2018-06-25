@@ -11,15 +11,7 @@ export const Cache = new class {
     blocks = {};
 
     moduleDoesYieldStyle(fromFile, css){
-        css = css
-            .substring(2)
-            .split(/\n\t*/g)
-            .slice(0, -1)
-            .map(x => x.split(/(?= \{ )/));
-
-        for(const [selector, rules] of css){
-            this.blocks[selector] = rules
-        }
+        Object.assign(this.blocks, css)
     }
 
     get(selector){

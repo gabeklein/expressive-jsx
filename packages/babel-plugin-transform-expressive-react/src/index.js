@@ -132,23 +132,21 @@ function initComputedStyleAccumulator(Stack, build_state){
 }
 
 function generateComputedStylesExport(path, compute, index){
-
-    let styles = compute.filter(x => x.style_static.length)
-    if(!styles.length) return index;
     
     const isIncluded = new Set();
 
-    styles = styles
+    const styles = compute
+        .filter(x => x.style_static.length)
         .map(x => {
-            const { classname } = x;
-            if(!isIncluded.has(classname)){
-                isIncluded.add(classname)
-                return x.computeStyles()
-            }
+            if(isIncluded.has(x.classname))
+                return;
+                
+            isIncluded.add(x.classname)
+            return x.computeStyles()
         })
         .filter(x => x);
     
-    const css = `\n\t${ styles.join("\n\t") }\n`;
+    // const css = `\n\t${ styles.join("\n\t") }\n`;
 
     path.scope.block.body.splice(++index, 0, 
         t.expressionStatement(
@@ -160,12 +158,7 @@ function generateComputedStylesExport(path, compute, index){
                     t.stringLiteral(
                         path.hub.file.opts.filename
                     ),
-                    t.templateLiteral([
-                        t.templateElement({
-                            cooked: css,
-                            raw: css
-                        }, true)
-                    ], [])
+                    t.objectExpression(styles)
                 ]
             )
         )
