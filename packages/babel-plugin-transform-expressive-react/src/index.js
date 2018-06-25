@@ -4,8 +4,7 @@ import syntaxDoExpressions from "babel-plugin-syntax-do-expressions";
 const t = require("babel-types");
 const template = require("babel-template");
 const { Shared, Opts } = require("./shared");
-const { ComponentBody } = require("./component")
-const { ComponentClass } = require('./entry.js');
+const { ComponentClass, DoComponent } = require('./entry.js');
 const { createSharedStack } = require("./scope")
 
 export default (options) => {
@@ -13,12 +12,12 @@ export default (options) => {
         inherits: syntaxDoExpressions,
         visitor: {
             DoExpression: {
-                enter: ComponentBody.enter,
-                exit: ComponentBody.exit
+                enter: DoComponent.enter,
+                exit: DoComponent.exit
             },
             Program: {
-                enter: ComponentProgram.enter,
-                exit: ComponentProgram.onExit(options)
+                enter: ExpressiveProgram.enter,
+                exit: ExpressiveProgram.onExit(options)
             },
             Class: {
                 enter: ComponentClass.enter,
@@ -74,7 +73,7 @@ const TEMPLATE = {
     `)
 }
 
-class ComponentProgram {
+class ExpressiveProgram {
     static enter(path, state){
         Object.assign(Opts, state.opts)
 

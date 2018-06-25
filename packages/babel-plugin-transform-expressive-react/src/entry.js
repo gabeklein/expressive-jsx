@@ -25,6 +25,65 @@ export function RenderFromDoMethods(renders, subs){
     }
 }
 
+export class DoComponent {
+    static enter(path, state){
+
+        let { node } = path,
+            { meta } = node;
+
+        if(node.expressive_visited) return
+
+        if(!meta){
+
+            let immediateParent = path.parentPath;
+            let Handler;
+
+            if(immediateParent.isArrowFunctionExpression()){
+                Handler = ComponentFunctionExpression;
+                immediateParent = immediateParent.parentPath;
+            } 
+            else if(!immediateParent.isSequenceExpression()){
+                Handler = ComponentInlineExpression;
+            }
+            else throw immediateParent.getAncestry()
+                .find(x => x.type == "ArrowFunctionExpression")
+                .get("body")
+                .buildCodeFrameError("Component Syntax `..., do {}` found outside expressive context! Did you forget to arrow-return a do expression?")
+
+            let { type, node: parent } = immediateParent;
+            let name;
+
+            if(type == "ExportDefaultDeclaration")
+                name = "default"
+            else if(type == "ReturnStatement")
+                name = "returned"
+            else if(type == "SequenceExpression")
+                name = "callback"
+            else {
+                const ident = parent[TARGET_FOR[type]];
+                name = ident ? ident.name : "do" 
+            }
+
+            meta = node.meta = new Handler(path, name)
+        }
+
+        meta.didEnterOwnScope(path)
+
+        state.expressive_used = true;
+    }
+
+    static exit(path, state){
+        const { node } = path;
+
+        if(node.expressive_visited) return
+        else node.expressive_visited = true;
+
+        if(!node.meta) debugger
+
+        node.meta.didExitOwnScope(path)
+    }
+}
+
 export class ComponentClass {
     static enter(path, state){
 
@@ -265,7 +324,7 @@ class ComponentStyleMethod {
     }
 }
 
-export class ComponentFunctionExpression extends ComponentEntry {
+class ComponentFunctionExpression extends ComponentEntry {
 
     constructor(path, name) {
         super(path);
@@ -296,7 +355,7 @@ export class ComponentFunctionExpression extends ComponentEntry {
     }
 }
  
-export class ComponentInlineExpression extends ComponentFunctionExpression {
+class ComponentInlineExpression extends ComponentFunctionExpression {
 
     didExitOwnScope(path){
         const { body, output: product }

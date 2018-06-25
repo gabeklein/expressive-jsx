@@ -97,62 +97,6 @@ export class ComponentBody extends AttrubutesBody {
 
     child = [];
 
-    static enter(path, state){
-
-        let { node } = path,
-            { meta } = node;
-
-        if(node.expressive_visited) return
-
-        if(!meta){
-
-            let immediateParent = path.parentPath;
-            let Handler = ComponentInlineExpression;
-
-            if(immediateParent.isArrowFunctionExpression()){
-                Handler = ComponentFunctionExpression;
-                immediateParent = immediateParent.parentPath;
-            } 
-            else if(immediateParent.isSequenceExpression()){
-                throw immediateParent.getAncestry()
-                    .find(x => x.type == "ArrowFunctionExpression")
-                    .get("body")
-                    .buildCodeFrameError("Component Syntax `..., do {}` found outside expressive context! Did you forget to arrow-return a do expression?")
-            }
-
-            let { type, node: parent } = immediateParent;
-            let name;
-
-            if(type == "ExportDefaultDeclaration")
-                name = "default"
-            else if(type == "ReturnStatement")
-                name = "returned"
-            else if(type == "SequenceExpression")
-                name = "callback"
-            else {
-                const ident = parent[TARGET_FOR[type]];
-                name = ident ? ident.name : "do" 
-            }
-
-            meta = node.meta = new Handler(path, name)
-        }
- 
-        meta.didEnterOwnScope(path)
-
-        state.expressive_used = true;
-    }
-
-    static exit(path, state){
-        const { node } = path;
-        
-        if(node.expressive_visited) return
-        else node.expressive_visited = true;
-
-        if(!node.meta) debugger
-
-        node.meta.didExitOwnScope(path)
-    }
-
     ExpressionDefault(path){
         CollateInlineComponentsTo(this, path)
     }
@@ -309,5 +253,4 @@ const { Prop, Statement, NonComponent } = require("./item");
 const { CollateInlineComponentsTo, RNTextNode } = require("./inline");
 const { ComponentSwitch } = require("./ifstatement");
 const { ComponentRepeating } = require("./forloop");
-const { ComponentInlineExpression, ComponentFunctionExpression } = require("./entry");
 const { HandleModifier, TagNamedModifier } = require("./modifier");
