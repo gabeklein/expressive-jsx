@@ -13,10 +13,10 @@ export function createSharedStack(included = []){
 
         if(Helpers)
         for(const name in Helpers)
-            Stack.getModifier(name) = Helpers[name];
+            Stack['$' + name] = Helpers[name];
 
         for(const name in Modifiers)
-            Stack.get(name) = Modifiers[name];
+            Stack['__' + name] = Modifiers[name];
     }
 
     return Stack;
