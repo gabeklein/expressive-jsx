@@ -8,6 +8,13 @@ const { Opts, Shared, transform } = require("./shared")
 const { TagNamedModifier } = require("./modifier");
 const { ComponentInline } = require("./inline");
 
+const TARGET_FOR = {
+    VariableDeclarator: "id",
+    AssignmentExpression: "left",
+    AssignmentPattern: "left",
+    ObjectProperty: "key"
+}
+
 export function RenderFromDoMethods(renders, subs){
     let found = 0;
     const subComponentNames = subs.map(
@@ -269,10 +276,19 @@ class ComponentStyleMethod {
         this.insertDoIntermediate(path);
     }
 
+    includeModifier(mod){
+        this.context.declare(mod);
+        mod.declareForComponent(this);
+    }
+
+    add(mod){
+        this.context.current.stats.push(mod)
+    }
+
     insertDoIntermediate(path){
         const doExpression = t.doExpression(path.node.body);
             doExpression.meta = this;
-            
+
         path.replaceWith(
             t.classMethod(
                 "method", 
@@ -286,6 +302,8 @@ class ComponentStyleMethod {
     }
 
     didEnterOwnScope(path){
+        this.context = Shared.stack;
+
         const src = path.get("body.body")
         for(const item of src)
             if(item.type in this) 

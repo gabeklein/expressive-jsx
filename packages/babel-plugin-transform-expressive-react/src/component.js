@@ -1,13 +1,6 @@
 const t = require("babel-types")
 const { Opts, transform, Shared } = require("./shared")
 
-const TARGET_FOR = {
-    VariableDeclarator: "id",
-    AssignmentExpression: "left",
-    AssignmentPattern: "left",
-    ObjectProperty: "key"
-}
-
 class TraversableBody {
 
     children = [];
