@@ -96,7 +96,8 @@ class ExpressiveProgram {
         if(state.expressive_used){
             let index = 0;
             index = includeImports(path, state, this.file, options);
-            index = generateComputedStylesExport(path, compute, index);
+            if(Opts.reactEnv != "native" && compute.length > 0)
+                index = generateComputedStylesExport(path, compute, index);
         }
 
         if(~process.execArgv.join().indexOf("inspect-brk"))
