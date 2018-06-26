@@ -16,7 +16,7 @@ export function createSharedStack(included = []){
             Stack['$' + name] = Helpers[name];
 
         for(const name in Modifiers)
-            Stack['__' + name] = Modifiers[name];
+            Stack['__' + name] = new GeneralModifier(name, Modifiers[name]).handler;
     }
 
     return Stack;
