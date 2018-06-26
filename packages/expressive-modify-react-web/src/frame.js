@@ -11,15 +11,7 @@ export function size(x, y, unit){
     }
 }
 
-export function radius(a){
-    return {
-        attrs: {
-            borderRadius: a
-        }
-    }    
-}
-
-export function aspRect(x, y, unit){
+export function aspectSize(x, y, unit){
     const y2 = Math.abs(y);
     if(y2 && y2 < 1)
         if(y > 0) y = x, x = x * y2;
@@ -30,6 +22,14 @@ export function aspRect(x, y, unit){
             height: [y || x, unit]
         }
     }
+}
+
+export function radius(a){
+    return {
+        attrs: {
+            borderRadius: a
+        }
+    }    
 }
 
 for (const kind of [
