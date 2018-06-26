@@ -101,6 +101,7 @@ const InlineLayers = {
 
             target.tags.push({name: default_type_text, head: true})
             target.add(new NonComponent(tag))
+            tag.remove();
         }
 
         else throw tag.buildCodeFrameError("Expression must start with an identifier")
@@ -113,6 +114,7 @@ const InlineLayers = {
         )
         const stripped = tag.get("tag");
         //temporary means of preventing ES6 transformer from creating corresponding shim.
+        tag.remove()
         // tag.replaceWith(stripped.node)
         return stripped
     },
