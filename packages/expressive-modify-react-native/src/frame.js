@@ -36,35 +36,35 @@ for (const kind of [
     "margin", 
     "padding"
 ]) {
-    for (const [direction, a, b] of [
-        ["Vertical", "Top", "Bottom"],
-        ["Horizontal", "Left", "Right"] 
-    ])
-    EXPORT[kind + direction] = 
-        (aIn, bIn) => ({
-            attrs: {
-                [kind + a]: aIn,
-                [kind + b]: bIn || aIn
-            }
-        })
-
     EXPORT[kind] = 
-        function(keyword){
-            let value 
-
-            if(arguments.length == 1 && keyword == "auto" || keyword == "none" || / /.test(keyword))
-                value = keyword
-            else {
-                let args = rect(...arguments);
-                if(arguments.length == 2)
-                    args = args.slice(0, 2)
-                value = args.map(x => appendUnitToN(x)).join(" ")
+    function(a, b, c, d){
+        switch(arguments.length){
+            case 1: return {
+                style: { [kind]: a }
             }
-
-            return {
-                style: { [kind]: value }
+            case 2: return {
+                style: {
+                    [kind + "Vertical"]: a,
+                    [kind + "Horizontal"]: b
+                }
+            }
+            case 3: return {
+                style: {
+                    [kind + "Top"]: a,
+                    [kind + "Horizontal"]: b,
+                    [kind + "Bottom"]: c
+                }
+            }
+            case 4: return {
+                style: {
+                    [kind + "Top"]: a,
+                    [kind + "Right"]: b,
+                    [kind + "Bottom"]: c,
+                    [kind + "Left"]: d
+                }
             }
         }
+    }
 }
 
 for(const kind of [
