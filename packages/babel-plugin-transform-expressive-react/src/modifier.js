@@ -18,7 +18,8 @@ export function HandleModifier(src, recipient) {
                 recipient.context.getModifier(name) ||
                 recipient.context.get(name);
 
-            if(modifier) modifier(body, recipient);
+            if(typeof modifier == "function") modifier(body, recipient);
+            else if(modifier) modifier.handler(body, recipient);
             else new GeneralModifier(name).apply(body, recipient);
         return;
 
@@ -116,7 +117,7 @@ export class GeneralModifier {
                 while(seeking);
             }
 
-            const mod = ctx[`__${named}`] || new GeneralModifier(named);
+            const mod = ctx.get(named) || new GeneralModifier(named);
 
             if(value.type)
                 value = new parsedArgumentBody(value);
