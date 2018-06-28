@@ -208,7 +208,10 @@ export class NonComponent {
     precedence = 3
 
     constructor(src){
-        this.path = src
+        if(src.node)
+            this.path = src
+        else
+            this._node = src
     }
     
     static applyMultipleTo(parent, src){
@@ -229,17 +232,21 @@ export class NonComponent {
         )
     }
 
+    get node(){
+        return this._node || this.path.node;
+    }
+
     outputInline(){
-        return this.path.node;
+        return this.node;
     }
 
     transform(){
-        return { product: this.path.node }
+        return { product: this.node }
     }
 
     collateChildren(){
         return {
-            output: [ this.path.node ]
+            output: [ this.node ]
         }
     }
 
