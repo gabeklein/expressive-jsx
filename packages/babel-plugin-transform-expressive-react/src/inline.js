@@ -8,6 +8,17 @@ const { ComponentGroup } = require("./component")
 
 const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
 
+const ELEMENT_BR = {
+    inlineType: "child",
+    transform(){
+        return {
+            product: transform.createElement(
+                t.stringLiteral("br"), t.objectExpression([])
+            )
+        }
+    }
+}
+
 export function RNTextNode(parent, path){
     const node = new ComponentInline(path, parent);
     node.context = Object.create(parent.context);
@@ -156,7 +167,7 @@ const InlineLayers = {
         if(Opts.reactEnv == "native"){
             this.add(
                 new NonComponent(quasi)
-        )
+            )
         }
         else {
             if(INDENT) items.shift()
@@ -537,8 +548,6 @@ export class ComponentInline extends ComponentGroup {
                 modify.insert(this, [], inline)
         }
         
-        
-
         const hasOneNonElement = this.child.length == 1 && this.child[0].constructor.name == "NonComponent"
 
         if(!inline.type)
@@ -661,8 +670,6 @@ export class ComponentInline extends ComponentGroup {
             }
         }
 
-        
-
         if(inline.css && inline.css.length)
             for(const item of inline.css)
                 if(this.classList.indexOf(item) < 0)
@@ -675,7 +682,6 @@ export class ComponentInline extends ComponentGroup {
                     t.stringLiteral(this.classList.reverse().join(" "))
                 )
             );
-        
 
         const _quoteTarget = { props: computed_props, style: accumulated_style };
 
@@ -723,6 +729,4 @@ export class ComponentInline extends ComponentGroup {
         }
         else return { product }
     }
-
-    
 }
