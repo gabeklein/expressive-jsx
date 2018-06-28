@@ -15,7 +15,7 @@ export const Cache = new class {
     }
 
     get(selector){
-        return this.blocks["." + selector];
+        return this.blocks[selector];
     }
 }
 
@@ -43,7 +43,8 @@ class Compiler {
         let output = `\n`;
 
         for(const select in this.registered){
-            output += `\t.` + select + Cache.get(select) + `\n`;
+            const styles = Cache.get(select)
+            output += `\t.` + select + " {" + styles + " }" + `\n`;
         }
 
         if(output.length > 1)
