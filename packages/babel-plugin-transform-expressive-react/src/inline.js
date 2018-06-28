@@ -108,15 +108,66 @@ const InlineLayers = {
         
     },
 
-    TaggedTemplateExpression(tag){
-        NonComponent.applyTo(this, 
-            tag.get("quasi")
+    TaggedTemplateExpression(path){
+        const tag = path.get("tag")
+        const quasi = path.get("quasi")
+
+        const { quasis, expressions } = quasi.node;
+
+        let INDENT = /^\n( *)/.exec(quasis[0].value.cooked);
+        INDENT = INDENT && new RegExp("\n" + INDENT[1], "g");
+
+        const items = [];
+        let i = 0;
+        let text;
+
+        for(let i=0, text; text = quasis[i]; i++){
+            const then = expressions[i]; 
+            text = text.value.cooked;
+            if(INDENT) 
+            text = text.replace(INDENT, "\n");
+
+            if(Opts.reactEnv == "native"){
+                if(i == 0)
+                    text = text.replace("\n", "")
+                if(i == quasis.length - 1)
+                    text = text.replace(/\s+$/, "")
+                quasis[i].value.cooked = text
+            }
+            else {
+                for(let line, lines = text.split(/(?=\n)/g), i=0; line = lines[i]; i++){
+                    if(line[0] == "\n"){
+                        if(lines[i+1] || then){
+                            items.push(ELEMENT_BR)
+                            items.push(
+                                new NonComponent(
+                                    t.stringLiteral(
+                                        line.substring(1))))
+                        }
+                    }
+                    else items.push(
+                        new NonComponent(
+                            t.stringLiteral( line )))
+                }
+                if(then) items.push(new NonComponent(then));
+            }
+        }
+
+        if(Opts.reactEnv == "native"){
+            this.add(
+                new NonComponent(quasi)
         )
-        const stripped = tag.get("tag");
-        //temporary means of preventing ES6 transformer from creating corresponding shim.
-        tag.remove()
-        // tag.replaceWith(stripped.node)
-        return stripped
+        }
+        else {
+            if(INDENT) items.shift()
+            for(const child of items)
+                this.add(child) 
+        }
+
+        // prevent ES6 transformer from shimming the template.
+        path.remove()
+
+        return tag
     },
 
     CallExpression(tag){
