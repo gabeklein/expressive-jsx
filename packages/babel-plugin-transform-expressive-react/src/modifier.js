@@ -24,7 +24,7 @@ export function HandleModifier(src, recipient) {
         return;
 
         case "BlockStatement":
-            const mod = new TagNamedModifier[Opts.reactEnv](name, body);
+            const mod = new ModifierBlockEnv[Opts.reactEnv](name, body);
             mod.declare(recipient);
         return 
     } 
@@ -173,6 +173,7 @@ export class ComponentModifier extends AttrubutesBody {
 
     precedence = 0
     classList = [];
+    provides = [];
 
     constructor(name, body, inherited){
         super()
@@ -194,8 +195,12 @@ export class ComponentModifier extends AttrubutesBody {
     }
 
     declare(recipient){
-        recipient.context.declare(this);
-        this.context = this;
+        recipient.includeModifier(this);
+    }
+
+    includeModifier(modifier){
+        this.provides.push(modifier)
+        modifier.declareForComponent(this.contextParent)
     }
 
     didEnterOwnScope(path){
@@ -224,8 +229,8 @@ class InlineComponentModifier extends ComponentModifier {
 
     inlineType = "stats"
 
-    declare(recipient){
-        super.declare(recipient);
+    declareForComponent(recipient){
+        this.contextParent = recipient;
         recipient.add(this);
     }
 
@@ -288,12 +293,12 @@ class InlineComponentModifier extends ComponentModifier {
     }
 }
 
-class NextJSComponentModifier extends InlineComponentModifier {
+class ClassNameComponentModifier extends InlineComponentModifier {
 
     style_static = [];
 
-    declare(recipient){
-        super.declare(recipient);
+    declareForComponent(recipient){
+        super.declareForComponent(recipient);
         const { program, styleRoot } = recipient.context;
         program.computedStyleMayInclude(this);
         if(styleRoot)
@@ -322,7 +327,7 @@ class NextJSComponentModifier extends InlineComponentModifier {
     }
 }
 
-export const TagNamedModifier = {
+export const ModifierBlockEnv = {
     native: InlineComponentModifier,
-    next:   NextJSComponentModifier
+    next:   ClassNameComponentModifier
 }

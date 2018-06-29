@@ -396,6 +396,11 @@ export class ComponentInline extends ComponentGroup {
 
     //Protocol Style Integration
 
+    includeModifier(mod){
+        this.context.declare(mod);
+        mod.declareForComponent(this);
+    }
+
     collateChildren(propHandler){
         if(this.styleGroups && this.styleGroups.length && Opts.reactEnv != "native"){
             this.insertRuntimeStyleContextClaim()
@@ -544,8 +549,13 @@ export class ComponentInline extends ComponentGroup {
  
             const modify = context.get(name);
 
-            if(modify)
+            if(modify){
                 modify.insert(this, [], inline)
+
+                for(const sub of modify.provides){
+                    context.declare(sub)
+                }
+            }
         }
         
         const hasOneNonElement = this.child.length == 1 && this.child[0].constructor.name == "NonComponent"
