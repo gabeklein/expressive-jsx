@@ -1,3 +1,4 @@
+import { ModifierBlockEnv } from "./modifier";
 
 
 const t = require("babel-types")
@@ -326,18 +327,20 @@ class ComponentStyleMethod {
         if(body.type != "BlockStatement")
             throw path.buildCodeFrameError("Only modifier declarations are allowed here")
 
-        const recipient = { 
-            context: Shared.stack,
-            add(mod){
-                this.context.current.stats.push(mod)
-            }
-        };
-        const modifier = recipient.context.get(name)
+        // const recipient = { 
+        //     context: Shared.stack,
+        //     add(mod){
+        //         this.context.current.stats.push(mod)
+        //     }
+        // };
+        const modifier = this.context.get(name)
         
-        if(modifier) modifier(body, recipient);
+        if(modifier) {
+            modifier.handler(body, this);
+        }
         else {
-            const mod = new TagNamedModifier[Opts.reactEnv](name, body);
-            mod.declare(recipient);
+            const mod = new ModifierBlockEnv[Opts.reactEnv](name, body);
+            mod.declare(this);
         }
     }
 }
