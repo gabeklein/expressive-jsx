@@ -6,10 +6,15 @@ const ReservedModifiers = require("./keywords")
 export function createSharedStack(included = []){
     let Stack = new StackFrame;
 
-    for(const inclusion of [ReservedModifiers].concat(included)){
+    const imported = [
+        ReservedModifiers,
+        ...included
+    ]
+
+    for(const modifier of imported){
         Stack = Object.create(Stack)
         
-        const { Helpers, ... Modifiers } = inclusion;
+        const { Helpers, ... Modifiers } = modifier;
 
         if(Helpers)
         for(const name in Helpers)
