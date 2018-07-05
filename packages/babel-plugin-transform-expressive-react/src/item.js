@@ -209,7 +209,8 @@ export class NonComponent {
 
     constructor(src){
         if(src.node)
-            this.path = src
+            this.path = src,
+            this._node = src.node
         else
             this._node = src
     }
