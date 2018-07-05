@@ -5,6 +5,7 @@ const { html_tags_obvious } = require('./html-types');
 const { Shared, Opts, transform } = require("./shared");
 const { NonComponent, Prop } = require("./item")
 const { ComponentGroup } = require("./component")
+const { ComponentModifier } = require("./modifier")
 
 const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
 
@@ -121,59 +122,7 @@ const InlineLayers = {
 
     TaggedTemplateExpression(path){
         const tag = path.get("tag")
-        const quasi = path.get("quasi")
-
-        const { quasis, expressions } = quasi.node;
-
-        let INDENT = /^\n( *)/.exec(quasis[0].value.cooked);
-        INDENT = INDENT && new RegExp("\n" + INDENT[1], "g");
-
-        const items = [];
-        let i = 0;
-        let text;
-
-        for(let i=0, text; text = quasis[i]; i++){
-            const then = expressions[i]; 
-            text = text.value.cooked;
-            if(INDENT) 
-            text = text.replace(INDENT, "\n");
-
-            if(Opts.reactEnv == "native"){
-                if(i == 0)
-                    text = text.replace("\n", "")
-                if(i == quasis.length - 1)
-                    text = text.replace(/\s+$/, "")
-                quasis[i].value.cooked = text
-            }
-            else {
-                for(let line, lines = text.split(/(?=\n)/g), i=0; line = lines[i]; i++){
-                    if(line[0] == "\n"){
-                        if(lines[i+1] || then){
-                            items.push(ELEMENT_BR)
-                            items.push(
-                                new NonComponent(
-                                    t.stringLiteral(
-                                        line.substring(1))))
-                        }
-                    }
-                    else items.push(
-                        new NonComponent(
-                            t.stringLiteral( line )))
-                }
-                if(then) items.push(new NonComponent(then));
-            }
-        }
-
-        if(Opts.reactEnv == "native"){
-            this.add(
-                new NonComponent(quasi)
-            )
-        }
-        else {
-            if(INDENT) items.shift()
-            for(const child of items)
-                this.add(child) 
-        }
+        this.unhandledQuasi = path.get("quasi")
 
         // prevent ES6 transformer from shimming the template.
         path.remove()
@@ -548,8 +497,8 @@ export class ComponentInline extends ComponentGroup {
             }
  
             const modify = context.get(name);
-
-            if(modify){
+        
+            if(modify && typeof modify.insert == "function"){
                 modify.insert(this, [], inline)
 
                 for(const sub of modify.provides){
@@ -568,6 +517,9 @@ export class ComponentInline extends ComponentGroup {
                         : Shared.View
                     : ELEMENT_TYPE_DEFAULT
             )
+    
+        if(this.unhandledQuasi)
+            this.includeUnhandledQuasi(inline.type.type != "Identifier")
 
         return inline;
     }
@@ -581,6 +533,62 @@ export class ComponentInline extends ComponentGroup {
         }
         else 
             inline.style.push(...this.style_static.map(x => x.asProperty));
+    }
+
+    includeUnhandledQuasi(use_br){
+        const quasi = this.unhandledQuasi;
+        const { quasis, expressions } = quasi.node;
+
+        let INDENT = /^\n( *)/.exec(quasis[0].value.cooked);
+        INDENT = INDENT && new RegExp("\n" + INDENT[1], "g");
+
+        const items = [];
+        let i = 0;
+
+        for(let i=0, quasi; quasi = quasis[i]; i++){
+            const then = expressions[i]; 
+
+            if(Opts.reactEnv == "native" || use_br === false)
+                for(let x of ["raw", "cooked"]){
+                    let text = quasi.value[x];
+                    if(INDENT) text = text.replace(INDENT, "\n");
+                    if(i == 0) text = text.replace("\n", "")
+                    if(i == quasis.length - 1)
+                        text = text.replace(/\s+$/, "")
+                    quasi.value[x] = text
+                }
+            else {
+                let text = quasi.value.cooked;
+                if(INDENT) 
+                text = text.replace(INDENT, "\n");
+                for(let line, lines = text.split(/(?=\n)/g), j=0; line = lines[j]; j++){
+                    if(line[0] == "\n"){
+                        if(lines[j+1] || then){
+                            items.push(ELEMENT_BR)
+                            items.push(
+                                new NonComponent(
+                                    t.stringLiteral(
+                                        line.substring(1))))
+                        }
+                    }
+                    else items.push(
+                        new NonComponent(
+                            t.stringLiteral( line )))
+                }
+                if(then) items.push(new NonComponent(then));
+            }
+        }
+
+        if(Opts.reactEnv == "native" || use_br === false){
+            this.add(
+                new NonComponent(quasi)
+            )
+        }
+        else {
+            if(INDENT) items.shift();
+            for(const child of items)
+                this.add(child) 
+        }
     }
 
     build(){
