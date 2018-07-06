@@ -1,5 +1,5 @@
 const t = require('babel-types')
-const { GeneralModifier, ComponentModifier } = require("./modifier")
+const { PropertyModifier, ComponentModifier } = require("./modifier")
 const { Shared, transform } = require("./shared");
 const ReservedModifiers = require("./keywords")
 
@@ -21,7 +21,7 @@ export function createSharedStack(included = []){
             Stack['$' + name] = Helpers[name];
 
         for(const name in Modifiers)
-            Stack['__' + name] = new GeneralModifier(name, Modifiers[name]);
+            Stack['__' + name] = new PropertyModifier(name, Modifiers[name]);
     }
 
     return Stack;

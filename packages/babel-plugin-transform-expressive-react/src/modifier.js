@@ -20,17 +20,17 @@ export function HandleModifier(src, recipient) {
 
             if(typeof modifier == "function") modifier(body, recipient);
             else if(modifier) modifier.handler(body, recipient);
-            else new GeneralModifier(name).apply(body, recipient);
+            else new PropertyModifier(name).apply(body, recipient);
         return;
 
         case "BlockStatement":
-            const mod = new ModifierBlockEnv[Opts.reactEnv](name, body);
+            const mod = new ComponentModifier(name, body);
             mod.declare(recipient);
         return 
     } 
 }
 
-export class GeneralModifier {
+export class PropertyModifier {
 
     constructor(name, transform){
         this.name = name;
@@ -68,19 +68,16 @@ export class GeneralModifier {
                 )
     }
 
-    invoke(target, args, computed){
+    invoke(target, args = [], computed){
 
         const { context } = target;
 
-        const { assign, getPrototypeOf } = Object;
-
-        args = args === undefined
-            ? [] : [].concat(args)
+        args = [].concat(args);
 
         for(const argument of args)
             if(argument && typeof argument == "object" && argument.named){
                 const { inner, named, location } = argument;
-                const mod = context[`__${named}`]
+                const mod = target.context[`__${named}`]
 
                 if(mod) try {
                     const computed = mod.transform(...inner)
@@ -97,38 +94,41 @@ export class GeneralModifier {
                 }
             }
 
-        if(typeof this.transform != "function") debugger
         const modify = this.transform.apply({ target, name: this.name }, args);
         
         if(!modify) return
 
-        for(const named in modify.attrs){
-            let ctx = context;
-            let value = modify.attrs[named];
+        this.reprocessOutput(modify.attrs, target, computed)
+
+        Object.assign(computed.style, modify.style);
+        Object.assign(computed.props, modify.props);
+
+        return computed;
+    }
+
+    reprocessOutput(attrs, target, computed){
+        let { context } = target;
+        for(const named in attrs){
+            let value = attrs[named];
 
             if(value == null) continue;
 
             if(named == this.name){
                 let seeking;
                 do { 
-                    seeking = !ctx.hasOwnProperty(`__${named}`);
-                    ctx = getPrototypeOf(ctx);
+                    seeking = !context.hasOwnProperty(`__${named}`);
+                    context = Object.getPrototypeOf(context);
                 }
                 while(seeking);
             }
 
-            const mod = ctx.get(named) || new GeneralModifier(named);
+            const mod = context.get(named) || new PropertyModifier(named);
 
             if(value.type)
                 value = new parsedArgumentBody(value);
 
             mod.invoke(target, value, computed);
         }
-
-        assign(computed.style, modify.style);
-        assign(computed.props, modify.props);
-
-        return computed;
     }
 
     transform(){
@@ -174,14 +174,30 @@ export class ComponentModifier extends AttrubutesBody {
     precedence = 0
     classList = [];
     provides = [];
+    inlineType = "stats"
 
     constructor(name, body, inherited){
         super()
         this.name = name;
         if(inherited)
             this.inherits = inherited;
-        this.insertDoIntermediate(body)
-    }   
+
+        if(Opts.reactEnv != "native")
+            this.style_static = [];
+
+        Shared.stack.push(this);
+        this.scope = body.scope;
+
+        if(typeof this.init == "function")
+            this.init(path);
+
+        for(const item of body.get("body"))
+            if(item.type in this) 
+                this[item.type](item);
+            else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
+
+        this.didExitOwnScope()
+    }  
 
     get handler(){
         const inheriting = this;
@@ -210,11 +226,11 @@ export class ComponentModifier extends AttrubutesBody {
     }
 
     didExitOwnScope(path){
+
         if(this.props.length)
             this.type = "props"
         if(this.style.length)
             this.type = this.type ? "both" : "style"
-
         if(this.style_static)
             this.hash = createHash("md5")
                 .update(this.style_static.reduce((x,y) => x + y.asString, ""))
@@ -222,16 +238,21 @@ export class ComponentModifier extends AttrubutesBody {
                 .substring(0, 6);
         
         super.didExitOwnScope(path)
+
+        if(Opts.reactEnv != "native")
+            this.classname = `${this.name}-${this.hash}`
     }
-}
-
-class InlineComponentModifier extends ComponentModifier {
-
-    inlineType = "stats"
 
     declareForComponent(recipient){
         this.contextParent = recipient;
         recipient.add(this);
+
+        if(Opts.reactEnv == "native") return;
+
+        const { program, styleRoot } = recipient.context;
+        program.computedStyleMayInclude(this);
+        if(styleRoot)
+            styleRoot.computedStyleMayInclude(this);
     }
 
     insert(target, args, inline){
@@ -265,6 +286,9 @@ class InlineComponentModifier extends ComponentModifier {
     }
 
     into(inline, target){
+        if(this.style_static !== this.style && this.style_static.length)
+            inline.css.push(this.classname)
+            
         if(this.inherits) this.inherits.into(inline);
         
         if(!this.style.length && !this.props.length) return
@@ -290,44 +314,9 @@ class InlineComponentModifier extends ComponentModifier {
             );
         }
 
-    }
-}
-
-class ClassNameComponentModifier extends InlineComponentModifier {
-
-    style_static = [];
-
-    declareForComponent(recipient){
-        super.declareForComponent(recipient);
-        const { program, styleRoot } = recipient.context;
-        program.computedStyleMayInclude(this);
-        if(styleRoot)
-            styleRoot.computedStyleMayInclude(this);
-    }
-
-    insert(target, args, inline){
-        if(!inline && !args.length) return;
-        this.into(inline, target)
-    }
-
-    didExitOwnScope(path){
-        super.didExitOwnScope(path)
-        this.classname = `${this.name}-${this.hash}`
-    }
-
-    into(inline, target){
-        if(this.style_static !== this.style && this.style_static.length)
-            inline.css.push(this.classname)
-        super.into(inline, target);
-
         for(const name of this.classList)
             if(typeof name == "string")
                 if(target.classList.indexOf(name) < 0)
                     target.classList.push(name);
     }
-}
-
-export const ModifierBlockEnv = {
-    native: InlineComponentModifier,
-    next:   ClassNameComponentModifier
 }

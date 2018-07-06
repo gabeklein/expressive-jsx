@@ -1,4 +1,4 @@
-import { ModifierBlockEnv } from "./modifier";
+import { ComponentModifier } from "./modifier";
 
 
 const t = require("babel-types")
@@ -339,7 +339,7 @@ class ComponentStyleMethod {
             modifier.handler(body, this);
         }
         else {
-            const mod = new ModifierBlockEnv[Opts.reactEnv](name, body);
+            const mod = new ComponentModifier(name, body);
             mod.declare(this);
         }
     }
