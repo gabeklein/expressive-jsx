@@ -1,6 +1,6 @@
 {
   "name": "expressive-react-style",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Style Modifiers for most CSS keywords",
   "main": "lib/index.js",
   "author": {
@@ -21,7 +21,7 @@
   "devDependencies": {
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-env": "^1.6.1",
-    "babel-preset-expressive-react": "^1.3.3"
+    "babel-preset-expressive-react": "^1.3.4"
   },
   "dependencies": {
     "react": "^16.3.0",
