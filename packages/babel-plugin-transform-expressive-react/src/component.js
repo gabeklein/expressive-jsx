@@ -155,7 +155,6 @@ export class ComponentGroup extends ComponentBody {
         const body = [];
         const output = [];
         let adjacent;
-        // if(!scope) debugger
 
         const child_props = [];
 
@@ -241,7 +240,7 @@ export class ComponentGroup extends ComponentBody {
     }
 }
 
-//import last. modules here themselves import from this one, so exports must already be initialized.
+//import last. Modules import from these here, so exports must already be initialized.
 
 const { Prop, Statement, NonComponent } = require("./item");
 const { CollateInlineComponentsTo, RNTextNode } = require("./inline");

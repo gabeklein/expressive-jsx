@@ -1,5 +1,5 @@
 const t = require('babel-types')
-const { PropertyModifier, ComponentModifier } = require("./modifier")
+const { PropertyModifier } = require("./modifier")
 const { Shared, transform } = require("./shared");
 const ReservedModifiers = require("./keywords")
 
@@ -14,14 +14,14 @@ export function createSharedStack(included = []){
     for(const modifier of imported){
         Stack = Object.create(Stack)
         
-        const { Helpers, ... Modifiers } = modifier;
+        const { Helpers, ...Modifiers } = modifier;
 
         if(Helpers)
         for(const name in Helpers)
-            Stack['$' + name] = Helpers[name];
+            Stack.valueMod(name, Helpers[name])
 
         for(const name in Modifiers)
-            Stack['__' + name] = new PropertyModifier(name, Modifiers[name]);
+            Stack.propertyMod(name, new PropertyModifier(name, Modifiers[name]))
     }
 
     return Stack;
@@ -42,19 +42,36 @@ class StackFrame {
         Shared.stack = Object.getPrototypeOf(this);
     }
 
-    get(name){
-        return this["__" + name];
+    elementMod(name, set){
+        name = "_" + name;
+        if(set) this[name] = set;
+        else return this[name]
     }
 
-    getModifier(name){
-        return this["$" + name];
+    propertyMod(name, set){
+        name = "__" + name;
+        if(set) this[name] = set;
+        else return this[name]
+    }
+
+    hasOwnPropertyMod(named){
+        return this.hasOwnProperty("__" + named)
+    }
+
+    valueMod(name, set){
+        name = "___" + name;
+        if(set) this[name] = set;
+        else return this[name]
     }
 
     declare(modifier){
         const { name } = modifier;
+        if(name[0] == "_")
+            throw body.buildCodeFrameError(`Modifier name cannot start with _ symbol!`)
+
         if(this.hasOwnProperty(name))
             throw body.buildCodeFrameError(`Duplicate declaration of named modifier!`)
 
-        this['__' + name] = modifier;
+        this.elementMod(name, modifier);
     }
 }

@@ -5,7 +5,7 @@ const { html_tags_obvious } = require('./html-types');
 const { Shared, Opts, transform } = require("./shared");
 const { NonComponent, Prop } = require("./item")
 const { ComponentGroup } = require("./component")
-const { ComponentModifier } = require("./modifier")
+const { ElementModifier } = require("./modifier")
 
 const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
 
@@ -21,7 +21,7 @@ const ELEMENT_BR = {
 }
 
 export function RNTextNode(parent, path){
-    const node = new ComponentInline(path, parent);
+    const node = new ElementInline(path, parent);
     node.context = Object.create(parent.context);
     node.parentDeclaresAll = parent.context.hasOwnProperty("$all");
     // node.context.current = node;
@@ -70,7 +70,7 @@ export function CollateInlineComponentsTo(parent, path){
         if(path.node.extra && path.node.extra.parenthesized === true)
             throw path.buildCodeFrameError("Children in Parenthesis are not allowed, for direct insertion used an Array literal")
 
-        const child = new ComponentInline(path, parent);
+        const child = new ElementInline(path, parent);
 
         child.scope = path.get("body").scope;
         child.context = parent.context;
@@ -300,7 +300,7 @@ class InlineProps extends Prop {
     }
 }
 
-export class ComponentInline extends ComponentGroup {
+export class ElementInline extends ComponentGroup {
 
     inlineType = "child"
 
@@ -496,7 +496,7 @@ export class ComponentInline extends ComponentGroup {
                 }
             }
  
-            const modify = context.get(name);
+            const modify = context.elementMod(name);
         
             if(modify && typeof modify.insert == "function"){
                 modify.insert(this, [], inline)

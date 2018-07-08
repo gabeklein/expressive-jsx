@@ -1,13 +1,10 @@
-import { ComponentModifier } from "./modifier";
-
-
 const t = require("babel-types")
 const { createHash } = require('crypto');
 
 const { ComponentGroup } = require("./component")
 const { Opts, Shared, transform } = require("./shared")
-const { TagNamedModifier } = require("./modifier");
-const { ComponentInline } = require("./inline");
+const { ElementModifier } = require("./modifier");
+const { ElementInline } = require("./inline");
 
 const TARGET_FOR = {
     VariableDeclarator: "id",
@@ -146,7 +143,7 @@ export class ComponentClass {
     }
 }
 
-export class ComponentEntry extends ComponentInline {
+export class ComponentEntry extends ElementInline {
 
     init(path){
         this.context.styleRoot = this;
@@ -327,19 +324,13 @@ class ComponentStyleMethod {
         if(body.type != "BlockStatement")
             throw path.buildCodeFrameError("Only modifier declarations are allowed here")
 
-        // const recipient = { 
-        //     context: Shared.stack,
-        //     add(mod){
-        //         this.context.current.stats.push(mod)
-        //     }
-        // };
-        const modifier = this.context.get(name)
+        const modifier = this.context.elementMod(name)
         
         if(modifier) {
             modifier.handler(body, this);
         }
         else {
-            const mod = new ComponentModifier(name, body);
+            const mod = new ElementModifier(name, body);
             mod.declare(this);
         }
     }

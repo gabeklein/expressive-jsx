@@ -11,20 +11,18 @@ export function HandleModifier(src, recipient) {
     const name = src.node.label.name;
     const body = src.get("body");
 
+    const modifier = recipient.context.propertyMod(name);
+
     switch(body.type){
         case "EmptyStatement":
         case "ExpressionStatement": 
-            const modifier = 
-                recipient.context.getModifier(name) ||
-                recipient.context.get(name);
-
             if(typeof modifier == "function") modifier(body, recipient);
-            else if(modifier) modifier.handler(body, recipient);
+            else if(modifier) modifier.apply(body, recipient);
             else new PropertyModifier(name).apply(body, recipient);
         return;
 
         case "BlockStatement":
-            const mod = new ComponentModifier(name, body);
+            const mod = new ElementModifier(name, body);
             mod.declare(recipient);
         return 
     } 
@@ -77,10 +75,10 @@ export class PropertyModifier {
         for(const argument of args)
             if(argument && typeof argument == "object" && argument.named){
                 const { inner, named, location } = argument;
-                const mod = target.context[`__${named}`]
+                const transform = target.context.valueMod(named);
 
-                if(mod) try {
-                    const computed = mod.transform(...inner)
+                if(transform) try {
+                    const computed = transform(...inner)
 
                     if(computed.value) argument.computed = computed;
                     else 
@@ -116,13 +114,13 @@ export class PropertyModifier {
             if(named == this.name){
                 let seeking;
                 do { 
-                    seeking = !context.hasOwnProperty(`__${named}`);
-                    context = Object.getPrototypeOf(context);
+                    seeking = !context.hasOwnPropertyMod(named);
+                    context = context.parent;
                 }
                 while(seeking);
             }
 
-            const mod = context.get(named) || new PropertyModifier(named);
+            const mod = context.propertyMod(named) || new PropertyModifier(named);
 
             if(value.type)
                 value = new parsedArgumentBody(value);
@@ -169,7 +167,7 @@ export class PropertyModifier {
     }
 }
 
-export class ComponentModifier extends AttrubutesBody {
+export class ElementModifier extends AttrubutesBody {
 
     precedence = 0
     classList = [];
@@ -220,13 +218,11 @@ export class ComponentModifier extends AttrubutesBody {
     }
 
     didEnterOwnScope(path){
-        //TODO GET RID OF SCOPE
         this.scope = path.scope
         super.didEnterOwnScope(path)
     }
 
     didExitOwnScope(path){
-
         if(this.props.length)
             this.type = "props"
         if(this.style.length)
