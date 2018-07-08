@@ -1,5 +1,5 @@
 export function rect(a, b, c, d){
-    const args = this.arguments;
+    const args = arguments;
     const { length } = args;
     let top, left, right, bottom;
 

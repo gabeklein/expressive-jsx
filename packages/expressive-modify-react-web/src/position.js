@@ -70,13 +70,13 @@ function keyedPosition(a, b = 0, c = b){
         }
     }
             
-    return position(...this.arguments)
+    return position(...arguments)
 }
 
 function position(){
     let data = {};
     if(typeof a != "number")
-    for(const item of this.arguments)
+    for(const item of arguments)
         if(item.named)
             data[item.named] = item.inner[0]
         else {
@@ -86,13 +86,13 @@ function position(){
 
     const out = data 
         ? { attrs: data } 
-        : _cover(...this.arguments);
+        : _cover(...arguments);
         
     return out
 }
 
 function _cover(){
-    const [top, right, bottom, left] = rect(...this.arguments)
+    const [top, right, bottom, left] = rect(...arguments)
     return {
         attrs: { top, right, bottom, left }
     }
