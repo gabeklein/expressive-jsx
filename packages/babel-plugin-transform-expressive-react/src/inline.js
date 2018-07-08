@@ -13,7 +13,7 @@ const ELEMENT_BR = transform.element("br");
 export function RNTextNode(parent, path){
     const node = new ElementInline(path, parent);
     node.context = Object.create(parent.context);
-    node.parentDeclaresAll = parent.context.hasOwnProperty("$all");
+    node.parentDeclaredAll = parent.context.allMod;
     // node.context.current = node;
     node.tags.push({name: "string", head: true});
     node.tags.push({
@@ -461,13 +461,10 @@ export class ElementInline extends ComponentGroup {
             style: []
         }
         
-        if(
-            (context.current != this && context.hasOwnProperty("$all")) ||
-            (context.current == this && context.parent.hasOwnProperty("$all")) ||
-            this.parentDeclaresAll 
-        )
-            context.$all.insert(this, [], inline)
-
+        let catchAll = context.current != this ? context : context.parent;
+        if( catchAll = catchAll.allMod || this.parentDeclaredAll )
+            catchAll.insert(this, [], inline)
+            
         for(const { name, head } of this.tags){
             if(head){
                 if(typeof name == "string"){

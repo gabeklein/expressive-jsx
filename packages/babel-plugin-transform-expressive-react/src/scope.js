@@ -48,6 +48,10 @@ class StackFrame {
         else return this[name]
     }
 
+    get allMod(){
+        return this.hasOwnProperty("_all") && this._all;
+    }
+
     propertyMod(name, set){
         name = "__" + name;
         if(set) this[name] = set;
