@@ -28,8 +28,20 @@ export const transform = {
         )
     },
 
-    createElement(){
-        return t.callExpression(Shared.createElement, Array.from(arguments))
+    element(){
+        return {
+            inlineType: "child",
+            transform: () => ({
+                product: this.createElement(...arguments)
+            })
+        }
+    },
+
+    createElement(type, props, ...children){
+        if(typeof type == "string") type = t.stringLiteral(type);
+        if(!props) props = t.objectExpression([]);
+
+        return t.callExpression(Shared.createElement, [type, props, ...children])
     },
 
     declare(type, id, value){

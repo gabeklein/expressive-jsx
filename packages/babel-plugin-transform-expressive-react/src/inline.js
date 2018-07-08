@@ -8,17 +8,7 @@ const { ComponentGroup } = require("./component")
 const { ElementModifier } = require("./modifier")
 
 const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
-
-const ELEMENT_BR = {
-    inlineType: "child",
-    transform(){
-        return {
-            product: transform.createElement(
-                t.stringLiteral("br"), t.objectExpression([])
-            )
-        }
-    }
-}
+const ELEMENT_BR = transform.element("br");
 
 export function RNTextNode(parent, path){
     const node = new ElementInline(path, parent);
