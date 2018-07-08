@@ -7,109 +7,81 @@ const { SyntheticProp, ExplicitStyle, Statement, NonComponent } = require("./ite
 const { parsedArgumentBody } = require("./attributes");
 const { Opts, Shared } = require("./shared");
 
-export function HandleModifier(src, recipient) {
-    const name = src.node.label.name;
-    const body = src.get("body");
+export class GeneralModifier {
 
-    const modifier = recipient.context.propertyMod(name);
-
-    switch(body.type){
-        case "EmptyStatement":
-        case "ExpressionStatement": 
-            if(modifier) modifier.apply(body, recipient);
-            else new PropertyModifier(name).apply(body, recipient);
-        return;
-
-        case "BlockStatement":
-            const mod = new ElementModifier(name, body);
-            mod.declare(recipient);
-        return 
-    } 
-}
-
-class ModifierProcess {
-    constructor(modifier, body, target){
-        this.target = target;
-        this.name = modifier.name;
-        this.body = body;
-        this.data = {};
-
-        const { transform } = modifier;
-        const initialArguments = transform.length > 0 ? this.arguments : []
-        const transformOutput = transform.apply(this, initialArguments);
-
-        if(this.done) return;
-
-        if(transformOutput)
-            this.assign(transformOutput)
-
-        return this.data;
+    static applyTo(recipient, src) {
+        const name = src.node.label.name;
+        const body = src.get("body");
+    
+        const modifier = 
+            recipient.context.propertyMod(name) || new this(name);
+    
+        modifier.apply(body, recipient);
     }
-
-    get arguments(){
-        const args = new parsedArgumentBody(this.body);
-
-        const { context } = this.target;
-
-        for(const argument of args)
-            if(argument && typeof argument == "object" && argument.named){
-                const { inner, named, location } = argument;
-                const valueMod = this.target.context.valueMod(named);
-
-                if(valueMod) try {
-                    const computed = valueMod(...inner)
-
-                    if(computed.value) argument.computed = computed; else 
-                    if(computed.require) argument.requires = computed.require;
-
-                } catch(err) {
-                    throw location && location.buildCodeFrameError(err.message) || err
-
-                } else {
-                    argument.computed = {value: `${ named }(${ inner.join(" ") })`}
-                }
-            }
-
-        Object.defineProperty(this, "arguments", { value: args })
-
-        return args;
-    }
-
-    assign(data){
-        for(const field in data)
-            if(this.data[field])
-                Object.assign(this.data[field], data[field])
-            else this.data[field] = data[field]
-    }
-}
-
-export class PropertyModifier {
 
     constructor(name, transform){
         this.name = name;
-        if(transform)
-            this.transform = transform;
-    }
-
-    get handler(){
-        return this.apply.bind(this)
+        this.transform = transform || this.default;
     }
 
     apply(args, target){
-
-        const style = {};
-        const props = {};
-        const computed = { 
-            props, 
-            style
+        const accumulated = { 
+            props: {}, 
+            style: {}
         };
 
-        this.invoke( 
-            target, 
-            args, 
-            computed
-        );
+        let mods = [];
+        let i = 0, mod = this;
 
+        while(true){
+            const next = mod.invoke(target, args, accumulated)
+            if(!next){ i++; continue };
+            
+            const pending = [];
+            for(const named in next){
+                let value = next[named];
+                let { context } = target;
+    
+                if(value == null) continue;
+    
+                if(named == this.name){
+                    let seeking;
+                    do { 
+                        seeking = !context.hasOwnPropertyMod(named);
+                        context = context.parent;
+                    }
+                    while(seeking);
+                }
+    
+                const mod = context.propertyMod(named) || new GeneralModifier(named);
+    
+                pending.push([mod, value])
+            }
+            if(!pending.length)
+                if(mod = mods[++i])
+                    [mod, args] = mod
+                else break;
+            else {
+                mods = pending.concat(mods.slice(i+1));
+                [mod, args] = mods[i = 0];
+            }
+        }
+
+        this.integrate(target, accumulated);
+    }
+
+    invoke(target, args = [], acumulated){
+        const include = new ModifierProcess(this.transform, args, target, this.name);
+
+        if(!include) return false;
+
+        Object.assign(acumulated.style, include.style);
+        Object.assign(acumulated.props, include.props);
+
+        return include.attrs || true;
+    }
+
+    integrate(target, { style, props }){
         for(const [AttributeType, typeTarget] of [
             [ExplicitStyle, style], 
             [SyntheticProp, props]
@@ -121,44 +93,14 @@ export class PropertyModifier {
                 )
     }
 
-    invoke(target, args = [], acumulated){
-
-        const modifications = new ModifierProcess(this, args, target)
-        
-        this.reprocessOutput(modifications.attrs, target, acumulated)
-
-        Object.assign(acumulated.style, modifications.style);
-        Object.assign(acumulated.props, modifications.props);
-
-        return acumulated;
-    }
-
-    reprocessOutput(attrs, target, computed){
-        let { context } = target;
-        for(const named in attrs){
-            let value = attrs[named];
-
-            if(value == null) continue;
-
-            if(named == this.name){
-                let seeking;
-                do { 
-                    seeking = !context.hasOwnPropertyMod(named);
-                    context = context.parent;
-                }
-                while(seeking);
-            }
-
-            const mod = context.propertyMod(named) || new PropertyModifier(named);
-
-            if(value.type)
-                value = new parsedArgumentBody(value);
-
-            mod.invoke(target, value, computed);
+    default(){
+        if(this.body.type == "BlockStatement"){
+            const mod = new ElementModifier(this.name, this.body);
+            mod.declare(this.target);
+            this.done = true;
+            return
         }
-    }
 
-    transform(){
         const args = this.arguments.map(arg => {
 
             if(!!arg && typeof arg == "object" ){
@@ -193,6 +135,68 @@ export class PropertyModifier {
                 [this.name]: output
             }
         }
+    }
+}
+
+class ModifierProcess {
+    constructor(transform, body, target, name){
+        this.target = target;
+        this.data = {};
+        this.name = name;
+
+        if(!body.type)
+            Object.defineProperty(this, "arguments", { value: body })
+        else 
+            this.body = body;
+
+        const initialArguments = transform.length > 0 ? this.arguments : [];
+        const transformOutput = transform.apply(this, 
+            Array.isArray(initialArguments) ? initialArguments : [initialArguments]
+        );
+
+        if(this.done) return;
+
+        if(transformOutput)
+            this.assign(transformOutput)
+
+        return this.data;
+    }
+
+    get arguments(){
+
+        const args = new parsedArgumentBody(this.body);
+
+        const { context } = this.target;
+
+        for(const argument of args)
+            if(argument && typeof argument == "object" && argument.named){
+                const { inner, named, location } = argument;
+                const valueMod = this.target.context.valueMod(named);
+
+                if(valueMod) try {
+                    const computed = valueMod(...inner)
+
+                    if(computed.value) argument.computed = computed; else 
+                    if(computed.require) argument.requires = computed.require;
+
+                } catch(err) {
+                    throw location && location.buildCodeFrameError(err.message) || err
+
+                } else {
+                    argument.computed = {value: `${ named }(${ inner.join(" ") })`}
+                }
+            }
+
+        Object.defineProperty(this, "arguments", { value: args })
+
+        return args;
+    }
+
+    assign(data){
+        for(const field in data)
+            if(this.data[field])
+                Object.assign(this.data[field], data[field])
+            else this.data[field] = data[field]
     }
 }
 

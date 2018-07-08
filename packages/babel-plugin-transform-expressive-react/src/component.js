@@ -71,7 +71,7 @@ export class AttrubutesBody extends TraversableBody {
     }
 
     LabeledStatement(path){
-        HandleModifier(path, this);
+        GeneralModifier.applyTo(this, path);
     }
 
     AssignmentExpression(path){
@@ -246,4 +246,4 @@ const { Prop, Statement, NonComponent } = require("./item");
 const { CollateInlineComponentsTo, RNTextNode } = require("./inline");
 const { ComponentSwitch } = require("./ifstatement");
 const { ComponentRepeating } = require("./forloop");
-const { HandleModifier, TagNamedModifier } = require("./modifier");
+const { GeneralModifier } = require("./modifier");
