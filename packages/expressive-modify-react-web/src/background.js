@@ -5,6 +5,6 @@ export function backgroundImage(a){
         }}
     else 
         return { attrs: {
-            backgroundImage: Array.from(arguments)
+            backgroundImage: this.arguments
         }} 
 }

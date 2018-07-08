@@ -16,7 +16,7 @@ export function screen(a){
 export function css(){
     const { classList } = this.target;
     let props = {};
-    for(const arg of arguments)
+    for(const arg of this.arguments)
         if(typeof arg == "string")
             if(arg[0] == "$")
                 props.id = arg.substring(1)

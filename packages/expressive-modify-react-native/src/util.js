@@ -1,8 +1,9 @@
 export function rect(a, b, c, d){
-    const { length } = arguments;
+    const args = this.arguments
+    const { length } = args;
     let top, left, right, bottom;
 
-    switch(arguments.length){
+    switch(args.length){
         case 0:
             a = 0
         case 1:
@@ -18,7 +19,7 @@ export function rect(a, b, c, d){
             left = right = b
             break
         case 4:
-            return Array.from(arguments);
+            return args;
         default:
             throw new Error("Too many arguments for css 4-way value.")
     }

@@ -16,8 +16,7 @@ export function HandleModifier(src, recipient) {
     switch(body.type){
         case "EmptyStatement":
         case "ExpressionStatement": 
-            if(typeof modifier == "function") modifier(body, recipient);
-            else if(modifier) modifier.apply(body, recipient);
+            if(modifier) modifier.apply(body, recipient);
             else new PropertyModifier(name).apply(body, recipient);
         return;
 
@@ -26,6 +25,62 @@ export function HandleModifier(src, recipient) {
             mod.declare(recipient);
         return 
     } 
+}
+
+class ModifierProcess {
+    constructor(modifier, body, target){
+        this.target = target;
+        this.name = modifier.name;
+        this.body = body;
+        this.data = {};
+
+        const { transform } = modifier;
+        const initialArguments = transform.length > 0 ? this.arguments : []
+        const transformOutput = transform.apply(this, initialArguments);
+
+        if(this.done) return;
+
+        if(transformOutput)
+            this.assign(transformOutput)
+
+        return this.data;
+    }
+
+    get arguments(){
+        const args = new parsedArgumentBody(this.body);
+
+        const { context } = this.target;
+
+        for(const argument of args)
+            if(argument && typeof argument == "object" && argument.named){
+                const { inner, named, location } = argument;
+                const valueMod = this.target.context.valueMod(named);
+
+                if(valueMod) try {
+                    const computed = valueMod(...inner)
+
+                    if(computed.value) argument.computed = computed; else 
+                    if(computed.require) argument.requires = computed.require;
+
+                } catch(err) {
+                    throw location && location.buildCodeFrameError(err.message) || err
+
+                } else {
+                    argument.computed = {value: `${ named }(${ inner.join(" ") })`}
+                }
+            }
+
+        Object.defineProperty(this, "arguments", { value: args })
+
+        return args;
+    }
+
+    assign(data){
+        for(const field in data)
+            if(this.data[field])
+                Object.assign(this.data[field], data[field])
+            else this.data[field] = data[field]
+    }
 }
 
 export class PropertyModifier {
@@ -51,7 +106,7 @@ export class PropertyModifier {
 
         this.invoke( 
             target, 
-            new parsedArgumentBody(args), 
+            args, 
             computed
         );
 
@@ -66,42 +121,16 @@ export class PropertyModifier {
                 )
     }
 
-    invoke(target, args = [], computed){
+    invoke(target, args = [], acumulated){
 
-        const { context } = target;
-
-        args = [].concat(args);
-
-        for(const argument of args)
-            if(argument && typeof argument == "object" && argument.named){
-                const { inner, named, location } = argument;
-                const transform = target.context.valueMod(named);
-
-                if(transform) try {
-                    const computed = transform(...inner)
-
-                    if(computed.value) argument.computed = computed;
-                    else 
-                    if(computed.require) argument.requires = computed.require;
-
-                } catch(err) {
-                    throw location && location.buildCodeFrameError(err.message) || err
-
-                } else {
-                    argument.computed = {value: `${named}(${inner.join(" ")})`}
-                }
-            }
-
-        const modify = this.transform.apply({ target, name: this.name }, args);
+        const modifications = new ModifierProcess(this, args, target)
         
-        if(!modify) return
+        this.reprocessOutput(modifications.attrs, target, acumulated)
 
-        this.reprocessOutput(modify.attrs, target, computed)
+        Object.assign(acumulated.style, modifications.style);
+        Object.assign(acumulated.props, modifications.props);
 
-        Object.assign(computed.style, modify.style);
-        Object.assign(computed.props, modify.props);
-
-        return computed;
+        return acumulated;
     }
 
     reprocessOutput(attrs, target, computed){
@@ -130,7 +159,7 @@ export class PropertyModifier {
     }
 
     transform(){
-        const args = [].map.call(arguments, (arg) => {
+        const args = this.arguments.map(arg => {
 
             if(!!arg && typeof arg == "object" ){
                 const { computed, requires } = arg;

@@ -50,13 +50,14 @@ for (const kind of [
 
     EXPORT[kind] = 
         function(keyword){
-            let value 
+            let value;
+            const args = this.arguments;
 
-            if(arguments.length == 1 && keyword == "auto" || keyword == "none" || / /.test(keyword))
+            if(args.length == 1 && keyword == "auto" || keyword == "none" || / /.test(keyword))
                 value = keyword
             else {
-                let args = rect(...arguments);
-                if(arguments.length == 2)
+                let args = rect(...args);
+                if(args.length == 2)
                     args = args.slice(0, 2)
                 value = args.map(x => appendUnitToN(x)).join(" ")
             }
@@ -70,7 +71,7 @@ for (const kind of [
 export function outline(a, b){
     return a == "none"     ? {style: { outline: "none" }}
         :  b == undefined  ? {style: { outline: `1px dashed ${a || "green"}` }}
-        :  {attrs: { outline: Array.from(arguments) }}
+        :  {attrs: { outline: this.arguments }}
 }
 
 for(const kind of [

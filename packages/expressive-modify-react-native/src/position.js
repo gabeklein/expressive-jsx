@@ -7,13 +7,13 @@ export function zIndex(a){
 }
 
 export function absolute(a){
-    const out = keyedPosition(...arguments)
+    const out = keyedPosition(...this.arguments)
     out.style = {position: "absolute"};
     return out;
 }
 
 export function fixed(){
-    const out = keyedPosition(...arguments);
+    const out = keyedPosition(...this.arguments);
     out.style = {position: "fixed"};
     return out;
 }
@@ -60,13 +60,13 @@ function keyedPosition(a, b = 0, c = b){
         }
     }
             
-    return position(...arguments)
+    return position(...this.arguments)
 }
 
 function position(){
     let data = {};
     if(typeof a != "number")
-    for(const item of arguments)
+    for(const item of this.arguments)
         if(item.named)
             data[item.named] = item.inner[0]
         else {
@@ -76,13 +76,13 @@ function position(){
 
     const out = data 
         ? { attrs: data } 
-        : pos(...arguments);
+        : pos(...this.arguments);
         
     return out
 }
 
 function pos(){
-    const [top, right, bottom, left] = rect(...arguments)
+    const [top, right, bottom, left] = rect(...this.arguments)
     return {
         attrs: { top, right, bottom, left }
     }

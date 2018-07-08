@@ -38,7 +38,7 @@ for (const kind of [
 ]) {
     EXPORT[kind] = 
     function(a, b, c, d){
-        switch(arguments.length){
+        switch(this.arguments.length){
             case 1: return {
                 style: { [kind]: a }
             }
