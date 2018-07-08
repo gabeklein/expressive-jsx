@@ -4,7 +4,7 @@ export function is(){
     const out = { 
         attrs: {}, props: {}, style: {}
     };
-    for(const arg of arguments){
+    for(const arg of this.arguments){
         const { computed } = (arg || {});
         if(computed) 
             for(const x in computed)
@@ -21,12 +21,12 @@ export function and(){
     const { target, name } = this;
 
     if(target instanceof ElementModifier);
-    else throw new Error(`Default modifier "on" may only be used in other modifiers.`);
+    else throw new Error(`Default modifier "also" may only be used in other modifiers.`);
     
     let temp;
     const clone = Object.create(target);
 
-    for(const alias of arguments)
+    for(const alias of this.arguments)
         if(typeof alias == "string")
             if(temp = target.context.elementMod(alias))
                 if(temp == target)
