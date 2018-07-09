@@ -3,7 +3,7 @@ const { createHash } = require('crypto');
 
 const { ComponentGroup } = require("./component")
 const { Opts, Shared, transform } = require("./shared")
-const { ElementModifier } = require("./modifier");
+const { GeneralModifier } = require("./modifier");
 const { ElementInline } = require("./inline");
 
 const TARGET_FOR = {
@@ -119,8 +119,6 @@ export class ComponentClass {
         }
 
         if(doFunctions.length) {
-            // if(constructor)
-            //     repairConstructor(constructor);
             const modifierInsertions = [];
             const current = {
                 classContextNamed: path.node.id && path.node.id.name || "Anonymous",
@@ -318,21 +316,10 @@ class ComponentStyleMethod {
     }
 
     LabeledStatement(path){
-        const name = path.node.label.name;
-        const body = path.get("body");
-
-        if(body.type != "BlockStatement")
+        if(!path.get("body").isBlockStatement())
             throw path.buildCodeFrameError("Only modifier declarations are allowed here")
 
-        const modifier = this.context.elementMod(name)
-        
-        if(modifier) {
-            modifier.handler(body, this);
-        }
-        else {
-            const mod = new ElementModifier(name, body);
-            mod.declare(this);
-        }
+        GeneralModifier.applyTo(this, path);
     }
 }
 

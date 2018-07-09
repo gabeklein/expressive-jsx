@@ -21,10 +21,11 @@ export class GeneralModifier {
 
     constructor(name, transform){
         this.name = name;
-        this.transform = transform || this.default;
+        if(transform)
+            this.transform = transform;
     }
 
-    apply(args, target){
+    apply(body, target){
         const accumulated = { 
             props: {}, 
             style: {}
@@ -34,10 +35,17 @@ export class GeneralModifier {
         let i = 0, mod = this;
 
         while(true){
-            const next = mod.invoke(target, args, accumulated)
-            if(!next){ i++; continue };
-            
+            let include = new ModifierProcess(mod, body || [], target);
+            if(!include){
+                i++; continue 
+            }
+
+            Object.assign(accumulated.style, include.style);
+            Object.assign(accumulated.props, include.props);
+
+            const next = include.attrs || true;
             const pending = [];
+
             for(const named in next){
                 let value = next[named];
                 let { context } = target;
@@ -59,26 +67,15 @@ export class GeneralModifier {
             }
             if(!pending.length)
                 if(mod = mods[++i])
-                    [mod, args] = mod
+                    [mod, body] = mod
                 else break;
             else {
                 mods = pending.concat(mods.slice(i+1));
-                [mod, args] = mods[i = 0];
+                [mod, body] = mods[i = 0];
             }
         }
 
         this.integrate(target, accumulated);
-    }
-
-    invoke(target, args = [], acumulated){
-        const include = new ModifierProcess(this.transform, args, target, this.name);
-
-        if(!include) return false;
-
-        Object.assign(acumulated.style, include.style);
-        Object.assign(acumulated.props, include.props);
-
-        return include.attrs || true;
     }
 
     integrate(target, { style, props }){
@@ -92,69 +89,76 @@ export class GeneralModifier {
                     new AttributeType(item, typeTarget[item])
                 )
     }
+}
 
-    default(){
-        if(this.body.type == "BlockStatement"){
-            const mod = new ElementModifier(this.name, this.body);
-            mod.declare(this.target);
-            this.done = true;
-            return
+function invokeModifierDefault(){
+    if(this.body.type == "BlockStatement")
+        return elementModifierDefault.call(this)
+    else 
+        return propertyModifierDefault.call(this)
+}
+
+function elementModifierDefault(){
+    new ElementModifier(this.name, this.body).declare(this.target);
+    return null;
+}
+
+function propertyModifierDefault() {
+    const args = this.arguments.map(arg => {
+
+        if(!!arg && typeof arg == "object" ){
+            const { computed, requires } = arg;
+
+            if(computed) 
+                return computed.value || "undefined";
+
+            else if(requires)
+                return t.callExpression(
+                    t.identifier("require"), 
+                    [
+                        typeof requires == "string"
+                            ? t.stringLiteral(requires)
+                            : requires
+                    ]
+                )
+                
+            else
+                return arg;
         }
+        else return arg;
+    })
 
-        const args = this.arguments.map(arg => {
+    const output = 
+        typeof args[0] == "object" || args.length == 1
+            ? args[0]
+            : Array.from(args).join(" ")
 
-            if(!!arg && typeof arg == "object" ){
-                const { computed, requires } = arg;
-
-                if(computed) 
-                    return computed.value || "undefined";
-
-                else if(requires)
-                    return t.callExpression(
-                        t.identifier("require"), 
-                        [
-                            typeof requires == "string"
-                                ? t.stringLiteral(requires)
-                                : requires
-                        ]
-                    )
-                    
-                else
-                    return arg;
-            }
-            else return arg;
-        })
-
-        const output = 
-            typeof args[0] == "object" || args.length == 1
-                ? args[0]
-                : Array.from(args).join(" ")
-
-        return {
-            style: {
-                [this.name]: output
-            }
+    return {
+        style: {
+            [this.name]: output
         }
     }
 }
 
 class ModifierProcess {
-    constructor(transform, body, target, name){
+    constructor(mod, body, target){
+
+        const transform = mod.transform || invokeModifierDefault;
+
         this.target = target;
         this.data = {};
-        this.name = name;
+        this.name = mod.name;
 
         if(!body.type)
             Object.defineProperty(this, "arguments", { value: body })
         else 
             this.body = body;
 
-        const initialArguments = transform.length > 0 ? this.arguments : [];
-        const transformOutput = transform.apply(this, 
-            Array.isArray(initialArguments) ? initialArguments : [initialArguments]
-        );
+        let initialArguments = transform.length > 0 ? this.arguments : [];
+            initialArguments = Array.isArray(initialArguments) ? initialArguments : [initialArguments]
+        const transformOutput = transform.apply(this, initialArguments);
 
-        if(this.done) return;
+        if(this.done || transformOutput === null) return;
 
         if(transformOutput)
             this.assign(transformOutput)
@@ -207,11 +211,10 @@ export class ElementModifier extends AttrubutesBody {
     provides = [];
     inlineType = "stats"
 
-    constructor(name, body, inherited){
+    constructor(name, body){
         super()
         this.name = name;
-        if(inherited)
-            this.inherits = inherited;
+        this.body = body;
 
         if(Opts.reactEnv != "native")
             this.style_static = [];
@@ -221,13 +224,6 @@ export class ElementModifier extends AttrubutesBody {
 
         if(typeof this.init == "function")
             this.init(path);
-
-        for(const item of body.get("body"))
-            if(item.type in this) 
-                this[item.type](item);
-            else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
-
-        this.didExitOwnScope()
     }  
 
     get handler(){
@@ -235,7 +231,7 @@ export class ElementModifier extends AttrubutesBody {
         const usingName = this.name;
         return (body, recipient) => {
             if(body.type == "BlockStatement")
-                new exports[Opts.reactEnv](usingName, body, inheriting).declare(recipient);
+                new ElementModifier(usingName, body, inheriting).declare(recipient);
             else 
                 this.insert( recipient, new parsedArgumentBody(body), false )
         }
@@ -243,16 +239,21 @@ export class ElementModifier extends AttrubutesBody {
 
     declare(recipient){
         recipient.includeModifier(this);
+        this.process();
+    }
+
+    process(){
+        for(const item of this.body.get("body"))
+            if(item.type in this) 
+                this[item.type](item);
+            else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
+
+        this.didExitOwnScope()
     }
 
     includeModifier(modifier){
         this.provides.push(modifier)
         modifier.declareForComponent(this.contextParent)
-    }
-
-    didEnterOwnScope(path){
-        this.scope = path.scope
-        super.didEnterOwnScope(path)
     }
 
     didExitOwnScope(path){

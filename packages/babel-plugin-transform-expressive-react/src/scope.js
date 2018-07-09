@@ -44,7 +44,11 @@ class StackFrame {
 
     elementMod(name, set){
         name = "_" + name;
-        if(set) this[name] = set;
+        if(set){
+            if(this[name])
+                set.inherits = this[name];
+            this[name] = set;
+        }
         else return this[name]
     }
 

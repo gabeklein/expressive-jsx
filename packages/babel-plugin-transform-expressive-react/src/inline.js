@@ -5,7 +5,6 @@ const { html_tags_obvious } = require('./html-types');
 const { Shared, Opts, transform } = require("./shared");
 const { NonComponent, Prop } = require("./item")
 const { ComponentGroup } = require("./component")
-const { ElementModifier } = require("./modifier")
 
 const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
 const ELEMENT_BR = transform.element("br");
@@ -484,7 +483,7 @@ export class ElementInline extends ComponentGroup {
             }
  
             const modify = context.elementMod(name);
-        
+            
             if(modify && typeof modify.insert == "function"){
                 modify.insert(this, [], inline)
 
