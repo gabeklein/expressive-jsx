@@ -1,5 +1,6 @@
 const t = require("babel-types")
-const { Opts, transform, Shared } = require("./shared")
+const { Opts, transform, Shared } = require("./shared");
+const { createHash } = require('crypto');
 
 class TraversableBody {
 
@@ -85,6 +86,12 @@ export class AttrubutesBody extends TraversableBody {
         )
     }
 
+    declareForStylesInclusion(recipient){
+        const { program, styleRoot } = recipient.context;
+        program.computedStyleMayInclude(this);
+        if(styleRoot)
+            styleRoot.computedStyleMayInclude(this)
+    }
 }
 
 export class ComponentBody extends AttrubutesBody {
@@ -142,15 +149,24 @@ export class ComponentGroup extends ComponentBody {
     }
 
     flagDisordered(){
-        //disable check since no longer needed
         this.add = super.add;
-
+        //disable check since no longer needed
         this.disordered = true;
         this.doesHaveDynamicProperties = true;
     }
 
-    collateChildren(onAppliedType){
+    generateClassName(name){
+        let cn = name || this.classname || this.tags[this.tags.length - 1].name;
 
+        return this.classname = `${cn}-${
+            createHash("md5")
+                .update(this.style_static.reduce((x,y) => x + y.asString, ""))
+                .digest('hex')
+                .substring(0, 6)
+        }`
+    }
+
+    collateChildren(onAppliedType){
         const { scope } = this;
         const body = [];
         const output = [];
@@ -190,13 +206,15 @@ export class ComponentGroup extends ComponentBody {
                 case "child": {
                     const { product, factory } = item.transform();
 
-                    if(!factory){
+                    if(!factory && product){
                         if(adjacent) adjacent.push(product);
                         else adjacent = [product]
                         continue;
                     } else {
-                        flushInline();
-                        output.push(product);
+                        if(product) {
+                            flushInline();
+                            output.push(product);
+                        }
                         body.push(...factory)
                     }
                     

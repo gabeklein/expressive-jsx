@@ -1,7 +1,5 @@
-import { transform } from './shared';
-
-const t = require('babel-types')
-const { Opts } = require("./shared");
+const t = require('babel-types');
+const { transform, Opts } = require("./shared");
 const { HEX_COLOR } = require("./attributes")
 
 export class Attribute {
@@ -131,7 +129,7 @@ export class ExplicitStyle {
         
         this.name = name;
         this.static = value;
-        this.inlineType = "style_static";
+        this.inlineType = Opts.reactEnv != "native" ? "style_static" : "style";
 
         switch(typeof value){
             case "number":

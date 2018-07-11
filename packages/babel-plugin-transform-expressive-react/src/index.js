@@ -34,6 +34,7 @@ const registerIDs = {
     Fragment: "fragment",
     createIterated: "iterated",
     extends: "flatten",
+    select: "resolve",
     cacheStyle: "Cache",
     claimStyle: "Include",
     View: "View",
@@ -51,7 +52,7 @@ const TEMPLATE = {
 
     fnExtends: template(`
         function NAME(){
-            for(const item of arguments){
+            for(var item of arguments){
                 if(!item) throw new Error("Included properties object is undefined!")
             }
             return Object.assign.apply(null, [{}].concat(Array.from(arguments)));
@@ -66,9 +67,19 @@ const TEMPLATE = {
 
     fnBindMethods: template(`
         function expressive_methods(instance, methods) {
-            for(const name of methods){
+            for(var name of methods){
                 instance[name] = instance[name].bind(instance)
             }
+        }
+    `),
+
+    fnSelect: template(`
+        function NAME() {
+            var output = "";
+            for(var classname of arguments)
+                if(typeof classname == "string")
+                    output += " " + classname;
+            return output.substring(1)
         }
     `)
 }
@@ -262,6 +273,10 @@ function includeImports(path, state, file) {
 
     bootstrap.push(
         TEMPLATE.fnExtends({ NAME: Shared.extends })
+    )
+
+    bootstrap.push(
+        TEMPLATE.fnSelect({ NAME: Shared.select })
     )
 
     if(state.expressive_for_used)

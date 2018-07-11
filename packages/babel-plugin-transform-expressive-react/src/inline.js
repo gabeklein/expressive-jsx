@@ -307,11 +307,7 @@ export class ElementInline extends ComponentGroup {
 
     didEnterOwnScope(body){
         super.didEnterOwnScope(...arguments);
-
-        Object.defineProperty(this, "typeInformation", {
-            configurable: true,
-            value: this.typeInformation
-        })
+        this.collateInlineInformation();
     }
 
     didExitOwnScope(body, preventDefault){
@@ -320,16 +316,6 @@ export class ElementInline extends ComponentGroup {
             this.generateClassName();
         if(!preventDefault)
             this.output = this.build();
-    }
-
-    generateClassName(){
-        return this.classname = 
-            (this.classname || this.tags[this.tags.length - 1].name)
-            + "-"
-            + createHash("md5")
-                .update(this.style_static.reduce((x,y) => x + y.asString, ""))
-                .digest('hex')
-                .substring(0, 6);
     }
 
     //Protocol Style Integration
@@ -445,8 +431,7 @@ export class ElementInline extends ComponentGroup {
         } 
     }
 
-    get typeInformation(){ 
-
+    collateInlineInformation(){
         const css = Opts.reactEnv != "native" ? [] : false;
         let type;
 
@@ -507,18 +492,13 @@ export class ElementInline extends ComponentGroup {
         if(this.unhandledQuasi)
             this.includeUnhandledQuasi(inline.type.type != "Identifier")
 
-        return inline;
+        return this.typeInformation = inline;
     }
 
     includeComputedStyle(inline){
-        if(Opts.reactEnv != "native"){
-            this.context.program.computedStyleMayInclude(this);
-            this.context.styleRoot.computedStyleMayInclude(this);
-            if(!this.classname) debugger
-            inline.css.push(this.classname)
-        }
-        else 
-            inline.style.push(...this.style_static.map(x => x.asProperty));
+        if(!this.classname) throw new Error("Element doesn't have a classname!")
+        inline.css.push(this.classname)
+        this.declareForStylesInclusion(this);
     }
 
     includeUnhandledQuasi(use_br){
@@ -585,13 +565,11 @@ export class ElementInline extends ComponentGroup {
         const { 
             scope, 
             doesReceiveDynamic = false,
-
-            typeInformation: inline,
-            
             props: declared_props,
             style: declared_style
-
         } = this;
+
+        const inline = this.typeInformation || this.collateInlineInformation();
 
         let { 
             type: computed_type,
@@ -679,17 +657,34 @@ export class ElementInline extends ComponentGroup {
                 if(this.classList.indexOf(item) < 0)
                     this.classList.push(item);
         
-        if(this.classList.length)
+        if(this.classList.length){
+            let applied = [];
+            for(const item of this.classList){
+                const last = applied[applied.length - 1];
+                if(typeof last == "string" && typeof item == "string") 
+                    applied[applied.length - 1] += " " + item;
+                else applied.push(item)
+            }
+
+            if(applied.length == 1)
+                applied = t.stringLiteral(applied[0])
+            else
+                applied = t.callExpression(
+                    Shared.select,
+                    applied.map(x => typeof x == "string" ? t.stringLiteral(x) : x)
+                    
+                )
+
             initial_props.push(
                 t.objectProperty(
-                    t.identifier("className"),
-                    t.stringLiteral(this.classList.reverse().join(" "))
+                    t.identifier("className"), applied
                 )
             );
+        }
 
         const _quoteTarget = { props: computed_props, style: accumulated_style };
 
-        const { output: computed_children, body: compute_children } = this.collateChildren( 
+        const { output: computed_children = [], body: compute_children } = this.collateChildren( 
             (x) => {
                 const target = _quoteTarget[x.inlineType];
                 if(target) return x.asAssignedTo(target);

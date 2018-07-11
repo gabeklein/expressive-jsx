@@ -37,7 +37,7 @@ export class GeneralModifier {
         while(true){
             let include = new ModifierProcess(mod, body || [], target);
             if(!include){
-                i++; continue 
+                i++; continue; 
             }
 
             Object.assign(accumulated.style, include.style);
@@ -277,12 +277,9 @@ export class ElementModifier extends AttrubutesBody {
         this.contextParent = recipient;
         recipient.add(this);
 
-        if(Opts.reactEnv == "native") return;
-
-        const { program, styleRoot } = recipient.context;
-        program.computedStyleMayInclude(this);
-        if(styleRoot)
-            styleRoot.computedStyleMayInclude(this);
+        if(Opts.reactEnv != "native") 
+            this.declareForStylesInclusion(recipient);
+        
     }
 
     insert(target, args, inline){
