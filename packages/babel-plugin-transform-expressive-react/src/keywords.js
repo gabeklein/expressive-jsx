@@ -5,12 +5,16 @@ export function is(){
         attrs: {}, props: {}, style: {}
     };
     for(const arg of this.arguments){
-        const { computed } = (arg || {});
-        if(computed) 
-            for(const x in computed)
-                Object.assign(out[x], computed[x])
-        else 
-            out.attrs[arg] = [];
+        const mod = this.target.context.elementMod(arg)
+        if(mod) for(const x of ["style", "props", "style_static"]) {
+           this.target[x].push(...mod[x])
+        }
+        // const { computed } = (arg || {});
+        // if(computed) 
+        //     for(const x in computed)
+        //         Object.assign(out[x], computed[x])
+        // else 
+        //     out.attrs[arg] = [];
     }
     return out
 }
@@ -37,4 +41,8 @@ export function and(){
                 else temp.inherits = clone;
             else target.context.parent.elementMod(alias, clone);
         else throw new Error("Bad argument,\"on\" modifiers expect identifiers or strings.")
+}
+
+export function priority(z){
+    this.target.stylePriority = z;
 }

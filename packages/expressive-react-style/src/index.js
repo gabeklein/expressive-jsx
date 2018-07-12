@@ -46,14 +46,14 @@ class Compiler {
         const { registered } = this;
         let i = 1, len = Cache.blocks.length;
         for(const block of Cache.blocks){
-            const prio = len + 1 - i++;
-            output += "/* importance: " + prio + " */\n"
+            const priority = len + 1 - i++;
+            output += "/* importance: " + priority + " */\n"
             for(const select in block){
                 const styles = registered[select] && block[select];
                 if(styles)
                     output += `.` + select + " { " + styles + " }" + `\n`;
             }
-            if(prio > 1)
+            if(priority > 1)
                 output += "\n"
         }
 

@@ -65,6 +65,7 @@ export class GeneralModifier {
     
                 pending.push([mod, value])
             }
+            
             if(!pending.length)
                 if(mod = mods[++i])
                     [mod, body] = mod
@@ -92,7 +93,7 @@ export class GeneralModifier {
 }
 
 function invokeModifierDefault(){
-    if(this.body.type == "BlockStatement")
+    if(this.body && this.body.type == "BlockStatement")
         return elementModifierDefault.call(this)
     else 
         return propertyModifierDefault.call(this)
@@ -142,7 +143,6 @@ function propertyModifierDefault() {
 
 class ModifierProcess {
     constructor(mod, body, target){
-
         const transform = mod.transform || invokeModifierDefault;
 
         this.target = target;
