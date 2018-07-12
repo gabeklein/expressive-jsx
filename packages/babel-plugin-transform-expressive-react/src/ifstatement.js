@@ -121,6 +121,9 @@ export class ComponentSwitch {
 }
 
 class ComponentConsequent extends ComponentGroup {
+
+    stylePriority = 3
+
     constructor(parent, conditional, path, test){
         super()
         this.insertDoIntermediate(path)

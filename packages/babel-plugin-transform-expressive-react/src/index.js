@@ -131,33 +131,36 @@ function checkForStyleImport(body){
 
 function initComputedStyleAccumulator(Stack, build_state){
     const targets = build_state.expressive_computeTargets = [];
-    return Object.assign(
-        Object.create(Stack),
-        //add listener to context
-        { program: {
-            computedStyleMayInclude(element){
-                targets.push(element)
-            }
-        }}
-    )
+    const stack = Object.create(Stack);
+    stack.program = {
+        computedStyleMayInclude(element){
+            targets.push(element)
+        }
+    }
+    return stack;
 }
 
 function generateComputedStylesExport(path, compute, index){
     
     const isIncluded = new Set();
 
-    const styles = compute
-        .filter(x => x.style_static.length)
-        .map(x => {
-            if(isIncluded.has(x.classname))
-                return;
-                
+    let styles = [];
+
+    compute = compute.sort((a, b) => a.stylePriority - b.stylePriority)
+
+    for(const x of compute)
+        if(x.style_static.length && !isIncluded.has(x.classname)){
             isIncluded.add(x.classname)
-            return x.computeStyles()
-        })
-        .filter(x => x);
+            let y = styles[x.stylePriority];
+            if(!y) y = styles[x.stylePriority] = [];
+
+            const cS = x.computeStyles();
+            if(cS) y.push(cS)
+        }
     
-    // const css = `\n\t${ styles.join("\n\t") }\n`;
+    styles = styles.filter(x => x).map((x, i) =>
+        t.objectProperty(t.numericLiteral(i), t.objectExpression(x))
+    );
 
     path.scope.block.body.splice(++index, 0, 
         t.expressionStatement(

@@ -210,6 +210,7 @@ export class ElementModifier extends AttrubutesBody {
     classList = [];
     provides = [];
     inlineType = "stats"
+    stylePriority = 1
 
     constructor(name, body){
         super()

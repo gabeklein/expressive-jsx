@@ -8,14 +8,17 @@ import StyledOutput from "./output"
 
 export const Cache = new class {
 
-    blocks = {};
+    blocks = [];
 
     moduleDoesYieldStyle(fromFile, css){
-        Object.assign(this.blocks, css)
+        for(let x in css)
+            Object.assign(this.blocks[x] || (this.blocks[x] = {}), css[x])
     }
 
     get(selector){
-        return this.blocks[selector];
+        for(let block of this.blocks)
+            if(block = block[selector])
+                return block
     }
 }
 
@@ -33,18 +36,25 @@ class Compiler {
                 })
             knownBlocks[hashID] = true;
             for(const x of classNames)
-                if(!registered[x]){
+                if(!registered[x])
                     registered[x] = true;
-                }
         }
     }
 
     generate(){
         let output = `\n`;
-
-        for(const select in this.registered){
-            const styles = Cache.get(select)
-            output += `\t.` + select + " {" + styles + " }" + `\n`;
+        const { registered } = this;
+        let i = 1, len = Cache.blocks.length;
+        for(const block of Cache.blocks){
+            const prio = len + 1 - i++;
+            output += "/* importance: " + prio + " */\n"
+            for(const select in block){
+                const styles = registered[select] && block[select];
+                if(styles)
+                    output += `.` + select + " { " + styles + " }" + `\n`;
+            }
+            if(prio > 1)
+                output += "\n"
         }
 
         if(output.length > 1)

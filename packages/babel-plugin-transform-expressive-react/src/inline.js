@@ -302,6 +302,7 @@ export class ElementInline extends ComponentGroup {
     classList = [];
     precedent = 0
     precedence = 3
+    stylePriority = 2
 
     //Protocal Traversable
 
