@@ -13,7 +13,19 @@ export function screen(a){
     }
 }
 
+function cssBody(body){
+    debugger
+}
+
 export function css(){
+    if(this.body.type != "ExpressionStatement")
+        switch(this.body.type){
+            case "LabeledStatement":
+                return cssBody([this.body])
+            case "BlockStatement":
+                return cssBody(this.body.get("body"))
+        }
+        
     const { classList } = this.target;
     let props = {};
     for(const arg of this.arguments)
@@ -24,8 +36,8 @@ export function css(){
                 classList.push(arg);
     if(props.id)
         return { props }
-        
 }
+
 
 export function source(a){
     return {

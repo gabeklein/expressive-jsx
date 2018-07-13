@@ -1,7 +1,6 @@
 
 const t = require("babel-types");
 const { createHash } = require('crypto');
-
 const { AttrubutesBody } = require("./component");
 const { SyntheticProp, ExplicitStyle, Statement, NonComponent } = require("./item");
 const { parsedArgumentBody } = require("./attributes");
@@ -122,9 +121,7 @@ function propertyModifierDefault() {
                             : requires
                     ]
                 )
-                
-            else
-                return arg;
+            else return arg;
         }
         else return arg;
     })
@@ -238,9 +235,42 @@ export class ElementModifier extends AttrubutesBody {
         }
     }
 
+    get selector(){
+        if(this.selectAgainst){
+            return `${this.selectAgainst.classname} ${this.classname}`
+        } else return this.classname
+    }
+
     declare(recipient){
         recipient.includeModifier(this);
         this.process();
+    }
+
+    includeModifier(modifier){
+        this.provides.push(modifier)
+        if(this.selectAgainst){
+            modifier.selectAgainst = this.selectAgainst;
+            modifier.stylePriority = 3
+            modifier.declareForStylesInclusion(this.selectAgainst.parent)
+        }
+        else
+        modifier.declareForComponent(this.contextParent)
+    }
+
+    declareForComponent(recipient){
+        this.contextParent = recipient;
+        recipient.add(this);
+
+        if(this.context.styleMode == "external") 
+            this.declareForStylesInclusion(recipient);
+    }
+
+    declareForConditional(recipient){
+        if(this.context.styleMode == "external"){
+            this.selectAgainst = this.parent;
+            this.stylePriority = 3
+            this.declareForStylesInclusion(recipient.parent);
+        }
     }
 
     process(){
@@ -250,11 +280,6 @@ export class ElementModifier extends AttrubutesBody {
             else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
 
         this.didExitOwnScope()
-    }
-
-    includeModifier(modifier){
-        this.provides.push(modifier)
-        modifier.declareForComponent(this.contextParent)
     }
 
     didExitOwnScope(path){
@@ -270,17 +295,13 @@ export class ElementModifier extends AttrubutesBody {
         
         super.didExitOwnScope(path)
 
-        if(Opts.reactEnv != "native")
-            this.classname = `${this.name}-${this.hash}`
-    }
-
-    declareForComponent(recipient){
-        this.contextParent = recipient;
-        recipient.add(this);
-
-        if(Opts.reactEnv != "native") 
-            this.declareForStylesInclusion(recipient);
-        
+        if(this.context.styleMode == "external"){
+            let { name, hash, selectAgainst } = this;
+            // if(selectAgainst){
+            //     name = selectAgainst.classname + " " + name;
+            // }
+            this.classname = `${name}-${hash}`
+        }
     }
 
     insert(target, args, inline){
@@ -314,8 +335,9 @@ export class ElementModifier extends AttrubutesBody {
     }
 
     into(inline, target){
-        if(this.style_static !== this.style && this.style_static.length)
+        if(this.style_static !== this.style && this.style_static.length){
             inline.css.push(this.classname)
+        }
             
         if(this.inherits) this.inherits.into(inline);
         

@@ -72,6 +72,7 @@ export class ComponentSwitch {
                         const body = factory.length > 1
                             ? t.blockStatement(factory)
                             : factory[0]
+                        if(!body) debugger
                         return option.test
                             ? t.ifStatement(option.test.node, body, alt)
                             : body
@@ -122,7 +123,7 @@ export class ComponentSwitch {
 
 class ComponentConsequent extends ComponentGroup {
 
-    stylePriority = 3
+    stylePriority = 4
 
     constructor(parent, conditional, path, test){
         super()
@@ -147,8 +148,14 @@ class ComponentConsequent extends ComponentGroup {
 
     didExitOwnScope(body){
         super.didExitOwnScope(body);
-        if(this.style_static.length)
+        if(this.style_static.length || this.doesDelcareModifiers)
             this.provideStyles();
+    }
+
+    includeModifier(modifier){
+        this.parent.context.declare(modifier)
+        this.doesDelcareModifiers = true;
+        modifier.declareForConditional(this);
     }
 
     provideStyles(){

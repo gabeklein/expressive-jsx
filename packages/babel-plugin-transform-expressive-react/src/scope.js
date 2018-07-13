@@ -1,6 +1,6 @@
 const t = require('babel-types')
 const { GeneralModifier } = require("./modifier")
-const { Shared, transform } = require("./shared");
+const { Shared, transform, Opts } = require("./shared");
 const ReservedModifiers = require("./keywords")
 
 export function createSharedStack(included = []){
@@ -10,6 +10,9 @@ export function createSharedStack(included = []){
         ReservedModifiers,
         ...included
     ]
+
+    Stack.styleMode = Opts.reactEnv == "native" ? 
+        "inline" : "external"
 
     for(const modifier of imported){
         Stack = Object.create(Stack)

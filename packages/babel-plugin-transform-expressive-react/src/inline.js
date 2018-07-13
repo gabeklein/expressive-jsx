@@ -5,6 +5,7 @@ const { html_tags_obvious } = require('./html-types');
 const { Shared, Opts, transform } = require("./shared");
 const { NonComponent, Prop } = require("./item")
 const { ComponentGroup } = require("./component")
+const util = require('util');
 
 const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
 const ELEMENT_BR = transform.element("br");
@@ -140,8 +141,6 @@ const InlineLayers = {
         return tag.get("object");
     }
 }
-
-var util = require('util');
 
 class InlineProps extends Prop {
     inlineType = "attrs"
@@ -308,7 +307,7 @@ export class ElementInline extends ComponentGroup {
 
     didEnterOwnScope(body){
         super.didEnterOwnScope(...arguments);
-        this.collateInlineInformation();
+        this.includeInlineInformation();
     }
 
     didExitOwnScope(body, preventDefault){
@@ -432,7 +431,7 @@ export class ElementInline extends ComponentGroup {
         } 
     }
 
-    collateInlineInformation(){
+    includeInlineInformation(){
         const css = Opts.reactEnv != "native" ? [] : false;
         let type;
 
@@ -502,7 +501,7 @@ export class ElementInline extends ComponentGroup {
         this.declareForStylesInclusion(this);
     }
 
-    includeUnhandledQuasi(use_br){
+    includeUnhandledQuasi(using_br){
         const quasi = this.unhandledQuasi;
         const { quasis, expressions } = quasi.node;
 
@@ -515,7 +514,7 @@ export class ElementInline extends ComponentGroup {
         for(let i=0, quasi; quasi = quasis[i]; i++){
             const then = expressions[i]; 
 
-            if(Opts.reactEnv == "native" || use_br === false)
+            if(Opts.reactEnv == "native" || using_br === false)
                 for(let x of ["raw", "cooked"]){
                     let text = quasi.value[x];
                     if(INDENT) text = text.replace(INDENT, "\n");
@@ -546,7 +545,7 @@ export class ElementInline extends ComponentGroup {
             }
         }
 
-        if(Opts.reactEnv == "native" || use_br === false){
+        if(Opts.reactEnv == "native" || using_br === false){
             this.add(
                 new NonComponent(quasi)
             )
@@ -570,7 +569,7 @@ export class ElementInline extends ComponentGroup {
             style: declared_style
         } = this;
 
-        const inline = this.typeInformation || this.collateInlineInformation();
+        const inline = this.typeInformation || this.includeInlineInformation();
 
         let { 
             type: computed_type,
@@ -667,9 +666,11 @@ export class ElementInline extends ComponentGroup {
                 else applied.push(item)
             }
 
-            if(applied.length == 1)
-                applied = t.stringLiteral(applied[0])
-            else
+            if(applied.length == 1){
+                const cn = applied[0];
+                applied = typeof cn != "string" ?
+                    cn : t.stringLiteral(cn)
+            } else
                 applied = t.callExpression(
                     Shared.select,
                     applied.map(x => typeof x == "string" ? t.stringLiteral(x) : x)

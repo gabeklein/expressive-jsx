@@ -9,12 +9,6 @@ export function is(){
         if(mod) for(const x of ["style", "props", "style_static"]) {
            this.target[x].push(...mod[x])
         }
-        // const { computed } = (arg || {});
-        // if(computed) 
-        //     for(const x in computed)
-        //         Object.assign(out[x], computed[x])
-        // else 
-        //     out.attrs[arg] = [];
     }
     return out
 }
