@@ -13,18 +13,31 @@ export function screen(a){
     }
 }
 
-function cssBody(body){
-    debugger
+function normalize(body) {
+    return (
+        body.type == "LabeledStatement" ? [body] :
+        body.type == "BlockStatement" && body.get("body")
+    ) 
+}
+
+function directClassname(){
+    let { selectAgainst } = this;
+    selectAgainst = selectAgainst.classname || selectAgainst.generateClassName();
+    return selectAgainst + " " + this.name;
 }
 
 export function css(){
-    if(this.body.type != "ExpressionStatement")
-        switch(this.body.type){
-            case "LabeledStatement":
-                return cssBody([this.body])
-            case "BlockStatement":
-                return cssBody(this.body.get("body"))
-        }
+    if(this.body.type != "ExpressionStatement"){
+        const block = normalize(this.body);
+        for(const mod of block) 
+            if(mod.type == "LabeledStatement") {
+                const name = mod.node.label.name;
+                const body = mod.get("body");
+
+                this.declareElementModifier(name, body, directClassname);
+            }
+        return;
+    }
         
     const { classList } = this.target;
     let props = {};

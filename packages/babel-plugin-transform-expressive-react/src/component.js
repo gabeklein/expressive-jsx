@@ -58,7 +58,6 @@ class TraversableBody {
         if(expr.type in this) this[expr.type] (expr);
         else if(this.ExpressionDefault) this.ExpressionDefault(expr);
         else throw expr.buildCodeFrameError(`Unhandled expressionary statement of type ${expr.type}`)
-        
     }
 
 }

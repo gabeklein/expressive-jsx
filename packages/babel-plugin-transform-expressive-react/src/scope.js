@@ -11,8 +11,9 @@ export function createSharedStack(included = []){
         ...included
     ]
 
-    Stack.styleMode = Opts.reactEnv == "native" ? 
-        "inline" : "external"
+    Stack.styleMode = {
+        [Opts.reactEnv == "native" ? "inline" : "compile"]: true
+    }
 
     for(const modifier of imported){
         Stack = Object.create(Stack)
@@ -84,5 +85,13 @@ class StackFrame {
             throw body.buildCodeFrameError(`Duplicate declaration of named modifier!`)
 
         this.elementMod(name, modifier);
+    }
+
+    declareForRuntime(modifier){
+        const { program, styleRoot } = this;
+        program.computedStyleMayInclude(modifier);
+        if(styleRoot)
+            styleRoot.computedStyleMayInclude(modifier)
+        else debugger
     }
 }

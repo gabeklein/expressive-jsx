@@ -154,7 +154,7 @@ export class ComponentEntry extends ElementInline {
         let body, output;
         const { style, props } = this;
 
-        if(style.length || this.style_static.length || props.length)
+        if(style.length || this.mayReceiveExternalClasses || this.style_static.length || props.length)
             ({ 
                 product: output, 
                 factory: body = [] 
@@ -338,7 +338,7 @@ class ComponentFunctionExpression extends ComponentEntry {
         const parentFn = path.parentPath;
         const {params, generator, async} = parentFn.node;
 
-        if(this.style_static)
+        if(this.style_static || this.mayReceiveExternalClasses)
             this.generateClassName();
 
         parentFn.replaceWith(

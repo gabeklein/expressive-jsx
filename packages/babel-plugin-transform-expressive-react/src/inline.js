@@ -307,6 +307,7 @@ export class ElementInline extends ComponentGroup {
 
     didEnterOwnScope(body){
         super.didEnterOwnScope(...arguments);
+        this.context.currentInline = this;
         this.includeInlineInformation();
     }
 
@@ -343,7 +344,9 @@ export class ElementInline extends ComponentGroup {
         this.children.push({
             inlineType: "child",
             transform: () => {
-                const styles = this.styleGroups.map(x => x.classname).join(", ");
+                const styles = this.styleGroups.map(x => {
+                    return x.selector || x.classname
+                }).join(", ");
                 return {
                     product: transform.createElement(
                         Shared.claimStyle, 
@@ -495,12 +498,6 @@ export class ElementInline extends ComponentGroup {
         return this.typeInformation = inline;
     }
 
-    includeComputedStyle(inline){
-        if(!this.classname) throw new Error("Element doesn't have a classname!")
-        inline.css.push(this.classname)
-        this.declareForStylesInclusion(this);
-    }
-
     includeUnhandledQuasi(using_br){
         const quasi = this.unhandledQuasi;
         const { quasis, expressions } = quasi.node;
@@ -577,8 +574,11 @@ export class ElementInline extends ComponentGroup {
             style: initial_style
         } = inline;
 
+        if(this.style_static.length || this.mayReceiveExternalClasses)
+            inline.css.push(this.classname)
+
         if(this.style_static.length)
-            this.includeComputedStyle(inline);
+            this.context.declareForRuntime(this);
 
         let computed_style;
         

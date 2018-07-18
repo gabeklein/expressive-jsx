@@ -162,7 +162,7 @@ class ComponentConsequent extends ComponentGroup {
         this.logicalParent.shouldOutputDynamic = true;
         this.logicalParent.declareStyleOutput();
 
-        this.declareForStylesInclusion(this);
+        this.context.declareForRuntime(this);
 
         const batch = this.logicalParent.children;
         let index = batch.indexOf(this);

@@ -92,10 +92,10 @@ export class GeneralModifier {
 }
 
 function invokeModifierDefault(){
-    if(this.body && this.body.type == "BlockStatement")
-        return elementModifierDefault.call(this)
-    else 
+    if(this.body.type == "ExpressionStatement")
         return propertyModifierDefault.call(this)
+    else 
+        return elementModifierDefault.call(this)
 }
 
 function elementModifierDefault(){
@@ -167,6 +167,8 @@ class ModifierProcess {
 
         const args = new parsedArgumentBody(this.body);
 
+        if(!Array.isArray(args)) debugger
+
         const { context } = this.target;
 
         for(const argument of args)
@@ -188,7 +190,7 @@ class ModifierProcess {
                 }
             }
 
-        Object.defineProperty(this, "arguments", { value: args })
+        Object.defineProperty(this, "arguments", { configurable: true, value: args })
 
         return args;
     }
@@ -198,6 +200,10 @@ class ModifierProcess {
             if(this.data[field])
                 Object.assign(this.data[field], data[field])
             else this.data[field] = data[field]
+    }
+
+    declareElementModifier(){
+        new ExternalSelectionModifier(...arguments).declare(this.target);
     }
 }
 
@@ -224,26 +230,15 @@ export class ElementModifier extends AttrubutesBody {
             this.init(path);
     }  
 
-    get handler(){
-        const inheriting = this;
-        const usingName = this.name;
-        return (body, recipient) => {
-            if(body.type == "BlockStatement")
-                new ElementModifier(usingName, body, inheriting).declare(recipient);
-            else 
-                this.insert( recipient, new parsedArgumentBody(body), false )
-        }
-    }
-
     get selector(){
-        if(this.selectAgainst){
-            return `${this.selectAgainst.classname} ${this.classname}`
-        } else return this.classname
+        if(this.context.selectorTransform)
+            return this.context.selectorTransform.call(this);
+        else return this.classname;
     }
 
     declare(recipient){
-        recipient.includeModifier(this);
         this.process();
+        recipient.includeModifier(this);
     }
 
     includeModifier(modifier){
@@ -254,19 +249,19 @@ export class ElementModifier extends AttrubutesBody {
             modifier.declareForStylesInclusion(this.selectAgainst.parent)
         }
         else
-        modifier.declareForComponent(this.contextParent)
+        modifier.declareForComponent(this.context.current)
     }
 
     declareForComponent(recipient){
-        this.contextParent = recipient;
-        recipient.add(this);
-
-        if(this.context.styleMode == "external") 
+        if(this.context.styleMode.compile && this.style_static.length){
+            this.contextParent = recipient;
+            recipient.add(this);
             this.declareForStylesInclusion(recipient);
+        } 
     }
 
     declareForConditional(recipient){
-        if(this.context.styleMode == "external"){
+        if(this.context.styleMode.compile){
             this.selectAgainst = this.parent;
             this.stylePriority = 3
             this.declareForStylesInclusion(recipient.parent);
@@ -274,7 +269,12 @@ export class ElementModifier extends AttrubutesBody {
     }
 
     process(){
-        for(const item of this.body.get("body"))
+        let { body } = this;
+        body = 
+            body.type == "BlockStatement" ? body.get("body") :
+            body.type == "LabeledStatement" && [body];
+
+        for(const item of body)
             if(item.type in this) 
                 this[item.type](item);
             else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
@@ -295,11 +295,8 @@ export class ElementModifier extends AttrubutesBody {
         
         super.didExitOwnScope(path)
 
-        if(this.context.styleMode == "external"){
+        if(this.context.styleMode.compile){
             let { name, hash, selectAgainst } = this;
-            // if(selectAgainst){
-            //     name = selectAgainst.classname + " " + name;
-            // }
             this.classname = `${name}-${hash}`
         }
     }
@@ -368,5 +365,58 @@ export class ElementModifier extends AttrubutesBody {
             if(typeof name == "string")
                 if(target.classList.indexOf(name) < 0)
                     target.classList.push(name);
+    }
+}
+
+class ExternalSelectionModifier extends ElementModifier {
+    inlineType = "none"
+    
+    constructor(name, body, fn){
+        super(name, body, fn);
+        if(fn)
+            this.transform = fn;
+    }
+
+    declare(recipient){
+        this.recipient = recipient;
+        this.selectAgainst = recipient;
+        this.stylePriority = 5
+        recipient.mayReceiveExternalClasses = true;
+        this.context.selectorTransform = this.getSelectorForNestedModifier;
+        this.process();
+        if(this.style_static.length)
+            this.declareForStylesInclusion(recipient);
+    }
+
+    getSelectorForNestedModifier(){
+        if(this.selectAgainst)
+            return this.selectAgainst.selector + " " + this.classname
+        else return this.classname;
+    }
+
+    get selector(){
+        return `.${this.selectAgainst.classname}.${this.name}`
+    }
+
+    didExitOwnScope(path){
+        if(this.props.length)
+            throw new Error("Props cannot be defined for a pure CSS modifier!")
+        if(this.style.length)
+            throw new Error("Dynamic styles cannot be defined for a pure CSS modifier!")
+
+        this.classname = this.name;
+        // if(this.context.styleMode.compile){
+        //     let { name, hash, selectAgainst } = this;
+        //     this.classname = `${name}-${hash}`
+        // }
+    }
+
+    includeModifier(modifier){
+        if(this.selectAgainst){
+            modifier.selectAgainst = this;
+            modifier.stylePriority = 3
+            modifier.declareForStylesInclusion(this.selectAgainst)
+        }
+        else throw new Error("Can't do that")
     }
 }
