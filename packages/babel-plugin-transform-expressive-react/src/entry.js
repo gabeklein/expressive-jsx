@@ -339,7 +339,7 @@ class ComponentFunctionExpression extends ComponentEntry {
         const {params, generator, async} = parentFn.node;
 
         if(this.style_static || this.mayReceiveExternalClasses)
-            this.generateClassName();
+            this.generateUCN();
 
         parentFn.replaceWith(
             t.functionExpression(

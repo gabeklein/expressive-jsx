@@ -142,21 +142,22 @@ function initComputedStyleAccumulator(Stack, build_state){
 
 function generateComputedStylesExport(path, compute, index){
     
-    const isIncluded = new Set();
+    const exists = new Set();
 
     let styles = [];
 
     compute = compute.sort((a, b) => a.stylePriority - b.stylePriority)
 
-    for(const x of compute)
-        if(x.style_static.length && !isIncluded.has(x.uniqueClassName)){
-            isIncluded.add(x.uniqueClassName)
-            let y = styles[x.stylePriority];
-            if(!y) y = styles[x.stylePriority] = [];
+    for(const x of compute){
+        const name = x.uniqueClassName;
+        if(exists.has(name)) continue;
+        exists.add(name)
+        let y = styles[x.stylePriority];
+        if(!y) y = styles[x.stylePriority] = [];
 
-            const cS = x.computeStyles();
-            if(cS) y.push(cS)
-        }
+        const cS = x.computeStyles();
+        if(cS) y.push(cS)
+    }
     
     styles = styles.filter(x => x).map((x, i) =>
         t.objectProperty(t.numericLiteral(i), t.objectExpression(x))

@@ -233,7 +233,7 @@ export class ElementModifier extends AttrubutesBody {
             return this.context.selectorTransform.call(this);
         else return this.uniqueClassName;
     }
-
+    
     declare(recipient){
         this.process();
         recipient.includeModifier(this);
