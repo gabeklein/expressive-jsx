@@ -233,7 +233,13 @@ export class ElementModifier extends AttrubutesBody {
             return this.context.selectorTransform.call(this);
         else return this.uniqueClassName;
     }
-    
+
+    get path(){
+        if(this.selectAgainst)
+            return this.selectAgainst.path.concat(` ${this.uniqueClassName}`)
+        else return [ this.uniqueClassName ];
+    }
+
     declare(recipient){
         this.process();
         recipient.includeModifier(this);
@@ -396,6 +402,10 @@ class ExternalSelectionModifier extends ElementModifier {
         return `.${this.selectAgainst.uniqueClassName}.${this.name}`
     }
 
+    get path(){
+        return this.selectAgainst.path.concat(`.${this.name}`)
+    }
+
     didExitOwnScope(path){
         if(this.props.length)
             throw new Error("Props cannot be defined for a pure CSS modifier!")
@@ -403,10 +413,6 @@ class ExternalSelectionModifier extends ElementModifier {
             throw new Error("Dynamic styles cannot be defined for a pure CSS modifier!")
 
         this.uniqueClassName = this.name;
-        // if(this.context.styleMode.compile){
-        //     let { name, hash, selectAgainst } = this;
-        //     this.uniqueClassName = `${name}-${hash}`
-        // }
     }
 
     includeModifier(modifier){

@@ -85,6 +85,10 @@ export class AttrubutesBody extends TraversableBody {
         )
     }
 
+    get path(){
+        return [`.${this.uniqueClassName || this.generateUCN() }`]
+    }
+
     get compiledStyle(){
         return this.style_static.map(x => x.asString).join("; ")
     }
@@ -159,7 +163,7 @@ export class ComponentGroup extends ComponentBody {
     }
 
     generateUCN(name){
-        let cn = name || this.uniqueClassName || this.tags[this.tags.length - 1].name;
+        let cn = name || this.tags[this.tags.length - 1].name;
 
         return this.uniqueClassName = `${cn}-${
             createHash("md5")

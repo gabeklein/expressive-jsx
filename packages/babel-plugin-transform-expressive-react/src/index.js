@@ -7,6 +7,12 @@ const { Shared, Opts } = require("./shared");
 const { ComponentClass, DoComponent } = require('./entry.js');
 const { createSharedStack } = require("./scope")
 
+const read = Object.keys;
+const only = (obj) => {
+    const keys = read(obj);
+    return keys.length === 1 && obj[keys[0]];
+}
+
 export default (options) => {
     return {
         inherits: syntaxDoExpressions,
@@ -132,26 +138,32 @@ function checkForStyleImport(body){
 function initComputedStyleAccumulator(Stack, build_state){
     const targets = build_state.expressive_computeTargets = [];
     const stack = Object.create(Stack);
-    stack.program = {
-        computedStyleMayInclude(element){
-            targets.push(element)
-        }
+    stack.program = { computedStyleMayInclude };
+
+    function computedStyleMayInclude(element){
+        targets.push(element)
+        // let cd = targets;
+        // let { stylePriority, path } = element;
+        // path = [stylePriority, ...path];
+        
+        // for(let i = 0, p; p = path[i++];)
+        //     if(cd[p]){
+        //         if(typeof cd[p] == "string")
+        //             cd = cd[p] = {"": cd[p]}
+        //         else cd = cd[p];
+        //     }
+        //     else if(i === path.length) cd[p] = element.compiledStyle;
+        //     else cd = cd[p] = {};
     }
+
     return stack;
 }
 
 function generateComputedStylesExport(path, compute, index){
-    
-    const exists = new Set();
-
     let styles = [];
-
-    compute = compute.sort((a, b) => a.stylePriority - b.stylePriority)
+    // compute = compute.sort((a, b) => a.stylePriority - b.stylePriority)
 
     for(const x of compute){
-        const name = x.uniqueClassName;
-        if(exists.has(name)) continue;
-        exists.add(name)
         let y = styles[x.stylePriority];
         if(!y) y = styles[x.stylePriority] = [];
 
