@@ -313,8 +313,8 @@ export class ElementInline extends ComponentGroup {
 
     didExitOwnScope(body, preventDefault){
         super.didExitOwnScope(body);
-        if(this.style_static && !this.classname)
-            this.generateClassName();
+        if(this.style_static && !this.uniqueClassName)
+            this.generateUCN();
         if(!preventDefault)
             this.output = this.build();
     }
@@ -334,7 +334,7 @@ export class ElementInline extends ComponentGroup {
     }
 
     computedStyleMayInclude(from){
-        const { classname } = from;
+        const { uniqueClassName } = from;
         const styleGroups = this.styleGroups || (this.styleGroups = []);
         if(styleGroups.indexOf(from) < 0)
             styleGroups.push(from)
@@ -345,7 +345,7 @@ export class ElementInline extends ComponentGroup {
             inlineType: "child",
             transform: () => {
                 const styles = this.styleGroups.map(x => {
-                    return x.selector || x.classname
+                    return x.selector || x.uniqueClassName
                 }).join(", ");
                 return {
                     product: transform.createElement(
@@ -575,7 +575,7 @@ export class ElementInline extends ComponentGroup {
         } = inline;
 
         if(this.style_static.length || this.mayReceiveExternalClasses)
-            inline.css.push(this.classname)
+            inline.css.push(this.uniqueClassName)
 
         if(this.style_static.length)
             this.context.declareForRuntime(this);

@@ -80,7 +80,7 @@ export class AttrubutesBody extends TraversableBody {
 
     computeStyles(){
         return t.objectProperty(
-            t.stringLiteral(this.selector || this.classname), 
+            t.stringLiteral(this.selector || this.uniqueClassName), 
             t.stringLiteral(this.style_static.map(x => x.asString).join("; "))
         )
     }
@@ -154,10 +154,10 @@ export class ComponentGroup extends ComponentBody {
         this.doesHaveDynamicProperties = true;
     }
 
-    generateClassName(name){
-        let cn = name || this.classname || this.tags[this.tags.length - 1].name;
+    generateUCN(name){
+        let cn = name || this.uniqueClassName || this.tags[this.tags.length - 1].name;
 
-        return this.classname = `${cn}-${
+        return this.uniqueClassName = `${cn}-${
             createHash("md5")
                 .update(this.style_static.reduce((x,y) => x + y.asString, ""))
                 .digest('hex')

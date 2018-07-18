@@ -149,8 +149,8 @@ function generateComputedStylesExport(path, compute, index){
     compute = compute.sort((a, b) => a.stylePriority - b.stylePriority)
 
     for(const x of compute)
-        if(x.style_static.length && !isIncluded.has(x.classname)){
-            isIncluded.add(x.classname)
+        if(x.style_static.length && !isIncluded.has(x.uniqueClassName)){
+            isIncluded.add(x.uniqueClassName)
             let y = styles[x.stylePriority];
             if(!y) y = styles[x.stylePriority] = [];
 

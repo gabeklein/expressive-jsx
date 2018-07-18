@@ -167,8 +167,6 @@ class ModifierProcess {
 
         const args = new parsedArgumentBody(this.body);
 
-        if(!Array.isArray(args)) debugger
-
         const { context } = this.target;
 
         for(const argument of args)
@@ -233,7 +231,7 @@ export class ElementModifier extends AttrubutesBody {
     get selector(){
         if(this.context.selectorTransform)
             return this.context.selectorTransform.call(this);
-        else return this.classname;
+        else return this.uniqueClassName;
     }
 
     declare(recipient){
@@ -297,7 +295,7 @@ export class ElementModifier extends AttrubutesBody {
 
         if(this.context.styleMode.compile){
             let { name, hash, selectAgainst } = this;
-            this.classname = `${name}-${hash}`
+            this.uniqueClassName = `${name}-${hash}`
         }
     }
 
@@ -333,7 +331,7 @@ export class ElementModifier extends AttrubutesBody {
 
     into(inline, target){
         if(this.style_static !== this.style && this.style_static.length){
-            inline.css.push(this.classname)
+            inline.css.push(this.uniqueClassName)
         }
             
         if(this.inherits) this.inherits.into(inline);
@@ -390,12 +388,12 @@ class ExternalSelectionModifier extends ElementModifier {
 
     getSelectorForNestedModifier(){
         if(this.selectAgainst)
-            return this.selectAgainst.selector + " " + this.classname
-        else return this.classname;
+            return this.selectAgainst.selector + " " + this.uniqueClassName
+        else return this.uniqueClassName;
     }
 
     get selector(){
-        return `.${this.selectAgainst.classname}.${this.name}`
+        return `.${this.selectAgainst.uniqueClassName}.${this.name}`
     }
 
     didExitOwnScope(path){
@@ -404,10 +402,10 @@ class ExternalSelectionModifier extends ElementModifier {
         if(this.style.length)
             throw new Error("Dynamic styles cannot be defined for a pure CSS modifier!")
 
-        this.classname = this.name;
+        this.uniqueClassName = this.name;
         // if(this.context.styleMode.compile){
         //     let { name, hash, selectAgainst } = this;
-        //     this.classname = `${name}-${hash}`
+        //     this.uniqueClassName = `${name}-${hash}`
         // }
     }
 

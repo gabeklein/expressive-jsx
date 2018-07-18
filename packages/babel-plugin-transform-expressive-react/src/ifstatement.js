@@ -166,7 +166,7 @@ class ComponentConsequent extends ComponentGroup {
 
         const batch = this.logicalParent.children;
         let index = batch.indexOf(this);
-        this.generateClassName(
+        this.generateUCN(
             index == 0 ?
                 "if" :
             index == batch.length - 1 ?
@@ -195,12 +195,12 @@ class ComponentConsequent extends ComponentGroup {
             }
         );
 
-        if(this.classname){
+        if(this.uniqueClassName){
             const cc = this.logicalParent.provideStyle;
             body.unshift(
                 t.expressionStatement(
                     t.assignmentExpression(
-                        "=", cc, t.stringLiteral(this.classname)
+                        "=", cc, t.stringLiteral(this.uniqueClassName)
                     )
                 )
             )
