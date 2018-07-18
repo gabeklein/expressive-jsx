@@ -341,33 +341,26 @@ export class ElementInline extends ComponentGroup {
     }
 
     insertRuntimeStyleContextClaim(){
+        const styles = this.styleGroups.map(x => {
+            return x.selector || x.uniqueClassName
+        }).join(", ");
+
+        const hash = createHash("md5")
+            .update(styles)
+            .digest('hex')
+            .substring(0, 6);
+
         this.children.push({
             inlineType: "child",
-            transform: () => {
-                const styles = this.styleGroups.map(x => {
-                    return x.selector || x.uniqueClassName
-                }).join(", ");
-                return {
-                    product: transform.createElement(
-                        Shared.claimStyle, 
-                        t.objectExpression([
-                            t.objectProperty(
-                                t.identifier("css"),
-                                t.stringLiteral(styles)
-                            ),
-                            t.objectProperty(
-                                t.identifier("hid"),
-                                t.stringLiteral(
-                                    createHash("md5")
-                                        .update(styles)
-                                        .digest('hex')
-                                        .substring(0, 6)
-                                )
-                            ),
-                        ])
-                    )
-                }
-            }
+            transform: () => ({
+                product: transform.createElement(
+                    Shared.claimStyle, 
+                    transform.object({
+                        css: t.stringLiteral(styles),
+                        hid: t.stringLiteral(hash)
+                    })
+                )
+            })
         })
     }
 

@@ -37,6 +37,18 @@ export const transform = {
         }
     },
 
+    object(obj){
+        const properties = [];
+        for(const x in obj)
+            properties.push(
+                t.objectProperty(
+                    t.identifier(x),
+                    obj[x]
+                )
+            )
+        return t.objectExpression(properties);
+    },
+
     createElement(type, props, ...children){
         if(typeof type == "string") type = t.stringLiteral(type);
         if(!props) props = t.objectExpression([]);
