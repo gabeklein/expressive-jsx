@@ -2,59 +2,73 @@
 
 
 import PropTypes from 'prop-types';
-import { Component, createElement, Fragment } from "react";
+import { hot } from 'react-hot-loader'
+import { Component, createElement, Fragment, createContext } from "react";
 
-import StyledOutput from "./output"
+const { Provider: StyleContext, Consumer: StyleDeclaration } = createContext({
+    push(){
+        return;
+    }
+});
+
+// import StyledOutput from "./output"
 
 export const Cache = new class {
 
-    blocks = [];
+    blocks = {};
 
-    moduleDoesYieldStyle(fromFile, css){
-        for(let x in css)
-            Object.assign(this.blocks[x] || (this.blocks[x] = {}), css[x])
-    }
-
-    get(selector){
-        for(let block of this.blocks)
-            if(block = block[selector])
-                return block
+    moduleDoesYieldStyle(_fromFile, css){
+        for(let media in css){
+            const styles = css[media];
+            const target = this.blocks[media] || (this.blocks[media] = []);
+            for(const selection in styles)
+                Object.assign(target[selection] || (target[selection] = {}), styles[selection])
+        }
     }
 }
 
 class Compiler {
     registered = {};
-    knownBlocks = {};
+    alreadyIncluded = {};
 
-    push(hashID, classNames){
-        const { registered, parent, knownBlocks, outputElement } = this;
+    push(hashID, selectors){
+        const { registered, parent, alreadyIncluded, outputElement } = this;
+        if(alreadyIncluded[hashID]) return; 
+        alreadyIncluded[hashID] = true;
+        
+        for(const x of selectors)
+            if(!registered[x])
+                registered[x] = true;
 
-        if(!knownBlocks[hashID]){
-            if(outputElement) 
-                outputElement.setState({
-                    mostRecentBlock: hashID
-                })
-            knownBlocks[hashID] = true;
-            for(const x of classNames)
-                if(!registered[x])
-                    registered[x] = true;
-        }
+        if(outputElement) 
+            outputElement.setState({
+                mostRecentBlock: hashID
+            }) 
     }
 
     generate(){
         let output = `\n`;
         const { registered } = this;
-        let i = 1, len = Cache.blocks.length;
-        for(const block of Cache.blocks){
-            const priority = len + 1 - i++;
-            output += "/* importance: " + priority + " */\n"
-            for(const select in block){
-                const styles = registered[select] && block[select];
-                if(styles)
-                    output += `.` + select + " { " + styles + " }" + `\n`;
+
+        for(const query in Cache.blocks){
+            const source = Cache.blocks[query];
+            const noMedia = query == "default";
+            let mediaStyles = "";
+
+            for(let block, i = 0, l = source.length; block = source[i]; i++){
+                mediaStyles += `${noMedia ? '' : "\t"}/* importance: ${ l - i } */\n`
+                for(const select of Object.keys(block).sort()){
+                    const styles = registered[select] && block[select];
+                    if(styles){
+                        mediaStyles += (noMedia ? "" : "\t") + select + " { " + styles + " }" + `\n`;
+                    }
+                }
             }
-            if(priority > 1)
-                output += "\n"
+
+            if(noMedia)
+                output += mediaStyles + "\n";
+            else 
+                output += `@media ${ query } {\n ${mediaStyles} \n}`;
         }
 
         if(output.length > 1)
@@ -64,85 +78,32 @@ class Compiler {
     }
 }
 
-export class Include extends Component {
+export const Include = ({ hid, css }) => 
+    createElement(StyleDeclaration, {}, compiler => {
+        compiler.push(hid, css.split(", "));
+        return false;
+    });
 
-    static contextTypes = {
-        compiler: PropTypes.instanceOf(Compiler).isRequired
-    }
+const StyleOutput = ({ compiler }) => 
+    createElement("style", {
+        jsx: "true", global: "true",
+        dangerouslySetInnerHTML: {
+            __html: compiler.generate()
+        }
+    })
 
-    declareStyles(){
-        const { context, props } = this;
-        const { hid, css } = props;
-
-        context.compiler.push(hid, css.split(", "))
-    }
-
-    render(){
-        this.declareStyles();
-        return null
-    }
-}
-
-class StyledContent extends Component {
-    render(){
-        return [].concat(this.props.content)
-    }
-}
 
 export default class StyledApplication extends Component {
-
-    static propTypes = {
-        children: PropTypes.oneOfType([
-            PropTypes.arrayOf(PropTypes.node),
-            PropTypes.node
-        ])
+    
+    componentWillMount(){
+        this.compilerTarget = new Compiler(this);
     }
-
-    static childContextTypes = {
-        compiler: PropTypes.object
-    }
-
-    constructor(props, context) {
-        super(props, context);
-        this.state = {
-            compiler: new Compiler(this)
-        }
-    }
-
-    getChildContext(){
-        return {
-            compiler: this.state.compiler
-        };
-    }
-
+    
     render(){
-        const { compiler } = this.state;
-        const children = [].concat(this.props.children);
-        //  Provider which listens to build-time placed style claims.
-
-        return createElement(Fragment, {},
-            /*
-            Children of Styled Application are passed forward with style
-            useage logged for subsequent style complication.
-
-            Claims (Include) are automatically inserted at build-time
-            to inform StyledApplication which styles need to be included 
-            from cache. This tree-shakes the cache which contains all 
-            styles computed from all required modules, application-wide, 
-            which may or may not not be used for a given page build. 
-            */
-
-            ...children,
-
-            /*
-            Generated style element containing all selectors needed for given 
-            page render. Output pulls style rules from cache while only
-            including those which were "claimed" by elements generated within
-            the StyleRegister's context.
-            */
-           createElement(StyledOutput, {
-               compiler
-           })
+        const styled_content = [].concat(this.props.children || []);
+        return createElement(Fragment, {}, 
+            createElement(StyleContext, { value: this.compilerTarget }, ...styled_content),
+            createElement(StyleOutput, { compiler: this.compilerTarget })
         )
     }
 }
