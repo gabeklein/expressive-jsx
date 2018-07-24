@@ -1,6 +1,6 @@
 import inferReactComponent      from "babel-plugin-implicit-react-class";
 import transformExpressiveReact from "babel-plugin-transform-expressive-react";
-import ExpressiveEnhancements from "babel-preset-expressive-enhancements"
+import ExpressiveEnhancements   from "babel-preset-expressive-enhancements"
 
 const WebStyles = require("expressive-modify-react-web");
 
