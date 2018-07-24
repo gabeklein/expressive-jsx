@@ -38,11 +38,16 @@ export function HEX_COLOR(n){
 
 export class parsedArgumentBody {
     constructor(e) {
-        if(e.type in this)
+        if(e.type && e.type in this)
             return [].concat(
                 this.Type(e)
             )
         return e
+    }
+
+    BlockStatement(){
+        debugger
+        throw new Error("Unexpected Block Statement in modifier processor, this is an internal error.")
     }
 
     Type(e){
@@ -92,7 +97,12 @@ export class parsedArgumentBody {
         && right.start == left.end + 1 )
             return left.name + "-" + right.name;
         else 
-            return e;
+            return {
+                type: "binary",
+                operator,
+                left: left.name || left.value,
+                right: right.name || right.value,
+            };
     }
 
     UnaryExpression(e){

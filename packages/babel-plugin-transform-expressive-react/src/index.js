@@ -161,19 +161,40 @@ function initComputedStyleAccumulator(Stack, build_state){
 
 function generateComputedStylesExport(path, compute, index){
     let styles = [];
-    // compute = compute.sort((a, b) => a.stylePriority - b.stylePriority)
+    let media = {
+        default: styles
+    };
 
     for(const x of compute){
-        let y = styles[x.stylePriority];
-        if(!y) y = styles[x.stylePriority] = [];
+
+        let { modifierQuery } = x.context;
+        let into = styles;
+
+        if(modifierQuery){
+            modifierQuery = modifierQuery.queryString;
+            into = media[modifierQuery] || (media[modifierQuery] = [])
+        }
+
+        let y = into[x.stylePriority];
+        if(!y) 
+            y = into[x.stylePriority] = [];
 
         const cS = x.computeStyles();
         if(cS) y.push(cS)
     }
-    
-    styles = styles.filter(x => x).map((x, i) =>
-        t.objectProperty(t.numericLiteral(i), t.objectExpression(x))
-    );
+
+    const output = [];
+
+    for(const query in media){
+        output.push(
+            t.objectProperty(
+                t.stringLiteral(query),
+                t.arrayExpression(
+                    media[query].filter(x => x).map(x => t.objectExpression(x))
+                )
+            )
+        )
+    }
 
     path.scope.block.body.splice(++index, 0, 
         t.expressionStatement(
@@ -185,7 +206,7 @@ function generateComputedStylesExport(path, compute, index){
                     t.stringLiteral(
                         path.hub.file.opts.filename
                     ),
-                    t.objectExpression(styles)
+                    t.objectExpression(output)
                 ]
             )
         )

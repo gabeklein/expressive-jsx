@@ -195,12 +195,12 @@ class ComponentConsequent extends ComponentGroup {
             }
         );
 
-        if(this.uniqueClassName){
+        if(this.uniqueClassname){
             const cc = this.logicalParent.provideStyle;
             body.unshift(
                 t.expressionStatement(
                     t.assignmentExpression(
-                        "=", cc, t.stringLiteral(this.uniqueClassName)
+                        "=", cc, t.stringLiteral(this.uniqueClassname)
                     )
                 )
             )

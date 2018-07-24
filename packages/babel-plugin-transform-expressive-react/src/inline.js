@@ -160,6 +160,7 @@ class InlineProps extends Prop {
                 case "StringLiteral":
                 case "TemplateLiteral":
                 case "ChildLiteral":
+                case "ArrowFunctionExpression": 
                     target.add(new NonComponent(path))
                 break;
 
@@ -265,11 +266,11 @@ class InlineProps extends Prop {
                 break;
             }
 
-            case "ArrowFunctionExpression": {
-                value = path;
-                name = "callback"
-                break;
-            }
+            // case "ArrowFunctionExpression": {
+            //     value = path;
+            //     name = "callback"
+            //     break;
+            // }
 
             default:
                 throw path.buildCodeFrameError(`There is no property inferred from an ${type}.`)
@@ -313,7 +314,7 @@ export class ElementInline extends ComponentGroup {
 
     didExitOwnScope(body, preventDefault){
         super.didExitOwnScope(body);
-        if(this.style_static && !this.uniqueClassName)
+        if(this.style_static && !this.uniqueClassname)
             this.generateUCN();
         if(!preventDefault)
             this.output = this.build();
@@ -334,7 +335,7 @@ export class ElementInline extends ComponentGroup {
     }
 
     computedStyleMayInclude(from){
-        const { uniqueClassName } = from;
+        const { uniqueClassname } = from;
         const styleGroups = this.styleGroups || (this.styleGroups = []);
         if(styleGroups.indexOf(from) < 0)
             styleGroups.push(from)
@@ -342,8 +343,8 @@ export class ElementInline extends ComponentGroup {
 
     insertRuntimeStyleContextClaim(){
         const styles = this.styleGroups.map(x => {
-            return x.selector || x.uniqueClassName
-        }).join(", ");
+            return x.selector || x.uniqueClassname
+        }).filter((x,i,a) => a.indexOf(x) == i).join(", ");
 
         const hash = createHash("md5")
             .update(styles)
@@ -568,7 +569,7 @@ export class ElementInline extends ComponentGroup {
         } = inline;
 
         if(this.style_static.length || this.mayReceiveExternalClasses)
-            inline.css.push(this.uniqueClassName)
+            inline.css.push(this.uid)
 
         if(this.style_static.length)
             this.context.declareForRuntime(this);

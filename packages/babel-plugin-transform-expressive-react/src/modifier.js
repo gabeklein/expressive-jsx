@@ -34,7 +34,7 @@ export class GeneralModifier {
         let i = 0, mod = this;
 
         while(true){
-            let include = new ModifierProcess(mod, body || [], target);
+            let include = new ModifierProcess(mod, body !== undefined ? body : [], target);
             if(!include){
                 i++; continue; 
             }
@@ -92,7 +92,7 @@ export class GeneralModifier {
 }
 
 function invokeModifierDefault(){
-    if(this.body.type == "ExpressionStatement")
+    if(!this.body || this.body.type == "ExpressionStatement")
         return propertyModifierDefault.call(this)
     else 
         return elementModifierDefault.call(this)
@@ -140,14 +140,16 @@ function propertyModifierDefault() {
 
 class ModifierProcess {
     constructor(mod, body, target){
-        const transform = mod.transform || invokeModifierDefault;
+        let { transform } = mod;
+        if(!transform || transform.length > 0 && body.type == "BlockStatement")
+            transform = invokeModifierDefault;
 
         this.target = target;
         this.data = {};
         this.name = mod.name;
 
         if(!body.type)
-            Object.defineProperty(this, "arguments", { value: body })
+            Object.defineProperty(this, "arguments", { value: [].concat(body) })
         else 
             this.body = body;
 
@@ -201,7 +203,17 @@ class ModifierProcess {
     }
 
     declareElementModifier(){
-        new ExternalSelectionModifier(...arguments).declare(this.target);
+        const mod = new ExternalSelectionModifier(...arguments)
+        if(this.priority) mod.stylePriority = this.priority;
+        mod.declare(this.target);
+    }
+
+    declareMediaQuery(){
+        new MediaQueryModifier(...arguments).declare(this.target)
+    }
+
+    parse(ast){
+        return new parsedArgumentBody(ast)
     }
 }
 
@@ -229,18 +241,19 @@ export class ElementModifier extends AttrubutesBody {
     }  
 
     get selector(){
-        if(this.context.selectorTransform)
-            return this.context.selectorTransform.call(this);
-        else return this.uniqueClassName;
+        if(this.context.selectionContingent)
+            return this.context.selectionContingent.getSelectorForNestedModifier(this);
+        else return this.uniqueClassname;
     }
 
     get path(){
         if(this.selectAgainst)
-            return this.selectAgainst.path.concat(` ${this.uniqueClassName}`)
-        else return [ this.uniqueClassName ];
+            return this.selectAgainst.path.concat(` ${this.uniqueClassname}`)
+        else return [ this.uniqueClassname ];
     }
 
     declare(recipient){
+        this.context.nearestStyleProvider = this;
         this.process();
         recipient.includeModifier(this);
     }
@@ -260,7 +273,10 @@ export class ElementModifier extends AttrubutesBody {
         if(this.context.styleMode.compile && this.style_static.length){
             this.contextParent = recipient;
             recipient.add(this);
-            this.declareForStylesInclusion(recipient);
+            const noRoot = this.declareForStylesInclusion(recipient);
+            if(noRoot){
+                recipient.context.modifierInsertions.push(this);
+            }
         } 
     }
 
@@ -274,6 +290,7 @@ export class ElementModifier extends AttrubutesBody {
 
     process(){
         let { body } = this;
+
         body = 
             body.type == "BlockStatement" ? body.get("body") :
             body.type == "LabeledStatement" && [body];
@@ -301,7 +318,8 @@ export class ElementModifier extends AttrubutesBody {
 
         if(this.context.styleMode.compile){
             let { name, hash, selectAgainst } = this;
-            this.uniqueClassName = `${name}-${hash}`
+            this.uid = `${name}-${hash}`
+            this.uniqueClassname = "." + this.uid;
         }
     }
 
@@ -337,7 +355,7 @@ export class ElementModifier extends AttrubutesBody {
 
     into(inline, target){
         if(this.style_static !== this.style && this.style_static.length){
-            inline.css.push(this.uniqueClassName)
+            inline.css.push(this.uid)
         }
             
         if(this.inherits) this.inherits.into(inline);
@@ -367,7 +385,7 @@ export class ElementModifier extends AttrubutesBody {
 
         for(const name of this.classList)
             if(typeof name == "string")
-                if(target.classList.indexOf(name) < 0)
+                if(target.classList.ideclareMediaQuerydexOf(name) < 0)
                     target.classList.push(name);
     }
 }
@@ -379,27 +397,26 @@ class ExternalSelectionModifier extends ElementModifier {
         super(name, body, fn);
         if(fn)
             this.transform = fn;
+        this.stylePriority = 5
     }
 
     declare(recipient){
         this.recipient = recipient;
         this.selectAgainst = recipient;
-        this.stylePriority = 5
         recipient.mayReceiveExternalClasses = true;
-        this.context.selectorTransform = this.getSelectorForNestedModifier;
+        this.context.selectionContingent = this;
         this.process();
         if(this.style_static.length)
             this.declareForStylesInclusion(recipient);
     }
 
-    getSelectorForNestedModifier(){
-        if(this.selectAgainst)
-            return this.selectAgainst.selector + " " + this.uniqueClassName
-        else return this.uniqueClassName;
+    getSelectorForNestedModifier(target){
+        target.stylePriority = this.stylePriority;
+        return this.selector + " " + target.uniqueClassname
     }
 
     get selector(){
-        return `.${this.selectAgainst.uniqueClassName}.${this.name}`
+        return `${this.selectAgainst.uniqueClassname}${this.uniqueClassname}`
     }
 
     get path(){
@@ -412,15 +429,58 @@ class ExternalSelectionModifier extends ElementModifier {
         if(this.style.length)
             throw new Error("Dynamic styles cannot be defined for a pure CSS modifier!")
 
-        this.uniqueClassName = this.name;
+        this.uniqueClassname = this.name;
+
+        this.context.pop();
     }
 
     includeModifier(modifier){
-        if(this.selectAgainst){
-            modifier.selectAgainst = this;
-            modifier.stylePriority = 3
-            modifier.declareForStylesInclusion(this.selectAgainst)
+        // throw new Error("unexpected function called, this is an internal error")
+        modifier.selectAgainst = this;
+        modifier.stylePriority = 3
+
+        this.declareForStylesInclusion(this.selectAgainst, modifier);
+
+        const mod = this.context.nearestStyleProvider;
+        if(mod) mod.provides.push(modifier);
+        else this.selectAgainst.context.declare(modifier) 
+        
+    }
+
+    declareForStylesInclusion(recipient, modifier){
+        const noRoot = super.declareForStylesInclusion(recipient, modifier);
+        if(noRoot){
+            recipient.context.modifierInsertions.push(modifier || this);
         }
-        else throw new Error("Can't do that")
+    }
+}
+
+class MediaQueryModifier extends ExternalSelectionModifier {
+    constructor(query, body){
+        super("media", body);
+        this.queryString = query;
+        if(this.context.modifierQuery)
+            this.inherits = this.context.modifierQuery;
+        this.context.modifierQuery = this;
+    }
+
+    get selector(){
+        return this.selectAgainst.selector
+    }
+
+    get uniqueClassname(){
+        return this.selectAgainst.uniqueClassname;
+    }
+
+    set uniqueClassname(_){}
+
+    declare(recipient){
+        this.recipient = recipient;
+        this.selectAgainst = recipient;
+        this.stylePriority = 5
+        recipient.mayReceiveExternalClasses = true;
+        this.process();
+        if(this.style_static.length)
+            this.declareForStylesInclusion(recipient);
     }
 }

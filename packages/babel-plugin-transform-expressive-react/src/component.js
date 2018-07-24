@@ -80,24 +80,29 @@ export class AttrubutesBody extends TraversableBody {
 
     computeStyles(){
         return t.objectProperty(
-            t.stringLiteral(this.selector || this.uniqueClassName), 
+            t.stringLiteral(this.selector || this.uniqueClassname), 
             t.stringLiteral(this.compiledStyle)
         )
     }
 
-    get path(){
-        return [`.${this.uniqueClassName || this.generateUCN() }`]
+    get selector(){
+        return this.uniqueClassname;
+    }
+
+    get style_path(){
+        return [`${this.uniqueClassname || this.generateUCN() }`]
     }
 
     get compiledStyle(){
         return this.style_static.map(x => x.asString).join("; ")
     }
 
-    declareForStylesInclusion(recipient){
+    declareForStylesInclusion(recipient, modifier = this){
         const { program, styleRoot } = recipient.context;
-        program.computedStyleMayInclude(this);
+        program.computedStyleMayInclude(modifier);
         if(styleRoot)
-            styleRoot.computedStyleMayInclude(this)
+            styleRoot.computedStyleMayInclude(modifier)
+        else return true
     }
 }
 
@@ -165,12 +170,13 @@ export class ComponentGroup extends ComponentBody {
     generateUCN(name){
         let cn = name || this.tags[this.tags.length - 1].name;
 
-        return this.uniqueClassName = `${cn}-${
+        const uid = this.uid = `${cn}-${
             createHash("md5")
                 .update(this.style_static.reduce((x,y) => x + y.asString, ""))
                 .digest('hex')
                 .substring(0, 6)
         }`
+        return this.uniqueClassname = "." + uid
     }
 
     collateChildren(onAppliedType){
