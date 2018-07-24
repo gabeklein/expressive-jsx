@@ -7,6 +7,7 @@ export * from "./flex"
 export * from "./background"
 export * from "./advanced"
 export * from "./text"
+export * from "./media"
 
 import * as Helpers from "./helpers"
 export { Helpers }

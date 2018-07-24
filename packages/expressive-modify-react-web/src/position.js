@@ -69,7 +69,7 @@ function keyedPosition(a, b = 0, c = b){
             return out
         }
     }
-            
+
     return position(...arguments)
 }
 

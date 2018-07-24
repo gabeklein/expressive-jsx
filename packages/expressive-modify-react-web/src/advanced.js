@@ -1,15 +1,25 @@
-export function screen(a){
-    if(!a || a.type !== "if")
-        throw [0, "screen modifier expects if statements"]
+const PSEUDO = {
+    hover: ":hover",
+    after: ":after",
+    before: ":before",
+    active: ":active"
+}
 
-    const { test } = a;
+export { pseudo as on };
 
-    return {
-        contingent: {
-            media: {"max-width": "500px"},
-            when: a.path.get("consequent"),
-            ifno: a.path.get("alternate")
-        },
+function pseudo(){
+    this.priority = 6;
+    const block = normalize(this.body);
+    for(const x of block){
+        let { name } = x.node.label;
+        const body = x.get("body");
+
+        if(name = PSEUDO[name])
+            this.declareElementModifier(name, body, function selectPseudo(){
+                let { selectAgainst } = this;
+                selectAgainst = selectAgainst.classname || selectAgainst.generateClassName();
+                return selectAgainst + name;
+            });
     }
 }
 
@@ -34,7 +44,7 @@ export function css(){
                 const name = mod.node.label.name;
                 const body = mod.get("body");
 
-                this.declareElementModifier(name, body, directClassname);
+                this.declareElementModifier("." + name, body, directClassname);
             }
         return;
     }

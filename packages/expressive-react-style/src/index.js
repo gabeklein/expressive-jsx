@@ -65,10 +65,11 @@ class Compiler {
                 }
             }
 
-            if(noMedia)
+            if(noMedia){
                 output += mediaStyles + "\n";
-            else 
+            } else {
                 output += `@media ${ query } {\n ${mediaStyles} \n}`;
+            }
         }
 
         if(output.length > 1)

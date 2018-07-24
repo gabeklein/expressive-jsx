@@ -51,12 +51,11 @@ for (const kind of [
     EXPORT[kind] = 
         function(keyword){
             let value;
-            const args = this.arguments;
-
-            if(args.length == 1 && keyword == "auto" || keyword == "none" || / /.test(keyword))
+            
+            if(this.arguments.length == 1 && keyword == "auto" || keyword == "none" || / /.test(keyword))
                 value = keyword
             else {
-                let args = rect(...args);
+                let args = rect(...this.arguments);
                 if(args.length == 2)
                     args = args.slice(0, 2)
                 value = args.map(x => appendUnitToN(x)).join(" ")
@@ -81,7 +80,10 @@ for(const kind of [
     "borderRight",
     "borderBottom",
 ]){
-    EXPORT[kind] = (color = "black", width = 1, style = "solid") => {
+    EXPORT[kind] = (color, width, style) => {
+        if(color === undefined) color = "black";
+        if(width === undefined) width = 1;
+        if(style === undefined) style = "solid"
         let value = color == "none"
             ? "none"
             : [ color, style, appendUnitToN(width) ].join(" ")
