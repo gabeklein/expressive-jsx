@@ -329,7 +329,7 @@ export class ElementInline extends ComponentGroup {
 
     collateChildren(propHandler){
         if(this.styleGroups && this.styleGroups.length && Opts.reactEnv != "native"){
-            this.insertRuntimeStyleContextClaim()
+            this.insertRuntimeStyle()
         }
         return super.collateChildren(propHandler);
     }
@@ -341,7 +341,7 @@ export class ElementInline extends ComponentGroup {
             styleGroups.push(from)
     }
 
-    insertRuntimeStyleContextClaim(){
+    insertRuntimeStyle(){
         const styles = this.styleGroups.map(x => {
             return x.selector || x.uniqueClassname
         }).filter((x,i,a) => a.indexOf(x) == i).join(", ");
