@@ -1,4 +1,4 @@
-import transformExpressiveReact from "babel-plugin-transform-expressive-react";
+import transformExpressiveReact from "babel-plugin-transform-react-xjs";
 import inferReactComponent      from "babel-plugin-implicit-react-class";
 import ExpressiveEnhancements from "babel-preset-expressive-enhancements"
 
