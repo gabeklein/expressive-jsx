@@ -1,4 +1,4 @@
-# babel-plugin-transform-expressive-react
+# babel-plugin-transform-react-xjs
 
 > Babel plugin for transforming `do{ }` statements into [React](https://github.com/facebook/react) compatable markup. Most comperable to [babel-plugin-transform-react-jsx](https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-jsx), simply furnishing a different paradigm. May be used along size JSX and it's respective babel-plugins, or used as a feature-complete replacement, depending on your needs.
 
