@@ -25,7 +25,7 @@
     "babel-preset-env": "^1.6.1"
   },
   "peerDependencies": {
-    "expressive-react-style": "^0.1.2",
+    "expressive-react-style": "^0.2.5",
     "react": "^16.2.0",
     "react-dom": "^16.2.0"
   }
