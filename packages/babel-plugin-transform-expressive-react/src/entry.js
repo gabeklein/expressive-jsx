@@ -51,7 +51,7 @@ export class DoComponent {
                 Handler = ComponentInlineExpression;
             }
             else throw immediateParent.getAncestry()
-                .find(x => x.type == "ArrowFunctionExpression")
+                .find(x => ["ArrowFunctionExpression", "ClassMethod"].indexOf(x.type) >= 0 )
                 .get("body")
                 .buildCodeFrameError("Component Syntax `..., do {}` found outside expressive context! Did you forget to arrow-return a do expression?")
 
