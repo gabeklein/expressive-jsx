@@ -316,7 +316,7 @@ class ComponentStyleMethod {
     }
 
     LabeledStatement(path){
-        if(!path.get("body").isBlockStatement())
+        if(path.get("body").isExpressionStatement())
             throw path.buildCodeFrameError("Only modifier declarations are allowed here")
 
         GeneralModifier.applyTo(this, path);

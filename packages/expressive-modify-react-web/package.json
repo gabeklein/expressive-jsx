@@ -18,8 +18,9 @@
     "expressive-react",
     "expressive"
   ],
-  "devDependencies": {
+  "dependencies": {
     "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-preset-env": "^1.6.1"
+    "babel-preset-env": "^1.6.1",
+    "dotenv": "^6.0.0"
   }
 }

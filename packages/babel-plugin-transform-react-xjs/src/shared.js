@@ -7,15 +7,7 @@ export const Shared = {
     }
 }
 
-let _global;
-
-try {
-    _global = global;
-} catch(e){
-    _global = window;
-}
-
-export const env = _global.env || {
+export const env = process.env || {
     NODE_ENV: "production"
 };
 
