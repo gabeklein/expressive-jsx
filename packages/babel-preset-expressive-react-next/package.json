@@ -1,6 +1,6 @@
 {
   "name": "babel-preset-expressive-react-next",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "Expressive React support for Next.js applications",
   "main": "lib/index.js",
   "scripts": {
@@ -17,9 +17,9 @@
   "license": "MIT",
   "dependencies": {
     "babel-plugin-implicit-react-class": "^1.3.1",
-    "babel-plugin-transform-react-xjs": "^0.10.1",
+    "babel-plugin-transform-react-xjs": "^0.10.2",
     "babel-preset-expressive-enhancements": "^1.0.1",
-    "expressive-modify-react-web": "^1.3.1"
+    "expressive-modify-react-web": "^1.3.2"
   },
   "devDependencies": {
     "babel-preset-env": "^1.6.1"
