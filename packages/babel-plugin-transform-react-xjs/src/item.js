@@ -164,6 +164,7 @@ export class ExplicitStyle {
         const name = this.name.replace(/([A-Z]+)/g, "-$1").toLowerCase();
         let { static: value } = this;
         if(value === "") value = `""`;
+        else if(typeof value == "string" && ~value.indexOf(" ")) value == `"${value}"`
 
         return `${name}: ${value}`
     }
