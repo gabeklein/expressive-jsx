@@ -1,6 +1,6 @@
 {
-  "name": "expressive-modify-react-native",
-  "version": "1.1.0",
+  "name": "@expressive-react/modify-native",
+  "version": "1.2.0",
   "description": "Style Modifiers to make styling in react-native more convenient",
   "main": "lib/index.js",
   "author": {
@@ -13,6 +13,9 @@
     "prepare": "npm run build"
   },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "react",
     "expressive-react",

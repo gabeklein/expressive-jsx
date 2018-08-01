@@ -1,6 +1,6 @@
 {
-  "name": "expressive-modify-react-web",
-  "version": "1.4.0",
+  "name": "@expressive-react/modify-web",
+  "version": "1.5.0",
   "description": "Style Modifiers for most CSS keywords",
   "main": "lib/index.js",
   "author": {
@@ -13,6 +13,9 @@
     "prepare": "npm run build"
   },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "react",
     "expressive-react",

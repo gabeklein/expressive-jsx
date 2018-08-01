@@ -1,6 +1,6 @@
 {
-  "name": "babel-plugin-transform-react-xjs",
-  "version": "0.10.4",
+  "name": "@expressive-react/plugin-transform-xjs",
+  "version": "0.11.0",
   "description": "Babel transformer preset for React Expression Syntax",
   "main": "lib/index.js",
   "author": {
@@ -13,19 +13,22 @@
     "prepare": "npm run build"
   },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "react",
     "babel",
     "expressive-react"
   ],
-  "repository": "https://github.com/gabeklein/babel-plugin-expressive-react",
+  "repository": "https://github.com/gabeklein/expressive-react",
   "dependencies": {
+    "@expressive-react/style": "^0.3.0",
     "babel-core": "^6.26.0",
     "babel-plugin-syntax-do-expressions": "^6.13.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-template": "^6.26.0",
-    "babel-types": "^6.25.0",
-    "expressive-react-style": "^0.2.10"
+    "babel-types": "^6.25.0"
   },
   "devDependencies": {
     "babel-plugin-transform-class-properties": "^6.24.1",
