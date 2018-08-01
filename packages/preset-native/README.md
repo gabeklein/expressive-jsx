@@ -5,7 +5,7 @@
 # Install
 
 ```
-npm install babel-preset-expressive-react-native
+npm install @expressive-react/preset-native
 ```
 
 **.babelrc**
@@ -13,7 +13,7 @@ npm install babel-preset-expressive-react-native
 ```
 {
     "presets": [
-        "expressive-react-native"
+        "@expressive-react/preset-native"
     ]
 }
 ```

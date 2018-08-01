@@ -129,7 +129,7 @@ class ExpressiveProgram {
 function checkForStyleImport(body){
     for(const {type, source, specifiers} of body)
         if(type == "ImportDeclaration")
-        if(source.value == "expressive-react-style")
+        if(source.value == "@expressive-react/style")
         for(const {type, local} of specifiers)
             if(type == "ImportDefaultSpecifier")
                 Shared.styledApplicationComponentName = local.name
@@ -288,7 +288,7 @@ function includeImports(path, state, file) {
 
     existingImport = body.find(
         (statement, index) => {
-            if(statement.type == "ImportDeclaration" && statement.source.value == "expressive-react-style"){
+            if(statement.type == "ImportDeclaration" && statement.source.value == "@expressive-react/style"){
                 pasteAt = index
                 return true
             }
@@ -301,7 +301,7 @@ function includeImports(path, state, file) {
     }
     else 
     bootstrap.push(
-        t.importDeclaration(expressiveStyleRequired, t.stringLiteral("expressive-react-style"))
+        t.importDeclaration(expressiveStyleRequired, t.stringLiteral("@expressive-react/style"))
     )
 
     bootstrap.push(

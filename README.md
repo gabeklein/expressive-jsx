@@ -57,40 +57,40 @@ Or jump right into [comparing it against JSX](https://github.com/gabeklein/expre
 # Install
 
 The easiest way to add Expressive to your project is to use one of the plugins. There is one for each of the most common environments.
-* React  `babel-preset-expressive-react`
-* NextJS `babel-preset-expressive-react-next`
-* Native `babel-preset-expressive-react-native`
+* React  `preset-web`
+* NextJS `preset-next`
+* Native `preset-native`
 
 <br />
 
 ### React.js / NEXT.js
 
-> Replace `*` with your intended version.
+> Pick version for your environment.
 
 ```bash
-npm install babel-preset-expressive-*
+npm install @expressive-react/preset-*
 ```
 
 **.babelrc**
-> Add `expressive-react` to your babel presets, keep `react` if you intend to use JSX
+> Add `web` *or* `next`  to your babel presets, keep `preset-react` if you want JSX to still work (recommended)
 ```
 {
     "presets": [
-    	["env", { ... }],
-    	"react",
-        "expressive-*"
+    	"@babel/preset-env",
+    	"@babel/preset-react",
+        "@expressive-react/preset-*"
     ]
 }
 ```
 **index.js**
->Unless disabled, `expressive-react-style` must be installed with `default`
-<br/>as the root (of any styled elements), otherwise exceptions will be thrown.
+>**`@expressive-react/style` is a peer dependancy.**<br/>
+<br/>Unless you use no styles, you should import it and set its default as your root (of those elements styled), otherwise exceptions will be thrown.
 >
 >Use `["expressive-*", { styleMode: "inline" }]` if you wish to disable run-time style collation. Expressive will instead insert all styles in-line per element, and `StyledApp` wrapper will not be required. 
  
 
 ```js
-import StyledApp from "expressive-react-style";
+import StyledApp from "@expressive-react/style";
 
 export default () => do { 
   StyledApp() >> App()
@@ -111,15 +111,16 @@ const App = () => do {
 ### React Native
 
 ```bash
-npm install babel-preset-expressive-react-native
+npm install @expressive-react/preset-native
 ```
 
 **.babelrc**
-> Replace preset `react-native` with `expressive-react-native`.
+> **Must replace** `react-native` with `@expressive-react/preset-native` <br/>
+> You may also remove `babel-preset-react-native` from dependancies
 ```
 {
     "presets": [
-        "expressive-react-native"
+        "@expressive-react/preset-native"
     ]
 }
 ```

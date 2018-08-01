@@ -1,8 +1,8 @@
-import transformExpressiveReact from "babel-plugin-transform-react-xjs";
-import inferReactComponent      from "babel-plugin-implicit-react-class";
+import transformExpressiveReact from "@expressive-react/plugin-transform-xjs";
+import inferReactComponent      from "@expressive-react/plugin-auto-extends";
 import ExpressiveEnhancements from "babel-preset-expressive-enhancements"
 
-const NativeStyles = require("expressive-modify-react-native");
+const NativeStyles = require("@expressive-react/modify-native");
 
 const Plugins = require("babel-preset-react-native/plugins")
 

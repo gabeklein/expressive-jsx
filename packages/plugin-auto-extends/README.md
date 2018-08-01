@@ -1,11 +1,11 @@
-# infer-react-class
+# plugin-auto-extends
 
 > Automatically extends classes with `React.Component` that contain a render method.
 
 ## Install
 
 ```sh
-npm install --save-dev babel-plugin-implicit-react-class
+npm install --save-dev @expressive-react/plugin-auto-extends
 ```
 
 ### Before

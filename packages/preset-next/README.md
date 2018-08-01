@@ -5,7 +5,7 @@
 # Install
 
 ```
-npm install babel-preset-expressive-react
+npm install @expressive-react/preset-next
 ```
 
 **.babelrc**
@@ -13,7 +13,7 @@ npm install babel-preset-expressive-react
 ```
 {
     "presets": [
-        "expressive-react"
+        "@expressive-react/preset-next"
     ]
 }
 ```
