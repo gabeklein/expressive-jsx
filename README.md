@@ -57,9 +57,9 @@ Or jump right into [comparing it against JSX](https://github.com/gabeklein/expre
 # Install
 
 The easiest way to add Expressive to your project is to use one of the plugins. There is one for each of the most common environments.
-* React  `preset-web`
-* NextJS `preset-next`
-* Native `preset-native`
+* React  `babel-preset-web`
+* NextJS `babel-preset-next`
+* Native `babel-preset-native`
 
 <br />
 
@@ -72,13 +72,14 @@ npm install @expressive-react/preset-*
 ```
 
 **.babelrc**
-> Add `web` *or* `next`  to your babel presets, keep `preset-react` if you want JSX to still work (recommended)
+> Add `web` *or* `next`  to your babel presets, keep `preset-react` if you want JSX to still work (recommended) <br/>
+> Note that babel infers `babel-preset` so you *should* exclude that 
 ```
 {
     "presets": [
     	"@babel/preset-env",
     	"@babel/preset-react",
-        "@expressive-react/preset-*"
+        "@expressive-react/web"
     ]
 }
 ```
@@ -111,16 +112,17 @@ const App = () => do {
 ### React Native
 
 ```bash
-npm install @expressive-react/preset-native
+npm install @expressive-react/babel-preset-native
 ```
 
 **.babelrc**
-> **Must replace** `react-native` with `@expressive-react/preset-native` <br/>
-> You may also remove `babel-preset-react-native` from dependancies
+> **Must replace** `react-native` with `@expressive-react/native` <br/>
+> You may also remove `babel-preset-react-native` from dependancies <br/>
+> Note that babel infers `babel-preset` even for *@org* packages
 ```
 {
     "presets": [
-        "@expressive-react/preset-native"
+        "@expressive-react/native"
     ]
 }
 ```

@@ -5,15 +5,17 @@
 # Install
 
 ```
-npm install @expressive-react/preset-web
+npm install @expressive-react/babel-preset-web
 ```
 
 **.babelrc**
 
+> Note that babel infers `babel-preset`
+
 ```
 {
     "presets": [
-        "@expressive-react/preset-web"
+        "@expressive-react/web"
     ]
 }
 ```

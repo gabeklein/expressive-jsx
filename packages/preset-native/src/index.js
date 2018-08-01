@@ -1,5 +1,5 @@
-import transformExpressiveReact from "@expressive-react/plugin-transform-xjs";
-import inferReactComponent      from "@expressive-react/plugin-auto-extends";
+import transformExpressiveReact from "@expressive-react/babel-plugin-transform-xjs";
+import inferReactComponent      from "@expressive-react/babel-plugin-auto-extends";
 import ExpressiveEnhancements from "babel-preset-expressive-enhancements"
 
 const NativeStyles = require("@expressive-react/modify-native");
@@ -55,8 +55,8 @@ module.exports = options => {
 
             plugin('transform-es2015-classes'),
             
-            // plugin('transform-react-display-name'),
-            // plugin('transform-react-jsx-source')
+            //TODO: implement transform-react-display-nam
+            //TODO: implement transform-react-jsx-source
         ]
     }
 }

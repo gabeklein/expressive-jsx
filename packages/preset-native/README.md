@@ -5,15 +5,17 @@
 # Install
 
 ```
-npm install @expressive-react/preset-native
+npm install @expressive-react/babel-preset-native
 ```
 
 **.babelrc**
 
+> Note that babel infers `babel-preset`
+
 ```
 {
     "presets": [
-        "@expressive-react/preset-native"
+        "@expressive-react/native"
     ]
 }
 ```

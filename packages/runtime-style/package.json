@@ -22,7 +22,7 @@
     "expressive"
   ],
   "devDependencies": {
-    "@expressive-react/preset-web": "^1.4.2",
+    "@expressive-react/babel-preset-web": "^1.4.2",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-env": "^1.6.1"
   },

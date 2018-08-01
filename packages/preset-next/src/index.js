@@ -1,5 +1,5 @@
-import inferReactComponent      from "@expressive-react/plugin-auto-extends";
-import transformExpressiveReact from "@expressive-react/plugin-transform-xjs";
+import inferReactComponent      from "@expressive-react/babel-plugin-auto-extends";
+import transformExpressiveReact from "@expressive-react/babel-plugin-transform-xjs";
 import ExpressiveEnhancements from "babel-preset-expressive-enhancements"
 
 const WebStyles = require("@expressive-react/modify-web");

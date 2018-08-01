@@ -1,4 +1,4 @@
-# plugin-transform-xjs
+# babel-plugin-transform-xjs
 
 > Babel plugin for transforming `do{ }` statements into [React](https://github.com/facebook/react) compatable markup. Most comperable to [babel-plugin-transform-react-jsx](https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-jsx), with a completely different syntax at play. May be used along side JSX and it's respective babel-plugin (recommended) or even as a feature-complete replacement, depending on your needs.
 
@@ -16,10 +16,12 @@ npm install @expressive-react/preset-*
 
 **.babelrc**
 
+> Note that babel infers `babel-preset` so you should replace `*` with only the keyword of package you've installed.
+
 ```
 {
-    "plugins": [
-        "@expressive-react/preset-*"
+    "presets": [
+        "@expressive-react/*"
     ]
 }
 ```
@@ -28,7 +30,7 @@ npm install @expressive-react/preset-*
 
 # Entry Points
 
-> _[plugin-transform-xjs](#plugin-transform-xjs) will enter context upon encountering the DoExpression e.g. `do{}` in various contexts. It will also do so for any method with the name __"do"__ e.g. `do(){}`_ <br/><br/> For more information on actual syntax, consult the [main repo](https://github.com/gabeklein/expressive-react).
+> _[babel-plugin-transform-xjs](#babel-plugin-transform-xjs) will enter context upon encountering the DoExpression e.g. `do{}` in various contexts. It will also do so for any method with the name __"do"__ e.g. `do(){}`_ <br/><br/> For more information on actual syntax, consult the [main repo](https://github.com/gabeklein/expressive-react).
 
 
 #### Element Expressions

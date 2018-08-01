@@ -1,11 +1,23 @@
-# plugin-auto-extends
+# babel-plugin-auto-extends
 
 > Automatically extends classes with `React.Component` that contain a render method.
 
 ## Install
 
 ```sh
-npm install --save-dev @expressive-react/plugin-auto-extends
+npm install --save-dev @expressive-react/babel-plugin-auto-extends
+```
+
+**.babelrc**
+
+> Note that babel infers `babel-plugin`
+
+```
+{
+    "plugins": [
+        "@expressive-react/auto-extends"
+    ]
+}
 ```
 
 ### Before
