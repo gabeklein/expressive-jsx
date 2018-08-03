@@ -1,8 +1,10 @@
 const PSEUDO = {
     hover: ":hover",
-    after: ":after",
-    before: ":before",
-    active: ":active"
+    active: ":active",
+    after: "::after",
+    before: "::before",
+    hoverAfter: ":hover::after",
+    hoverBefore: ":hover::before"
 }
 
 export { pseudo as on };
