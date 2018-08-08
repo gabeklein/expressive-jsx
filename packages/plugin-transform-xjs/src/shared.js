@@ -53,6 +53,24 @@ export const transform = {
         return t.objectExpression(properties);
     },
 
+    member(object, ...path){
+        if(object == "this") object = t.thisExpression()
+        for(let x of path){
+            if(typeof x == "string"){
+                if(/^[A-Za-z0-9$_]+$/.test(x)){
+                    object = t.memberExpression(object, t.identifier(x));
+                    continue;
+                }
+                else x = t.stringLiteral(x)
+            }
+            else if(typeof x == "number")
+                x = t.numericLiteral(x);
+
+            object = t.memberExpression(object, x, true)
+        }
+        return object
+    },
+
     createElement(type, props, ...children){
         if(typeof type == "string") type = t.stringLiteral(type);
         if(!props) props = t.objectExpression([]);
