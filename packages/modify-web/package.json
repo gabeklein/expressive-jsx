@@ -1,6 +1,6 @@
 {
   "name": "@expressive-react/modify-web",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Style Modifiers for most CSS keywords",
   "main": "lib/index.js",
   "author": {
