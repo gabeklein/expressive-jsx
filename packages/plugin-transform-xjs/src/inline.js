@@ -3,7 +3,7 @@ const { createHash } = require('crypto');
 
 const { html_tags_obvious } = require('./html-types');
 const { Shared, Opts, transform } = require("./shared");
-const { NonComponent, Prop } = require("./item")
+const { NonComponent, QuasiComponent, Prop } = require("./item")
 const { ComponentGroup } = require("./component")
 const util = require('util');
 
@@ -112,7 +112,7 @@ const InlineLayers = {
 
     TaggedTemplateExpression(path){
         const tag = path.get("tag")
-        this.unhandledQuasi = path.get("quasi")
+        QuasiComponent.applyTo(this, path.get("quasi"))
 
         // prevent ES6 transformer from shimming the template.
         path.remove()
