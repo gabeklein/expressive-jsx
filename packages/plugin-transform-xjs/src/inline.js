@@ -568,8 +568,10 @@ export class ElementInline extends ComponentGroup {
             style: initial_style
         } = inline;
 
-        if(this.style_static.length || this.mayReceiveExternalClasses)
+        if(this.style_static.length || this.mayReceiveExternalClasses){
+            this.generateUCN()
             inline.css.push(this.uid)
+        }
 
         if(this.style_static.length)
             this.context.declareForRuntime(this);

@@ -30,6 +30,17 @@ export function RenderFromDoMethods(renders, subs){
     }
 }
 
+const ensureArray = (children, getFirst) => {
+    const array = t.callExpression(
+        t.memberExpression(
+            t.arrayExpression([]),
+            t.identifier("concat")
+        ),
+        [children]
+    )
+    return getFirst ? t.memberExpression(array, t.numericLiteral(0), true) : array;
+}
+
 export class DoComponent {
     static enter(path, state){
 
@@ -128,6 +139,9 @@ export class ComponentClass {
             Shared.stack.push(current);
             Shared.stack.currentlyParsingClass = path;
             Shared.stack.modifierInsertions = modifierInsertions
+            Shared.stack.classComponentsNamed = subComponents.map(
+                x => x.node.key.name
+            );
             Shared.stack.styleRoot = null;
 
             RenderFromDoMethods(doFunctions, subComponents);
@@ -154,7 +168,13 @@ export class ComponentEntry extends ElementInline {
         let body, output;
         const { style, props } = this;
 
-        if(style.length || this.mayReceiveExternalClasses || this.style_static.length || props.length)
+        if(
+            style.length || 
+            this.typeInformation.css.length ||  
+            this.mayReceiveExternalClasses || 
+            this.style_static.length || 
+            props.length
+        )
             ({ 
                 product: output, 
                 factory: body = [] 
@@ -192,15 +212,10 @@ class ComponentMethod extends ComponentEntry {
         this.insertDoIntermediate(path)
     }
 
-    insertDoIntermediate(path){
-        const doExpression = t.doExpression(path.node.body);
-              doExpression.meta = this;
-
-        const [argument_props, argument_state] = path.get("params");
-        const body = path.get("body");
-        const src = body.getSource();
+    bindRelatives(body){
         const name = this.methodNamed;
-        
+        const src = body.getSource();
+
         const bindRelatives = this.attendantComponentNames.reduce(
             (acc, name) => {
                 if(new RegExp(`[^a-zA-Z_]${name}[^a-zA-Z_]`).test(src)){
@@ -222,28 +237,64 @@ class ComponentMethod extends ComponentEntry {
                 })
             } 
             else throw new Error("fix WIP: no this context to make sibling elements visible")
+    }
 
+    insertDoIntermediate(path){
+        const doExpression = t.doExpression(path.node.body);
+              doExpression.meta = this;
 
-        let params = [];
+        const body = path.get("body");
 
-        if(argument_props)
-            if(name == "render"){
-                if(argument_props.isAssignmentPattern())
-                    argument_props.buildCodeFrameError("Props Argument will always resolve to `this.props`")
+        this.bindRelatives(body);
 
-                body.scope.push({
-                    kind: "var",
-                    id: argument_props.node,
-                    init: t.memberExpression( t.thisExpression(), t.identifier("props") )
-                })
-            } 
-            else params = [argument_props.node]
+        const { params } = path.node;
+        let props = params[0];
+        let destruct;
+        let ref_children;
+
+        if(props){
+            destruct = props;
+            if(props.type == "AssignmentPattern")
+                throw parentFn.get("params.0.right").buildCodeFrameError(
+                    "This argument will always resolve to component props" );
+        } 
+
+        
+        if(params.length > 1){
+            if(props && props.type != "Identifier")
+                props = path.scope.generateUidIdentifier("props")
+
+            const children = params.slice(1);
+            const count = children.length;
+            const c1 = children[0].type == "RestElement"
+                ? children[0].argument
+                : t.arrayPattern(children)
+
+            ref_children = {
+                kind: "var", id: c1,
+                init: ensureArray( transform.member(props, "children") )
+            }
+        }
+
+        if(props && this.isRender){
+            body.scope.push({
+                kind: "var", id: props,
+                init: transform.member("this", "props")
+            })
+        }
+        
+        if(props && props !== destruct)
+            body.scope.push({
+                kind: "var", id: destruct, init: props
+            })
+
+        if(ref_children) body.scope.push(ref_children);
 
         path.replaceWith(
             t.classMethod(
                 "method", 
-                t.identifier(name), 
-                params,
+                t.identifier(this.methodNamed), 
+                this.isRender ? [] : [props],
                 t.blockStatement([
                     t.returnStatement(doExpression)
                 ])
@@ -253,6 +304,8 @@ class ComponentMethod extends ComponentEntry {
 
     didEnterOwnScope(path){
         super.didEnterOwnScope(path)
+        for(const name of this.attendantComponentNames)
+            this.context["_" + name] = null
     }
 
     didExitOwnScope(path){
@@ -335,8 +388,44 @@ class ComponentFunctionExpression extends ComponentEntry {
     }
 
     didExitOwnScope(path){
-        const parentFn = path.parentPath;
-        const {params, generator, async} = parentFn.node;
+        const parentFn = path.parentPath, 
+            { node } = parentFn, 
+            { params } = node, 
+            [ props ] = params;
+
+        const body = this.outputBodyDynamic();
+
+        if(props && props.type == "AssignmentPattern")
+            throw parentFn.get("params.0.right").buildCodeFrameError(
+                "This argument will always resolve to component props" ) 
+        
+        if(params.length > 1){
+            let args = params.slice(1);
+            let count = args.length;
+            let ident;
+
+            let assign = count > 1 
+                ? t.arrayPattern(args) : args[0];
+                
+            if(assign.type == "RestElement")
+                assign = assign.argument, count++;
+    
+            if(props.type == "ObjectPattern")
+                props.properties.push(
+                    t.objectProperty(
+                        t.identifier("children"), 
+                        count > 1
+                            ? ident = path.scope.generateUidIdentifier("children")
+                            : assign
+                    )
+                )
+            else ident = t.memberExpression(props, t.identifier("children"));
+
+            if(ident)
+                body.unshift(
+                    transform.declare("var", assign, ensureArray(ident, count == 1))
+                )
+        }
 
         if(this.style_static || this.mayReceiveExternalClasses)
             this.generateUCN();
@@ -344,10 +433,10 @@ class ComponentFunctionExpression extends ComponentEntry {
         parentFn.replaceWith(
             t.functionExpression(
                 null, 
-                params, 
-                t.blockStatement(this.outputBodyDynamic()), 
-                generator, 
-                async
+                props ? [props] : [], 
+                t.blockStatement(body), 
+                node.generator, 
+                node.async
             )
         )
         this.context.pop();

@@ -217,11 +217,13 @@ export class ComponentGroup extends ComponentBody {
 
                 case "self":
                 case "child": {
+                    // if(item.constructor.name == "QuasiComponent") debugger
                     const { product, factory } = item.transform();
 
                     if(!factory && product){
-                        if(adjacent) adjacent.push(product);
-                        else adjacent = [product]
+                        adjacent = (adjacent || []).concat(product)
+                        // if(adjacent) adjacent.push(product);
+                        // else adjacent = [product]
                         continue;
                     } else {
                         if(product) {
