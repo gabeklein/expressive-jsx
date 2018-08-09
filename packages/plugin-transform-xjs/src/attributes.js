@@ -89,8 +89,8 @@ export class parsedArgumentBody {
         return e.node.value;
     }
 
-    TemplateLiteral(){
-        debugger 
+    TemplateLiteral(e){
+        return e; 
     }
 
     BinaryExpression(e){
@@ -101,12 +101,13 @@ export class parsedArgumentBody {
         && right.start == left.end + 1 )
             return left.name + "-" + right.name;
         else 
-            return {
-                type: "binary",
-                operator,
-                left: left.name || left.value,
-                right: right.name || right.value,
-            };
+            return e;
+            // return {
+            //     type: "binary",
+            //     operator,
+            //     left: left.name || left.value,
+            //     right: right.name || right.value,
+            // };
     }
 
     UnaryExpression(e){
