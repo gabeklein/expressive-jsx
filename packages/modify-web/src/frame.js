@@ -40,7 +40,8 @@ for (const kind of [
         ["Vertical", "Top", "Bottom"],
         ["Horizontal", "Left", "Right"] 
     ])
-    EXPORT[kind + direction] = 
+    EXPORT[kind + direction] = // marginHorizontal
+    EXPORT[kind + direction[0]] = // marginH
         (aIn, bIn) => ({
             attrs: {
                 [kind + a]: aIn,

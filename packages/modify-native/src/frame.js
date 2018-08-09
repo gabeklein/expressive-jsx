@@ -36,8 +36,12 @@ for (const kind of [
     "margin", 
     "padding"
 ]) {
-    EXPORT[kind] = 
-    function(a, b, c, d){
+    for(const dir of ["Horizontal, Vertical"])
+        EXPORT[kind + dir[0]] = function(a){
+            return { attrs: { [kind + dir]: a } }
+        }
+    
+    EXPORT[kind] = function(a, b, c, d){
         switch(this.arguments.length){
             case 1: return {
                 style: { [kind]: a }
