@@ -1,7 +1,5 @@
 //needed only to prevent a webpack "no instrumentation found" error
 
-
-import PropTypes from 'prop-types';
 import { hot } from 'react-hot-loader'
 import { Component, createElement, Fragment, createContext } from "react";
 
