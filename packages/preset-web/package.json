@@ -1,6 +1,6 @@
 {
   "name": "@expressive-react/babel-preset-web",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "An alternative syntax for powerful react constructs using less code",
   "main": "lib/index.js",
   "scripts": {
