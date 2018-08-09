@@ -101,13 +101,13 @@ export class parsedArgumentBody {
         && right.start == left.end + 1 )
             return left.name + "-" + right.name;
         else 
-            return e;
-            // return {
-            //     type: "binary",
-            //     operator,
-            //     left: left.name || left.value,
-            //     right: right.name || right.value,
-            // };
+            return {
+                type: "binary",
+                operator,
+                left: left.name || left.value,
+                right: right.name || right.value,
+                nodePath: e
+            };
     }
 
     UnaryExpression(e){
