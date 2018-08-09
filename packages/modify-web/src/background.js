@@ -1,7 +1,7 @@
 export function image(a){
     const CDN = process.env.CDN || "";
     if(CDN)
-        a = CDN + "/" + a;
+        a = CDN + a;
     
     return {
         style: {
