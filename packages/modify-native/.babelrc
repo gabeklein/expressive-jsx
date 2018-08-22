@@ -11,5 +11,5 @@
     "transform-class-properties"
   ],
   "sourceMaps": "inline",
-  "compact": "false"
+  "compact": false
 }

@@ -12,5 +12,5 @@
     "transform-object-rest-spread"
   ],
   "sourceMaps": "inline",
-  "compact": "false"
+  "compact": false
 }

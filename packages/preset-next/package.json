@@ -25,7 +25,8 @@
     "babel-preset-expressive-enhancements": "^1.0.1"
   },
   "devDependencies": {
-    "babel-preset-env": "^1.6.1"
+    "babel-preset-env": "^1.6.1",
+    "babel-cli": "6.26.0"
   },
   "peerDependencies": {
     "react": "^16.2.0",
