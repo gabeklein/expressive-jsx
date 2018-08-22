@@ -222,6 +222,7 @@ export class ElementModifier extends AttrubutesBody {
     precedence = 0
     classList = [];
     provides = [];
+    opperations = [];
     inlineType = "stats"
     stylePriority = 1
 
@@ -256,6 +257,10 @@ export class ElementModifier extends AttrubutesBody {
         this.context.nearestStyleProvider = this;
         this.process();
         recipient.includeModifier(this);
+    }
+
+    onComponent(f){
+        this.opperations.push(f);
     }
 
     includeModifier(modifier){
@@ -324,6 +329,8 @@ export class ElementModifier extends AttrubutesBody {
     }
 
     insert(target, args, inline){
+        for(const op of this.opperations)
+            op(target, inline)
         if(!inline && !args.length) return;
         this.into(inline)
     }

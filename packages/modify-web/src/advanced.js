@@ -7,6 +7,8 @@ const PSEUDO = {
     hoverBefore: ":hover::before"
 }
 
+const t = require("prop-types")
+
 export { pseudo as on };
 
 function pseudo(){
@@ -65,13 +67,13 @@ export function css(){
 
 
 export function source(a){
-    return {
-        style: {
-            source: {
-                require: a
-            }
+    this.target.onComponent((target, inline) => {
+        const src = target.attrs.find(x => x.name == "src");
+        if(src){
+            debugger;
+            // src.node = 
         }
-    }
+    })
 }
 
 export function style(content){
