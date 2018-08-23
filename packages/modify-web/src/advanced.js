@@ -7,8 +7,6 @@ const PSEUDO = {
     hoverBefore: ":hover::before"
 }
 
-const t = require("prop-types")
-
 export { pseudo as on };
 
 function pseudo(){
