@@ -99,6 +99,7 @@ class ExpressiveProgram {
 
         let Stack = createSharedStack(state.opts.modifiers);
             Stack = Shared.stack = initComputedStyleAccumulator(Stack, state);
+            
         let Helpers = Stack.helpers = {};
         let didUse = state.didUse = {};
 

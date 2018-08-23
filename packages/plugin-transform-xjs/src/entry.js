@@ -55,13 +55,17 @@ export class DoComponent {
             let Handler;
 
             if(immediateParent.isArrowFunctionExpression()){
-                Handler = ComponentFunctionExpression;
+                Handler = ComponentArrowExpression;
                 immediateParent = immediateParent.parentPath;
             } 
+            else if((path.getAncestry()[3] || 0).type == "ArrowFunctionExpression"){
+                Handler = ComponentArrowExpression;
+                immediateParent = path.getAncestry()[3];
+            }
             else if(!immediateParent.isSequenceExpression()){
                 Handler = ComponentInlineExpression;
             }
-            else throw immediateParent.getAncestry()
+            else throw path.getAncestry()
                 .find(x => ["ArrowFunctionExpression", "ClassMethod"].indexOf(x.type) >= 0 )
                 .get("body")
                 .buildCodeFrameError("Component Syntax `..., do {}` found outside expressive context! Did you forget to arrow-return a do expression?")
@@ -376,7 +380,7 @@ class ComponentStyleMethod {
     }
 }
 
-class ComponentFunctionExpression extends ComponentEntry {
+class ComponentArrowExpression extends ComponentEntry {
 
     constructor(path, name) {
         super(path);
@@ -388,7 +392,7 @@ class ComponentFunctionExpression extends ComponentEntry {
     }
 
     didExitOwnScope(path){
-        const parentFn = path.parentPath, 
+        const parentFn = path.getAncestry().find(x => x.type == "ArrowFunctionExpression"), 
             { node } = parentFn, 
             { params } = node, 
             [ props ] = params;
@@ -443,7 +447,7 @@ class ComponentFunctionExpression extends ComponentEntry {
     }
 }
  
-class ComponentInlineExpression extends ComponentFunctionExpression {
+class ComponentInlineExpression extends ComponentArrowExpression {
 
     didExitOwnScope(path){
         const { body, output: product }
