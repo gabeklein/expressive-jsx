@@ -15,7 +15,7 @@ export function RNTextNode(parent, path){
     node.context = Object.create(parent.context);
     node.parentDeclaredAll = parent.context.allMod;
     // node.context.current = node;
-    node.tags.push({name: "string", head: true});
+    node.tags.push({name: "string"});
     node.tags.push({
         name: Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "span", 
         head: true
