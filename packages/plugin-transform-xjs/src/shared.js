@@ -71,10 +71,37 @@ export const transform = {
     },
 
     createElement(type, props, ...children){
+
+        // if(true)
+        //     return this.createJSXElement(...arguments);
+
         if(typeof type == "string") type = t.stringLiteral(type);
         if(!props) props = t.objectExpression([]);
 
         return t.callExpression(Shared.stack.helpers.createElement, [type, props, ...children])
+    },
+
+    createJSXElement(type, props, ...children){
+        if(typeof type == "string") 
+            type = t.jSXText(type);
+        else if(type.type == "StringLiteral")
+            type = t.jSXText(type.value)
+        else if(type.type == "Identifier")
+            type = t.jSXIdentifier(type.name)
+
+        return t.jSXElement(
+            t.jSXOpeningElement(
+                t.jSXIdentifier(type),
+                props.map( attribute => {
+                    debugger
+                })
+            ),
+            t.jSXClosingElement(t.jSXIdentifier(type)), 
+            children.map( child => {
+                debugger
+                return child;
+            })
+        )
     },
 
     declare(type, id, value){
