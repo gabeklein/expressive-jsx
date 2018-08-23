@@ -24,9 +24,8 @@ export const transform = {
     },
 
     createFragment(elements, props){
-        const { Fragment } = Shared;
         return this.createElement(
-            Fragment, 
+            Shared.stack.helpers.Fragment, 
             t.objectExpression(props || []),
             ...elements
         )
@@ -75,7 +74,7 @@ export const transform = {
         if(typeof type == "string") type = t.stringLiteral(type);
         if(!props) props = t.objectExpression([]);
 
-        return t.callExpression(Shared.createElement, [type, props, ...children])
+        return t.callExpression(Shared.stack.helpers.createElement, [type, props, ...children])
     },
 
     declare(type, id, value){

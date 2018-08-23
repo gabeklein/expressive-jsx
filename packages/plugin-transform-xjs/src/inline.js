@@ -17,7 +17,7 @@ export function RNTextNode(parent, path){
     // node.context.current = node;
     node.tags.push({name: "string", head: true});
     node.tags.push({
-        name: Opts.reactEnv == "native" ? Shared.Text : "span", 
+        name: Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "span", 
         head: true
     });
     NonComponent.applyTo(node, path)
@@ -98,7 +98,7 @@ const InlineLayers = {
         else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
             const default_type_text = 
                 Opts.reactEnv == "native"
-                    ? Shared.Text
+                    ? Shared.stack.helpers.Text
                     : "div";
 
             target.tags.push({name: default_type_text, head: true})
@@ -355,7 +355,7 @@ export class ElementInline extends ComponentGroup {
             inlineType: "child",
             transform: () => ({
                 product: transform.createElement(
-                    Shared.claimStyle, 
+                    Shared.stack.helpers.claimStyle, 
                     transform.object({
                         css: t.stringLiteral(styles),
                         hid: t.stringLiteral(hash)
@@ -422,7 +422,7 @@ export class ElementInline extends ComponentGroup {
             return output[0] || t.objectExpression([])
         } else {
             return t.callExpression(
-                Shared.extends,
+                Shared.stack.helpers.extends,
                 output
             )
         } 
@@ -477,14 +477,16 @@ export class ElementInline extends ComponentGroup {
         
         const hasOneNonElement = this.child.length == 1 && this.child[0].constructor.name == "NonComponent"
 
-        if(!inline.type)
+        if(!inline.type){
+            const { helpers } = Shared.stack;
             inline.type = type || (
                 Opts.reactEnv == "native" 
                     ? hasOneNonElement
-                        ? Shared.Text
-                        : Shared.View
+                        ? helpers.Text
+                        : helpers.View
                     : ELEMENT_TYPE_DEFAULT
             )
+        }
     
         if(this.unhandledQuasi)
             this.includeUnhandledQuasi(inline.type.type != "Identifier")
@@ -668,7 +670,7 @@ export class ElementInline extends ComponentGroup {
                     cn : t.stringLiteral(cn)
             } else
                 applied = t.callExpression(
-                    Shared.select,
+                    Shared.stack.helpers.select,
                     applied.map(x => typeof x == "string" ? t.stringLiteral(x) : x)
                     
                 )

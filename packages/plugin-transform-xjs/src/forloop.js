@@ -104,7 +104,7 @@ export class ComponentRepeating extends ComponentGroup {
 
         const product = 
             this.insert == "fragment" ?
-                t.callExpression( Shared.createIterated, [accumulator] ) :
+                t.callExpression( Shared.stack.helpers.createIterated, [accumulator] ) :
             this.insert == "array" ?
                 accumulator :
                 null;

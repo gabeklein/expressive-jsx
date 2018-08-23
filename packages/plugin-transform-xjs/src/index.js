@@ -97,13 +97,24 @@ class ExpressiveProgram {
         if(Opts.reactEnv != "native")
             checkForStyleImport(path.scope.block.body);
 
-        for(const x in registerIDs)
-            Shared[x] = path.scope.generateUidIdentifier(registerIDs[x]);
-
         let Stack = createSharedStack(state.opts.modifiers);
             Stack = Shared.stack = initComputedStyleAccumulator(Stack, state);
-        Shared.state = state;
+        let Helpers = Stack.helpers = {};
+        let didUse = state.didUse = {};
 
+        for(const x in registerIDs){
+            const reference =  path.scope.generateUidIdentifier(registerIDs[x]);
+            Object.defineProperty(Helpers, x, {
+                configurable: true,
+                get(){
+                    Object.defineProperty(Helpers, x, { value: reference });
+                    state.didUse[x] = true;
+                    return reference;
+                }
+            })
+        }
+
+        Shared.state = state;
     }
 
     static exit(path, state, options){
@@ -112,7 +123,9 @@ class ExpressiveProgram {
 
         if(state.expressive_used){
             let index = 0;
+
             index = includeImports(path, state, this.file, options);
+
             if(Opts.reactEnv != "native" && compute.length > 0)
                 index = generateComputedStylesExport(path, compute, index);
         }
@@ -200,7 +213,7 @@ function generateComputedStylesExport(path, compute, index){
         t.expressionStatement(
             t.callExpression(
                 t.memberExpression(
-                    Shared.cacheStyle, 
+                    Shared.stack.helpers.cacheStyle, 
                     t.identifier("moduleDoesYieldStyle")
                 ), [
                     t.stringLiteral(
@@ -217,10 +230,11 @@ function generateComputedStylesExport(path, compute, index){
 
 function destructure(list){
     const destructure = [];
+    const { helpers } = Shared.stack;
 
     for(const i of list)
         destructure.push(
-            t.objectProperty(t.identifier(i), Shared[i])
+            t.objectProperty(t.identifier(i), helpers[i])
         )
 
     return destructure;
@@ -241,11 +255,19 @@ function requirement(from, imports){
 
 function includeImports(path, state, file) {
 
+    const { didUse } = state;
+
     const bootstrap = [];
     const reactRequires = "react"
     const reactRequired = [
-        "createElement", "Fragment", "createClass"
+        "createElement"
     ]
+
+    if(didUse.Fragment)
+        reactRequired.push("Fragment")
+
+    if(didUse.createClass)
+        reactRequired.push("createClass")
 
     const { body } = path.scope.block;
 
@@ -281,47 +303,54 @@ function includeImports(path, state, file) {
             ])
         )
 
-    const expressiveStyleRequired = [
-        t.importSpecifier(Shared.cacheStyle, t.identifier("Cache")),
-        t.importSpecifier(Shared.claimStyle, t.identifier("Include"))
-    ]
+    const { helpers } = Shared.stack;
 
-    existingImport = body.find(
-        (statement, index) => {
-            if(statement.type == "ImportDeclaration" && statement.source.value == "@expressive-react/style"){
-                pasteAt = index
-                return true
+    if(didUse.claimStyle){
+        const expressiveStyleRequired = [
+            t.importSpecifier(helpers.cacheStyle, t.identifier("Cache")),
+            t.importSpecifier(helpers.claimStyle, t.identifier("Include"))
+        ]
+
+        existingImport = body.find(
+            (statement, index) => {
+                if(statement.type == "ImportDeclaration" && statement.source.value == "@expressive-react/style"){
+                    pasteAt = index
+                    return true
+                }
             }
+        )
+
+        if(Opts.formatStyles === undefined && Opts.reactEnv != "native")
+        if(existingImport){
+            existingImport.specifiers.push(...expressiveStyleRequired)
         }
-    )
-
-    if(Opts.formatStyles === undefined && Opts.reactEnv != "native")
-    if(existingImport){
-        existingImport.specifiers.push(...expressiveStyleRequired)
+        else 
+        bootstrap.push(
+            t.importDeclaration(expressiveStyleRequired, t.stringLiteral("@expressive-react/style"))
+        )
     }
-    else 
+
+    if(didUse.createApplied)
     bootstrap.push(
-        t.importDeclaration(expressiveStyleRequired, t.stringLiteral("@expressive-react/style"))
+        TEMPLATE.createApplied({ NAME: helpers.createApplied })
     )
 
+    if(didUse.extends)
     bootstrap.push(
-        TEMPLATE.createApplied({ NAME: Shared.createApplied })
+        TEMPLATE.fnExtends({ NAME: helpers.extends })
     )
 
+    if(didUse.select)
     bootstrap.push(
-        TEMPLATE.fnExtends({ NAME: Shared.extends })
-    )
-
-    bootstrap.push(
-        TEMPLATE.fnSelect({ NAME: Shared.select })
+        TEMPLATE.fnSelect({ NAME: helpers.select })
     )
 
     if(state.expressive_for_used)
     bootstrap.push(
         TEMPLATE.fnCreateIterated({ 
-            NAME: Shared.createIterated,
-            CREATE: Shared.createElement,
-            FRAG: Shared.Fragment
+            NAME: helpers.createIterated,
+            CREATE: helpers.createElement,
+            FRAG: helpers.Fragment
         })
     )
 
