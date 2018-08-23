@@ -551,7 +551,6 @@ export class ElementInline extends ComponentGroup {
     }
 
     build(){
-
         const own_declarations = [];
         let accumulated_style, computed_props;
 
@@ -684,10 +683,12 @@ export class ElementInline extends ComponentGroup {
 
         const _quoteTarget = { props: computed_props, style: accumulated_style };
 
-        const { output: computed_children = [], body: compute_children } = this.collateChildren( 
-            (x) => {
-                const target = _quoteTarget[x.inlineType];
-                if(target) return x.asAssignedTo(target);
+        const { 
+            output: computed_children = [], 
+            body: compute_children 
+        } = this.collateChildren( child => {
+                const target = _quoteTarget[child.inlineType];
+                if(target) return child.asAssignedTo(target);
             }
         );
 
@@ -719,14 +720,14 @@ export class ElementInline extends ComponentGroup {
             return { 
                 product: reference, 
                 factory: [
-                transform.declare("let", reference),
-                t.blockStatement([
-                    ...compute_instructions,
-                    t.expressionStatement(
-                        t.assignmentExpression("=", reference, product)
-                    )
-                ])
-            ]
+                    transform.declare("let", reference),
+                    t.blockStatement([
+                        ...compute_instructions,
+                        t.expressionStatement(
+                            t.assignmentExpression("=", reference, product)
+                        )
+                    ])
+                ]
             }
         } 
     }
@@ -759,7 +760,7 @@ export class ElementInline extends ComponentGroup {
                 return child;
             })
         )
-        }
+    }
 
     renderES5(type, props, children){
         if(typeof type == "string") type = t.stringLiteral(type);
