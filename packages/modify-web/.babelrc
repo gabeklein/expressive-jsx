@@ -1,6 +1,6 @@
 {
   "presets": [
-    [ "env", {
+    [ "@babel/env", {
         "targets": {
             "node": "current"
         },
@@ -8,7 +8,7 @@
     }]
   ],
   "plugins": [
-    "transform-class-properties"
+    "@babel/plugin-proposal-class-properties"
   ],
   "sourceMaps": "inline",
   "compact": false
