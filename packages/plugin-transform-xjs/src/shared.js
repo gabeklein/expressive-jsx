@@ -1,4 +1,4 @@
-const t = require("babel-types")
+const t = require("@babel/types")
 
 //basically a singleton
 export const Shared = {

@@ -1,4 +1,4 @@
-const t = require("babel-types")
+const t = require("@babel/types")
 const { createHash } = require('crypto');
 
 const { ComponentGroup } = require("./component")

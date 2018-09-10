@@ -1,4 +1,4 @@
-const t = require("babel-types")
+const t = require("@babel/types")
 const { Opts, transform, Shared } = require("./shared");
 const { createHash } = require('crypto');
 

@@ -1,5 +1,5 @@
 
-const t = require("babel-types");
+const t = require("@babel/types");
 const { Opts, Shared, transform } = require("./shared");
 
 export function HEX_COLOR(n){

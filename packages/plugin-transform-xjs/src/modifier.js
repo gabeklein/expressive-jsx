@@ -1,5 +1,5 @@
 
-const t = require("babel-types");
+const t = require("@babel/types");
 const { createHash } = require('crypto');
 const { AttrubutesBody } = require("./component");
 const { SyntheticProp, ExplicitStyle, Statement, NonComponent } = require("./item");
@@ -373,12 +373,12 @@ export class ElementModifier extends AttrubutesBody {
         const id = this.id || (this.id = this.scope.generateUidIdentifier(this.name)); 
 
         if(this.props.length && this.style.length){
-            props.push(t.spreadProperty(
+            props.push(t.SpreadElement(
                 t.memberExpression(
                     id, t.identifier("props")
                 )
             ))
-            style.push(t.spreadProperty(
+            style.push(t.SpreadElement(
                 t.memberExpression(
                     id, t.identifier("style")
                 )
@@ -386,7 +386,7 @@ export class ElementModifier extends AttrubutesBody {
         }
         else {
             inline[this.type].push(
-                t.spreadProperty(id)
+                t.SpreadElement(id)
             );
         }
 

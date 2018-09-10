@@ -1,4 +1,4 @@
-const t = require('babel-types')
+const t = require('@babel/types')
 const { createHash } = require('crypto');
 
 const { html_tags_obvious } = require('./html-types');
@@ -380,7 +380,7 @@ export class ElementInline extends ComponentGroup {
         let output = [];
         let layer = [];
         for(const style of inline)
-            if(style.type == "SpreadProperty"){
+            if(style.type == "SpreadElement"){
                 if(layer.length) output.push(t.objectExpression(layer))
                 output.push(style.argument);
                 layer = [];
@@ -407,9 +407,9 @@ export class ElementInline extends ComponentGroup {
             else return t.arrayExpression(output)
 
         } else {
-            if(dynamic) inline.push(t.spreadProperty(dynamic))
+            if(dynamic) inline.push(t.SpreadElement(dynamic))
 
-            if(inline.length == 1 && inline[0].type == "SpreadProperty")
+            if(inline.length == 1 && inline[0].type == "SpreadElement")
                 return inline[0].argument
 
             return t.objectExpression(inline);

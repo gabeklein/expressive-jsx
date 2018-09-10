@@ -1,7 +1,7 @@
 
 import syntaxDoExpressions from "babel-plugin-syntax-do-expressions";
 
-const t = require("babel-types");
+const t = require("@babel/types");
 const template = require("babel-template");
 const { Shared, Opts } = require("./shared");
 const { ComponentClass, DoComponent } = require('./entry.js');

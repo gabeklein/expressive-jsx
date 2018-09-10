@@ -1,4 +1,4 @@
-const t = require('babel-types');
+const t = require('@babel/types');
 const { transform, Opts } = require("./shared");
 const { HEX_COLOR } = require("./attributes")
 
@@ -23,7 +23,7 @@ export class Attribute {
     get asProperty(){
         const { name, value, isSpread } = this;
         if(isSpread){
-            return t.spreadProperty(this.value)
+            return t.SpreadElement(this.value)
         } else {
             if(!name) {
                 throw new Error("Internal Error: Prop has no name!")

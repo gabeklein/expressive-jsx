@@ -1,4 +1,4 @@
-const t = require('babel-types')
+const t = require('@babel/types')
 const { GeneralModifier } = require("./modifier")
 const { Shared, transform, Opts } = require("./shared");
 const ReservedModifiers = require("./keywords")

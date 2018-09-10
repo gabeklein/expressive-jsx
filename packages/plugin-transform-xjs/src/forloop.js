@@ -1,4 +1,4 @@
-const t = require('babel-types');
+const t = require('@babel/types');
 const { ComponentGroup } = require('./component')
 const { Shared, transform } = require("./shared");
 
