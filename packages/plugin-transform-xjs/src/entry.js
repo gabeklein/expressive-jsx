@@ -434,6 +434,11 @@ class ComponentArrowExpression extends ComponentEntry {
         if(this.style_static || this.mayReceiveExternalClasses)
             this.generateUCN();
 
+        const internalStatements = parentFn.node.body.body
+        if(internalStatements.length > 1)
+            body.unshift(...internalStatements.slice(0, -1))
+        
+
         parentFn.replaceWith(
             t.functionExpression(
                 null, 
