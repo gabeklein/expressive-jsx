@@ -205,7 +205,6 @@ export class Statement {
 export class NonComponent {
 
     inlineType = "child"
-    precedence = 3
 
     constructor(src){
         if(src.node)
@@ -213,6 +212,11 @@ export class NonComponent {
             this._node = src.node
         else
             this._node = src
+
+        if(this._node.type == "StringLiteral")
+            this.precedence = 4
+        else
+            this.precedence = 3 
     }
     
     static applyMultipleTo(parent, src){
