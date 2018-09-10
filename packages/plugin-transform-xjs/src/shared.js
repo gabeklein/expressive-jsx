@@ -23,11 +23,73 @@ export const transform = {
         )
     },
 
-    createFragment(elements, props){
+    createFragment(elements){
+
+        let type = Shared.stack.helpers.Fragment;
+
+        if(false){
+            type = t.jSXIdentifier(type.name);
+            return t.jSXElement(
+                t.jSXOpeningElement(type, []),
+                t.jSXClosingElement(type), 
+                elements.map( child => {
+                    if(child.type == "StringLiteral")
+                        return t.jSXText(child.value);
+                    if(child.type == "JSXElement")
+                        return child;
+                    return t.jSXExpressionContainer(child);
+                })
+            )
+        }
+
         return this.createElement(
-            Shared.stack.helpers.Fragment, 
-            t.objectExpression(props || []),
-            ...elements
+            type, t.objectExpression([]), ...elements
+        )
+    },
+
+    createElement(type, props, ...children){
+
+        if(false)
+            return this.createJSXElement(type, props, children);
+
+        if(typeof type == "string") type = t.stringLiteral(type);
+        if(!props) props = t.objectExpression([]);
+
+        return t.callExpression(Shared.stack.helpers.createElement, [type, props, ...children])
+    },
+
+    createJSXElement(type, props, children){
+        if(type.type)
+            type = type.value || type.name;
+
+        type = t.jSXIdentifier(type);
+
+        props = props.type == "Identifier" ?
+            [ t.jSXSpreadAttribute(props) ] :
+            props.properties.map((x) => {
+
+                let { key, value } = x;
+
+                if(key.type == "Identifier")
+                    key.type = "JSXIdentifier"
+                else debugger;
+
+                if(value.type != "StringLiteral" && value.type != "JSXElement")
+                    value = t.jSXExpressionContainer(value);
+
+                return t.jSXAttribute(key, value)
+            })
+
+        return t.jSXElement(
+            t.jSXOpeningElement(type, props),
+            t.jSXClosingElement(type), 
+            children.map( child => {
+                if(child.type == "StringLiteral")
+                    return t.jSXText(child.value);
+                if(child.type == "JSXElement")
+                    return child;
+                return t.jSXExpressionContainer(child);
+            })
         )
     },
 
@@ -68,40 +130,6 @@ export const transform = {
             object = t.memberExpression(object, x, true)
         }
         return object
-    },
-
-    createElement(type, props, ...children){
-
-        // if(true)
-        //     return this.createJSXElement(...arguments);
-
-        if(typeof type == "string") type = t.stringLiteral(type);
-        if(!props) props = t.objectExpression([]);
-
-        return t.callExpression(Shared.stack.helpers.createElement, [type, props, ...children])
-    },
-
-    createJSXElement(type, props, ...children){
-        if(typeof type == "string") 
-            type = t.jSXText(type);
-        else if(type.type == "StringLiteral")
-            type = t.jSXText(type.value)
-        else if(type.type == "Identifier")
-            type = t.jSXIdentifier(type.name)
-
-        return t.jSXElement(
-            t.jSXOpeningElement(
-                t.jSXIdentifier(type),
-                props.map( attribute => {
-                    debugger
-                })
-            ),
-            t.jSXClosingElement(t.jSXIdentifier(type)), 
-            children.map( child => {
-                debugger
-                return child;
-            })
-        )
     },
 
     declare(type, id, value){

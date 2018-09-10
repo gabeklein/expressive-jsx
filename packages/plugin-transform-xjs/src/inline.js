@@ -709,9 +709,11 @@ export class ElementInline extends ComponentGroup {
                 )
             )
 
-        const product = this.renderSelf( 
-            computed_type, this.standardCombinedPropsFormatFor(initial_props, computed_props), computed_children
-        )
+        const product = transform.createElement(
+            computed_type, 
+            this.standardCombinedPropsFormatFor(initial_props, computed_props), 
+            ...computed_children
+        );
 
         if(compute_instructions.length == 0) 
             return { product }
@@ -730,42 +732,5 @@ export class ElementInline extends ComponentGroup {
                 ]
             }
         } 
-    }
-
-    renderSelf(type, props, children){
-        if(false)
-            return this.renderJSX(...arguments);
-        else    
-            return this.renderES5(...arguments);
-    }
-
-    renderJSX(type, props, children){
-        if(typeof type == "string") 
-            type = t.jSXText(type);
-        else if(type.type == "StringLiteral")
-            type = t.jSXText(type.value)
-        else if(type.type == "Identifier")
-            type = t.jSXIdentifier(type.name)
-
-        return t.jSXElement(
-            t.jSXOpeningElement(
-                t.jSXIdentifier(type), 
-                props.map( attribute => {
-                    debugger
-                })
-            ),
-            t.jSXClosingElement(t.jSXIdentifier(type)), 
-            children.map( child => {
-                debugger
-                return child;
-            })
-        )
-    }
-
-    renderES5(type, props, children){
-        if(typeof type == "string") type = t.stringLiteral(type);
-        if(!props) props = t.objectExpression([]);
-
-        return t.callExpression(Shared.stack.helpers.createElement, [type, props, ...children])
     }
 }
