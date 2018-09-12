@@ -275,7 +275,7 @@ export class ElementModifier extends AttrubutesBody {
     }
 
     declareForComponent(recipient){
-        if(this.context.styleMode.compile && this.style_static.length){
+        if(/*this.context.styleMode.compile &&*/ this.style_static.length){
             this.contextParent = recipient;
             recipient.add(this);
             const noRoot = this.declareForStylesInclusion(recipient);
