@@ -26,8 +26,8 @@ export const transform = {
     createFragment(elements){
 
         let type = Shared.stack.helpers.Fragment;
-
-        if(false){
+        
+        if(Opts.output == "JSX"){
             type = t.jSXIdentifier(type.name);
             return t.jSXElement(
                 t.jSXOpeningElement(type, []),
@@ -49,7 +49,7 @@ export const transform = {
 
     createElement(type, props, ...children){
 
-        if(false)
+        if(Opts.output == "JSX")
             return this.createJSXElement(type, props, children);
 
         if(typeof type == "string") type = t.stringLiteral(type);
@@ -63,10 +63,11 @@ export const transform = {
             type = type.value || type.name;
 
         type = t.jSXIdentifier(type);
+        const selfClosing = children.length == 0;
 
         props = props.type == "Identifier" ?
             [ t.jSXSpreadAttribute(props) ] :
-            props.properties.map((x) => {
+            !props.properties ? [] : props.properties.map((x) => {
 
                 let { key, value } = x;
 
@@ -81,8 +82,8 @@ export const transform = {
             })
 
         return t.jSXElement(
-            t.jSXOpeningElement(type, props),
-            t.jSXClosingElement(type), 
+            t.jSXOpeningElement(type, props, selfClosing),
+            selfClosing ? null : t.jSXClosingElement(type), 
             children.map( child => {
                 if(child.type == "StringLiteral")
                     return t.jSXText(child.value);
