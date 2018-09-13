@@ -65,9 +65,32 @@ export const transform = {
         type = t.jSXIdentifier(type);
         const selfClosing = children.length == 0;
 
-        props = props.type == "Identifier" ?
-            [ t.jSXSpreadAttribute(props) ] :
-            !props.properties ? [] : props.properties.map((x) => {
+        
+        if(props.type == "CallExpression" && props.callee.name == "_flatten"){
+            const flatten = [];
+            for(const argument of props.arguments)
+                if(argument.type == "ObjectExpression")
+                    [].push.apply(flatten, argument.properties.map(x => {
+                        let id, val;
+                        if(x.key.type != "Identifier")
+                            throw new Error("prop error, key isnt an identifier")
+                        id = x.key.name;
+                        val = x.value;
+                        val = ~["StringLiteral", "JSXElement", "JSXFragment"].indexOf(val.type)
+                            ? val : t.jsxExpressionContainer(val)
+
+                        return t.jsxAttribute( t.jsxIdentifier(id), val );
+                    }))
+                else
+                    flatten.push(t.jsxSpreadAttribute(argument));
+            
+            props = flatten;
+        }
+        else if(props.type == "Identifier")
+            porps = [ t.jSXSpreadAttribute(props) ];
+        else if(!props.properties)
+            props = [];
+        else props = props.properties.map((x) => {
 
                 let { key, value } = x;
 
