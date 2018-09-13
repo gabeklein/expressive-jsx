@@ -104,7 +104,9 @@ class ExpressiveProgram {
         let didUse = state.didUse = {};
 
         for(const x in registerIDs){
-            const reference =  path.scope.generateUidIdentifier(registerIDs[x]);
+            const reference = x == "View" || x == "Text"
+                ? t.identifier(x)
+                : path.scope.generateUidIdentifier(registerIDs[x]);
             Object.defineProperty(Helpers, x, {
                 configurable: true,
                 get(){
@@ -229,22 +231,22 @@ function generateComputedStylesExport(path, compute, index){
     return index;
 }
 
-function destructure(list){
+function destructure(list, shorthand){
     const destructure = [];
     const { helpers } = Shared.stack;
 
     for(const i of list)
         destructure.push(
-            t.objectProperty(t.identifier(i), helpers[i])
+            t.objectProperty(t.identifier(i), helpers[i], false, shorthand)
         )
 
     return destructure;
 }
 
-function requirement(from, imports){
+function requirement(from, imports, shorthand){
     return t.variableDeclaration("const", [
         t.variableDeclarator(
-            t.objectPattern(destructure(imports)), 
+            t.objectPattern(destructure(imports, shorthand)), 
             t.callExpression(
                 t.identifier("require"), [
                     t.stringLiteral(from)
@@ -301,7 +303,7 @@ function includeImports(path, state, file) {
         bootstrap.push(
             requirement("react-native", [
                 "View", "Text"
-            ])
+            ], true)
         )
 
     const { helpers } = Shared.stack;
