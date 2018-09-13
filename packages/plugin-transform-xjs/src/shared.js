@@ -89,6 +89,8 @@ export const transform = {
                     return t.jSXText(child.value);
                 if(child.type == "JSXElement")
                     return child;
+                if(child.type == "SpreadElement") 
+                    return t.jsxSpreadChild(child.argument)
                 return t.jSXExpressionContainer(child);
             })
         )
