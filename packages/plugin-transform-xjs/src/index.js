@@ -129,8 +129,11 @@ class ExpressiveProgram {
 
             index = includeImports(path, state, this.file, options);
 
-            if(Opts.reactEnv != "native" && compute.length > 0)
-                index = generateComputedStylesExport(path, compute, index);
+            if(compute.length > 0)
+                if(Opts.reactEnv == "native")
+                    generateComputedStyleSheetObject(path, compute, index);
+                else
+                    generateComputedStylesExport(path, compute, index);
         }
 
         if(~process.execArgv.join().indexOf("inspect-brk"))
@@ -173,6 +176,10 @@ function initComputedStyleAccumulator(Stack, build_state){
     }
 
     return stack;
+}
+
+function generateComputedStyleSheetObject(path, compute, index){
+    debugger
 }
 
 function generateComputedStylesExport(path, compute, index){
@@ -324,13 +331,13 @@ function includeImports(path, state, file) {
         )
 
         if(Opts.formatStyles === undefined && Opts.reactEnv != "native")
-        if(existingImport){
-            existingImport.specifiers.push(...expressiveStyleRequired)
-        }
-        else 
-        bootstrap.push(
-            t.importDeclaration(expressiveStyleRequired, t.stringLiteral("@expressive-react/style"))
-        )
+            if(existingImport){
+                existingImport.specifiers.push(...expressiveStyleRequired)
+            }
+            else 
+            bootstrap.push(
+                t.importDeclaration(expressiveStyleRequired, t.stringLiteral("@expressive-react/style"))
+            )
     }
 
     if(didUse.createApplied)

@@ -231,7 +231,7 @@ export class ElementModifier extends AttrubutesBody {
         this.name = name;
         this.body = body;
 
-        if(Opts.reactEnv != "native")
+        if(Shared.stack.styleMode.compile)
             this.style_static = [];
 
         Shared.stack.push(this);
@@ -275,14 +275,16 @@ export class ElementModifier extends AttrubutesBody {
     }
 
     declareForComponent(recipient){
-        if(/*this.context.styleMode.compile &&*/ this.style_static.length){
+        if(this.context.styleMode.compile && this.style_static.length){
             this.contextParent = recipient;
             recipient.add(this);
             const noRoot = this.declareForStylesInclusion(recipient);
             if(noRoot){
                 recipient.context.modifierInsertions.push(this);
             }
-        } 
+        } else {
+            this.context.currentElement.add(this);
+        }
     }
 
     declareForConditional(recipient){
@@ -321,7 +323,7 @@ export class ElementModifier extends AttrubutesBody {
         
         super.didExitOwnScope(path)
 
-        if(this.context.styleMode.compile){
+        if(this.context.styleMode.compile && this.context.styleMode.css){
             let { name, hash, selectAgainst } = this;
             this.uid = `${name}-${hash}`
             this.uniqueClassname = "." + this.uid;
@@ -392,7 +394,7 @@ export class ElementModifier extends AttrubutesBody {
 
         for(const name of this.classList)
             if(typeof name == "string")
-                if(target.classList.ideclareMediaQuerydexOf(name) < 0)
+                if(target.classList.indexOf(name) < 0)
                     target.classList.push(name);
     }
 }

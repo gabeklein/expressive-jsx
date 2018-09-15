@@ -2,6 +2,7 @@ const t = require('@babel/types')
 const { GeneralModifier } = require("./modifier")
 const { Shared, transform, Opts } = require("./shared");
 const ReservedModifiers = require("./keywords")
+const { ElementInline } = require("./inline")
 
 export function createSharedStack(included = []){
     let Stack = new StackFrame;
@@ -11,9 +12,16 @@ export function createSharedStack(included = []){
         ...included
     ]
 
-    Stack.styleMode = {
-        [Opts.reactEnv == "native" ? "inline" : "compile"]: true
+    Stack.styleMode = {}
+
+    if(Opts.reactEnv == "native"){
+        Stack.styleMode.native = true;
     }
+    else {
+        Stack.styleMode.css = true;
+    }
+
+    Stack.styleMode.compile = Opts.styleMode == "compile";
 
     for(const modifier of imported){
         Stack = Object.create(Stack)
@@ -35,6 +43,8 @@ class StackFrame {
     push(node){
         node.parent = this.current;
         const frame = node.context = Shared.stack = Object.create(Shared.stack);
+        if(node instanceof ElementInline)
+            frame.currentElement = node;
         frame.current = node;
     }
 
