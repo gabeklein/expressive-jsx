@@ -87,7 +87,7 @@ export const transform = {
             props = flatten;
         }
         else if(props.type == "Identifier")
-            porps = [ t.jSXSpreadAttribute(props) ];
+            props = [ t.jSXSpreadAttribute(props) ];
         else if(!props.properties)
             props = [];
         else props = props.properties.map((x) => {
