@@ -113,7 +113,9 @@ export const transform = {
                 if(child.type == "JSXElement")
                     return child;
                 if(child.type == "SpreadElement") 
-                    return t.jsxSpreadChild(child.argument)
+                    return t.jsxExpressionContainer(
+                        t.callExpression( Shared.stack.helpers.createIterated, [child.argument] )
+                    )
                 return t.jSXExpressionContainer(child);
             })
         )
