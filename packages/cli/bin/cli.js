@@ -33,7 +33,9 @@ gulp.task('xjs', () => {
         .pipe(gulp.dest(output));
 });
 
-if(shouldWatch)
+if(shouldWatch){
     gulp.watch(source, ['xjs']);
+    console.log(`Watching for changes in ${source} files...`)
+}
 
 gulp.start('xjs');
