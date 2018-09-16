@@ -70,14 +70,6 @@ export class AttrubutesBody extends TraversableBody {
         this.style = this.style_static = []
     }
 
-    LabeledStatement(path){
-        GeneralModifier.applyTo(this, path);
-    }
-
-    AssignmentExpression(path){
-        Prop.applyTo(this, path)
-    }
-
     computeStyles(){
         return t.objectProperty(
             t.stringLiteral(this.selector || this.uniqueClassname), 
@@ -103,6 +95,14 @@ export class AttrubutesBody extends TraversableBody {
         if(styleRoot)
             styleRoot.computedStyleMayInclude(modifier)
         else return true
+    }
+
+    LabeledStatement(path){
+        GeneralModifier.applyTo(this, path);
+    }
+
+    AssignmentExpression(path){
+        Prop.applyTo(this, path)
     }
 }
 
