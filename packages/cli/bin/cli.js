@@ -15,7 +15,7 @@ babel_config.babelrc = false
 const {
     watch: shouldWatch,
     args: [ inputDir ],
-    outDir
+    out: outDir
 } = program;
 
 let source = inputDir.replace(/\/$/, "") + "/**/*.js";
