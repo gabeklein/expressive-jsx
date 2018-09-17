@@ -44,7 +44,8 @@ const registerIDs = {
     cacheStyle: "Cache",
     claimStyle: "Include",
     View: "View",
-    Text: "Text"
+    Text: "Text",
+    ModuleStyle: "style"
 }
 
 const TEMPLATE = {
@@ -104,8 +105,8 @@ class ExpressiveProgram {
         let didUse = state.didUse = {};
 
         for(const x in registerIDs){
-            const reference = x == "View" || x == "Text"
-                ? t.identifier(x)
+            const reference = ~["View", "Text", "ModuleStyle"].indexOf(x)
+                ? t.identifier(registerIDs[x])
                 : path.scope.generateUidIdentifier(registerIDs[x]);
             Object.defineProperty(Helpers, x, {
                 configurable: true,
@@ -179,7 +180,42 @@ function initComputedStyleAccumulator(Stack, build_state){
 }
 
 function generateComputedStyleSheetObject(path, compute, index){
-    debugger
+    const styles = [];
+    const exists = {};
+
+    for(const mod of compute){
+        const { styleID } = mod;
+        const sID = mod.styleID.name;
+        const actual_name = sID.slice(0, sID.indexOf("_"));
+
+        if(exists[actual_name])
+            mod.styleID.name = actual_name + (++exists[actual_name]);
+        else {
+            mod.styleID.name = actual_name;
+            exists[actual_name] = 1;
+        }
+
+        styles.push(
+            t.objectProperty(mod.styleID, mod.style_output)
+        )
+    }
+
+    path.scope.block.body.push(
+        t.variableDeclaration("const", [
+            t.variableDeclarator(
+                Shared.stack.helpers.ModuleStyle,
+                t.callExpression(
+                    t.memberExpression(
+                        t.identifier("StyleSheet"),
+                        t.identifier("create")
+                    ), [
+                        t.objectExpression(styles)
+                    ]
+                )
+            )
+        ])
+    )
+    return index;
 }
 
 function generateComputedStylesExport(path, compute, index){

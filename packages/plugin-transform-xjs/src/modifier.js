@@ -321,12 +321,15 @@ export class ElementModifier extends AttrubutesBody {
                 .digest('hex')
                 .substring(0, 6);
         
-        super.didExitOwnScope(path)
+        super.didExitOwnScope(path);
 
-        if(this.context.styleMode.compile && this.context.styleMode.css){
-            let { name, hash, selectAgainst } = this;
-            this.uid = `${name}-${hash}`
+        if(this.context.styleMode.compile){
+            let { name, hash } = this;
+            let uid = this.uid = `${name}-${hash}`
             this.uniqueClassname = "." + this.uid;
+
+            if(Opts.reactEnv == "native")
+                this.styleID = t.identifier(uid.replace("-", "_"))
         }
     }
 
@@ -352,7 +355,7 @@ export class ElementModifier extends AttrubutesBody {
             ]) 
             : props || style;
 
-        if(declaration){
+        if(declaration) {
             const id = this.id || (this.id = this.scope.generateUidIdentifier(this.name)); 
             return t.variableDeclaration("const", [
                 t.variableDeclarator(
@@ -363,15 +366,14 @@ export class ElementModifier extends AttrubutesBody {
     }
 
     into(inline, target){
-        if(this.style_static !== this.style && this.style_static.length){
-            inline.css.push(this.uid)
-        }
+        if(this.style_static !== this.style && this.style_static.length)
+            inline.installed_style.push(this)
             
         if(this.inherits) this.inherits.into(inline);
         
         if(!this.style.length && !this.props.length) return
 
-        const { style, props, css } = inline;
+        const { style, props, installed_style } = inline;
         const id = this.id || (this.id = this.scope.generateUidIdentifier(this.name)); 
 
         if(this.props.length && this.style.length){

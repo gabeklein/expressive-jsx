@@ -429,7 +429,7 @@ export class ElementInline extends ComponentGroup {
     }
 
     includeInlineInformation(){
-        const css = Opts.reactEnv != "native" ? [] : false;
+        const installed_style = [];
         let type;
 
         const {
@@ -437,7 +437,7 @@ export class ElementInline extends ComponentGroup {
         } = this;
 
         const inline = {
-            css,
+            installed_style,
             props: [], 
             style: []
         }
@@ -571,11 +571,13 @@ export class ElementInline extends ComponentGroup {
 
         if(this.style_static.length || this.mayReceiveExternalClasses){
             this.generateUCN()
-            inline.css.push(this.uid)
+            inline.installed_style.push(this)
         }
 
-        if(this.style_static.length)
+        if(this.style_static.length){
+            this.styleID = t.identifier(this.uid.replace('-', '_'))
             this.context.declareForRuntime(this);
+        }
 
         let computed_style;
         
@@ -584,6 +586,58 @@ export class ElementInline extends ComponentGroup {
                 inline[attr.kind || "props"].push(
                     attr.asProperty
                 )
+
+        if(inline.installed_style && inline.installed_style.length)
+            if(Opts.reactEnv == "native"){
+                const mS = Shared.stack.helpers.ModuleStyle;
+                const imported = [];
+                for(const item of inline.installed_style){
+                    if(!item.styleID){
+                        throw new Error("No styleID found!")
+                        debugger
+                    }
+                    imported.push(
+                        t.spreadElement(t.memberExpression(mS, item.styleID))
+                    )
+                }
+                initial_style.splice(0, 0, ...imported)
+            }
+            else 
+                for(const { uid } of inline.installed_style)
+                    if(this.classList.indexOf(uid) < 0)
+                        this.classList.push(uid);
+
+        if(this.classList.length){
+            if(Opts.reactEnv == "native"){
+                //native stuff
+            } else {
+                let applied = [];
+                for(const item of this.classList){
+                    const last = applied[applied.length - 1];
+                    if(typeof last == "string" && typeof item == "string") 
+                        applied[applied.length - 1] += " " + item;
+                    else applied.push(item)
+                }
+
+                if(applied.length == 1){
+                    const cn = applied[0];
+                    applied = typeof cn != "string" ?
+                        cn : t.stringLiteral(cn)
+                } else
+                    applied = t.callExpression(
+                        Shared.stack.helpers.select,
+                        applied.map(x => typeof x == "string" ? t.stringLiteral(x) : x)
+                        
+                    )
+
+                initial_props.push(
+                    t.objectProperty(
+                        t.identifier("className"), applied
+                    )
+                );
+            }
+        }
+    
 
         if(this.disordered || this.stats.length || doesReceiveDynamic){
 
@@ -647,38 +701,6 @@ export class ElementInline extends ComponentGroup {
                     this.standardCombinedStyleFormatFor(initial_style)
                 ))
             }
-        }
-
-        if(inline.css && inline.css.length)
-            for(const item of inline.css)
-                if(this.classList.indexOf(item) < 0)
-                    this.classList.push(item);
-        
-        if(this.classList.length){
-            let applied = [];
-            for(const item of this.classList){
-                const last = applied[applied.length - 1];
-                if(typeof last == "string" && typeof item == "string") 
-                    applied[applied.length - 1] += " " + item;
-                else applied.push(item)
-            }
-
-            if(applied.length == 1){
-                const cn = applied[0];
-                applied = typeof cn != "string" ?
-                    cn : t.stringLiteral(cn)
-            } else
-                applied = t.callExpression(
-                    Shared.stack.helpers.select,
-                    applied.map(x => typeof x == "string" ? t.stringLiteral(x) : x)
-                    
-                )
-
-            initial_props.push(
-                t.objectProperty(
-                    t.identifier("className"), applied
-                )
-            );
         }
 
         const _quoteTarget = { props: computed_props, style: accumulated_style };

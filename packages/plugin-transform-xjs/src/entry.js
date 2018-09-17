@@ -174,12 +174,11 @@ export class ComponentEntry extends ElementInline {
 
         if(
             style.length || 
-            this.typeInformation.css.length ||  
+            this.typeInformation.installed_style.length ||  
             this.mayReceiveExternalClasses || 
             this.style_static.length || 
             props.length
-        )
-            ({ 
+        )({ 
                 product: output, 
                 factory: body = [] 
             } = this.build());

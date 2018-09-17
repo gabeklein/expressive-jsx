@@ -81,6 +81,10 @@ export class AttrubutesBody extends TraversableBody {
         return this.uniqueClassname;
     }
 
+    get style_output(){
+        return this.style_static.length && t.objectExpression(this.style_static.map(x => x.asProperty));
+    }
+
     get style_path(){
         return [`${this.uniqueClassname || this.generateUCN() }`]
     }

@@ -129,7 +129,7 @@ export class ExplicitStyle {
         
         this.name = name;
         this.static = value;
-        this.inlineType = Shared.stack.styleMode == "compile" ? "style_static" : "style";
+        this.inlineType = Shared.stack.styleMode.compile ? "style_static" : "style";
 
         switch(typeof value){
             case "number":
