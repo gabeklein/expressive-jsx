@@ -21,8 +21,8 @@ const {
 let source = inputDir.replace(/\/$/, "") + "/**/*.js";
 let output = outDir.replace(/\/$/, "");
 
-function onFault(){
-    console.error(...arguments)
+function onFault(a){
+    console.error(a.stack)
 }
 
 gulp.task('xjs', () => {
