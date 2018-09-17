@@ -179,9 +179,9 @@ export class ComponentEntry extends ElementInline {
             this.style_static.length || 
             props.length
         )({ 
-                product: output, 
-                factory: body = [] 
-            } = this.build());
+            product: output, 
+            factory: body = [] 
+        } = this.build());
         else {
             ({ body, output } = this.collateChildren());
             output = this.bundle(output)
@@ -396,7 +396,7 @@ class ComponentArrowExpression extends ComponentEntry {
             { params } = node, 
             [ props ] = params;
 
-        const body = this.outputBodyDynamic();
+        let body = this.outputBodyDynamic();
 
         if(props && props.type == "AssignmentPattern")
             throw parentFn.get("params.0.right").buildCodeFrameError(
@@ -437,13 +437,15 @@ class ComponentArrowExpression extends ComponentEntry {
         if(internalStatements.length > 1)
             body.unshift(...internalStatements.slice(0, -1))
         
+        if(body.length == 1 && body[0].type == "ReturnStatement")
+            body = body[0].argument;
+        else
+            body = t.blockStatement(body)
 
         parentFn.replaceWith(
-            t.functionExpression(
-                null, 
-                props ? [props] : [], 
-                t.blockStatement(body), 
-                node.generator, 
+            t.arrowFunctionExpression(
+                props ? [props] : [],
+                body,
                 node.async
             )
         )
