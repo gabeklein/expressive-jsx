@@ -7,7 +7,7 @@ const gulp = require("gulp");
 const babel = require("gulp-babel");
 const prettier = require("gulp-prettier");
 
-const prettier_config = { singleQuote: true };
+const prettier_config = { singleQuote: true, trailingComma: "es5" };
 const babel_config = require("./babel.config");
 
 babel_config.babelrc = false
