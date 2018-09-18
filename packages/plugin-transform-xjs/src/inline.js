@@ -15,11 +15,11 @@ export function RNTextNode(parent, path){
     node.context = Object.create(parent.context);
     node.parentDeclaredAll = parent.context.allMod;
     // node.context.current = node;
-    node.tags.push({name: "string"});
     node.tags.push({
         name: Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "span", 
         head: true
     });
+    node.tags.push({name: "string"});
     NonComponent.applyTo(node, path)
     parent.add(node);
 }
@@ -78,8 +78,6 @@ const InlineLayers = {
 
     apply(target, tag){
 
-        const { default_type_text = {name: "div"} } = Opts;
-
         if(tag.isBinaryExpression({operator: "-"})){
             const left = tag.get("left")
             if(left.isIdentifier())
@@ -96,13 +94,20 @@ const InlineLayers = {
             target.tags.push({name: tag.node.name, path: tag, head: true})
 
         else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
+
             const default_type_text = 
                 Opts.reactEnv == "native"
                     ? Shared.stack.helpers.Text
                     : "div";
 
-            target.tags.push({name: default_type_text, head: true})
+            target.tags.push({
+                name: Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "div", 
+                head: true
+            })
+            target.tags.push({ name: "string" });
+
             target.add(new NonComponent(tag))
+
             tag.remove();
         }
 
