@@ -13,6 +13,22 @@ const only = (obj) => {
     return keys.length === 1 && obj[keys[0]];
 }
 
+function createBinding(name = "temp"){
+    name = t.toIdentifier(name).replace(/^_+/, "").replace(/[0-9]+$/g, "");
+    let uid;
+    let i = 0;
+
+    do {
+      uid = name + (i > 1 ? i : "");
+      i++;
+    } while (this.hasLabel(uid) || this.hasBinding(uid) || this.hasGlobal(uid) || this.hasReference(uid));
+
+    const program = this.getProgramParent();
+    program.references[uid] = true;
+    program.uids[uid] = true;
+    return t.identifier(uid);
+}
+
 export default (options) => {
     return {
         inherits: syntaxDoExpressions,
@@ -37,7 +53,7 @@ const registerIDs = {
     createElement: "create",
     createClass: "class",
     createApplied: "apply",
-    Fragment: "fragment",
+    Fragment: "Fragment",
     createIterated: "iterated",
     extends: "flatten",
     select: "resolve",
@@ -45,7 +61,9 @@ const registerIDs = {
     claimStyle: "Include",
     View: "View",
     Text: "Text",
-    ModuleStyle: "style"
+    ModuleStyle: "style",
+    React: "React",
+    StyleSheet: "StyleSheet"
 }
 
 const TEMPLATE = {
@@ -105,9 +123,7 @@ class ExpressiveProgram {
         let didUse = state.didUse = {};
 
         for(const x in registerIDs){
-            const reference = ~["View", "Text", "ModuleStyle"].indexOf(x)
-                ? t.identifier(registerIDs[x])
-                : path.scope.generateUidIdentifier(registerIDs[x]);
+            const reference = createBinding.call(path.scope, registerIDs[x]);
             Object.defineProperty(Helpers, x, {
                 configurable: true,
                 get(){
@@ -126,15 +142,15 @@ class ExpressiveProgram {
         const { expressive_computeTargets: compute } = state;
 
         if(state.expressive_used){
-            let index = 0;
-
-            index = includeImports(path, state, this.file, options);
+            let index = 0;  //todo: remove
 
             if(compute.length > 0)
                 if(Opts.reactEnv == "native")
                     generateComputedStyleSheetObject(path, compute, index);
                 else
                     generateComputedStylesExport(path, compute, index);
+
+            index = includeImports(path, state, this.file, options);
         }
 
         if(~process.execArgv.join().indexOf("inspect-brk"))
@@ -206,7 +222,7 @@ function generateComputedStyleSheetObject(path, compute, index){
                 Shared.stack.helpers.ModuleStyle,
                 t.callExpression(
                     t.memberExpression(
-                        t.identifier("StyleSheet"),
+                        Shared.stack.helpers.StyleSheet,
                         t.identifier("create")
                     ), [
                         t.objectExpression(styles)
@@ -301,55 +317,124 @@ function requirement(from, imports, shorthand){
 
 function includeImports(path, state, file) {
 
+
     const { didUse } = state;
 
     const bootstrap = [];
     const reactRequires = "react"
-    const reactRequired = [
-        "createElement"
-    ]
+    const reactRequired = [];
+
+    if(Opts.output !== "JSX")
+        reactRequired.push("createElement")
 
     if(didUse.Fragment)
         reactRequired.push("Fragment")
 
     if(didUse.createClass)
-        reactRequired.push("createClass")
+        reactRequired.push("createClass");
 
     const { body } = path.scope.block;
+    const { helpers } = Shared.stack;
 
     let pasteAt = 0;
-    let existingImport = body.find(
-        (statement, index) => {
-            if(statement.type == "VariableDeclaration")
-            for(const { init, id } of statement.declarations)
-            if(init){
-                let { callee, arguments: args } = init;
-                if(callee && callee.name == "require")
-                if(args[0] && args[0].value == reactRequires)
-                if(id.type == "ObjectPattern"){
-                    pasteAt = index;
-                    statement.reactInitializer = id.properties;
-                    return true;
+
+    function findExistingFrom(MODULE, asRequire){
+        return asRequire
+            ? body.find(
+                (statement, index) => {
+                    if(statement.type == "VariableDeclaration")
+                    for(const { init, id } of statement.declarations)
+                    if(init){
+                        let { callee, arguments: args } = init;
+                        if(callee && callee.name == "require")
+                        if(args[0] && args[0].value == MODULE)
+                        if(id.type == "ObjectPattern"){
+                            pasteAt = index;
+                            statement.foundInitializer = id;
+                            return true;
+                        }
+                    }
                 }
-            }
+            )
+            : body.find(
+                (statement, index) => {
+                    if(statement.type == "ImportDeclaration" && statement.source.value == MODULE){
+                        pasteAt = index
+                        return true
+                    }
+                }
+            )
+    }
+
+    let existingReactImport = findExistingFrom(reactRequires, /*should output require statements; false*/);
+
+    if(true /*should output import statements*/){
+
+        let specifiers = existingReactImport ? existingReactImport.specifiers : [];
+
+        for(let item of reactRequired){
+            item = helpers[item]; 
+            specifiers.push(
+                t.importSpecifier(item, item)
+            )
         }
-    )
 
-    if(existingImport)
-        existingImport.reactInitializer.push(...destructure(reactRequired))
-    else
-        bootstrap.push(
-            requirement(reactRequires, reactRequired)
-        )
+        if(Opts.output == "JSX")
+            specifiers.unshift(
+                t.importDefaultSpecifier(helpers.React)
+            )
 
-    if(Opts.reactEnv == "native")
-        bootstrap.push(
-            requirement("react-native", [
-                "View", "Text"
-            ], true)
-        )
+        if(!existingReactImport)
+            bootstrap.push(
+                t.importDeclaration(specifiers, t.stringLiteral(reactRequires))
+            )
 
-    const { helpers } = Shared.stack;
+    } else {
+        // if(existingReactImport){
+        //     if(false /*should output import statement*/){
+        //         existingReactImport.specifiers.push(...reactRequired)
+        //     } else {
+        //         const { properties } = existingReactImport.foundInitializer;
+        //         if(properties)
+        //             properties.push(...destructure(reactRequired))
+        //     }
+        // }
+
+        // else {
+        //     if(false /*should output import statement*/){
+
+        //     } else {
+        //         const { properties } = existingReactImport.foundInitializer;
+        //         if(properties)
+        //             properties.push(...destructure(reactRequired))
+        //     }
+        //         bootstrap.push(
+        //             requirement(reactRequires, reactRequired)
+        //         )
+        // }
+    }
+    
+    if(Opts.reactEnv == "native"){
+        const nativeRequires = [];
+
+        for(const spec of ["Text", "View", "StyleSheet"])
+            if(didUse[spec]) nativeRequires.push(t.importSpecifier(helpers[spec], helpers[spec]))
+
+        if(nativeRequires.length){
+            let existingImport = findExistingFrom("react-native")
+            if(existingImport)
+                existingImport.specifiers.push(
+                    ...nativeRequires
+                )
+            else 
+                bootstrap.push(
+                    t.importDeclaration(nativeRequires, t.stringLiteral("react-native"))
+                    // requirement("react-native", [
+                    //     "View", "Text"
+                    // ], true)
+                )
+        }
+    }
 
     if(didUse.claimStyle){
         const expressiveStyleRequired = [
