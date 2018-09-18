@@ -3,7 +3,7 @@ export default function babel_plugin_inferred_react_component(options){
         visitor: {
             Program: {
                 enter(path, state){
-                    state.ref_component = path.scope.generateUidIdentifier("_component");
+                    state.ref_component = createBinding.call(path.scope, "Component")
                 },
                 exit(path, state){
                     const { body } = path.scope.block;
@@ -23,10 +23,10 @@ export default function babel_plugin_inferred_react_component(options){
                         existingImport.specifiers.push(reactImport)
                     else 
                         body.unshift(
-                            requirement(reactRequires, [reactRequired])
-                            // t.importDeclaration(
-                            //     [reactRequired], t.stringLiteral(reactRequires)
-                            // )
+                            // requirement(reactRequires, [reactRequired])
+                            t.importDeclaration(
+                                [reactImport], t.stringLiteral(reactRequires)
+                            )
                         )
                 }
             },
@@ -40,6 +40,22 @@ export default function babel_plugin_inferred_react_component(options){
             }
         }
     }
+}
+
+function createBinding(name = "temp"){
+    name = t.toIdentifier(name).replace(/^_+/, "").replace(/[0-9]+$/g, "");
+    let uid;
+    let i = 0;
+
+    do {
+      uid = name + (i > 1 ? i : "");
+      i++;
+    } while (this.hasLabel(uid) || this.hasBinding(uid) || this.hasGlobal(uid) || this.hasReference(uid));
+
+    const program = this.getProgramParent();
+    program.references[uid] = true;
+    program.uids[uid] = true;
+    return t.identifier(uid);
 }
 
 const t = require("babel-types");
