@@ -202,11 +202,17 @@ function initComputedStyleAccumulator(Stack, build_state){
 function generateComputedStyleSheetObject(path, compute, index){
     const styles = [];
     const exists = {};
+    const common = {};
 
     for(const mod of compute){
         const { styleID } = mod;
-        const sID = mod.styleID.name;
-        const actual_name = sID.slice(0, sID.indexOf("_"));
+        const uID = styleID.name;
+        const actual_name = uID.slice(0, uID.indexOf("_"));
+
+        if(common[uID]) {
+            mod.styleID.name = common[uID];
+            continue;
+        }
 
         if(exists[actual_name])
             mod.styleID.name = actual_name + (++exists[actual_name]);
@@ -214,6 +220,8 @@ function generateComputedStyleSheetObject(path, compute, index){
             mod.styleID.name = actual_name;
             exists[actual_name] = 1;
         }
+
+        common[uID] = mod.styleID.name;
 
         styles.push(
             t.objectProperty(mod.styleID, mod.style_output)
