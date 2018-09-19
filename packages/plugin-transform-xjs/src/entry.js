@@ -5,6 +5,7 @@ const { ComponentGroup } = require("./component")
 const { Opts, Shared, transform } = require("./shared")
 const { GeneralModifier } = require("./modifier");
 const { ElementInline } = require("./inline");
+const { createBinding } = require("./index")
 
 const TARGET_FOR = {
     VariableDeclarator: "id",
@@ -275,7 +276,7 @@ class ComponentMethod extends ComponentEntry {
         
         if(params.length > 1){
             if(props && props.type != "Identifier")
-                props = path.scope.generateUidIdentifier("props")
+                props = createBinding.call(path.scope, "props")
 
             const children = params.slice(1);
             const count = children.length;
@@ -284,21 +285,21 @@ class ComponentMethod extends ComponentEntry {
                 : t.arrayPattern(children)
 
             ref_children = {
-                kind: "var", id: c1,
+                kind: "let", id: c1,
                 init: ensureArray( transform.member(props, "children") )
             }
         }
 
         if(props && this.isRender){
             body.scope.push({
-                kind: "var", id: props,
+                kind: "let", id: props,
                 init: transform.member("this", "props")
             })
         }
         
         if(props && props !== destruct)
             body.scope.push({
-                kind: "var", id: destruct, init: props
+                kind: "let", id: destruct, init: props
             })
 
         if(ref_children) body.scope.push(ref_children);
@@ -436,7 +437,7 @@ class ComponentArrowExpression extends ComponentEntry {
 
             if(ident)
                 body.unshift(
-                    transform.declare("var", assign, ensureArray(ident, count == 1))
+                    transform.declare("let", assign, ensureArray(ident, count == 1))
                 )
         }
 

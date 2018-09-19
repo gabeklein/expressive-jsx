@@ -13,7 +13,7 @@ const only = (obj) => {
     return keys.length === 1 && obj[keys[0]];
 }
 
-function createBinding(name = "temp", useExisting, didUse){
+export function createBinding(name = "temp", useExisting, didUse){
     name = t.toIdentifier(name).replace(/^_+/, "").replace(/[0-9]+$/g, "");
     let uid;
     let i = 0;
