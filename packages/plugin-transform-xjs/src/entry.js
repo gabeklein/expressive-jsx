@@ -178,16 +178,18 @@ export class ComponentEntry extends ElementInline {
             this.mayReceiveExternalClasses || 
             this.style_static.length || 
             props.length
-        )({ 
-            product: output, 
-            factory: body = [] 
-        } = this.build());
+        ){
+            ({ 
+                product: output, 
+                factory: body
+            } = this.build()); 
+        }
         else {
             ({ body, output } = this.collateChildren());
             output = this.bundle(output)
         }
 
-        return body.concat(
+        return (body || []).concat(
             t.returnStatement(
                 output
             )
@@ -203,6 +205,8 @@ export class ComponentEntry extends ElementInline {
 
 class ComponentMethod extends ComponentEntry {
 
+    stats_excused = 0;
+
     constructor(name, path, subComponentNames) {
         super(path.get("body"));
         this.attendantComponentNames = subComponentNames;
@@ -213,6 +217,12 @@ class ComponentMethod extends ComponentEntry {
         }
         this.tags.push({ name });
         this.insertDoIntermediate(path)
+    }
+
+    add(obj){
+        super.add(obj)
+        if(!this.precedent && obj.inlineType == "stats")
+            this.stats_excused++;     
     }
 
     bindRelatives(body){

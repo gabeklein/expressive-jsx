@@ -1,26 +1,40 @@
 export default function babel_plugin_inferred_react_component(options){
+
+    const { reactRequires = "react" } = options;
+
     return {
         visitor: {
             Program: {
                 enter(path, state){
-                    state.ref_component = createBinding.call(path.scope, "Component")
+                    const { body } = path.scope.block;
+                    let existing;
+
+                    if(existing = state.existing_import = body.find(
+                        (statement, index) => statement.type == "ImportDeclaration" && statement.source.value == reactRequires
+                    )){
+                        if(existing = existing.specifiers.find(
+                            x => x.type == "ImportSpecifier" && x.local.name == "Component")
+                        ){
+                            state.ref_component = existing.local;
+                            state.component_import_exists = true;
+                            return
+                        } 
+                    }
+                    state.ref_component = createBinding.call(path.scope, "Component");
                 },
                 exit(path, state){
                     const { body } = path.scope.block;
-                    const { reactRequires = "react" } = options;
+
+                    const { existing_import } = state;
+                    
+                    if(!state.extention_used || state.component_import_exists)
+                        return
 
                     const reactRequired = t.objectProperty(t.identifier("Component"), state.ref_component)
                     const reactImport = t.importSpecifier(state.ref_component, t.identifier("Component"))
-                    
-                    const existingImport = body.find(
-                        statement => statement.source && statement.source.value == reactRequires
-                    )
-                    
-                    if(!state.extention_used)
-                        return
 
-                    if(existingImport)
-                        existingImport.specifiers.push(reactImport)
+                    if(existing_import)
+                        existing_import.specifiers.push(reactImport)
                     else 
                         body.unshift(
                             // requirement(reactRequires, [reactRequired])

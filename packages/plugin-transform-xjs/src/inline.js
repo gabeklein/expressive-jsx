@@ -644,7 +644,7 @@ export class ElementInline extends ComponentGroup {
         }
     
 
-        if(this.disordered || this.stats.length || doesReceiveDynamic){
+        if(this.disordered || (this.stats.length > this.stats_excused || 0) || doesReceiveDynamic){
 
             if(computed_type.type == "Identifier"){
                 const existing = scope.getBinding(computed_type.name);
@@ -742,8 +742,9 @@ export class ElementInline extends ComponentGroup {
             ...computed_children
         );
 
-        if(compute_instructions.length == 0) 
-            return { product }
+        // if(this.constructor.name == "ComponentMethod") debugger;
+        if(compute_instructions.length == 0 || compute_instructions.length <= this.stats_excused)
+            return { product, factory: this.stats_excused && compute_instructions }
         else {
             const reference = this.scope.generateUidIdentifier("e");
             return { 

@@ -65,8 +65,7 @@ export const transform = {
         type = t.jSXIdentifier(type);
         const selfClosing = children.length == 0;
 
-        
-        if(props.type == "CallExpression" && props.callee.name == "_flatten"){
+        if(props.type == "CallExpression" && props.callee.name == "flatten"){
             const flatten = [];
             for(const argument of props.arguments)
                 if(argument.type == "ObjectExpression")
@@ -91,6 +90,9 @@ export const transform = {
         else if(!props.properties)
             props = [];
         else props = props.properties.map((x) => {
+
+                if(x.type != "ObjectProperty")
+                    throw new Error("Report this error, I didn't implement wierd properties right.")
 
                 let { key, value } = x;
 

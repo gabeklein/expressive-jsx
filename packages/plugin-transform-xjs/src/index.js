@@ -13,14 +13,19 @@ const only = (obj) => {
     return keys.length === 1 && obj[keys[0]];
 }
 
-function createBinding(name = "temp"){
+function createBinding(name = "temp", useExisting, didUse){
     name = t.toIdentifier(name).replace(/^_+/, "").replace(/[0-9]+$/g, "");
     let uid;
     let i = 0;
 
-    do {
-      uid = name + (i > 1 ? i : "");
-      i++;
+    if(useExisting){
+        if(this.hasBinding(uid = name)){
+            didUse[uid] = null;
+            return t.identifier(uid);
+        }
+    } else do {
+        uid = name + (i > 1 ? i : "");
+        i++;
     } while (this.hasLabel(uid) || this.hasBinding(uid) || this.hasGlobal(uid) || this.hasReference(uid));
 
     const program = this.getProgramParent();
@@ -62,7 +67,6 @@ const registerIDs = {
     View: "View",
     Text: "Text",
     ModuleStyle: "style",
-    React: "React",
     StyleSheet: "StyleSheet"
 }
 
@@ -123,12 +127,12 @@ class ExpressiveProgram {
         let didUse = state.didUse = {};
 
         for(const x in registerIDs){
-            const reference = createBinding.call(path.scope, registerIDs[x]);
+            const reference = createBinding.call(path.scope, registerIDs[x], ~["Text", "View"].indexOf(x), state.didUse);
             Object.defineProperty(Helpers, x, {
                 configurable: true,
                 get(){
                     Object.defineProperty(Helpers, x, { value: reference });
-                    state.didUse[x] = true;
+                    if(state.didUse[x] !== null) state.didUse[x] = true;
                     return reference;
                 }
             })
@@ -374,14 +378,16 @@ function includeImports(path, state, file) {
 
         for(let item of reactRequired){
             item = helpers[item]; 
+            if(!specifiers.find(x => x.type == "ImportSpecifier" && x.local.name == item.name))
             specifiers.push(
                 t.importSpecifier(item, item)
             )
         }
 
         if(Opts.output == "JSX")
+            if(!specifiers.find(x => x.type == "ImportDefaultSpecifier" && x.local.name == "React"))
             specifiers.unshift(
-                t.importDefaultSpecifier(helpers.React)
+                t.importDefaultSpecifier(t.identifier("React"))
             )
 
         if(!existingReactImport)
