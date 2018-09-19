@@ -26,6 +26,7 @@
     "commander": "^2.18.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^8.0.0",
-    "gulp-prettier": "^2.0.0"
+    "gulp-prettier": "^2.0.0",
+    "gulp-replace": "^1.0.0"
   }
 }
