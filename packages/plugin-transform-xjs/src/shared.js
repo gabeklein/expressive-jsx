@@ -11,6 +11,27 @@ export const env = process.env || {
     NODE_ENV: "production"
 };
 
+export function ensureUIDIdentifier(name = "temp", useExisting, didUse){
+    name = t.toIdentifier(name).replace(/^_+/, "").replace(/[0-9]+$/g, "");
+    let uid;
+    let i = 0;
+
+    if(useExisting){
+        if(this.hasBinding(uid = name)){
+            didUse[uid] = null;
+            return t.identifier(uid);
+        }
+    } else do {
+        uid = name + (i > 1 ? i : "");
+        i++;
+    } while (this.hasLabel(uid) || this.hasBinding(uid) || this.hasGlobal(uid) || this.hasReference(uid));
+
+    const program = this.getProgramParent();
+    program.references[uid] = true;
+    program.uids[uid] = true;
+    return t.identifier(uid);
+}
+
 export const Opts = {}
 
 export const transform = {

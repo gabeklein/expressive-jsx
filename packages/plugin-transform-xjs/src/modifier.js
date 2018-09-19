@@ -4,8 +4,7 @@ const { createHash } = require('crypto');
 const { AttrubutesBody } = require("./component");
 const { SyntheticProp, ExplicitStyle, Statement, NonComponent } = require("./item");
 const { parsedArgumentBody } = require("./attributes");
-const { Opts, Shared } = require("./shared");
-const { createBinding } = require("./index")
+const { Opts, Shared, ensureUIDIdentifier} = require("./shared");
 
 export class GeneralModifier {
 
@@ -357,7 +356,7 @@ export class ElementModifier extends AttrubutesBody {
             : props || style;
 
         if(declaration) {
-            const id = this.id || (this.id = createBinding.call(this.scope, this.name)); 
+            const id = this.id || (this.id = ensureUIDIdentifier.call(this.scope, this.name)); 
             return t.variableDeclaration("const", [
                 t.variableDeclarator(
                     id, declaration

@@ -3,7 +3,7 @@ import syntaxDoExpressions from "babel-plugin-syntax-do-expressions";
 
 const t = require("@babel/types");
 const template = require("babel-template");
-const { Shared, Opts } = require("./shared");
+const { Shared, Opts, ensureUIDIdentifier } = require("./shared");
 const { ComponentClass, DoComponent } = require('./entry.js');
 const { createSharedStack } = require("./scope")
 
@@ -11,27 +11,6 @@ const read = Object.keys;
 const only = (obj) => {
     const keys = read(obj);
     return keys.length === 1 && obj[keys[0]];
-}
-
-export function createBinding(name = "temp", useExisting, didUse){
-    name = t.toIdentifier(name).replace(/^_+/, "").replace(/[0-9]+$/g, "");
-    let uid;
-    let i = 0;
-
-    if(useExisting){
-        if(this.hasBinding(uid = name)){
-            didUse[uid] = null;
-            return t.identifier(uid);
-        }
-    } else do {
-        uid = name + (i > 1 ? i : "");
-        i++;
-    } while (this.hasLabel(uid) || this.hasBinding(uid) || this.hasGlobal(uid) || this.hasReference(uid));
-
-    const program = this.getProgramParent();
-    program.references[uid] = true;
-    program.uids[uid] = true;
-    return t.identifier(uid);
 }
 
 export default (options) => {
@@ -127,7 +106,7 @@ class ExpressiveProgram {
         let didUse = state.didUse = {};
 
         for(const x in registerIDs){
-            const reference = createBinding.call(path.scope, registerIDs[x], ~["Text", "View"].indexOf(x), state.didUse);
+            const reference = ensureUIDIdentifier.call(path.scope, registerIDs[x], ~["Text", "View"].indexOf(x), state.didUse);
             Object.defineProperty(Helpers, x, {
                 configurable: true,
                 get(){

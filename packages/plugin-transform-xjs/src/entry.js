@@ -2,10 +2,9 @@ const t = require("@babel/types")
 const { createHash } = require('crypto');
 
 const { ComponentGroup } = require("./component")
-const { Opts, Shared, transform } = require("./shared")
+const { Opts, Shared, transform, ensureUIDIdentifier } = require("./shared")
 const { GeneralModifier } = require("./modifier");
 const { ElementInline } = require("./inline");
-const { createBinding } = require("./index")
 
 const TARGET_FOR = {
     VariableDeclarator: "id",
@@ -273,10 +272,9 @@ class ComponentMethod extends ComponentEntry {
                     "This argument will always resolve to component props" );
         } 
 
-        
         if(params.length > 1){
             if(props && props.type != "Identifier")
-                props = createBinding.call(path.scope, "props")
+                props = ensureUIDIdentifier.call(path.scope, "props")
 
             const children = params.slice(1);
             const count = children.length;
@@ -291,10 +289,16 @@ class ComponentMethod extends ComponentEntry {
         }
 
         if(props && this.isRender){
-            body.scope.push({
-                kind: "let", id: props,
-                init: transform.member("this", "props")
-            })
+            if(props.type == "Identifier")
+                body.scope.push({
+                    kind: "let", id: t.objectPattern([t.objectProperty(props, props, false, true)]),
+                    init: t.identifier("this")
+                })
+            else
+                body.scope.push({
+                    kind: "let", id: props,
+                    init: transform.member("this", "props")
+                })
         }
         
         if(props && props !== destruct)
