@@ -480,7 +480,7 @@ export class ElementInline extends ComponentGroup {
             }
         }
         
-        const hasOneNonElement = this.child.length == 1 && this.child[0].constructor.name == "NonComponent"
+        const hasOneNonElement = this.child.length == 1 && this.child[0] instanceof NonComponent
 
         if(!inline.type){
             const { helpers } = Shared.stack;
