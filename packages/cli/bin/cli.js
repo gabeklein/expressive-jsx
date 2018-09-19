@@ -8,10 +8,15 @@ const babel = require("gulp-babel");
 const replace = require('gulp-replace');
 const prettier = require("gulp-prettier");
 
+const statementLineSpacing = () =>
+    replace(/^(.+?)\n(export|const|let)/gm, "$1\n\n$2")
+
+const jsxReturnSpacing = () =>
+    replace(/^(.+?[^{])\n(\s+return \()/gm, "$1\n\n$2")
+
 const prettier_config = { singleQuote: true, trailingComma: "es5", jsxBracketSameLine: true };
 const babel_config = require("./babel.config");
-
-babel_config.babelrc = false
+      babel_config.babelrc = false
 
 const {
     watch: shouldWatch,
@@ -21,12 +26,6 @@ const {
 
 let source = inputDir.replace(/\/$/, "") + "/**/*.js";
 let output = outDir.replace(/\/$/, "");
-
-const statementLineSpacing = () =>
-    replace(/^(.+?)\n(export|const|let)/gm, "$1\n\n$2")
-
-const jsxReturnSpacing = () =>
-    replace(/^(.+?[^{])\n(\s+return \()/gm, "$1\n\n$2")
 
 function onFault(a){
     console.log(`\nError on file: ${a.fileName}\n`)
