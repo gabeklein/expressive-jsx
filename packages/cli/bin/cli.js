@@ -7,7 +7,7 @@ const gulp = require("gulp");
 const babel = require("gulp-babel");
 const prettier = require("gulp-prettier");
 
-const prettier_config = { singleQuote: true, trailingComma: "es5" };
+const prettier_config = { singleQuote: true, trailingComma: "es5", jsxBracketSameLine: true };
 const babel_config = require("./babel.config");
 
 babel_config.babelrc = false
@@ -22,6 +22,7 @@ let source = inputDir.replace(/\/$/, "") + "/**/*.js";
 let output = outDir.replace(/\/$/, "");
 
 function onFault(a){
+    console.log(`\nError on file: ${a.fileName}\n`)
     console.error(a.stack)
 }
 
