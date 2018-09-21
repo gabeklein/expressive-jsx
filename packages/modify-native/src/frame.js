@@ -11,6 +11,22 @@ export function size(x, y, unit){
     }
 }
 
+export function width(x, unit){
+    return {
+        style: {
+            width: unit ? x + unit.toString() : x
+        }
+    }
+}
+
+export function height(y, unit){
+    return {
+        style: {
+            height: unit ? y + unit.toString() : y
+        }
+    }
+}
+
 export function aspectSize(x, y, unit){
     const y2 = Math.abs(y);
     if(y2 && y2 < 1)
@@ -36,12 +52,16 @@ for (const kind of [
     "margin", 
     "padding"
 ]) {
-    for(const dir of ["Horizontal, Vertical"])
-        EXPORT[kind + dir[0]] = function(a){
-            return { attrs: { [kind + dir]: a } }
-        }
+    for(const dir of ["Horizontal", "Vertical"])
+        EXPORT[kind + dir[0]] = 
+        EXPORT[kind + dir] =
+            dir == "Horizontal"
+            ? (a, b) => recombine.call({ arguments: {length: 4}}, null, b || a, null, a)
+            : (a, b) => recombine.call({ arguments: {length: 3}}, a, null, b || a)
     
-    EXPORT[kind] = function(a, b, c, d){
+    EXPORT[kind] = recombine;
+    
+    function recombine(a, b, c, d){
         switch(this.arguments.length){
             case 1: return {
                 style: { [kind]: a }
