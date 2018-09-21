@@ -276,6 +276,9 @@ export class QuasiComponent extends NonComponent {
         const quasi = this._node;
         const { quasis, expressions } = quasi;
 
+        if(expressions.length == 0)
+            return t.stringLiteral(quasis[0].value.raw)
+
         let INDENT = /^\n( *)/.exec(quasis[0].value.cooked);
         INDENT = INDENT && new RegExp("\n" + INDENT[1], "g");
 

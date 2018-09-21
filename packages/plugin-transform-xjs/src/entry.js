@@ -283,27 +283,29 @@ class ComponentMethod extends ComponentEntry {
                 : t.arrayPattern(children)
 
             ref_children = {
-                kind: "let", id: c1,
+                kind: "const", id: c1, unique: !Opts.compact_vars,
                 init: ensureArray( transform.member(props, "children") )
             }
         }
 
         if(props && this.isRender){
-            if(props.type == "Identifier")
+            if(props.type == "Identifier"){
+                let select_props = props.name !== "props" && t.identifier("props");
                 body.scope.push({
-                    kind: "let", id: t.objectPattern([t.objectProperty(props, props, false, true)]),
-                    init: t.identifier("this")
+                    kind: "const", id: t.objectPattern([t.objectProperty(select_props || props, props, false, !select_props)]),
+                    init: t.identifier("this"), unique: !Opts.compact_vars
                 })
+            }
             else
                 body.scope.push({
-                    kind: "let", id: props,
+                    kind: "const", id: props, unique: !Opts.compact_vars,
                     init: transform.member("this", "props")
                 })
         }
         
         if(props && props !== destruct)
             body.scope.push({
-                kind: "let", id: destruct, init: props
+                kind: "const", id: destruct, init: props, unique: !Opts.compact_vars
             })
 
         if(ref_children) body.scope.push(ref_children);
@@ -441,7 +443,7 @@ class ComponentArrowExpression extends ComponentEntry {
 
             if(ident)
                 body.unshift(
-                    transform.declare("let", assign, ensureArray(ident, count == 1))
+                    transform.declare("const", assign, ensureArray(ident, count == 1))
                 )
         }
 

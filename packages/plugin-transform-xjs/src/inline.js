@@ -199,9 +199,12 @@ class InlineProps extends Prop {
                 if(tag.type != "Identifier") 
                     throw path.buildCodeFrameError("Prop must be an Identifier");
 
-                name = tag.name
-                value = path.get("quasi");
+                if(quasi.expressions.length == 0)
+                    value = { node: t.stringLiteral(quasi.quasis[0].value.raw) }
+                else
+                    value = path.get("quasi");
 
+                name = tag.name
                 //collapsing prevents down-line transformers from adding useless polyfill
                 //replaced instead of removed because value itself must remain in-line to receive legitiment transforms
                 path.replaceWith(value)
@@ -721,8 +724,10 @@ export class ElementInline extends ComponentGroup {
 
         const compute_instructions = [];
 
-        if(own_declarations.length) compute_instructions.push(
-            t.variableDeclaration("const", own_declarations)
+        if(own_declarations.length) compute_instructions.push(...
+            Opts.compact_vars 
+                ? [t.variableDeclaration("const", own_declarations)]
+                : own_declarations.map(dec => t.variableDeclaration("const", [dec]))
         )
 
         compute_instructions.push(...compute_children)

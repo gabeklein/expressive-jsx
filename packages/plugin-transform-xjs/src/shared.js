@@ -121,7 +121,11 @@ export const transform = {
                     key.type = "JSXIdentifier"
                 else debugger;
 
-                if(value.type != "StringLiteral" && value.type != "JSXElement")
+                if([true, "true"].indexOf(value.value) >= 0){
+                    value = null
+                }
+
+                else if(["JSXElement", "StringLiteral"].indexOf(value.type) < 0)
                     value = t.jSXExpressionContainer(value);
 
                 return t.jSXAttribute(key, value)

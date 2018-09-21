@@ -186,7 +186,7 @@ function generateComputedStyleSheetObject(path, compute, index){
     for(const mod of compute){
         const { styleID } = mod;
         const uID = styleID.name;
-        const actual_name = uID.slice(0, uID.indexOf("_"));
+        let actual_name = uID.slice(0, uID.indexOf("_")).replace(/(^[A-Z])/, cap => cap.toLowerCase());
 
         if(common[uID]) {
             mod.styleID.name = common[uID];
