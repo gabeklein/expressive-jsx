@@ -12,7 +12,7 @@ const statementLineSpacing = () =>
     replace(/^(.+?)\n(export|const|let)/gm, "$1\n\n$2")
 
 const jsxReturnSpacing = () =>
-    replace(/^(.+?[^{])\n(\s+return \()/gm, "$1\n\n$2")
+    replace(/^(.+?[^{])\n(\s+return (?=\(|<))/gm, "$1\n\n$2")
 
 const prettier_config = { singleQuote: true, trailingComma: "es5", jsxBracketSameLine: true };
 const babel_config = require("./babel.config");
@@ -32,6 +32,10 @@ function onFault(a){
     console.error(a.stack)
 }
 
+function onDone(a, b){
+    console.log("Compiled Successfully")
+}
+
 gulp.task('xjs', () => {
     gulp.src(source)
         .pipe(babel(babel_config))
@@ -39,6 +43,7 @@ gulp.task('xjs', () => {
         .pipe(prettier(prettier_config))
         .pipe(statementLineSpacing())
         .pipe(jsxReturnSpacing())
+        .on('end', onDone)
         .pipe(gulp.dest(output));
 });
 
