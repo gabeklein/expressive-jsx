@@ -1,6 +1,6 @@
 {
   "name": "@expressive-react/babel-preset-native",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Expressive-React preset for Native React",
   "main": "lib/index.js",
   "scripts": {
@@ -22,9 +22,9 @@
     "/lib"
   ],
   "dependencies": {
-    "@expressive-react/babel-plugin-auto-extends": "^1.7.0",
-    "@expressive-react/babel-plugin-transform-xjs": "^0.18.1",
-    "@expressive-react/modify-native": "^1.4.1",
+    "@expressive-react/babel-plugin-auto-extends": "^1.7.1",
+    "@expressive-react/babel-plugin-transform-xjs": "^0.18.2",
+    "@expressive-react/modify-native": "^1.4.2",
     "babel-preset-expressive-enhancements": "^1.0.1",
     "babel-preset-react-native": "^4.0.0"
   },
