@@ -14,7 +14,7 @@
     "access": "public"
   },
   "files": [
-    "/lib"
+    "/bin"
   ],
   "dependencies": {
     "@babel/core": "^7.0.1",
