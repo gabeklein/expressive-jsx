@@ -8,6 +8,7 @@
     "email": "gabe@termtm.com"
   },
   "scripts": {
+    "prebuild": "rm -rf ./lib",
     "build": "babel ./src --out-dir ./lib",
     "dev": "babel ./src --out-dir ./lib --source-maps --watch",
     "prepare": "npm run build"
@@ -16,6 +17,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "files": [
+    "/lib"
+  ],
   "keywords": [
     "react",
     "babel",

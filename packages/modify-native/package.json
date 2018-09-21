@@ -8,6 +8,7 @@
     "email": "gabe@termtm.com"
   },
   "scripts": {
+    "prebuild": "rm -rf ./lib",
     "build": "babel ./src --out-dir ./lib",
     "dev": "babel ./src --out-dir ./lib --source-maps --watch",
     "prepare": "npm run build"
@@ -16,6 +17,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "files": [
+    "/lib"
+  ],
   "keywords": [
     "react",
     "expressive-react",
@@ -26,8 +30,5 @@
     "@babel/core": "^7.0.0",
     "@babel/plugin-proposal-class-properties": "^7.0.0",
     "@babel/preset-env": "^7.0.0"
-  },
-  "dependencies": {
-    "babel-preset-react-native": "^4.0.0"
   }
 }

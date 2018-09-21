@@ -4,6 +4,7 @@
   "description": "Expressive-React preset for Native React",
   "main": "lib/index.js",
   "scripts": {
+    "prebuild": "rm -rf ./lib",
     "build": "babel ./src --out-dir ./lib",
     "dev": "babel ./src --out-dir ./lib --source-maps --watch",
     "prepare": "npm run build"
@@ -17,6 +18,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "files": [
+    "/lib"
+  ],
   "dependencies": {
     "@expressive-react/babel-plugin-auto-extends": "^1.7.0",
     "@expressive-react/babel-plugin-transform-xjs": "^0.18.1",

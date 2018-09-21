@@ -1,6 +1,4 @@
-src
-node_modules
-.map
+*.map
 *.log
 .babelrc
 .DS_Store
