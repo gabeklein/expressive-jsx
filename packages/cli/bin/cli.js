@@ -25,6 +25,7 @@ const {
 } = program;
 
 let source = inputDir.replace(/\/$/, "") + "/**/*.js";
+let node_modules = inputDir.replace(/\/$/, "") + "/node_modules/**";
 let output = outDir.replace(/\/$/, "");
 
 function onFault(a){
@@ -37,7 +38,7 @@ function onDone(a, b){
 }
 
 gulp.task('xjs', () => {
-    gulp.src(source)
+    gulp.src([source, "!" + node_modules])
         .pipe(babel(babel_config))
         .on('error', onFault)
         .pipe(prettier(prettier_config))
