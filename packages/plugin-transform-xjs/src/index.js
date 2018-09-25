@@ -459,7 +459,7 @@ function includeImports(path, state, file) {
         TEMPLATE.createApplied({ NAME: helpers.createApplied })
     )
 
-    if(didUse.extends)
+    if(didUse.extends && Opts.output !== "JSX")
     bootstrap.push(
         TEMPLATE.fnExtends({ NAME: helpers.extends })
     )
