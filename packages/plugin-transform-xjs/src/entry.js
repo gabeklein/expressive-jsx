@@ -161,6 +161,14 @@ export class ComponentClass {
 
 export class ComponentEntry extends ElementInline {
 
+    stats_excused = 0;
+
+    add(obj){
+        super.add(obj)
+        if(!this.precedent && obj.inlineType == "stats")
+            this.stats_excused++;     
+    }
+
     init(path){
         this.context.styleRoot = this;
         this.context.scope 
@@ -205,8 +213,6 @@ export class ComponentEntry extends ElementInline {
 
 class ComponentMethod extends ComponentEntry {
 
-    stats_excused = 0;
-
     constructor(name, path, subComponentNames) {
         super(path.get("body"));
         this.attendantComponentNames = subComponentNames;
@@ -217,12 +223,6 @@ class ComponentMethod extends ComponentEntry {
         }
         this.tags.push({ name });
         this.insertDoIntermediate(path)
-    }
-
-    add(obj){
-        super.add(obj)
-        if(!this.precedent && obj.inlineType == "stats")
-            this.stats_excused++;     
     }
 
     bindRelatives(body){
@@ -287,6 +287,13 @@ class ComponentMethod extends ComponentEntry {
                 init: ensureArray( transform.member(props, "children") )
             }
         }
+        
+        if(ref_children) body.scope.push(ref_children);
+
+        if(props && props !== destruct)
+            body.scope.push({
+                kind: "const", id: destruct, init: props, unique: !Opts.compact_vars
+            })
 
         if(props && this.isRender){
             if(props.type == "Identifier"){
@@ -302,13 +309,6 @@ class ComponentMethod extends ComponentEntry {
                     init: transform.member("this", "props")
                 })
         }
-        
-        if(props && props !== destruct)
-            body.scope.push({
-                kind: "const", id: destruct, init: props, unique: !Opts.compact_vars
-            })
-
-        if(ref_children) body.scope.push(ref_children);
 
         path.replaceWith(
             t.classMethod(
