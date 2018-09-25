@@ -114,11 +114,15 @@ export class parsedArgumentBody {
         const arg = e.get("argument");
         if(e.node.operator == "-" && arg.isNumericLiteral())
             return this.NumericLiteral(arg, -1)
-        else if(e.node.operator == "!" && arg.isCallExpression())
-            return arg
+        else if(e.node.operator == "!")
+            return {
+                type: "verbatim",
+                path: arg
+            }
         else throw e.buildCodeFrameError("Unary operator here doesn't do anything")
         // else return e;
     }
+    
     SequenceExpression(e){
         return e.get("expressions").map(e => this.Type(e))
     }

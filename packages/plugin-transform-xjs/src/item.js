@@ -151,6 +151,10 @@ export class ExplicitStyle {
                     )
                     break;
                 }
+                if(value.type == "verbatim"){
+                    this.value = value.path.node;
+                    break;
+                }
             }
             
             default:
