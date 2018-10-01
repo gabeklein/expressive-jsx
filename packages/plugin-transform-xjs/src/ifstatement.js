@@ -102,22 +102,31 @@ export class ComponentSwitch {
     }
 
     inline(){
-        return this.children.reduceRight(
-            this.inlineReduction, t.booleanLiteral(false)
-        )
+        if(this.children.length > 1)
+            return this.children.reduceRight(
+                this.inlineReduction, t.booleanLiteral(false));
+        else {
+            const [test, product] = this.extract(this.children[0]);
+            return t.logicalExpression("&&", test, product);
+        }
     }
 
-    inlineReduction(cond, item){
+    inlineReduction(alternate, current){
+        const [test, product] = this.extract(current);
+        return test 
+            ? t.conditionalExpression(test, product, alternate)
+            : product
+    }
+
+    extract(item){
         const { test } = item;
         const { output } = item.collateChildren();
-        
+
         const product = output.length > 1
             ? transform.createFragment(output)
-            : output[0] || t.booleanLiteral(false)
+            : output[0] || t.booleanLiteral(false);
 
-        return test 
-            ? t.conditionalExpression(test.node, product, cond)
-            : product
+        return [test && test.node, product];
     }
 }
 
@@ -141,7 +150,7 @@ class ComponentConsequent extends ComponentGroup {
         super.didEnterOwnScope(path)
         this.body = path;
 
-        this.logicalParent.shouldOutputDynamic = true;
+        // this.logicalParent.shouldOutputDynamic = true;
         const p = this.props[0], s = this.style[0];
         if(p || s) this.bubble("mayReceiveAttributes", p, s);
     }
