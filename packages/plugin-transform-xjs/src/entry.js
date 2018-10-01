@@ -13,7 +13,7 @@ const TARGET_FOR = {
     ObjectProperty: "key"
 }
 
-export function RenderFromDoMethods(renders, subs){
+export function RenderFromDoMethods(renders, subs, style){
     let found = 0;
     const subComponentNames = subs.map(
         x => x.node.key.name
@@ -21,12 +21,12 @@ export function RenderFromDoMethods(renders, subs){
 
     for(let path of subs){
         const { name } = path.node.key;
-        new ComponentMethod(name, path, subComponentNames);
+        new ComponentMethod(name, path, subComponentNames, style);
     }
 
     for(let path of renders){
         if(++found > 1) throw path.buildCodeFrameError("multiple do methods not supported")
-        new ComponentMethod("render", path, subComponentNames);
+        new ComponentMethod("render", path, subComponentNames, style);
     }
 }
 
@@ -107,10 +107,11 @@ export class DoComponent {
 export class ComponentClass {
     static enter(path, state){
 
-        const doFunctions = [], 
-              subComponents = [];
+        const doFunctions = [];
+        const subComponents = [];
         let componentStyles;
         let constructor;
+        let styleMethod;
 
         for(let item of path.get("body.body")){
 
@@ -125,7 +126,8 @@ export class ComponentClass {
                         doFunctions.push(item)
 
                     else if(name == "Style")
-                        new ComponentStyleMethod(item)
+                        styleMethod = item
+                        // new ComponentStyleMethod(item)
 
                     else if(/^[A-Z]/.test(name))
                         subComponents.push(item)
@@ -148,7 +150,10 @@ export class ComponentClass {
             );
             Shared.stack.styleRoot = null;
 
-            RenderFromDoMethods(doFunctions, subComponents);
+            if(styleMethod)
+                new ComponentStyleMethod(styleMethod)
+
+            RenderFromDoMethods(doFunctions, subComponents, styleMethod);
             state.expressive_used = true;
         }
     }
@@ -342,7 +347,9 @@ class ComponentMethod extends ComponentEntry {
 
 class ComponentStyleMethod {
     constructor(path) {
-        this.insertDoIntermediate(path);
+        // this.insertDoIntermediate(path);
+        this.didEnterOwnScope(path);
+        path.remove();
     }
 
     includeModifier(mod){
@@ -371,6 +378,8 @@ class ComponentStyleMethod {
     }
 
     didEnterOwnScope(path){
+
+        // Shared.stack.push(this);
         this.context = Shared.stack;
 
         const src = path.get("body.body")

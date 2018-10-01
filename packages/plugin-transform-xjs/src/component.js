@@ -40,7 +40,6 @@ class TraversableBody {
             this.init(path);
 
         const src = path.get("body.body")
-        if(!src) debugger
         for(const item of src)
             if(item.type in this) 
                 this[item.type](item);

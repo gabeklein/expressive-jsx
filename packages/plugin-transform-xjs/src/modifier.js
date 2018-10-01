@@ -283,7 +283,8 @@ export class ElementModifier extends AttrubutesBody {
                 recipient.context.modifierInsertions.push(this);
             }
         } else {
-            this.context.currentElement.add(this);
+            if(this.context.currentElement)
+                this.context.currentElement.add(this);
         }
     }
 
