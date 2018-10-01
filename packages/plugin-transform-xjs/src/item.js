@@ -268,12 +268,73 @@ export class QuasiComponent extends NonComponent {
     }
 
     get node(){
-        // return this._node || this.path.node;
+        const { name } = this.parent.tags[0]; 
         const string_only = 
-            Opts.reactEnv == "native" || 
-            this.parent.typeInformation.type.type != "StringLiteral";
+            // Opts.reactEnv == "native" || 
+            // this.parent.typeInformation.type.type != "StringLiteral";
+            /^[A-Z]/.test(name) && name != "Text";
 
         return this.breakdown(string_only)
+    }
+
+    breakForString(quasi, then, items, INDENT, i, quasis){
+        for(let x of ["raw", "cooked"]){
+            let text = quasi.value[x];
+            if(INDENT) text = text.replace(INDENT, "\n");
+            if(i == 0) text = text.replace("\n", "")
+            if(i == quasis.length - 1)
+                text = text.replace(/\s+$/, "")
+            quasi.value[x] = text
+        }
+    }
+
+    breakForNative(quasi, then, items, INDENT){
+        let text = quasi.value.cooked;
+        if(INDENT) 
+            text = text.replace(INDENT, "\n");
+        const lines = text.split(/(?=\n)/g);
+
+        for(let line, j=0; line = lines[j]; j++)
+            if(line[0] == "\n"){
+                if(lines[j+1] || then){
+                    items.push(
+                        new NonComponent(
+                            t.stringLiteral("\n")))
+                    items.push(
+                        new NonComponent(
+                            t.stringLiteral(
+                                line.substring(1))))
+                }
+            }
+            else items.push(
+                new NonComponent(
+                    t.stringLiteral( line )))
+        
+        if(then) items.push(new NonComponent(then));
+    }
+
+    breakWithBR(quasi, then, items, INDENT, i){
+        const ELEMENT_BR = transform.createElement("br");
+        let text = quasi.value.cooked;
+        if(INDENT) 
+            text = text.replace(INDENT, "\n");
+        const lines = text.split(/(?=\n)/g);
+
+        for(let line, j=0; line = lines[j]; j++)
+            if(line[0] == "\n"){
+                if(lines[j+1] || then){
+                    items.push({node: ELEMENT_BR})
+                    items.push(
+                        new NonComponent(
+                            t.stringLiteral(
+                                line.substring(1))))
+                }
+            }
+            else items.push(
+                new NonComponent(
+                    t.stringLiteral( line )))
+        
+        if(then) items.push(new NonComponent(then));
     }
 
     breakdown(string_only){
@@ -287,42 +348,16 @@ export class QuasiComponent extends NonComponent {
         INDENT = INDENT && new RegExp("\n" + INDENT[1], "g");
 
         const items = [];
-        let i = 0;
 
-        for(let i=0, quasi; quasi = quasis[i]; i++){
-            const then = expressions[i]; 
+        const split = 
+            string_only ?
+                this.breakForString :
+            Opts.reactEnv == "native" ?
+                this.breakForNative :
+                this.breakWithBR;
 
-            if(string_only)
-                for(let x of ["raw", "cooked"]){
-                    let text = quasi.value[x];
-                    if(INDENT) text = text.replace(INDENT, "\n");
-                    if(i == 0) text = text.replace("\n", "")
-                    if(i == quasis.length - 1)
-                        text = text.replace(/\s+$/, "")
-                    quasi.value[x] = text
-                }
-            else {
-                const ELEMENT_BR = transform.createElement("br");
-                let text = quasi.value.cooked;
-                if(INDENT) 
-                text = text.replace(INDENT, "\n");
-                for(let line, lines = text.split(/(?=\n)/g), j=0; line = lines[j]; j++){
-                    if(line[0] == "\n"){
-                        if(lines[j+1] || then){
-                            items.push({node: ELEMENT_BR})
-                            items.push(
-                                new NonComponent(
-                                    t.stringLiteral(
-                                        line.substring(1))))
-                        }
-                    }
-                    else items.push(
-                        new NonComponent(
-                            t.stringLiteral( line )))
-                }
-                if(then) items.push(new NonComponent(then));
-            }
-        }
+        for(let i=0; i < quasis.length; i++)
+            split(quasis[i], expressions[i], items, INDENT, i, quasis);
 
         if(string_only)
             return quasi;

@@ -54,7 +54,7 @@ export const transform = {
                 t.jSXOpeningElement(type, []),
                 t.jSXClosingElement(type), 
                 elements.map( child => {
-                    if(child.type == "StringLiteral")
+                    if(child.type == "StringLiteral" && child.value !== "\n")
                         return t.jSXText(child.value);
                     if(child.type == "JSXElement")
                         return child;
@@ -96,7 +96,8 @@ export const transform = {
                             throw new Error("prop error, key isnt an identifier")
                         id = x.key.name;
                         val = x.value;
-                        val = ~["StringLiteral", "JSXElement", "JSXFragment"].indexOf(val.type)
+                        val = ~["JSXElement", "JSXFragment"].indexOf(val.type)
+                            || val.type == "StringLiteral" && child.value !== "\n"
                             ? val : t.jsxExpressionContainer(val)
 
                         return t.jsxAttribute( t.jsxIdentifier(id), val );
@@ -135,7 +136,7 @@ export const transform = {
             t.jSXOpeningElement(type, props, selfClosing),
             selfClosing ? null : t.jSXClosingElement(type), 
             children.map( child => {
-                if(child.type == "StringLiteral")
+                if(child.type == "StringLiteral" && child.value !== "\n")
                     return t.jSXText(child.value);
                 if(child.type == "JSXElement")
                     return child;
