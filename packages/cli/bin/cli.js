@@ -25,7 +25,7 @@ const {
 } = program;
 
 let source = inputDir.replace(/\/$/, "") + "/**/*.js";
-let node_modules = inputDir.replace(/\/$/, "") + "/node_modules/**";
+let exclude_modules = "!" + inputDir.replace(/\/$/, "") + "/node_modules/**";
 let output = outDir.replace(/\/$/, "");
 
 function onFault(a){
@@ -37,8 +37,12 @@ function onDone(a, b){
     console.log("Compiled Successfully")
 }
 
+gulp.task('onChange', () => {
+    console.log("File Changed!")
+})
+
 gulp.task('xjs', () => {
-    gulp.src([source, "!" + node_modules])
+    gulp.src([source, exclude_modules])
         .pipe(babel(babel_config))
         .on('error', onFault)
         .pipe(prettier(prettier_config))
@@ -48,9 +52,14 @@ gulp.task('xjs', () => {
         .pipe(gulp.dest(output));
 });
 
-if(shouldWatch){
-    gulp.watch(source, ['xjs']);
+gulp.task("watch", () => {
     console.log(`Watching for changes in ${source} files...`)
-}
+    gulp.watch(source, ['onChange', 'xjs']);
+})
 
-gulp.start('xjs');
+const tasks = ["xjs"];
+
+if(shouldWatch)
+    tasks.push("watch")
+
+gulp.start(tasks);
