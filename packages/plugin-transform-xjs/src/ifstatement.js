@@ -104,7 +104,7 @@ export class ComponentSwitch {
     inline(){
         if(this.children.length > 1)
             return this.children.reduceRight(
-                this.inlineReduction, t.booleanLiteral(false));
+                this.inlineReduction.bind(this), t.booleanLiteral(false));
         else {
             const [test, product] = this.extract(this.children[0]);
             return t.logicalExpression("&&", test, product);
