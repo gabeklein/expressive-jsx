@@ -6,7 +6,7 @@ const { transform, Opts } = require('./shared');
 export class ComponentSwitch {
 
     inlineType = "child"
-    precedence = -1
+    precedence = 0
 
     static applyTo(parent, src){
         parent.add(
