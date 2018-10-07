@@ -1,21 +1,19 @@
-
-import syntaxDoExpressions from "babel-plugin-syntax-do-expressions";
-
 const t = require("@babel/types");
-const template = require("babel-template");
+const template = require("@babel/template").default;
 const { Shared, Opts, ensureUIDIdentifier } = require("./shared");
 const { ComponentClass, DoComponent } = require('./entry.js');
 const { createSharedStack } = require("./scope")
 
-const read = Object.keys;
 const only = (obj) => {
-    const keys = read(obj);
+    const keys = Object.keys(obj);
     return keys.length === 1 && obj[keys[0]];
 }
 
 export default (options) => {
     return {
-        inherits: syntaxDoExpressions,
+        manipulateOptions(opts, parserOpts){
+            parserOpts.plugins.push("decorators-legacy", "doExpressions")
+        },
         visitor: {
             DoExpression: {
                 enter: DoComponent.enter,
