@@ -81,10 +81,28 @@ export class Prop extends Attribute {
     precedence = 1
 
     static applyTo(parent, path){
+        if( path.node.left.name == "style"){
+            this.applyStyle(parent, path);
+            return
+        }
         if(path.node.operator != "=") 
             path.buildCodeFrameError("Only `=` assignment may be used here.")
+
         parent.add( 
             new this(path)
+        )
+    }
+
+    static applyStyle(parent, path){
+        const spread = new this(path);
+
+        spread.kind = "style";
+        spread.inlineType = "style";
+        spread.isSpread = true;
+        spread.type = "SpreadElement"
+
+        parent.add(
+            spread
         )
     }
 
@@ -102,14 +120,16 @@ export class Prop extends Attribute {
         const { node } = this.path;
         const { extra } = value = node.right;
 
-        this.name = node.left.name;
+        const name = this.name = node.left.name;
 
-        if( t.isNumericLiteral(value))
-            return /^0x/.test(extra.raw)
-                ? HEX_COLOR(extra.raw)
-                : extra.rawValue
-        else if(t.isStringLiteral(value))
-            return value.value;
+        if(name != "style"){
+            if( t.isNumericLiteral(value))
+                return /^0x/.test(extra.raw)
+                    ? HEX_COLOR(extra.raw)
+                    : extra.rawValue
+            else if(t.isStringLiteral(value))
+                return value.value;
+        }
     }
 
     get value(){

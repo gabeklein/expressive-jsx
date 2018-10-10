@@ -226,7 +226,7 @@ class InlineProps extends Prop {
                         if(type == "Identifier")
                             name = id_name;
                         else throw path.buildCodeFrameError(
-                            `"Bad Prop! + only works when in conjuction with Identifier, got ${type}"`)
+                            `"Bad Prop! + only works in conjuction with an Identifier, got ${type}"`)
                     break;
 
                     case "~":
