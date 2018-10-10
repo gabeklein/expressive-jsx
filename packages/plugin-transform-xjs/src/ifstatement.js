@@ -106,7 +106,10 @@ export class ComponentSwitch {
             return this.children.reduceRight(
                 this.inlineReduction.bind(this), t.booleanLiteral(false));
         else {
-            const [test, product] = this.extract(this.children[0]);
+            let [test, product] = this.extract(this.children[0]);
+            if(["BooleanLiteral", "BinaryExpression"].indexOf(test.type) < 0)
+                test = t.unaryExpression("!", t.unaryExpression("!", test))
+
             return t.logicalExpression("&&", test, product);
         }
     }
