@@ -1,6 +1,6 @@
 {
   "name": "@expressive-react/babel-plugin-transform-xjs",
-  "version": "0.18.7",
+  "version": "0.18.8",
   "description": "Babel transformer preset for React Expression Syntax",
   "main": "lib/index.js",
   "author": {
