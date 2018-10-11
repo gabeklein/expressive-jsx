@@ -42,11 +42,53 @@ export class ComponentRepeating extends ComponentGroup {
 
     didEnterOwnScope(path){
         super.didEnterOwnScope(path)
-        Shared.state.expressive_for_used = true;
         this.body = path;
     }
 
     transform(){
+        if(this.kind == "of")
+            return this.toMap()
+        else
+            return this.toFactory();
+    }
+
+    toMap(){
+        let { left, right } = this.node;
+        if(left.type == "VariableDeclaration")
+            left = left.declarations[0].id;
+
+        let { body, output } = this.collateChildren(
+            function onAttributes(x){}
+        )
+
+        let key = this.keyConstruct;
+        const fragment_props = key && [ t.objectProperty( t.identifier("key"), key ) ];
+
+        output = output.length > 0
+            ? output.length > 1 || key 
+                ? transform.createFragment(output, fragment_props)
+                : output[0]
+            : t.booleanLiteral(false)
+
+        body = t.blockStatement([
+            ...body,
+            t.returnStatement(output)
+        ]);
+    
+        return {
+            product: t.callExpression(
+                t.memberExpression(
+                    right, t.identifier("map")
+                ), [ 
+                    t.arrowFunctionExpression([left], body)
+                ]
+            )
+        }
+    }
+
+    toFactory(){
+        Shared.state.expressive_for_used = true;
+
         const accumulator = this.scope.generateUidIdentifier("l");
         const { node } = this;
 
