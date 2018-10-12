@@ -34,6 +34,27 @@ export function ensureUIDIdentifier(name = "temp", useExisting, didUse){
 
 export const Opts = {}
 
+function convertObjectProps(x){
+
+    if(x.type != "ObjectProperty")
+        throw new Error("Report this error, I didn't implement wierd properties right.")
+
+    let { key, value } = x;
+
+    if(key.type == "Identifier")
+        key.type = "JSXIdentifier"
+    else debugger;
+
+    if([true, "true"].indexOf(value.value) >= 0){
+        value = null
+    }
+
+    else if(["JSXElement", "StringLiteral"].indexOf(value.type) < 0)
+        value = t.jSXExpressionContainer(value);
+
+    return t.jSXAttribute(key, value)
+}
+
 export const transform = {
 
     IIFE(stats){
@@ -44,14 +65,14 @@ export const transform = {
         )
     },
 
-    createFragment(elements){
+    createFragment(elements, props = []){
 
         let type = Shared.stack.helpers.Fragment;
         
         if(Opts.output == "JSX"){
             type = t.jSXIdentifier(type.name);
             return t.jSXElement(
-                t.jSXOpeningElement(type, []),
+                t.jSXOpeningElement(type, props.map(convertObjectProps)),
                 t.jSXClosingElement(type), 
                 elements.map( child => {
                     if(child.type == "StringLiteral" && child.value !== "\n")
@@ -111,26 +132,7 @@ export const transform = {
             props = [ t.jSXSpreadAttribute(props) ];
         else if(!props.properties)
             props = [];
-        else props = props.properties.map((x) => {
-
-                if(x.type != "ObjectProperty")
-                    throw new Error("Report this error, I didn't implement wierd properties right.")
-
-                let { key, value } = x;
-
-                if(key.type == "Identifier")
-                    key.type = "JSXIdentifier"
-                else debugger;
-
-                if([true, "true"].indexOf(value.value) >= 0){
-                    value = null
-                }
-
-                else if(["JSXElement", "StringLiteral"].indexOf(value.type) < 0)
-                    value = t.jSXExpressionContainer(value);
-
-                return t.jSXAttribute(key, value)
-            })
+        else props = props.properties.map(convertObjectProps)
 
         return t.jSXElement(
             t.jSXOpeningElement(type, props, selfClosing),

@@ -1,6 +1,6 @@
 const t = require('@babel/types');
 const { ComponentGroup } = require('./component')
-const { Shared, transform } = require("./shared");
+const { Shared, transform, ensureUIDIdentifier } = require("./shared");
 
 const INIT_LOOP_TYPE = {
     of: t.forOfStatement,
@@ -11,8 +11,8 @@ export class ComponentRepeating extends ComponentGroup {
 
     inlineType = "child"
     insert = "fragment"
-    precedence = -1
-    shouldOutputDynamic = true;
+    // precedence = -1
+    // shouldOutputDynamic = true;
 
     static applyTo(parent, src, kind){
         parent.add(
@@ -36,7 +36,8 @@ export class ComponentRepeating extends ComponentGroup {
         this.scope = path.scope;
         this.kind = kind || null;
         this.node = node;
-        this.path = path
+        this.path = path;
+        this.left = path.get("left");
         this.insertDoIntermediate(path)
     }
 
@@ -54,20 +55,25 @@ export class ComponentRepeating extends ComponentGroup {
 
     toMap(){
         let { left, right } = this.node;
-        if(left.type == "VariableDeclaration")
-            left = left.declarations[0].id;
 
+        if(left.type == "VariableDeclaration")
+            throw this.left.buildCodeFrameError("'const' not supported when loop outputs a map function")
+            // left = left.declarations[0].id;
+            
         let { body, output } = this.collateChildren(
             function onAttributes(x){}
         )
 
-        let key = this.keyConstruct;
-        const fragment_props = key && [ t.objectProperty( t.identifier("key"), key ) ];
+        let key;
+
+        if(right.type == "BinaryExpression" && right.operator == "in")
+            ({ left: key, right } = right);
+        else key = ensureUIDIdentifier.call(this.path.scope, "i");
+
+        const fragment_props = [ t.objectProperty( t.identifier("key"), key ) ];
 
         output = output.length > 0
-            ? output.length > 1 || key 
-                ? transform.createFragment(output, fragment_props)
-                : output[0]
+            ? transform.createFragment(output, fragment_props)
             : t.booleanLiteral(false)
 
         body = t.blockStatement([
@@ -80,7 +86,7 @@ export class ComponentRepeating extends ComponentGroup {
                 t.memberExpression(
                     right, t.identifier("map")
                 ), [ 
-                    t.arrowFunctionExpression([left], body)
+                    t.arrowFunctionExpression([left, key], body)
                 ]
             )
         }
