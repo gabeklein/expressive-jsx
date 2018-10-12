@@ -1,6 +1,6 @@
 {
   "name": "@expressive-react/babel-preset-web",
-  "version": "1.8.8",
+  "version": "1.8.9",
   "description": "An alternative syntax for powerful react constructs using less code",
   "main": "lib/index.js",
   "scripts": {
@@ -23,7 +23,7 @@
   ],
   "dependencies": {
     "@expressive-react/babel-plugin-auto-extends": "^1.7.2",
-    "@expressive-react/babel-plugin-transform-xjs": "^0.18.8",
+    "@expressive-react/babel-plugin-transform-xjs": "^0.18.9",
     "@expressive-react/modify-web": "^1.8.2"
   },
   "devDependencies": {
