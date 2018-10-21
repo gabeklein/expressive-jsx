@@ -1,35 +1,29 @@
 const t = require("@babel/types");
-const template = require("@babel/template").default;
 const { Shared, Opts, ensureUIDIdentifier } = require("./shared");
 const { ComponentClass, DoComponent } = require('./entry.js');
-const { createSharedStack } = require("./scope")
+const { createSharedStack } = require("./scope");
+const { generateComputedStylesExport, generateComputedStyleSheetObject } = require("./styles")
+const TEMPLATE = require("./support");
 
-const only = (obj) => {
-    const keys = Object.keys(obj);
-    return keys.length === 1 && obj[keys[0]];
-}
-
-export default (options) => {
-    return {
-        manipulateOptions(opts, parserOpts){
-            parserOpts.plugins.push("decorators-legacy", "doExpressions")
+export default (options) => ({
+    manipulateOptions: (_, parse) => {
+        parse.plugins.push("decorators-legacy", "doExpressions")
+    },
+    visitor: {
+        Program: {
+            enter: ExpressiveProgram.enter,
+            exit: ExpressiveProgram.onExit(options)
         },
-        visitor: {
-            DoExpression: {
-                enter: DoComponent.enter,
-                exit: DoComponent.exit
-            },
-            Program: {
-                enter: ExpressiveProgram.enter,
-                exit: ExpressiveProgram.onExit(options)
-            },
-            Class: {
-                enter: ComponentClass.enter,
-                exit: ComponentClass.exit
-            }
+        Class: {
+            enter: ComponentClass.enter,
+            exit: ComponentClass.exit
+        },
+        DoExpression: {
+            enter: DoComponent.enter,
+            exit: DoComponent.exit
         }
     }
-}
+})
 
 const registerIDs = {
     createElement: "create",
@@ -47,49 +41,6 @@ const registerIDs = {
     StyleSheet: "StyleSheet"
 }
 
-const TEMPLATE = {
-    fnCreateIterated: template(`
-        function NAME(from, key){
-            return from.length 
-                ? CREATE.apply(null, [FRAG, key ? {key} : {}].concat(from))
-                : false
-        }
-    `),
-
-    fnExtends: template(`
-        function NAME(){
-            for(var item of arguments){
-                if(!item) throw new Error("Included properties object is undefined!")
-            }
-            return Object.assign.apply(null, [{}].concat(Array.from(arguments)));
-        }
-    `),
-
-    createApplied: template(`
-        function NAME(from){
-            return _create.apply(undefined, from);
-        }
-    `),
-
-    fnBindMethods: template(`
-        function expressive_methods(instance, methods) {
-            for(var name of methods){
-                instance[name] = instance[name].bind(instance)
-            }
-        }
-    `),
-
-    fnSelect: template(`
-        function NAME() {
-            var output = "";
-            for(var classname of arguments)
-                if(typeof classname == "string")
-                    output += " " + classname;
-            return output.substring(1)
-        }
-    `)
-}
-
 class ExpressiveProgram {
     static enter(path, state){
         Object.assign(Opts, state.opts)
@@ -98,17 +49,23 @@ class ExpressiveProgram {
             checkForStyleImport(path.scope.block.body);
 
         let Stack = createSharedStack(state.opts.modifiers);
-            Stack = Shared.stack = initComputedStyleAccumulator(Stack, state);
+
+        const targets = state.expressive_computeTargets = [];
+        function capture(element){ targets.push.element };
+        Stack.program = { computedStyleMayInclude: capture };
             
-        let Helpers = Stack.helpers = {};
+        let helpers = Stack.helpers = {};
         let didUse = state.didUse = {};
 
         for(const x in registerIDs){
-            const reference = ensureUIDIdentifier.call(path.scope, registerIDs[x], ~["Text", "View"].indexOf(x), state.didUse);
-            Object.defineProperty(Helpers, x, {
+            const named = registerIDs[x];
+            const shouldUseExisting = ~["Text", "View"].indexOf(x);
+            const reference = ensureUIDIdentifier.call(path.scope, named, shouldUseExisting, state.didUse);
+
+            Object.defineProperty(helpers, x, {
                 configurable: true,
                 get(){
-                    Object.defineProperty(Helpers, x, { value: reference });
+                    Object.defineProperty(helpers, x, { value: reference });
                     if(state.didUse[x] !== null) state.didUse[x] = true;
                     return reference;
                 }
@@ -152,132 +109,6 @@ function checkForStyleImport(body){
                 Shared.styledApplicationComponentName = local.name
 }
 
-function initComputedStyleAccumulator(Stack, build_state){
-    const targets = build_state.expressive_computeTargets = [];
-    const stack = Object.create(Stack);
-    stack.program = { computedStyleMayInclude };
-
-    function computedStyleMayInclude(element){
-        targets.push(element)
-        // let cd = targets;
-        // let { stylePriority, path } = element;
-        // path = [stylePriority, ...path];
-        
-        // for(let i = 0, p; p = path[i++];)
-        //     if(cd[p]){
-        //         if(typeof cd[p] == "string")
-        //             cd = cd[p] = {"": cd[p]}
-        //         else cd = cd[p];
-        //     }
-        //     else if(i === path.length) cd[p] = element.compiledStyle;
-        //     else cd = cd[p] = {};
-    }
-
-    return stack;
-}
-
-function generateComputedStyleSheetObject(path, compute, index){
-    const styles = [];
-    const exists = {};
-    const common = {};
-
-    for(const mod of compute){
-        const { styleID } = mod;
-        const uID = styleID.name;
-        let actual_name = uID.slice(0, uID.indexOf("_")).replace(/(^[A-Z])/, cap => cap.toLowerCase());
-
-        if(common[uID]) {
-            mod.styleID.name = common[uID];
-            continue;
-        }
-
-        if(exists[actual_name])
-            mod.styleID.name = actual_name + (++exists[actual_name]);
-        else {
-            mod.styleID.name = actual_name;
-            exists[actual_name] = 1;
-        }
-
-        common[uID] = mod.styleID.name;
-
-        styles.push(
-            t.objectProperty(mod.styleID, mod.style_output)
-        )
-    }
-
-    path.scope.block.body.push(
-        t.variableDeclaration("const", [
-            t.variableDeclarator(
-                Shared.stack.helpers.ModuleStyle,
-                t.callExpression(
-                    t.memberExpression(
-                        Shared.stack.helpers.StyleSheet,
-                        t.identifier("create")
-                    ), [
-                        t.objectExpression(styles)
-                    ]
-                )
-            )
-        ])
-    )
-    return index;
-}
-
-function generateComputedStylesExport(path, compute, index){
-    let styles = [];
-    let media = {
-        default: styles
-    };
-
-    for(const x of compute){
-
-        let { modifierQuery } = x.context;
-        let into = styles;
-
-        if(modifierQuery){
-            modifierQuery = modifierQuery.queryString;
-            into = media[modifierQuery] || (media[modifierQuery] = [])
-        }
-
-        let y = into[x.stylePriority];
-        if(!y) 
-            y = into[x.stylePriority] = [];
-
-        const cS = x.computeStyles();
-        if(cS) y.push(cS)
-    }
-
-    const output = [];
-
-    for(const query in media){
-        output.push(
-            t.objectProperty(
-                t.stringLiteral(query),
-                t.arrayExpression(
-                    media[query].filter(x => x).map(x => t.objectExpression(x))
-                )
-            )
-        )
-    }
-
-    path.scope.block.body.splice(++index, 0, 
-        t.expressionStatement(
-            t.callExpression(
-                t.memberExpression(
-                    Shared.stack.helpers.cacheStyle, 
-                    t.identifier("moduleDoesYieldStyle")
-                ), [
-                    t.stringLiteral(
-                        path.hub.file.opts.filename
-                    ),
-                    t.objectExpression(output)
-                ]
-            )
-        )
-    )
-
-    return index;
-}
 
 function destructure(list, shorthand){
     const destructure = [];
