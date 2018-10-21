@@ -1,5 +1,5 @@
 const t = require("@babel/types");
-const { Shared, Opts, ensureUIDIdentifier } = require("./shared");
+const { Shared, Opts, ensureUIDIdentifier, hoistLabeled } = require("./shared");
 const { ComponentClass, DoComponent } = require('./entry.js');
 const { createSharedStack } = require("./scope");
 const { generateComputedStylesExport, generateComputedStyleSheetObject } = require("./styles")
@@ -72,7 +72,10 @@ class ExpressiveProgram {
             })
         }
 
+        hoistLabeled(path.node);
+
         Shared.state = state;
+        
     }
 
     static exit(path, state, options){

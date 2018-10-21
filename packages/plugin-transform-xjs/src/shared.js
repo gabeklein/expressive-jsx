@@ -11,6 +11,28 @@ export const env = process.env || {
     NODE_ENV: "production"
 };
 
+export function hoistLabeled(node){
+    const labeled = [];
+    const other = [];
+
+    let shouldHoist = false;
+    let nonLabelFound = false;
+
+    for(const item of node.body){
+        if(item.type == "LabeledStatement"){
+            shouldHoist = nonLabelFound;
+            labeled.push(item);
+        }
+        else {
+            nonLabelFound = true;
+            other.push(item);
+        }
+    }
+
+    if(shouldHoist)
+        node.body = labeled.concat(other);
+}
+
 export function ensureUIDIdentifier(name = "temp", useExisting, didUse){
     name = t.toIdentifier(name).replace(/^_+/, "").replace(/[0-9]+$/g, "");
     let uid;

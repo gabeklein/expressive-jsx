@@ -361,22 +361,6 @@ class ComponentStyleMethod {
         this.context.current.stats.push(mod)
     }
 
-    insertDoIntermediate(path){
-        const doExpression = t.doExpression(path.node.body);
-            doExpression.meta = this;
-
-        path.replaceWith(
-            t.classMethod(
-                "method", 
-                t.identifier("Style"), 
-                [ /*no params*/ ],
-                t.blockStatement([
-                    t.expressionStatement(doExpression)
-                ])
-            )
-        )
-    }
-
     didEnterOwnScope(path){
 
         // Shared.stack.push(this);
@@ -387,14 +371,6 @@ class ComponentStyleMethod {
             if(item.type in this) 
                 this[item.type](item);
             else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
-    }
-
-    didExitOwnScope(path){
-        path.getAncestry().find(x => 
-            x.type == "ClassMethod" ||
-            x.type == "ObjectExpression" &&
-            x.node.properties.length == 2
-        ).remove();
     }
 
     LabeledStatement(path){
