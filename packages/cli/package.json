@@ -24,6 +24,7 @@
     "@expressive-react/babel-plugin-auto-extends": "^1.7.2",
     "@expressive-react/babel-plugin-transform-xjs": "^0.18.9",
     "@expressive-react/modify-native": "^1.4.3",
+    "@expressive-react/modify-web": "^1.8.2",
     "babel-preset-expressive-enhancements": "^1.0.1",
     "commander": "^2.18.0",
     "gulp": "^3.9.1",

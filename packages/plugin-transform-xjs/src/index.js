@@ -433,7 +433,7 @@ function includeImports(path, state, file) {
             t.importSpecifier(helpers.claimStyle, t.identifier("Include"))
         ]
 
-        existingImport = body.find(
+        let existingImport = body.find(
             (statement, index) => {
                 if(statement.type == "ImportDeclaration" && statement.source.value == "@expressive-react/style"){
                     pasteAt = index
