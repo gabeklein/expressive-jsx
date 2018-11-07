@@ -39,7 +39,7 @@ const registerIDs = {
     createIterated: "iterated",
     extends: "flatten",
     select: "resolve",
-    cacheStyle: "Cache",
+    cacheStyle: "Module",
     claimStyle: "Include",
     View: "View",
     Text: "Text",
@@ -265,7 +265,7 @@ function generateComputedStylesExport(path, compute, index){
             t.callExpression(
                 t.memberExpression(
                     Shared.stack.helpers.cacheStyle, 
-                    t.identifier("moduleDoesYieldStyle")
+                    t.identifier("doesProvideStyle")
                 ), [
                     t.stringLiteral(
                         path.hub.file.opts.filename
@@ -305,7 +305,6 @@ function requirement(from, imports, shorthand){
 }
 
 function includeImports(path, state, file) {
-
 
     const { didUse } = state;
 
@@ -429,7 +428,7 @@ function includeImports(path, state, file) {
 
     if(didUse.claimStyle){
         const expressiveStyleRequired = [
-            t.importSpecifier(helpers.cacheStyle, t.identifier("Cache")),
+            t.importSpecifier(helpers.cacheStyle, t.identifier("Module")),
             t.importSpecifier(helpers.claimStyle, t.identifier("Include"))
         ]
 

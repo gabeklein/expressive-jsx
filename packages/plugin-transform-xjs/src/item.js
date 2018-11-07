@@ -361,6 +361,10 @@ export class QuasiComponent extends NonComponent {
         const quasi = this._node;
         const { quasis, expressions } = quasi;
 
+        if( Opts.output == "JSX" && 
+            quasis.find(element => /[{}]/.exec(element.value.raw))
+        )   return quasi;
+
         if(expressions.length == 0)
             return t.stringLiteral(quasis[0].value.raw)
 

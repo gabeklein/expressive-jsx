@@ -1,6 +1,7 @@
 const PSEUDO = {
     hover: ":hover",
     active: ":active",
+    focus: ":focus",
     after: "::after",
     before: "::before",
     hoverAfter: ":hover::after",

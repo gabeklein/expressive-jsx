@@ -9,13 +9,11 @@ const { Provider: StyleContext, Consumer: StyleDeclaration } = createContext({
     }
 });
 
-// import StyledOutput from "./output"
-
-export const Cache = new class {
+const Modules = new class {
 
     blocks = {};
 
-    moduleDoesYieldStyle(_fromFile, css){
+    doesProvideStyle(_fromFile, css){
         for(let media in css){
             const styles = css[media];
             const target = this.blocks[media] || (this.blocks[media] = []);
@@ -24,6 +22,8 @@ export const Cache = new class {
         }
     }
 }
+
+export { Modules as Module }
 
 class Compiler {
     registered = {};
@@ -66,7 +66,7 @@ class Compiler {
             if(noMedia){
                 output += mediaStyles + "\n";
             } else {
-                output += `@media ${ query } {\n ${mediaStyles} \n}`;
+                output += `@media ${ query } {\n ${ mediaStyles } \n}`;
             }
         }
 

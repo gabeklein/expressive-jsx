@@ -68,6 +68,12 @@ export const transform = {
     createFragment(elements, props = []){
 
         let type = Shared.stack.helpers.Fragment;
+
+        if(elements.length == 1)
+            return this.applyProp(
+                elements[0],
+                props
+            )
         
         if(Opts.output == "JSX"){
             type = t.jSXIdentifier(type.name);
@@ -76,7 +82,7 @@ export const transform = {
                 t.jSXClosingElement(type), 
                 elements.map( child => {
                     if(child.type == "StringLiteral" && child.value !== "\n")
-                        return t.jSXText(child.value);
+                        return this.jsxText(child.value);
                     if(child.type == "JSXElement")
                         return child;
                     return t.jSXExpressionContainer(child);
@@ -87,6 +93,18 @@ export const transform = {
         return this.createElement(
             type, t.objectExpression([]), ...elements
         )
+    },
+
+    applyProp(element, props){
+        if(Opts.output == "JSX"){
+            props = props.map(convertObjectProps);
+            element.openingElement.attributes.push(...props)
+        }
+        else {
+            element.arguments[1].push(...props)
+        }
+
+        return element;
     },
 
     createElement(type, props, ...children){
@@ -139,7 +157,7 @@ export const transform = {
             selfClosing ? null : t.jSXClosingElement(type), 
             children.map( child => {
                 if(child.type == "StringLiteral" && child.value !== "\n")
-                    return t.jSXText(child.value);
+                    return this.jsxText(child.value);
                 if(child.type == "JSXElement")
                     return child;
                 if(child.type == "SpreadElement") 
@@ -149,6 +167,11 @@ export const transform = {
                 return t.jSXExpressionContainer(child);
             })
         )
+    },
+
+    jsxText(value){
+        value = value.replace(/'/g, "\"")
+        return t.jSXText(value);
     },
 
     element(){
