@@ -101,7 +101,7 @@ export const transform = {
             element.openingElement.attributes.push(...props)
         }
         else {
-            element.arguments[1].push(...props)
+            element.arguments[1].properties.push(...props)
         }
 
         return element;

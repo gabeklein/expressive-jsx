@@ -1,6 +1,6 @@
 const EXPORT = exports;
 
-import { rect, appendUnitToN } from "./util"
+import { rect, appendUnitToN, handleUnits } from "./util"
 
 export function size(x, y, unit){
     return {
@@ -49,6 +49,11 @@ for (const kind of [
             }
         })
 
+    for(const side of ["Top", "Left", "Right", "Bottom"])
+        EXPORT[kind + side] = 
+        EXPORT[kind + side[0]] = 
+            handleUnits(kind + side)  
+
     EXPORT[kind] = 
         function(keyword){
             let value;
@@ -81,7 +86,12 @@ for(const kind of [
     "borderRight",
     "borderBottom",
 ]){
-    EXPORT[kind] = (color, width, style) => {
+    const handler = EXPORT[kind] = (color, width, style) => {
+        if(!width && color.indexOf(" ") > 0) 
+            return {
+                style: { [kind]: color  }
+            }
+
         if(color === undefined) color = "black";
         if(width === undefined) width = 1;
         if(style === undefined) style = "solid"
@@ -93,4 +103,7 @@ for(const kind of [
             style: { [kind]: value  }
         }
     }
+
+    if(kind[6])
+        EXPORT[kind.slice(0, 7)] = handler;
 }

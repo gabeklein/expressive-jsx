@@ -15,6 +15,8 @@ module.exports = options => {
             }],
             [transformExpressiveReact, {
                 reactEnv: "next",
+                output: "es6",
+                styleMode: "compile",
                 modifiers: [
                     WebStyles
                 ]

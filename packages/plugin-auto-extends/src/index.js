@@ -90,9 +90,9 @@ function repairConstructor(constructor, params){
         && item.name == "super"){
             superAt = i;
             break;
-        } else continue;
+        } 
+        else continue;
     }
-
 
     for(
         let item, i = 0, stopAt = superAt || body.length; 
@@ -100,27 +100,39 @@ function repairConstructor(constructor, params){
         i++
     ){
         let item = body[i];
+
         if(item.type != "ExpressionStatement") continue;
-            item = item.expression
-        if(item.type != "AssignmentExpression") continue;
+        item = item.expression
+
+        if(item.type == "CallExpression"){
+            if(!item.arguments.find(
+                arg => arg.type == "ThisExpression"
+            )) continue;
+        }
+        else {
+            if(item.type != "AssignmentExpression") continue;
             item = item.left
-        if(item.type != "MemberExpression") continue;
+            
+            if(item.type != "MemberExpression") continue; 
             item = item.object
-        if(item.type != "ThisExpression") continue;
+
+            if(item.type != "ThisExpression") continue;
+        }
+
         if(thisFirstUsedAt === undefined)
             thisFirstUsedAt = i;
         else
             thisFirstUsedTimes++
     }
 
-    const format = Array.from(body);
+    const format = body;
 
     if(thisFirstUsedAt < superAt){
         const probablyClassParams = format.splice(thisFirstUsedAt, thisFirstUsedTimes);
 
         format.splice(superAt + 1, 0, ...probablyClassParams); 
     }
-    else if(superAt === undefined && thisFirstUsedAt !== undefined){
+    else if(superAt === undefined){
         let _props = params[0];
         let _struct;
 
@@ -136,20 +148,16 @@ function repairConstructor(constructor, params){
                 init: _props
             })
 
-        format.splice(thisFirstUsedAt, 0,
+        format.splice(thisFirstUsedAt || 0, 0,
             t.expressionStatement(
                 t.callExpression(
                     t.super(),
                     [_props]
                 )
             )
-        ); 
+        );
     }
     else return;
-    
-    constructor.get("body").replaceWith(
-        t.blockStatement(format)
-    )
 }
 
 

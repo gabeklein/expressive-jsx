@@ -38,3 +38,13 @@ export function appendUnitToN(val, unit = "px") {
             : val
     )
 }
+
+export function handleUnits(name) {
+    return function(){
+        return {
+            style: {
+                [name]: appendUnitToN.apply(this, this.arguments)
+            }
+        }
+    }
+}

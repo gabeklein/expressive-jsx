@@ -72,6 +72,7 @@ export class AttrubutesBody extends TraversableBody {
     computeStyles(){
         return t.objectProperty(
             t.stringLiteral(this.selector || this.uniqueClassname), 
+            // t.objectExpression(this.compileStyleObject)
             t.stringLiteral(this.compiledStyle)
         )
     }
@@ -90,6 +91,10 @@ export class AttrubutesBody extends TraversableBody {
 
     get compiledStyle(){
         return this.style_static.map(x => x.asString).join("; ")
+    }
+
+    get compileStyleObject(){
+        return this.style_static.map(x => x.asProperty)
     }
 
     declareForStylesInclusion(recipient, modifier = this){

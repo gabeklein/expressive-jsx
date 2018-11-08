@@ -425,6 +425,27 @@ export class ElementInline extends ComponentGroup {
     }
 
     standardCombinedPropsFormatFor(inline, dynamic){
+        const { classList } = inline;
+        if(classList){
+            inline = inline.filter(prop => {
+                if(prop.key.name == "className" && prop.value !== classList){
+                    const { value } = prop;
+                    if(classList.type == "StringLiteral" && value.type == "StringLiteral")
+                        classList.value += " " + value.value;
+                    else {
+                        Object.assign(classList, 
+                            t.callExpression(
+                                Shared.stack.helpers.select,
+                                [Object.assign({}, classList), value]
+                            )
+                        )
+                    }
+                    return false;
+                }
+                return true;
+            })
+        }
+
         let output = this.seperateItems(inline, dynamic);
         if(output.length < 2){
             return output[0] || t.objectExpression([])
@@ -638,11 +659,12 @@ export class ElementInline extends ComponentGroup {
                         
                     )
 
-                initial_props.push(
-                    t.objectProperty(
-                        t.identifier("className"), applied
-                    )
+                const classNameProp = t.objectProperty(
+                    t.identifier("className"), applied
                 );
+
+                initial_props.push(classNameProp);
+                initial_props.classList = applied;
             }
         }
     

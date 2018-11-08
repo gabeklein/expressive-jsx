@@ -5,25 +5,52 @@ const PSEUDO = {
     after: "::after",
     before: "::before",
     hoverAfter: ":hover::after",
-    hoverBefore: ":hover::before"
+    hoverBefore: ":hover::before",
+    focusAfter: ":focus::after",
+    focusBefore: ":focus::before"
 }
 
-export { pseudo as on };
-
-function pseudo(){
-    this.priority = 6;
+function on(){
+    this.priority = 7;
     const block = normalize(this.body);
     for(const x of block){
         let { name } = x.node.label;
         const body = x.get("body");
 
         if(name = PSEUDO[name])
-            this.declareElementModifier(name, body, function selectPseudo(){
-                let { selectAgainst } = this;
-                selectAgainst = selectAgainst.classname || selectAgainst.generateClassName();
-                return selectAgainst + name;
-            });
+            this.declareElementModifier(name, body);
     }
+}
+
+export function onHover(){
+    this.priority = 7;
+    this.declareElementModifier(":hover", this.body);
+}
+
+export function onFocus(){
+    this.priority = 7;
+    this.declareElementModifier(":focus", this.body);
+}
+
+export function onActive(){
+    this.priority = 7;
+    this.declareElementModifier(":active", this.body);
+}
+
+export function pseudo(){
+    this.priority = 6;
+    this.declareElementModifier("::both", this.body);
+}
+
+export function after(){
+    this.priority = 7;
+    this.declareElementModifier("::after", this.body);
+    //TODO: auto insert content if does not already exist
+}
+
+export function before(){
+    this.priority = 7;
+    this.declareElementModifier("::before", this.body);
 }
 
 function normalize(body) {

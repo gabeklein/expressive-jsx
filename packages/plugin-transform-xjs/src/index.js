@@ -124,6 +124,8 @@ class ExpressiveProgram {
 
         if(state.expressive_used){
             let index = 0;  //todo: remove
+            
+            index = includeImports(path, state, this.file, options);
 
             if(compute.length > 0)
                 if(Opts.reactEnv == "native")
@@ -131,7 +133,6 @@ class ExpressiveProgram {
                 else
                     generateComputedStylesExport(path, compute, index);
 
-            index = includeImports(path, state, this.file, options);
         }
 
         if(~process.execArgv.join().indexOf("inspect-brk"))
@@ -236,7 +237,7 @@ function generateComputedStylesExport(path, compute, index){
 
         if(modifierQuery){
             modifierQuery = modifierQuery.queryString;
-            into = media[modifierQuery] || (media[modifierQuery] = [])
+            into = media[modifierQuery] || (media[modifierQuery] = []);
         }
 
         let y = into[x.stylePriority];
@@ -354,25 +355,27 @@ function includeImports(path, state, file) {
             )
     }
 
-    let existingReactImport = findExistingFrom(reactRequires, /*should output require statements; false*/);
+    if(Opts.output == "JSX"){
+    // if(true){
 
-    if(true /*should output import statements*/){
-
+        let existingReactImport = findExistingFrom(reactRequires, false);
         let specifiers = existingReactImport ? existingReactImport.specifiers : [];
 
-        for(let item of reactRequired){
-            item = helpers[item]; 
-            if(!specifiers.find(x => x.type == "ImportSpecifier" && x.local.name == item.name))
-            specifiers.push(
-                t.importSpecifier(item, item)
-            )
+        if(existingReactImport){
+            for(let item of reactRequired){
+                item = helpers[item]; 
+                if(!specifiers.find(x => x.type == "ImportSpecifier" && x.local.name == item.name))
+                specifiers.push(
+                    t.importSpecifier(item, item)
+                )
+            }
+    
+            if(Opts.output == "JSX")
+                if(!specifiers.find(x => x.type == "ImportDefaultSpecifier" && x.local.name == "React"))
+                specifiers.unshift(
+                    t.importDefaultSpecifier(t.identifier("React"))
+                )
         }
-
-        if(Opts.output == "JSX")
-            if(!specifiers.find(x => x.type == "ImportDefaultSpecifier" && x.local.name == "React"))
-            specifiers.unshift(
-                t.importDefaultSpecifier(t.identifier("React"))
-            )
 
         if(!existingReactImport)
             bootstrap.push(
@@ -380,6 +383,7 @@ function includeImports(path, state, file) {
             )
 
     } else {
+        let existingReactImport = findExistingFrom(reactRequires, true);
         // if(existingReactImport){
         //     if(false /*should output import statement*/){
         //         existingReactImport.specifiers.push(...reactRequired)
@@ -394,13 +398,13 @@ function includeImports(path, state, file) {
         //     if(false /*should output import statement*/){
 
         //     } else {
-        //         const { properties } = existingReactImport.foundInitializer;
-        //         if(properties)
-        //             properties.push(...destructure(reactRequired))
-        //     }
-        //         bootstrap.push(
-        //             requirement(reactRequires, reactRequired)
-        //         )
+                // const { properties } = existingReactImport.foundInitializer;
+                // if(properties)
+                //     properties.push(...destructure(reactRequired))
+            // }
+                bootstrap.push(
+                    requirement(reactRequires, reactRequired)
+                )
         // }
     }
     

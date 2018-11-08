@@ -107,7 +107,13 @@ export class ComponentSwitch {
                 this.inlineReduction.bind(this), t.booleanLiteral(false));
         else {
             let [test, product] = this.extract(this.children[0]);
-            if(["BooleanLiteral", "BinaryExpression"].indexOf(test.type) < 0)
+            
+            let check = test;
+            if(check.type == "LogicalExpression")
+                check = check.right;
+                
+            if(check.type != "BooleanLiteral" 
+            && check.type != "BinaryExpression")
                 test = t.unaryExpression("!", t.unaryExpression("!", test))
 
             return t.logicalExpression("&&", test, product);

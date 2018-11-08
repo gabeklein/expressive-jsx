@@ -188,13 +188,20 @@ export class ExplicitStyle {
         const name = this.name.replace(/([A-Z]+)/g, "-$1").toLowerCase();
         let { static: value } = this;
         if(value === "") value = `""`;
-        else if(typeof value == "string" && ~value.indexOf(" ")) value == `"${value}"`
+        else if(typeof value == "string"){
+            value = value.replace(/\s+/g, " ");
+            if(~value.indexOf(" ")) 
+                value == `"${value}"`
+        }
 
         return `${name}: ${value}`
     }
 
     get asProperty(){
-        return t.objectProperty(this.id, this.value);
+        let { value, static: stat } = this;
+        if(stat && typeof stat == "string")
+            value = t.stringLiteral(stat.replace(/\s+/g, " "));
+        return t.objectProperty(this.id, value);
     }
 
     asAssignedTo(target){

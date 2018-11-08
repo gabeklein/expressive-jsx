@@ -428,7 +428,16 @@ class ExternalSelectionModifier extends ElementModifier {
     }
 
     get selector(){
-        return `${this.selectAgainst.uniqueClassname}${this.uniqueClassname}`
+        const parent = this.selectAgainst;
+        const ucn = this.uniqueClassname;
+        let parentName = parent instanceof ExternalSelectionModifier 
+            ? parent.selector
+            : parent.uniqueClassname;
+
+        if(ucn == "::both")
+        return `${parentName}::before, ${parentName}::after`;
+
+        return `${parentName}${ucn}`
     }
 
     get path(){

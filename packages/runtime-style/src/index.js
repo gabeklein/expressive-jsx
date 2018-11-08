@@ -48,8 +48,8 @@ class Compiler {
         let output = `\n`;
         const { registered } = this;
 
-        for(const query in Cache.blocks){
-            const source = Cache.blocks[query];
+        for(const query in Modules.blocks){
+            const source = Modules.blocks[query];
             const noMedia = query == "default";
             let mediaStyles = "";
 
@@ -90,7 +90,6 @@ const StyleOutput = ({ compiler }) =>
             __html: compiler.generate()
         }
     })
-
 
 export default class StyledApplication extends Component {
     
