@@ -79,7 +79,7 @@ class Compiler {
 
 export const Include = ({ hid, css }) => 
     createElement(StyleDeclaration, {}, compiler => {
-        compiler.push(hid, css.split(", "));
+        compiler.push(hid, css.split("; "));
         return false;
     });
 

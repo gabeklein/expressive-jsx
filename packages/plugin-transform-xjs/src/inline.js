@@ -352,7 +352,7 @@ export class ElementInline extends ComponentGroup {
     insertRuntimeStyle(){
         const styles = this.styleGroups.map(x => {
             return x.selector || x.uniqueClassname
-        }).filter((x,i,a) => a.indexOf(x) == i).join(", ");
+        }).filter((x,i,a) => a.indexOf(x) == i).join("; ");
 
         const hash = createHash("md5")
             .update(styles)
