@@ -80,8 +80,17 @@ export class DoComponent {
             else if(type == "SequenceExpression")
                 name = "callback"
             else {
-                const ident = parent[TARGET_FOR[type]];
-                name = ident ? ident.name : "do" 
+                let ident = parent[TARGET_FOR[type]];
+                name = ident && ident.name;
+                if(!name){
+                    if(parent.type == "FunctionExpression")
+                        for(const item of path.getAncestry()){
+                            if(item.type == "VariableDeclarator")
+                                name = item.node.id.name;
+                        }
+                    else
+                    name = "do"
+                }
             }
 
             meta = node.meta = new Handler(path, name)
