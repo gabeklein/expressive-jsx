@@ -3,6 +3,9 @@ const EXPORT = exports;
 import { rect, appendUnitToN, handleUnits } from "./util"
 
 export function size(x, y, unit){
+    if(typeof y == "string" && typeof x == "number")
+        unit = y, y = null;
+
     return {
         attrs: {
             width: [x,      unit], 
