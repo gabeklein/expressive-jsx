@@ -1,6 +1,6 @@
 {
   "name": "@expressive-react/cli",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "CLI tool for converting react XJS into something else",
   "bin": {
     "xjs": "./bin/cli.js"
@@ -22,9 +22,9 @@
     "@babel/plugin-proposal-object-rest-spread": "7.0.0",
     "@babel/preset-env": "^7.0.0",
     "@expressive-react/babel-plugin-auto-extends": "^1.8.0",
-    "@expressive-react/babel-plugin-transform-xjs": "^0.19.0",
+    "@expressive-react/babel-plugin-transform-xjs": "^0.19.1",
     "@expressive-react/modify-native": "^1.4.3",
-    "@expressive-react/modify-web": "^1.9.0",
+    "@expressive-react/modify-web": "^1.9.1",
     "babel-preset-expressive-enhancements": "^1.0.1",
     "commander": "^2.18.0",
     "gulp": "^3.9.1",

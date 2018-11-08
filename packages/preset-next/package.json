@@ -1,6 +1,6 @@
 {
   "name": "@expressive-react/babel-preset-next",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Expressive React support for Next.js applications",
   "main": "lib/index.js",
   "scripts": {
@@ -24,8 +24,8 @@
   ],
   "dependencies": {
     "@expressive-react/babel-plugin-auto-extends": "^1.8.0",
-    "@expressive-react/babel-plugin-transform-xjs": "^0.19.0",
-    "@expressive-react/modify-web": "^1.9.0",
+    "@expressive-react/babel-plugin-transform-xjs": "^0.19.1",
+    "@expressive-react/modify-web": "^1.9.1",
     "babel-preset-expressive-enhancements": "^1.0.1"
   },
   "devDependencies": {
