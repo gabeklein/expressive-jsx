@@ -1,0 +1,44 @@
+{
+  "name": "@expressive/babel-preset-react",
+  "version": "0.0.0",
+  "description": "An alternative syntax for feature rich components using less code",
+  "repository": "https://github.com/gabeklein/expressive-react",
+  "author": {
+    "name": "Gabe Klein",
+    "email": "gabe@termtm.com",
+    "url": "https://github.com/gabeklein"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "react",
+    "xjs"
+  ],
+  "main": "lib/index.js",
+  "files": [
+    "/lib"
+  ],
+  "scripts": {
+    "prebuild": "rm -rf ./lib",
+    "build": "babel ./src --out-dir ./lib",
+    "watch": "babel ./src --out-dir ./lib --source-maps --watch",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "7.0.0",
+    "babel-preset-expressive-enhancements": "^1.0.1"
+  },
+  "dependencies": {
+    "@expressive/babel-plugin-react-class": "^0.0.0",
+    "@expressive/babel-plugin-react-xjs": "^0.0.0",
+    "@expressive/react-modifiers": "^0.0.0"
+  },
+  "peerDependencies": {
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
+  }
+}

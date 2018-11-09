@@ -1,7 +1,7 @@
 {
-  "name": "@expressive/react-cli",
+  "name": "@expressive/babel-preset-react-native",
   "version": "0.0.0",
-  "description": "CLI tool for converting react XJS into something else",
+  "description": "Expressive-React preset for Native React",
   "repository": "https://github.com/gabeklein/expressive-react",
   "author": {
     "name": "Gabe Klein",
@@ -12,26 +12,30 @@
   "publishConfig": {
     "access": "public"
   },
-  "bin": {
-    "xjs": "./bin/cli.js"
-  },
-  "files": [
-    "/bin"
+  "keywords": [
+    "react",
+    "xjs"
   ],
-  "dependencies": {
+  "main": "lib/index.js",
+  "files": [
+    "/lib"
+  ],
+  "scripts": {
+    "prebuild": "rm -rf ./lib",
+    "build": "babel ./src --out-dir ./lib",
+    "watch": "babel ./src --out-dir ./lib --source-maps --watch",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "@babel/plugin-proposal-class-properties": "7.0.0",
-    "@babel/plugin-proposal-object-rest-spread": "7.0.0",
+    "@babel/preset-env": "^7.0.0"
+  },
+  "dependencies": {
     "@expressive/babel-plugin-react-class": "^0.0.0",
     "@expressive/babel-plugin-react-xjs": "^0.0.0",
     "@expressive/react-native-modifiers": "^0.0.0",
-    "@expressive/react-modifiers": "^0.0.0",
     "babel-preset-expressive-enhancements": "^1.0.1",
-    "commander": "^2.18.0",
-    "gulp": "^3.9.1",
-    "gulp-babel": "^8.0.0",
-    "gulp-prettier": "^2.0.0",
-    "gulp-replace": "^1.0.0"
+    "babel-preset-react-native": "^4.0.0"
   }
 }
