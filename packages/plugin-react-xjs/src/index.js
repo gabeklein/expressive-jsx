@@ -1,35 +1,29 @@
 const t = require("@babel/types");
-const template = require("@babel/template").default;
-const { Shared, Opts, ensureUIDIdentifier } = require("./shared");
+const { Shared, Opts, ensureUIDIdentifier, hoistLabeled } = require("./shared");
 const { ComponentClass, DoComponent } = require('./entry.js');
-const { createSharedStack } = require("./scope")
+const { createSharedStack } = require("./scope");
+const { generateComputedStylesExport, generateComputedStyleSheetObject } = require("./styles")
+const TEMPLATE = require("./support");
 
-const only = (obj) => {
-    const keys = Object.keys(obj);
-    return keys.length === 1 && obj[keys[0]];
-}
-
-export default (options) => {
-    return {
-        manipulateOptions(opts, parserOpts){
-            parserOpts.plugins.push("decorators-legacy", "doExpressions")
+export default (options) => ({
+    manipulateOptions: (_, parse) => {
+        parse.plugins.push("decorators-legacy", "doExpressions")
+    },
+    visitor: {
+        Program: {
+            enter: ExpressiveProgram.enter,
+            exit: ExpressiveProgram.onExit(options)
         },
-        visitor: {
-            DoExpression: {
-                enter: DoComponent.enter,
-                exit: DoComponent.exit
-            },
-            Program: {
-                enter: ExpressiveProgram.enter,
-                exit: ExpressiveProgram.onExit(options)
-            },
-            Class: {
-                enter: ComponentClass.enter,
-                exit: ComponentClass.exit
-            }
+        Class: {
+            enter: ComponentClass.enter,
+            exit: ComponentClass.exit
+        },
+        DoExpression: {
+            enter: DoComponent.enter,
+            exit: DoComponent.exit
         }
     }
-}
+})
 
 const registerIDs = {
     createElement: "create",
@@ -47,49 +41,6 @@ const registerIDs = {
     StyleSheet: "StyleSheet"
 }
 
-const TEMPLATE = {
-    fnCreateIterated: template(`
-        function NAME(from, key){
-            return from.length 
-                ? CREATE.apply(null, [FRAG, key ? {key} : {}].concat(from))
-                : false
-        }
-    `),
-
-    fnExtends: template(`
-        function NAME(){
-            for(var item of arguments){
-                if(!item) throw new Error("Included properties object is undefined!")
-            }
-            return Object.assign.apply(null, [{}].concat(Array.from(arguments)));
-        }
-    `),
-
-    createApplied: template(`
-        function NAME(from){
-            return _create.apply(undefined, from);
-        }
-    `),
-
-    fnBindMethods: template(`
-        function expressive_methods(instance, methods) {
-            for(var name of methods){
-                instance[name] = instance[name].bind(instance)
-            }
-        }
-    `),
-
-    fnSelect: template(`
-        function NAME() {
-            var output = "";
-            for(var classname of arguments)
-                if(typeof classname == "string")
-                    output += " " + classname;
-            return output.substring(1)
-        }
-    `)
-}
-
 class ExpressiveProgram {
     static enter(path, state){
         Object.assign(Opts, state.opts)
@@ -98,24 +49,33 @@ class ExpressiveProgram {
             checkForStyleImport(path.scope.block.body);
 
         let Stack = createSharedStack(state.opts.modifiers);
-            Stack = Shared.stack = initComputedStyleAccumulator(Stack, state);
+
+        const targets = state.expressive_computeTargets = [];
+        function capture(element){ targets.push.element };
+        Stack.program = { computedStyleMayInclude: capture };
             
-        let Helpers = Stack.helpers = {};
+        let helpers = Stack.helpers = {};
         let didUse = state.didUse = {};
 
         for(const x in registerIDs){
-            const reference = ensureUIDIdentifier.call(path.scope, registerIDs[x], ~["Text", "View"].indexOf(x), state.didUse);
-            Object.defineProperty(Helpers, x, {
+            const named = registerIDs[x];
+            const shouldUseExisting = ~["Text", "View"].indexOf(x);
+            const reference = ensureUIDIdentifier.call(path.scope, named, shouldUseExisting, state.didUse);
+
+            Object.defineProperty(helpers, x, {
                 configurable: true,
                 get(){
-                    Object.defineProperty(Helpers, x, { value: reference });
+                    Object.defineProperty(helpers, x, { value: reference });
                     if(state.didUse[x] !== null) state.didUse[x] = true;
                     return reference;
                 }
             })
         }
 
+        hoistLabeled(path.node);
+
         Shared.state = state;
+        
     }
 
     static exit(path, state, options){
@@ -153,6 +113,7 @@ function checkForStyleImport(body){
                 Shared.styledApplicationComponentName = local.name
 }
 
+<<<<<<< HEAD:packages/plugin-react-xjs/src/index.js
 function initComputedStyleAccumulator(Stack, build_state){
     const targets = build_state.expressive_computeTargets = [];
     const stack = Object.create(Stack);
@@ -279,6 +240,8 @@ function generateComputedStylesExport(path, compute, index){
 
     return index;
 }
+=======
+>>>>>>> master:packages/plugin-transform-xjs/src/index.js
 
 function destructure(list, shorthand){
     const destructure = [];

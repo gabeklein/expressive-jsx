@@ -97,14 +97,12 @@ for(const kind of [
     "borderLeft",
     "borderRight",
     "borderBottom",
-]){
-    EXPORT[kind] = (color = "black", width = 1, style = "solid") => {
-        let value = color == "none"
-            ? "none"
-            : [ color, style, appendUnitToN(width) ].join(" ")
-
-        return {
-            style: { [kind]: value  }
+])
+EXPORT[kind] = (color, width) => {
+    return {
+        style: { 
+            [kind + "Color"]: color || "black",
+            [kind + "Width"]: width || 1
         }
     }
 }
