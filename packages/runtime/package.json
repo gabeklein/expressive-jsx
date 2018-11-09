@@ -1,7 +1,7 @@
 {
   "name": "@expressive/react",
   "version": "0.6.1",
-  "description": "Style Modifiers for most CSS keywords",
+  "description": "Expressive-react runtime",
   "main": "lib/index.js",
   "author": {
     "name": "Gabe Klein",
