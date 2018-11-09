@@ -1,7 +1,7 @@
 {
-  "name": "@expressive-react/babel-plugin-transform-xjs",
-  "version": "0.19.1",
-  "description": "Babel transformer preset for React Expression Syntax",
+  "name": "@expressive/react",
+  "version": "0.6.1",
+  "description": "Style Modifiers for most CSS keywords",
   "main": "lib/index.js",
   "author": {
     "name": "Gabe Klein",
@@ -22,19 +22,17 @@
   ],
   "keywords": [
     "react",
-    "babel",
-    "expressive-react"
+    "expressive-react",
+    "expressive"
   ],
-  "repository": "https://github.com/gabeklein/expressive-react",
-  "dependencies": {
-    "@babel/template": "^7.1.2",
-    "@babel/types": "^7.0.0"
-  },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
     "@babel/plugin-proposal-class-properties": "^7.0.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
     "@babel/preset-env": "^7.0.0"
+  },
+  "dependencies": {
+    "react": "^16.3.0",
+    "react-hot-loader": "^4.1.0"
   }
 }

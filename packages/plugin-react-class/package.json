@@ -1,12 +1,21 @@
 {
-  "name": "@expressive-react/babel-plugin-auto-extends",
-  "version": "1.8.0",
+  "name": "@expressive/babel-plugin-react-class",
+  "version": "0.0.0",
   "description": "Automatically extends React.Component for classes that include an Expressive-recognized render method.",
-  "main": "lib/index.js",
+  "repository": "https://github.com/gabeklein/expressive-react",
+  "author": {
+    "name": "Gabe Klein",
+    "email": "gabe@termtm.com",
+    "url": "https://github.com/gabeklein"
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
+  "keywords": [
+    "react"
+  ],
+  "main": "lib/index.js",
   "files": [
     "/lib"
   ],
@@ -16,12 +25,12 @@
     "watch": "babel ./src --out-dir ./lib --source-maps --watch",
     "prepare": "npm run build"
   },
-  "dependencies": {
-    "babel-types": "^6.25.0"
-  },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.0.0"
+  },
+  "dependencies": {
+    "@babel/types": "^7.0.0"
   }
 }

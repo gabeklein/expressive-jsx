@@ -1,0 +1,40 @@
+{
+  "name": "@expressive/react-modifiers",
+  "version": "0.0.0",
+  "description": "Style Modifiers for most CSS keywords",
+  "repository": "https://github.com/gabeklein/expressive-react",
+  "author": {
+    "name": "Gabe Klein",
+    "email": "gabe@termtm.com",
+    "url": "https://github.com/gabeklein"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "react",
+    "xjs",
+    "modifier"
+  ],
+  "main": "lib/index.js",
+  "files": [
+    "/lib"
+  ],
+  "scripts": {
+    "prebuild": "rm -rf ./lib",
+    "build": "babel ./src --out-dir ./lib",
+    "watch": "babel ./src --out-dir ./lib --source-maps --watch",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@babel/types": "^7.0.0",
+    "dotenv": "^6.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.0.0"
+  }
+}
