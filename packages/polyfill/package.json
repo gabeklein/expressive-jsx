@@ -1,5 +1,5 @@
 {
-  "name": "@expressive/react",
+  "name": "@expressive/polyfill",
   "version": "0.0.0",
   "description": "Style Modifiers for most CSS keywords",
   "repository": "https://github.com/gabeklein/expressive-react",
