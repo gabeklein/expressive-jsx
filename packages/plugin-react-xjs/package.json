@@ -1,6 +1,6 @@
 {
   "name": "@expressive/babel-plugin-react-xjs",
-  "version": "0.0.0",
+  "version": "1.0.0-alpha.0",
   "description": "Babel transformer preset for React Expression Syntax",
   "repository": "https://github.com/gabeklein/expressive-react",
   "author": {
@@ -29,9 +29,9 @@
   "devDependencies": {
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
     "@babel/plugin-proposal-class-properties": "^7.0.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0"
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.0.0"
   },
   "dependencies": {
     "@babel/template": "^7.1.2",

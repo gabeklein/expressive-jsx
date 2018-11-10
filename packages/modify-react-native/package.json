@@ -1,6 +1,6 @@
 {
   "name": "@expressive/react-native-modifiers",
-  "version": "0.0.0",
+  "version": "1.0.0-alpha.0",
   "description": "Style Modifiers to make styling in react-native more convenient",
   "repository": "https://github.com/gabeklein/expressive-react",
   "author": {
@@ -28,7 +28,7 @@
   "devDependencies": {
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "@babel/plugin-proposal-class-properties": "^7.0.0"
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/preset-env": "^7.0.0"
   }
 }

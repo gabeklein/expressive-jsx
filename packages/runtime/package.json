@@ -1,6 +1,6 @@
 {
   "name": "@expressive/react",
-  "version": "0.6.1",
+  "version": "1.0.0-alpha.0",
   "description": "Expressive-react runtime",
   "main": "lib/index.js",
   "author": {
