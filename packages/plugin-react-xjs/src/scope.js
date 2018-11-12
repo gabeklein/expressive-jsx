@@ -102,5 +102,6 @@ class StackFrame {
         program.computedStyleMayInclude(modifier);
         if(styleRoot)
             styleRoot.computedStyleMayInclude(modifier)
+        else return true; //styleroot not found
     }
 }

@@ -97,14 +97,6 @@ export class AttrubutesBody extends TraversableBody {
         return this.style_static.map(x => x.asProperty)
     }
 
-    declareForStylesInclusion(recipient, modifier = this){
-        const { program, styleRoot } = recipient.context;
-        program.computedStyleMayInclude(modifier);
-        if(styleRoot)
-            styleRoot.computedStyleMayInclude(modifier)
-        else return true
-    }
-
     LabeledStatement(path){
         GeneralModifier.applyTo(this, path);
     }

@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "react": "^16.3.0",
-    "react-hot-loader": "^4.1.0"
+    "react-hot-loader": "^4.1.0",
+    "@expressive/polyfill": "1.0.0-alpha.0"
   }
 }

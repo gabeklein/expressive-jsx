@@ -1,8 +1,8 @@
-import transformExpressiveReact from "@expressive-react/babel-plugin-transform-xjs";
-import inferReactComponent      from "@expressive-react/babel-plugin-auto-extends";
+import transformReactClass      from "@expressive/babel-plugin-react-class";
+import transformReactXJS from "@expressive/babel-plugin-react-xjs";
 import ExpressiveEnhancements from "babel-preset-expressive-enhancements"
 
-const NativeStyles = require("@expressive-react/modify-native");
+const NativeStyles = require("@expressive/react-modifiers");
 
 const Plugins = require("babel-preset-react-native/plugins")
 
@@ -43,11 +43,13 @@ module.exports = options => {
             plugin('transform-object-assign'),
             
             
-            [inferReactComponent, {
+            [transformReactClass, {
                 activeOnMethodDo: true
             }],
-            [transformExpressiveReact, {
+            [transformReactXJS, {
                 reactEnv: "native",
+                output: "es6",
+                styleMode: "compile",
                 modifiers: [
                     NativeStyles
                 ]

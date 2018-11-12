@@ -274,6 +274,10 @@ export class ElementModifier extends AttrubutesBody {
         modifier.declareForComponent(this.context.current)
     }
 
+    declareForStylesInclusion(recipient, modifier = this){
+       return recipient.context.declareForRuntime(modifier);
+    }
+
     declareForComponent(recipient){
         if(this.context.styleMode.compile && this.style_static.length){
             this.contextParent = recipient;
@@ -468,10 +472,10 @@ class ExternalSelectionModifier extends ElementModifier {
         
     }
 
-    declareForStylesInclusion(recipient, modifier){
+    declareForStylesInclusion(recipient, modifier = this){
         const noRoot = super.declareForStylesInclusion(recipient, modifier);
         if(noRoot){
-            recipient.context.modifierInsertions.push(modifier || this);
+            recipient.context.modifierInsertions.push(modifier);
         }
     }
 }

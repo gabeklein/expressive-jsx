@@ -1,4 +1,5 @@
 const t = require("@babel/types");
+const { Shared, Opts } = require("./shared");
 
 export function generateComputedStyleSheetObject(path, compute, index){
     const styles = [];

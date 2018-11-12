@@ -1,8 +1,8 @@
-import inferReactComponent      from "@expressive-react/babel-plugin-auto-extends";
-import transformExpressiveReact from "@expressive-react/babel-plugin-transform-xjs";
+import transformReactClass      from "@expressive/babel-plugin-react-class";
+import transformReactXJS from "@expressive/babel-plugin-react-xjs";
 import ExpressiveEnhancements   from "babel-preset-expressive-enhancements"
 
-const WebStyles = require("@expressive-react/modify-web");
+const WebStyles = require("@expressive/react-modifiers");
 
 module.exports = options => {
     return {
@@ -10,11 +10,13 @@ module.exports = options => {
             ExpressiveEnhancements
         ],
         plugins: [
-            [inferReactComponent, {
+            [transformReactClass, {
                 activeOnMethodDo: true
             }],
-            [transformExpressiveReact, {
-                reactEnv: "next",
+            [transformReactXJS, {
+                reactEnv: "web",
+                output: "es6",
+                styleMode: "compile",
                 modifiers: [
                     WebStyles
                 ]

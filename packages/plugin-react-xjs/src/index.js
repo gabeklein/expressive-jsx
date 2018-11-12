@@ -48,10 +48,12 @@ class ExpressiveProgram {
         if(Opts.reactEnv != "native")
             checkForStyleImport(path.scope.block.body);
 
-        let Stack = createSharedStack(state.opts.modifiers);
+        let Stack = Shared.stack = createSharedStack(state.opts.modifiers);
 
         const targets = state.expressive_computeTargets = [];
-        function capture(element){ targets.push.element };
+        function capture(element){
+            targets.push(element);
+        };
         Stack.program = { computedStyleMayInclude: capture };
             
         let helpers = Stack.helpers = {};
