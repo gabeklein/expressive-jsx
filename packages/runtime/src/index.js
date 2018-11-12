@@ -1,6 +1,6 @@
 //needed only to prevent a webpack "no instrumentation found" error
 
-import { hot } from 'react-hot-loader'
+// import { hot } from 'react-hot-loader'
 import { Component, createElement, Fragment, createContext } from "react";
 
 const { Provider: StyleContext, Consumer: StyleDeclaration } = createContext({
