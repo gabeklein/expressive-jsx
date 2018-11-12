@@ -90,7 +90,7 @@ export function generateComputedStylesExport(path, compute, index){
             t.callExpression(
                 t.memberExpression(
                     Shared.stack.helpers.cacheStyle, 
-                    t.identifier("moduleDoesYieldStyle")
+                    t.identifier("doesProvideStyle")
                 ), [
                     t.stringLiteral(
                         path.hub.file.opts.filename

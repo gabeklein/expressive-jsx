@@ -132,10 +132,9 @@ export const transform = {
     createElement(type, props, ...children){
 
         if(Opts.output == "JSX")
-            return this.createJSXElement(type, props, children);
+            return this.createJSXElement(type, props = t.objectExpression([]), children);
 
         if(typeof type == "string") type = t.stringLiteral(type);
-        if(!props) props = t.objectExpression([]);
 
         return t.callExpression(Shared.stack.helpers.createElement, [type, props, ...children])
     },
