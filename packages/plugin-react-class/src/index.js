@@ -72,7 +72,7 @@ function createBinding(name = "temp"){
     return t.identifier(uid);
 }
 
-const t = require("babel-types");
+const t = require("@babel/types");
 
 function repairConstructor(constructor, params){
 

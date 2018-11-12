@@ -1,8 +1,8 @@
 
-const NativeStyles = require("@expressive-react/modify-native");
-const WebStyles = require("@expressive-react/modify-web");
-const transformExpressiveReact = require("@expressive-react/babel-plugin-transform-xjs").default;
-const inferReactComponent = require("@expressive-react/babel-plugin-auto-extends").default;
+const NativeStyles = require("@expressive/react-native-modifiers");
+const WebStyles = require("@expressive/react-modifiers");
+const transformExpressiveReact = require("@expressive/babel-plugin-react-xjs").default;
+const inferReactComponent = require("@expressive/babel-plugin-react-class").default;
 const expressiveEnhancements = require("babel-preset-expressive-enhancements");
 
 const syntaxClassProperties = require("@babel/plugin-syntax-class-properties");

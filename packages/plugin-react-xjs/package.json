@@ -23,7 +23,7 @@
   "scripts": {
     "prebuild": "rm -rf ./lib",
     "build": "babel ./src --out-dir ./lib",
-    "watch": "babel ./src --out-dir ./lib --source-maps --watch",
+    "watch": "NODE_ENV=development babel ./src --out-dir ./lib --source-maps --watch",
     "prepare": "npm run build"
   },
   "devDependencies": {
@@ -31,7 +31,9 @@
     "@babel/core": "^7.0.0",
     "@babel/plugin-proposal-class-properties": "^7.0.0",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
-    "@babel/preset-env": "^7.0.0"
+    "@babel/preset-env": "^7.0.0",
+    "babel-plugin-source-map-support": "^2.0.1",
+    "source-map-support": "^0.5.9"
   },
   "dependencies": {
     "@babel/template": "^7.1.2",

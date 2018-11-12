@@ -29,8 +29,23 @@ let exclude_modules = "!" + inputDir.replace(/\/$/, "") + "/node_modules/**";
 let output = outDir.replace(/\/$/, "");
 
 function onFault(a){
-    console.log(`\nError on file: ${a.fileName}\n`)
-    console.error(a.stack)
+    let [error, ...trace] = a.stack.split("\n");
+    trace = trace.filter(x => x.indexOf("node_modules") < 0);
+    
+    let marginMax = trace.reduce((margin, string) => Math.max(margin, string.indexOf("(")), 0)
+
+    console.error()
+
+    trace = trace.map(
+        loc => {
+            const [_, scope, file, line, column] = /at (.+) \(.+plugin-react-xjs(.+):(\d+):(\d)/.exec(loc)
+            const spacing = Array(marginMax - loc.indexOf("(")).fill(" ").join("");
+            return `  at ${scope}${spacing}   ${file}:${line} `
+
+        }
+    )
+
+    console.error( [`${a.fileName}\n\n${error}`].concat(trace, "").join("\n") );
 }
 
 function onDone(a, b){
