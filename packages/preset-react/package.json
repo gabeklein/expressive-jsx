@@ -1,6 +1,6 @@
 {
   "name": "@expressive/babel-preset-react",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-beta.0",
   "description": "An alternative syntax for feature rich components using less code",
   "repository": "https://github.com/gabeklein/expressive-react",
   "author": {
@@ -33,9 +33,9 @@
     "babel-preset-expressive-enhancements": "^1.0.1"
   },
   "dependencies": {
-    "@expressive/babel-plugin-react-class": "^1.0.0-alpha.0",
-    "@expressive/babel-plugin-react-xjs": "^1.0.0-alpha.0",
-    "@expressive/react-modifiers": "^1.0.0-alpha.0"
+    "@expressive/babel-plugin-react-class": "^1.0.0-beta.0",
+    "@expressive/babel-plugin-react-xjs": "^1.0.0-beta.0",
+    "@expressive/react-modifiers": "^1.0.0-beta.0"
   },
   "peerDependencies": {
     "react": "^16.2.0",

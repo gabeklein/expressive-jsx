@@ -1,6 +1,6 @@
 {
   "name": "@expressive/react",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-beta.0",
   "description": "Expressive-react runtime",
   "main": "lib/index.js",
   "author": {
@@ -32,8 +32,8 @@
     "@babel/preset-env": "^7.0.0"
   },
   "dependencies": {
+    "@expressive/polyfill": "^1.0.0-beta.0",
     "react": "^16.3.0",
-    "react-hot-loader": "^4.1.0",
-    "@expressive/polyfill": "1.0.0-alpha.0"
+    "react-hot-loader": "^4.1.0"
   }
 }

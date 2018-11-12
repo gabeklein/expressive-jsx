@@ -1,6 +1,6 @@
 {
   "name": "@expressive/react-native-modifiers",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-beta.0",
   "description": "Style Modifiers to make styling in react-native more convenient",
   "repository": "https://github.com/gabeklein/expressive-react",
   "author": {
