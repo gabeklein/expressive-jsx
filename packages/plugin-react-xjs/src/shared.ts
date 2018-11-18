@@ -1,19 +1,67 @@
-const t = require("@babel/types")
 
-//basically a singleton
-export const Shared = {
-    set(data){
-        Object.assign(this, data);
+import * as t from "@babel/types";
+import {
+    LabeledStatement,
+    StringLiteral,
+    Identifier,
+    Expression,
+    ObjectExpression,
+    CallExpression,
+    ObjectMember,
+    SpreadElement,
+    jsxIdentifier,
+    JSXIdentifier,
+    Statement,
+    Program,
+    ObjectProperty,
+    VariableDeclaration
+}
+from "@babel/types";
+
+import { Scope, NodePath } from "@babel/traverse";
+
+export function toArray<T>(value: T | T[]): T[] {
+    return ([] as T[]).concat(value);
+}
+
+export function inParenthesis(path: NodePath<Expression>): boolean {
+    const node = path.node as any;
+    return node.extra && (node.extra.parenthesized === true) || false;
+}
+
+interface SharedSingleton {
+    stack: any
+    opts?: any
+    state: {
+        expressive_for_used?: true;
     }
+    styledApplicationComponentName?: string
+}
+
+interface Options {
+    compact_vars?: true;
+    reactEnv: "native" | "web";
+    output: "ES6" | "JSX";
+    styleMode: "compile";
+    formatStyles: any;
 }
 
 export const env = process.env || {
     NODE_ENV: "production"
 };
 
-export function hoistLabeled(node){
-    const labeled = [];
-    const other = [];
+export const Shared = {} as SharedSingleton;
+
+export const Opts = {
+    reactEnv: "web",
+    styleMode: "compile",
+    output: "ES6",
+    formatStyles: ""
+} as Options;
+
+export function hoistLabeled(node: Program){
+    const labeled = [] as LabeledStatement[];
+    const other = [] as Statement[];
 
     let shouldHoist = false;
     let nonLabelFound = false;
@@ -25,16 +73,23 @@ export function hoistLabeled(node){
         }
         else {
             nonLabelFound = true;
-            other.push(item);
+            other.push(item as any);
         }
     }
 
     if(shouldHoist)
-        node.body = labeled.concat(other);
+        node.body = [...labeled, ...other] as any[];
 }
 
-export function ensureUIDIdentifier(name = "temp", useExisting, didUse){
-    name = t.toIdentifier(name).replace(/^_+/, "").replace(/[0-9]+$/g, "");
+export function ensureUIDIdentifier(
+    this: Scope,
+    name: string = "temp", 
+    useExisting: boolean, 
+    didUse: {
+        [uid: string]: any
+    }
+){
+    name = name.replace(/^_+/, "").replace(/[0-9]+$/g, "");
     let uid;
     let i = 0;
 
@@ -46,48 +101,60 @@ export function ensureUIDIdentifier(name = "temp", useExisting, didUse){
     } else do {
         uid = name + (i > 1 ? i : "");
         i++;
-    } while (this.hasLabel(uid) || this.hasBinding(uid) || this.hasGlobal(uid) || this.hasReference(uid));
+    } while (this.hasBinding(uid) || this.hasGlobal(uid) || this.hasReference(uid));
 
-    const program = this.getProgramParent();
+    const program = this.getProgramParent() as any;
     program.references[uid] = true;
     program.uids[uid] = true;
     return t.identifier(uid);
 }
 
-export const Opts = {}
+function convertObjectProps(attr: ObjectMember | SpreadElement){
+    if(attr.type === "SpreadElement")
+        return t.jsxSpreadAttribute(attr.argument);
+    else if(attr.type == "ObjectMethod")
+        throw new Error("object method to JSX attr not yet supported");
 
-function convertObjectProps(x){
+    let attribute: JSXIdentifier;
+    let assignment;
+        
+    if(attr.type == "ObjectProperty"){
+        let { key, value } = attr;
 
-    if(x.type != "ObjectProperty")
-        throw new Error("Report this error, I didn't implement wierd properties right.")
+        if(key.type == "Identifier")
+            attribute = jsxIdentifier(key.name);
 
-    let { key, value } = x;
+        else if(key.type == "String"){
+            if(/^[a-zA-Z_][\w-]+\w$/.test(key.value))
+                attribute = jsxIdentifier(key.value);
+            else throw new Error(`Member named ${key.value} not supported as JSX attribute.`)
+        }
 
-    if(key.type == "Identifier")
-        key.type = "JSXIdentifier"
-    else debugger;
+        if( value.type == "StringLiteral" && value.value == "true" ||
+            value.type == "BooleanLiteral" && value.value == true )
+            assignment = null
 
-    if([true, "true"].indexOf(value.value) >= 0){
-        value = null
+        else if(value.type !== "JSXElement" && value.type !== "StringLiteral")
+            assignment = t.jsxExpressionContainer(value as Expression);
     }
 
-    else if(["JSXElement", "StringLiteral"].indexOf(value.type) < 0)
-        value = t.jSXExpressionContainer(value);
-
-    return t.jSXAttribute(key, value)
+    return t.jsxAttribute(attribute!, assignment)
 }
 
 export const transform = {
 
-    IIFE(stats){
+    IIFE(stats: Statement[]){
         return t.callExpression(
             t.arrowFunctionExpression([], 
-                t.blockStatement(stats)
+                t.blockStatement(stats as any)
             ), []
         )
     },
 
-    createFragment(elements, props = []){
+    createFragment(
+        elements: any[], 
+        props = [] as ObjectProperty[]
+    ){
 
         let type = Shared.stack.helpers.Fragment;
 
@@ -98,17 +165,18 @@ export const transform = {
             )
         
         if(Opts.output == "JSX"){
-            type = t.jSXIdentifier(type.name);
-            return t.jSXElement(
-                t.jSXOpeningElement(type, props.map(convertObjectProps)),
-                t.jSXClosingElement(type), 
-                elements.map( child => {
+            type = t.jsxIdentifier(type.name);
+            return t.jsxElement(
+                t.jsxOpeningElement(type, props.map(convertObjectProps)),
+                t.jsxClosingElement(type), 
+                elements.map( (child: any) => {
                     if(child.type == "StringLiteral" && child.value !== "\n")
                         return this.jsxText(child.value);
                     if(child.type == "JSXElement")
                         return child;
-                    return t.jSXExpressionContainer(child);
-                })
+                    return t.jsxExpressionContainer(child);
+                }),
+                elements.length >= 1
             )
         }
 
@@ -117,7 +185,7 @@ export const transform = {
         )
     },
 
-    applyProp(element, props){
+    applyProp(element: any, props: any){
         if(Opts.output == "JSX"){
             props = props.map(convertObjectProps);
             element.openingElement.attributes.push(...props)
@@ -129,82 +197,107 @@ export const transform = {
         return element;
     },
 
-    createElement(type, props, ...children){
-
+    createElement(
+        type: string | StringLiteral | Identifier, 
+        props: Expression = t.objectExpression([]), 
+        ...children: Expression[]
+    ){
         if(Opts.output == "JSX")
-            return this.createJSXElement(type, props = t.objectExpression([]), children);
+            return this.createJSXElement(type, props, ...children);
 
-        if(typeof type == "string") type = t.stringLiteral(type);
+        if(typeof type == "string") 
+            type = t.stringLiteral(type);
 
         return t.callExpression(Shared.stack.helpers.createElement, [type, props, ...children])
     },
 
-    createJSXElement(type, props, children){
-        if(type.type)
-            type = type.value || type.name;
+    createJSXElement(
+        type: string | StringLiteral | Identifier, 
+        props: (ObjectExpression | Identifier | CallExpression | Expression), 
+        ...children: Expression[]
+    ){
+        if(typeof type !== "string")
+            type = (type as StringLiteral).value || (type as Identifier).name;
 
-        type = t.jSXIdentifier(type);
-        const selfClosing = children.length == 0;
+        const tag = t.jsxIdentifier(type);
+        const isSelfClosing = children.length == 0;
+        let attributes = [] as (t.JSXAttribute | t.JSXSpreadAttribute)[];
 
-        if(props.type == "CallExpression" && props.callee.name == "flatten"){
+        if(props.type == "Identifier")
+            attributes = [ t.jsxSpreadAttribute(props) ];
+
+        else if(props.type == "CallExpression" && (props.callee as Identifier).name == "flatten"){
             const flatten = [];
-            for(const argument of props.arguments)
-                if(argument.type == "ObjectExpression")
-                    [].push.apply(flatten, argument.properties.map(x => {
-                        let id, val;
-                        if(x.key.type != "Identifier")
-                            throw new Error("prop error, key isnt an identifier")
-                        id = x.key.name;
-                        val = x.value;
-                        val = ~["JSXElement", "JSXFragment"].indexOf(val.type)
-                            || val.type == "StringLiteral" && child.value !== "\n"
-                            ? val : t.jsxExpressionContainer(val)
-
-                        return t.jsxAttribute( t.jsxIdentifier(id), val );
-                    }))
-                else
-                    flatten.push(t.jsxSpreadAttribute(argument));
             
-            props = flatten;
-        }
-        else if(props.type == "Identifier")
-            props = [ t.jSXSpreadAttribute(props) ];
-        else if(!props.properties)
-            props = [];
-        else props = props.properties.map(convertObjectProps)
+            for(const argument of props.arguments){
+                if(argument.type == "ObjectExpression"){
+                    const attributes = argument.properties.map((property: any) => {
+                        if(property.key.type != "Identifier")
+                            throw new Error("prop error, key isnt an identifier")
 
-        return t.jSXElement(
-            t.jSXOpeningElement(type, props, selfClosing),
-            selfClosing ? null : t.jSXClosingElement(type), 
-            children.map( child => {
-                if(child.type == "StringLiteral" && child.value !== "\n")
-                    return this.jsxText(child.value);
-                if(child.type == "JSXElement")
-                    return child;
-                if(child.type == "SpreadElement") 
-                    return t.jsxExpressionContainer(
-                        t.callExpression( Shared.stack.helpers.createIterated, [child.argument] )
-                    )
-                return t.jSXExpressionContainer(child);
-            })
+                        let id = t.jsxIdentifier(property.key.name);
+                        let assignment = property.value;
+
+                        if(assignment.type == "JSXElement" 
+                        || assignment.type == "JSXFragment"
+                        || assignment.type == "StringLiteral" && assignment.value !== "\n"){
+                            assignment = t.jsxExpressionContainer(assignment)
+                        }
+    
+                        return t.jsxAttribute(id, assignment);
+                    });
+
+                    flatten.push(...attributes)
+                }
+                else
+                    flatten.push(t.jsxSpreadAttribute(argument as Expression));
+            }
+            
+            attributes = flatten;
+        }
+
+        else if(props.type == "ObjectExpression")
+            attributes = props.properties.map(convertObjectProps)
+
+        return t.jsxElement(
+            t.jsxOpeningElement(tag, attributes, isSelfClosing),
+            t.jsxClosingElement(tag), 
+            children.map( (child: any) => {
+                switch(child.type){
+                    case "JSXElement":
+                        return child;
+                    case "SpreadElement": 
+                        return t.jsxExpressionContainer(
+                            t.callExpression( Shared.stack.helpers.createIterated, [child.argument] )
+                        )
+                    case "StringLiteral":
+                        if(child.value !== "\n")
+                            return this.jsxText(child.value);
+                    default:
+                        return t.jsxExpressionContainer(child);
+                }
+            }),
+            isSelfClosing
         )
     },
 
-    jsxText(value){
+    jsxText(value: string){
         value = value.replace(/'/g, "\"")
-        return t.jSXText(value);
+        return t.jsxText(value);
     },
 
     element(){
         return {
             inlineType: "child",
-            transform: () => ({
-                product: this.createElement(...arguments)
+            transform: (type: string) => ({
+                product: this.createElement(type)
             })
         }
     },
 
-    object(obj){
+    object(
+        obj: { [name: string]: any }
+    ){
         const properties = [];
         for(const x in obj)
             properties.push(
@@ -216,25 +309,30 @@ export const transform = {
         return t.objectExpression(properties);
     },
 
-    member(object, ...path){
-        if(object == "this") object = t.thisExpression()
-        for(let x of path){
-            if(typeof x == "string"){
-                if(/^[A-Za-z0-9$_]+$/.test(x)){
-                    object = t.memberExpression(object, t.identifier(x));
-                    continue;
-                }
-                else x = t.stringLiteral(x)
-            }
-            else if(typeof x == "number")
-                x = t.numericLiteral(x);
+    member(object: Expression | "this", ...path: (string | number)[]){
 
-            object = t.memberExpression(object, x, true)
+        if(object == "this") 
+            object = t.thisExpression()
+
+        for(let member of path){
+            let select;
+            
+            if(typeof member == "string"){
+                select = /^[A-Za-z0-9$_]+$/.test(member)
+                    ? t.identifier(member)
+                    : t.stringLiteral(member);
+            }
+            else if(typeof member == "number")
+                select = t.numericLiteral(member);
+            
+
+            object = t.memberExpression(object, select, select!.type !== "Identifier")
         }
+        
         return object
     },
 
-    declare(type, id, value){
+    declare(type: "const" | "let" | "var", id: Identifier, value?: Expression): VariableDeclaration{
         return (
             t.variableDeclaration(type, [
                 t.variableDeclarator(id, value)

@@ -1,14 +1,23 @@
-const t = require('@babel/types');
+import * as t from "@babel/types";
+import { Statement, Identifier, Expression, IfStatement, DoExpression } from "@babel/types";
+import { NodePath as Path, Scope } from "@babel/traverse";
+import { ComponentGroup } from "./component";
+import { transform } from './shared';
+import { ExpressiveElementChild, ElementSyntax } from "./types";
+import { ElementModifier } from "./modifier";
 
-const { ComponentGroup } = require('./component')
-const { transform, Opts } = require('./shared');
-
-export class ComponentSwitch {
+export class ComponentSwitch implements ExpressiveElementChild {
 
     inlineType = "child"
     precedence = 0
+    shouldOutputDynamic?: true;
+    children = [] as ComponentConsequent[];
+    parent: ComponentGroup;
+    scope: Scope;
+    effectivePrecedence?: number; //remove
+    provideStyle?: Identifier
 
-    static applyTo(parent, src){
+    static applyTo(parent: ComponentGroup, src: Path<IfStatement>){
         parent.add(
             new this(src, parent)
         )
@@ -19,77 +28,87 @@ export class ComponentSwitch {
         return false;
     }
 
-    constructor(path, parent){
+    constructor(path: Path<IfStatement>, parent: ComponentGroup){
         this.parent = parent;
         this.scope = path.scope;
-        this.effectivePrecedence = parent.segue;
-        const children = this.children = [];
+        // this.effectivePrecedence = parent.segue;
+        const children = this.children;
 
-        for(let current = path; true;){
+        let current: Path<any> = path;
+
+        do {
             children.push(
                 new ComponentConsequent(
-                    parent, this,
-                    current.get("consequent"),
-                    current.get("test")
+                    parent, 
+                    this,
+                    current.get("consequent") as Path<Statement>,
+                    current.get("test") as Path<Expression>
                 )
-            )
-            current = current.get("alternate")
+            );
+            
+            current = current.get("alternate") as Path<Statement>
 
-            if(current.type != "IfStatement"){
-                if(current.node)
-                    children.push(
-                        new ComponentConsequent(parent, this, current)
-                    )
-                break;
-            }
-        }
+        } while(current.type == "IfStatement");
+
+        if(current.node)
+            children.push(
+                new ComponentConsequent(parent, this, current)
+            )
 
         path.replaceWithMultiple(this.children.map(
-            option => t.expressionStatement(option.doTransform)
+            option => t.expressionStatement(option.doTransform) as any
         ));
     }
 
     declareStyleOutput(){
         if(!this.provideStyle){
-            const pS = this.provideStyle = this.scope.generateUidIdentifier("cc")
-            this.parent.classList.push(pS)
+            // const pS: Identifier = this.provideStyle = this.scope.generateUidIdentifier("cc") as any;
+            // this.parent.classList.push(pS)
         }
     }
 
-    transform(){
+    transform() {
         if(this.shouldOutputDynamic){
-            let id;
+            let id: Identifier;
             for(const option of this.children)
                 if(option.child.length){
                     id = this.scope.generateUidIdentifier("c");
                     break;
                 }
 
-            const factory = [
+            if(this.children.length < 1)
+                throw new Error("If Component has no children?...");
+
+            const ifStatement = 
                 this.children.reduceRight(
-                    function(alt, option){
+                    function(
+                        alt: undefined | Statement, 
+                        option: ComponentConsequent
+                    ){
                         const { factory } = option.outputDynamic(id);
-                        const body = factory.length > 1
-                            ? t.blockStatement(factory)
-                            : factory[0]
-                        if(!body) debugger
+                        const body = factory.length === 1
+                            ? factory[0]
+                            : t.blockStatement(factory);
+
                         return option.test
                             ? t.ifStatement(option.test.node, body, alt)
                             : body
-                    }, null
+                    }, undefined
                 )
-            ]
+
+            let factory: (Statement)[] = [ ifStatement! ];
+
             if(this.provideStyle)
                 factory.unshift(
                     transform.declare("let", this.provideStyle)
-                )
+                );
 
-            const output = {
+            const output: ElementSyntax = {
                 factory,
-                product: null
+                product: t.booleanLiteral(false)
             }
 
-            if(id){
+            if(id!){
                 factory.unshift(
                     transform.declare("let", id, t.booleanLiteral(false))
                 )
@@ -104,30 +123,33 @@ export class ComponentSwitch {
     inline(){
         if(this.children.length > 1)
             return this.children.reduceRight(
-                this.inlineReduction.bind(this), t.booleanLiteral(false));
+                this.inlineReduction.bind(this), 
+                t.booleanLiteral(false)
+            );
         else {
-            let [test, product] = this.extract(this.children[0]);
+            let { test, product } = this.extract(this.children[0]);
             
-            let check = test;
+            let check: Expression = test!;
+
             if(check.type == "LogicalExpression")
                 check = check.right;
                 
             if(check.type != "BooleanLiteral" 
             && check.type != "BinaryExpression")
-                test = t.unaryExpression("!", t.unaryExpression("!", test))
+                check = t.unaryExpression("!", t.unaryExpression("!", check))
 
-            return t.logicalExpression("&&", test, product);
+            return t.logicalExpression("&&", check, product);
         }
     }
 
-    inlineReduction(alternate, current){
-        const [test, product] = this.extract(current);
+    inlineReduction(alternate: Expression, current: ComponentConsequent){
+        const { test, product } = this.extract(current);
         return test 
             ? t.conditionalExpression(test, product, alternate)
             : product
     }
 
-    extract(item){
+    extract(item: ComponentConsequent): { test?: Expression, product: Expression } {
         const { test } = item;
         const { output } = item.collateChildren();
 
@@ -135,15 +157,29 @@ export class ComponentSwitch {
             ? transform.createFragment(output)
             : output[0] || t.booleanLiteral(false);
 
-        return [test && test.node, product];
+        return {
+            test: test && test.node,
+            product
+        };
     }
 }
 
-class ComponentConsequent extends ComponentGroup {
+export class ComponentConsequent extends ComponentGroup {
 
-    stylePriority = 4
+    stylePriority = 4;
+    test?: Path<Expression>;
+    body?: Path<DoExpression>;
+    logicalParent: ComponentSwitch;
+    inlineType = "statement";
+    precedence = 4;
+    doesDelcareModifiers?: boolean;
 
-    constructor(parent, conditional, path, test){
+    constructor(
+        parent: ComponentGroup, 
+        conditional: ComponentSwitch, 
+        path: Path<Statement>, 
+        test?: Path<Expression>){
+
         super()
         this.insertDoIntermediate(path)
         this.scope = path.scope;
@@ -151,26 +187,38 @@ class ComponentConsequent extends ComponentGroup {
         this.logicalParent = conditional
         this.test = test
 
-        this.precedent = conditional.effectivePrecedence
+        this.precedent = conditional.effectivePrecedence!;
         this.style_static = [];
     }
 
-    didEnterOwnScope(path){
+    insertDoIntermediate(path: Path<Statement>){
+        var {node: consequent, type} = path;
+
+        const body = 
+            type == "BlockStatement"
+                ? consequent : t.blockStatement([consequent])
+
+        super.insertDoIntermediate(path, body)
+    }
+
+    didEnterOwnScope(path: Path<DoExpression>){
         super.didEnterOwnScope(path)
         this.body = path;
 
         // this.logicalParent.shouldOutputDynamic = true;
-        const p = this.props[0], s = this.style[0];
-        if(p || s) this.bubble("mayReceiveAttributes", p, s);
+        const p = !!this.props.length;
+        const s = !!this.style.length;
+        if(p || s) 
+            this.bubble("mayReceiveAttributes", p, s);
     }
 
-    didExitOwnScope(body){
+    didExitOwnScope(body: Path<DoExpression>): void {
         super.didExitOwnScope(body);
         if(this.style_static.length || this.doesDelcareModifiers)
             this.provideStyles();
     }
 
-    includeModifier(modifier){
+    includeModifier(modifier: ElementModifier){
         this.parent.context.declare(modifier)
         this.doesDelcareModifiers = true;
         modifier.declareForConditional(this);
@@ -180,7 +228,7 @@ class ComponentConsequent extends ComponentGroup {
         this.logicalParent.shouldOutputDynamic = true;
         this.logicalParent.declareStyleOutput();
 
-        this.context.declareForRuntime(this);
+        this.context.declareForRuntime(this as any);
 
         const batch = this.logicalParent.children;
         let index = batch.indexOf(this);
@@ -193,17 +241,7 @@ class ComponentConsequent extends ComponentGroup {
         )
     }
 
-    insertDoIntermediate(path){
-        var {node: consequent, type} = path;
-
-        const body = 
-            type == "BlockStatement"
-                ? consequent : t.blockStatement([consequent])
-
-        super.insertDoIntermediate(path, body)
-    }
-
-    outputDynamic(as){
+    outputDynamic(ident: Identifier){
         const { _accumulate } = this.context;
 
         const { body, output } = this.collateChildren(
@@ -218,7 +256,7 @@ class ComponentConsequent extends ComponentGroup {
             body.unshift(
                 t.expressionStatement(
                     t.assignmentExpression(
-                        "=", cc, t.stringLiteral(this.uniqueClassname)
+                        "=", cc!, t.stringLiteral(this.uniqueClassname)
                     )
                 )
             )
@@ -232,7 +270,7 @@ class ComponentConsequent extends ComponentGroup {
             body.push(
                 t.expressionStatement(
                     t.assignmentExpression(
-                        "=", as, product
+                        "=", ident, product
                     )
                 )
             )

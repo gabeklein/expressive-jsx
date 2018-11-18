@@ -1,49 +1,80 @@
+import * as t from "@babel/types";
+import { LabeledStatement, Identifier, Statement} from "@babel/types";
+import { NodePath as Path, Scope } from "@babel/traverse";
+import { AttrubutesBody } from "./component";
+import { createHash } from 'crypto';
+import { SyntheticProp, ExplicitStyle } from "./item";
+import { parsedArguments } from "./attributes";
+import { Opts, Shared, ensureUIDIdentifier, toArray} from "./shared";
+import { StackFrame } from "./scope";
+import { ElementInline } from "./inline";
+import { ComponentConsequent } from "./ifstatement";
 
-const t = require("@babel/types");
-const { createHash } = require('crypto');
-const { AttrubutesBody } = require("./component");
-const { SyntheticProp, ExplicitStyle, Statement, NonComponent } = require("./item");
-const { parsedArgumentBody } = require("./attributes");
-const { Opts, Shared, ensureUIDIdentifier} = require("./shared");
+interface ModifierOutput {
+    attrs?: { [name: string]: any }
+    style?: { [name: string]: any }
+    props?: { [name: string]: any }
+    installed_style?: (ElementModifier | ElementInline)[]
+}
+
+type ModifyAction = (this: ModifyDelegate) => ModifierOutput;
+
+type anyfunction = (...args: any[]) => void;
+
+interface ModifierRecipient {
+    context: StackFrame;
+    includeModifier(mod: ElementModifier): void;
+}
 
 export class GeneralModifier {
 
-    static applyTo(recipient, src) {
+    name: string;
+    transform?: ModifyAction;
+
+    constructor(name: string, transform?: ModifyAction){
+        this.name = name;
+        if(transform)
+            this.transform = transform;
+    }
+
+    static applyTo(recipient: AttrubutesBody, src: Path<LabeledStatement>) {
         const name = src.node.label.name;
-        const body = src.get("body");
+        const body = src.get("body") as Path<Statement>;
     
         const modifier = 
             recipient.context.propertyMod(name) || new this(name);
     
         modifier.apply(body, recipient);
     }
-
-    constructor(name, transform){
-        this.name = name;
-        if(transform)
-            this.transform = transform;
-    }
-
-    apply(body, target){
+    
+    apply(
+        body: Path<Statement>, 
+        target: AttrubutesBody
+    ){
         const accumulated = { 
             props: {}, 
             style: {}
         };
 
-        let mods = [];
-        let i = 0, mod = this;
+        type ModTuple = [GeneralModifier, any];
+        
+        let i = 0;
+        let mod: GeneralModifier = this;
+        let mods = [] as ModTuple[];
 
         while(true){
-            let include = new ModifierProcess(mod, body !== undefined ? body : [], target);
-            if(!include){
+            let { data: delegateOutput } = 
+                new ModifyDelegate(mod, body, target);
+
+            if(!delegateOutput){
                 i++; continue; 
             }
 
-            Object.assign(accumulated.style, include.style);
-            Object.assign(accumulated.props, include.props);
+            Object.assign(accumulated.style, delegateOutput.style);
+            Object.assign(accumulated.props, delegateOutput.props);
 
-            const next = include.attrs || true;
-            const pending = [];
+            const next = delegateOutput.attrs || true;
+            const pending = [] as ModTuple[];
 
             for(const named in next){
                 let value = next[named];
@@ -60,14 +91,15 @@ export class GeneralModifier {
                     while(seeking);
                 }
     
-                const mod = context.propertyMod(named) || new GeneralModifier(named);
-    
-                pending.push([mod, value])
+                pending.push([
+                    context.propertyMod(named) || new GeneralModifier(named), 
+                    value
+                ])
             }
             
             if(!pending.length)
-                if(mod = mods[++i])
-                    [mod, body] = mod
+                if(mods[++i])
+                    [mod, body] = mods[i]
                 else break;
             else {
                 mods = pending.concat(mods.slice(i+1));
@@ -78,32 +110,37 @@ export class GeneralModifier {
         this.integrate(target, accumulated);
     }
 
-    integrate(target, { style, props }){
-        for(const [AttributeType, typeTarget] of [
-            [ExplicitStyle, style], 
-            [SyntheticProp, props]
-        ])
-        for(const item in typeTarget)
-            if(typeTarget[item] !== null)
+    integrate(
+        target: AttrubutesBody, 
+        { style, props } : { style: any; props: any} 
+    ){
+        for(const name in style)
+            if(style[name] !== null)
                 target.add(
-                    new AttributeType(item, typeTarget[item])
+                    new ExplicitStyle(name, style[name])
+                )
+
+        for(const name in props)
+            if(props[name] !== null)
+                target.add(
+                    new SyntheticProp(name, props[name])
                 )
     }
 }
 
-function invokeModifierDefault(){
+function invokeModifierDefault(this: ModifyDelegate){
     if(!this.body || this.body.type == "ExpressionStatement")
         return propertyModifierDefault.call(this)
     else 
         return elementModifierDefault.call(this)
 }
 
-function elementModifierDefault(){
-    new ElementModifier(this.name, this.body).declare(this.target);
+function elementModifierDefault(this: ModifyDelegate){
+    new ElementModifier(this.name, this.body!).declare(this.target);
     return null;
 }
 
-function propertyModifierDefault() {
+function propertyModifierDefault(this: ModifyDelegate) {
     const args = this.arguments.map(arg => {
 
         if(!!arg && typeof arg == "object" ){
@@ -138,8 +175,22 @@ function propertyModifierDefault() {
     }
 }
 
-class ModifierProcess {
-    constructor(mod, body, target){
+export class ModifyDelegate {
+
+    target: any;
+    name: string;
+    body?: Path<Statement>;
+    priority?: number;
+    data: {
+        [name: string]: any;
+    };
+    done?: true;
+
+    constructor(
+        mod: GeneralModifier, 
+        body: Path<Statement>, 
+        target: AttrubutesBody
+    ){
         let { transform } = mod;
         if(!transform || transform.length > 0 && body.type == "BlockStatement")
             transform = invokeModifierDefault;
@@ -149,7 +200,7 @@ class ModifierProcess {
         this.name = mod.name;
 
         if(!body.type)
-            Object.defineProperty(this, "arguments", { value: [].concat(body) })
+            Object.defineProperty(this, "arguments", { value: toArray(body) })
         else 
             this.body = body;
 
@@ -161,15 +212,13 @@ class ModifierProcess {
 
         if(transformOutput)
             this.assign(transformOutput)
-
-        return this.data;
     }
 
-    get arguments(){
+    get arguments(): any[] {
 
-        const args = new parsedArgumentBody(this.body);
+        const args = new parsedArguments(this.body).args;
 
-        const { context } = this.target;
+        // const { context } = this.target;
 
         for(const argument of args)
             if(argument && typeof argument == "object" && argument.named){
@@ -195,38 +244,58 @@ class ModifierProcess {
         return args;
     }
 
-    assign(data){
+    assign(data: any){
         for(const field in data)
             if(this.data[field])
                 Object.assign(this.data[field], data[field])
             else this.data[field] = data[field]
     }
 
-    declareElementModifier(){
-        const mod = new ExternalSelectionModifier(...arguments)
+    declareElementModifier(
+        name: string, 
+        body: Path<t.LabeledStatement>, 
+        fn?: (() => void) | undefined
+    ){
+        const mod = new ExternalSelectionModifier(name, body, fn);
         if(this.priority) mod.stylePriority = this.priority;
         mod.declare(this.target);
     }
 
-    declareMediaQuery(){
-        new MediaQueryModifier(...arguments).declare(this.target)
+    declareMediaQuery(
+        query: string, 
+        body: Path<t.LabeledStatement>
+    ){
+        new MediaQueryModifier(query, body).declare(this.target)
     }
 
-    parse(ast){
-        return new parsedArgumentBody(ast)
+    parse(ast: any){
+        return new parsedArguments(ast).args
     }
 }
 
 export class ElementModifier extends AttrubutesBody {
 
     precedence = 0
-    classList = [];
-    provides = [];
+    classList = [] as string[];
+    provides = [] as ElementModifier[];
+    operations = [] as anyfunction[];
     opperations = [];
     inlineType = "stats"
     stylePriority = 1
 
-    constructor(name, body){
+    name: string;
+    body: Path<Statement>;
+    scope: Scope;
+    inherits?: ElementModifier;
+    selectAgainst?: ElementModifier | ElementInline;
+    type?: "style" | "props" | "both";
+    hash?: string;
+    id?: Identifier;
+    uid?: string
+    styleID?: Identifier;
+    mayReceiveExternalClasses?: true;
+
+    constructor(name: string, body: Path<Statement>){
         super()
         this.name = name;
         this.body = body;
@@ -238,8 +307,16 @@ export class ElementModifier extends AttrubutesBody {
         this.scope = body.scope;
 
         if(typeof this.init == "function")
-            this.init(path);
+            this.init(body);
     }  
+
+    computeStyles(){
+        return t.objectProperty(
+            t.stringLiteral(this.selector || this.uniqueClassname!), 
+            // t.objectExpression(this.compileStyleObject)
+            t.stringLiteral(this.compiledStyle)
+        )
+    }
 
     get selector(){
         if(this.context.selectionContingent)
@@ -247,23 +324,23 @@ export class ElementModifier extends AttrubutesBody {
         else return this.uniqueClassname;
     }
 
-    get path(){
+    get path(): string[] {
         if(this.selectAgainst)
-            return this.selectAgainst.path.concat(` ${this.uniqueClassname}`)
-        else return [ this.uniqueClassname ];
+            return (this.selectAgainst as any).path.concat(` ${this.uniqueClassname}`)
+        else return [ this.uniqueClassname! ];
     }
 
-    declare(recipient){
+    declare(recipient: ModifierRecipient){
         this.context.nearestStyleProvider = this;
         this.process();
         recipient.includeModifier(this);
     }
 
-    onComponent(f){
-        this.opperations.push(f);
+    onComponent(f: anyfunction){
+        this.operations.push(f);
     }
 
-    includeModifier(modifier){
+    includeModifier(modifier: ElementModifier){
         this.provides.push(modifier)
         if(this.selectAgainst){
             modifier.selectAgainst = this.selectAgainst;
@@ -274,13 +351,13 @@ export class ElementModifier extends AttrubutesBody {
         modifier.declareForComponent(this.context.current)
     }
 
-    declareForStylesInclusion(recipient, modifier = this){
-       return recipient.context.declareForRuntime(modifier);
+    declareForStylesInclusion(recipient: ElementModifier | ElementInline, modifier = this): boolean {
+       return !!recipient.context.declareForRuntime(modifier);
     }
 
-    declareForComponent(recipient){
+    declareForComponent(recipient: ElementModifier | ElementInline){
         if(this.context.styleMode.compile && this.style_static.length){
-            this.contextParent = recipient;
+            // this.contextParent = recipient;
             recipient.add(this);
             const noRoot = this.declareForStylesInclusion(recipient);
             if(noRoot){
@@ -292,7 +369,7 @@ export class ElementModifier extends AttrubutesBody {
         }
     }
 
-    declareForConditional(recipient){
+    declareForConditional(recipient: ComponentConsequent){
         if(this.context.styleMode.compile){
             this.selectAgainst = this.parent;
             this.stylePriority = 3
@@ -303,19 +380,19 @@ export class ElementModifier extends AttrubutesBody {
     process(){
         let { body } = this;
 
-        body = 
+        const traversable = 
             body.type == "BlockStatement" ? body.get("body") :
             body.type == "LabeledStatement" && [body];
 
-        for(const item of body)
+        for(const item of traversable as Path<Statement>[])
             if(item.type in this) 
-                this[item.type](item);
+                (this as any)[item.type](item);
             else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
 
-        this.didExitOwnScope()
+        this.didExitOwnScope(this.body)
     }
 
-    didExitOwnScope(path){
+    didExitOwnScope(path: Path<Statement>){
         if(this.props.length)
             this.type = "props"
         if(this.style.length)
@@ -338,8 +415,12 @@ export class ElementModifier extends AttrubutesBody {
         }
     }
 
-    insert(target, args, inline){
-        for(const op of this.opperations)
+    insert(
+        target: ModifierRecipient, 
+        args: any[], 
+        inline: ModifierOutput
+    ){
+        for(const op of this.operations)
             op(target, inline)
         if(!inline && !args.length) return;
         this.into(inline)
@@ -349,16 +430,16 @@ export class ElementModifier extends AttrubutesBody {
         let { props, style } = this;
         let declaration;
 
-        props = props.length && t.objectExpression(props.map(x => x.asProperty));
-        style = style.length && t.objectExpression(style.map(x => x.asProperty));
+        const propsObject = props.length ? t.objectExpression(props.map(x => x.asProperty)) : undefined;
+        const styleObject = style.length ? t.objectExpression(style.map(x => x.asProperty)) : undefined;
 
         declaration = 
             ( this.type == "both" )
             ? t.objectExpression([
-                t.objectProperty(t.identifier("props"), props),
-                t.objectProperty(t.identifier("style"), style)
+                t.objectProperty(t.identifier("props"), propsObject!),
+                t.objectProperty(t.identifier("style"), styleObject!)
             ]) 
-            : props || style;
+            : propsObject || styleObject;
 
         if(declaration) {
             const id = this.id || (this.id = ensureUIDIdentifier.call(this.scope, this.name)); 
@@ -370,53 +451,58 @@ export class ElementModifier extends AttrubutesBody {
         }
     }
 
-    into(inline, target){
+    into(inline: ModifierOutput, /*target: ElementModifier*/){
         if(this.style_static !== this.style && this.style_static.length)
-            inline.installed_style.push(this)
+            inline.installed_style!.push(this)
             
-        if(this.inherits) this.inherits.into(inline);
+        if(this.inherits) 
+            this.inherits.into(inline);
         
         if(!this.style.length && !this.props.length) return
 
-        const { style, props, installed_style } = inline;
-        const id = this.id || (this.id = this.scope.generateUidIdentifier(this.name)); 
+        const { style, props } = inline;
+        const id = this.id || (this.id = this.scope.generateUidIdentifier(this.name) as any); 
 
         if(this.props.length && this.style.length){
-            props.push(t.SpreadElement(
+            props!.push(t.spreadElement(
                 t.memberExpression(
-                    id, t.identifier("props")
+                    id as any, 
+                    t.identifier("props")
                 )
             ))
-            style.push(t.SpreadElement(
+            style!.push(t.spreadElement(
                 t.memberExpression(
-                    id, t.identifier("style")
+                    id as any, 
+                    t.identifier("style")
                 )
             ))
         }
         else {
-            inline[this.type].push(
-                t.SpreadElement(id)
+            (inline as any)[this.type!].push(
+                t.spreadElement(id as any)
             );
         }
 
-        for(const name of this.classList)
-            if(typeof name == "string")
-                if(target.classList.indexOf(name) < 0)
-                    target.classList.push(name);
+        // for(const name of this.classList)
+        //     if(typeof name == "string")
+        //         if(target.classList.indexOf(name) < 0)
+        //             target.classList.push(name);
     }
 }
 
 class ExternalSelectionModifier extends ElementModifier {
     inlineType = "none"
+    transform?: () => void
+    recipient?: ElementModifier | ElementInline;
     
-    constructor(name, body, fn){
-        super(name, body, fn);
+    constructor(name: string, body: Path<LabeledStatement>, fn?: () => void){
+        super(name, body);
         if(fn)
             this.transform = fn;
         this.stylePriority = 5
     }
 
-    declare(recipient){
+    declare(recipient: ElementModifier | ElementInline){
         this.recipient = recipient;
         this.selectAgainst = recipient;
         recipient.mayReceiveExternalClasses = true;
@@ -426,29 +512,28 @@ class ExternalSelectionModifier extends ElementModifier {
             this.declareForStylesInclusion(recipient);
     }
 
-    getSelectorForNestedModifier(target){
+    getSelectorForNestedModifier(target: ElementModifier){
         target.stylePriority = this.stylePriority;
         return this.selector + " " + target.uniqueClassname
     }
 
-    get selector(){
+    get selector(): string{
         const parent = this.selectAgainst;
         const ucn = this.uniqueClassname;
         let parentName = parent instanceof ExternalSelectionModifier 
             ? parent.selector
-            : parent.uniqueClassname;
+            : parent!.uniqueClassname;
 
-        if(ucn == "::both")
-        return `${parentName}::before, ${parentName}::after`;
-
-        return `${parentName}${ucn}`
+        return ucn == "::both"
+            ? `${parentName}::before, ${parentName}::after`
+            : `${parentName}${ucn}`;
     }
 
     get path(){
-        return this.selectAgainst.path.concat(`.${this.name}`)
+        return (this.selectAgainst as any).path.concat(`.${this.name}`)
     }
 
-    didExitOwnScope(path){
+    didExitOwnScope(){
         if(this.props.length)
             throw new Error("Props cannot be defined for a pure CSS modifier!")
         if(this.style.length)
@@ -459,29 +544,34 @@ class ExternalSelectionModifier extends ElementModifier {
         this.context.pop();
     }
 
-    includeModifier(modifier){
+    includeModifier(this: ElementModifier, modifier: ElementModifier){
         // throw new Error("unexpected function called, this is an internal error")
         modifier.selectAgainst = this;
         modifier.stylePriority = 3
 
-        this.declareForStylesInclusion(this.selectAgainst, modifier);
+        this.declareForStylesInclusion(this.selectAgainst!, modifier);
 
         const mod = this.context.nearestStyleProvider;
         if(mod) mod.provides.push(modifier);
-        else this.selectAgainst.context.declare(modifier) 
+        else this.selectAgainst!.context.declare(modifier) 
         
     }
 
-    declareForStylesInclusion(recipient, modifier = this){
+    declareForStylesInclusion(recipient: ElementModifier | ElementInline, modifier = this){
         const noRoot = super.declareForStylesInclusion(recipient, modifier);
         if(noRoot){
             recipient.context.modifierInsertions.push(modifier);
         }
+        return false;
     }
 }
 
 class MediaQueryModifier extends ExternalSelectionModifier {
-    constructor(query, body){
+
+    queryString: string;
+    recipient?: ElementModifier | ElementInline;
+
+    constructor(query: string, body: Path<LabeledStatement>){
         super("media", body);
         this.queryString = query;
         if(this.context.modifierQuery)
@@ -490,16 +580,16 @@ class MediaQueryModifier extends ExternalSelectionModifier {
     }
 
     get selector(){
-        return this.selectAgainst.selector
+        return this.selectAgainst!.selector
     }
 
     get uniqueClassname(){
-        return this.selectAgainst.uniqueClassname;
+        return this.selectAgainst!.uniqueClassname;
     }
 
     set uniqueClassname(_){}
 
-    declare(recipient){
+    declare(recipient: ElementModifier | ElementInline){
         this.recipient = recipient;
         this.selectAgainst = recipient;
         this.stylePriority = 5

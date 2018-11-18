@@ -1,27 +1,55 @@
-const t = require('@babel/types');
-const { ComponentGroup } = require('./component')
-const { Shared, transform, ensureUIDIdentifier } = require("./shared");
+import * as t from "@babel/types";
+import { AssignmentExpression, ForStatement, ForOfStatement, ForInStatement, Identifier, StringLiteral, VariableDeclaration, LVal, ObjectProperty, Expression, Statement, DoExpression } from "@babel/types";
+import { NodePath as Path } from "@babel/traverse";
 
-const INIT_LOOP_TYPE = {
-    of: t.forOfStatement,
-    in: t.forInStatement
-}
+import { ElementInline } from "./inline";
+import { ComponentGroup } from "./component";
+import { Shared, transform, ensureUIDIdentifier } from "./shared";
+import { ExpressiveElementChild, ElementSyntax } from "./types"
 
-export class ComponentRepeating extends ComponentGroup {
+type AnyForStatement = ForStatement | ForInStatement | ForOfStatement;
 
-    inlineType = "child"
-    insert = "fragment"
-    // precedence = -1
-    // shouldOutputDynamic = true;
+export class ComponentRepeating 
+    extends ComponentGroup 
+    implements ExpressiveElementChild {
 
-    static applyTo(parent, src, kind){
+    static applyTo(
+        parent: ElementInline, 
+        src: Path<AnyForStatement>, 
+        kind: string
+    ){
         parent.add(
-            new this(src, parent, kind)
+            new this(src, parent, kind) as any
         )
     }
 
-    AssignmentExpression(path){
-        throw path.buildCodeFrameError("Props have nothing to apply to here!")
+    inlineType = "child";
+    insert = "fragment";
+    precedence = -1;
+    shouldOutputDynamic = true;
+    kind?: string;
+    body: any;
+    path: any;
+    node: any;
+    left?: Path<VariableDeclaration|LVal>;
+    keyConstruct?: Expression;
+
+    constructor(
+        path: Path<AnyForStatement>, 
+        parent: ElementInline, 
+        kind?: string
+    ){
+        // const node = path.node;
+
+        super();
+        this.scope = path.scope;
+        this.kind = kind;
+        this.node = path.node;
+        this.path = path;
+        if(path.isForOfStatement() 
+        || path.isForInStatement())
+            this.left = path.get("left");
+        this.insertDoIntermediate(path);
     }
 
     mayReceiveAttributes(){
@@ -29,24 +57,12 @@ export class ComponentRepeating extends ComponentGroup {
         return false;
     }
 
-    constructor(path, parent, kind){
-        const node = path.node;
-
-        super();
-        this.scope = path.scope;
-        this.kind = kind || null;
-        this.node = node;
-        this.path = path;
-        this.left = path.get("left");
-        this.insertDoIntermediate(path)
-    }
-
-    didEnterOwnScope(path){
+    didEnterOwnScope(path: Path<DoExpression>){
         super.didEnterOwnScope(path)
         this.body = path;
     }
 
-    transform(){
+    transform(): ElementSyntax {
         if(this.kind == "of")
             return this.toMap()
         else
@@ -57,11 +73,11 @@ export class ComponentRepeating extends ComponentGroup {
         let { left, right } = this.node;
 
         if(left.type == "VariableDeclaration")
-            throw this.left.buildCodeFrameError("'const' not supported when loop outputs a map function")
+            throw this.left!.buildCodeFrameError("'const' not supported when loop outputs a map function")
             // left = left.declarations[0].id;
             
         let { body, output } = this.collateChildren(
-            function onAttributes(x){}
+            function onAttributes(_: any){}
         )
 
         let key;
@@ -70,15 +86,15 @@ export class ComponentRepeating extends ComponentGroup {
             ({ left: key, right } = right);
         else key = ensureUIDIdentifier.call(this.path.scope, "i");
 
-        const fragment_props = [ t.objectProperty( t.identifier("key"), key ) ];
+        const fragment_props = [ t.objectProperty( t.identifier("key"), key ) ] as ObjectProperty[];
 
-        output = output.length > 0
+        const pushable = output.length > 0
             ? transform.createFragment(output, fragment_props)
             : t.booleanLiteral(false)
 
-        body = t.blockStatement([
+        const functionBlock = t.blockStatement([
             ...body,
-            t.returnStatement(output)
+            t.returnStatement(pushable)
         ]);
     
         return {
@@ -86,20 +102,20 @@ export class ComponentRepeating extends ComponentGroup {
                 t.memberExpression(
                     right, t.identifier("map")
                 ), [ 
-                    t.arrowFunctionExpression([left, key], body)
+                    t.arrowFunctionExpression([left, key], functionBlock)
                 ]
             )
         }
     }
 
-    toFactory(){
+    toFactory(): ElementSyntax {
         Shared.state.expressive_for_used = true;
 
-        const accumulator = this.scope.generateUidIdentifier("l");
+        const accumulator = this.scope!.generateUidIdentifier("l");
         const { node } = this;
 
         let { body, output } = this.collateChildren(
-            function onAttributes(x){
+            function onAttributes(_: any){
                 //error
             }
         )
@@ -109,36 +125,41 @@ export class ComponentRepeating extends ComponentGroup {
             ? [ t.objectProperty( t.identifier("key"), key ) ]
             : []
 
-        output = output.length > 0
+        const pushable = output.length > 0
             ? transform.createFragment(output, fragment_props)
             : t.booleanLiteral(false)
 
-        body = t.blockStatement([
+        const loopBlock = t.blockStatement([
             ...body,
             t.expressionStatement(
                 t.callExpression(
                     t.memberExpression(accumulator, t.identifier("push")), 
-                    [ output ]
+                    [ pushable as Expression ]
                 )
             )
         ]);
 
-        const loop = this.kind
-            ? INIT_LOOP_TYPE[this.kind](
+        const forVariant =
+            this.kind == "of" ? t.forOfStatement :
+            this.kind == "in" ? t.forInStatement :
+            false;
+
+        const loop = forVariant
+            ? forVariant(
                 node.left,
                 node.right,
-                body
+                loopBlock
             )
             : t.forStatement(
                 node.init,
                 node.test,
                 node.update,
-                body
+                loopBlock
             );
 
         if(!key){
-            key = t.identifier("key")
-            loop.expressive_setKey = (name) => {
+            key = t.identifier("key");
+            (loop as any).expressive_setKey = (name: Expression) => {
                 fragment_props.push(
                     t.objectProperty(t.identifier("key"), name)
                 )
@@ -155,13 +176,15 @@ export class ComponentRepeating extends ComponentGroup {
                 t.callExpression( Shared.stack.helpers.createIterated, [accumulator] ) :
             this.insert == "array" ?
                 accumulator :
-                null;
+                t.booleanLiteral(false);
 
-        return { factory, product }
+        return { 
+            factory, product
+        }
     }
 
-    insertDoIntermediate(path){
-        let action = path.get("body").node;
+    insertDoIntermediate(path: Path<AnyForStatement>){
+        let action = (path.get("body") as Path<Statement>).node;
 
         if(action.type != "BlockStatement")
             action = t.blockStatement([action])
@@ -169,16 +192,22 @@ export class ComponentRepeating extends ComponentGroup {
         super.insertDoIntermediate(path, action)
     }
 
-    AssignmentExpression(path){
-        if(path.get("left").isIdentifier()){
-            const {name} = path.node.left;
+    AssignmentExpression(path: Path<AssignmentExpression>){
+        const { left, right } = path.node;
+
+        if(left.type == "Identifier"){
+            const { name } = left as Identifier;
+
             if(name == "key")
                 this.keyConstruct = path.node.right;
+
             else if(name == "insert"){
-                if(path.get("right").isStringLiteral()){
-                    const { value } = path.node.right;
+                if(right.type == "StringLiteral"){
+                    const { value } = right as StringLiteral;
+
                     if(~["fragment", "array"].indexOf(value))
                         this.insert = value;
+
                     else throw path.buildCodeFrameError(`
                         Invalid value '${value}' for insert property of for-loop. Acceptable value is "array" or "fragment" (default).
                     `)

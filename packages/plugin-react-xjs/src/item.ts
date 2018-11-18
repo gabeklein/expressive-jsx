@@ -1,18 +1,31 @@
-const t = require('@babel/types');
-const { transform, Opts, Shared } = require("./shared");
-const { HEX_COLOR } = require("./attributes")
+import * as t from "@babel/types";
+import { Expression, StringLiteral, Identifier, Statement, AssignmentExpression, ArrayExpression, ObjectProperty, SpreadProperty, ExpressionStatement } from '@babel/types';
+import { NodePath as Path } from '@babel/traverse';
+import { Shared, toArray } from "./shared";
+import { HEX_COLOR } from "./attributes";
+import { ExpressiveElementChild } from './types';
+import { ElementInline } from './inline';
+import { ComponentGroup } from './component';
 
-export class Attribute {
+export abstract class Attribute implements ExpressiveElementChild {
 
-    constructor(path){
+    path?: Path<any>;
+    isSpread?: true;
+    kind?: "style" | "props";
+    static?: any;
+
+    abstract inlineType: string;
+    abstract name?: string;
+
+    constructor(path?: any){
         this.path = path;
     }
 
-    get id(){
-        return t.identifier(this.name);
+    get id(): Identifier {
+        return t.identifier(this.name!);
     }
 
-    get value(){
+    get value(): Expression | undefined {
         const value = this.static;
         if(value) switch(typeof value){
             case "string": return t.stringLiteral(value)
@@ -20,20 +33,19 @@ export class Attribute {
         }
     }
 
-    get asProperty(){
+    get asProperty(): ObjectProperty | SpreadProperty {
         const { name, value, isSpread } = this;
         if(isSpread){
-            return t.SpreadElement(this.value)
+            return t.spreadElement(value!)
         } else {
-            if(!name) {
+            if(!name)
                 throw new Error("Internal Error: Prop has no name!")
-            }
-            return t.objectProperty(t.identifier(this.name), this.value)
+            return t.objectProperty(t.identifier(name), value!)
         }
     }
 
-    asAssignedTo(target){
-        const { name, isSpread } = this;
+    asAssignedTo(target: Expression): ExpressionStatement {
+        const { name, value, isSpread } = this;
         let assign;
 
         if(isSpread){
@@ -42,7 +54,7 @@ export class Attribute {
                     t.identifier("Object"),
                     t.identifier("assign")
                 ), 
-                [   target, this.value   ]
+                [target, value!]
             )
         } else {
             if(!name) {
@@ -50,7 +62,7 @@ export class Attribute {
                 throw new Error("Internal Error: Prop has no name!")
             }
             assign = t.assignmentExpression("=",
-                t.memberExpression(target, t.identifier(name)), this.value
+                t.memberExpression(target, t.identifier(name)), value!
             )
         }
 
@@ -62,8 +74,9 @@ export class SyntheticProp extends Attribute {
 
     inlineType = "props"
     precedence = 1
+    name: string;
 
-    constructor(name, value) {
+    constructor(name: string, value: string | StringLiteral) {
         super()
         this.name = name;
         if(typeof value == "string")
@@ -77,11 +90,24 @@ export class SyntheticProp extends Attribute {
 
 export class Prop extends Attribute {
 
-    inlineType = "props"
-    precedence = 1
+    inlineType = "props";
+    precedence = 1;
+    type?: "SpreadElement";
+    path: Path<AssignmentExpression>;
+    name?: string;
 
-    static applyTo(parent, path){
-        if( path.node.left.name == "style"){
+    constructor(path: Path<AssignmentExpression>){
+        super(path)
+        const { computed } = this;
+        this.path = path;
+        if(computed){
+            this.static = computed;
+            delete this.precedence;
+        }
+    }
+
+    static applyTo(parent: ElementInline, path: Path<AssignmentExpression>){
+        if( (path.node.left as Identifier).name == "style"){
             this.applyStyle(parent, path);
             return
         }
@@ -93,7 +119,7 @@ export class Prop extends Attribute {
         )
     }
 
-    static applyStyle(parent, path){
+    static applyStyle(parent: ElementInline, path: Path<AssignmentExpression>){
         const spread = new this(path);
 
         spread.kind = "style";
@@ -106,21 +132,12 @@ export class Prop extends Attribute {
         )
     }
 
-    constructor(path){
-        super(path)
-        const { computed } = this;
-        if(computed){
-            this.static = computed;
-            delete this.precedence;
-        }
-    }
-
     get computed(){
         let value;
         const { node } = this.path;
-        const { extra } = value = node.right;
+        const { extra } = value = node.right as any;
 
-        const name = this.name = node.left.name;
+        const name = this.name = (node.left as Identifier).name;
 
         if(name != "style"){
             if( t.isNumericLiteral(value))
@@ -132,14 +149,20 @@ export class Prop extends Attribute {
         }
     }
 
-    get value(){
+    get value(): Expression {
         return super.value || this.path.node.right;
     }
 }
 
 export class ExplicitStyle {
 
-    constructor(name, value) {
+    name: string;
+    static: string | number | null;
+    inlineType: "style" | "style_static";
+    id: StringLiteral | Identifier;
+    value: Expression;
+
+    constructor(name: string, value: any) {
         if(name[0] == "$"){
             name = "--" + name.slice(1)
             this.id = t.stringLiteral(name);
@@ -178,13 +201,13 @@ export class ExplicitStyle {
             }
             
             default:
-                this.static = false;
+                this.static = null;
                 this.inlineType = "style";
                 this.value = value.node || value;
         }
     }
 
-    get asString(){
+    get asString(): string {
         const name = this.name.replace(/([A-Z]+)/g, "-$1").toLowerCase();
         let { static: value } = this;
         if(value === "") value = `""`;
@@ -197,14 +220,14 @@ export class ExplicitStyle {
         return `${name}: ${value}`
     }
 
-    get asProperty(){
+    get asProperty(): ObjectProperty {
         let { value, static: stat } = this;
         if(stat && typeof stat == "string")
             value = t.stringLiteral(stat.replace(/\s+/g, " "));
         return t.objectProperty(this.id, value);
     }
 
-    asAssignedTo(target){
+    asAssignedTo(target: Expression){
         return t.expressionStatement(
             t.assignmentExpression("=",
                 t.memberExpression(target, this.id), this.value
@@ -213,13 +236,19 @@ export class ExplicitStyle {
     }
 }
 
-export class Statement {
+export class InnerStatement {
 
     inlineType = "stats"
+    node: Statement;
+    kind: "var" | "debug" | "block";
 
-    static applyTo(parent, path, mod){
+    static applyTo(
+        parent: ComponentGroup, 
+        path: Path<Statement>, 
+        kind: "var" | "debug" | "block"
+    ){
         parent.add( 
-            new this(path, mod)
+            new this(path, kind) as any
         )
     }
 
@@ -227,49 +256,47 @@ export class Statement {
         return this.node;
     }
 
-    constructor(path, kind){
+    constructor(path: Path<Statement>, kind: any){
         this.kind = kind;
         this.node = path.node;
     }
 }
 
-export class NonComponent {
-
-    inlineType = "child"
-
-    constructor(src){
-        if(src.node)
-            this.path = src,
-            this._node = src.node
-        else
-            this._node = src
-
-        if(this._node.type == "StringLiteral")
-            this.precedence = 4
-        else
-            this.precedence = 3 
-    }
+export class NonComponent implements ExpressiveElementChild {
     
-    static applyMultipleTo(parent, src){
+    static applyMultipleTo(parent: ElementInline, src: Path<ArrayExpression>){
         const elem = src.get("elements");
         if(elem.length == 1 && elem[0].isSpreadElement())
             parent.add(
-                new this(elem[0].get("argument"))
+                new this(elem[0].get("argument") as any)
             )
         else for(const inclusion of src.get("elements"))
             parent.add(
-                new this(inclusion)
+                new this(inclusion as any)
             )
     }
     
-    static applyTo(parent, path){
+    static applyTo(parent: ElementInline, path: Path<Expression>){
         parent.add(
             new this(path)
         )
     }
 
-    get node(){
-        return this._node || this.path.node;
+    inlineType = "child";
+    precedence: number;
+    path?: Path;
+    node: Expression;
+
+    constructor(src: Path<Expression> | Expression){
+        if((src as Path).node){
+            this.path = src as Path;
+            this.node = this.path.node as Expression;
+        }
+        else
+            this.node = src as Expression
+
+        this.precedence = 
+            src.type == "StringLiteral" ? 4 : 3;
     }
 
     outputInline(){
@@ -282,119 +309,9 @@ export class NonComponent {
 
     collateChildren(){
         return {
-            output: [].concat(this.node)
+            output: toArray(this.node)
         }
     }
 }
 
-export class QuasiComponent extends NonComponent {
-    static applyTo(parent, path){
-        const node = new this(path);
-        node.parent = parent;
-        parent.add(node)
-    }
-
-    get node(){
-        const { name } = this.parent.tags[0]; 
-        const string_only = 
-            // Opts.reactEnv == "native" || 
-            // this.parent.typeInformation.type.type != "StringLiteral";
-            /^[A-Z]/.test(name) && name != "Text";
-
-        return this.breakdown(string_only)
-    }
-
-    breakForString(quasi, then, items, INDENT, i, quasis){
-        for(let x of ["raw", "cooked"]){
-            let text = quasi.value[x];
-            if(INDENT) text = text.replace(INDENT, "\n");
-            if(i == 0) text = text.replace("\n", "")
-            if(i == quasis.length - 1)
-                text = text.replace(/\s+$/, "")
-            quasi.value[x] = text
-        }
-    }
-
-    breakForNative(quasi, then, items, INDENT){
-        let text = quasi.value.cooked;
-        if(INDENT) 
-            text = text.replace(INDENT, "\n");
-        const lines = text.split(/(?=\n)/g);
-
-        for(let line, j=0; line = lines[j]; j++)
-            if(line[0] == "\n"){
-                if(lines[j+1] || then){
-                    items.push(
-                        new NonComponent(
-                            t.stringLiteral("\n")))
-                    items.push(
-                        new NonComponent(
-                            t.stringLiteral(
-                                line.substring(1))))
-                }
-            }
-            else items.push(
-                new NonComponent(
-                    t.stringLiteral( line )))
-        
-        if(then) items.push(new NonComponent(then));
-    }
-
-    breakWithBR(quasi, then, items, INDENT, i){
-        const ELEMENT_BR = transform.createElement("br");
-        let text = quasi.value.cooked;
-        if(INDENT) 
-            text = text.replace(INDENT, "\n");
-        const lines = text.split(/(?=\n)/g);
-
-        for(let line, j=0; line = lines[j]; j++)
-            if(line[0] == "\n"){
-                if(lines[j+1] || then){
-                    items.push({node: ELEMENT_BR})
-                    items.push(
-                        new NonComponent(
-                            t.stringLiteral(
-                                line.substring(1))))
-                }
-            }
-            else items.push(
-                new NonComponent(
-                    t.stringLiteral( line )))
-        
-        if(then) items.push(new NonComponent(then));
-    }
-
-    breakdown(string_only){
-        const quasi = this._node;
-        const { quasis, expressions } = quasi;
-
-        if( Opts.output == "JSX" && 
-            quasis.find(element => /[{}]/.exec(element.value.raw))
-        )   return quasi;
-
-        if(expressions.length == 0)
-            return t.stringLiteral(quasis[0].value.raw)
-
-        let INDENT = /^\n( *)/.exec(quasis[0].value.cooked);
-        INDENT = INDENT && new RegExp("\n" + INDENT[1], "g");
-
-        const items = [];
-
-        const split = 
-            string_only ?
-                this.breakForString :
-            Opts.reactEnv == "native" ?
-                this.breakForNative :
-                this.breakWithBR;
-
-        for(let i=0; i < quasis.length; i++)
-            split(quasis[i], expressions[i], items, INDENT, i, quasis);
-
-        if(string_only)
-            return quasi;
-        else {
-            if(INDENT) items.shift();
-            return items.map(x => x.node)
-        }
-    }
-}
+export { QuasiComponent } from "./quasi";

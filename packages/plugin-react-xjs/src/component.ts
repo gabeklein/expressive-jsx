@@ -1,157 +1,129 @@
-const t = require("@babel/types")
-const { Opts, transform, Shared } = require("./shared");
-const { createHash } = require('crypto');
+import * as t from "@babel/types";
 
-class TraversableBody {
+import {
+    ExpressionStatement,
+    Expression,
+    Statement,
+    IfStatement,
+    ArrayExpression,
+    StringLiteral,
+    TemplateLiteral,
+    ForStatement,
+    ForInStatement,
+    ForOfStatement,
+    LabeledStatement,
+    AssignmentExpression,
+    VariableDeclaration,
+    DebuggerStatement,
+    BlockStatement,
+    ObjectExpression,
+    ObjectProperty,
+}
+from "@babel/types";
 
-    children = [];
+import { StackFrame } from "./scope";
+import { transform, Shared } from "./shared";
+import { createHash } from 'crypto';
+import { NodePath as Path, Scope } from "@babel/traverse";
+import { Attribute, ExplicitStyle, InnerStatement } from "./item";
+import { ExpressiveElementChild, ElementInlcusion, XReactTag } from "./types";
 
-    add(obj){
-        const acc = this[obj.inlineType];
-        if(acc) acc.push(obj);
-        this.children.push(obj);
-    }
+abstract class TraversableBody {
 
-    bubble(fnName, ...args){
+    context = {} as StackFrame;
+    parent: any;
+
+    init?(path: Path<Expression | Statement>): void;
+
+    bubble(fnName: string, ...args: any[]){
         let cd = this;
         while(cd = cd.parent)
             if(fnName in cd){
-                const result = cd[fnName](...args); 
+                const result = (cd as any)[fnName](...args); 
                 if(result !== false) return result;
             }
         throw new Error(`No method named ${fnName} in parent-chain of element ${this.constructor.name}`)
     }
 
-    insertDoIntermediate(path, node){
-        const doTransform = t.doExpression(node || path.node);
-
-        doTransform.meta = this;
-        this.doTransform = doTransform;
-
-        path.replaceWith(
-            t.expressionStatement(doTransform)
-        )
-    }
-
-    didEnterOwnScope(path){
+    didEnterOwnScope(path: Path<Expression>){
         Shared.stack.push(this);
         
         if(typeof this.init == "function")
             this.init(path);
 
-        const src = path.get("body.body")
+        const src = path.get("body.body") as Path<Statement>[];
         for(const item of src)
             if(item.type in this) 
-                this[item.type](item);
+                (this as any)[item.type](item);
             else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
     }
 
-    didExitOwnScope(){
+    didExitOwnScope(_path: Path<any>): void {
         this.context.pop();
     }
-
-    //  Node Type Specifiers
-
-    ExpressionStatement(path){
-        const expr = path.get("expression")
-        if(expr.type in this) this[expr.type] (expr);
-        else if(this.ExpressionDefault) this.ExpressionDefault(expr);
-        else throw expr.buildCodeFrameError(`Unhandled expressionary statement of type ${expr.type}`)
-    }
-
 }
 
-export class AttrubutesBody extends TraversableBody {
+export abstract class AttrubutesBody 
+    extends TraversableBody {
 
-    constructor() {
-        super();
-        this.props = [];
-        this.style = this.style_static = []
+    props = [] as Attribute[];
+    style = [] as ExplicitStyle[];
+    style_static = this.style;
+    uniqueClassname?: string;
+    children = [] as ElementInlcusion[];
+
+    abstract inlineType: string;
+    abstract precedence: number;
+
+    add(obj: ExpressiveElementChild){
+        const acc = (this as any)[obj.inlineType];
+        if(acc) acc.push(obj);
+        this.children.push(obj);
     }
 
-    computeStyles(){
-        return t.objectProperty(
-            t.stringLiteral(this.selector || this.uniqueClassname), 
-            // t.objectExpression(this.compileStyleObject)
-            t.stringLiteral(this.compiledStyle)
-        )
+    get selector(): string{
+        return this.uniqueClassname!;
     }
 
-    get selector(){
-        return this.uniqueClassname;
+    get style_output(): ObjectExpression {
+        return t.objectExpression(this.style_static.map(x => x.asProperty));
     }
 
-    get style_output(){
-        return this.style_static.length && t.objectExpression(this.style_static.map(x => x.asProperty));
-    }
-
-    get style_path(){
-        return [`${this.uniqueClassname || this.generateUCN() }`]
-    }
-
-    get compiledStyle(){
+    get compiledStyle(): string {
         return this.style_static.map(x => x.asString).join("; ")
     }
 
-    get compileStyleObject(){
+    get compileStyleObject(): ObjectProperty[] {
         return this.style_static.map(x => x.asProperty)
     }
 
-    LabeledStatement(path){
+    LabeledStatement(path: Path<LabeledStatement>){
         GeneralModifier.applyTo(this, path);
     }
 
-    AssignmentExpression(path){
+    AssignmentExpression(path: Path<AssignmentExpression>){
         Prop.applyTo(this, path)
     }
 }
 
-export class ComponentBody extends AttrubutesBody {
+export abstract class ComponentGroup 
+    extends AttrubutesBody 
+    implements ExpressiveElementChild {
 
-    child = [];
-
-    ExpressionDefault(path){
-        CollateInlineComponentsTo(this, path)
-    }
-
-    TemplateLiteral(path){
-        this.StringLiteral(path)
-    }
-
-    StringLiteral(path){
-        RNTextNode(this, path)
-    }
-
-    ArrayExpression(path){
-        NonComponent.applyMultipleTo(this, path)
-    }
-
-    EmptyStatement(){};
-
-    IfStatement(path){
-        ComponentSwitch.applyTo(this, path)
-    }
-
-    ForStatement(path, mod){
-        ComponentRepeating.applyTo(this, path, mod)
-    }
-
-    ForInStatement(path){
-        this.ForStatement(path, "in")
-    }
-
-    ForOfStatement(path){
-        this.ForStatement(path, "of")
-    }
-
-}
-
-export class ComponentGroup extends ComponentBody {
-
-    stats = []
+    stats = [] as any[];
+    child = [] as any[];
+    tags = [] as XReactTag[];
     precedent = 0;
+    uid?: string;
+    scope?: Scope;
+    doTransform: any;
+    disordered?: true;
+    doesHaveDynamicProperties?: true;
 
-    add(obj){
+    abstract inlineType: string;
+    abstract precedence: number;
+
+    add(obj: ExpressiveElementChild){
         const updated = obj.precedence || 4;
 
         if(this.precedent > updated) this.flagDisordered();
@@ -167,7 +139,11 @@ export class ComponentGroup extends ComponentBody {
         this.doesHaveDynamicProperties = true;
     }
 
-    generateUCN(name){
+    get style_path(){
+        return [`${this.uniqueClassname || this.generateUCN() }`]
+    }
+
+    generateUCN(name?: string){
         let cn = name || this.tags[this.tags.length - 1].name;
 
         const uid = this.uid = `${cn}-${
@@ -179,49 +155,66 @@ export class ComponentGroup extends ComponentBody {
         return this.uniqueClassname = "." + uid
     }
 
-    collateChildren(onAppliedType){
-        const { scope } = this;
-        const body = [];
-        const output = [];
-        let adjacent;
+    insertDoIntermediate(path: Path<any>, node?: Statement){
+        let content = node || path.node;
+        if(content.type !== "BlockStatement")
+            content = t.blockStatement([content]);
 
-        const child_props = [];
+        const doTransform = t.doExpression(content);
 
-        function flushInline(done) {
-            if(adjacent == null) return;
+        (doTransform as any).meta = this;
+        this.doTransform = doTransform;
+
+        const replacement = t.expressionStatement(doTransform);
+
+        path.replaceWith(replacement);
+    }
+
+    collateChildren(
+        onAppliedType?: (item: any) => any
+    ){
+        const scope = this.scope;
+        const body = [] as Statement[];
+        const output = [] as any[];
+        // const child_props = [];
+        let adjacent = [] as any[];
+
+        function flushInline(done?: boolean) {
+            // if(adjacent == null) return;
+            if(adjacent.length == 0) return;
 
             if(done && !output.length){
-                output.push(...adjacent)
+                output.push(...adjacent);
                 return;
             }
 
-            const name = scope.generateUidIdentifier("e");
+            const name = scope!.generateUidIdentifier("e");
             let ref, stat;
 
             if(adjacent.length > 1) {
                 stat = transform.declare("const", name, t.arrayExpression(adjacent))
-                ref  = t.spreadElement(name)
+                ref = t.spreadElement(name)
             } else {
                 stat = transform.declare("const", name, adjacent[0])
-                ref  = name
+                ref = name
             }
 
             body.push(stat)
             output.push(ref)
 
-            adjacent = null;
+            adjacent = [];
         }
 
-        for(const item of this.children) 
+        for(const item of this.children){
             switch(item.inlineType){
 
                 case "self":
                 case "child": {
                     // if(item.constructor.name == "QuasiComponent") debugger
-                    const { product, factory } = item.transform();
+                    const { product, factory } = (item as any).transform();
 
                     if(!factory && product){
-                        adjacent = (adjacent || []).concat(product)
+                        adjacent = adjacent.concat(product);
                         // if(adjacent) adjacent.push(product);
                         // else adjacent = [product]
                         continue;
@@ -237,7 +230,7 @@ export class ComponentGroup extends ComponentBody {
                 
                 case "stats": {
                     flushInline();
-                    const out = item.output()
+                    const out = (item as any).output()
                     if(out) body.push(out)
 
                 } break;
@@ -253,24 +246,67 @@ export class ComponentGroup extends ComponentBody {
                             body.push(add);
                         }
                     }
-            }
+            }   
+        }
         
         flushInline(true);
 
         return { output, body }
     }
 
-    VariableDeclaration(path){ 
-        Statement.applyTo(this, path, "var")
+    VariableDeclaration(path: Path<VariableDeclaration>){ 
+        InnerStatement.applyTo(this, path, "var")
     }
 
-    DebuggerStatement(path){ 
-        Statement.applyTo(this, path, "debug")
+    DebuggerStatement(path: Path<DebuggerStatement>){ 
+        InnerStatement.applyTo(this, path, "debug")
     }
 
-    BlockStatement(path){ 
-        Statement.applyTo(this, path, "block")
+    BlockStatement(path: Path<BlockStatement>){ 
+        InnerStatement.applyTo(this, path, "block")
     }
+
+    TemplateLiteral(path: Path<TemplateLiteral>){
+        RNTextNode(this, path)
+    }
+
+    StringLiteral(path: Path<StringLiteral>){
+        RNTextNode(this, path)
+    }
+
+    ArrayExpression(path: Path<ArrayExpression>){
+        NonComponent.applyMultipleTo(this, path)
+    }
+
+    IfStatement(path: Path<IfStatement>){
+        ComponentSwitch.applyTo(this, path)
+    }
+
+    ForStatement(path: Path<ForStatement>){
+        ComponentRepeating.applyTo(this, path)
+    }
+
+    ForInStatement(path: Path<ForInStatement>){
+        ComponentRepeating.applyTo(this, path, "in")
+    }
+
+    ForOfStatement(path: Path<ForOfStatement>){
+        ComponentRepeating.applyTo(this, path, "of")
+    }
+
+    ExpressionDefault(path: Path<Expression>){
+        CollateInlineComponentsTo(this, path)
+    }
+
+    ExpressionStatement(path: Path<ExpressionStatement>){
+        const expr = path.get("expression") as Path<Expression>
+        if(expr.type in this) 
+            (this as any)[expr.type](expr);
+        else if(this.ExpressionDefault) this.ExpressionDefault(expr);
+        else throw expr.buildCodeFrameError(`Unhandled expressionary statement of type ${expr.type}`)
+    }
+
+    EmptyStatement(){};
 }
 
 //import last. Modules import from these here, so exports must already be initialized.

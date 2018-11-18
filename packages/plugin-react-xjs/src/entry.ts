@@ -1,36 +1,21 @@
-const t = require("@babel/types")
-const { createHash } = require('crypto');
+import * as t from "@babel/types";
+import { Identifier, Class, Expression, LabeledStatement, DoExpression, ClassMethod, ObjectProperty, BlockStatement, ArrowFunctionExpression, Statement, ReturnStatement, RestElement, PatternLike } from "@babel/types";
+import { Opts, Shared, transform, ensureUIDIdentifier } from "./shared";
+import { GeneralModifier, ElementModifier } from "./modifier";
+import { ElementInline } from "./inline";
+import { NodePath as Path } from "@babel/traverse";
+import { StackFrame } from "./scope";
 
-const { ComponentGroup } = require("./component")
-const { Opts, Shared, transform, ensureUIDIdentifier } = require("./shared")
-const { GeneralModifier } = require("./modifier");
-const { ElementInline } = require("./inline");
-
-const TARGET_FOR = {
+const NAME_FROM = {
     VariableDeclarator: "id",
     AssignmentExpression: "left",
     AssignmentPattern: "left",
     ObjectProperty: "key"
+} as {
+    [type: string]: string
 }
 
-export function RenderFromDoMethods(renders, subs, style){
-    let found = 0;
-    const subComponentNames = subs.map(
-        x => x.node.key.name
-    );
-
-    for(let path of subs){
-        const { name } = path.node.key;
-        new ComponentMethod(name, path, subComponentNames, style);
-    }
-
-    for(let path of renders){
-        if(++found > 1) throw path.buildCodeFrameError("multiple do methods not supported")
-        new ComponentMethod("render", path, subComponentNames, style);
-    }
-}
-
-const ensureArray = (children, getFirst) => {
+const ensureArray = (children: Expression, getFirst: boolean = false) => {
     const array = t.callExpression(
         t.memberExpression(
             t.arrayExpression([]),
@@ -42,9 +27,9 @@ const ensureArray = (children, getFirst) => {
 }
 
 export class DoComponent {
-    static enter(path, state){
+    static enter(path: Path<DoExpression>, state:any){
 
-        let { node } = path,
+        let node = path.node as any,
             { meta } = node;
 
         if(node.expressive_visited) return
@@ -52,7 +37,7 @@ export class DoComponent {
         if(!meta){
 
             let immediateParent = path.parentPath;
-            let Handler;
+            let Handler: any;
 
             if(immediateParent.isArrowFunctionExpression()){
                 Handler = ComponentArrowExpression;
@@ -65,31 +50,45 @@ export class DoComponent {
             else if(!immediateParent.isSequenceExpression()){
                 Handler = ComponentInlineExpression;
             }
-            else throw path.getAncestry()
-                .find(x => ["ArrowFunctionExpression", "ClassMethod"].indexOf(x.type) >= 0 )
-                .get("body")
-                .buildCodeFrameError("Component Syntax `..., do {}` found outside expressive context! Did you forget to arrow-return a do expression?")
+            else { 
+                const isWithin = path
+                    .getAncestry()
+                    .find(x => ["ArrowFunctionExpression", "ClassMethod"].indexOf(x.type) >= 0 );
+                if(isWithin)
+                    isWithin.buildCodeFrameError(
+                        "Component Syntax `..., do {}` found outside expressive context! Did you forget to arrow-return a do expression?"
+                    )
+            }
 
             let { type, node: parent } = immediateParent;
             let name;
 
-            if(type == "ExportDefaultDeclaration")
-                name = "default"
-            else if(type == "ReturnStatement")
-                name = "returned"
-            else if(type == "SequenceExpression")
-                name = "callback"
-            else {
-                let ident = parent[TARGET_FOR[type]];
-                name = ident && ident.name;
-                if(!name){
-                    if(parent.type == "FunctionExpression")
-                        for(const item of path.getAncestry()){
-                            if(item.type == "VariableDeclarator")
-                                name = item.node.id.name;
-                        }
-                    else
-                    name = "do"
+            switch(type){
+                case "ExportDefaultDeclaration":
+                    name = "default";
+                    break;
+
+                case "ReturnStatement": 
+                    name = "returned";
+                    break;
+
+                case "SequenceExpression":
+                    name = "callback";
+                    break;
+
+                default: {
+                    let ident = (parent as any)[NAME_FROM[type]];
+                    name = ident && ident.name;
+                    if(!name){
+                        if(parent.type == "FunctionExpression")
+                            for(const { node } of path.getAncestry()){
+                                if(node.type == "VariableDeclarator"){
+                                    ({ name } = node.id as Identifier);
+                                    break;
+                                }
+                            }
+                        else name = "do"
+                    }
                 }
             }
 
@@ -101,8 +100,8 @@ export class DoComponent {
         state.expressive_used = true;
     }
 
-    static exit(path, state){
-        const { node } = path;
+    static exit(path: Path<DoExpression>, state:any){
+        const node = path.node as any;
 
         if(node.expressive_visited) return
         else node.expressive_visited = true;
@@ -114,29 +113,31 @@ export class DoComponent {
 }
 
 export class ComponentClass {
-    static enter(path, state){
+    static enter(path: Path<Class>, state: any){
 
-        const doFunctions = [];
+        const doFunctions = [] as Path<ClassMethod>[];
         const subComponents = [];
-        let componentStyles;
-        let constructor;
+        // let componentStyles;
+        // let constructor;
         let styleMethod;
 
-        for(let item of path.get("body.body")){
+        for(let item of path.get("body.body") as Path<ClassMethod>[]){
+            if(item.type !== "ClassMethod") continue;
 
-            if(item.isClassMethod({kind: "constructor"}))
-                constructor = item
+            const method = item.node;
 
-            else if(item.isClassMethod({kind: "method"})){
-                if(item.get("key").isIdentifier()){
-                    const { name } = item.node.key;
+            // if(method.kind == "constructor")
+            //     constructor = item
+            // else 
+            if(method.kind == "method"){
+                if(method.key.type == "Identifier"){
+                    const { name } = method.key;
                     
-                    if(name == "do" || path.node.id && name == path.node.id.name)
+                    if(name == "do" || path.node.id && path.node.id.name == name)
                         doFunctions.push(item)
 
                     else if(name == "Style")
-                        styleMethod = item
-                        // new ComponentStyleMethod(item)
+                        styleMethod = item as Path<ClassMethod>
 
                     else if(/^[A-Z]/.test(name))
                         subComponents.push(item)
@@ -145,7 +146,7 @@ export class ComponentClass {
         }
 
         if(doFunctions.length) {
-            const modifierInsertions = [];
+            const modifierInsertions = [] as any[];
             const current = {
                 classContextNamed: path.node.id && path.node.id.name || "Anonymous",
                 stats: modifierInsertions
@@ -155,19 +156,36 @@ export class ComponentClass {
             Shared.stack.currentlyParsingClass = path;
             Shared.stack.modifierInsertions = modifierInsertions
             Shared.stack.classComponentsNamed = subComponents.map(
-                x => x.node.key.name
+                x => (x.node.key as Identifier).name
             );
             Shared.stack.styleRoot = null;
 
             if(styleMethod)
-                new ComponentStyleMethod(styleMethod)
+                new ComponentStyleMethod(styleMethod);
 
-            RenderFromDoMethods(doFunctions, subComponents, styleMethod);
+            const [ render, anothaOne ] = doFunctions;
+            const subComponentNames = [] as string[];
+
+            if(anothaOne)
+                throw anothaOne.buildCodeFrameError("multiple do methods not supported");
+
+            for(const path of subComponents){
+                const { name } = path.node.key as Identifier;
+    
+                subComponentNames.push(name);
+    
+                new ComponentMethod(
+                    name, path, subComponentNames
+                );
+            }
+
+            new ComponentMethod("render", render, subComponentNames);
+
             state.expressive_used = true;
         }
     }
 
-    static exit(path, state){
+    static exit(path: Path<Class>, state: any){
         if(Shared.stack.currentlyParsingClass == path)
             Shared.stack.pop();
     }
@@ -177,21 +195,22 @@ export class ComponentEntry extends ElementInline {
 
     stats_excused = 0;
 
-    add(obj){
+    add(obj: any){
         super.add(obj)
         if(!this.precedent && obj.inlineType == "stats")
             this.stats_excused++;     
     }
 
-    init(path){
+    init(path: Path<Expression>){
         this.context.styleRoot = this;
         this.context.scope 
             = this.scope 
-            = path.get("body").scope;
+            = (path.get("body") as Path<BlockStatement>).scope;
     }
     
     outputBodyDynamic(){
-        let body, output;
+        let body: Statement[] | undefined;
+        let output;
         const { style, props } = this;
 
         if(
@@ -218,7 +237,7 @@ export class ComponentEntry extends ElementInline {
         )
     }
 
-    bundle(output){
+    bundle(output: any[]){
         return output.length > 1
             ? transform.createFragment(output)
             : output[0] || t.booleanLiteral(false)
@@ -227,8 +246,16 @@ export class ComponentEntry extends ElementInline {
 
 class ComponentMethod extends ComponentEntry {
 
-    constructor(name, path, subComponentNames) {
-        super(path.get("body"));
+    attendantComponentNames: string[];
+    methodNamed: string;
+    isRender?: true;
+
+    constructor(
+        name: string, 
+        path: Path<ClassMethod>, 
+        subComponentNames: string[]
+    ){
+        super();
         this.attendantComponentNames = subComponentNames;
         this.methodNamed = name;
         if(name == "render"){
@@ -239,16 +266,16 @@ class ComponentMethod extends ComponentEntry {
         this.insertDoIntermediate(path)
     }
 
-    bindRelatives(body){
-        const name = this.methodNamed;
+    bindRelatives(body: Path<BlockStatement>){
+        // const name = this.methodNamed;
         const src = body.getSource();
 
         const bindRelatives = this.attendantComponentNames.reduce(
-            (acc, name) => {
+            (acc: ObjectProperty[], name: string) => {
                 if(new RegExp(`[^a-zA-Z_]${name}[^a-zA-Z_]`).test(src)){
-                    name = t.identifier(name);
+                    const id = t.identifier(name);
                     acc.push(
-                        t.objectProperty(name, name, false, true)
+                        t.objectProperty(id, id, false, true)
                     )
                 }
                 return acc;
@@ -266,11 +293,11 @@ class ComponentMethod extends ComponentEntry {
             else throw new Error("fix WIP: no this context to make sibling elements visible")
     }
 
-    insertDoIntermediate(path){
+    insertDoIntermediate(path: Path<ClassMethod>){
         const doExpression = t.doExpression(path.node.body);
-              doExpression.meta = this;
+              (doExpression as any).meta = this;
 
-        const body = path.get("body");
+        const body = path.get("body") as Path<BlockStatement>;
 
         this.bindRelatives(body);
 
@@ -282,22 +309,29 @@ class ComponentMethod extends ComponentEntry {
         if(props){
             destruct = props;
             if(props.type == "AssignmentPattern")
-                throw parentFn.get("params.0.right").buildCodeFrameError(
-                    "This argument will always resolve to component props" );
+                throw (
+                    path.get("params.0.right") as Path<any>
+                ).buildCodeFrameError(
+                    "This argument will always resolve to component props"
+                );
         } 
 
         if(params.length > 1){
             if(props && props.type != "Identifier")
-                props = ensureUIDIdentifier.call(path.scope, "props")
+                props = ensureUIDIdentifier.call(path.scope, "props") as Identifier;
 
-            const children = params.slice(1);
-            const count = children.length;
-            const c1 = children[0].type == "RestElement"
-                ? children[0].argument
-                : t.arrayPattern(children)
+            const argumentChildren = params.slice(1);
+            // const count = argumentChildren.length;
+            const childrenDestruct = argumentChildren[0].type == "RestElement"
+                ? (
+                    argumentChildren[0] as RestElement
+                  ).argument
+                : t.arrayPattern(
+                    argumentChildren as PatternLike[]
+                  )
 
             ref_children = {
-                kind: "const", id: c1, unique: !Opts.compact_vars,
+                kind: "const", id: childrenDestruct, unique: !Opts.compact_vars,
                 init: ensureArray( transform.member(props, "children") )
             }
         }
@@ -324,25 +358,25 @@ class ComponentMethod extends ComponentEntry {
                 })
         }
 
-        path.replaceWith(
-            t.classMethod(
-                "method", 
-                t.identifier(this.methodNamed), 
-                this.isRender ? [] : [props],
-                t.blockStatement([
-                    t.returnStatement(doExpression)
-                ])
-            )
-        )
+        const replacement: ClassMethod = t.classMethod(
+            "method", 
+            t.identifier(this.methodNamed), 
+            this.isRender ? [] : [props],
+            t.blockStatement([
+                t.returnStatement(doExpression)
+            ])
+        );
+
+        (path as any).replaceWith(replacement)
     }
 
-    didEnterOwnScope(path){
+    didEnterOwnScope(path: Path<DoExpression>){
         super.didEnterOwnScope(path)
         for(const name of this.attendantComponentNames)
             this.context["_" + name] = null
     }
 
-    didExitOwnScope(path){
+    didExitOwnScope(path: Path<DoExpression>){
 
         const insertStats = this.context.modifierInsertions;
         this.children.splice(0, 0, ...insertStats);
@@ -355,74 +389,74 @@ class ComponentMethod extends ComponentEntry {
 }
 
 class ComponentStyleMethod {
-    constructor(path) {
+
+    context: StackFrame;
+
+    constructor(path: Path<ClassMethod>) {
         // this.insertDoIntermediate(path);
-        this.didEnterOwnScope(path);
+        this.context = Shared.stack;
+
+        const src = path.get("body").get("body");
+        for(const item of src)
+            if(item.type in this) 
+                (this as any)[item.type](item);
+            else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
+
         path.remove();
     }
 
-    includeModifier(mod){
+    includeModifier(mod: ElementModifier){
         this.context.declare(mod);
-        mod.declareForComponent(this);
+        mod.declareForComponent(this as any);
     }
 
-    add(mod){
+    add(mod: ElementModifier){
         this.context.current.stats.push(mod)
     }
 
-    didEnterOwnScope(path){
-
-        // Shared.stack.push(this);
-        this.context = Shared.stack;
-
-        const src = path.get("body.body")
-        for(const item of src)
-            if(item.type in this) 
-                this[item.type](item);
-            else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
-    }
-
-    LabeledStatement(path){
-        if(path.get("body").isExpressionStatement())
+    LabeledStatement(path:Path<LabeledStatement>){
+        if(path.node.body.type == "ExpressionStatement")
             throw path.buildCodeFrameError("Only modifier declarations are allowed here")
 
-        GeneralModifier.applyTo(this, path);
+        GeneralModifier.applyTo(this as any, path);
     }
 }
 
 class ComponentArrowExpression extends ComponentEntry {
 
-    constructor(path, name) {
-        super(path);
-        this.tags.push({name})
+    constructor(path: Path<DoExpression>, name: string) {
+        super();
+        this.tags.push({ name })
     }
 
-    insertDoIntermediate(path){
-        path.node.meta = this;
+    insertDoIntermediate(path: Path<DoExpression>){
+        (path.node as any).meta = this;
     }
 
-    didExitOwnScope(path){
-        const parentFn = path.getAncestry().find(x => x.type == "ArrowFunctionExpression"), 
+    didExitOwnScope(path: Path<DoExpression>){
+        const parentFn = path.getAncestry().find((x: Path) => x.type == "ArrowFunctionExpression") as Path<ArrowFunctionExpression>, 
             { node } = parentFn, 
             { params } = node, 
             [ props ] = params;
 
         let body = this.outputBodyDynamic();
 
-        if(props && props.type == "AssignmentPattern")
-            throw parentFn.get("params.0.right").buildCodeFrameError(
-                "This argument will always resolve to component props" ) 
+        if(props && props.type == "AssignmentPattern"){
+            const right = parentFn.get("params.0.right") as Path;
+            throw right.buildCodeFrameError(
+                "This argument will always resolve to component props") 
+        }
         
         if(params.length > 1){
             let args = params.slice(1);
             let count = args.length;
             let ident;
 
-            let assign = count > 1 
-                ? t.arrayPattern(args) : args[0];
+            let assign: RestElement | Identifier = count > 1 
+                ? t.arrayPattern(args as any) : args[0] as any;
                 
             if(assign.type == "RestElement")
-                assign = assign.argument, count++;
+                assign = assign.argument as Identifier, count++;
     
             if(props.type == "ObjectPattern")
                 props.properties.push(
@@ -433,7 +467,7 @@ class ComponentArrowExpression extends ComponentEntry {
                             : assign
                     )
                 )
-            else ident = t.memberExpression(props, t.identifier("children"));
+            else ident = t.memberExpression(props as any, t.identifier("children"));
 
             if(ident)
                 body.unshift(
@@ -444,19 +478,21 @@ class ComponentArrowExpression extends ComponentEntry {
         if(this.style_static || this.mayReceiveExternalClasses)
             this.generateUCN();
 
-        const internalStatements = parentFn.node.body.body
+        const internalStatements = (parentFn.node.body as BlockStatement).body;
         if(internalStatements.length > 1)
             body.unshift(...internalStatements.slice(0, -1))
+
+        let functionBody: Expression | Statement;
         
         if(body.length == 1 && body[0].type == "ReturnStatement")
-            body = body[0].argument;
+            functionBody = (body[0] as ReturnStatement).argument as Expression;
         else
-            body = t.blockStatement(body)
+            functionBody = t.blockStatement(body)
 
         parentFn.replaceWith(
             t.arrowFunctionExpression(
                 props ? [props] : [],
-                body,
+                functionBody,
                 node.async
             )
         )
@@ -466,7 +502,7 @@ class ComponentArrowExpression extends ComponentEntry {
  
 class ComponentInlineExpression extends ComponentArrowExpression {
 
-    didExitOwnScope(path){
+    didExitOwnScope(path: Path<DoExpression>){
         const { body, output: product }
             = this.collateChildren();
             

@@ -1,9 +1,9 @@
+import { toArray, Opts, inParenthesis } from "./shared";
+import { NodePath as Path } from "@babel/traverse";
+import { NumericLiteral } from "@babel/types";
 
-const t = require("@babel/types");
-const { Opts, Shared, transform } = require("./shared");
-
-export function HEX_COLOR(n){
-    let raw = n.substring(2), out;
+export function HEX_COLOR(n: string){
+    let raw = n.substring(2);
 
     if(raw.length == 1)
         raw = "000" + raw
@@ -13,7 +13,7 @@ export function HEX_COLOR(n){
     }
     
     if(raw.length % 4 == 0){
-        let decimal = [];
+        let decimal = [] as any[];
 
         if(Opts.reactEnv == "native")
             return "#" + raw;
@@ -36,13 +36,18 @@ export function HEX_COLOR(n){
     else return "#" + raw;
 }
 
-export class parsedArgumentBody {
-    constructor(e) {
-        if(e.type && e.type in this)
-            return [].concat(
-                this.Type(e)
-            )
-        return e
+export class parsedArguments {
+
+    [type: string]: (e: any) => void;
+    e: any;
+
+    constructor(e: any) {
+        this.e = e;
+    }
+
+    get args(): any {
+        const parsed = this.Type(this.e);
+        return toArray(parsed);
     }
 
     BlockStatement(){
@@ -50,50 +55,44 @@ export class parsedArgumentBody {
         throw new Error("Unexpected Block Statement in modifier processor, this is an internal error.")
     }
 
-    Type(e){
+    Type(e: any){
         if(!e.node) debugger
-        if(e.node.extra && e.node.extra.parenthesized)
-             return e;
-        
-        if(e.type in this){
-            const x = this[e.type](e);
-            // if(x.type) debugger
-            return x;
-        } else {
-            // debugger
-            return e
-        }
+        if(inParenthesis(e))
+            return e;
+        if(e.type && e.type in this)
+            return this[e.type](e);
+        else
+            return e;
     }
 
-    NumericLiteral(e, sign = 1){
-        const { raw, rawValue, parenthesized } = e.node.extra;
-        if(parenthesized || !/^0x/.test(raw))
+    NumericLiteral(number: Path<NumericLiteral>, sign = 1){
+        const { raw, rawValue } = number.node as any;
+        if(inParenthesis(number) || !/^0x/.test(raw))
             return sign*rawValue;
         else {
             if(sign < 0)
-                throw e.buildCodeFrameError(`Hexadecimal numbers are converted into HEX coloration so negative sign doesn't mean anything here.\nParenthesize the number if you really need "-${rawValue}" for some reason...`)
+                throw number.buildCodeFrameError(`Hexadecimal numbers are converted into colors (#FFF) so negative sign doesn't mean anything here.\nParenthesize the number if you really need "-${rawValue}" for some reason...`)
             return HEX_COLOR(raw);
         }
     }
 
-
-    ExpressionStatement(e){
+    ExpressionStatement(e: any){
         return this.Type(e.get("expression"))
     }
 
-    Identifier(e){
+    Identifier(e: any){
         return e.node.name;
     }
 
-    StringLiteral(e){
+    StringLiteral(e: any){
         return e.node.value;
     }
 
-    TemplateLiteral(e){
+    TemplateLiteral(e: any){
         return e; 
     }
 
-    BinaryExpression(e){
+    BinaryExpression(e: any){
         const {left, right, operator} = e.node;
         if(operator == "-" 
         && left.type == "Identifier"
@@ -110,7 +109,7 @@ export class parsedArgumentBody {
             };
     }
 
-    UnaryExpression(e){
+    UnaryExpression(e: any){
         const arg = e.get("argument");
         if(e.node.operator == "-" && arg.isNumericLiteral())
             return this.NumericLiteral(arg, -1)
@@ -123,15 +122,17 @@ export class parsedArgumentBody {
         // else return e;
     }
     
-    SequenceExpression(e){
-        return e.get("expressions").map(e => this.Type(e))
+    SequenceExpression(e: any){
+        return e.get("expressions").map(
+            (e: any) => this.Type(e)
+        )
     }
 
-    ArrowFunctionExpression(e){
+    ArrowFunctionExpression(e: any){
         throw e.buildCodeFrameError("Arrow Function not supported yet")
     }
 
-    CallExpression(e){
+    CallExpression(e: any){
         const callee = e.get("callee");
 
         if(!callee.isIdentifier())
@@ -140,7 +141,7 @@ export class parsedArgumentBody {
         return {
             named: callee.node.name,
             location: callee,
-            inner: e.get("arguments").map(e => this.Type(e))
+            inner: e.get("arguments").map((e: any) => this.Type(e))
         };
     }
 

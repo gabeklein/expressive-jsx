@@ -1,12 +1,17 @@
-const t = require("@babel/types");
-const { Shared, Opts, ensureUIDIdentifier, hoistLabeled } = require("./shared");
-const { ComponentClass, DoComponent } = require('./entry.js');
-const { createSharedStack } = require("./scope");
-const { generateComputedStylesExport, generateComputedStyleSheetObject } = require("./styles")
-const TEMPLATE = require("./support");
+require('source-map-support').install();
 
-export default (options) => ({
-    manipulateOptions: (_, parse) => {
+import * as t from "@babel/types";
+import { Program, BlockStatement, Statement, ImportDeclaration, ModuleSpecifier, Identifier, StringLiteral, VariableDeclaration } from "@babel/types";
+import { Shared, Opts, ensureUIDIdentifier, hoistLabeled } from "./shared";
+import { ComponentClass, DoComponent } from './entry.js';
+import { createSharedStack } from "./scope";
+import { generateComputedStylesExport, generateComputedStyleSheetObject } from "./styles";
+import { NodePath as Path } from "@babel/traverse";
+import { ElementModifier } from "./modifier";
+import * as TEMPLATE from "./support";
+
+export default (options: any) => ({
+    manipulateOptions: (_: any, parse: any) => {
         parse.plugins.push("decorators-legacy", "doExpressions")
     },
     visitor: {
@@ -39,25 +44,30 @@ const registerIDs = {
     Text: "Text",
     ModuleStyle: "style",
     StyleSheet: "StyleSheet"
+} as {
+    [handler: string]: string
 }
 
 class ExpressiveProgram {
-    static enter(path, state){
+    static enter(
+        path: Path<Program>,
+        state: any
+    ){
         Object.assign(Opts, state.opts)
 
         if(Opts.reactEnv != "native")
-            checkForStyleImport(path.scope.block.body);
+            checkForStyleImport(path.get("body"));
 
         let Stack = Shared.stack = createSharedStack(state.opts.modifiers);
 
-        const targets = state.expressive_computeTargets = [];
-        function capture(element){
+        const targets = state.expressive_computeTargets = [] as ElementModifier[];
+        function capture(element: ElementModifier){
             targets.push(element);
         };
         Stack.program = { computedStyleMayInclude: capture };
             
         let helpers = Stack.helpers = {};
-        let didUse = state.didUse = {};
+        state.didUse = {};
 
         for(const x in registerIDs){
             const named = registerIDs[x];
@@ -77,17 +87,19 @@ class ExpressiveProgram {
         hoistLabeled(path.node);
 
         Shared.state = state;
-        
     }
 
-    static exit(path, state, options){
-
+    static exit(
+        path: Path<Program>,
+        state: any, 
+        options: any
+    ){
         const { expressive_computeTargets: compute } = state;
 
         if(state.expressive_used){
             let index = 0;  //todo: remove
             
-            index = includeImports(path, state, this.file, options);
+            index = includeImports(path, state);
 
             if(compute.length > 0)
                 if(Opts.reactEnv == "native")
@@ -101,21 +113,23 @@ class ExpressiveProgram {
             console.log("done")
     }
 
-    static onExit(options){
-        return (path, state) => this.exit(path, state, options)
+    static onExit(options: any){
+        return (path: Path<Program>, state: any) => this.exit(path, state, options)
     }
 }
 
-function checkForStyleImport(body){
-    for(const {type, source, specifiers} of body)
-        if(type == "ImportDeclaration")
-        if(source.value == "@expressive/react")
-        for(const {type, local} of specifiers)
-            if(type == "ImportDefaultSpecifier")
-                Shared.styledApplicationComponentName = local.name
+function checkForStyleImport(body: Path<Statement>[]){
+    for(const statement of body)
+        if(statement.isImportDeclaration()){
+            const { source, specifiers } = statement.node;
+            if(source.value == "@expressive/react")
+            for(const {type, local} of specifiers)
+                if(type == "ImportDefaultSpecifier")
+                    Shared.styledApplicationComponentName = local.name
+        }
 }
 
-function destructure(list, shorthand){
+function destructure(list: string[], shorthand: boolean){
     const destructure = [];
     const { helpers } = Shared.stack;
 
@@ -127,7 +141,7 @@ function destructure(list, shorthand){
     return destructure;
 }
 
-function requirement(from, imports, shorthand){
+function requirement(from: string, imports: string[], shorthand = false){
     return t.variableDeclaration("const", [
         t.variableDeclarator(
             t.objectPattern(destructure(imports, shorthand)), 
@@ -140,52 +154,58 @@ function requirement(from, imports, shorthand){
     ])
 }
 
-function includeImports(path, state, file) {
+function includeImports(path: Path<Program>, state: any) {
 
     const { didUse } = state;
 
     const bootstrap = [];
-    const reactRequires = "react"
-    const reactRequired = [];
+    const reactRequired = "react"
+    const reactRequires = [];
 
     if(Opts.output !== "JSX")
-        reactRequired.push("createElement")
+        reactRequires.push("createElement")
 
     if(didUse.Fragment)
-        reactRequired.push("Fragment")
+        reactRequires.push("Fragment")
 
     if(didUse.createClass)
-        reactRequired.push("createClass");
+        reactRequires.push("createClass");
 
-    const { body } = path.scope.block;
+    const { body } = path.scope.block as BlockStatement;
     const { helpers } = Shared.stack;
 
     let pasteAt = 0;
 
-    function findExistingFrom(MODULE, asRequire){
+    function findExistingImport(MODULE: string, asRequire?: false): ImportDeclaration;
+    function findExistingImport(MODULE: string, asRequire: true): VariableDeclaration;
+    function findExistingImport(MODULE: string, asRequire?: boolean){
         return asRequire
             ? body.find(
-                (statement, index) => {
+                (statement: Statement, index: number) => {
                     if(statement.type == "VariableDeclaration")
                     for(const { init, id } of statement.declarations)
-                    if(init){
-                        let { callee, arguments: args } = init;
-                        if(callee && callee.name == "require")
-                        if(args[0] && args[0].value == MODULE)
-                        if(id.type == "ObjectPattern"){
+                    if(init && init.type == "CallExpression"){
+                        const { name } = init.callee as Identifier;
+                        let requirement = init.arguments[0] as StringLiteral;
+
+                        if(name == "require"
+                        && requirement && requirement.value == MODULE
+                        && id.type == "ObjectPattern"){
                             pasteAt = index;
-                            statement.foundInitializer = id;
+                            (statement as any).foundInitializer = id;
                             return true;
                         }
                     }
+                    return false;
                 }
             )
             : body.find(
-                (statement, index) => {
+                (statement: Statement, index: number) => {
                     if(statement.type == "ImportDeclaration" && statement.source.value == MODULE){
                         pasteAt = index
                         return true
                     }
+                    return false;
                 }
             )
     }
@@ -193,32 +213,38 @@ function includeImports(path, state, file) {
     if(Opts.output == "JSX"){
     // if(true){
 
-        let existingReactImport = findExistingFrom(reactRequires, false);
+        let existingReactImport = findExistingImport(reactRequired, false);
         let specifiers = existingReactImport ? existingReactImport.specifiers : [];
 
         if(existingReactImport){
-            for(let item of reactRequired){
-                item = helpers[item]; 
-                if(!specifiers.find(x => x.type == "ImportSpecifier" && x.local.name == item.name))
-                specifiers.push(
-                    t.importSpecifier(item, item)
-                )
+            for(let name of reactRequires){
+                const ident = helpers[name]; 
+                if(!specifiers.find(
+                    (spec: ModuleSpecifier) => 
+                        spec.type == "ImportSpecifier" && spec.local.name == ident.name
+                ))
+                    specifiers.push(
+                        t.importSpecifier(ident, ident)
+                    )
             }
     
             if(Opts.output == "JSX")
-                if(!specifiers.find(x => x.type == "ImportDefaultSpecifier" && x.local.name == "React"))
-                specifiers.unshift(
-                    t.importDefaultSpecifier(t.identifier("React"))
-                )
+                if(!specifiers.find(
+                    (spec: ModuleSpecifier) => 
+                        spec.type == "ImportDefaultSpecifier" && spec.local.name == "React"
+                ))
+                    specifiers.unshift(
+                        t.importDefaultSpecifier(t.identifier("React"))
+                    )
         }
 
         if(!existingReactImport)
             bootstrap.push(
-                t.importDeclaration(specifiers, t.stringLiteral(reactRequires))
+                t.importDeclaration(specifiers, t.stringLiteral(reactRequired))
             )
 
     } else {
-        let existingReactImport = findExistingFrom(reactRequires, true);
+        // let existingReactImport = findExistingImport(reactRequired, true);
         // if(existingReactImport){
         //     if(false /*should output import statement*/){
         //         existingReactImport.specifiers.push(...reactRequired)
@@ -238,7 +264,7 @@ function includeImports(path, state, file) {
                 //     properties.push(...destructure(reactRequired))
             // }
                 bootstrap.push(
-                    requirement(reactRequires, reactRequired)
+                    requirement(reactRequired, reactRequires)
                 )
         // }
     }
@@ -250,7 +276,7 @@ function includeImports(path, state, file) {
             if(didUse[spec]) nativeRequires.push(t.importSpecifier(helpers[spec], helpers[spec]))
 
         if(nativeRequires.length){
-            let existingImport = findExistingFrom("react-native")
+            let existingImport = findExistingImport("react-native");
             if(existingImport)
                 existingImport.specifiers.push(
                     ...nativeRequires
@@ -271,16 +297,9 @@ function includeImports(path, state, file) {
             t.importSpecifier(helpers.claimStyle, t.identifier("Include"))
         ]
 
-        let existingImport = body.find(
-            (statement, index) => {
-                if(statement.type == "ImportDeclaration" && statement.source.value == "@expressive/react"){
-                    pasteAt = index
-                    return true
-                }
-            }
-        )
+        let existingImport = findExistingImport("@expressive/react");
 
-        if(Opts.formatStyles === undefined && Opts.reactEnv != "native")
+        if(!Opts.formatStyles && Opts.reactEnv != "native")
             if(existingImport){
                 existingImport.specifiers.push(...expressiveStyleRequired)
             }
@@ -292,29 +311,29 @@ function includeImports(path, state, file) {
 
     if(didUse.createApplied)
     bootstrap.push(
-        TEMPLATE.createApplied({ NAME: helpers.createApplied })
+        (TEMPLATE as any).createApplied({ NAME: helpers.createApplied })
     )
 
     if(didUse.extends && Opts.output !== "JSX")
     bootstrap.push(
-        TEMPLATE.fnExtends({ NAME: helpers.extends })
+        (TEMPLATE as any).fnExtends({ NAME: helpers.extends })
     )
 
     if(didUse.select)
     bootstrap.push(
-        TEMPLATE.fnSelect({ NAME: helpers.select })
+        (TEMPLATE as any).fnSelect({ NAME: helpers.select })
     )
 
     if(state.expressive_for_used)
     bootstrap.push(
-        TEMPLATE.fnCreateIterated({ 
+        (TEMPLATE as any).fnCreateIterated({ 
             NAME: helpers.createIterated,
             CREATE: helpers.createElement,
             FRAG: helpers.Fragment
         })
-    )
+    );
 
-    path.scope.block.body.splice(pasteAt + 1, 0, ...bootstrap)
+    (path.scope.block as BlockStatement).body.splice(pasteAt + 1, 0, ...bootstrap)
 
     return pasteAt + bootstrap.length;
 }

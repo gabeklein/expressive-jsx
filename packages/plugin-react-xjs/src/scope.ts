@@ -1,8 +1,15 @@
-const t = require('@babel/types')
-const { GeneralModifier } = require("./modifier")
-const { Shared, transform, Opts } = require("./shared");
-const ReservedModifiers = require("./keywords")
-const { ElementInline } = require("./inline")
+import { ElementModifier, GeneralModifier } from "./modifier";
+import { ElementInline } from "./inline";
+import { Shared, Opts } from "./shared";
+import * as ReservedModifiers from "./keywords";
+
+type XJSValueHelper = (...args: any[]) => {
+    value?: string 
+};
+
+export interface XJSValueModifiers {
+    [helper: string]: XJSValueHelper
+}
 
 export function createSharedStack(included = []){
     let Stack = new StackFrame;
@@ -26,7 +33,7 @@ export function createSharedStack(included = []){
     for(const modifier of imported){
         Stack = Object.create(Stack)
         
-        const { Helpers, ...Modifiers } = modifier;
+        const { Helpers, ...Modifiers } = modifier as any;
 
         if(Helpers)
         for(const name in Helpers)
@@ -39,8 +46,15 @@ export function createSharedStack(included = []){
     return Stack;
 }
 
-class StackFrame {
-    push(node){
+export class StackFrame {
+
+    // [key: string]: GeneralModifier
+    program = {} as any;
+    styleRoot = {} as any;
+    current = {} as any;
+    [key: string]: GeneralModifier | XJSValueHelper | ElementModifier | any;
+
+    push(node: any){
         node.parent = this.current;
         const frame = node.context = Shared.stack = Object.create(Shared.stack);
         if(node instanceof ElementInline)
@@ -56,7 +70,7 @@ class StackFrame {
         Shared.stack = Object.getPrototypeOf(this);
     }
 
-    elementMod(name, set){
+    elementMod(name: string, set?: any){
         name = "_" + name;
         if(set){
             if(this[name])
@@ -67,27 +81,31 @@ class StackFrame {
     }
 
     get allMod(){
-        return this.hasOwnProperty("_all") && this._all;
+        return this.hasOwnProperty("_all") && this._all as GeneralModifier;
     }
 
-    propertyMod(name, set){
+    hasOwnPropertyMod(name: string){
+        return this.hasOwnProperty("__" + name)
+    }
+
+    propertyMod(name: string): GeneralModifier;
+    propertyMod(name: string, set: GeneralModifier): void;
+    propertyMod(name: string, set?: GeneralModifier){
         name = "__" + name;
         if(set) this[name] = set;
         else return this[name]
     }
 
-    hasOwnPropertyMod(named){
-        return this.hasOwnProperty("__" + named)
-    }
-
-    valueMod(name, set){
+    valueMod(name: string): XJSValueHelper;
+    valueMod(name: string, set: XJSValueHelper): void;
+    valueMod(name: string, set?: XJSValueHelper){
         name = "___" + name;
         if(set) this[name] = set;
         else return this[name]
     }
 
-    declare(modifier){
-        const { name } = modifier;
+    declare(modifier: ElementModifier){
+        const { name, body } = modifier;
         if(name[0] == "_")
             throw body.buildCodeFrameError(`Modifier name cannot start with _ symbol!`)
 
@@ -97,7 +115,7 @@ class StackFrame {
         this.elementMod(name, modifier);
     }
 
-    declareForRuntime(modifier){
+    declareForRuntime(modifier: ElementModifier | ElementInline){
         const { program, styleRoot } = this;
         program.computedStyleMayInclude(modifier);
         if(styleRoot)

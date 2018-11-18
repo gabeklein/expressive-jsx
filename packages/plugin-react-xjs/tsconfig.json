@@ -5,13 +5,12 @@
         "target": "esnext",
         "module": "commonjs",
         "moduleResolution": "node",
-        "noEmit": true,
+        "noUnusedLocals": true,
         "sourceMap": true,
         "strict": true,
         "allowJs": true,
         "esModuleInterop": true,
         "types": [
-            "babel__traverse",
             "node"
         ]
     },

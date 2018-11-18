@@ -1,6 +1,6 @@
-import { ElementModifier } from "./modifier"
+import { ElementModifier, ModifyDelegate } from "./modifier";
 
-export function is(){
+export function is(this: ModifyDelegate){
     const out = { 
         attrs: {}, props: {}, style: {}
     };
@@ -15,10 +15,10 @@ export function is(){
 
 export { and as also }
 
-export function and(){
-    const { target, name } = this;
+export function and(this: ModifyDelegate){
+    const { target } = this;
 
-    if(target instanceof ElementModifier);
+    if(target instanceof ElementModifier) void 0;
     else throw new Error(`Default modifier "also" may only be used in other modifiers.`);
     
     let temp;
@@ -37,6 +37,6 @@ export function and(){
         else throw new Error("Bad argument,\"on\" modifiers expect identifiers or strings.")
 }
 
-export function priority(z){
+export function priority(this: ModifyDelegate, z: number){
     this.target.stylePriority = z;
 }

@@ -1,17 +1,21 @@
-const t = require('@babel/types')
-const { createHash } = require('crypto');
-
-const { html_tags_obvious } = require('./html-types');
-const { Shared, Opts, transform } = require("./shared");
-const { NonComponent, QuasiComponent, Prop } = require("./item")
-const { ComponentGroup } = require("./component")
-const util = require('util');
+import * as t from "@babel/types";
+import { DoExpression, TemplateLiteral, Expression, StringLiteral, CallExpression, MemberExpression, ObjectProperty, TaggedTemplateExpression, ObjectExpression, Identifier, SpreadElement } from "@babel/types";
+import { NodePath as Path, Scope } from "@babel/traverse";
+import { createHash } from 'crypto';
+import { html_tags_obvious } from './html-types';
+import { Shared, Opts, transform, inParenthesis } from "./shared";
+import { NonComponent, QuasiComponent, Attribute, ExplicitStyle } from "./item";
+import { ComponentGroup } from "./component";
+import { ElementModifier } from "./modifier";
+import { ArrayItem, ElementSyntax } from "./types";
 
 const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
-const ELEMENT_BR = transform.element("br");
 
-export function RNTextNode(parent, path){
-    const node = new ElementInline(path, parent);
+export function RNTextNode(
+    parent: ElementInline, 
+    path: Path<StringLiteral | TemplateLiteral>
+){
+    const node = new ElementInline();
     node.context = Object.create(parent.context);
     node.parentDeclaredAll = parent.context.allMod;
     // node.context.current = node;
@@ -21,53 +25,62 @@ export function RNTextNode(parent, path){
     });
     node.tags.push({name: "string"});
     NonComponent.applyTo(node, path)
+    node.parent = parent;
     parent.add(node);
 }
 
-export function CollateInlineComponentsTo(parent, path){
+export function CollateInlineComponentsTo(parent: ElementInline, path: Path<Expression>){
 
-    if(path.node 
-    && path.node.extra
-    && path.node.extra.parenthesized === true)
+    const node = path.node as any;
+
+    if(node 
+    && node.extra
+    && node.extra.parenthesized === true)
         return new NonComponent(path)
 
-    let props = [];
+    let props = [] as Path<Expression>[];
 
     if(path.isSequenceExpression())
-        [path, ...props] = path.get('expressions');
+        [path, ...props] = path.get('expressions') as Path<Expression>[];
 
     if(path.isBinaryExpression({operator: ">"})){
-        const item = Object.create(path.get("right"));
+        const item = Object.create(path.get("right")) as Path<Expression>;
         item.type = "ChildLiteral";
         props.push(item);
-        path = path.get("left")
+        path = path.get("left") as any;
     }
 
-    const stack = [{props}];
+    const stack = [{ 
+        props,
+    } as {
+        props: Path<Expression>[],
+        path?: Path<Expression>
+    }];
 
     while(path.isBinaryExpression({operator: ">>"})){
-        stack[0].path = path.get("right")
-        path = path.get("left")
-        stack.unshift({})
+        stack[0].path = path.get("right") as any;
+        path = path.get("left") as any;
+        stack.unshift({} as any);
     }
     stack[0].path = path;
 
-    for(const {path, props} of stack){
+    for(const iteration of stack){
+        const path = iteration.path!;
 
-        if(path.node == undefined)
+        if(path.node === undefined)
             throw path.buildCodeFrameError("Invalid child has no value")
 
-        if(path.node.extra && path.node.extra.parenthesized === true)
+        if(inParenthesis(path))
             throw path.buildCodeFrameError("Children in Parenthesis are not allowed, for direct insertion used an Array literal")
 
-        const child = new ElementInline(path, parent);
+        const child = new ElementInline();
 
-        child.scope = path.get("body").scope;
+        child.scope = (path.get("body") as any).scope as Scope;
         child.context = parent.context;
         child.parent = parent;
 
         InlineLayers.apply(child, path);
-        InlineProps.applyTo(child, props);
+        InlineProps.applyTo(child, iteration.props);
 
         parent.add(child);
         parent = child;
@@ -76,29 +89,30 @@ export function CollateInlineComponentsTo(parent, path){
 
 const InlineLayers = {
 
-    apply(target, tag){
+    apply(target: ElementInline, tag: Path<Expression>){
 
         if(tag.isBinaryExpression({operator: "-"})){
-            const left = tag.get("left")
+            const left = tag.get("left") as Path<Expression>;
+
             if(left.isIdentifier())
                 target.prefix = left.node.name
             else
                 left.buildCodeFrameError("Improper element prefix");
-            tag = tag.get("right")
+            tag = tag.get("right") as any;
         }
 
-        while(!tag.node.extra && tag.type in this)
-            tag = this[tag.type].call(target, tag);
+        while(!inParenthesis(tag) && tag.type in this)
+            tag = (this as any)[tag.type].call(target, tag);
 
         if(tag.isIdentifier())
             target.tags.push({name: tag.node.name, path: tag, head: true})
 
         else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
 
-            const default_type_text = 
-                Opts.reactEnv == "native"
-                    ? Shared.stack.helpers.Text
-                    : "div";
+            // const default_type_text = 
+            //     Opts.reactEnv == "native"
+            //         ? Shared.stack.helpers.Text
+            //         : "div";
 
             target.tags.push({
                 name: Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "div", 
@@ -115,9 +129,11 @@ const InlineLayers = {
         
     },
 
-    TaggedTemplateExpression(path){
+    TaggedTemplateExpression(this: ElementInline, path: Path<TaggedTemplateExpression>){
         const tag = path.get("tag")
-        QuasiComponent.applyTo(this, path.get("quasi"))
+        QuasiComponent.applyTo(this, 
+            path.get("quasi") as Path<TemplateLiteral>
+        )
 
         // prevent ES6 transformer from shimming the template.
         path.remove()
@@ -125,41 +141,48 @@ const InlineLayers = {
         return tag
     },
 
-    CallExpression(tag){
-        const args = tag.get("arguments");
-        InlineProps.applyTo(this, args)
+    CallExpression(this: ElementInline, tag: Path<CallExpression>){
+        const args = tag.get("arguments") as Path<Expression>[];
+        InlineProps.applyTo(this, args);
         return tag.get("callee");
     },
 
-    MemberExpression(tag){
+    MemberExpression(this: ElementInline, tag: Path<MemberExpression>){
 
-        const selector = tag.get("property");
-
-        if(tag.node.computed === true)
-            throw selector.buildCodeFrameError("Due to how parser works, a semicolon is required after the element preceeding escaped children.")
-
-        this.tags.push({
-            name: selector.node.name, 
-            path: selector
-        })
+        const selector = tag.get("property") as Path;
+        if(tag.node.computed !== true && selector.isIdentifier()){
+            this.tags.push({
+                name: selector.node.name, 
+                path: selector as any
+            })
+        }
+        else 
+            throw selector.buildCodeFrameError(
+                "Due to how parser works, a semicolon is required after the element preceeding escaped children."
+            )
 
         return tag.get("object");
     }
 }
 
-class InlineProps extends Prop {
+class InlineProps {
     inlineType = "attrs"
     precedence = 0
+    path: Path<any>;
+    kind?: "style" | "props";
+    isSpread?: true;
+    name?: string;
+    path_value?: any;
 
-    static applyTo(target, props){
+    static applyTo(target: ElementInline, props: Path<Expression>[]){
         if(!props) return;
         for(let path of props){
             switch(path.type){
                 case "DoExpression":
                     if(target.body) throw path.buildCodeFrameError("Do Expression was already declared!")
                     target.body = path;
-                    target.scope = path.get("body").scope;
-                    path.node.meta = target;
+                    target.scope = path.scope;
+                    (path.node as any).meta = target;
                 break;
 
                 case "StringLiteral":
@@ -170,7 +193,7 @@ class InlineProps extends Prop {
                 break;
 
                 case "ObjectExpression": 
-                    for(const property of path.get("properties"))
+                    for(const property of (path as Path<ObjectExpression>).get("properties"))
                         target.add(new this(property))
                 break;
 
@@ -180,112 +203,101 @@ class InlineProps extends Prop {
         }
     }
 
-    get computed(){
+    constructor(path: Path<any>){
+        this.path = path;
+        this.computeValue();
+    }
+
+    computeValue(){
         const { path } = this;
-        const { node, type } = path;
-        let name, value;
+        const { node } = path;
+        let name;
+        let value: any;
 
-        switch(type){
-            case "ObjectProperty": {
-                const { key } = node;
-                name = key.name || key.value;
-                value = path.get("value");
+        if(path.isObjectProperty()){
+            const { key } = path.node;
+            name = key.name || key.value;
+            value = path.get("value");
+        } 
+        
+        else if(path.isTaggedTemplateExpression()){
+            const {tag, quasi} = path.node;
+
+            if(tag.type != "Identifier") 
+                throw path.buildCodeFrameError("Prop must be an Identifier");
+
+            if(quasi.expressions.length == 0)
+                value = { node: t.stringLiteral(quasi.quasis[0].value.raw) }
+            else
+                value = path.get("quasi")//.node;
+
+            name = tag.name
+            //collapsing prevents down-line transformers from adding useless polyfill
+            //replaced instead of removed because value itself must remain in-line to receive legitiment transforms
+            path.replaceWith(value)
+
+        } 
+        
+        else if(path.isUnaryExpression()){
+            let { 
+                operator: op, 
+                argument: { type, name: id_name }
+            } = node;
+
+            value = path.get("argument")
+
+            switch(op){
+                case "+": 
+                    if(type == "Identifier")
+                        name = id_name;
+                    else throw path.buildCodeFrameError(
+                        `"Bad Prop! + only works in conjuction with an Identifier, got ${type}"`)
                 break;
+
+                case "~":
+                    this.kind = "style"
+                    this.isSpread = true
+                break;
+
+                default:
+                    throw path.buildCodeFrameError(`"${op}" is not a recognized operator for props`)
             }
-
-            case "TaggedTemplateExpression": {
-                const {tag, quasi} = path.node;
-
-                if(tag.type != "Identifier") 
-                    throw path.buildCodeFrameError("Prop must be an Identifier");
-
-                if(quasi.expressions.length == 0)
-                    value = { node: t.stringLiteral(quasi.quasis[0].value.raw) }
-                else
-                    value = path.get("quasi");
-
-                name = tag.name
-                //collapsing prevents down-line transformers from adding useless polyfill
-                //replaced instead of removed because value itself must remain in-line to receive legitiment transforms
-                path.replaceWith(value)
-
-                break;
-            }
-
-            case "UnaryExpression": {
-
-                let { 
-                    operator: op, 
-                    argument: { type, name: id_name }
-                } = node;
-
-                value = path.get("argument")
-
-                switch(op){
-                    case "+": 
-                        if(type == "Identifier")
-                            name = id_name;
-                        else throw path.buildCodeFrameError(
-                            `"Bad Prop! + only works in conjuction with an Identifier, got ${type}"`)
-                    break;
-
-                    case "~":
-                        this.kind = "style"
-                        this.isSpread = true
-                    break;
-
-                    default:
-                        throw path.buildCodeFrameError(`"${op}" is not a recognized operator for props`)
-                }
-
-                break;
-            }
-
-            case "Identifier": {
-                name = node.name
-                value = {
-                    node: t.booleanLiteral(true)
-                }
-                break;
-            }
-
-            case "AssignmentExpression": {
-                if(node.operator != "=")
-                    throw path.get("operator").buildCodeFrameError("Props may only be assigned with `=` or using tagged templates.");
-
-                const left = path.get("left");
-                if(left.isMemberExpression())
-                    throw left.buildCodeFrameError("Member Expressions can't be prop names");
-
-                if(node.left.type == "Identifier")
-                    name = node.left.name;
-
-                else path.get("left").buildCodeFrameError("Prop assignment only works on an identifier to denote name")
-
-                value = path.get("right")
-
-                break;
-            } 
-
-            case "SpreadElement": {
-                value = path.get("argument")
-                this.kind = "props";
-                this.isSpread = true;
-                break;
-            }
-
-            // case "ArrowFunctionExpression": {
-            //     value = path;
-            //     name = "callback"
-            //     break;
-            // }
-
-            default:
-                throw path.buildCodeFrameError(`There is no property inferred from an ${type}.`)
         }
 
+        else if(path.isIdentifier()){
+            name = node.name
+            value = {
+                node: t.booleanLiteral(true)
+            }
+        }
+
+        else if(path.isAssignmentExpression()){
+            if(node.operator != "=")
+                throw (path.get("operator") as Path)
+                    .buildCodeFrameError("Props may only be assigned with `=` or using tagged templates.");
+
+            const left = path.get("left") as any; //bad definition returns <never>
+
+            if(left.isMemberExpression())
+                throw left.buildCodeFrameError("Member Expressions can't be prop names");
+
+            if(node.left.type == "Identifier")
+                name = node.left.name;
+
+            else left.buildCodeFrameError("Prop assignment only works on an identifier to denote name")
+
+            value = path.get("right")
+        }
+
+        else if(path.isSpreadElement()){
+            value = path.get("argument")
+            this.kind = "props";
+            this.isSpread = true;
+        }
+
+        else throw path.buildCodeFrameError(`There is no property inferred from an ${path.type}.`)
+
         this.path_value = value;
-        this.type = type;
         this.name = name;
     }
 
@@ -297,30 +309,48 @@ class InlineProps extends Prop {
     }
 }
 
+interface TypeInformation {
+    type?: string | Identifier
+    installed_style: ElementInline[]
+    props: (ObjectProperty | SpreadElement)[]
+    style: (ObjectProperty | SpreadElement)[]
+}
+
 export class ElementInline extends ComponentGroup {
 
     inlineType = "child"
-
-    props = []
     doesReceive = {}
-    
-    attrs = []
-    style = []
-    tags = []
-    classList = [];
+    attrs = [] as Attribute[];
+    classList = [] as string[];
     precedent = 0
     precedence = 3
     stylePriority = 2
+    typeInformation = {} as TypeInformation;
+    unhandledQuasi?: Path<TemplateLiteral>;
+    prefix?: string;
+    styleGroups = [] as ElementModifier[];
+    parentDeclaredAll?: any;
+    stats_excused?: number;
+    mayReceiveExternalClasses?: true;
+    doesReceiveDynamic?: {
+        props?: true;
+        style?: true;
+    };
+
+    body?: Path<Expression> //unused
+    output?: ElementSyntax;
+    uid?: string;
+    styleID?: Identifier;
 
     //Protocal Traversable
 
-    didEnterOwnScope(body){
-        super.didEnterOwnScope(...arguments);
+    didEnterOwnScope(body: Path<DoExpression>){
+        super.didEnterOwnScope(body);
         this.context.currentInline = this;
         this.includeInlineInformation();
     }
 
-    didExitOwnScope(body, preventDefault){
+    didExitOwnScope(body: Path<DoExpression>, preventDefault?: boolean){
         super.didExitOwnScope(body);
         if(this.style_static && !this.uniqueClassname)
             this.generateUCN();
@@ -330,21 +360,20 @@ export class ElementInline extends ComponentGroup {
 
     //Protocol Style Integration
 
-    includeModifier(mod){
+    includeModifier(mod: ElementModifier){
         this.context.declare(mod);
         mod.declareForComponent(this);
     }
 
-    collateChildren(propHandler){
+    collateChildren(propHandler?: (item: any) => any){
         if(this.styleGroups && this.styleGroups.length && Opts.reactEnv != "native"){
             this.insertRuntimeStyle()
         }
         return super.collateChildren(propHandler);
     }
 
-    computedStyleMayInclude(from){
-        const { uniqueClassname } = from;
-        const styleGroups = this.styleGroups || (this.styleGroups = []);
+    computedStyleMayInclude(from: ElementModifier){
+        const styleGroups = this.styleGroups;
         if(styleGroups.indexOf(from) < 0)
             styleGroups.push(from)
     }
@@ -373,19 +402,17 @@ export class ElementInline extends ComponentGroup {
         })
     }
 
-    //Protocol Renderable Element
-
     transform(){
         return this.output || this.build()
     }
 
-    mayReceiveAttributes(style, props){
-        ({ style = style, props = props } = this.doesReceiveDynamic || false);
+    mayReceiveAttributes(style?: true, props?: true){
+        ({ style = style, props = props } = this.doesReceiveDynamic || {} as any);
         this.doesReceiveDynamic = { style, props };
     }
 
-    seperateItems(inline, dynamic){
-        let output = [];
+    seperateItems(inline: any, dynamic: any): ArrayItem[] {
+        let output = [] as Expression[];
         let layer = [];
         for(const style of inline)
             if(style.type == "SpreadElement"){
@@ -401,21 +428,21 @@ export class ElementInline extends ComponentGroup {
         return output;
     }
 
-    standardCombinedStyleFormatFor(inline, dynamic){
+    standardCombinedStyleFormatFor(inline: any, dynamic?: any): Expression {
         if(Opts.reactEnv == "native"){
             let output = this.seperateItems(inline, dynamic);
 
             if(output.length == 1){
-                output = output[0]
-                if(output.type == "SpreadElement") 
-                    return output.argument;
+                const [ first ] = output;
+                if(first.type == "SpreadElement") 
+                    return first.argument;
                 else
-                    return output
+                    return first
             }
             else return t.arrayExpression(output)
 
         } else {
-            if(dynamic) inline.push(t.SpreadElement(dynamic))
+            if(dynamic) inline.push(t.spreadElement(dynamic))
 
             if(inline.length == 1 && inline[0].type == "SpreadElement")
                 return inline[0].argument
@@ -424,10 +451,10 @@ export class ElementInline extends ComponentGroup {
         }
     }
 
-    standardCombinedPropsFormatFor(inline, dynamic){
+    standardCombinedPropsFormatFor(inline: any, dynamic?: any): Expression {
         const { classList } = inline;
         if(classList){
-            inline = inline.filter(prop => {
+            inline = inline.filter((prop: ObjectProperty) => {
                 if(prop.key.name == "className" && prop.value !== classList){
                     const { value } = prop;
                     if(classList.type == "StringLiteral" && value.type == "StringLiteral")
@@ -447,9 +474,12 @@ export class ElementInline extends ComponentGroup {
         }
 
         let output = this.seperateItems(inline, dynamic);
-        if(output.length < 2){
-            return output[0] || t.objectExpression([])
-        } else {
+        if(output.length == 1){
+            return output[0] as Expression
+        } 
+        else if(!output[0])
+            return t.objectExpression([])
+        else {
             return t.callExpression(
                 Shared.stack.helpers.extends,
                 output
@@ -458,17 +488,17 @@ export class ElementInline extends ComponentGroup {
     }
 
     includeInlineInformation(){
-        const installed_style = [];
         let type;
 
         const {
             context
         } = this;
 
-        const inline = {
-            installed_style,
+        const inline: TypeInformation = {
+            installed_style: [],
             props: [], 
-            style: []
+            style: [],
+            type: ""
         }
         
         let catchAll = context.current != this ? context : context.parent;
@@ -488,9 +518,9 @@ export class ElementInline extends ComponentGroup {
                     else if(this.prefix == "html" || html_tags_obvious.has(name))
                         type = t.stringLiteral(name);
                 }
-                else if(name && name.type == "Identifier"){
-                    type = name
-                }
+                // else if(name && name.type == "Identifier"){
+                //     type = name
+                // }
             }
  
             const modify = context.elementMod(name);
@@ -518,20 +548,18 @@ export class ElementInline extends ComponentGroup {
         }
     
         if(this.unhandledQuasi)
-            this.includeUnhandledQuasi(inline.type.type != "Identifier")
+            this.includeUnhandledQuasi(this.unhandledQuasi, (inline.type as any).type != "Identifier")
 
         return this.typeInformation = inline;
     }
 
-    includeUnhandledQuasi(using_br){
-        const quasi = this.unhandledQuasi;
+    includeUnhandledQuasi(quasi: Path<TemplateLiteral>, using_br: boolean){
         const { quasis, expressions } = quasi.node;
 
-        let INDENT = /^\n( *)/.exec(quasis[0].value.cooked);
-        INDENT = INDENT && new RegExp("\n" + INDENT[1], "g");
+        const initial_indent = /^\n( *)/.exec(quasis[0].value.cooked);
+        const INDENT = initial_indent && new RegExp("\n" + initial_indent[1], "g");
 
         const items = [];
-        let i = 0;
 
         for(let i=0, quasi; quasi = quasis[i]; i++){
             const then = expressions[i]; 
@@ -546,6 +574,7 @@ export class ElementInline extends ComponentGroup {
                     quasi.value[x] = text
                 }
             else {
+                const ELEMENT_BR = transform.createElement("br");
                 let text = quasi.value.cooked;
                 if(INDENT) 
                 text = text.replace(INDENT, "\n");
@@ -575,20 +604,22 @@ export class ElementInline extends ComponentGroup {
         else {
             if(INDENT) items.shift();
             for(const child of items)
-                this.add(child) 
+                this.add(child as any) 
         }
     }
 
-    build(){
+    build(): ElementSyntax {
         const own_declarations = [];
-        let accumulated_style, computed_props;
+        let accumulated_style: Expression;
+        let computed_props: Expression;
 
         const { 
-            scope, 
             doesReceiveDynamic = false,
             props: declared_props,
             style: declared_style
         } = this;
+
+        const scope = this.scope!;
 
         const inline = this.typeInformation || this.includeInlineInformation();
 
@@ -604,7 +635,7 @@ export class ElementInline extends ComponentGroup {
         }
 
         if(this.style_static.length){
-            this.styleID = t.identifier(this.uid.replace('-', '_'))
+            this.styleID = t.identifier(this.uid!.replace('-', '_'))
             this.context.declareForRuntime(this);
         }
 
@@ -612,11 +643,11 @@ export class ElementInline extends ComponentGroup {
         
         if(this.attrs.length)
             for(const attr of this.attrs)
-                inline[attr.kind || "props"].push(
+                (inline as any)[attr.kind || "props"].push(
                     attr.asProperty
                 )
 
-        if(inline.installed_style && inline.installed_style.length)
+        if(inline.installed_style && inline.installed_style.length){
             if(Opts.reactEnv == "native"){
                 const mS = Shared.stack.helpers.ModuleStyle;
                 const imported = [];
@@ -632,9 +663,12 @@ export class ElementInline extends ComponentGroup {
                 initial_style.splice(0, 0, ...imported)
             }
             else 
-                for(const { uid } of inline.installed_style)
+                for(const modifier of inline.installed_style){
+                    const uid = modifier.uid!;
                     if(this.classList.indexOf(uid) < 0)
                         this.classList.push(uid);
+                }
+        }
 
         if(this.classList.length){
             if(Opts.reactEnv == "native"){
@@ -648,31 +682,34 @@ export class ElementInline extends ComponentGroup {
                     else applied.push(item)
                 }
 
+                let thingy: Expression;
+
                 if(applied.length == 1){
                     const cn = applied[0];
-                    applied = typeof cn != "string" ?
+                    thingy = typeof cn != "string" ?
                         cn : t.stringLiteral(cn)
                 } else
-                    applied = t.callExpression(
+                thingy = t.callExpression(
                         Shared.stack.helpers.select,
                         applied.map(x => typeof x == "string" ? t.stringLiteral(x) : x)
                         
                     )
 
                 const classNameProp = t.objectProperty(
-                    t.identifier("className"), applied
+                    t.identifier("className"), thingy
                 );
 
                 initial_props.push(classNameProp);
-                initial_props.classList = applied;
+                (initial_props as any).classList = thingy;
             }
         }
     
 
-        if(this.disordered || (this.stats.length > this.stats_excused || 0) || doesReceiveDynamic){
+        if(this.disordered || (this.stats.length > this.stats_excused! || 0) || doesReceiveDynamic){
 
-            if(computed_type.type == "Identifier"){
-                const existing = scope.getBinding(computed_type.name);
+            if(typeof computed_type !== "string"
+            && computed_type!.type == "Identifier"){
+                const existing = scope.getBinding(computed_type!.name);
                 if(existing && 0 > ["const", "module"].indexOf(
                    existing.kind
                 )){
@@ -684,9 +721,12 @@ export class ElementInline extends ComponentGroup {
                 }
             }
 
-            const acc = this.context._accumulate = {};
+            const acc = this.context._accumulate = {} as { 
+                style: Identifier,
+                props: Identifier
+            };
 
-            if(declared_style.length || doesReceiveDynamic.style){
+            if(declared_style.length || doesReceiveDynamic && doesReceiveDynamic.style){
                 accumulated_style
                     = acc.style 
                     = scope.generateUidIdentifier("s");
@@ -699,14 +739,14 @@ export class ElementInline extends ComponentGroup {
                 own_declarations.push(
                     t.variableDeclarator(
                         computed_style, 
-                        this.standardCombinedStyleFormatFor(initial_style, accumulated_style)
+                        this.standardCombinedStyleFormatFor(initial_style, accumulated_style!)
                     )
                 )
             } else {
-                computed_style = accumulated_style
+                computed_style = accumulated_style!
             }
 
-            if(declared_props.length || doesReceiveDynamic.props){
+            if(declared_props.length || doesReceiveDynamic && doesReceiveDynamic.props){
                 computed_props
                     = acc.props
                     = scope.generateUidIdentifier("p");
@@ -733,13 +773,16 @@ export class ElementInline extends ComponentGroup {
             }
         }
 
-        const _quoteTarget = { props: computed_props, style: accumulated_style };
+        const _quoteTarget = { 
+            props: computed_props!, 
+            style: accumulated_style!
+        };
 
         const { 
             output: computed_children = [], 
             body: compute_children 
-        } = this.collateChildren( child => {
-                const target = _quoteTarget[child.inlineType];
+        } = this.collateChildren( (child: Attribute | ExplicitStyle) => {
+                const target = (_quoteTarget as any)[child.inlineType];
                 if(target) return child.asAssignedTo(target);
             }
         );
@@ -754,26 +797,31 @@ export class ElementInline extends ComponentGroup {
 
         compute_instructions.push(...compute_children)
 
-        if(t.isIdentifier(computed_props) && computed_style)
+        if(t.isIdentifier(computed_props!) && computed_style)
             compute_instructions.push(
                 t.expressionStatement(
                     t.assignmentExpression("=",
-                        t.memberExpression(computed_props, t.identifier("style")), computed_style
+                        t.memberExpression(computed_props!, t.identifier("style")), computed_style
                     )
                 )
             )
 
         const product = transform.createElement(
-            computed_type, 
-            this.standardCombinedPropsFormatFor(initial_props, computed_props), 
+            computed_type!, 
+            this.standardCombinedPropsFormatFor(initial_props!, computed_props!) as ObjectExpression, 
             ...computed_children
         );
 
         // if(this.constructor.name == "ComponentMethod") debugger;
-        if(compute_instructions.length == 0 || compute_instructions.length <= this.stats_excused)
-            return { product, factory: this.stats_excused && compute_instructions }
+        if(compute_instructions.length == 0 || compute_instructions.length <= this.stats_excused!)
+            return { 
+                product, 
+                factory: this.stats_excused 
+                    ? compute_instructions 
+                    : undefined 
+            }
         else {
-            const reference = this.scope.generateUidIdentifier("e");
+            const reference = scope.generateUidIdentifier("e");
             return { 
                 product: reference, 
                 factory: [

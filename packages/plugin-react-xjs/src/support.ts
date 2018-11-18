@@ -1,5 +1,5 @@
 
-import template from "@babel/template"
+import template from "@babel/template";
 
 exports.fnCreateIterated = template(`
     function NAME(from, key){
