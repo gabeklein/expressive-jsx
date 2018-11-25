@@ -130,18 +130,21 @@ function convertObjectProps(attr: ObjectMember | SpreadElement){
         if(key.type == "Identifier")
             attribute = t.jsxIdentifier(key.name);
 
-        else if(key.type == "String"){
+        else if(key.type == "StringLiteral"){
             if(/^[a-zA-Z_][\w-]+\w$/.test(key.value))
                 attribute = t.jsxIdentifier(key.value);
             else throw new Error(`Member named ${key.value} not supported as JSX attribute.`)
         }
 
-        if( value.type == "StringLiteral" && value.value == "true" ||
-            value.type == "BooleanLiteral" && value.value == true )
+        if( value.type == "StringLiteral" && value.value === "true" ||
+            value.type == "BooleanLiteral" && value.value === true )
             assignment = null
 
         else if(value.type !== "JSXElement" && value.type !== "StringLiteral")
             assignment = t.jsxExpressionContainer(value as Expression);
+        
+        else 
+            assignment = value;
     }
 
     return t.jsxAttribute(attribute!, assignment)
@@ -198,7 +201,6 @@ export const transform = {
         else {
             element.arguments[1].properties.push(...props)
         }
-
         return element;
     },
 
@@ -231,7 +233,10 @@ export const transform = {
         if(props.type == "Identifier")
             attributes = [ t.jsxSpreadAttribute(props) ];
 
-        else if(props.type == "CallExpression" && (props.callee as Identifier).name == "flatten"){
+        else if(
+            props.type == "CallExpression" && 
+            (props.callee as Identifier).name == "flatten" ){
+
             const flatten = [];
             
             for(const argument of props.arguments){
