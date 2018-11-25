@@ -1,20 +1,41 @@
-import * as t from "@babel/types";
-import { DoExpression, TemplateLiteral, Expression, StringLiteral, CallExpression, MemberExpression, ObjectProperty, TaggedTemplateExpression, ObjectExpression, Identifier, SpreadElement } from "@babel/types";
-import { NodePath as Path, Scope } from "@babel/traverse";
+import {
+    Path,
+    Scope,
+    ArrayItem, 
+    ElementSyntax,
+    DoExpression,
+    TemplateLiteral,
+    Expression,
+    StringLiteral,
+    CallExpression,
+    MemberExpression,
+    ObjectProperty,
+    TaggedTemplateExpression,
+    ObjectExpression,
+    Identifier,
+    SpreadElement,
+    SpreadProperty
+} from "./types";
+
+import {
+    Shared, Opts, transform, inParenthesis,
+    NonComponent, Attribute, ExplicitStyle,
+    ComponentGroup,
+    ElementModifier
+} from "./internal"
+
 import { createHash } from 'crypto';
 import { html_tags_obvious } from './html-types';
-import { Shared, Opts, transform, inParenthesis } from "./shared";
-import { NonComponent, QuasiComponent, Attribute, ExplicitStyle } from "./item";
-import { ComponentGroup } from "./component";
-import { ElementModifier } from "./modifier";
-import { ArrayItem, ElementSyntax } from "./types";
+import * as t from "@babel/types";
 
 const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
 
+type ObjectItem = ObjectProperty | SpreadElement;
+
 export function RNTextNode(
-    parent: ElementInline, 
-    path: Path<StringLiteral | TemplateLiteral>
-){
+    parent: ComponentGroup, 
+    path: Path<StringLiteral | TemplateLiteral> ){
+
     const node = new ElementInline();
     node.context = Object.create(parent.context);
     node.parentDeclaredAll = parent.context.allMod;
@@ -29,19 +50,15 @@ export function RNTextNode(
     parent.add(node);
 }
 
-export function CollateInlineComponentsTo(parent: ElementInline, path: Path<Expression>){
+export function CollateInlineComponentsTo(parent: ComponentGroup, path: Path<Expression>){
 
-    const node = path.node as any;
-
-    if(node 
-    && node.extra
-    && node.extra.parenthesized === true)
+    if(inParenthesis(path))
         return new NonComponent(path)
 
     let props = [] as Path<Expression>[];
 
     if(path.isSequenceExpression())
-        [path, ...props] = path.get('expressions') as Path<Expression>[];
+        [path, ...props] = path.get('expressions');
 
     if(path.isBinaryExpression({operator: ">"})){
         const item = Object.create(path.get("right")) as Path<Expression>;
@@ -58,8 +75,8 @@ export function CollateInlineComponentsTo(parent: ElementInline, path: Path<Expr
     }];
 
     while(path.isBinaryExpression({operator: ">>"})){
-        stack[0].path = path.get("right") as any;
-        path = path.get("left") as any;
+        stack[0].path = path.get("right");
+        path = path.get("left");
         stack.unshift({} as any);
     }
     stack[0].path = path;
@@ -87,9 +104,9 @@ export function CollateInlineComponentsTo(parent: ElementInline, path: Path<Expr
     }
 }
 
-const InlineLayers = {
+abstract class InlineLayers {
 
-    apply(target: ElementInline, tag: Path<Expression>){
+    static apply(target: ElementInline, tag: Path<Expression>){
 
         if(tag.isBinaryExpression({operator: "-"})){
             const left = tag.get("left") as Path<Expression>;
@@ -108,12 +125,6 @@ const InlineLayers = {
             target.tags.push({name: tag.node.name, path: tag, head: true})
 
         else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
-
-            // const default_type_text = 
-            //     Opts.reactEnv == "native"
-            //         ? Shared.stack.helpers.Text
-            //         : "div";
-
             target.tags.push({
                 name: Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "div", 
                 head: true
@@ -126,28 +137,32 @@ const InlineLayers = {
         }
 
         else throw tag.buildCodeFrameError("Expression must start with an identifier")
-        
-    },
+    }
 
-    TaggedTemplateExpression(this: ElementInline, path: Path<TaggedTemplateExpression>){
-        const tag = path.get("tag")
-        QuasiComponent.applyTo(this, 
-            path.get("quasi") as Path<TemplateLiteral>
-        )
+    static TaggedTemplateExpression(
+        this: ElementInline, 
+        path: Path<TaggedTemplateExpression> ){
+
+        const tag = path.get("tag");
+
+        this.unhandledQuasi = path.get("quasi");
+        // QuasiComponent.applyTo(this, 
+        //     path.get("quasi") as Path<TemplateLiteral>
+        // )
 
         // prevent ES6 transformer from shimming the template.
         path.remove()
 
         return tag
-    },
+    }
 
-    CallExpression(this: ElementInline, tag: Path<CallExpression>){
+    static CallExpression(this: ElementInline, tag: Path<CallExpression>){
         const args = tag.get("arguments") as Path<Expression>[];
         InlineProps.applyTo(this, args);
         return tag.get("callee");
-    },
+    }
 
-    MemberExpression(this: ElementInline, tag: Path<MemberExpression>){
+    static MemberExpression(this: ElementInline, tag: Path<MemberExpression>){
 
         const selector = tag.get("property") as Path;
         if(tag.node.computed !== true && selector.isIdentifier()){
@@ -301,6 +316,18 @@ class InlineProps {
         this.name = name;
     }
 
+    //from attribute
+    get asProperty(): ObjectProperty | SpreadProperty {
+        const { name, value, isSpread } = this;
+        if(isSpread){
+            return t.spreadElement(value!)
+        } else {
+            if(!name)
+                throw new Error("Internal Error: Prop has no name!")
+            return t.objectProperty(t.identifier(name), value!)
+        }
+    }
+
     get value(){
         if(!this.path_value)
             throw new Error("Prop has no path_value set, this is an internal error")
@@ -312,8 +339,8 @@ class InlineProps {
 interface TypeInformation {
     type?: string | Identifier
     installed_style: ElementInline[]
-    props: (ObjectProperty | SpreadElement)[]
-    style: (ObjectProperty | SpreadElement)[]
+    props: ObjectItem[]
+    style: ObjectItem[]
 }
 
 export class ElementInline extends ComponentGroup {
@@ -325,7 +352,7 @@ export class ElementInline extends ComponentGroup {
     precedent = 0
     precedence = 3
     stylePriority = 2
-    typeInformation = {} as TypeInformation;
+    inlineInformation = {} as TypeInformation;
     unhandledQuasi?: Path<TemplateLiteral>;
     prefix?: string;
     styleGroups = [] as ElementModifier[];
@@ -347,7 +374,7 @@ export class ElementInline extends ComponentGroup {
     didEnterOwnScope(body: Path<DoExpression>){
         super.didEnterOwnScope(body);
         this.context.currentInline = this;
-        this.includeInlineInformation();
+        this.combineInlineInformation();
     }
 
     didExitOwnScope(body: Path<DoExpression>, preventDefault?: boolean){
@@ -411,7 +438,11 @@ export class ElementInline extends ComponentGroup {
         this.doesReceiveDynamic = { style, props };
     }
 
-    seperateItems(inline: any, dynamic: any): ArrayItem[] {
+    seperateItems(
+        inline: ObjectItem[], 
+        dynamic: any
+    ) : ArrayItem[] {
+
         let output = [] as Expression[];
         let layer = [];
         for(const style of inline)
@@ -428,7 +459,7 @@ export class ElementInline extends ComponentGroup {
         return output;
     }
 
-    standardCombinedStyleFormatFor(inline: any, dynamic?: any): Expression {
+    standardCombinedStyleFormatFor(inline: ObjectItem[], dynamic?: any): Expression {
         if(Opts.reactEnv == "native"){
             let output = this.seperateItems(inline, dynamic);
 
@@ -445,7 +476,7 @@ export class ElementInline extends ComponentGroup {
             if(dynamic) inline.push(t.spreadElement(dynamic))
 
             if(inline.length == 1 && inline[0].type == "SpreadElement")
-                return inline[0].argument
+                return (inline[0] as SpreadElement).argument
 
             return t.objectExpression(inline);
         }
@@ -487,7 +518,7 @@ export class ElementInline extends ComponentGroup {
         } 
     }
 
-    includeInlineInformation(){
+    combineInlineInformation(){
         let type;
 
         const {
@@ -549,8 +580,8 @@ export class ElementInline extends ComponentGroup {
     
         if(this.unhandledQuasi)
             this.includeUnhandledQuasi(this.unhandledQuasi, (inline.type as any).type != "Identifier")
-
-        return this.typeInformation = inline;
+            
+        return this.inlineInformation = inline;
     }
 
     includeUnhandledQuasi(quasi: Path<TemplateLiteral>, using_br: boolean){
@@ -609,29 +640,33 @@ export class ElementInline extends ComponentGroup {
     }
 
     build(): ElementSyntax {
-        const own_declarations = [];
         let accumulated_style: Expression;
         let computed_props: Expression;
+        let computed_style;
 
+        const own_declarations = [];
+        const scope = this.scope!;
+        
         const { 
             doesReceiveDynamic = false,
             props: declared_props,
             style: declared_style
         } = this;
 
-        const scope = this.scope!;
-
-        const inline = this.typeInformation || this.includeInlineInformation();
-
         let { 
+            installed_style,
             type: computed_type,
-            props: initial_props,
-            style: initial_style
-        } = inline;
+            props: initial_props = [] as ObjectItem[],
+            style: initial_style = [] as ObjectItem[]
+        } = this.inlineInformation.type 
+            ? this.inlineInformation 
+            : this.combineInlineInformation();
+
+        if(!computed_type) debugger;
 
         if(this.style_static.length || this.mayReceiveExternalClasses){
             this.generateUCN()
-            inline.installed_style.push(this)
+            installed_style.push(this)
         }
 
         if(this.style_static.length){
@@ -639,22 +674,20 @@ export class ElementInline extends ComponentGroup {
             this.context.declareForRuntime(this);
         }
 
-        let computed_style;
-        
         if(this.attrs.length)
             for(const attr of this.attrs)
-                (inline as any)[attr.kind || "props"].push(
-                    attr.asProperty
-                )
+                if(attr.kind == "style")
+                    initial_style.push(attr.asProperty)
+                else
+                    initial_props.push(attr.asProperty)
 
-        if(inline.installed_style && inline.installed_style.length){
+        if(installed_style && installed_style.length){
             if(Opts.reactEnv == "native"){
                 const mS = Shared.stack.helpers.ModuleStyle;
                 const imported = [];
-                for(const item of inline.installed_style){
+                for(const item of installed_style){
                     if(!item.styleID){
                         throw new Error("No styleID found!")
-                        debugger
                     }
                     imported.push(
                         t.spreadElement(t.memberExpression(mS, item.styleID))
@@ -663,7 +696,7 @@ export class ElementInline extends ComponentGroup {
                 initial_style.splice(0, 0, ...imported)
             }
             else 
-                for(const modifier of inline.installed_style){
+                for(const modifier of installed_style){
                     const uid = modifier.uid!;
                     if(this.classList.indexOf(uid) < 0)
                         this.classList.push(uid);
@@ -688,12 +721,12 @@ export class ElementInline extends ComponentGroup {
                     const cn = applied[0];
                     thingy = typeof cn != "string" ?
                         cn : t.stringLiteral(cn)
-                } else
-                thingy = t.callExpression(
-                        Shared.stack.helpers.select,
-                        applied.map(x => typeof x == "string" ? t.stringLiteral(x) : x)
-                        
-                    )
+                } 
+                else
+                    thingy = t.callExpression(
+                            Shared.stack.helpers.select,
+                            applied.map(x => typeof x == "string" ? t.stringLiteral(x) : x)
+                        )
 
                 const classNameProp = t.objectProperty(
                     t.identifier("className"), thingy
@@ -812,7 +845,6 @@ export class ElementInline extends ComponentGroup {
             ...computed_children
         );
 
-        // if(this.constructor.name == "ComponentMethod") debugger;
         if(compute_instructions.length == 0 || compute_instructions.length <= this.stats_excused!)
             return { 
                 product, 

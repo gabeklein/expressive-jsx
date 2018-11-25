@@ -1,15 +1,22 @@
-import { ElementModifier, GeneralModifier } from "./modifier";
-import { ElementInline } from "./inline";
-import { Shared, Opts } from "./shared";
+import { 
+    BunchOf
+} from "./types";
+
+import {
+    ElementModifier,
+    GeneralModifier,
+    ElementInline,
+    Shared,
+    Opts
+} from "./internal";
+
 import * as ReservedModifiers from "./keywords";
 
 type XJSValueHelper = (...args: any[]) => {
     value?: string 
 };
 
-export interface XJSValueModifiers {
-    [helper: string]: XJSValueHelper
-}
+export type XJSValueModifiers = BunchOf<XJSValueHelper>
 
 export function createSharedStack(included = []){
     let Stack = new StackFrame;
@@ -48,11 +55,11 @@ export function createSharedStack(included = []){
 
 export class StackFrame {
 
-    // [key: string]: GeneralModifier
+    [key: string]: GeneralModifier | XJSValueHelper | ElementModifier | any;
+
     program = {} as any;
     styleRoot = {} as any;
     current = {} as any;
-    [key: string]: GeneralModifier | XJSValueHelper | ElementModifier | any;
 
     push(node: any){
         node.parent = this.current;

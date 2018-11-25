@@ -1,12 +1,23 @@
+
+import {
+    Path,
+    TemplateLiteral,
+    TemplateElement,
+    Expression
+} from './types';
+
+import {
+    transform,
+    Opts,
+    ElementInline,
+    NonComponent
+} from "./internal";
+
 import * as t from "@babel/types";
-import { TemplateLiteral, TemplateElement, Expression } from '@babel/types';
-import { transform, Opts } from "./shared";
-import { NodePath as Path } from '@babel/traverse';
-import { ElementInline } from './inline';
-import { NonComponent } from './item';
 
 export class QuasiComponent extends NonComponent {
     static applyTo(parent: ElementInline, path: Path<TemplateLiteral>){
+        // debugger
         const { name } = parent.tags[0]; 
         const self = new this(path, name);
         parent.add(self);
@@ -17,7 +28,7 @@ export class QuasiComponent extends NonComponent {
 
         const string_only = 
             // Opts.reactEnv == "native" || 
-            // this.parent.typeInformation.type.type != "StringLiteral";
+            // this.parent.inlineInformation.type.type != "StringLiteral";
             /^[A-Z]/.test(name) && name !== "Text";
 
         (this as any).node = breakdown(this.node as any, string_only);
@@ -65,8 +76,8 @@ function breakForString(
     items: any[],
     INDENT: RegExp | null, 
     i: number, 
-    length: number
-){
+    length: number ){
+
     for(let x of ["raw", "cooked"]){
         let text = quasi.value[x];
         if(INDENT) text = text.replace(INDENT, "\n");
@@ -81,8 +92,8 @@ function breakForNative(
     quasi: TemplateElement,
     then: Expression,
     items: any[],
-    INDENT: RegExp | null
-){
+    INDENT: RegExp | null ){
+
     let text = quasi.value.cooked;
     if(INDENT) 
         text = text.replace(INDENT, "\n");
@@ -112,8 +123,8 @@ function breakWithBR(
     then: Expression,
     items: any[],
     INDENT: RegExp | null,
-    i: number
-){
+    i: number ){
+
     const ELEMENT_BR = transform.createElement("br");
     let text = quasi.value.cooked;
     if(INDENT) 

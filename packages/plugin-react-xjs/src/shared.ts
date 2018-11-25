@@ -1,5 +1,3 @@
-
-import * as t from "@babel/types";
 import {
     LabeledStatement,
     StringLiteral,
@@ -9,24 +7,28 @@ import {
     CallExpression,
     ObjectMember,
     SpreadElement,
-    jsxIdentifier,
     JSXIdentifier,
     Statement,
     Program,
     ObjectProperty,
-    VariableDeclaration
-}
-from "@babel/types";
+    Path,
+    Scope,
+    BunchOf
+} from "./types";
 
-import { Scope, NodePath } from "@babel/traverse";
+import * as t from "@babel/types";
 
 export function toArray<T>(value: T | T[]): T[] {
-    return ([] as T[]).concat(value);
+    return Array.isArray(value) ? value : [value];
 }
 
-export function inParenthesis(path: NodePath<Expression>): boolean {
+export function inParenthesis(path: Path<Expression>): boolean {
     const node = path.node as any;
     return node.extra && (node.extra.parenthesized === true) || false;
+}
+
+export function findAncestorOf(path: Path, ...types: string[]){
+    return path.getAncestry().find(parent => types.indexOf(parent.type) >= 0)
 }
 
 interface SharedSingleton {
@@ -85,10 +87,8 @@ export function ensureUIDIdentifier(
     this: Scope,
     name: string = "temp", 
     useExisting: boolean, 
-    didUse: {
-        [uid: string]: any
-    }
-){
+    didUse: BunchOf<any> ){
+
     name = name.replace(/^_+/, "").replace(/[0-9]+$/g, "");
     let uid;
     let i = 0;
@@ -98,10 +98,16 @@ export function ensureUIDIdentifier(
             didUse[uid] = null;
             return t.identifier(uid);
         }
-    } else do {
-        uid = name + (i > 1 ? i : "");
-        i++;
-    } while (this.hasBinding(uid) || this.hasGlobal(uid) || this.hasReference(uid));
+    } else 
+        do {
+            uid = name + (i > 1 ? i : "");
+            i++;
+        } 
+        while (
+            this.hasBinding(uid) || 
+            this.hasGlobal(uid) || 
+            this.hasReference(uid)
+        );
 
     const program = this.getProgramParent() as any;
     program.references[uid] = true;
@@ -122,11 +128,11 @@ function convertObjectProps(attr: ObjectMember | SpreadElement){
         let { key, value } = attr;
 
         if(key.type == "Identifier")
-            attribute = jsxIdentifier(key.name);
+            attribute = t.jsxIdentifier(key.name);
 
         else if(key.type == "String"){
             if(/^[a-zA-Z_][\w-]+\w$/.test(key.value))
-                attribute = jsxIdentifier(key.value);
+                attribute = t.jsxIdentifier(key.value);
             else throw new Error(`Member named ${key.value} not supported as JSX attribute.`)
         }
 
@@ -153,8 +159,7 @@ export const transform = {
 
     createFragment(
         elements: any[], 
-        props = [] as ObjectProperty[]
-    ){
+        props = [] as ObjectProperty[] ){
 
         let type = Shared.stack.helpers.Fragment;
 
@@ -200,8 +205,8 @@ export const transform = {
     createElement(
         type: string | StringLiteral | Identifier, 
         props: Expression = t.objectExpression([]), 
-        ...children: Expression[]
-    ){
+        ...children: Expression[] ){
+
         if(Opts.output == "JSX")
             return this.createJSXElement(type, props, ...children);
 
@@ -213,9 +218,9 @@ export const transform = {
 
     createJSXElement(
         type: string | StringLiteral | Identifier, 
-        props: (ObjectExpression | Identifier | CallExpression | Expression), 
-        ...children: Expression[]
-    ){
+        props: ObjectExpression | Identifier | CallExpression | Expression, 
+        ...children: Expression[] ){
+
         if(typeof type !== "string")
             type = (type as StringLiteral).value || (type as Identifier).name;
 
@@ -295,9 +300,7 @@ export const transform = {
         }
     },
 
-    object(
-        obj: { [name: string]: any }
-    ){
+    object(obj: BunchOf<any>){
         const properties = [];
         for(const x in obj)
             properties.push(
@@ -309,7 +312,9 @@ export const transform = {
         return t.objectExpression(properties);
     },
 
-    member(object: Expression | "this", ...path: (string | number)[]){
+    member(
+        object: Expression | "this", 
+        ...path: (string | number)[] ){
 
         if(object == "this") 
             object = t.thisExpression()
@@ -332,7 +337,11 @@ export const transform = {
         return object
     },
 
-    declare(type: "const" | "let" | "var", id: Identifier, value?: Expression): VariableDeclaration{
+    declare(
+        type: "const" | "let" | "var", 
+        id: Identifier, 
+        value?: Expression ){
+
         return (
             t.variableDeclaration(type, [
                 t.variableDeclarator(id, value)

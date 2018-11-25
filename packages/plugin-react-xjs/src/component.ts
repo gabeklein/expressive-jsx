@@ -1,6 +1,6 @@
-import * as t from "@babel/types";
-
 import {
+    Path,
+    Scope,
     ExpressionStatement,
     Expression,
     Statement,
@@ -18,15 +18,29 @@ import {
     BlockStatement,
     ObjectExpression,
     ObjectProperty,
-}
-from "@babel/types";
+    ExpressiveElementChild, 
+    ElementInlcusion, 
+    XReactTag
+} from "./types";
 
-import { StackFrame } from "./scope";
-import { transform, Shared } from "./shared";
+import { 
+    Prop,
+    Attribute,
+    ExplicitStyle,
+    InnerStatement,
+    NonComponent,
+    CollateInlineComponentsTo,
+    RNTextNode,
+    ComponentSwitch,
+    ComponentRepeating,
+    GeneralModifier,
+    transform, Shared,
+    StackFrame
+ } from "./internal"
+
+import * as t from "@babel/types";
+
 import { createHash } from 'crypto';
-import { NodePath as Path, Scope } from "@babel/traverse";
-import { Attribute, ExplicitStyle, InnerStatement } from "./item";
-import { ExpressiveElementChild, ElementInlcusion, XReactTag } from "./types";
 
 abstract class TraversableBody {
 
@@ -68,12 +82,17 @@ export abstract class AttrubutesBody
 
     props = [] as Attribute[];
     style = [] as ExplicitStyle[];
-    style_static = this.style;
     uniqueClassname?: string;
     children = [] as ElementInlcusion[];
+    style_static: ExplicitStyle[];
 
     abstract inlineType: string;
     abstract precedence: number;
+
+    constructor(){
+        super();
+        this.style_static = Shared.stack.styleMode.compile ? [] : this.style;
+    }
 
     add(obj: ExpressiveElementChild){
         const acc = (this as any)[obj.inlineType];
@@ -81,7 +100,15 @@ export abstract class AttrubutesBody
         this.children.push(obj);
     }
 
-    get selector(): string{
+    computeStyles(){
+        return t.objectProperty(
+            t.stringLiteral(this.selector || this.uniqueClassname!), 
+            // t.objectExpression(this.compileStyleObject)
+            t.stringLiteral(this.compiledStyle)
+        )
+    }
+
+    get selector(): string {
         return this.uniqueClassname!;
     }
 
@@ -171,8 +198,8 @@ export abstract class ComponentGroup
     }
 
     collateChildren(
-        onAppliedType?: (item: any) => any
-    ){
+        onAppliedType?: (item: any) => any ){
+
         const scope = this.scope;
         const body = [] as Statement[];
         const output = [] as any[];
@@ -308,11 +335,3 @@ export abstract class ComponentGroup
 
     EmptyStatement(){};
 }
-
-//import last. Modules import from these here, so exports must already be initialized.
-
-const { Prop, Statement, NonComponent } = require("./item");
-const { CollateInlineComponentsTo, RNTextNode } = require("./inline");
-const { ComponentSwitch } = require("./ifstatement");
-const { ComponentRepeating } = require("./forloop");
-const { GeneralModifier } = require("./modifier");

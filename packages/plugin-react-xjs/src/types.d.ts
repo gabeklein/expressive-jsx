@@ -1,8 +1,27 @@
-import { Expression, Identifier, SpreadElement, Statement, TemplateLiteral, BlockStatement, LabeledStatement, NumericLiteral, ExpressionStatement, Program, DoExpression, ClassMethod, ArrayExpression } from "@babel/types";
-import { NodePath as Path } from "@babel/traverse";
+
 import { StackFrame } from "./scope";
+import { NodePath as Path } from "@babel/traverse";
+import { 
+    Expression, 
+    Identifier, 
+    SpreadElement, 
+    Statement, 
+    ExpressionStatement, 
+    Program, 
+    DoExpression,
+} from "@babel/types";
+
+export * from "@babel/types";
+export {
+    Scope,
+    NodePath as Path
+} from "@babel/traverse";
 
 export type ArrayItem = Expression | SpreadElement;
+
+export interface BunchOf<T> {
+    [key: string]: T
+}
 
 export interface ElementSyntax {
     product: Expression,
@@ -17,10 +36,6 @@ export interface ElementInlcusion {
 export interface ExpressiveElementChild extends ElementInlcusion {
     precedence?: number;
 }
-
-// interface TraversableHandler {
-//     [type: string]: (node: Path) => void
-// }
 
 export interface XReactTag {
     head?: true;

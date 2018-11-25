@@ -1,11 +1,27 @@
+import {
+    Path,
+    ExpressiveElementChild,
+    Expression,
+    StringLiteral,
+    Identifier,
+    Statement,
+    AssignmentExpression,
+    ArrayExpression,
+    ObjectProperty,
+    SpreadProperty,
+    ExpressionStatement
+} from './types';
+
+import {
+    Shared,
+    toArray,
+    ElementInline,
+    ComponentGroup,
+    AttrubutesBody,
+    HEX_COLOR
+} from "./internal";
+
 import * as t from "@babel/types";
-import { Expression, StringLiteral, Identifier, Statement, AssignmentExpression, ArrayExpression, ObjectProperty, SpreadProperty, ExpressionStatement } from '@babel/types';
-import { NodePath as Path } from '@babel/traverse';
-import { Shared, toArray } from "./shared";
-import { HEX_COLOR } from "./attributes";
-import { ExpressiveElementChild } from './types';
-import { ElementInline } from './inline';
-import { ComponentGroup } from './component';
 
 export abstract class Attribute implements ExpressiveElementChild {
 
@@ -106,7 +122,7 @@ export class Prop extends Attribute {
         }
     }
 
-    static applyTo(parent: ElementInline, path: Path<AssignmentExpression>){
+    static applyTo(parent: AttrubutesBody, path: Path<AssignmentExpression>){
         if( (path.node.left as Identifier).name == "style"){
             this.applyStyle(parent, path);
             return
@@ -119,7 +135,7 @@ export class Prop extends Attribute {
         )
     }
 
-    static applyStyle(parent: ElementInline, path: Path<AssignmentExpression>){
+    static applyStyle(parent: AttrubutesBody, path: Path<AssignmentExpression>){
         const spread = new this(path);
 
         spread.kind = "style";
@@ -245,8 +261,8 @@ export class InnerStatement {
     static applyTo(
         parent: ComponentGroup, 
         path: Path<Statement>, 
-        kind: "var" | "debug" | "block"
-    ){
+        kind: "var" | "debug" | "block" ){
+
         parent.add( 
             new this(path, kind) as any
         )
@@ -264,7 +280,7 @@ export class InnerStatement {
 
 export class NonComponent implements ExpressiveElementChild {
     
-    static applyMultipleTo(parent: ElementInline, src: Path<ArrayExpression>){
+    static applyMultipleTo(parent: ComponentGroup, src: Path<ArrayExpression>){
         const elem = src.get("elements");
         if(elem.length == 1 && elem[0].isSpreadElement())
             parent.add(
@@ -313,5 +329,3 @@ export class NonComponent implements ExpressiveElementChild {
         }
     }
 }
-
-export { QuasiComponent } from "./quasi";

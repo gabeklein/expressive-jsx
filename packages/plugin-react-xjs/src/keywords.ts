@@ -1,4 +1,7 @@
-import { ElementModifier, ModifyDelegate } from "./modifier";
+import {
+    ElementModifier,
+    ModifyDelegate
+} from "./internal";
 
 export function is(this: ModifyDelegate){
     const out = { 

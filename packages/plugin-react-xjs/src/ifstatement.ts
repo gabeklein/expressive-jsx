@@ -1,10 +1,22 @@
+import {
+    Path,
+    Scope,
+    ExpressiveElementChild,
+    ElementSyntax,
+    Statement,
+    Identifier,
+    Expression,
+    IfStatement,
+    DoExpression
+} from "./types";
+
+import {
+    ElementModifier,
+    ComponentGroup,
+    transform
+} from "./internal";
+
 import * as t from "@babel/types";
-import { Statement, Identifier, Expression, IfStatement, DoExpression } from "@babel/types";
-import { NodePath as Path, Scope } from "@babel/traverse";
-import { ComponentGroup } from "./component";
-import { transform } from './shared';
-import { ExpressiveElementChild, ElementSyntax } from "./types";
-import { ElementModifier } from "./modifier";
 
 export class ComponentSwitch implements ExpressiveElementChild {
 
@@ -83,8 +95,8 @@ export class ComponentSwitch implements ExpressiveElementChild {
                 this.children.reduceRight(
                     function(
                         alt: undefined | Statement, 
-                        option: ComponentConsequent
-                    ){
+                        option: ComponentConsequent ){
+
                         const { factory } = option.outputDynamic(id);
                         const body = factory.length === 1
                             ? factory[0]

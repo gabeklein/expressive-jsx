@@ -1,8 +1,17 @@
+import {
+    Path,
+    BlockStatement,
+    Program,
+    BunchOf
+} from "./types";
+
+import {
+    Shared,
+    ElementModifier
+} from "./internal";
+
 import * as t from "@babel/types";
-import { BlockStatement, Program } from "@babel/types";
-import { NodePath as Path } from "@babel/traverse";
-import { Shared } from "./shared";
-import { ElementModifier } from "./modifier";
+import { createHash } from "crypto";
 
 type ComputeTarget = ElementModifier;
 
@@ -12,12 +21,8 @@ export function generateComputedStyleSheetObject(
     index: number ){
 
     const styles = [];
-    const exists = {} as {
-        [uID: string]: number;
-    };;
-    const common = {} as {
-        [uID: string]: any
-    };
+    const exists = {} as BunchOf<number>;
+    const common = {} as BunchOf<any>;
 
     for(const mod of compute){
         const styleID = mod.styleID!;
@@ -72,9 +77,7 @@ export function generateComputedStylesExport(
     let styles = [] as any[];
     let media = {
         default: styles
-    } as {
-        [media: string]: any
-    };
+    } as BunchOf<any>
 
     for(const x of compute){
 
@@ -110,6 +113,12 @@ export function generateComputedStylesExport(
     }
 
     const { body } = path.scope.block as BlockStatement;
+    const { filename, root } = path.hub.file.opts;
+
+    const hashRoot = createHash("md5")
+        .update(root)
+        .digest('hex')
+        .substring(0, 8);
     
     body.splice(++index, 0, 
         t.expressionStatement(
@@ -119,7 +128,10 @@ export function generateComputedStylesExport(
                     t.identifier("doesProvideStyle")
                 ), [
                     t.stringLiteral(
-                        path.hub.file.opts.filename
+                        `${hashRoot}` +
+                        filename.slice(
+                            root.length
+                        )    
                     ),
                     t.objectExpression(output)
                 ]

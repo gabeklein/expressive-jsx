@@ -1,70 +1,89 @@
+import {
+    Path,
+    Scope,
+    LabeledStatement,
+    Identifier,
+    Statement,
+    BunchOf
+} from "./types";
+
+import { 
+    Opts, 
+    Shared, 
+    ensureUIDIdentifier, 
+    toArray,
+    AttrubutesBody, 
+    SyntheticProp, 
+    ExplicitStyle, 
+    StackFrame, 
+    ElementInline, 
+    ComponentConsequent,
+    parsedArguments
+} from "./internal";
+
 import * as t from "@babel/types";
-import { LabeledStatement, Identifier, Statement} from "@babel/types";
-import { NodePath as Path, Scope } from "@babel/traverse";
-import { AttrubutesBody } from "./component";
 import { createHash } from 'crypto';
-import { SyntheticProp, ExplicitStyle } from "./item";
-import { parsedArguments } from "./attributes";
-import { Opts, Shared, ensureUIDIdentifier, toArray} from "./shared";
-import { StackFrame } from "./scope";
-import { ElementInline } from "./inline";
-import { ComponentConsequent } from "./ifstatement";
-
-interface ModifierOutput {
-    attrs?: { [name: string]: any }
-    style?: { [name: string]: any }
-    props?: { [name: string]: any }
-    installed_style?: (ElementModifier | ElementInline)[]
-}
-
-type ModifyAction = (this: ModifyDelegate) => ModifierOutput;
-
-type anyfunction = (...args: any[]) => void;
 
 interface ModifierRecipient {
     context: StackFrame;
     includeModifier(mod: ElementModifier): void;
 }
 
+interface ModifierOutput {
+    attrs?: BunchOf<any>
+    style?: BunchOf<any>
+    props?: BunchOf<any>
+    installed_style?: (ElementModifier | ElementInline)[]
+}
+
+type ModifyAction = (this: ModifyDelegate) => ModifierOutput;
+type SideEffect = (...args: any[]) => void;
+type ModTuple = [GeneralModifier, any];
+
 export class GeneralModifier {
 
-    name: string;
-    transform?: ModifyAction;
+    static applyTo(
+        recipient: AttrubutesBody, 
+        src: Path<LabeledStatement> ){
 
-    constructor(name: string, transform?: ModifyAction){
-        this.name = name;
-        if(transform)
-            this.transform = transform;
-    }
-
-    static applyTo(recipient: AttrubutesBody, src: Path<LabeledStatement>) {
         const name = src.node.label.name;
-        const body = src.get("body") as Path<Statement>;
+        const body = src.get("body");
     
         const modifier = 
             recipient.context.propertyMod(name) || new this(name);
     
         modifier.apply(body, recipient);
     }
+
+    name: string;
+    transform?: ModifyAction;
+
+    constructor(
+        name: string, 
+        transform?: ModifyAction ){
+
+        this.name = name;
+        if(transform)
+            this.transform = transform;
+    }
     
     apply(
         body: Path<Statement>, 
-        target: AttrubutesBody
-    ){
+        target: AttrubutesBody ){
+
         const accumulated = { 
             props: {}, 
             style: {}
         };
 
-        type ModTuple = [GeneralModifier, any];
-        
         let i = 0;
-        let mod: GeneralModifier = this;
         let mods = [] as ModTuple[];
+
+        let current: ModTuple = [this, body];
 
         while(true){
             let { data: delegateOutput } = 
-                new ModifyDelegate(mod, body, target);
+                new ModifyDelegate(current[0], current[1], target);
 
             if(!delegateOutput){
                 i++; continue; 
@@ -73,9 +92,10 @@ export class GeneralModifier {
             Object.assign(accumulated.style, delegateOutput.style);
             Object.assign(accumulated.props, delegateOutput.props);
 
-            const next = delegateOutput.attrs || true;
+            const next = delegateOutput.attrs;
             const pending = [] as ModTuple[];
 
+            if(next)
             for(const named in next){
                 let value = next[named];
                 let { context } = target;
@@ -83,47 +103,45 @@ export class GeneralModifier {
                 if(value == null) continue;
     
                 if(named == this.name){
-                    let seeking;
+                    let found;
                     do { 
-                        seeking = !context.hasOwnPropertyMod(named);
+                        found = context.hasOwnPropertyMod(named);
                         context = context.parent;
                     }
-                    while(seeking);
+                    while(!found);
                 }
+
+                const handler = context.propertyMod(named) || new GeneralModifier(named);
     
                 pending.push([
-                    context.propertyMod(named) || new GeneralModifier(named), 
+                    handler, 
                     value
                 ])
             }
             
             if(!pending.length)
                 if(mods[++i])
-                    [mod, body] = mods[i]
+                    current = mods[i]
                 else break;
             else {
                 mods = pending.concat(mods.slice(i+1));
-                [mod, body] = mods[i = 0];
+                current = mods[i = 0];
             }
         }
 
-        this.integrate(target, accumulated);
-    }
-
-    integrate(
-        target: AttrubutesBody, 
-        { style, props } : { style: any; props: any} 
-    ){
-        for(const name in style)
-            if(style[name] !== null)
-                target.add(
-                    new ExplicitStyle(name, style[name])
-                )
+        const style = accumulated.style as any;
+        const props = accumulated.props as any; 
 
         for(const name in props)
             if(props[name] !== null)
                 target.add(
                     new SyntheticProp(name, props[name])
+                )
+
+        for(const name in style)
+            if(style[name] !== null)
+                target.add(
+                    new ExplicitStyle(name, style[name])
                 )
     }
 }
@@ -176,21 +194,18 @@ function propertyModifierDefault(this: ModifyDelegate) {
 }
 
 export class ModifyDelegate {
-
     target: any;
     name: string;
+    data: BunchOf<any>
+    done?: true;
     body?: Path<Statement>;
     priority?: number;
-    data: {
-        [name: string]: any;
-    };
-    done?: true;
 
     constructor(
         mod: GeneralModifier, 
         body: Path<Statement>, 
-        target: AttrubutesBody
-    ){
+        target: AttrubutesBody ){
+
         let { transform } = mod;
         if(!transform || transform.length > 0 && body.type == "BlockStatement")
             transform = invokeModifierDefault;
@@ -254,8 +269,8 @@ export class ModifyDelegate {
     declareElementModifier(
         name: string, 
         body: Path<t.LabeledStatement>, 
-        fn?: (() => void) | undefined
-    ){
+        fn?: (() => void) | undefined ){
+
         const mod = new ExternalSelectionModifier(name, body, fn);
         if(this.priority) mod.stylePriority = this.priority;
         mod.declare(this.target);
@@ -263,8 +278,8 @@ export class ModifyDelegate {
 
     declareMediaQuery(
         query: string, 
-        body: Path<t.LabeledStatement>
-    ){
+        body: Path<t.LabeledStatement> ){
+
         new MediaQueryModifier(query, body).declare(this.target)
     }
 
@@ -274,12 +289,10 @@ export class ModifyDelegate {
 }
 
 export class ElementModifier extends AttrubutesBody {
-
     precedence = 0
-    classList = [] as string[];
+    // classList = [] as string[];
     provides = [] as ElementModifier[];
-    operations = [] as anyfunction[];
-    opperations = [];
+    operations = [] as SideEffect[];
     inlineType = "stats"
     stylePriority = 1
 
@@ -287,13 +300,13 @@ export class ElementModifier extends AttrubutesBody {
     body: Path<Statement>;
     scope: Scope;
     inherits?: ElementModifier;
-    selectAgainst?: ElementModifier | ElementInline;
+    selectAgainst?: ElementModifier | ElementInline; 
+    mayReceiveExternalClasses?: true;
     type?: "style" | "props" | "both";
     hash?: string;
     id?: Identifier;
     uid?: string
     styleID?: Identifier;
-    mayReceiveExternalClasses?: true;
 
     constructor(name: string, body: Path<Statement>){
         super()
@@ -309,14 +322,6 @@ export class ElementModifier extends AttrubutesBody {
         if(typeof this.init == "function")
             this.init(body);
     }  
-
-    computeStyles(){
-        return t.objectProperty(
-            t.stringLiteral(this.selector || this.uniqueClassname!), 
-            // t.objectExpression(this.compileStyleObject)
-            t.stringLiteral(this.compiledStyle)
-        )
-    }
 
     get selector(){
         if(this.context.selectionContingent)
@@ -336,7 +341,7 @@ export class ElementModifier extends AttrubutesBody {
         recipient.includeModifier(this);
     }
 
-    onComponent(f: anyfunction){
+    onComponent(f: SideEffect){
         this.operations.push(f);
     }
 
@@ -418,8 +423,8 @@ export class ElementModifier extends AttrubutesBody {
     insert(
         target: ModifierRecipient, 
         args: any[], 
-        inline: ModifierOutput
-    ){
+        inline: ModifierOutput ){
+
         for(const op of this.operations)
             op(target, inline)
         if(!inline && !args.length) return;
@@ -430,8 +435,13 @@ export class ElementModifier extends AttrubutesBody {
         let { props, style } = this;
         let declaration;
 
-        const propsObject = props.length ? t.objectExpression(props.map(x => x.asProperty)) : undefined;
-        const styleObject = style.length ? t.objectExpression(style.map(x => x.asProperty)) : undefined;
+        const propsObject = props.length 
+            ? t.objectExpression(props.map(x => x.asProperty)) 
+            : undefined;
+
+        const styleObject = style.length 
+            ? t.objectExpression(style.map(x => x.asProperty)) 
+            : undefined;
 
         declaration = 
             ( this.type == "both" )

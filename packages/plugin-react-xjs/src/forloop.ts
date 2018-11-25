@@ -1,11 +1,29 @@
-import * as t from "@babel/types";
-import { AssignmentExpression, ForStatement, ForOfStatement, ForInStatement, Identifier, StringLiteral, VariableDeclaration, LVal, ObjectProperty, Expression, Statement, DoExpression } from "@babel/types";
-import { NodePath as Path } from "@babel/traverse";
+import {
+    Path,
+    ExpressiveElementChild,
+    ElementSyntax,
+    AssignmentExpression,
+    ForStatement,
+    ForOfStatement,
+    ForInStatement,
+    Identifier,
+    StringLiteral,
+    VariableDeclaration,
+    LVal,
+    ObjectProperty,
+    Expression,
+    Statement,
+    DoExpression
+} from "./types";
 
-import { ElementInline } from "./inline";
-import { ComponentGroup } from "./component";
-import { Shared, transform, ensureUIDIdentifier } from "./shared";
-import { ExpressiveElementChild, ElementSyntax } from "./types"
+import {
+    ComponentGroup,
+    Shared,
+    transform,
+    ensureUIDIdentifier
+} from "./internal";
+
+import * as t from "@babel/types";
 
 type AnyForStatement = ForStatement | ForInStatement | ForOfStatement;
 
@@ -14,10 +32,10 @@ export class ComponentRepeating
     implements ExpressiveElementChild {
 
     static applyTo(
-        parent: ElementInline, 
+        parent: ComponentGroup, 
         src: Path<AnyForStatement>, 
-        kind: string
-    ){
+        kind?: string ){
+
         parent.add(
             new this(src, parent, kind) as any
         )
@@ -36,9 +54,9 @@ export class ComponentRepeating
 
     constructor(
         path: Path<AnyForStatement>, 
-        parent: ElementInline, 
-        kind?: string
-    ){
+        parent: ComponentGroup, 
+        kind?: string ){
+
         // const node = path.node;
 
         super();

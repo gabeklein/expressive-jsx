@@ -1,6 +1,13 @@
-import { toArray, Opts, inParenthesis } from "./shared";
-import { NodePath as Path } from "@babel/traverse";
-import { NumericLiteral } from "@babel/types";
+import { 
+    NumericLiteral, 
+    Path 
+} from "./types";
+
+import { 
+    toArray, 
+    Opts, 
+    inParenthesis
+} from "./internal";
 
 export function HEX_COLOR(n: string){
     let raw = n.substring(2);
