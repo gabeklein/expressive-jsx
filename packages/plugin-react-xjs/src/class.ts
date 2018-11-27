@@ -19,8 +19,7 @@ import {
     GeneralModifier,
     ElementModifier,
     StackFrame,
-    ComponentEntry,
-    ensureArray
+    ComponentEntry
 } from "./internal";
 
 import * as t from "@babel/types";

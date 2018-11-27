@@ -394,10 +394,6 @@ export class ElementModifier extends AttrubutesBody {
                 (this as any)[item.type](item);
             else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
 
-        this.didExitOwnScope(this.body)
-    }
-
-    didExitOwnScope(path: Path<Statement>){
         if(this.props.length)
             this.type = "props"
         if(this.style.length)
@@ -407,8 +403,8 @@ export class ElementModifier extends AttrubutesBody {
                 .update(this.style_static.reduce((x,y) => x + y.asString, ""))
                 .digest('hex')
                 .substring(0, 6);
-        
-        super.didExitOwnScope(path);
+
+        this.context.pop();
 
         if(this.context.styleMode.compile){
             let { name, hash } = this;
