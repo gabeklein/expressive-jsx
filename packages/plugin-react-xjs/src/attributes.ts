@@ -1,6 +1,9 @@
 import { 
     NumericLiteral, 
-    Path 
+    Path, 
+    Expression, 
+    Statement,
+    BunchOf
 } from "./types";
 
 import { 
@@ -43,34 +46,21 @@ export function HEX_COLOR(n: string){
     else return "#" + raw;
 }
 
-export class parsedArguments {
+export function parseArguments(e: Path<Expression | Statement>){
+    return toArray(parse(e));
+}
 
-    [type: string]: (e: any) => void;
-    e: any;
+function parse(e: Path<Expression | Statement>){
+    if(e.isExpression() && inParenthesis(e) || !(e.type in Types))
+        return {
+            type: "verbatim",
+            path: e
+        }
+    else
+        return Types[e.type](e);
+}
 
-    constructor(e: any) {
-        this.e = e;
-    }
-
-    get args(): any {
-        const parsed = this.Type(this.e);
-        return toArray(parsed);
-    }
-
-    BlockStatement(){
-        debugger
-        throw new Error("Unexpected Block Statement in modifier processor, this is an internal error.")
-    }
-
-    Type(e: any){
-        if(!e.node) debugger
-        if(inParenthesis(e))
-            return e;
-        if(e.type && e.type in this)
-            return this[e.type](e);
-        else
-            return e;
-    }
+const Types: BunchOf<Function> = {
 
     NumericLiteral(number: Path<NumericLiteral>, sign = 1){
         const { raw, rawValue } = number.node as any;
@@ -81,23 +71,23 @@ export class parsedArguments {
                 throw number.buildCodeFrameError(`Hexadecimal numbers are converted into colors (#FFF) so negative sign doesn't mean anything here.\nParenthesize the number if you really need "-${rawValue}" for some reason...`)
             return HEX_COLOR(raw);
         }
-    }
+    },
 
     ExpressionStatement(e: any){
-        return this.Type(e.get("expression"))
-    }
+        return parse(e.get("expression"))
+    },
 
     Identifier(e: any){
         return e.node.name;
-    }
+    },
 
     StringLiteral(e: any){
         return e.node.value;
-    }
+    },
 
     TemplateLiteral(e: any){
         return e; 
-    }
+    },
 
     BinaryExpression(e: any){
         const {left, right, operator} = e.node;
@@ -110,11 +100,11 @@ export class parsedArguments {
             return {
                 type: "binary",
                 operator,
-                left: left.name || left.value,
-                right: right.name || right.value,
+                left: parse(e.get("left")),
+                right: parse(e.get("right")),
                 nodePath: e
             };
-    }
+    },
 
     UnaryExpression(e: any){
         const arg = e.get("argument");
@@ -127,17 +117,15 @@ export class parsedArguments {
             }
         else throw e.buildCodeFrameError("Unary operator here doesn't do anything")
         // else return e;
-    }
+    },
     
     SequenceExpression(e: any){
-        return e.get("expressions").map(
-            (e: any) => this.Type(e)
-        )
-    }
+        return e.get("expressions").map(parse)
+    },
 
     ArrowFunctionExpression(e: any){
         throw e.buildCodeFrameError("Arrow Function not supported yet")
-    }
+    },
 
     CallExpression(e: any){
         const callee = e.get("callee");
@@ -148,13 +136,18 @@ export class parsedArguments {
         return {
             named: callee.node.name,
             location: callee,
-            inner: e.get("arguments").map((e: any) => this.Type(e))
+            inner: e.get("arguments").map((e: any) => parse(e))
         };
-    }
+    },
+
+    BlockStatement(){
+        debugger
+        throw new Error("Unexpected Block Statement in modifier processor, this is an internal error.")
+    },
 
     EmptyStatement(){
         return null;
-    }
+    },
 
     NullLiteral(){
         return null;

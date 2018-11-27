@@ -18,7 +18,7 @@ import {
     StackFrame, 
     ElementInline, 
     ComponentConsequent,
-    parsedArguments
+    parseArguments
 } from "./internal";
 
 import * as t from "@babel/types";
@@ -231,7 +231,7 @@ export class ModifyDelegate {
 
     get arguments(): any[] {
 
-        const args = new parsedArguments(this.body).args;
+        const args = this.body ? parseArguments(this.body) : [];
 
         // const { context } = this.target;
 
@@ -284,7 +284,7 @@ export class ModifyDelegate {
     }
 
     parse(ast: any){
-        return new parsedArguments(ast).args
+        return parseArguments(ast);
     }
 }
 

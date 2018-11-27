@@ -39,18 +39,20 @@ export function RNTextNode(
     const node = new ElementInline();
     node.context = Object.create(parent.context);
     node.parentDeclaredAll = parent.context.allMod;
-    // node.context.current = node;
-    node.tags.push({
-        name: Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "span", 
+    node.tags.push(
+        {name: "string"}, 
+        {name: Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "span", 
         head: true
-    });
-    node.tags.push({name: "string"});
+        }
+    );
     NonComponent.applyTo(node, path)
     node.parent = parent;
     parent.add(node);
 }
 
-export function CollateInlineComponentsTo(parent: ComponentGroup, path: Path<Expression>){
+export function CollateInlineComponentsTo(
+    parent: ComponentGroup, 
+    path: Path<Expression>){
 
     if(inParenthesis(path))
         return new NonComponent(path)
@@ -67,12 +69,10 @@ export function CollateInlineComponentsTo(parent: ComponentGroup, path: Path<Exp
         path = path.get("left") as any;
     }
 
-    const stack = [{ 
-        props,
-    } as {
+    const stack = [{ props }] as {
         props: Path<Expression>[],
         path?: Path<Expression>
-    }];
+    }[];
 
     while(path.isBinaryExpression({operator: ">>"})){
         stack[0].path = path.get("right");
@@ -83,9 +83,6 @@ export function CollateInlineComponentsTo(parent: ComponentGroup, path: Path<Exp
 
     for(const iteration of stack){
         const path = iteration.path!;
-
-        if(path.node === undefined)
-            throw path.buildCodeFrameError("Invalid child has no value")
 
         if(inParenthesis(path))
             throw path.buildCodeFrameError("Children in Parenthesis are not allowed, for direct insertion used an Array literal")
@@ -122,14 +119,17 @@ abstract class InlineLayers {
             tag = (this as any)[tag.type].call(target, tag);
 
         if(tag.isIdentifier())
-            target.tags.push({name: tag.node.name, path: tag, head: true})
+            target.tags.push(
+                {name: tag.node.name, path: tag, head: true}
+            )
 
         else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
-            target.tags.push({
-                name: Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "div", 
+            target.tags.push(
+                { name: "string" },
+                { name: Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "div", 
                 head: true
-            })
-            target.tags.push({ name: "string" });
+                }
+            )
 
             target.add(new NonComponent(tag))
 
@@ -459,7 +459,11 @@ export class ElementInline extends ComponentGroup {
         return output;
     }
 
-    standardCombinedStyleFormatFor(inline: ObjectItem[], dynamic?: any): Expression {
+    standardCombinedStyleFormatFor(
+        inline: ObjectItem[], 
+        dynamic?: any 
+    ): Expression {
+
         if(Opts.reactEnv == "native"){
             let output = this.seperateItems(inline, dynamic);
 
@@ -482,7 +486,11 @@ export class ElementInline extends ComponentGroup {
         }
     }
 
-    standardCombinedPropsFormatFor(inline: any, dynamic?: any): Expression {
+    standardCombinedPropsFormatFor(
+        inline: any, 
+        dynamic?: any 
+    ): Expression {
+
         const { classList } = inline;
         if(classList){
             inline = inline.filter((prop: ObjectProperty) => {
@@ -519,8 +527,6 @@ export class ElementInline extends ComponentGroup {
     }
 
     combineInlineInformation(){
-        let type;
-
         const {
             context
         } = this;
@@ -532,7 +538,9 @@ export class ElementInline extends ComponentGroup {
             type: ""
         }
         
+        let type;
         let catchAll = context.current != this ? context : context.parent;
+
         if( catchAll = catchAll.allMod || this.parentDeclaredAll )
             catchAll.insert(this, [], inline)
             
@@ -584,12 +592,13 @@ export class ElementInline extends ComponentGroup {
         return this.inlineInformation = inline;
     }
 
-    includeUnhandledQuasi(quasi: Path<TemplateLiteral>, using_br: boolean){
-        const { quasis, expressions } = quasi.node;
+    includeUnhandledQuasi(
+        quasi: Path<TemplateLiteral>, 
+        using_br: boolean ){
 
+        const { quasis, expressions } = quasi.node;
         const initial_indent = /^\n( *)/.exec(quasis[0].value.cooked);
         const INDENT = initial_indent && new RegExp("\n" + initial_indent[1], "g");
-
         const items = [];
 
         for(let i=0, quasi; quasi = quasis[i]; i++){

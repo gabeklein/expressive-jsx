@@ -191,7 +191,7 @@ class ComponentMethod extends ComponentEntry {
 
             ref_children = {
                 kind: "const", id: childrenDestruct, unique: !Opts.compact_vars,
-                init: ensureArray( transform.member(props, "children") )
+                init: transform.ensureArray( transform.member(props, "children") )
             }
         }
         
@@ -273,7 +273,7 @@ class ComponentStyleMethod {
         this.context.current.stats.push(mod)
     }
 
-    LabeledStatement(path:Path<LabeledStatement>){
+    LabeledStatement(path: Path<LabeledStatement>){
         if(path.node.body.type == "ExpressionStatement")
             throw path.buildCodeFrameError("Only modifier declarations are allowed here")
 

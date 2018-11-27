@@ -20,6 +20,7 @@ import {
     ObjectProperty,
     ExpressiveElementChild, 
     ElementInlcusion, 
+    DoExpression,
     XReactTag
 } from "./types";
 
@@ -59,20 +60,19 @@ abstract class TraversableBody {
         throw new Error(`No method named ${fnName} in parent-chain of element ${this.constructor.name}`)
     }
 
-    didEnterOwnScope(path: Path<Expression>){
+    didEnterOwnScope(path: Path<DoExpression>){
         Shared.stack.push(this);
         
         if(typeof this.init == "function")
             this.init(path);
 
-        const src = path.get("body.body") as Path<Statement>[];
-        for(const item of src)
+        for(const item of path.get("body").get("body"))
             if(item.type in this) 
                 (this as any)[item.type](item);
             else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
     }
 
-    didExitOwnScope(_path: Path<any>): void {
+    didExitOwnScope(path: Path<DoExpression>){
         this.context.pop();
     }
 }
@@ -281,6 +281,18 @@ export abstract class ComponentGroup
         return { output, body }
     }
 
+    ExpressionStatement(path: Path<ExpressionStatement>){
+        const expr = path.get("expression") as Path<Expression>
+        if(expr.type in this) 
+            (this as any)[expr.type](expr);
+        else if(this.ExpressionDefault) this.ExpressionDefault(expr);
+        else throw expr.buildCodeFrameError(`Unhandled expressionary statement of type ${expr.type}`)
+    }
+
+    ExpressionDefault(path: Path<Expression>){
+        CollateInlineComponentsTo(this, path)
+    }
+
     VariableDeclaration(path: Path<VariableDeclaration>){ 
         InnerStatement.applyTo(this, path, "var")
     }
@@ -319,18 +331,6 @@ export abstract class ComponentGroup
 
     ForOfStatement(path: Path<ForOfStatement>){
         ComponentRepeating.applyTo(this, path, "of")
-    }
-
-    ExpressionDefault(path: Path<Expression>){
-        CollateInlineComponentsTo(this, path)
-    }
-
-    ExpressionStatement(path: Path<ExpressionStatement>){
-        const expr = path.get("expression") as Path<Expression>
-        if(expr.type in this) 
-            (this as any)[expr.type](expr);
-        else if(this.ExpressionDefault) this.ExpressionDefault(expr);
-        else throw expr.buildCodeFrameError(`Unhandled expressionary statement of type ${expr.type}`)
     }
 
     EmptyStatement(){};

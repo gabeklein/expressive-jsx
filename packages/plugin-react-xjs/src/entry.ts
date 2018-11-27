@@ -12,20 +12,6 @@ import {
 
 import * as t from "@babel/types";
 
-export function ensureArray(
-    children: Expression, 
-    getFirst: boolean = false ){
-
-    const array = t.callExpression(
-        t.memberExpression(
-            t.arrayExpression([]),
-            t.identifier("concat")
-        ),
-        [children]
-    )
-    return getFirst ? t.memberExpression(array, t.numericLiteral(0), true) : array;
-}
-
 export class ComponentEntry extends ElementInline {
 
     stats_excused = 0;

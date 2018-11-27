@@ -19,7 +19,11 @@ import {
 import * as t from "@babel/types";
 
 export function toArray<T>(value: T | T[]): T[] {
-    return Array.isArray(value) ? value : [value];
+    return value 
+        ? Array.isArray(value) 
+            ? value 
+            : [value] 
+        : [];
 }
 
 export function inParenthesis(path: Path<Expression>): boolean {
@@ -352,6 +356,19 @@ export const transform = {
                 t.variableDeclarator(id, value)
             ])
         )
-    }
+    },
 
+    ensureArray(
+        children: Expression, 
+        getFirst: boolean = false ){
+    
+        const array = t.callExpression(
+            t.memberExpression(
+                t.arrayExpression([]),
+                t.identifier("concat")
+            ),
+            [children]
+        )
+        return getFirst ? t.memberExpression(array, t.numericLiteral(0), true) : array;
+    }
 }

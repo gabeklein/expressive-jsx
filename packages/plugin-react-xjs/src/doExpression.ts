@@ -14,7 +14,6 @@ import {
 import {
     ComponentEntry,
     transform,
-    ensureArray,
     findAncestorOf
 } from "./internal"
 
@@ -159,7 +158,7 @@ class ComponentArrowExpression extends ComponentEntry {
 
             if(ident)
                 body.unshift(
-                    transform.declare("const", assign, ensureArray(ident, count == 1))
+                    transform.declare("const", assign, transform.ensureArray(ident, count == 1))
                 )
         }
 

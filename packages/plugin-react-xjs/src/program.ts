@@ -141,28 +141,8 @@ function requirement(from: string, imports: string[], shorthand = false){
 
 function includeImports(path: Path<Program>, state: any) {
 
-    const { didUse } = state;
-
-    const bootstrap = [];
-    const reactRequired = "react"
-    const reactRequires = [];
-
-    if(Opts.output !== "JSX")
-        reactRequires.push("createElement")
-
-    if(didUse.Fragment)
-        reactRequires.push("Fragment")
-
-    if(didUse.createClass)
-        reactRequires.push("createClass");
-
-    const { body } = path.scope.block as BlockStatement;
-    const { helpers } = Shared.stack;
-
-    let pasteAt = 0;
-
-    function findExistingImport(MODULE: string, asRequire?: false): ImportDeclaration;
     function findExistingImport(MODULE: string, asRequire: true): VariableDeclaration;
+    function findExistingImport(MODULE: string, asRequire?: false): ImportDeclaration;
     function findExistingImport(MODULE: string, asRequire?: boolean){
         return asRequire
             ? body.find(
@@ -195,9 +175,27 @@ function includeImports(path: Path<Program>, state: any) {
             )
     }
 
-    if(Opts.output == "JSX"){
-    // if(true){
+    const { didUse } = state;
 
+    const bootstrap = [];
+    const reactRequired = "react"
+    const reactRequires = [];
+
+    if(Opts.output !== "JSX")
+        reactRequires.push("createElement")
+
+    if(didUse.Fragment)
+        reactRequires.push("Fragment")
+
+    if(didUse.createClass)
+        reactRequires.push("createClass");
+
+    const { body } = path.scope.block as BlockStatement;
+    const { helpers } = Shared.stack;
+
+    let pasteAt = 0;
+
+    if(Opts.output == "JSX"){
         let existingReactImport = findExistingImport(reactRequired, false);
         let specifiers = existingReactImport ? existingReactImport.specifiers : [];
 
