@@ -1,4 +1,9 @@
 import {
+    Path,
+    BunchOf
+} from "./types";
+
+import {
     Identifier,
     Expression,
     DoExpression,
@@ -7,9 +12,7 @@ import {
     Statement,
     ReturnStatement,
     RestElement,
-    Path,
-    BunchOf
-} from "./types";
+} from "@babel/types"
 
 import {
     ComponentEntry,

@@ -1,9 +1,12 @@
 import {
     Path,
-    BlockStatement,
-    Program,
     BunchOf
 } from "./types";
+
+import { 
+    BlockStatement,
+    Program
+} from "@babel/types";
 
 import {
     Shared,

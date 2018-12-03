@@ -1,16 +1,14 @@
 import {
-    Path,
-    ExpressiveElementChild,
+    Path
+} from './types';
+
+import {
     Expression,
-    StringLiteral,
-    Identifier,
     Statement,
-    AssignmentExpression,
-    ArrayExpression,
     ObjectProperty,
     SpreadProperty,
     ExpressionStatement
-} from './types';
+} from "@babel/types"
 
 import {
     Shared,

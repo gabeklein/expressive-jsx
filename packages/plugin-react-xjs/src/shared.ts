@@ -1,4 +1,10 @@
 import {
+    Path,
+    Scope,
+    BunchOf
+} from "./types";
+
+import {
     LabeledStatement,
     StringLiteral,
     Identifier,
@@ -10,11 +16,8 @@ import {
     JSXIdentifier,
     Statement,
     Program,
-    ObjectProperty,
-    Path,
-    Scope,
-    BunchOf
-} from "./types";
+    ObjectProperty
+} from "@babel/types";
 
 import * as t from "@babel/types";
 

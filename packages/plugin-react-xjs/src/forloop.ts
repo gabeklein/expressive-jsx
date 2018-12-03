@@ -1,7 +1,9 @@
 import {
     Path,
-    ExpressiveElementChild,
     ElementSyntax,
+} from "./types";
+
+import {
     AssignmentExpression,
     ForStatement,
     ForOfStatement,
@@ -14,7 +16,7 @@ import {
     Expression,
     Statement,
     DoExpression
-} from "./types";
+} from "@babel/types";
 
 import {
     ComponentGroup,

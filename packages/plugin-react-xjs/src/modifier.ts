@@ -1,11 +1,14 @@
 import {
     Path,
     Scope,
-    LabeledStatement,
-    Identifier,
-    Statement,
     BunchOf
 } from "./types";
+
+import {
+    LabeledStatement,
+    Identifier,
+    Statement
+} from "@babel/types";
 
 import { 
     Opts, 

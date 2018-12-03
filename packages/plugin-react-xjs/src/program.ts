@@ -1,5 +1,9 @@
 import {
     Path,
+    BunchOf
+} from "./types";
+
+import {
     Program,
     BlockStatement,
     Statement,
@@ -7,9 +11,8 @@ import {
     ModuleSpecifier,
     Identifier,
     StringLiteral,
-    VariableDeclaration,
-    BunchOf
-} from "./types";
+    VariableDeclaration
+} from "@babel/types";
 
 import {
     Shared,

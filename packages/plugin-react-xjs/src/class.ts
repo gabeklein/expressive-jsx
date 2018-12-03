@@ -1,4 +1,8 @@
 import {
+    Path
+} from "./types";
+
+import {
     Identifier,
     Class,
     LabeledStatement,
@@ -8,8 +12,7 @@ import {
     BlockStatement,
     RestElement,
     PatternLike,
-    Path
-} from "./types";
+} from "@babel/types";
 
 import {
     Opts,

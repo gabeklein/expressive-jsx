@@ -1,9 +1,12 @@
 import {
+    Path
+} from "./types";
+
+import {
     Expression,
     BlockStatement,
     Statement,
-    Path
-} from "./types";
+} from "@babel/types"
 
 import {
     transform,

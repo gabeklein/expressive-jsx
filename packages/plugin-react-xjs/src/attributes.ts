@@ -1,10 +1,23 @@
 import { 
-    NumericLiteral, 
     Path, 
-    Expression, 
-    Statement,
     BunchOf
 } from "./types";
+
+import {
+    NumericLiteral, 
+    Expression, 
+    Statement,
+    TemplateLiteral,
+    StringLiteral,
+    Identifier,
+    BinaryExpression,
+    UnaryExpression,
+    SequenceExpression,
+    ArrowFunctionExpression,
+    CallExpression,
+    ExpressionStatement,
+    SpreadElement,
+} from "@babel/types"
 
 import { 
     toArray, 

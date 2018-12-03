@@ -1,8 +1,12 @@
 import {
     Path,
     Scope,
-    ArrayItem, 
+    ListElement, 
     ElementSyntax,
+    BunchOf
+} from "./types";
+
+import {
     DoExpression,
     TemplateLiteral,
     Expression,
@@ -13,13 +17,16 @@ import {
     TaggedTemplateExpression,
     ObjectExpression,
     Identifier,
-    SpreadElement,
-    SpreadProperty
-} from "./types";
+    SpreadElement
+} from "@babel/types";
 
 import {
-    Shared, Opts, transform, inParenthesis,
-    NonComponent, Attribute, ExplicitStyle,
+    Shared, 
+    Opts, 
+    transform, 
+    inParenthesis,
+    NonComponent,
+    ExplicitStyle,
     ComponentGroup,
     ElementModifier
 } from "./internal"
