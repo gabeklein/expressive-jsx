@@ -23,30 +23,32 @@ import {
 } from "@babel/types";
 
 import { 
-    Prop,
-    Attribute,
     ExplicitStyle,
     InnerStatement,
     NonComponent,
-    CollateInlineComponentsTo,
-    RNTextNode,
+    IncludeComponentStatement,
+    ElementInline,
     ComponentSwitch,
     ComponentRepeating,
-    GeneralModifier,
+    ApplyModifier,
     transform, Shared,
-    StackFrame
+    StackFrame,
+    AnyForStatement
  } from "./internal"
 
 import * as t from "@babel/types";
 
 import { createHash } from 'crypto';
+import { Opts } from "./shared";
+import { Props, Attribute, SpreadProp, Styles } from "./item";
 
 abstract class TraversableBody {
 
     context = {} as StackFrame;
     parent: any;
 
-    init?(path: Path<Expression | Statement>): void;
+    didEnter?(path?: Path): void;
+    didExit?(path?: Path): void;
 
     bubble(fnName: string, ...args: any[]){
         let cd = this;
@@ -61,8 +63,8 @@ abstract class TraversableBody {
     didEnterOwnScope(path: Path<DoExpression>){
         Shared.stack.push(this);
         
-        if(typeof this.init == "function")
-            this.init(path);
+        if(this.didEnter)
+            this.didEnter(path);
 
         for(const item of path.get("body").get("body"))
             if(item.type in this) 
@@ -71,6 +73,9 @@ abstract class TraversableBody {
     }
 
     didExitOwnScope(path: Path<DoExpression>){
+        if(this.didExit)
+            this.didExit(path);
+            
         this.context.pop();
     }
 }
@@ -78,62 +83,98 @@ abstract class TraversableBody {
 export abstract class AttrubutesBody 
     extends TraversableBody {
 
-    props = [] as Attribute[];
-    style = [] as ExplicitStyle[];
+    props = [] as unknown as Props[] & BunchOf<Props>;
+    style = [] as unknown as Styles[] & BunchOf<ExplicitStyle>;
     uniqueClassname?: string;
-    children = [] as ElementInlcusion[];
-    style_static: ExplicitStyle[];
+    sequence = [] as ElementItem[];
+    hasStaticProps?: true;
+    hasStaticStyle?: true;
 
-    abstract inlineType: string;
-    abstract precedence: number;
+    apply(item: Attribute){
+        const { name } = item;
+        const list = item instanceof ExplicitStyle
+            ? this.style
+            : this.props;
 
-    constructor(){
-        super();
-        this.style_static = Shared.stack.styleMode.compile ? [] : this.style;
+        const existing = list[name];
+        if(existing) existing.overriden = true;
+        list[name] = item;
+        list.push(item);
     }
 
-    add(obj: ExpressiveElementChild){
-        const acc = (this as any)[obj.inlineType];
-        if(acc) acc.push(obj);
-        this.children.push(obj);
+    insert(item: ElementItem){
+        this.sequence.push(item);
     }
 
-    computeStyles(){
-        return t.objectProperty(
-            t.stringLiteral(this.selector || this.uniqueClassname!), 
-            // t.objectExpression(this.compileStyleObject)
-            t.stringLiteral(this.compiledStyle)
-        )
-    }
+    // computeStyles(){
+    //     return t.objectProperty(
+    //         t.stringLiteral(this.selector || this.uniqueClassname!), 
+    //         // t.objectExpression(this.compileStyleObject)
+    //         t.stringLiteral(this.compileStyle())
+    //     )
+    // }
 
     get selector(): string {
         return this.uniqueClassname!;
     }
 
-    get style_output(): ObjectExpression {
-        return t.objectExpression(this.style_static.map(x => x.asProperty));
+    compileOutput(): ObjectProperty[] {
+        const output = [] as ObjectProperty[];
+        for(const name in this.style){
+            const value = this.style[name];
+            if(value.node) continue;
+            output.push(value.toProperty())
+        }
+        return output;
     }
 
-    get compiledStyle(): string {
-        return this.style_static.map(x => x.asString).join("; ")
-    }
+    compileStyle(): string {
+        let compiled = [];
 
-    get compileStyleObject(): ObjectProperty[] {
-        return this.style_static.map(x => x.asProperty)
+        for(const name in this.style){
+            const value = this.style[name];
+
+            if(value.node) continue;
+            compiled.push(value.toString());
+        }
+        return compiled.join(" ")
     }
 
     LabeledStatement(path: Path<LabeledStatement>){
-        GeneralModifier.applyTo(this, path);
+        ApplyModifier(this, path);
     }
 
     AssignmentExpression(path: Path<AssignmentExpression>){
-        Prop.applyTo(this, path)
+        const left = path.get("left");
+        
+        if(!left.isIdentifier())
+            throw left.buildCodeFrameError("Assignment must be identifier name of a prop.")
+
+        const right = path.get("right").node;
+
+        const { name } = left.node;
+        const { operator } = path.node;
+
+        let item: Styles;
+
+        if(operator == "=") 
+            path.buildCodeFrameError("Only `=` assignment may be used here.")
+
+        if(name == "style")
+            this.style.push(
+                item = new SpreadProp(name, right)
+            );
+        else 
+            this.apply(
+                item = new ExplicitStyle(name, right)    
+            )
+
+        this.insert(item);
     }
 }
 
 export abstract class ComponentGroup 
-    extends AttrubutesBody 
-    implements ExpressiveElementChild {
+    extends AttrubutesBody {
 
     stats = [] as any[];
     child = [] as any[];
@@ -148,24 +189,15 @@ export abstract class ComponentGroup
     abstract inlineType: string;
     abstract precedence: number;
 
-    add(obj: ExpressiveElementChild){
-        const updated = obj.precedence || 4;
-
-        if(this.precedent > updated) this.flagDisordered();
-        else if(updated < 4) this.precedent = updated;
-
-        super.add(obj)
-    }
-
-    flagDisordered(){
-        this.add = super.add;
-        //disable check since no longer needed
-        this.disordered = true;
-        this.doesHaveDynamicProperties = true;
-    }
+    // flagDisordered(){
+    //     this.add = super.add;
+    //     //disable check since no longer needed
+    //     this.disordered = true;
+    //     this.doesHaveDynamicProperties = true;
+    // }
 
     get style_path(){
-        return [`${this.uniqueClassname || this.generateUCN() }`]
+        return [`${this.uniqueClassname || this.generateUCN()}`]
     }
 
     generateUCN(name?: string){
@@ -180,7 +212,7 @@ export abstract class ComponentGroup
         return this.uniqueClassname = "." + uid
     }
 
-    insertDoIntermediate(path: Path<any>, node?: Statement){
+    insertDoIntermediate(path: Path, node?: Statement){
         let content = node || path.node;
         if(content.type !== "BlockStatement")
             content = t.blockStatement([content]);
@@ -201,7 +233,6 @@ export abstract class ComponentGroup
         const scope = this.scope;
         const body = [] as Statement[];
         const output = [] as any[];
-        // const child_props = [];
         let adjacent = [] as any[];
 
         function flushInline(done?: boolean) {
@@ -230,48 +261,39 @@ export abstract class ComponentGroup
             adjacent = [];
         }
 
-        for(const item of this.children){
-            switch(item.inlineType){
+        for(const item of this.sequence){
+            const type = item.inlineType;
 
-                case "self":
-                case "child": {
-                    // if(item.constructor.name == "QuasiComponent") debugger
-                    const { product, factory } = (item as any).transform();
+            if(type == "attrs") continue;
 
-                    if(!factory && product){
-                        adjacent = adjacent.concat(product);
-                        // if(adjacent) adjacent.push(product);
-                        // else adjacent = [product]
-                        continue;
-                    } else {
-                        if(product) {
-                            flushInline();
-                            output.push(product);
-                        }
-                        body.push(...factory)
+            if(type == "child"){
+                const { product, factory } = (item as any).transform();
+
+                if(!factory && product){
+                    adjacent = adjacent.concat(product);
+                    continue;
+                } else {
+                    if(product) {
+                        flushInline();
+                        output.push(product);
                     }
-                    
-                } break;
-                
-                case "stats": {
+                    body.push(...factory)
+                }
+            }
+
+            else if(type == "stats"){
+                flushInline();
+                const out = (item as any).output()
+                if(out) body.push(out)
+            }
+
+            else if(onAppliedType){
+                const add = onAppliedType(item);
+                if(add){
                     flushInline();
-                    const out = (item as any).output()
-                    if(out) body.push(out)
-
-                } break;
-
-                case "attrs": 
-                    break;
-
-                default: 
-                    if(onAppliedType){
-                        const add = onAppliedType(item);
-                        if(add){
-                            flushInline();
-                            body.push(add);
-                        }
-                    }
-            }   
+                    body.push(add);
+                }
+            } 
         }
         
         flushInline(true);
@@ -279,57 +301,71 @@ export abstract class ComponentGroup
         return { output, body }
     }
 
-    ExpressionStatement(path: Path<ExpressionStatement>){
-        const expr = path.get("expression") as Path<Expression>
-        if(expr.type in this) 
-            (this as any)[expr.type](expr);
+    ExpressionStatement(this: BunchOf<Function>, path: Path<ExpressionStatement>){
+        const expr = path.get("expression");
+        if(expr.type in this) this[expr.type](expr);
         else if(this.ExpressionDefault) this.ExpressionDefault(expr);
         else throw expr.buildCodeFrameError(`Unhandled expressionary statement of type ${expr.type}`)
     }
 
     ExpressionDefault(path: Path<Expression>){
-        CollateInlineComponentsTo(this, path)
+        IncludeComponentStatement(this, path)
     }
 
-    VariableDeclaration(path: Path<VariableDeclaration>){ 
-        InnerStatement.applyTo(this, path, "var")
+    VariableDeclaration(path: Path<Statement>){ 
+        this.insert(new InnerStatement(path))
     }
 
-    DebuggerStatement(path: Path<DebuggerStatement>){ 
-        InnerStatement.applyTo(this, path, "debug")
+    DebuggerStatement(path: Path<Statement>){ 
+        this.insert(new InnerStatement(path))
     }
 
-    BlockStatement(path: Path<BlockStatement>){ 
-        InnerStatement.applyTo(this, path, "block")
+    BlockStatement(path: Path<Statement>){ 
+        this.insert(new InnerStatement(path))
+    }
+
+    StringLiteral(path: Path<StringLiteral | TemplateLiteral>){
+        const element = new ElementInline();
+        element.parent = parent;
+        element.context = Object.create(this.context);
+        element.parentDeclaredAll = this.context.allMod;
+        element.tags.push(
+            { name: "string" }, 
+            { name: Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "span", 
+              head: true }
+        );
+        element.sequence.push(new NonComponent(path));
+        this.sequence.push(element);
     }
 
     TemplateLiteral(path: Path<TemplateLiteral>){
-        RNTextNode(this, path)
-    }
-
-    StringLiteral(path: Path<StringLiteral>){
-        RNTextNode(this, path)
+        this.StringLiteral(path);
     }
 
     ArrayExpression(path: Path<ArrayExpression>){
-        NonComponent.applyMultipleTo(this, path)
+        for(const inclusion of path.get("elements"))
+            this.add(
+                new NonComponent(inclusion as any)
+            )
     }
 
     IfStatement(path: Path<IfStatement>){
-        ComponentSwitch.applyTo(this, path)
+        this.add(new ComponentSwitch(path, this));
     }
 
-    ForStatement(path: Path<ForStatement>){
-        ComponentRepeating.applyTo(this, path)
+    ForStatement(path: Path<AnyForStatement>){
+        this.add(new ComponentRepeating(path, this))
     }
 
     ForInStatement(path: Path<ForInStatement>){
-        ComponentRepeating.applyTo(this, path, "in")
+        this.ForStatement(path);
     }
 
     ForOfStatement(path: Path<ForOfStatement>){
-        ComponentRepeating.applyTo(this, path, "of")
+        this.ForStatement(path);
     }
 
-    EmptyStatement(){};
+    EmptyStatement(){
+        void 0;
+    };
 }

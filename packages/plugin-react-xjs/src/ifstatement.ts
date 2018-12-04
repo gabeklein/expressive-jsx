@@ -20,7 +20,7 @@ import {
 
 import * as t from "@babel/types";
 
-export class ComponentSwitch implements ExpressiveElementChild {
+export class ComponentSwitch {
 
     inlineType = "child"
     precedence = 0
@@ -30,12 +30,6 @@ export class ComponentSwitch implements ExpressiveElementChild {
     scope: Scope;
     effectivePrecedence?: number; //remove
     provideStyle?: Identifier
-
-    static applyTo(parent: ComponentGroup, src: Path<IfStatement>){
-        parent.add(
-            new this(src, parent)
-        )
-    }
 
     mayReceiveAttributes(){
         this.shouldOutputDynamic = true;
@@ -48,7 +42,7 @@ export class ComponentSwitch implements ExpressiveElementChild {
         // this.effectivePrecedence = parent.segue;
         const children = this.children;
 
-        let current: Path<any> = path;
+        let current: Path<Statement> = path;
 
         do {
             children.push(

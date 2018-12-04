@@ -29,7 +29,7 @@ export function generateComputedStyleSheetObject(
 
     for(const mod of compute){
         const styleID = mod.styleID!;
-        const style_output = mod.style_output!;
+        const style_output = mod.compileOutput();
         const uID = styleID.name;
         let actual_name = uID.slice(0, uID.indexOf("_")).replace(/(^[A-Z])/, (cap: string) => cap.toLowerCase());
 
@@ -48,7 +48,7 @@ export function generateComputedStyleSheetObject(
         common[uID] = styleID.name;
 
         styles.push(
-            t.objectProperty(styleID, style_output)
+            t.objectProperty(styleID, t.objectExpression(style_output))
         )
     }
     

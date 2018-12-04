@@ -25,7 +25,7 @@ export class ComponentEntry extends ElementInline {
             this.stats_excused++;     
     }
 
-    init(path: Path<Expression>){
+    didEnter(path: Path<Expression>){
         this.context.styleRoot = this;
         this.context.scope 
             = this.scope 

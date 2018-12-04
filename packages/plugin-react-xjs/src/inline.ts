@@ -34,30 +34,13 @@ import {
 import { createHash } from 'crypto';
 import { html_tags_obvious } from './html-types';
 import * as t from "@babel/types";
+import { Attribute } from "./item";
 
 const ELEMENT_TYPE_DEFAULT = t.stringLiteral("div");
 
 type ObjectItem = ObjectProperty | SpreadElement;
 
-export function RNTextNode(
-    parent: ComponentGroup, 
-    path: Path<StringLiteral | TemplateLiteral> ){
-
-    const node = new ElementInline();
-    node.context = Object.create(parent.context);
-    node.parentDeclaredAll = parent.context.allMod;
-    node.tags.push(
-        {name: "string"}, 
-        {name: Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "span", 
-        head: true
-        }
-    );
-    NonComponent.applyTo(node, path)
-    node.parent = parent;
-    parent.add(node);
-}
-
-export function CollateInlineComponentsTo(
+export function IncludeComponentStatement(
     parent: ComponentGroup, 
     path: Path<Expression>){
 
@@ -100,53 +83,52 @@ export function CollateInlineComponentsTo(
         child.context = parent.context;
         child.parent = parent;
 
-        InlineLayers.apply(child, path);
-        InlineProps.applyTo(child, iteration.props);
+        UnwrapInline(child, path);
+        AddInlineProps(child, iteration.props);
 
         parent.add(child);
         parent = child;
     }
 }
 
-abstract class InlineLayers {
+function UnwrapInline(target: ElementInline, tag: Path<Expression>){
 
-    static apply(target: ElementInline, tag: Path<Expression>){
+    if(tag.isBinaryExpression({operator: "-"})){
+        const left = tag.get("left") as Path<Expression>;
 
-        if(tag.isBinaryExpression({operator: "-"})){
-            const left = tag.get("left") as Path<Expression>;
-
-            if(left.isIdentifier())
-                target.prefix = left.node.name
-            else
-                left.buildCodeFrameError("Improper element prefix");
-            tag = tag.get("right") as any;
-        }
-
-        while(!inParenthesis(tag) && tag.type in this)
-            tag = (this as any)[tag.type].call(target, tag);
-
-        if(tag.isIdentifier())
-            target.tags.push(
-                {name: tag.node.name, path: tag, head: true}
-            )
-
-        else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
-            target.tags.push(
-                { name: "string" },
-                { name: Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "div", 
-                head: true
-                }
-            )
-
-            target.add(new NonComponent(tag))
-
-            tag.remove();
-        }
-
-        else throw tag.buildCodeFrameError("Expression must start with an identifier")
+        if(left.isIdentifier())
+            target.prefix = left.node.name
+        else
+            left.buildCodeFrameError("Improper element prefix");
+        tag = tag.get("right") as any;
     }
 
-    static TaggedTemplateExpression(
+    while(!inParenthesis(tag) && tag.type in InlineLayers)
+        tag = InlineLayers[tag.type].call(target, tag);
+
+    if(tag.isIdentifier())
+        target.tags.push(
+            {name: tag.node.name, path: tag, head: true}
+        )
+
+    else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
+        target.tags.push(
+            { name: "string" },
+            { name: Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "div", 
+            head: true
+            }
+        )
+
+        target.add(new NonComponent(tag))
+
+        tag.remove();
+    }
+
+    else throw tag.buildCodeFrameError("Expression must start with an identifier")
+}
+
+const InlineLayers: BunchOf<Function> = {
+    TaggedTemplateExpression(
         this: ElementInline, 
         path: Path<TaggedTemplateExpression> ){
 
@@ -161,15 +143,15 @@ abstract class InlineLayers {
         path.remove()
 
         return tag
-    }
+    },
 
-    static CallExpression(this: ElementInline, tag: Path<CallExpression>){
-        const args = tag.get("arguments") as Path<Expression>[];
-        InlineProps.applyTo(this, args);
+    CallExpression(this: ElementInline, tag: Path<CallExpression>){
+        const args = tag.get("arguments") as Path<ListElement>[];
+        AddInlineProps(this, args);
         return tag.get("callee");
-    }
+    },
 
-    static MemberExpression(this: ElementInline, tag: Path<MemberExpression>){
+    MemberExpression(this: ElementInline, tag: Path<MemberExpression>){
 
         const selector = tag.get("property") as Path;
         if(tag.node.computed !== true && selector.isIdentifier()){
@@ -187,159 +169,107 @@ abstract class InlineLayers {
     }
 }
 
-class InlineProps {
-    inlineType = "attrs"
-    precedence = 0
-    path: Path<any>;
-    kind?: "style" | "props";
-    isSpread?: true;
-    name?: string;
-    path_value?: any;
+function AddInlineProps(target: ElementInline, props: Path<ListElement>[]){
+    if(!props) return;
+    for(let path of props){
+        switch(path.type){
+            case "DoExpression":
+                if(target.body) throw path.buildCodeFrameError("Do Expression was already declared!")
+                target.body = path as Path<DoExpression>;
+                target.scope = path.scope;
+                (path.node as any).meta = target;
+            break;
 
-    static applyTo(target: ElementInline, props: Path<Expression>[]){
-        if(!props) return;
-        for(let path of props){
-            switch(path.type){
-                case "DoExpression":
-                    if(target.body) throw path.buildCodeFrameError("Do Expression was already declared!")
-                    target.body = path;
-                    target.scope = path.scope;
-                    (path.node as any).meta = target;
-                break;
+            case "TaggedTemplateExpression": {
+                // const {tag, quasi} = path.node;
+    
+                // if(tag.type != "Identifier") 
+                //     throw path.buildCodeFrameError("Prop must be an Identifier");
+    
+                // if(quasi.expressions.length == 0)
+                //     value = { node: t.stringLiteral(quasi.quasis[0].value.raw) }
+                // else
+                //     value = path.get("quasi")//.node;
+    
+                // name = tag.name
+                // //collapsing prevents down-line transformers from adding useless polyfill
+                // //replaced instead of removed because value itself must remain in-line to receive legitiment transforms
+                // path.replaceWith(value)
+    
+            } break;
 
-                case "StringLiteral":
-                case "TemplateLiteral":
-                case "ChildLiteral":
-                case "ArrowFunctionExpression": 
-                    target.add(new NonComponent(path))
-                break;
+            case "UnaryExpression": {
+                let { operator, argument } = path.node;
 
-                case "ObjectExpression": 
-                    for(const property of (path as Path<ObjectExpression>).get("properties"))
-                        target.add(new this(property))
-                break;
+                value = path.get("argument")
 
-                default: 
-                    target.add(new this(path))
-            }
+                switch(operator){
+                    case "+": 
+                        if(argument.type == "Identifier")
+                            name = argument.name;
+                        else throw path.buildCodeFrameError(
+                            `"Bad Prop! + only works in conjuction with an Identifier, got ${argument.type}"`)
+                    break;
+
+                    case "~":
+                        this.kind = "style"
+                        this.isSpread = true
+                    break;
+
+                    default:
+                        throw path.buildCodeFrameError(`"${operator}" is not a recognized operator for props`)
+                }
+            } break;
+
+            case "SpreadElement":
+                value = path.get("argument")
+                this.kind = "props";
+                this.isSpread = true;
+            break;
+
+            case "StringLiteral":
+            case "TemplateLiteral":
+            case "ChildLiteral":
+            case "ArrowFunctionExpression": 
+                target.add(new NonComponent(path.node as Expression))
+            break;
+
+            case "AssignmentExpression": 
+                if(path.node.operator != "=")
+                    throw (path.get("operator") as Path)
+                        .buildCodeFrameError("Props may only be assigned with `=` or using tagged templates.");
+
+                const left = path.get("left") as any; //bad definition returns <never>
+
+                if(left.isMemberExpression())
+                    throw left.buildCodeFrameError("Member Expressions can't be prop names");
+
+                if(path.node.left.type == "Identifier")
+                    name = path.node.left.name;
+
+                else left.buildCodeFrameError("Prop assignment only works on an identifier to denote name")
+
+                value = path.get("right")
+            break;
+
+            case "Identifier":
+                name = path.node.name
+                value = {
+                    node: t.booleanLiteral(true)
+                }
+            break;
+
+            case "ObjectExpression": 
+                for(const property of (path as Path<ObjectExpression>).get("properties")){
+                    const { key } = path.node;
+                    name = key.name || key.value;
+                    value = path.get("value");
+                }
+            break;
+
+            default: 
+                path.buildCodeFrameError(`There is no property inferred from an ${path.type}.`)
         }
-    }
-
-    constructor(path: Path<any>){
-        this.path = path;
-        this.computeValue();
-    }
-
-    computeValue(){
-        const { path } = this;
-        const { node } = path;
-        let name;
-        let value: any;
-
-        if(path.isObjectProperty()){
-            const { key } = path.node;
-            name = key.name || key.value;
-            value = path.get("value");
-        } 
-        
-        else if(path.isTaggedTemplateExpression()){
-            const {tag, quasi} = path.node;
-
-            if(tag.type != "Identifier") 
-                throw path.buildCodeFrameError("Prop must be an Identifier");
-
-            if(quasi.expressions.length == 0)
-                value = { node: t.stringLiteral(quasi.quasis[0].value.raw) }
-            else
-                value = path.get("quasi")//.node;
-
-            name = tag.name
-            //collapsing prevents down-line transformers from adding useless polyfill
-            //replaced instead of removed because value itself must remain in-line to receive legitiment transforms
-            path.replaceWith(value)
-
-        } 
-        
-        else if(path.isUnaryExpression()){
-            let { 
-                operator: op, 
-                argument: { type, name: id_name }
-            } = node;
-
-            value = path.get("argument")
-
-            switch(op){
-                case "+": 
-                    if(type == "Identifier")
-                        name = id_name;
-                    else throw path.buildCodeFrameError(
-                        `"Bad Prop! + only works in conjuction with an Identifier, got ${type}"`)
-                break;
-
-                case "~":
-                    this.kind = "style"
-                    this.isSpread = true
-                break;
-
-                default:
-                    throw path.buildCodeFrameError(`"${op}" is not a recognized operator for props`)
-            }
-        }
-
-        else if(path.isIdentifier()){
-            name = node.name
-            value = {
-                node: t.booleanLiteral(true)
-            }
-        }
-
-        else if(path.isAssignmentExpression()){
-            if(node.operator != "=")
-                throw (path.get("operator") as Path)
-                    .buildCodeFrameError("Props may only be assigned with `=` or using tagged templates.");
-
-            const left = path.get("left") as any; //bad definition returns <never>
-
-            if(left.isMemberExpression())
-                throw left.buildCodeFrameError("Member Expressions can't be prop names");
-
-            if(node.left.type == "Identifier")
-                name = node.left.name;
-
-            else left.buildCodeFrameError("Prop assignment only works on an identifier to denote name")
-
-            value = path.get("right")
-        }
-
-        else if(path.isSpreadElement()){
-            value = path.get("argument")
-            this.kind = "props";
-            this.isSpread = true;
-        }
-
-        else throw path.buildCodeFrameError(`There is no property inferred from an ${path.type}.`)
-
-        this.path_value = value;
-        this.name = name;
-    }
-
-    //from attribute
-    get asProperty(): ObjectProperty | SpreadProperty {
-        const { name, value, isSpread } = this;
-        if(isSpread){
-            return t.spreadElement(value!)
-        } else {
-            if(!name)
-                throw new Error("Internal Error: Prop has no name!")
-            return t.objectProperty(t.identifier(name), value!)
-        }
-    }
-
-    get value(){
-        if(!this.path_value)
-            throw new Error("Prop has no path_value set, this is an internal error")
-        
-        return this.path_value.node;
     }
 }
 
@@ -386,7 +316,7 @@ export class ElementInline extends ComponentGroup {
 
     didExitOwnScope(body: Path<DoExpression>, preventDefault?: boolean){
         super.didExitOwnScope(body);
-        if(this.style_static && !this.uniqueClassname)
+        if(this.hasStaticStyle && !this.uniqueClassname)
             this.generateUCN();
         if(!preventDefault)
             this.output = this.build();
@@ -422,7 +352,7 @@ export class ElementInline extends ComponentGroup {
             .digest('hex')
             .substring(0, 6);
 
-        this.children.push({
+        this.sequence.push({
             inlineType: "child",
             transform: () => ({
                 product: transform.createElement(
@@ -448,7 +378,7 @@ export class ElementInline extends ComponentGroup {
     seperateItems(
         inline: ObjectItem[], 
         dynamic: any
-    ) : ArrayItem[] {
+    ) : ListElement[] {
 
         let output = [] as Expression[];
         let layer = [];
@@ -680,12 +610,12 @@ export class ElementInline extends ComponentGroup {
 
         if(!computed_type) debugger;
 
-        if(this.style_static.length || this.mayReceiveExternalClasses){
+        if(this.hasStaticStyle || this.mayReceiveExternalClasses){
             this.generateUCN()
             installed_style.push(this)
         }
 
-        if(this.style_static.length){
+        if(this.hasStaticStyle){
             this.styleID = t.identifier(this.uid!.replace('-', '_'))
             this.context.declareForRuntime(this);
         }
@@ -693,9 +623,9 @@ export class ElementInline extends ComponentGroup {
         if(this.attrs.length)
             for(const attr of this.attrs)
                 if(attr.kind == "style")
-                    initial_style.push(attr.asProperty)
+                    initial_style.push(attr.toProperty)
                 else
-                    initial_props.push(attr.asProperty)
+                    initial_props.push(attr.toProperty)
 
         if(installed_style && installed_style.length){
             if(Opts.reactEnv == "native"){
@@ -810,7 +740,7 @@ export class ElementInline extends ComponentGroup {
         } else {
 
             if(declared_props.length)
-                initial_props.push(...declared_props.map(x => x.asProperty))
+                initial_props.push(...declared_props.map(x => x.toProperty))
 
             initial_style.push(...declared_style.map(x => x.asProperty));
 
@@ -830,7 +760,7 @@ export class ElementInline extends ComponentGroup {
         const { 
             output: computed_children = [], 
             body: compute_children 
-        } = this.collateChildren( (child: Attribute | ExplicitStyle) => {
+        } = this.collateChildren( (child: Property | ExplicitStyle) => {
                 const target = (_quoteTarget as any)[child.inlineType];
                 if(target) return child.asAssignedTo(target);
             }

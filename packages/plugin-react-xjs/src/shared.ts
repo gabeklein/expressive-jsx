@@ -373,5 +373,12 @@ export const transform = {
             [children]
         )
         return getFirst ? t.memberExpression(array, t.numericLiteral(0), true) : array;
+    }, 
+
+    require(module: string){
+        return t.callExpression(
+            t.identifier("require"), 
+            [ t.stringLiteral(module) ]
+        )
     }
 }

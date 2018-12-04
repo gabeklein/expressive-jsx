@@ -17,6 +17,7 @@ import {
     CallExpression,
     ExpressionStatement,
     SpreadElement,
+    Property,
 } from "@babel/types"
 
 import { 
@@ -25,8 +26,12 @@ import {
     inParenthesis
 } from "./internal";
 
-export function HEX_COLOR(n: string){
-    let raw = n.substring(2);
+export function parseArguments(e: Path<Expression | Statement>): DelegateType[] {
+    return toArray(parse(e));
+}
+
+export function HEXColor(raw: string){
+    raw = raw.substring(2);
 
     if(raw.length == 1)
         raw = "000" + raw
@@ -59,110 +64,197 @@ export function HEX_COLOR(n: string){
     else return "#" + raw;
 }
 
-export function parseArguments(e: Path<Expression | Statement>){
-    return toArray(parse(e));
-}
-
-function parse(e: Path<Expression | Statement>){
-    if(e.isExpression() && inParenthesis(e) || !(e.type in Types))
-        return {
-            type: "verbatim",
-            path: e
-        }
+function parse(e: Path<Expression | Statement | SpreadElement>) {
+    if(e.isExpression() && (inParenthesis(e) || !(e.type in Types)))
+        return new DelegatePassThru(e, "expression");
     else
-        return Types[e.type](e);
+        return (Types as BunchOf<Function>) [e.type](e) as DelegateType;
 }
 
-const Types: BunchOf<Function> = {
-
-    NumericLiteral(number: Path<NumericLiteral>, sign = 1){
-        const { raw, rawValue } = number.node as any;
-        if(inParenthesis(number) || !/^0x/.test(raw))
-            return sign*rawValue;
-        else {
-            if(sign < 0)
-                throw number.buildCodeFrameError(`Hexadecimal numbers are converted into colors (#FFF) so negative sign doesn't mean anything here.\nParenthesize the number if you really need "-${rawValue}" for some reason...`)
-            return HEX_COLOR(raw);
-        }
-    },
-
-    ExpressionStatement(e: any){
+const Types = {
+    ExpressionStatement(e: Path<ExpressionStatement>): DelegateType {
         return parse(e.get("expression"))
     },
 
-    Identifier(e: any){
-        return e.node.name;
+    Identifier(e: Path<Identifier>){
+        return new DelegateWord(e.node.name, "identifier");
     },
 
-    StringLiteral(e: any){
-        return e.node.value;
+    StringLiteral(e: Path<StringLiteral>){
+        return new DelegateWord(e.node.value, "string");
     },
 
-    TemplateLiteral(e: any){
-        return e; 
+    TemplateLiteral(e: Path<TemplateLiteral>): DelegatePassThru {
+        return new DelegatePassThru(e, "template");
     },
 
-    BinaryExpression(e: any){
-        const {left, right, operator} = e.node;
-        if(operator == "-" 
-        && left.type == "Identifier"
-        && right.type == "Identifier"
-        && right.start == left.end + 1 )
-            return left.name + "-" + right.name;
-        else 
-            return {
-                type: "binary",
-                operator,
-                left: parse(e.get("left")),
-                right: parse(e.get("right")),
-                nodePath: e
-            };
-    },
-
-    UnaryExpression(e: any){
+    UnaryExpression(e: Path<UnaryExpression>){
         const arg = e.get("argument");
         if(e.node.operator == "-" && arg.isNumericLiteral())
             return this.NumericLiteral(arg, -1)
         else if(e.node.operator == "!")
-            return {
-                type: "verbatim",
-                path: arg
-            }
+            return new DelegatePassThru(arg, "verbatim");
         else throw e.buildCodeFrameError("Unary operator here doesn't do anything")
-        // else return e;
-    },
-    
-    SequenceExpression(e: any){
-        return e.get("expressions").map(parse)
     },
 
-    ArrowFunctionExpression(e: any){
+    NumericLiteral(number: Path<NumericLiteral>, sign = 1): DelegateNumeric | DelegateColor {
+        const { raw, rawValue } = number.node as any;
+        if(inParenthesis(number) || !/^0x/.test(raw))
+            return new DelegateNumeric(sign*rawValue);
+        else {
+            if(sign == -1)
+                throw number.buildCodeFrameError(`Hexadecimal numbers are converted into colors (#FFF) so negative sign doesn't mean anything here.\nParenthesize the number if you really need "-${rawValue}" for some reason...`)
+            return new DelegateColor(HEXColor(raw));
+        }
+    },
+
+    BinaryExpression(e: Path<BinaryExpression>): DelegateBinary | DelegateWord {
+        const {left, right, operator} = e.node;
+        if(operator == "-" && left.type == "Identifier"  && right.type == "Identifier" && right.start == left.end! + 1 )
+            return new DelegateWord(left.name + "-" + right.name);
+        else 
+            return new DelegateBinary(e);
+    },
+    
+    SequenceExpression(e: Path<SequenceExpression>): DelegateGroup {
+        return new DelegateGroup(e.get("expressions"));
+    },
+
+    CallExpression(e: Path<CallExpression>): DelegateCall {
+        return new DelegateCall(e);
+    },
+
+    ArrowFunctionExpression(e: Path<ArrowFunctionExpression>){
         throw e.buildCodeFrameError("Arrow Function not supported yet")
     },
 
-    CallExpression(e: any){
-        const callee = e.get("callee");
-
-        if(!callee.isIdentifier())
-            throw callee.buildCodeFrameError("Only the identifier of another modifier may be called within another modifier.")
-
-        return {
-            named: callee.node.name,
-            location: callee,
-            inner: e.get("arguments").map((e: any) => parse(e))
-        };
-    },
-
     BlockStatement(){
-        debugger
         throw new Error("Unexpected Block Statement in modifier processor, this is an internal error.")
     },
 
     EmptyStatement(){
-        return null;
+        return;
     },
 
     NullLiteral(){
         return null;
+    }
+}
+
+abstract class DelegateType {}
+
+export type DelegateItem 
+    = DelegateBinary
+    | DelegateColor
+    | DelegateWord
+    | DelegateNumeric
+    | DelegateGroup
+    | DelegateCall
+    | DelegatePassThru 
+
+export class DelegateBinary  extends DelegateType {
+    type = "binary"
+    operator: string;
+    left: DelegateType
+    right: DelegateType 
+    path: Path<BinaryExpression>
+
+    constructor(e: Path<BinaryExpression>){
+        super();
+        this.operator = e.node.operator
+        this.left = parse(e.get("left"))
+        this.right = parse(e.get("right"))
+        this.path = e
+    }
+}
+
+export class DelegateWord extends DelegateType {
+    type = "string"
+    kind: "string" | "identifier" | "color";
+    value: string;
+
+    constructor(
+        value: string, 
+        kind: "string" | "identifier" | "color" = "string"){
+
+        super();
+        this.kind = kind;
+        this.value = value;
+    }
+}
+
+export class DelegateNumeric extends DelegateType {
+    type = "number"
+    value: number
+
+    constructor(value: number){
+        super();
+        this.value = value;
+    }
+}
+
+export class DelegateColor extends DelegateType {
+    type = "color";
+    value: string;
+
+    constructor(value: string){
+        super();
+        this.value = value;
+    }
+}
+
+export class DelegateGroup  extends DelegateType {
+    type = "group";
+    inner: DelegateType[]
+
+    constructor(paths: Path<Expression>[]){
+        super();
+        this.inner = paths.map(parse)
+    }
+}
+
+export class DelegateCall extends DelegateType {
+    type = "call"
+    name: string
+    callee: Path<Identifier>
+    inner: DelegateType[]
+
+    constructor(path: Path<CallExpression>){
+        super();
+
+        const callee = path.get("callee");
+        const args = path.get("arguments") as Path<Expression | SpreadElement>[];
+
+        if(!callee.isIdentifier())
+            throw callee.buildCodeFrameError("Only the identifier of another modifier may be called within another modifier.")
+
+        this.name = callee.node.name;
+        this.callee = callee;
+        this.inner = args.map(parse)
+    }
+}
+
+export class DelegatePassThru extends DelegateType {
+    type = "expression";
+    kind: "verbatim" | "expression" | "template" | "spread";
+    path: Path<Expression>
+
+    constructor(
+        path: Path<Expression>, 
+        kind: "verbatim" | "expression" | "template" | "spread"){
+
+        super();
+        this.path = path;
+        this.kind = kind;
+    }
+}
+
+export class DelegateRequires extends DelegateType {
+    type = "require"
+    module: string
+
+    constructor(module: string){
+        super();
+        this.module = module;
     }
 }

@@ -19,10 +19,10 @@ import {
     Shared,
     transform,
     ensureUIDIdentifier,
-    GeneralModifier,
     ElementModifier,
     StackFrame,
-    ComponentEntry
+    ComponentEntry,
+    ApplyModifier
 } from "./internal";
 
 import * as t from "@babel/types";
@@ -171,7 +171,7 @@ class ComponentMethod extends ComponentEntry {
             destruct = props;
             if(props.type == "AssignmentPattern")
                 throw (
-                    path.get("params.0.right") as Path<any>
+                    path.get("params.0.right") as Path
                 ).buildCodeFrameError(
                     "This argument will always resolve to component props"
                 );
@@ -240,7 +240,7 @@ class ComponentMethod extends ComponentEntry {
     didExitOwnScope(path: Path<DoExpression>){
 
         const insertStats = this.context.modifierInsertions;
-        this.children.splice(0, 0, ...insertStats);
+        this.sequence.splice(0, 0, ...insertStats);
         for(const item of insertStats)
             this.context.styleRoot.computedStyleMayInclude(item);
 
@@ -279,6 +279,6 @@ class ComponentStyleMethod {
         if(path.node.body.type == "ExpressionStatement")
             throw path.buildCodeFrameError("Only modifier declarations are allowed here")
 
-        GeneralModifier.applyTo(this as any, path);
+        ApplyModifier(this as any, path);
     }
 }

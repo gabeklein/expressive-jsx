@@ -11,13 +11,16 @@ import {
     DoExpression,
 } from "@babel/types";
 
-export * from "@babel/types";
+import { Attribute, NonComponent, ElementInline } from "./internal";
+import { InnerStatement } from "./item";
+
+// export * from "@babel/types";
 export {
     Scope,
     NodePath as Path
 } from "@babel/traverse";
 
-export type ArrayItem = Expression | SpreadElement;
+export type ListElement = Expression | SpreadElement;
 
 export interface BunchOf<T> {
     [key: string]: T
@@ -28,14 +31,7 @@ export interface ElementSyntax {
     factory?: Statement[]
 }
 
-export interface ElementInlcusion {
-    inlineType: string
-    transform?: () => ElementSyntax
-}
-
-export interface ExpressiveElementChild extends ElementInlcusion {
-    precedence?: number;
-}
+export type ElementItem = Attribute | ElementInline | NonComponent | InnerStatement;
 
 export interface XReactTag {
     head?: true;
@@ -45,6 +41,6 @@ export interface XReactTag {
 
 export interface ComponentRecipient {
     context: StackFrame
-    children: ElementInlcusion[];
+    children: ElementItem[];
 
 }

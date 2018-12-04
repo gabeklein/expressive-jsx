@@ -165,7 +165,7 @@ class ComponentArrowExpression extends ComponentEntry {
                 )
         }
 
-        if(this.style_static || this.mayReceiveExternalClasses)
+        if(this.hasStaticStyle || this.mayReceiveExternalClasses)
             this.generateUCN();
 
         const internalStatements = (parentFn.node.body as BlockStatement).body;

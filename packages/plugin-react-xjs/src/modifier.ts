@@ -16,8 +16,6 @@ import {
     ensureUIDIdentifier, 
     toArray,
     AttrubutesBody, 
-    SyntheticProp, 
-    ExplicitStyle, 
     StackFrame, 
     ElementInline, 
     ComponentConsequent,
@@ -43,21 +41,87 @@ type ModifyAction = (this: ModifyDelegate) => ModifierOutput;
 type SideEffect = (...args: any[]) => void;
 type ModTuple = [GeneralModifier, any];
 
-export class GeneralModifier {
+export function ApplyModifier(
+    recipient: AttrubutesBody, 
+    src: Path<LabeledStatement> ){
 
-    static applyTo(
-        recipient: AttrubutesBody, 
-        src: Path<LabeledStatement> ){
+    const name = src.node.label.name;
+    const body = src.get("body");
 
-        const name = src.node.label.name;
-        const body = src.get("body");
+    const modifier = 
+        recipient.context.propertyMod(name) || 
+        new GeneralModifier(name);
     
-        const modifier = 
-            recipient.context.propertyMod(name) || new this(name);
-    
-        modifier.apply(body, recipient);
+    const accumulated = { 
+        props: {} as BunchOf<any>, 
+        style: {} as BunchOf<any>
+    };
+
+    let i = 0;
+    let mods = [] as ModTuple[];
+
+    let current: ModTuple = [modifier, body];
+
+    while(true){
+        let { data: delegateOutput } = 
+            new ModifyDelegate(current[0], current[1], recipient);
+
+        if(!delegateOutput){
+            i++; continue; 
+        }
+
+        Object.assign(accumulated.style, delegateOutput.style);
+        Object.assign(accumulated.props, delegateOutput.props);
+
+        const next = delegateOutput.attrs;
+        const pending = [] as ModTuple[];
+
+        if(next)
+        for(const named in next){
+            let value = next[named];
+            let { context } = recipient;
+
+            if(value == null) continue;
+
+            if(named == name){
+                let found;
+                do { 
+                    found = context.hasOwnPropertyMod(named);
+                    context = context.parent;
+                }
+                while(!found);
+            }
+
+            const handler = context.propertyMod(named) || new GeneralModifier(named);
+
+            pending.push([
+                handler, 
+                value
+            ])
+        }
+        
+        if(!pending.length)
+            if(mods[++i])
+                current = mods[i]
+            else break;
+        else {
+            mods = pending.concat(mods.slice(i+1));
+            current = mods[i = 0];
+        }
     }
 
+    for(const name in accumulated.style){
+        const item = accumulated.style[name];
+        recipient.apply(
+            new 
+        );
+    }
+
+    // recipient.addProps(accumulated.props);
+    // recipient.addStyle(accumulated.style);
+}
+
+export class GeneralModifier {
     name: string;
     transform?: ModifyAction;
 
@@ -68,84 +132,6 @@ export class GeneralModifier {
         this.name = name;
         if(transform)
             this.transform = transform;
-    }
-    
-    apply(
-        body: Path<Statement>, 
-        target: AttrubutesBody ){
-
-        const accumulated = { 
-            props: {}, 
-            style: {}
-        };
-
-        let i = 0;
-        let mods = [] as ModTuple[];
-
-        let current: ModTuple = [this, body];
-
-        while(true){
-            let { data: delegateOutput } = 
-                new ModifyDelegate(current[0], current[1], target);
-
-            if(!delegateOutput){
-                i++; continue; 
-            }
-
-            Object.assign(accumulated.style, delegateOutput.style);
-            Object.assign(accumulated.props, delegateOutput.props);
-
-            const next = delegateOutput.attrs;
-            const pending = [] as ModTuple[];
-
-            if(next)
-            for(const named in next){
-                let value = next[named];
-                let { context } = target;
-    
-                if(value == null) continue;
-    
-                if(named == this.name){
-                    let found;
-                    do { 
-                        found = context.hasOwnPropertyMod(named);
-                        context = context.parent;
-                    }
-                    while(!found);
-                }
-
-                const handler = context.propertyMod(named) || new GeneralModifier(named);
-    
-                pending.push([
-                    handler, 
-                    value
-                ])
-            }
-            
-            if(!pending.length)
-                if(mods[++i])
-                    current = mods[i]
-                else break;
-            else {
-                mods = pending.concat(mods.slice(i+1));
-                current = mods[i = 0];
-            }
-        }
-
-        const style = accumulated.style as any;
-        const props = accumulated.props as any; 
-
-        for(const name in props)
-            if(props[name] !== null)
-                target.add(
-                    new SyntheticProp(name, props[name])
-                )
-
-        for(const name in style)
-            if(style[name] !== null)
-                target.add(
-                    new ExplicitStyle(name, style[name])
-                )
     }
 }
 
@@ -164,7 +150,7 @@ function elementModifierDefault(this: ModifyDelegate){
 function propertyModifierDefault(this: ModifyDelegate) {
     const args = this.arguments.map(arg => {
 
-        if(!!arg && typeof arg == "object" ){
+        if(typeof arg == "object" ){
             const { computed, requires } = arg;
 
             if(computed) 
@@ -185,7 +171,7 @@ function propertyModifierDefault(this: ModifyDelegate) {
     })
 
     const output = 
-        typeof args[0] == "object" || args.length == 1
+        args.length == 1 || typeof args[0] == "object"
             ? args[0]
             : Array.from(args).join(" ")
 
@@ -239,21 +225,22 @@ export class ModifyDelegate {
         // const { context } = this.target;
 
         for(const argument of args)
-            if(argument && typeof argument == "object" && argument.named){
-                const { inner, named, location } = argument;
-                const valueMod = this.target.context.valueMod(named);
+            if(typeof argument == "object" && argument.callee){
+                const { inner, callee, callee } = argument;
+                const valueMod = this.target.context.valueMod(callee);
 
-                if(valueMod) try {
-                    const computed = valueMod(...inner)
+                if(valueMod) 
+                    try {
+                        const computed = valueMod(...inner)
 
-                    if(computed.value) argument.computed = computed; else 
-                    if(computed.require) argument.requires = computed.require;
+                        if(computed.value) argument.computed = computed; else 
+                        if(computed.require) argument.requires = computed.require;
 
-                } catch(err) {
-                    throw location && location.buildCodeFrameError(err.message) || err
-
-                } else {
-                    argument.computed = {value: `${ named }(${ inner.join(" ") })`}
+                    } catch(err) {
+                        throw callee ? callee.buildCodeFrameError(err.message) : err;
+                    } 
+                else {
+                    argument.computed = {value: `${ callee }(${ inner.join(" ") })`}
                 }
             }
 
@@ -305,7 +292,6 @@ export class ElementModifier extends AttrubutesBody {
     inherits?: ElementModifier;
     selectAgainst?: ElementModifier | ElementInline; 
     mayReceiveExternalClasses?: true;
-    type?: "style" | "props" | "both";
     hash?: string;
     id?: Identifier;
     uid?: string
@@ -316,14 +302,14 @@ export class ElementModifier extends AttrubutesBody {
         this.name = name;
         this.body = body;
 
-        if(Shared.stack.styleMode.compile)
-            this.style_static = [];
+        // if(Shared.stack.styleMode.compile)
+        //     this.style_static = [];
 
         Shared.stack.push(this);
         this.scope = body.scope;
 
-        if(typeof this.init == "function")
-            this.init(body);
+        if(typeof this.didEnter == "function")
+            this.didEnter(body);
     }  
 
     get selector(){
@@ -364,7 +350,7 @@ export class ElementModifier extends AttrubutesBody {
     }
 
     declareForComponent(recipient: ElementModifier | ElementInline){
-        if(this.context.styleMode.compile && this.style_static.length){
+        if(this.hasStaticStyle && this.context.styleMode.compile){
             // this.contextParent = recipient;
             recipient.add(this);
             const noRoot = this.declareForStylesInclusion(recipient);
@@ -397,10 +383,6 @@ export class ElementModifier extends AttrubutesBody {
                 (this as any)[item.type](item);
             else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
 
-        if(this.props.length)
-            this.type = "props"
-        if(this.style.length)
-            this.type = this.type ? "both" : "style"
         if(this.style_static)
             this.hash = createHash("md5")
                 .update(this.style_static.reduce((x,y) => x + y.asString, ""))
@@ -435,7 +417,7 @@ export class ElementModifier extends AttrubutesBody {
         let declaration;
 
         const propsObject = props.length 
-            ? t.objectExpression(props.map(x => x.asProperty)) 
+            ? t.objectExpression(props.map(x => x.toProperty)) 
             : undefined;
 
         const styleObject = style.length 
@@ -443,11 +425,11 @@ export class ElementModifier extends AttrubutesBody {
             : undefined;
 
         declaration = 
-            ( this.type == "both" )
-            ? t.objectExpression([
-                t.objectProperty(t.identifier("props"), propsObject!),
-                t.objectProperty(t.identifier("style"), styleObject!)
-            ]) 
+            propsObject && styleObject
+                ? t.objectExpression([
+                    t.objectProperty(t.identifier("props"), propsObject!),
+                    t.objectProperty(t.identifier("style"), styleObject!)
+                ]) 
             : propsObject || styleObject;
 
         if(declaration) {
@@ -461,25 +443,26 @@ export class ElementModifier extends AttrubutesBody {
     }
 
     into(inline: ModifierOutput, /*target: ElementModifier*/){
-        if(this.style_static !== this.style && this.style_static.length)
+        if(this.hasStaticStyle)
             inline.installed_style!.push(this)
             
         if(this.inherits) 
             this.inherits.into(inline);
-        
-        if(!this.style.length && !this.props.length) return
 
-        const { style, props } = inline;
+        const { style, props } = this;
+        
+        if(!style.length && !props.length) return
+
         const id = this.id || (this.id = this.scope.generateUidIdentifier(this.name) as any); 
 
-        if(this.props.length && this.style.length){
-            props!.push(t.spreadElement(
+        if(props.length && style.length){
+            inline.props!.push(t.spreadElement(
                 t.memberExpression(
                     id as any, 
                     t.identifier("props")
                 )
             ))
-            style!.push(t.spreadElement(
+            inline.style!.push(t.spreadElement(
                 t.memberExpression(
                     id as any, 
                     t.identifier("style")
@@ -487,7 +470,7 @@ export class ElementModifier extends AttrubutesBody {
             ))
         }
         else {
-            (inline as any)[this.type!].push(
+            (inline as any)[style.length ? "style" : "props"].push(
                 t.spreadElement(id as any)
             );
         }
@@ -517,7 +500,7 @@ class ExternalSelectionModifier extends ElementModifier {
         recipient.mayReceiveExternalClasses = true;
         this.context.selectionContingent = this;
         this.process();
-        if(this.style_static.length)
+        if(this.hasStaticStyle)
             this.declareForStylesInclusion(recipient);
     }
 
@@ -543,10 +526,11 @@ class ExternalSelectionModifier extends ElementModifier {
     }
 
     didExitOwnScope(){
-        if(this.props.length)
-            throw new Error("Props cannot be defined for a pure CSS modifier!")
-        if(this.style.length)
-            throw new Error("Dynamic styles cannot be defined for a pure CSS modifier!")
+        // TODO return value on add non-static
+        // if(this.props.length)
+        //     throw new Error("Props cannot be defined for a pure CSS modifier!")
+        // if(this.style.length)
+        //     throw new Error("Dynamic styles cannot be defined for a pure CSS modifier!")
 
         this.uniqueClassname = this.name;
 
@@ -604,7 +588,7 @@ class MediaQueryModifier extends ExternalSelectionModifier {
         this.stylePriority = 5
         recipient.mayReceiveExternalClasses = true;
         this.process();
-        if(this.style_static.length)
+        if(this.hasStaticStyle)
             this.declareForStylesInclusion(recipient);
     }
 }

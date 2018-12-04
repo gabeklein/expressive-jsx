@@ -27,45 +27,27 @@ import {
 
 import * as t from "@babel/types";
 
-type AnyForStatement = ForStatement | ForInStatement | ForOfStatement;
+export type AnyForStatement = ForStatement | ForInStatement | ForOfStatement;
 
 export class ComponentRepeating 
-    extends ComponentGroup 
-    implements ExpressiveElementChild {
-
-    static applyTo(
-        parent: ComponentGroup, 
-        src: Path<AnyForStatement>, 
-        kind?: string ){
-
-        parent.add(
-            new this(src, parent, kind) as any
-        )
-    }
+    extends ComponentGroup {
 
     inlineType = "child";
     insert = "fragment";
     precedence = -1;
     shouldOutputDynamic = true;
-    kind?: string;
     body: any;
-    path: any;
     node: any;
     left?: Path<VariableDeclaration|LVal>;
     keyConstruct?: Expression;
 
     constructor(
         path: Path<AnyForStatement>, 
-        parent: ComponentGroup, 
-        kind?: string ){
-
-        // const node = path.node;
+        parent: ComponentGroup){
 
         super();
         this.scope = path.scope;
-        this.kind = kind;
         this.node = path.node;
-        this.path = path;
         if(path.isForOfStatement() 
         || path.isForInStatement())
             this.left = path.get("left");
@@ -83,7 +65,7 @@ export class ComponentRepeating
     }
 
     transform(): ElementSyntax {
-        if(this.kind == "of")
+        if(this.node.type == "ForOfStatement")
             return this.toMap()
         else
             return this.toFactory();
@@ -104,7 +86,7 @@ export class ComponentRepeating
 
         if(right.type == "BinaryExpression" && right.operator == "in")
             ({ left: key, right } = right);
-        else key = ensureUIDIdentifier.call(this.path.scope, "i");
+        else key = ensureUIDIdentifier.call(this.scope, "i");
 
         const fragment_props = [ t.objectProperty( t.identifier("key"), key ) ] as ObjectProperty[];
 
@@ -160,8 +142,8 @@ export class ComponentRepeating
         ]);
 
         const forVariant =
-            this.kind == "of" ? t.forOfStatement :
-            this.kind == "in" ? t.forInStatement :
+            this.node.type == "ForOfStatement" ? t.forOfStatement :
+            this.node.type == "ForInStatement" ? t.forInStatement :
             false;
 
         const loop = forVariant
