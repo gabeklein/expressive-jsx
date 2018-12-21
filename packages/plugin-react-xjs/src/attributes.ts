@@ -17,7 +17,6 @@ import {
     CallExpression,
     ExpressionStatement,
     SpreadElement,
-    Property,
 } from "@babel/types"
 
 import { 
@@ -157,49 +156,45 @@ export class DelegateBinary  extends DelegateType {
     operator: string;
     left: DelegateType
     right: DelegateType 
-    path: Path<BinaryExpression>
 
-    constructor(e: Path<BinaryExpression>){
+    constructor(
+        public path: Path<BinaryExpression> ){
+
         super();
-        this.operator = e.node.operator
-        this.left = parse(e.get("left"))
-        this.right = parse(e.get("right"))
-        this.path = e
+        this.operator = path.node.operator
+        this.left = parse(path.get("left"))
+        this.right = parse(path.get("right"))
     }
 }
 
 export class DelegateWord extends DelegateType {
     type = "string"
-    kind: "string" | "identifier" | "color";
-    value: string;
 
     constructor(
-        value: string, 
-        kind: "string" | "identifier" | "color" = "string"){
+        public value: string, 
+        public kind: "string" | "identifier" | "color" = "string" ){
 
         super();
-        this.kind = kind;
-        this.value = value;
     }
 }
 
 export class DelegateNumeric extends DelegateType {
-    type = "number"
-    value: number
+    type = "number";
 
-    constructor(value: number){
+    constructor(
+        public value: number ){
+
         super();
-        this.value = value;
     }
 }
 
 export class DelegateColor extends DelegateType {
     type = "color";
-    value: string;
 
-    constructor(value: string){
+    constructor(
+        public value: string ){
+            
         super();
-        this.value = value;
     }
 }
 
@@ -207,7 +202,9 @@ export class DelegateGroup  extends DelegateType {
     type = "group";
     inner: DelegateType[]
 
-    constructor(paths: Path<Expression>[]){
+    constructor(
+        paths: Path<Expression>[] ){
+            
         super();
         this.inner = paths.map(parse)
     }
@@ -236,25 +233,21 @@ export class DelegateCall extends DelegateType {
 
 export class DelegatePassThru extends DelegateType {
     type = "expression";
-    kind: "verbatim" | "expression" | "template" | "spread";
-    path: Path<Expression>
 
     constructor(
-        path: Path<Expression>, 
-        kind: "verbatim" | "expression" | "template" | "spread"){
+        public path: Path<Expression>, 
+        public kind: "verbatim" | "expression" | "template" | "spread" ){
 
         super();
-        this.path = path;
-        this.kind = kind;
     }
 }
 
 export class DelegateRequires extends DelegateType {
     type = "require"
-    module: string
 
-    constructor(module: string){
+    constructor(
+        public module: string ){  
+
         super();
-        this.module = module;
     }
 }

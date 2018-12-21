@@ -16,10 +16,45 @@ import {
     JSXIdentifier,
     Statement,
     Program,
-    ObjectProperty
+    ObjectProperty,
+    LVal
 } from "@babel/types";
 
 import * as t from "@babel/types";
+
+type value = string | number;
+type ParseError = (path: Path, ...args: value[]) => Error;
+
+export function ErrorsPossible <O extends BunchOf<string>> (register: O) {
+    const Errors = {} as BunchOf<ParseError>
+
+    for(const error in register){
+        let message = [] as value[];
+
+        for(const segment of register[error].split(/\{(?=\d+\})/)){
+            const ammend = /(\d+)\}(.+)/.exec(segment);
+            if(ammend)
+                message.push(parseInt(ammend[1]), ammend[2]);
+            else
+                message.push(segment);
+        }
+
+        Errors[error] = (path: Path, ...args: value[]) => {
+            let quote = "";
+            for(const slice of message)
+                quote += (
+                    typeof slice == "string" 
+                        ? slice : args[slice - 1]
+                )
+
+            return path.buildCodeFrameError(quote)
+        }
+    }
+
+    return Errors as {
+        readonly [P in keyof O]: ParseError
+    };
+}
 
 export function toArray<T>(value: T | T[]): T[] {
     return value 
@@ -32,10 +67,6 @@ export function toArray<T>(value: T | T[]): T[] {
 export function inParenthesis(path: Path<Expression>): boolean {
     const node = path.node as any;
     return node.extra && (node.extra.parenthesized === true) || false;
-}
-
-export function findAncestorOf(path: Path, ...types: string[]){
-    return path.getAncestry().find(parent => types.indexOf(parent.type) >= 0)
 }
 
 interface SharedSingleton {
@@ -302,7 +333,7 @@ export const transform = {
         value = value.replace(/'/g, "\"")
         return t.jsxText(value);
     },
-
+    
     element(){
         return {
             inlineType: "child",
@@ -351,12 +382,12 @@ export const transform = {
 
     declare(
         type: "const" | "let" | "var", 
-        id: Identifier, 
-        value?: Expression ){
+        id: LVal, 
+        init?: Expression ){
 
         return (
             t.variableDeclaration(type, [
-                t.variableDeclarator(id, value)
+                t.variableDeclarator(id, init)
             ])
         )
     },

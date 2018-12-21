@@ -17,23 +17,19 @@ import {
 import * as t from "@babel/types";
 
 export abstract class Attribute {
-    name: string;
     value?: string | number;
     node?: Expression;
     overriden?: true;
-    priority: number;
 
     constructor(
-        name: string, 
-        value: string | number | Expression, 
-        priority = 1 ){
+        public name: string, 
+        value?: string | number | Expression, 
+        public priority: number = 1 ){
 
-        this.name = name;
         if(typeof value == "string" || typeof value == "number")
             this.value = value;
         else
             this.node = value;
-        this.priority = priority;
     }
 
     get syntax(){
@@ -63,11 +59,14 @@ export abstract class Attribute {
     }
 };
 
-export type Props = SpreadProp | Prop;
-export type Styles = SpreadProp | ExplicitStyle;
+export type Props = SpreadAttribute | Prop;
+export type Styles = SpreadAttribute | ExplicitStyle;
 
-export class SpreadProp extends Attribute {
-    constructor(type: "props" | "style", node: Expression){
+export class SpreadAttribute extends Attribute {
+    constructor(
+        type: "props" | "style", 
+        node: Expression){
+            
         super(type, node);
     }
 
@@ -95,7 +94,7 @@ export class Prop extends Attribute {
 export class ExplicitStyle extends Attribute {
     verbatim?: Expression;
 
-    constructor(name: string, value: any, priority = 1) {
+    constructor(name: string, value: any) {
         super(name.replace(/^\$/, "--"), value);
     }
 
@@ -139,7 +138,6 @@ export class ExplicitStyle extends Attribute {
 
 export class InnerStatement {
 
-    inlineType = "stats"
     node: Statement;
 
     output(){
@@ -157,7 +155,9 @@ export class NonComponent {
     path?: Path;
     node: Expression;
 
-    constructor(src: Path<Expression> | Expression){
+    constructor(
+        src: Path<Expression> | Expression){
+            
         if((src as Path).node){
             this.path = src as Path;
             this.node = this.path.node as Expression;

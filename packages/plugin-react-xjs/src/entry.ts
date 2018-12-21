@@ -1,69 +1,42 @@
 import {
-    Path
+    Path, DoExpressive
 } from "./types";
 
 import {
-    Expression,
-    BlockStatement,
-    Statement,
-} from "@babel/types"
+    ElementInline, applyNameImplications
+} from "./internal"
 
 import {
-    transform,
-    ElementInline
-} from "./internal";
+    DoExpression, ArrowFunctionExpression
+} from "@babel/types"
 
-import * as t from "@babel/types";
+export class ComponentExpression extends ElementInline {
 
-export class ComponentEntry extends ElementInline {
+    constructor(
+        name: string,
+        path: Path<DoExpressive>){
 
-    stats_excused = 0;
+        super();
 
-    add(obj: any){
-        super.add(obj)
-        if(!this.precedent && obj.inlineType == "stats")
-            this.stats_excused++;     
+        this.primaryName = name;
+        if(/^[A-Z]/.test(name))
+            applyNameImplications(name, this);
+
+        path.node.meta = this;
     }
 
-    didEnter(path: Path<Expression>){
-        this.context.styleRoot = this;
-        this.context.scope 
-            = this.scope 
-            = (path.get("body") as Path<BlockStatement>).scope;
+    didExitOwnScope(path: Path<DoExpression>){
+        debugger;
+        super.didEnterOwnScope(path);
     }
-    
-    outputBodyDynamic(){
-        let body: Statement[] | undefined;
-        let output;
-        const { style, props } = this;
+}
 
-        if(
-            style.length || 
-            this.inlineInformation.installed_style.length ||  
-            this.mayReceiveExternalClasses || 
-            this.style_static.length || 
-            props.length
-        ){
-            ({ 
-                product: output, 
-                factory: body
-            } = this.build()); 
-        }
-        else {
-            ({ body, output } = this.collateChildren());
-            output = this.bundle(output)
-        }
-
-        return (body || []).concat(
-            t.returnStatement(
-                output
-            )
-        )
-    }
-
-    bundle(output: any[]){
-        return output.length > 1
-            ? transform.createFragment(output)
-            : output[0] || t.booleanLiteral(false)
+export class ComponentArrowExpression extends ComponentExpression {
+    constructor(
+        name: string,
+        path: Path<DoExpressive>,
+        fn: Path<ArrowFunctionExpression>){
+        
+        super(name, path);
     }
 }

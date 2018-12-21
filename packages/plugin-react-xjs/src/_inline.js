@@ -54,7 +54,7 @@ export function IncludeComponentStatement(
 
     if(path.isBinaryExpression({operator: ">"})){
         const item = Object.create(path.get("right")) as Path<Expression>;
-        item.type = "ChildLiteral";
+        item.type = "ExpressionLiteral";
         props.push(item);
         path = path.get("left") as any;
     }
@@ -83,7 +83,7 @@ export function IncludeComponentStatement(
         child.context = parent.context;
         child.parent = parent;
 
-        UnwrapInline(child, path);
+        CreateInlineElement(child, path);
         AddInlineProps(child, iteration.props);
 
         parent.add(child);
@@ -91,7 +91,7 @@ export function IncludeComponentStatement(
     }
 }
 
-function UnwrapInline(target: ElementInline, tag: Path<Expression>){
+function CreateInlineElement(target: ElementInline, tag: Path<Expression>){
 
     if(tag.isBinaryExpression({operator: "-"})){
         const left = tag.get("left") as Path<Expression>;
@@ -115,7 +115,7 @@ function UnwrapInline(target: ElementInline, tag: Path<Expression>){
         target.tags.push(
             { name: "string" },
             { name: Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "div", 
-            head: true
+              head: true
             }
         )
 
@@ -135,10 +135,7 @@ const InlineLayers: BunchOf<Function> = {
         const tag = path.get("tag");
 
         this.unhandledQuasi = path.get("quasi");
-        // QuasiComponent.applyTo(this, 
-        //     path.get("quasi") as Path<TemplateLiteral>
-        // )
-
+        
         // prevent ES6 transformer from shimming the template.
         path.remove()
 
@@ -229,7 +226,7 @@ function AddInlineProps(target: ElementInline, props: Path<ListElement>[]){
 
             case "StringLiteral":
             case "TemplateLiteral":
-            case "ChildLiteral":
+            case "ExpressionLiteral":
             case "ArrowFunctionExpression": 
                 target.add(new NonComponent(path.node as Expression))
             break;
@@ -284,7 +281,6 @@ export class ElementInline extends ComponentGroup {
 
     inlineType = "child"
     doesReceive = {}
-    attrs = [] as Attribute[];
     classList = [] as string[];
     precedent = 0
     precedence = 3
@@ -524,7 +520,10 @@ export class ElementInline extends ComponentGroup {
         }
     
         if(this.unhandledQuasi)
-            this.includeUnhandledQuasi(this.unhandledQuasi, (inline.type as any).type != "Identifier")
+            this.includeUnhandledQuasi(
+                this.unhandledQuasi, 
+                (inline.type as any).type != "Identifier"
+            )
             
         return this.inlineInformation = inline;
     }
@@ -620,13 +619,6 @@ export class ElementInline extends ComponentGroup {
             this.context.declareForRuntime(this);
         }
 
-        if(this.attrs.length)
-            for(const attr of this.attrs)
-                if(attr.kind == "style")
-                    initial_style.push(attr.toProperty)
-                else
-                    initial_props.push(attr.toProperty)
-
         if(installed_style && installed_style.length){
             if(Opts.reactEnv == "native"){
                 const mS = Shared.stack.helpers.ModuleStyle;
@@ -670,9 +662,9 @@ export class ElementInline extends ComponentGroup {
                 } 
                 else
                     thingy = t.callExpression(
-                            Shared.stack.helpers.select,
-                            applied.map(x => typeof x == "string" ? t.stringLiteral(x) : x)
-                        )
+                        Shared.stack.helpers.select,
+                        applied.map(x => typeof x == "string" ? t.stringLiteral(x) : x)
+                    )
 
                 const classNameProp = t.objectProperty(
                     t.identifier("className"), thingy

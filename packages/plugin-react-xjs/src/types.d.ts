@@ -31,16 +31,19 @@ export interface ElementSyntax {
     factory?: Statement[]
 }
 
-export type ElementItem = Attribute | ElementInline | NonComponent | InnerStatement;
-
-export interface XReactTag {
-    head?: true;
-    name: string;
-    path?: Path<Identifier>
+export interface BabelState {
+    context: StackFrame;
+    opts: any;
 }
+
+export interface DoExpressive extends DoExpression {
+    meta: ElementInline;
+    expressive_visited?: true;
+}
+
+export type ElementItem = Attribute | ElementInline | NonComponent | InnerStatement;
 
 export interface ComponentRecipient {
     context: StackFrame
     children: ElementItem[];
-
 }

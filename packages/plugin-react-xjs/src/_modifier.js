@@ -15,10 +15,8 @@ import {
     Shared, 
     ensureUIDIdentifier, 
     toArray,
-    AttrubutesBody, 
     StackFrame, 
     ElementInline, 
-    ComponentConsequent,
     parseArguments
 } from "./internal";
 
@@ -42,7 +40,7 @@ type SideEffect = (...args: any[]) => void;
 type ModTuple = [GeneralModifier, any];
 
 export function ApplyModifier(
-    recipient: AttrubutesBody, 
+    recipient: ElementInline, 
     src: Path<LabeledStatement> ){
 
     const name = src.node.label.name;
@@ -113,7 +111,7 @@ export function ApplyModifier(
     for(const name in accumulated.style){
         const item = accumulated.style[name];
         recipient.apply(
-            new 
+            // new 
         );
     }
 
@@ -278,13 +276,16 @@ export class ModifyDelegate {
     }
 }
 
-export class ElementModifier extends AttrubutesBody {
-    precedence = 0
+export class ElementModifier extends AppliedAttributes {
     // classList = [] as string[];
+    precedence = 0
     provides = [] as ElementModifier[];
     operations = [] as SideEffect[];
     inlineType = "stats"
     stylePriority = 1
+    id?: Identifier;
+    uid?: string
+    styleID?: Identifier;
 
     name: string;
     body: Path<Statement>;
@@ -293,9 +294,6 @@ export class ElementModifier extends AttrubutesBody {
     selectAgainst?: ElementModifier | ElementInline; 
     mayReceiveExternalClasses?: true;
     hash?: string;
-    id?: Identifier;
-    uid?: string
-    styleID?: Identifier;
 
     constructor(name: string, body: Path<Statement>){
         super()
@@ -591,4 +589,3 @@ class MediaQueryModifier extends ExternalSelectionModifier {
         if(this.hasStaticStyle)
             this.declareForStylesInclusion(recipient);
     }
-}
