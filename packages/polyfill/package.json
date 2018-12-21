@@ -1,6 +1,6 @@
 {
   "name": "@expressive/polyfill",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "Helper functions used by XJS to produce expressive react.",
   "repository": "https://github.com/gabeklein/expressive-react",
   "author": {
