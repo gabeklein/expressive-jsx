@@ -1,9 +1,10 @@
-import { CallExpression, Expression, MemberExpression } from '@babel/types';
-import { ElementInline, ErrorsPossible, inParenthesis, NonComponent, Opts, Shared } from './internal';
-import { ListElement, Path, DoExpressive } from './types';
+import { CallExpression, Expression, MemberExpression, TaggedTemplateExpression } from '@babel/types';
+
+import { ElementInline, inParenthesis, NonComponent, Opts, ParseErrors, Shared } from './internal';
+import { DoExpressive, ListElement, Path } from './types';
 
 const New = Object.create;
-const ERROR = ErrorsPossible({
+const ERROR = ParseErrors({
     NoParenChildren: "Children in Parenthesis are not allowed, for direct insertion used an Array literal",
     SemicolonRequired: "Due to how parser works, a semicolon is required after the element preceeding escaped children.",
     DoExists: "Do Expression was already declared!",
@@ -113,7 +114,7 @@ function parseIdentity(
         applyNameImplications("string", target);
         applyNameImplications(Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "div", target, true)
 
-        target.sequence.push(new NonComponent(tag))
+        target.sequence.push(new NonComponent(tag as Path<Expression>))
         tag.remove();
     }
 
@@ -128,13 +129,13 @@ function parseLayers(
     while(!inParenthesis(current)) 
         switch(current.type){
 
-        // case "TaggedTemplateExpression": {
-        //     const exp = current as Path<TaggedTemplateExpression>;
-        //     target.unhandledQuasi = exp.get("quasi");
-        //     exp.remove();
-        //     current = exp.get("tag");
-        //     break;
-        // }
+        case "TaggedTemplateExpression": {
+            const exp = current as Path<TaggedTemplateExpression>;
+            target.unhandledQuasi = exp.get("quasi");
+            exp.remove();
+            current = exp.get("tag");
+            break;
+        }
 
         case "CallExpression": {
             const exp = current as Path<CallExpression>;

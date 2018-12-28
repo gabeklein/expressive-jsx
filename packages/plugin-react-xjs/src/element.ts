@@ -1,28 +1,65 @@
-// import * as t from "@babel/types";
-import { AssignmentExpression, Expression } from '@babel/types';
+import { AssignmentExpression, Expression, TemplateLiteral } from '@babel/types';
 import { AttributeRecipient } from './component';
 import { ApplyElementExpression, StackFrame } from './internal';
-import { Prop, ExplicitStyle, SpreadAttribute, Attribute, NonComponent, InnerStatement } from './item';
+import { Prop, ExplicitStyle, SpreadItem, Attribute, NonComponent, InnerStatement } from './item';
 import { Path } from './types';
+import { ParseErrors } from './shared';
 
-type Stack<T> = T[][];
-type Element = ElementInline | NonComponent | InnerStatement;
 type SequenceItem = Element | Attribute;
-type Statement = ElementsExpression | InnerStatement;
+type Element = ElementInline | NonComponent<any>;
+type Statement = Stack | InnerStatement<any>;
 
-class ElementsExpression {
-    elements = [] as Element[];
-    
-    push(e: Element){
-        this.elements.push(e);
+const ERROR = ParseErrors({
+    PropNotIdentifier: "Assignment must be identifier name of a prop.",
+    AssignmentNotEquals: "Only `=` assignment may be used here."
+})
+
+class Stack<Type = any>
+    extends Array {
+
+    readonly [i: number]: Type[] | SpreadItem;
+    top?: Type[];
+
+    add(x: Type){
+        if(this.top)
+            this.top.push(x)
+        else 
+            this.push(
+                this.top = [x]
+            )
+    }
+
+    break(x: SpreadItem){
+        this.push(x);
+        delete this.top;
     }
 }
 
+class AttributeStack<Type extends Attribute> 
+    extends Stack<Type> {
+
+    static = [] as Type[];
+    doesReoccur?: true;
+
+    constructor(previous?: AttributeStack<Type>){
+        super();
+        if(previous)
+            previous.doesReoccur = true;
+    }
+
+    add(item: Type): void {
+        if(item.value && this.length < 2)
+            this.static.push(item);
+        else
+            super.add(item);
+    }
+}
 export class ElementInline extends AttributeRecipient {
 
     primaryName?: string;
     tagName?: string;
     context?: StackFrame;
+    unhandledQuasi?: Path<TemplateLiteral>;
 
     ExpressionDefault(path: Path<Expression>){
         ApplyElementExpression(path, this);
@@ -32,57 +69,73 @@ export class ElementInline extends AttributeRecipient {
         const left = path.get("left");
         
         if(!left.isIdentifier())
-            throw left.buildCodeFrameError("Assignment must be identifier name of a prop.")
+            throw ERROR.PropNotIdentifier(left)
 
         if(path.node.operator !== "=") 
-            path.buildCodeFrameError("Only `=` assignment may be used here.")
+            throw ERROR.AssignmentNotEquals(path)
 
         const right = path.get("right");
 
         const prop = new Prop(left.node.name, right.node);
 
         this.apply(prop)
-        this.sequence.push(prop)
     }
 
-    doStuff(){
-        let style_current: Array<ExplicitStyle> = [];
-        const style_static: Array<ExplicitStyle> = [];
-        const style_stack: Stack<ExplicitStyle> = [ style_current ];
-        const statement_stack: Array<Statement> = [ new ElementsExpression ];
+    collateStep(){
+        const S = [] as Array<Statement>;
+
+        let current: Statement | false = false;
+        let style: AttributeStack<ExplicitStyle> | undefined;
+        let props: AttributeStack<Prop> | undefined;
+        let items: Stack<Element> | undefined;
 
         for(const item of this.sequence as SequenceItem[]){
             if(item instanceof ElementInline
             || item instanceof NonComponent){
-                let top = statement_stack[statement_stack.length - 1];
-                if(!(top instanceof ElementsExpression))
-                    statement_stack.push(
-                        top = new ElementsExpression()
-                    );
+                if(current !== items)
+                    S.push(current = items = new Stack<Element>())
                 
-                top.push(item); 
-            } else 
+                items!.push(item); 
+            } 
             
+            else 
             if(item instanceof InnerStatement){
-                statement_stack.push(item);
-            } else
-            
-            if(item.overriden !== true){
-                if(item instanceof ExplicitStyle){
-                    ( item.value && style_stack.length == 1
-                        ? style_static
-                        : style_current
-                    ).push(item)
-                } else 
-
-                if(item instanceof SpreadAttribute){
-
-                } else
-
-                if(item instanceof Prop){
-
-                }
+                current = false;
+                S.push(item);
             }
+
+            else {
+                let type: string | undefined;
+
+                if(item instanceof SpreadItem)
+                    type = item.name;
+                else if(item.overriden)
+                    continue;
+
+                if(type == "props" || item instanceof Prop){
+                    if(current !== props)
+                        current = new AttributeStack(props);
+                    if(current !== props)
+                        S.push(props = current as any);
+                }
+    
+                else
+                if(type == "style" || item instanceof ExplicitStyle){
+                    if(current !== style)
+                        style = new AttributeStack(style);
+                    if(current !== style)
+                        S.push(style = current as any);
+                }
+
+                if(current instanceof AttributeStack)
+                if(type)
+                    current.break(item as SpreadItem);
+                else
+                    current.push(item);
+            } 
         }
+        
+        return S;
     }
 }
+

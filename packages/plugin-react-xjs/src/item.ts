@@ -1,45 +1,23 @@
-import {
-    Path
-} from './types';
+import { Expression, ExpressionStatement, ObjectProperty, SpreadProperty, Statement } from '@babel/types';
+import { Path } from './types';
+import t, { toArray } from './internal';
 
-import {
-    Expression,
-    Statement,
-    ObjectProperty,
-    SpreadProperty,
-    ExpressionStatement
-} from "@babel/types"
-
-import {
-    toArray,
-} from "./internal";
-
-import * as t from "@babel/types";
+export type Literal = string | number | boolean | null;
+export type Props = SpreadItem | Prop;
+export type Styles = SpreadItem | ExplicitStyle;
 
 export abstract class Attribute {
-    value?: string | number;
+    name: string;
+    value?: Literal;
     node?: Expression;
     overriden?: true;
 
-    constructor(
-        public name: string, 
-        value?: string | number | Expression, 
-        public priority: number = 1 ){
-
-        if(typeof value == "string" || typeof value == "number")
-            this.value = value;
-        else
-            this.node = value;
+    constructor(name: string){
+        this.name = name;
     }
 
     get syntax(){
-        const { node, value } = this;
-
-        return node || (
-            typeof value == "string"
-                ? t.stringLiteral(value)
-                : t.numericLiteral(value!)
-        );
+        return this.node || t.identifier("undefined");
     }
 
     toProperty(): ObjectProperty | SpreadProperty {
@@ -59,19 +37,20 @@ export abstract class Attribute {
     }
 };
 
-export type Props = SpreadAttribute | Prop;
-export type Styles = SpreadAttribute | ExplicitStyle;
+export class SpreadItem extends Attribute {
 
-export class SpreadAttribute extends Attribute {
+    node: Expression;
+
     constructor(
-        type: "props" | "style", 
+        name: "props" | "style", 
         node: Expression){
-            
-        super(type, node);
+    
+        super(name);
+        this.node = node;
     }
 
     toProperty(): SpreadProperty {
-        return t.spreadElement(this.syntax)
+        return t.spreadElement(this.node)
     }
 
     toAssignment(target: Expression): ExpressionStatement {
@@ -81,21 +60,63 @@ export class SpreadAttribute extends Attribute {
                     t.identifier("Object"),
                     t.identifier("assign")
                 ), 
-                [target, this.syntax]
+                [target, this.node]
             )
         )
     }
 }
 
 export class Prop extends Attribute {
-    
+
+    constructor(
+        name: string, 
+        value: Expression
+    ){
+        super(name);
+        this.node = value;
+
+        if(value.type == "NumericLiteral" 
+        || value.type == "StringLiteral" 
+        || value.type == "BooleanLiteral")
+            this.value = value.value;
+        else
+        if(value.type == "NullLiteral")
+            this.value = null;
+    }
+}
+
+export class SyntheticProp extends Attribute {
+
+    constructor(
+        name: string, 
+        value: any
+    ){
+        super(name);
+        this.value = value;
+    }
+
+    get node(){
+        const { value } = this;
+
+        return (
+            value === null ? t.nullLiteral() :
+            typeof value == "string" ? t.stringLiteral(value) :
+            typeof value == "number" ? t.numericLiteral(value) :
+            typeof value == "boolean" ? t.booleanLiteral(value) :
+            undefined
+        )
+    }
 }
 
 export class ExplicitStyle extends Attribute {
     verbatim?: Expression;
+    priority: number;
 
     constructor(name: string, value: any) {
-        super(name.replace(/^\$/, "--"), value);
+        super(
+            name.replace(/^\$/, "--"));
+        this.priority = 1;
+        this.value = value;
     }
 
     toString(): string {
@@ -136,34 +157,38 @@ export class ExplicitStyle extends Attribute {
     }
 }
 
-export class InnerStatement {
+export class InnerStatement<T extends Statement> {
 
-    node: Statement;
+    node: T;
+
+    constructor(path: Path<T>){
+        this.node = path.node;
+    }
 
     output(){
         return this.node;
     }
-
-    constructor(path: Path<Statement>){
-        this.node = path.node;
-    }
 }
 
-export class NonComponent {
+export class NonComponent <T extends Expression> {
     inlineType = "child";
     precedence: number;
     path?: Path;
     node: Expression;
 
+    private isPath(syntax: T | Path<T>): syntax is Path<T> {
+        return (syntax as any).node !== undefined;
+    }
+
     constructor(
-        src: Path<Expression> | Expression){
+        src: Path<T> | T){
             
-        if((src as Path).node){
-            this.path = src as Path;
-            this.node = this.path.node as Expression;
+        if(this.isPath(src)){
+            this.path = src;
+            this.node = src.node;
         }
         else
-            this.node = src as Expression
+            this.node = src
 
         this.precedence = 
             src.type == "StringLiteral" ? 4 : 3;

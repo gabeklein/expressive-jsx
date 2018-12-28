@@ -1,31 +1,57 @@
 import {
-    Path,
-    Scope,
-    BunchOf
-} from "./types";
-
-import {
-    LabeledStatement,
-    StringLiteral,
-    Identifier,
-    Expression,
-    ObjectExpression,
     CallExpression,
-    ObjectMember,
-    SpreadElement,
+    Expression,
+    Identifier,
     JSXIdentifier,
-    Statement,
-    Program,
+    LabeledStatement,
+    LVal,
+    ObjectExpression,
+    ObjectMember,
     ObjectProperty,
-    LVal
-} from "@babel/types";
+    Program,
+    SpreadElement,
+    Statement,
+    StringLiteral,
+} from '@babel/types';
 
-import * as t from "@babel/types";
+import t from './internal';
+import { BunchOf, Path, Scope } from './types';
 
 type value = string | number;
-type ParseError = (path: Path, ...args: value[]) => Error;
 
-export function ErrorsPossible <O extends BunchOf<string>> (register: O) {
+interface SharedSingleton {
+    stack: any
+    opts?: any
+    state: {
+        expressive_for_used?: true;
+    }
+    styledApplicationComponentName?: string
+}
+
+interface Options {
+    compact_vars?: true;
+    reactEnv: "native" | "web";
+    output: "ES6" | "JSX";
+    styleMode: "compile";
+    formatStyles: any;
+}
+
+export const env = process.env || {
+    NODE_ENV: "production"
+};
+
+export const Opts = {
+    reactEnv: "web",
+    styleMode: "compile",
+    output: "ES6",
+    formatStyles: ""
+} as Options;
+
+export const Shared = {} as SharedSingleton;
+
+export function ParseErrors<O extends BunchOf<string>> (register: O) {
+
+    type ParseError = (path: Path, ...args: value[]) => Error;
     const Errors = {} as BunchOf<ParseError>
 
     for(const error in register){
@@ -56,7 +82,7 @@ export function ErrorsPossible <O extends BunchOf<string>> (register: O) {
     };
 }
 
-export function toArray<T>(value: T | T[]): T[] {
+export function toArray<T> (value: T | T[]): T[] {
     return value 
         ? Array.isArray(value) 
             ? value 
@@ -66,38 +92,8 @@ export function toArray<T>(value: T | T[]): T[] {
 
 export function inParenthesis(path: Path<Expression>): boolean {
     const node = path.node as any;
-    return node.extra && (node.extra.parenthesized === true) || false;
+    return node.extra ? node.extra.parenthesized === true : false;
 }
-
-interface SharedSingleton {
-    stack: any
-    opts?: any
-    state: {
-        expressive_for_used?: true;
-    }
-    styledApplicationComponentName?: string
-}
-
-interface Options {
-    compact_vars?: true;
-    reactEnv: "native" | "web";
-    output: "ES6" | "JSX";
-    styleMode: "compile";
-    formatStyles: any;
-}
-
-export const env = process.env || {
-    NODE_ENV: "production"
-};
-
-export const Shared = {} as SharedSingleton;
-
-export const Opts = {
-    reactEnv: "web",
-    styleMode: "compile",
-    output: "ES6",
-    formatStyles: ""
-} as Options;
 
 export function hoistLabeled(node: Program){
     const labeled = [] as LabeledStatement[];
@@ -153,6 +149,40 @@ export function ensureUIDIdentifier(
     return t.identifier(uid);
 }
 
+export function HEXColor(raw: string){
+    raw = raw.substring(2);
+
+    if(raw.length == 1)
+        raw = "000" + raw
+    else 
+    if(raw.length == 2){
+        raw = "000000" + raw
+    }
+    
+    if(raw.length % 4 == 0){
+        let decimal = [] as any[];
+
+        if(Opts.reactEnv == "native")
+            return "#" + raw;
+
+        if(raw.length == 4)
+            // (shorthand) 'F.' -> "FF..." -> 0xFF
+            decimal = Array.from(raw).map(x => parseInt(x+x, 16))
+
+        else for(let i = 0; i < 4; i++){
+            decimal.push(
+                parseInt(raw.slice(i*2, i*2+2), 16)
+            );
+        }
+
+        //decimal for opacity, fixed to prevent repeating like 1/3
+        decimal[3] = (decimal[3] / 255).toFixed(3)
+
+        return `rgba(${ decimal.join(",") })`
+    }
+    else return "#" + raw;
+}
+
 function convertObjectProps(attr: ObjectMember | SpreadElement){
     if(attr.type === "SpreadElement")
         return t.jsxSpreadAttribute(attr.argument);
@@ -163,7 +193,7 @@ function convertObjectProps(attr: ObjectMember | SpreadElement){
     let assignment;
         
     if(attr.type == "ObjectProperty"){
-        let { key, value } = attr;
+        const { key, value } = attr;
 
         if(key.type == "Identifier")
             attribute = t.jsxIdentifier(key.name);
@@ -197,6 +227,20 @@ export const transform = {
             ), []
         )
     },
+    
+    createElement(
+        type: string | StringLiteral | Identifier, 
+        props: Expression = t.objectExpression([]), 
+        ...children: Expression[] ){
+
+        if(Opts.output == "JSX")
+            return this.createJSXElement(type, props, ...children);
+
+        if(typeof type == "string") 
+            type = t.stringLiteral(type);
+
+        return t.callExpression(Shared.stack.helpers.createElement, [type, props, ...children])
+    },
 
     createFragment(
         elements: any[], 
@@ -229,6 +273,7 @@ export const transform = {
         return this.createElement(
             type, t.objectExpression([]), ...elements
         )
+
     },
 
     applyProp(element: any, props: any){
@@ -241,19 +286,84 @@ export const transform = {
         }
         return element;
     },
+    
+    element(){
+        return {
+            inlineType: "child",
+            transform: (type: string) => ({
+                product: this.createElement(type)
+            })
+        }
+    },
 
-    createElement(
-        type: string | StringLiteral | Identifier, 
-        props: Expression = t.objectExpression([]), 
-        ...children: Expression[] ){
+    object(obj: BunchOf<any>){
+        const properties = [];
+        for(const x in obj)
+            properties.push(
+                t.objectProperty(
+                    t.identifier(x),
+                    obj[x]
+                )
+            )
+        return t.objectExpression(properties);
+    },
 
-        if(Opts.output == "JSX")
-            return this.createJSXElement(type, props, ...children);
+    member(
+        object: Expression | "this", 
+        ...path: (string | number)[] ){
 
-        if(typeof type == "string") 
-            type = t.stringLiteral(type);
+        if(object == "this") 
+            object = t.thisExpression()
 
-        return t.callExpression(Shared.stack.helpers.createElement, [type, props, ...children])
+        for(let member of path){
+            let select;
+            
+            if(typeof member == "string"){
+                select = /^[A-Za-z0-9$_]+$/.test(member)
+                    ? t.identifier(member)
+                    : t.stringLiteral(member);
+            }
+            else if(typeof member == "number")
+                select = t.numericLiteral(member);
+            
+
+            object = t.memberExpression(object, select, select!.type !== "Identifier")
+        }
+        
+        return object
+    },
+
+    declare(
+        type: "const" | "let" | "var", 
+        id: LVal, 
+        init?: Expression ){
+
+        return (
+            t.variableDeclaration(type, [
+                t.variableDeclarator(id, init)
+            ])
+        )
+    },
+
+    array(
+        children: Expression, 
+        getFirst: boolean = false ){
+    
+        const array = t.callExpression(
+            t.memberExpression(
+                t.arrayExpression([]),
+                t.identifier("concat")
+            ),
+            [children]
+        )
+        return getFirst ? t.memberExpression(array, t.numericLiteral(0), true) : array;
+    }, 
+
+    require(module: string){
+        return t.callExpression(
+            t.identifier("require"), 
+            [ t.stringLiteral(module) ]
+        )
     },
 
     createJSXElement(
@@ -332,84 +442,5 @@ export const transform = {
     jsxText(value: string){
         value = value.replace(/'/g, "\"")
         return t.jsxText(value);
-    },
-    
-    element(){
-        return {
-            inlineType: "child",
-            transform: (type: string) => ({
-                product: this.createElement(type)
-            })
-        }
-    },
-
-    object(obj: BunchOf<any>){
-        const properties = [];
-        for(const x in obj)
-            properties.push(
-                t.objectProperty(
-                    t.identifier(x),
-                    obj[x]
-                )
-            )
-        return t.objectExpression(properties);
-    },
-
-    member(
-        object: Expression | "this", 
-        ...path: (string | number)[] ){
-
-        if(object == "this") 
-            object = t.thisExpression()
-
-        for(let member of path){
-            let select;
-            
-            if(typeof member == "string"){
-                select = /^[A-Za-z0-9$_]+$/.test(member)
-                    ? t.identifier(member)
-                    : t.stringLiteral(member);
-            }
-            else if(typeof member == "number")
-                select = t.numericLiteral(member);
-            
-
-            object = t.memberExpression(object, select, select!.type !== "Identifier")
-        }
-        
-        return object
-    },
-
-    declare(
-        type: "const" | "let" | "var", 
-        id: LVal, 
-        init?: Expression ){
-
-        return (
-            t.variableDeclaration(type, [
-                t.variableDeclarator(id, init)
-            ])
-        )
-    },
-
-    ensureArray(
-        children: Expression, 
-        getFirst: boolean = false ){
-    
-        const array = t.callExpression(
-            t.memberExpression(
-                t.arrayExpression([]),
-                t.identifier("concat")
-            ),
-            [children]
-        )
-        return getFirst ? t.memberExpression(array, t.numericLiteral(0), true) : array;
-    }, 
-
-    require(module: string){
-        return t.callExpression(
-            t.identifier("require"), 
-            [ t.stringLiteral(module) ]
-        )
     }
 }

@@ -1,91 +1,57 @@
-import { 
-    Path, 
-    BunchOf
-} from "./types";
-
 import {
-    NumericLiteral, 
-    Expression, 
-    Statement,
-    TemplateLiteral,
-    StringLiteral,
-    Identifier,
-    BinaryExpression,
-    UnaryExpression,
-    SequenceExpression,
     ArrowFunctionExpression,
+    BinaryExpression,
     CallExpression,
-    ExpressionStatement,
-    SpreadElement,
-} from "@babel/types"
+    Expression,
+    Identifier,
+    NullLiteral,
+    NumericLiteral,
+    SequenceExpression,
+    Statement,
+    StringLiteral,
+    TemplateLiteral,
+    UnaryExpression,
+} from '@babel/types';
 
-import { 
-    toArray, 
-    Opts, 
-    inParenthesis
-} from "./internal";
+import { HEXColor, inParenthesis, toArray } from './internal';
+import { Path } from './types';
 
-export function parseArguments(e: Path<Expression | Statement>): DelegateType[] {
-    return toArray(parse(e));
+export function parseArguments(e: Path<Expression> | Path<Statement>): DelegateItem[] {
+    return toArray(Types.Parse(e));
 }
 
-export function HEXColor(raw: string){
-    raw = raw.substring(2);
+const Types = new class {
 
-    if(raw.length == 1)
-        raw = "000" + raw
-    else 
-    if(raw.length == 2){
-        raw = "000000" + raw
-    }
-    
-    if(raw.length % 4 == 0){
-        let decimal = [] as any[];
+    [type: string]: (...args: any[]) => DelegateItem;
 
-        if(Opts.reactEnv == "native")
-            return "#" + raw;
+    Parse(element: Path<Expression> | Path<Statement>) {
 
-        if(raw.length == 4)
-            // (shorthand) 'F.' -> "FF..." -> 0xFF
-            decimal = Array.from(raw).map(x => parseInt(x+x, 16))
-
-        else for(let i = 0; i < 4; i++){
-            decimal.push(
-                parseInt(raw.slice(i*2, i*2+2), 16)
-            );
+        if(element.isStatement()){
+            if(element.isExpressionStatement())
+                element = element.get("expression");
+            else 
+                throw element.buildCodeFrameError("Cannot parse statement as a modifier argument!");
         }
-
-        //decimal for opacity, fixed to prevent repeating like 1/3
-        decimal[3] = (decimal[3] / 255).toFixed(3)
-
-        return `rgba(${ decimal.join(",") })`
+    
+        const Handler = this[element.type];
+    
+        if(inParenthesis(element) || !Handler)
+            return new DelegatePassThru(element, "expression");
+        else
+            return Handler(element);
     }
-    else return "#" + raw;
-}
-
-function parse(e: Path<Expression | Statement | SpreadElement>) {
-    if(e.isExpression() && (inParenthesis(e) || !(e.type in Types)))
-        return new DelegatePassThru(e, "expression");
-    else
-        return (Types as BunchOf<Function>) [e.type](e) as DelegateType;
-}
-
-const Types = {
-    ExpressionStatement(e: Path<ExpressionStatement>): DelegateType {
-        return parse(e.get("expression"))
-    },
 
     Identifier(e: Path<Identifier>){
         return new DelegateWord(e.node.name, "identifier");
-    },
+    }
 
     StringLiteral(e: Path<StringLiteral>){
         return new DelegateWord(e.node.value, "string");
-    },
+    }
 
     TemplateLiteral(e: Path<TemplateLiteral>): DelegatePassThru {
         return new DelegatePassThru(e, "template");
-    },
+    }
 
     UnaryExpression(e: Path<UnaryExpression>){
         const arg = e.get("argument");
@@ -94,7 +60,7 @@ const Types = {
         else if(e.node.operator == "!")
             return new DelegatePassThru(arg, "verbatim");
         else throw e.buildCodeFrameError("Unary operator here doesn't do anything")
-    },
+    }
 
     NumericLiteral(number: Path<NumericLiteral>, sign = 1): DelegateNumeric | DelegateColor {
         const { raw, rawValue } = number.node as any;
@@ -105,7 +71,11 @@ const Types = {
                 throw number.buildCodeFrameError(`Hexadecimal numbers are converted into colors (#FFF) so negative sign doesn't mean anything here.\nParenthesize the number if you really need "-${rawValue}" for some reason...`)
             return new DelegateColor(HEXColor(raw));
         }
-    },
+    }
+
+    NullLiteral(_e: Path<NullLiteral>){
+        return null;
+    }
 
     BinaryExpression(e: Path<BinaryExpression>): DelegateBinary | DelegateWord {
         const {left, right, operator} = e.node;
@@ -113,141 +83,124 @@ const Types = {
             return new DelegateWord(left.name + "-" + right.name);
         else 
             return new DelegateBinary(e);
-    },
+    }
     
     SequenceExpression(e: Path<SequenceExpression>): DelegateGroup {
         return new DelegateGroup(e.get("expressions"));
-    },
+    }
 
     CallExpression(e: Path<CallExpression>): DelegateCall {
         return new DelegateCall(e);
-    },
+    }
 
-    ArrowFunctionExpression(e: Path<ArrowFunctionExpression>){
+    ArrowFunctionExpression(e: Path<ArrowFunctionExpression>): never {
         throw e.buildCodeFrameError("Arrow Function not supported yet")
-    },
-
-    BlockStatement(){
-        throw new Error("Unexpected Block Statement in modifier processor, this is an internal error.")
-    },
-
-    EmptyStatement(){
-        return;
-    },
-
-    NullLiteral(){
-        return null;
     }
 }
-
-abstract class DelegateType {}
 
 export type DelegateItem 
     = DelegateBinary
-    | DelegateColor
     | DelegateWord
     | DelegateNumeric
+    | DelegateColor
     | DelegateGroup
     | DelegateCall
     | DelegatePassThru 
+    | null;
 
-export class DelegateBinary  extends DelegateType {
+export class DelegateBinary {
     type = "binary"
     operator: string;
-    left: DelegateType
-    right: DelegateType 
+    left: DelegateItem
+    right: DelegateItem 
 
     constructor(
         public path: Path<BinaryExpression> ){
-
-        super();
         this.operator = path.node.operator
-        this.left = parse(path.get("left"))
-        this.right = parse(path.get("right"))
+        this.left = Types.Parse(path.get("left"))
+        this.right = Types.Parse(path.get("right"))
     }
 }
 
-export class DelegateWord extends DelegateType {
+export class DelegateWord {
     type = "string"
 
     constructor(
         public value: string, 
         public kind: "string" | "identifier" | "color" = "string" ){
-
-        super();
     }
 }
 
-export class DelegateNumeric extends DelegateType {
+export class DelegateNumeric {
     type = "number";
 
     constructor(
         public value: number ){
-
-        super();
     }
 }
 
-export class DelegateColor extends DelegateType {
+export class DelegateColor {
     type = "color";
 
     constructor(
         public value: string ){
-            
-        super();
     }
 }
 
-export class DelegateGroup  extends DelegateType {
+export class DelegateGroup  {
     type = "group";
-    inner: DelegateType[]
+    inner: DelegateItem[]
 
     constructor(
         paths: Path<Expression>[] ){
-            
-        super();
-        this.inner = paths.map(parse)
+        
+        this.inner = paths.map(Types.Parse)
     }
 }
 
-export class DelegateCall extends DelegateType {
+export class DelegateCall {
     type = "call"
     name: string
     callee: Path<Identifier>
-    inner: DelegateType[]
+    inner: DelegateItem[]
 
-    constructor(path: Path<CallExpression>){
-        super();
+    constructor(
+        path: Path<CallExpression>){
 
         const callee = path.get("callee");
-        const args = path.get("arguments") as Path<Expression | SpreadElement>[];
+        const args = [] as Path<Expression>[];
+        
+        for(const item of path.get("arguments")){
+            if(item.isExpression())
+                args.push(item);
+            else if(item.isSpreadElement())
+                throw item.buildCodeFrameError("Cannot parse argument spreads for modifier handlers");
+            else 
+                throw item.buildCodeFrameError("Unknown argument while parsing for modifier.")
+        }
 
         if(!callee.isIdentifier())
             throw callee.buildCodeFrameError("Only the identifier of another modifier may be called within another modifier.")
 
         this.name = callee.node.name;
         this.callee = callee;
-        this.inner = args.map(parse)
+        this.inner = args.map(Types.Parse)
     }
 }
 
-export class DelegatePassThru extends DelegateType {
+export class DelegatePassThru {
     type = "expression";
 
     constructor(
         public path: Path<Expression>, 
         public kind: "verbatim" | "expression" | "template" | "spread" ){
-
-        super();
     }
 }
 
-export class DelegateRequires extends DelegateType {
+export class DelegateRequires {
     type = "require"
 
     constructor(
         public module: string ){  
-
-        super();
     }
 }

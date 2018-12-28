@@ -4,7 +4,7 @@ import * as t from "@babel/types";
 export default t;
 
 export * from "./shared";
-export * from "./scope";
+export * from "./program";
 export * from "./component";
 export * from "./expression";
 export * from "./element"
@@ -14,6 +14,5 @@ export * from "./item";
 // export * from "./forloop";
 // export * from "./ifstatement";
 // export * from "./modifier";
-export * from "./scope";
 export * from "./attributes";
 // export * from "./styles";

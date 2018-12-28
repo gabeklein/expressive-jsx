@@ -1,35 +1,32 @@
-import { Path, BabelState, DoExpressive } from "./types";
-
-import t, {
-    ComponentExpression, 
-    ComponentArrowExpression, 
-    ElementInline
-} from "./internal";
-
-import { 
-    VariableDeclarator,
+import {
+    ArrowFunctionExpression,
     AssignmentExpression,
     ObjectProperty,
     VariableDeclaration,
-    ArrowFunctionExpression,
-} from "@babel/types";
+    VariableDeclarator,
+} from '@babel/types';
 
-export function enter(
-    path: Path<DoExpressive>, 
-    state: BabelState ){
+import t, { ComponentArrowExpression, ComponentExpression, ElementInline } from './internal';
+import { BabelState, DoExpressive, Path } from './types';
 
-    let meta = path.node.meta || generateEntryElement(path);
-
-    state.context.push(meta);
-    meta.didEnterOwnScope(path)
-}
-
-export function exit(
-    path: Path<DoExpressive>, 
-    state: BabelState ){
-
-    state.context.pop();
-    path.node.meta.didExitOwnScope(path)
+export default class DoExpression {
+    static enter(
+        path: Path<DoExpressive>, 
+        state: BabelState ){
+    
+        let meta = path.node.meta || generateEntryElement(path);
+    
+        state.context.push(meta);
+        meta.didEnterOwnScope(path)
+    }
+    
+    static exit(
+        path: Path<DoExpressive>, 
+        state: BabelState ){
+    
+        state.context.pop();
+        path.node.meta.didExitOwnScope(path)
+    }
 }
 
 function generateEntryElement(path: Path<DoExpressive>){
@@ -57,7 +54,7 @@ function generateEntryElement(path: Path<DoExpressive>){
     return element;
 }
 
-function containerName(path: Path<any>): string {
+function containerName(path: Path): string {
     let parent = path.parentPath;
 
     switch(parent.type){

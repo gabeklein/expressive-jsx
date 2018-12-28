@@ -193,7 +193,7 @@ class ComponentMethod extends ComponentEntry {
 
             ref_children = {
                 kind: "const", id: childrenDestruct, unique: !Opts.compact_vars,
-                init: transform.ensureArray( transform.member(props, "children") )
+                init: transform.array( transform.member(props, "children") )
             }
         }
         

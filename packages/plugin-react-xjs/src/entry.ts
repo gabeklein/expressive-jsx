@@ -1,14 +1,7 @@
-import {
-    Path, DoExpressive
-} from "./types";
+import { ArrowFunctionExpression } from '@babel/types';
 
-import {
-    ElementInline, applyNameImplications
-} from "./internal"
-
-import {
-    DoExpression, ArrowFunctionExpression
-} from "@babel/types"
+import { applyNameImplications, ElementInline } from './internal';
+import { DoExpressive, Path } from './types';
 
 export class ComponentExpression extends ElementInline {
 
@@ -25,9 +18,10 @@ export class ComponentExpression extends ElementInline {
         path.node.meta = this;
     }
 
-    didExitOwnScope(path: Path<DoExpression>){
+    didExitOwnScope(path?: Path<DoExpressive>){
+        const collated = this.collateStep();
         debugger;
-        super.didEnterOwnScope(path);
+        void collated;
     }
 }
 

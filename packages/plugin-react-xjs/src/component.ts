@@ -1,10 +1,10 @@
-import { DoExpression, ExpressionStatement, LabeledStatement, Expression } from '@babel/types';
+import { Expression, ExpressionStatement, LabeledStatement } from '@babel/types';
+import { Attribute, ExplicitStyle, ParseErrors, StackFrame, Prop } from './internal';
+import { BunchOf, DoExpressive, ElementItem, Path } from './types';
 
-import { Attribute, ErrorsPossible, ExplicitStyle, Props, StackFrame } from './internal';
-import { BunchOf, ElementItem, Path } from './types';
-
-const ERROR = ErrorsPossible({
+const ERROR = ParseErrors({
     ExpressionUnknown: "Unhandled expressionary statement of type {1}",
+    NodeUnknown: "Unhandled node of type {1}"
 })
 
 export abstract class TraversableBody {
@@ -16,7 +16,7 @@ export abstract class TraversableBody {
     didExit?(path?: Path): void;
 
     didEnterOwnScope(
-        path: Path<DoExpression> ){
+        path: Path<DoExpressive> ){
         
         if(this.didEnter)
             this.didEnter(path);
@@ -24,11 +24,11 @@ export abstract class TraversableBody {
         for(const item of path.get("body").get("body"))
             if(item.type in this) 
                 (this as any)[item.type](item);
-            else throw item.buildCodeFrameError(`Unhandled node ${item.type}`)
+            else throw ERROR.NodeUnknown(item, item.type)
     }
 
     didExitOwnScope(
-        path: Path<DoExpression>){
+        path: Path<DoExpressive>){
         
         if(this.didExit)
             this.didExit(path);
@@ -46,7 +46,7 @@ export abstract class TraversableBody {
 
 export abstract class AttributeRecipient extends TraversableBody {
 
-    props = {} as BunchOf<Props>;
+    props = {} as BunchOf<Prop>;
     style = {} as BunchOf<ExplicitStyle>;
 
     apply(item: Attribute){
