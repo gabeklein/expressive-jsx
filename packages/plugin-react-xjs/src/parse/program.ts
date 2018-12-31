@@ -1,22 +1,20 @@
 
 import { Program } from '@babel/types';
 
-import { AttributeRecipient } from './component';
-import { ElementInline, Shared } from './internal';
-import { BabelState, Path } from './types';
+import { AttributeBody, TraversableBody } from 'node/component';
+import { ElementInline, Shared } from '../internal';
+import { BabelState, Path, BunchOf } from '../internal/types';
+import { GeneralModifier } from '../modifiers';
 // import * as ReservedModifiers from "./keywords";
 
-export default class VisitProgram {
-    static enter(
+export default {
+    enter(
         path: Path<Program>,
         state: BabelState ){
-
-            path.visit
     
         state.context = new StackFrame(state);
-    }
-    
-    static exit(
+    },
+    exit(
         path: Path<Program>,
         state: BabelState ){
             
@@ -31,22 +29,23 @@ export class StackFrame {
     program = {} as any;
     styleRoot = {} as any;
     current = {} as any;
+    currentElement?: ElementInline;
     stateSingleton: BabelState;
 
     constructor(state: BabelState){
 
-        // const included = state.opts.modifiers;
+        const included = state.opts.modifiers;
         this.stateSingleton = state;
 
         let Stack = this;
 
-        // const imported = [
-        //     ReservedModifiers,
-        //     ...included
-        // ];
+        const imported = [
+            // ReservedModifiers,
+            ...included
+        ];
     
-        // for(const modifier of imported){
-        //     Stack = Object.create(Stack)
+        for(const Modifiers of imported){
+            Stack = Object.create(Stack)
             
         //     const { Helpers, ...Modifiers } = modifier as any;
     
@@ -54,16 +53,28 @@ export class StackFrame {
         //     for(const name in Helpers)
         //         Stack.valueMod(name, Helpers[name])
     
-        //     for(const name in Modifiers)
-        //         Stack.propertyMod(name, new GeneralModifier(name, Modifiers[name]))
-        // }
+            for(const name in Modifiers)
+                Stack.propertyMod(name, Modifiers[name])
+        }
     
         return Stack;
     }
 
-    push(node: AttributeRecipient){
+    get parent(){
+        return Object.getPrototypeOf(this);
+    }
+
+    register(node: TraversableBody){
+        const frame = this.stateSingleton.context = Object.create(this);
+        frame.current = node;
+        if(node instanceof ElementInline)
+            frame.currentElement = node;
+        return frame;
+    }
+
+    push(node: AttributeBody){
         // node.parent = this.current;
-        const frame = node.context = this.stateSingleton.context = Object.create(node.context || this);
+        const frame = node.context = this.stateSingleton.context;
         frame.current = node;
         if(node instanceof ElementInline)
             frame.currentElement = node;
@@ -71,6 +82,24 @@ export class StackFrame {
 
     pop(){
         Shared.stack = Object.getPrototypeOf(this);
+    }
+
+    propertyMod(name: string): GeneralModifier;
+    propertyMod(name: string, set: Function): void;
+    propertyMod(
+        this: BunchOf<GeneralModifier>, 
+        name: string, 
+        set?: Function){
+
+        const ref = "__" + name;
+        if(set) 
+            this[ref] = new GeneralModifier(name, set as any);
+        else 
+            return this[ref]
+    }
+
+    hasOwnPropertyMod(name: string): boolean {
+        return this.hasOwnProperty("__" + name)
     }
 
     // declare(modifier: ElementModifier){
@@ -84,10 +113,6 @@ export class StackFrame {
     //     this.elementMod(name, modifier);
     // }
 
-    hasOwnPropertyMod(name: string): boolean {
-        return this.hasOwnProperty("__" + name)
-    }
-
     // declareForRuntime(modifier: ElementModifier | ElementInline){
     //     const { program, styleRoot } = this;
     //     program.computedStyleMayInclude(modifier);
@@ -95,10 +120,6 @@ export class StackFrame {
     //         styleRoot.computedStyleMayInclude(modifier)
     //     else return true; //styleroot not found
     // }
-
-    get parent(){
-        return Object.getPrototypeOf(this);
-    }
 
     // get allMod(){
     //     return this.hasOwnProperty("_all") && (this as any)._all as GeneralModifier;
@@ -117,18 +138,6 @@ export class StackFrame {
     //             set.inherits = this[name];
     //         this[name] = set;
     //     }
-    //     else return this[name]
-    // }
-
-    // propertyMod(name: string): GeneralModifier;
-    // propertyMod(name: string, set: GeneralModifier): void;
-    // propertyMod(
-    //     this: BunchOf<GeneralModifier>, 
-    //     name: string, 
-    //     set?: GeneralModifier){
-
-    //     name = "__" + name;
-    //     if(set) this[name] = set;
     //     else return this[name]
     // }
 

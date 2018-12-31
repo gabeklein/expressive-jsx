@@ -1,46 +1,41 @@
 import {
-    Path,
-    Scope,
-    ElementItem, 
-    XReactTag,
-    BunchOf
-} from "./types";
-
-import {
-    ExpressionStatement,
-    Expression,
-    Statement,
-    IfStatement,
     ArrayExpression,
-    StringLiteral,
-    TemplateLiteral,
+    AssignmentExpression,
+    DoExpression,
+    Expression,
+    ExpressionStatement,
     ForInStatement,
     ForOfStatement,
+    IfStatement,
     LabeledStatement,
-    AssignmentExpression,
     ObjectProperty,
-    DoExpression
-} from "@babel/types";
+    Statement,
+    StringLiteral,
+    TemplateLiteral,
+} from '@babel/types';
+import { createHash } from 'crypto';
 
-import { 
+import t, {
+    AnyForStatement,
+    ApplyModifier,
+    Attribute,
+    ComponentRepeating,
+    ComponentSwitch,
+    ElementInline,
     ExplicitStyle,
+    IncludeComponentStatement,
     InnerStatement,
     NonComponent,
-    IncludeComponentStatement,
-    ElementInline,
-    ComponentSwitch,
-    ComponentRepeating,
-    ApplyModifier,
-    transform, Shared,
+    Opts,
+    Props,
+    Shared,
+    SpreadProp,
     StackFrame,
-    AnyForStatement
- } from "./internal"
+    Styles,
+    transform,
+} from './internal';
+import { BunchOf, ElementItem, Path, Scope, XReactTag } from './types';
 
-import * as t from "@babel/types";
-
-import { createHash } from 'crypto';
-import { Opts } from "./shared";
-import { Props, Attribute, SpreadProp, Styles } from "./item";
 
 export abstract class TraversableBody {
 
@@ -80,7 +75,7 @@ export abstract class TraversableBody {
     }
 }
 
-export abstract class AttrubutesBody 
+export abstract class AttrubuteBody 
     extends TraversableBody {
 
     props = [] as unknown as Props[] & BunchOf<Props>;
@@ -174,7 +169,7 @@ export abstract class AttrubutesBody
 }
 
 export abstract class ComponentGroup 
-    extends AttrubutesBody {
+    extends AttrubuteBody {
 
     stats = [] as any[];
     child = [] as any[];

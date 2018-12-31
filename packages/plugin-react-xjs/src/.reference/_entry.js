@@ -11,7 +11,7 @@ export class ComponentArrowExpression extends ElementInline {
     }
 
     didExitOwnScope(
-        path: Path<DoExpressive> ){
+        path: Path<DoExpressive>){
 
         const containerFunction = this.container;
 

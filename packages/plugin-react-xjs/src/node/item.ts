@@ -1,10 +1,6 @@
 import { Expression, ExpressionStatement, ObjectProperty, SpreadProperty, Statement } from '@babel/types';
-import { Path } from './types';
-import t, { toArray } from './internal';
-
-export type Literal = string | number | boolean | null;
-export type Props = SpreadItem | Prop;
-export type Styles = SpreadItem | ExplicitStyle;
+import { Path, Literal } from '../internal/types';
+import t, { toArray } from '../internal'
 
 export abstract class Attribute {
     name: string;

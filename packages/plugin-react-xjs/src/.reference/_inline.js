@@ -130,7 +130,7 @@ function CreateInlineElement(target: ElementInline, tag: Path<Expression>){
 const InlineLayers: BunchOf<Function> = {
     TaggedTemplateExpression(
         this: ElementInline, 
-        path: Path<TaggedTemplateExpression> ){
+        path: Path<TaggedTemplateExpression>){
 
         const tag = path.get("tag");
 

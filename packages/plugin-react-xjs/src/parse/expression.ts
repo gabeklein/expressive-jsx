@@ -1,7 +1,7 @@
 import { CallExpression, Expression, MemberExpression, TaggedTemplateExpression } from '@babel/types';
 
-import { ElementInline, inParenthesis, NonComponent, Opts, ParseErrors, Shared } from './internal';
-import { DoExpressive, ListElement, Path } from './types';
+import { ElementInline, inParenthesis, NonComponent, Opts, ParseErrors, Shared } from '../internal';
+import { DoExpressive, ListElement, Path } from '../internal/types';
 
 const New = Object.create;
 const ERROR = ParseErrors({
@@ -40,7 +40,7 @@ export function ApplyElementExpression(
         path = path.get("left");
     }
 
-    const stack = [] as Path<Expression>[]
+    const chain = [] as Path<Expression>[]
 
     while(path.isBinaryExpression({operator: ">>"})){
         const child = path.get("right")
@@ -48,15 +48,13 @@ export function ApplyElementExpression(
         if(inParenthesis(child))
             throw ERROR.NoParenChildren(child);
 
-        stack.push(child);
+        chain.push(child);
         path = path.get("left");
     }
-    stack.push(path);
+    chain.push(path);
 
-    for(const segment of stack){
-        const child = new ElementInline();
-
-        child.context = New(insertInto.context!);
+    for(const segment of chain){
+        const child = new ElementInline(insertInto.context);
 
         parseIdentity(segment, child);
 
@@ -93,7 +91,7 @@ function parseIdentity(
     tag: Path<Expression>,
     target: ElementInline ){
 
-    let prefix: string;
+    let prefix: string | undefined;
 
     if(tag.isBinaryExpression({operator: "-"})){
         const left = tag.get("left") as Path<Expression>;
@@ -108,7 +106,7 @@ function parseIdentity(
     tag = parseLayers(tag, target);
 
     if(tag.isIdentifier())
-        applyNameImplications(tag.node.name, target, true, prefix!)
+        applyNameImplications(tag.node.name, target, true, prefix)
 
     else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
         applyNameImplications("string", target);

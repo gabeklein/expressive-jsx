@@ -1,7 +1,7 @@
 require('source-map-support').install();
 
-import DoExpression from "./doExpression"
-import Program from "./program"
+import DoExpression from "./parse/doExpression"
+import Program from "./parse/program"
 
 export default (options: any) => ({
     manipulateOptions: (_: any, parse: any) => {

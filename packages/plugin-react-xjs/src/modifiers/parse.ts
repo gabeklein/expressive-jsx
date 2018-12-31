@@ -12,19 +12,14 @@ import {
     TemplateLiteral,
     UnaryExpression,
 } from '@babel/types';
+import { HEXColor, inParenthesis } from '../internal';
+import { Path } from '../internal/types';
 
-import { HEXColor, inParenthesis, toArray } from './internal';
-import { Path } from './types';
+const Arguments = new class DelegateTypes {
 
-export function parseArguments(e: Path<Expression> | Path<Statement>): DelegateItem[] {
-    return toArray(Types.Parse(e));
-}
+    [type: string]: (...args: any[]) => DelegateAbstraction;
 
-const Types = new class {
-
-    [type: string]: (...args: any[]) => DelegateItem;
-
-    Parse(element: Path<Expression> | Path<Statement>) {
+    Parse(element: Path<Expression> | Path<Statement>): DelegateAbstraction {
 
         if(element.isStatement()){
             if(element.isExpressionStatement())
@@ -33,7 +28,7 @@ const Types = new class {
                 throw element.buildCodeFrameError("Cannot parse statement as a modifier argument!");
         }
     
-        const Handler = this[element.type];
+        const Handler = Arguments[element.type];
     
         if(inParenthesis(element) || !Handler)
             return new DelegatePassThru(element, "expression");
@@ -98,7 +93,9 @@ const Types = new class {
     }
 }
 
-export type DelegateItem 
+export default Arguments;
+
+export type DelegateAbstraction 
     = DelegateBinary
     | DelegateWord
     | DelegateNumeric
@@ -111,14 +108,14 @@ export type DelegateItem
 export class DelegateBinary {
     type = "binary"
     operator: string;
-    left: DelegateItem
-    right: DelegateItem 
+    left: DelegateAbstraction
+    right: DelegateAbstraction 
 
     constructor(
-        public path: Path<BinaryExpression> ){
+        public path: Path<BinaryExpression>){
         this.operator = path.node.operator
-        this.left = Types.Parse(path.get("left"))
-        this.right = Types.Parse(path.get("right"))
+        this.left = Arguments.Parse(path.get("left"))
+        this.right = Arguments.Parse(path.get("right"))
     }
 }
 
@@ -149,20 +146,20 @@ export class DelegateColor {
 
 export class DelegateGroup  {
     type = "group";
-    inner: DelegateItem[]
+    inner: DelegateAbstraction[]
 
     constructor(
         paths: Path<Expression>[] ){
         
-        this.inner = paths.map(Types.Parse)
+        this.inner = paths.map(Arguments.Parse)
     }
 }
 
 export class DelegateCall {
-    type = "call"
+    type = "call";
     name: string
     callee: Path<Identifier>
-    inner: DelegateItem[]
+    inner: DelegateAbstraction[]
 
     constructor(
         path: Path<CallExpression>){
@@ -184,7 +181,7 @@ export class DelegateCall {
 
         this.name = callee.node.name;
         this.callee = callee;
-        this.inner = args.map(Types.Parse)
+        this.inner = args.map(Arguments.Parse)
     }
 }
 

@@ -6,21 +6,20 @@ import {
     VariableDeclarator,
 } from '@babel/types';
 
-import t, { ComponentArrowExpression, ComponentExpression, ElementInline } from './internal';
-import { BabelState, DoExpressive, Path } from './types';
+import t, { ComponentArrowExpression, ComponentExpression, ElementInline } from '../internal';
+import { BabelState, DoExpressive, Path } from '../internal/types';
+import { StackFrame }  from '../parse/program';
 
-export default class DoExpression {
-    static enter(
+export default {
+    enter(
         path: Path<DoExpressive>, 
         state: BabelState ){
     
-        let meta = path.node.meta || generateEntryElement(path);
+        let meta = path.node.meta || generateEntryElement(path, state.context);
     
-        state.context.push(meta);
         meta.didEnterOwnScope(path)
-    }
-    
-    static exit(
+    },
+    exit(
         path: Path<DoExpressive>, 
         state: BabelState ){
     
@@ -29,7 +28,7 @@ export default class DoExpression {
     }
 }
 
-function generateEntryElement(path: Path<DoExpressive>){
+function generateEntryElement(path: Path<DoExpressive>, context: StackFrame){
     let parent = path.parentPath;
     let containerFn: Path<ArrowFunctionExpression> | undefined;
 
@@ -48,8 +47,8 @@ function generateEntryElement(path: Path<DoExpressive>){
     const name = containerName(containerFn || path);
 
     let element: ElementInline = containerFn 
-        ? new ComponentArrowExpression(name, path, containerFn)
-        : new ComponentExpression(name, path);
+        ? new ComponentArrowExpression(name, context, path, containerFn)
+        : new ComponentExpression(name, context, path);
 
     return element;
 }
