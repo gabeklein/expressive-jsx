@@ -5,10 +5,10 @@ export default t;
 
 export * from "./shared";
 
-export * from "../node/component";
-export * from "../node/element"
-export * from "../node/entry";
-export * from "../node/item";
+export * from "../nodes/component";
+export * from "../nodes/element"
+export * from "../nodes/entry";
+export * from "../nodes/item";
 export * from "../parse/program";
 export * from "../parse/expression";
 export * from "../generate";

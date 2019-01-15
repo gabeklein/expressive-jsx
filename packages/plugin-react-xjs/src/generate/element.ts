@@ -1,40 +1,34 @@
 import { Attribute, ExplicitStyle, InnerStatement, NonComponent, Prop, SpreadItem, ElementInline } from '../internal';
 
-export type SequenceItem = Element | Attribute;
+export type SequenceItem = Element | Prop | ExplicitStyle | SpreadItem;
 export type Element = ElementInline | NonComponent<any>;
 export type Statement = Stack | InnerStatement<any>;
 
 export function GenerateJSX (
     element: ElementInline){
 
-    const combined = new CollateJSX(element)
+    const combined = new AssembleJSX(element)
     void combined
-    debugger;
 }
 
-class Stack<Type = any>
+class Stack<Type = any, Spread = never>
     extends Array {
 
-    readonly [i: number]: Type[] | SpreadItem;
-    top?: Type[];
+    readonly [i: number]: Type[] | Spread;
+    top?: Type[] | Spread;
 
     add(x: Type){
-        if(this.top)
+       if(Array.isArray(this.top))
             this.top.push(x)
         else 
             this.push(
                 this.top = [x]
             )
     }
-
-    break(x: SpreadItem){
-        this.push(x);
-        delete this.top;
-    }
 }
 
 class AttributeStack<Type extends Attribute> 
-    extends Stack<Type> {
+    extends Stack<Type, SpreadItem> {
 
     static = [] as Type[];
     doesReoccur?: true;
@@ -45,25 +39,39 @@ class AttributeStack<Type extends Attribute>
             previous.doesReoccur = true;
     }
 
-    add(item: Type): void {
-        if(item.value && this.length < 2)
+    add(item: Type | SpreadItem): true | undefined {
+        if(item instanceof SpreadItem){
+            this.push(
+                this.top = item
+            );
+            if(item.orderInsensitive)
+                return true;
+        }
+        else 
+        if(item.value 
+        && this.length < 2 
+        || (this.top as SpreadItem).orderInsensitive){
             this.static.push(item);
+            return true;
+        }
         else
             super.add(item);
     }
 }
 
-class CollateJSX {
+abstract class AssembleElement {
 
-    current: Statement | false = false;
-    items?: Stack<Element>;
-    style?: AttributeStack<ExplicitStyle>;
-    props = new AttributeStack<Prop>();
+    abstract Statement(statement: Statement): void;
+    abstract Content(child: Element): void;
+    abstract Props(item: Prop | SpreadItem): void;
+    abstract Style(item: ExplicitStyle | SpreadItem): void;
 
-    statements = [] as Statement[];
+    constructor(element: ElementInline, expressionRequired?: true){
+        this.collate(element.sequence as SequenceItem[]);
+    }
 
-    constructor(element: ElementInline){
-        for(const item of element.sequence as SequenceItem[]){
+    collate(sequence: SequenceItem[]){
+        for(const item of sequence){
             if(item instanceof ElementInline
             || item instanceof NonComponent)
                 this.Content(item);
@@ -73,35 +81,53 @@ class CollateJSX {
                 this.Statement(item);
     
             else {
-                let type = 
-                    item instanceof Prop ? "props" :
-                    item instanceof ExplicitStyle ? "style" :
-                    item instanceof SpreadItem && item.name;
+                let type: string | undefined;
+                
+                if(item instanceof SpreadItem)
+                    type = item.name;
+                else if(item.overriden)
+                    continue;
     
-                if(!type) continue;
-                else if(type == "props") this.Props(item);
-                else if(type == "style") this.Style(item);
+                if(
+                    item instanceof Prop || 
+                    type == "props"
+                ) this.Props(item);
+
+                else if(
+                    item instanceof ExplicitStyle || 
+                    type == "style"
+                ) this.Style(item);
             }
         }
     }
+}
 
-    Statement(item: InnerStatement<any>){
+class AssembleJSX extends AssembleElement {
+
+    items = new Stack<Element>();
+    style = new AttributeStack<ExplicitStyle>();
+    props = new AttributeStack<Prop>();
+    statements = [] as Statement[];
+
+    constructor(element: ElementInline){
+        super(element);
+        debugger
+    }
+
+    Statement(item: Statement){
 
     }
 
     Content(item: Element){
-        if(!this.items)
-            this.items = new Stack<Element>();
-        
         this.items.add(item);
     }
 
-    Props(item: Attribute){
-        
+    Props(item: Prop | SpreadItem){
+        this.props.add(item);
     }
 
-    Style(item: Attribute){
-        
+    Style(item: ExplicitStyle | SpreadItem){
+        this.style.add(item);
     }
 }
 
@@ -139,24 +165,21 @@ void function collateStep(
                 continue;
 
             if(type == "props" || item instanceof Prop){
-                if(current !== props)
-                    current = new AttributeStack(props);
+                // if(current !== props)
+                //     current = new AttributeStack(props);
                 if(current !== props)
                     S.push(props = current as any);
             }
 
             else
             if(type == "style" || item instanceof ExplicitStyle){
-                if(current !== style)
-                    current = new AttributeStack(style);
+                // if(current !== style)
+                //     current = new AttributeStack(style);
                 if(current !== style)
                     S.push(style = current as any);
             }
 
             if(current instanceof AttributeStack)
-            if(type)
-                current.break(item as SpreadItem);
-            else
                 current.push(item);
         } 
     }

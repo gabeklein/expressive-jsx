@@ -36,6 +36,7 @@ export abstract class Attribute {
 export class SpreadItem extends Attribute {
 
     node: Expression;
+    orderInsensitive?: true;
 
     constructor(
         name: "props" | "style", 
