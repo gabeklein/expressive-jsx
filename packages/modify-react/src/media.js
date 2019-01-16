@@ -27,7 +27,7 @@ function Transform(e){
         return Keywords[e];
     else if(e.type == "binary"){
         let { operator, right, left } = e;
-        if(operator[1] == "=="){
+        if(operator[1] == "="){
             right += MinMax[operator];
             operator = operator[0]
         }
