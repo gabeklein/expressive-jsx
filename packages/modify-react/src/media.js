@@ -52,14 +52,22 @@ export function screen(){
          ? [body]
          : [];
 
-    for(const node of body)
-        if(node.type == "IfStatement"){
-            let query = this.parse(node.get("test"));
-                query = query.map(Transform).join(" and ");
+    for(let node of body)
+        if(node.isIfStatement()){
+            const queries = [];
+            do {
+                let query = this.parse(node.get("test"));
+                    query = query.map(Transform).join(" and ");
+                    query = "only screen".concat(query && ` and ${query}` || '')
+
+                queries.push(query)
+                node = node.get("consequent")
+            }
+            while(node.isIfStatement());
 
             this.declareMediaQuery(
-                'only screen' + (query ? ' and ' + query : ''),
-                node.get("consequent")
+                queries.join(", "),
+                node
             );
         }
 }
