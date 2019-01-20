@@ -77,6 +77,7 @@ export function CollateInlineComponentsTo(parent, path){
 const InlineLayers = {
 
     apply(target, tag){
+
         while(!tag.node.extra && tag.type in this)
             tag = this[tag.type].call(target, tag);
 
@@ -123,7 +124,7 @@ const InlineLayers = {
             this.prefix = left.node.name
         else
             throw left.buildCodeFrameError("Improper element prefix");
-        tag = tag.get("right")
+        return tag.get("right");
     },
 
     TaggedTemplateExpression(path){
