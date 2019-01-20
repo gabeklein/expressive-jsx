@@ -270,6 +270,10 @@ export class ComponentGroup extends ComponentBody {
                 "void"
             )
         }
+
+        else if(path.node.operator == "!")
+           this.ExpressionDefault(path);
+
         else throw path.buildCodeFrameError("unknown unary statement")
     }
 

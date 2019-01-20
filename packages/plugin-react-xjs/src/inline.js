@@ -77,16 +77,6 @@ export function CollateInlineComponentsTo(parent, path){
 const InlineLayers = {
 
     apply(target, tag){
-
-        if(tag.isBinaryExpression({operator: "-"})){
-            const left = tag.get("left")
-            if(left.isIdentifier())
-                target.prefix = left.node.name
-            else
-                left.buildCodeFrameError("Improper element prefix");
-            tag = tag.get("right")
-        }
-
         while(!tag.node.extra && tag.type in this)
             tag = this[tag.type].call(target, tag);
 
@@ -113,6 +103,27 @@ const InlineLayers = {
 
         else throw tag.buildCodeFrameError("Expression must start with an identifier")
         
+    },
+
+    UnaryExpression(tag){
+        const op = tag.node.operator;
+        if(op !== "!")
+            throw left.buildCodeFrameError("Improper binary symbol");
+
+        this.prefix = "!";
+        return tag.get("argument");
+    },
+
+    BinaryExpression(tag){
+        if(tag.node.operator !== "-")
+            throw left.buildCodeFrameError("Improper binary symbol");
+
+        const left = tag.get("left")
+        if(left.isIdentifier())
+            this.prefix = left.node.name
+        else
+            throw left.buildCodeFrameError("Improper element prefix");
+        tag = tag.get("right")
     },
 
     TaggedTemplateExpression(path){
@@ -485,7 +496,7 @@ export class ElementInline extends ComponentGroup {
                         }
                     }
                         
-                    else if(this.prefix == "html" || html_tags_obvious.has(name))
+                    else if(this.prefix == "html" || this.prefix == "!" || html_tags_obvious.has(name))
                         type = t.stringLiteral(name);
                 }
                 else if(name && name.type == "Identifier"){
