@@ -260,6 +260,18 @@ export class ComponentGroup extends ComponentBody {
         return { output, body }
     }
 
+    UnaryExpression(path){
+        if(path.node.operator == "void"){
+            Statement.applyTo(
+                this, 
+                { node: t.expressionStatement(
+                    path.get("argument").node
+                )},
+                "void"
+            )
+        }
+        else throw path.buildCodeFrameError("unknown unary statement")
+    }
     VariableDeclaration(path){ 
         Statement.applyTo(this, path, "var")
     }
