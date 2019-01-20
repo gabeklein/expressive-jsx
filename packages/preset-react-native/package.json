@@ -1,6 +1,6 @@
 {
   "name": "@expressive/babel-preset-react-native",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-legacy.0",
   "description": "Expressive-React preset for Native React",
   "repository": "https://github.com/gabeklein/expressive-react",
   "author": {
@@ -32,9 +32,9 @@
     "@babel/preset-env": "^7.0.0"
   },
   "dependencies": {
-    "@expressive/babel-plugin-react-class": "^1.0.0-beta.0",
-    "@expressive/babel-plugin-react-xjs": "^1.0.0-beta.2",
-    "@expressive/react-native-modifiers": "^1.0.0-beta.0",
+    "@expressive/babel-plugin-react-class": "^1.0.0-legacy.0",
+    "@expressive/babel-plugin-react-xjs": "^1.0.0-legacy.0",
+    "@expressive/react-native-modifiers": "^1.0.0-legacy.0",
     "babel-preset-expressive-enhancements": "^1.0.1",
     "babel-preset-react-native": "^4.0.0"
   }
