@@ -272,6 +272,11 @@ export class ComponentGroup extends ComponentBody {
         }
         else throw path.buildCodeFrameError("unknown unary statement")
     }
+
+    FunctionDeclaration(path){
+        Statement.applyTo(this, path, "function")
+    }
+
     VariableDeclaration(path){ 
         Statement.applyTo(this, path, "var")
     }
