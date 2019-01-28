@@ -30,13 +30,13 @@
   "dependencies": {
     "@babel/types": "^7.0.0",
     "chroma-js": "^2.0.2",
-    "dotenv": "^6.0.0"
+    "dotenv": "^6.0.0",
+    "easing-coordinates": "^2.0.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
     "@babel/plugin-proposal-class-properties": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "easing-coordinates": "^2.0.2"
+    "@babel/preset-env": "^7.0.0"
   }
 }
