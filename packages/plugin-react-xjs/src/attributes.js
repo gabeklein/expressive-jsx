@@ -50,19 +50,17 @@ export class parsedArgumentBody {
         throw new Error("Unexpected Block Statement in modifier processor, this is an internal error.")
     }
 
-    Type(e){
-        if(!e.node) debugger
+    Type(e, target){
+        if(target) 
+            e = e.get(target);
+
         if(e.node.extra && e.node.extra.parenthesized)
-             return e;
+            return e;
         
-        if(e.type in this){
-            const x = this[e.type](e);
-            // if(x.type) debugger
-            return x;
-        } else {
-            // debugger
+        if(e.type in this)
+            return this[e.type](e);
+        else 
             return e
-        }
     }
 
     NumericLiteral(e, sign = 1){
@@ -78,7 +76,7 @@ export class parsedArgumentBody {
 
 
     ExpressionStatement(e){
-        return this.Type(e.get("expression"))
+        return this.Type(e, "expression")
     }
 
     Identifier(e){
@@ -93,20 +91,35 @@ export class parsedArgumentBody {
         return e; 
     }
 
+    AssignmentExpression(e){
+        return {
+            type: "assign",
+            operator: e.node.operator,
+            left: this.Type(e, "left"),
+            right: this.Type(e, "right"),
+            nodePath: e
+        }
+    }
+
     BinaryExpression(e){
-        const {left, right, operator} = e.node;
+        const noSpace = e.node.right.start == e.node.left.end + 1;
+
+        const { operator } = e.node;
+        const left = this.Type(e, "left");
+        const right = this.Type(e, "right");
+
         if(operator == "-" 
-        && left.type == "Identifier"
-        && right.type == "Identifier"
-        && right.start == left.end + 1 )
-            return left.name + "-" + right.name;
+        && typeof left == "string"
+        && typeof right == "string"
+        && noSpace)
+            return left + "-" + right;
         else 
             return {
                 type: "binary",
+                nodePath: e,
                 operator,
-                left: left.name || left.value,
-                right: right.name || right.value,
-                nodePath: e
+                left,
+                right
             };
     }
 
