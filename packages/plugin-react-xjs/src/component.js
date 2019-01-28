@@ -126,6 +126,10 @@ export class ComponentBody extends AttrubutesBody {
         NonComponent.applyMultipleTo(this, path)
     }
 
+    ReturnStatement(path){
+        NonComponent.applyTo(this, path.get("argument"))
+    }
+
     EmptyStatement(){};
 
     IfStatement(path){

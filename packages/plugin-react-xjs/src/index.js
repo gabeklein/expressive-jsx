@@ -6,8 +6,9 @@ const { generateComputedStylesExport, generateComputedStyleSheetObject } = requi
 const TEMPLATE = require("./support");
 
 export default (options) => ({
-    manipulateOptions: (_, parse) => {
-        parse.plugins.push("decorators-legacy", "doExpressions")
+    manipulateOptions: (_, parserOpts) => {
+        parserOpts.allowReturnOutsideFunction = true;
+        parserOpts.plugins.push("decorators-legacy", "doExpressions")
     },
     visitor: {
         Program: {
@@ -77,7 +78,6 @@ class ExpressiveProgram {
         hoistLabeled(path.node);
 
         Shared.state = state;
-        
     }
 
     static exit(path, state, options){
