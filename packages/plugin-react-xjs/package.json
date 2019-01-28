@@ -1,6 +1,6 @@
 {
   "name": "@expressive/babel-plugin-react-xjs",
-  "version": "1.0.0-legacy.2",
+  "version": "1.0.0-legacy.3",
   "description": "Babel transformer preset for React Expression Syntax",
   "repository": "https://github.com/gabeklein/expressive-react",
   "author": {

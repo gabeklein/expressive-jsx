@@ -1,6 +1,6 @@
 {
   "name": "@expressive/react-cli",
-  "version": "1.0.0-legacy.2",
+  "version": "1.0.0-legacy.3",
   "description": "CLI tool for converting react XJS into something else",
   "repository": "https://github.com/gabeklein/expressive-react",
   "author": {
@@ -24,8 +24,8 @@
     "@babel/plugin-proposal-object-rest-spread": "7.0.0",
     "@babel/preset-env": "^7.0.0",
     "@expressive/babel-plugin-react-class": "^1.0.0-legacy.0",
-    "@expressive/babel-plugin-react-xjs": "^1.0.0-legacy.2",
-    "@expressive/react-modifiers": "^1.0.0-legacy.1",
+    "@expressive/babel-plugin-react-xjs": "^1.0.0-legacy.3",
+    "@expressive/react-modifiers": "^1.0.0-legacy.2",
     "@expressive/react-native-modifiers": "^1.0.0-legacy.0",
     "babel-preset-expressive-enhancements": "^1.0.1",
     "commander": "^2.18.0",
