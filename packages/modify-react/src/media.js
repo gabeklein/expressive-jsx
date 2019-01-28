@@ -25,22 +25,40 @@ const Keywords = {
 function Transform(e){
     if(typeof e == "string" && Keywords[e])
         return Keywords[e];
+    else if(e.type == "assign"){
+        const { operator, left: key, right } = e;
+        if(right.operator !== ">>")
+            throw new Error(`operator for ${key} must be >>`)
+        const {left: min, right: max} = right;
+
+        return `(min-${key}: ${min}px) and (max-${key}: ${max}px)`;
+    }
     else if(e.type == "binary"){
         let { operator, right, left } = e;
-        if(operator[1] == "="){
-            right += MinMax[operator];
-            operator = operator[0]
-        }
+        let prefix = "";
 
-        let op = MinMax[operator];
         let key = Size[left];
 
-        if(key && typeof right == "number") right += "px";
-        else key = Special[left]
+        if(operator == "==")
+            return `(min-${key}: ${right}px) and (max-${key}: ${right}px)`;
 
-        if(key && op !== undefined){
-            return `(${op}${key}: ${right})`
+        if(key && typeof right == "number"){
+            switch(operator[0]){
+                case ">":
+                    prefix = "min-";
+                    if(!operator[1])
+                        right += 1
+                break;
+                case "<":
+                    prefix = "max-";
+                    if(!operator[1])
+                        right -= 1
+                break;
+            }
+            return `(${prefix}${key}: ${right}px)`
         }
+        else 
+            return Special[left];
     }
 }
 
