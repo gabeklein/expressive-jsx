@@ -200,7 +200,12 @@ class InlineProps extends Prop {
         switch(type){
             case "ObjectProperty": {
                 const { key } = node;
-                name = key.name || key.value;
+                if(key.type == "StringLiteral"){
+                    name = key.value;
+                    this.key = "string"
+                }
+                else 
+                    name = key.name;
                 value = path.get("value");
                 break;
             }
@@ -286,12 +291,6 @@ class InlineProps extends Prop {
                 break;
             }
 
-            // case "ArrowFunctionExpression": {
-            //     value = path;
-            //     name = "callback"
-            //     break;
-            // }
-
             default:
                 throw path.buildCodeFrameError(`There is no property inferred from an ${type}.`)
         }
@@ -299,6 +298,30 @@ class InlineProps extends Prop {
         this.path_value = value;
         this.type = type;
         this.name = name;
+    }
+
+    get asProperty(){
+        if(this.key == "string")
+            return t.objectProperty(t.stringLiteral(this.name), this.value)
+        else
+            return super.asProperty
+    }
+
+    asAssignedTo(target){
+        if(this.key == "string")
+            return t.expressionStatement(
+                t.assignmentExpression("=",
+                    t.memberExpression(
+                        target, t.stringLiteral(this.name), true
+                    ),
+                    this.value
+                )
+            )
+        else return super.asAssignedTo(target)
+    }
+
+    get id(){
+        return t.identifier(this.name);
     }
 
     get value(){

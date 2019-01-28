@@ -63,9 +63,10 @@ function convertObjectProps(x){
 
     let { key, value } = x;
 
-    if(key.type == "Identifier")
-        key.type = "JSXIdentifier"
-    else debugger;
+    if(key.type == "StringLiteral")
+        key.name = key.value;
+
+    key.type = "JSXIdentifier"
 
     if([true, "true"].indexOf(value.value) >= 0){
         value = null
