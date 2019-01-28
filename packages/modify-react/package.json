@@ -1,6 +1,6 @@
 {
   "name": "@expressive/react-modifiers",
-  "version": "1.0.0-legacy.0",
+  "version": "1.0.0-legacy.1",
   "description": "Style Modifiers for most CSS keywords",
   "repository": "https://github.com/gabeklein/expressive-react",
   "author": {
