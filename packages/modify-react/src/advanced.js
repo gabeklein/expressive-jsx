@@ -1,3 +1,5 @@
+const t = require("@babel/types")
+
 const PSEUDO = {
     hover: ":hover",
     active: ":active",
@@ -66,6 +68,18 @@ function directClassname(){
     return selectAgainst + " " + this.name;
 }
 
+export function watch(){
+    const mod = normalize(this.body)[0];
+    if(mod.type == "LabeledStatement") {
+        const name = mod.node.label.name;
+        const body = mod.get("body");
+
+        this.target.classList.push(name)
+        this.declareElementModifier(".active", body, directClassname);
+    }
+    else throw mod.buildCodeFrameError("Need label denoting target class.")
+}
+
 export function css(){
     if(this.body.type != "ExpressionStatement"){
         const block = normalize(this.body);
@@ -89,17 +103,6 @@ export function css(){
                 classList.push(arg);
     if(props.id)
         return { props }
-}
-
-
-export function source(a){
-    this.target.onComponent((target, inline) => {
-        const src = target.attrs.find(x => x.name == "src");
-        if(src){
-            debugger;
-            // src.node = 
-        }
-    })
 }
 
 export function style(content){
