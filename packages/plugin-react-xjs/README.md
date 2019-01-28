@@ -1,6 +1,6 @@
-# babel-plugin-transform-xjs
+# @expressive/babel-plugin-react-xjs
 
-> Babel plugin for transforming `do{ }` statements into [React](https://github.com/facebook/react) compatable markup. Most comperable to [babel-plugin-transform-react-jsx](https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-jsx), with a completely different syntax at play. May be used along side JSX and it's respective babel-plugin (recommended) or even as a feature-complete replacement, depending on your needs.
+> Babel plugin for transforming `do{ }` statements into [React](https://github.com/facebook/react) compatable markup. Most comperable to [@babel/plugin-transform-react-jsx](https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-jsx), just with a completely different syntax. May be used along side JSX and it's respective plugins (recommended). However it will work as feature-complete replacement, depending on your needs.
 
 <br/>
 
@@ -8,7 +8,7 @@
 
 > It is recommended you apply a preset rather than using this plugin directly. <br/>
 
-Choose package for your current environment, `web`, `native`, or `next` for [NEXT.js](https://github.com/zeit/next.js/).
+Choose package for your current environment, `react` or `react-native`;
 
 ```
 npm install @expressive-react/preset-*
@@ -21,7 +21,7 @@ npm install @expressive-react/preset-*
 ```
 {
     "presets": [
-        "@expressive-react/*"
+        "@expressive/*"
     ]
 }
 ```
@@ -30,7 +30,7 @@ npm install @expressive-react/preset-*
 
 # Entry Points
 
-> _[babel-plugin-transform-xjs](#babel-plugin-transform-xjs) will enter context upon encountering the DoExpression e.g. `do{}` in various contexts. It will also do so for any method with the name __"do"__ e.g. `do(){}`_ <br/><br/> For more information on actual syntax, consult the [main repo](https://github.com/gabeklein/expressive-react).
+> _[@expressive/babel-plugin-react-xjs](#@expressive/babel-plugin-react-xjs) will enter context upon encountering the DoExpression e.g. `do{}` in various contexts. It will also do so for any method with the name __"do"__ e.g. `do(){}`_ <br/><br/> For more information on actual syntax, consult the [main repo](https://github.com/gabeklein/expressive-react).
 
 
 #### Element Expressions
