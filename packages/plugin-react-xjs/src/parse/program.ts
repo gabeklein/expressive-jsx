@@ -1,7 +1,7 @@
 
 import { Program } from '@babel/types';
 
-import { AttributeBody, TraversableBody } from 'node/component';
+import { AttributeBody, TraversableBody } from 'nodes/component';
 import { ElementInline, Shared } from '../internal';
 import { BabelState, Path, BunchOf } from '../internal/types';
 import { GeneralModifier } from '../modifiers';

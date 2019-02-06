@@ -23,9 +23,9 @@ export function toArray<T> (value: T | T[]): T[] {
         : [];
 }
 
-export function ParseErrors<O extends BunchOf<string>> (register: O) {
-
+export function WhenSkyIsFalling<O extends BunchOf<string>> (register: O) {
     type ParseError = (path: Path, ...args: Value[]) => Error;
+
     const Errors = {} as BunchOf<ParseError>
 
     for(const error in register){

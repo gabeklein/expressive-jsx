@@ -1,9 +1,9 @@
 import { AssignmentExpression, Expression, TemplateLiteral } from '@babel/types';
 
-import { ApplyElementExpression, AttributeBody, ParseErrors, Prop } from '../internal';
+import { ApplyElementExpression, AttributeBody, WhenSkyIsFalling, Prop } from '../internal';
 import { Path } from '../internal/types';
 
-const ERROR = ParseErrors({
+const ERROR = WhenSkyIsFalling({
     PropNotIdentifier: "Assignment must be identifier name of a prop.",
     AssignmentNotEquals: "Only `=` assignment may be used here."
 })

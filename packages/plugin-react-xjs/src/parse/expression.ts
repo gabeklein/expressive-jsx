@@ -1,10 +1,10 @@
 import { CallExpression, Expression, MemberExpression, TaggedTemplateExpression } from '@babel/types';
 
-import { ElementInline, inParenthesis, NonComponent, Opts, ParseErrors, Shared } from '../internal';
+import { ElementInline, inParenthesis, NonComponent, Opts, WhenSkyIsFalling, Shared } from '../internal';
 import { DoExpressive, ListElement, Path } from '../internal/types';
 
 const New = Object.create;
-const ERROR = ParseErrors({
+const ERROR = WhenSkyIsFalling({
     NoParenChildren: "Children in Parenthesis are not allowed, for direct insertion used an Array literal",
     SemicolonRequired: "Due to how parser works, a semicolon is required after the element preceeding escaped children.",
     DoExists: "Do Expression was already declared!",
@@ -110,7 +110,7 @@ function parseIdentity(
 
     else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
         applyNameImplications("string", target);
-        applyNameImplications(Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "div", target, true)
+        applyNameImplications(Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "span", target, true)
 
         target.sequence.push(new NonComponent(tag as Path<Expression>))
         tag.remove();

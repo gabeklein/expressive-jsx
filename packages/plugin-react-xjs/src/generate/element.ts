@@ -81,22 +81,20 @@ abstract class AssembleElement {
                 this.Statement(item);
     
             else {
-                let type: string | undefined;
+                let spreadTarget: string | undefined;
                 
                 if(item instanceof SpreadItem)
-                    type = item.name;
-                else if(item.overriden)
+                    spreadTarget = item.name;
+                else if(item.overriden == true)
                     continue;
     
-                if(
-                    item instanceof Prop || 
-                    type == "props"
-                ) this.Props(item);
+                if(item instanceof Prop 
+                || spreadTarget == "props")
+                    this.Props(item);
 
-                else if(
-                    item instanceof ExplicitStyle || 
-                    type == "style"
-                ) this.Style(item);
+                else if(item instanceof ExplicitStyle 
+                || spreadTarget == "style")
+                    this.Style(item);
             }
         }
     }
@@ -111,7 +109,6 @@ class AssembleJSX extends AssembleElement {
 
     constructor(element: ElementInline){
         super(element);
-        debugger
     }
 
     Statement(item: Statement){
@@ -123,10 +120,12 @@ class AssembleJSX extends AssembleElement {
     }
 
     Props(item: Prop | SpreadItem){
+        debugger
         this.props.add(item);
     }
 
     Style(item: ExplicitStyle | SpreadItem){
+        debugger
         this.style.add(item);
     }
 }

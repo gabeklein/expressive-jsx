@@ -1,8 +1,8 @@
 import { Expression, ExpressionStatement, LabeledStatement, Statement } from '@babel/types';
-import { Attribute, ExplicitStyle, ParseErrors, StackFrame, Prop, ApplyModifier } from '../internal';
+import { Attribute, ExplicitStyle, WhenSkyIsFalling, StackFrame, Prop, ApplyModifier } from '../internal';
 import { BunchOf, DoExpressive, ElementItem, Path } from '../internal/types';
 
-const ERROR = ParseErrors({
+const ERROR = WhenSkyIsFalling({
     ExpressionUnknown: "Unhandled expressionary statement of type {1}",
     NodeUnknown: "Unhandled node of type {1}"
 })
