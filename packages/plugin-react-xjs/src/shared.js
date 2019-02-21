@@ -92,7 +92,7 @@ export const transform = {
 
         let type = Shared.stack.helpers.Fragment;
 
-        if(elements.length == 1)
+        if(elements.length == 1 && elements[0].type == "JSXElement")
             return this.applyProp(
                 elements[0],
                 props

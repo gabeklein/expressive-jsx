@@ -132,7 +132,7 @@ const InlineLayers = {
         QuasiComponent.applyTo(this, path.get("quasi"))
 
         // prevent ES6 transformer from shimming the template.
-        path.remove()
+        path.replaceWith(t.nullLiteral())
 
         return tag
     },
