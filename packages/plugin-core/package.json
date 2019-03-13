@@ -1,0 +1,48 @@
+{
+  "name": "@expressive/babel-plugin-core",
+  "version": "0.0.0",
+  "description": "Babel transformer preset for React Expression Syntax",
+  "repository": "https://github.com/gabeklein/expressive-dsl",
+  "author": {
+    "name": "Gabe Klein",
+    "email": "gabe@termtm.com",
+    "url": "https://github.com/gabeklein"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "react",
+    "expressive",
+    "xjs"
+  ],
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "/index.js",
+    "/index.d.ts"
+  ],
+  "scripts": {
+    "build": "rollup --config",
+    "watch": "rollup --config --watch --sourcemap",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "dts-bundle-generator": "^2.1.0",
+    "rollup": "^1.2.4",
+    "rollup-plugin-commonjs": "^9.2.1",
+    "rollup-plugin-typescript2": "^0.19.3",
+    "typescript": "^3.3.3333"
+  },
+  "dependencies": {
+    "@babel/template": "^7.0.0",
+    "@babel/types": "^7.0.0",
+    "@types/babel__template": "^7.0.2",
+    "@types/babel__traverse": "7.0.1",
+    "@types/node": "^10.12.2"
+  },
+  "peerDependencies": {
+    "react": "^16.2.0"
+  }
+}

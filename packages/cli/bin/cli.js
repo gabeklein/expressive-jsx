@@ -40,7 +40,8 @@ function onFault(a){
         loc => {
             const [_, scope, file, line, column] = /at (.+) \(.+plugin-react-xjs(.+):(\d+):(\d)/.exec(loc)
             const spacing = Array(marginMax - loc.indexOf("(")).fill(" ").join("");
-            return `  at ${scope}${spacing}   ${file}:${line} `
+            const relative = file.replace(/^\/src/, "");
+            return `  at ${scope}${spacing}   ${relative}:${line} `
 
         }
     )

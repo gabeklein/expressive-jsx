@@ -2,7 +2,7 @@
   "name": "@expressive/babel-preset-react",
   "version": "1.0.0-beta.3",
   "description": "An alternative syntax for feature rich components using less code",
-  "repository": "https://github.com/gabeklein/expressive-react",
+  "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
     "name": "Gabe Klein",
     "email": "gabe@termtm.com",
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@expressive/babel-plugin-react-class": "^1.0.0-beta.0",
-    "@expressive/babel-plugin-react-xjs": "^1.0.0-beta.2",
+    "@expressive/babel-plugin-react": "^0.0.0",
     "@expressive/react-modifiers": "^1.0.0-beta.0",
     "babel-preset-expressive-enhancements": "^1.0.1"
   },

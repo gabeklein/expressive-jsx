@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "baseUrl": "src",
+        "rootDir": "src",
+        "outDir": "lib",
+        "target": "ESNext",
+        "moduleResolution": "node",
+        "noUnusedLocals": true,
+        "sourceMap": true,
+        "strict": true,
+        "esModuleInterop": true,
+        "types": [
+            "node", "babel__traverse", "@babel/types"
+        ]
+    }
+}
