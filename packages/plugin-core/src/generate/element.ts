@@ -12,7 +12,7 @@ import {
 } from 'internal';
 
 export type Syntax = [ Expression, Statement[]?];
-export type SequenceItem = Element | Prop | ExplicitStyle | SpreadItem | ComponentIf;
+export type SequenceItem = Element | Prop | ExplicitStyle | SpreadItem | ComponentIf | ComponentFor;
 export type Element = ElementInline | NonComponent<any>;
 export type GenerateStatement = InnerStatement<any>;
 
@@ -33,6 +33,13 @@ export abstract class AssembleElement
 
     parse(includeOverridden?: true){
         for(const item of this.source.sequence as SequenceItem[]){
+            if(item instanceof ComponentIf)
+                this.Switch(item)
+            
+            else if(item instanceof ComponentFor)
+                this.Iterate(item)
+            
+            else 
             if(item instanceof ElementInline
             || item instanceof NonComponent)
                 this.Content(item);
@@ -41,8 +48,8 @@ export abstract class AssembleElement
             if(item instanceof InnerStatement)
                 this.Statement(item);
     
-            else if(item instanceof Attribute) {
-                item
+            else 
+            if(item instanceof Attribute) {
                 if(!includeOverridden && item.overriden == true)
                     continue;
     
@@ -53,9 +60,6 @@ export abstract class AssembleElement
                 else if(item instanceof ExplicitStyle 
                 || item.name == "style")
                     this.Style(item);
-            }
-            else if(item instanceof ComponentIf){
-
             }
         }
     }
