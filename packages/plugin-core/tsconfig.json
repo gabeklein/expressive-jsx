@@ -12,5 +12,8 @@
         "types": [
             "node", "babel__traverse", "@babel/types"
         ]
-    }
+    },
+    "exclude": [
+        "index.d.ts"
+    ]
 }
