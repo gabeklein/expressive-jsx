@@ -35,7 +35,7 @@ export function Exceptions<O extends BunchOf<string>> (register: O) {
         let message = [] as Value[];
 
         for(const segment of register[error].split(/\{(?=\d+\})/)){
-            const ammend = /(\d+)\}(.+)/.exec(segment);
+            const ammend = /(\d+)\}(.*)/.exec(segment);
             if(ammend)
                 message.push(parseInt(ammend[1]), ammend[2]);
             else
