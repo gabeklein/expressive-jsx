@@ -1,6 +1,6 @@
 import { Expression, ExpressionStatement, LabeledStatement, Statement } from '@babel/types';
 import { ApplyModifier, Attribute, Exceptions, ExplicitStyle, Prop, StackFrame } from 'internal';
-import { BunchOf, DoExpressive, ElementItem, Path } from 'types';
+import { BunchOf, DoExpressive, Path } from 'types';
 
 const Error = Exceptions({
     ExpressionUnknown: "Unhandled expressionary statement of type {1}",
@@ -18,7 +18,7 @@ export abstract class TraversableBody {
         public context: StackFrame){
     }
     
-    add(item: ElementItem){
+    add(item: unknown){
         this.sequence.push(item);
     }
 
@@ -72,7 +72,7 @@ export abstract class AttributeBody extends TraversableBody {
         const existing = list[name];
         if(existing) existing.overriden = true;
         list[name] = item;
-        this.sequence.push(item);
+        this.add(item);
     } 
 
     ExpressionDefault(path: Path<Expression>){

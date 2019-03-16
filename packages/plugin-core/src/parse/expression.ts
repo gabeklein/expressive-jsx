@@ -35,7 +35,7 @@ export function ApplyElementExpression(
     insertInto: ElementInline ){
         
     if(inParenthesis(subject)){
-        insertInto.sequence.push(new NonComponent(subject));
+        insertInto.add(new NonComponent(subject));
         return;
     }
 
@@ -70,7 +70,7 @@ export function ApplyElementExpression(
 
         parseIdentity(segment, child);
 
-        insertInto.sequence.push(child);
+        insertInto.add(child);
         insertInto = child;
     }    
 
@@ -124,7 +124,7 @@ function parseIdentity(
         applyNameImplications("string", target);
         applyNameImplications(Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "span", target, true)
 
-        target.sequence.push(new NonComponent(tag as Path<Expression>))
+        target.add(new NonComponent(tag as Path<Expression>))
         preventDefaultPolyfill(tag);
     }
 
@@ -223,7 +223,7 @@ function parseProps(
                 if(tag.type != "Identifier") 
                     throw path.buildCodeFrameError("Prop must be an Identifier");
     
-                target.sequence.push(
+                target.add(
                     new Prop(
                         tag.name,
                         quasi.expressions.length == 0

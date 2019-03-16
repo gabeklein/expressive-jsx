@@ -1,5 +1,5 @@
-import { AssignmentExpression, Expression, TemplateLiteral } from '@babel/types';
-import { ApplyElementExpression, AttributeBody, Exceptions, Prop } from 'internal';
+import { AssignmentExpression, Expression, TemplateLiteral, IfStatement } from '@babel/types';
+import { ApplyElementExpression, ComponentIf, AttributeBody, Exceptions, Prop } from 'internal';
 import { Path } from 'types';
 
 const Error = Exceptions({
@@ -15,6 +15,12 @@ export class ElementInline extends AttributeBody {
 
     ExpressionDefault(path: Path<Expression>){
         ApplyElementExpression(path, this);
+    }
+
+    IfStatement(path: Path<IfStatement>){
+        this.add(
+            new ComponentIf(path, this)
+        )
     }
 
     AssignmentExpression(path: Path<AssignmentExpression>){
