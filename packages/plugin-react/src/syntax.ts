@@ -1,5 +1,5 @@
 import t, { Expression, LVal, Statement, JSXElement, JSXFragment } from '@babel/types';
-import { Content, Props } from 'jsx';
+import { JSXContent, Props } from 'jsx';
 
 export interface BunchOf<T> {
     [key: string]: T
@@ -8,7 +8,7 @@ export interface BunchOf<T> {
 export function createElement(
     tag: string,
     props = [] as Props[],
-    children = [] as Content[]
+    children = [] as JSXContent[]
 ): JSXElement {
     const type = t.jsxIdentifier(tag);
     return (
@@ -22,7 +22,7 @@ export function createElement(
 }
 
 export function createFragment(
-    children = [] as Content[]
+    children = [] as JSXContent[]
 ): JSXFragment {
     return (
         t.jsxFragment(

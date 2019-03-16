@@ -25,7 +25,7 @@ import {
 import { AttributeStack } from 'element';
 import { createElement, createFragment } from 'syntax';
 
-export type Content = JSXElement | JSXFragment | JSXExpressionContainer | JSXText | JSXSpreadChild;
+export type JSXContent = JSXElement | JSXFragment | JSXExpressionContainer | JSXText | JSXSpreadChild;
 export type Props = JSXAttribute | JSXSpreadAttribute;
 
 class SwitchJSX {
@@ -77,7 +77,12 @@ class SwitchJSX {
     extract(item: ComponentConsequent): { test?: Expression, product: Expression } {
         const { test } = item;
 
-        const product = new ContainerJSX(item).toElement()
+        const inner = new ElementJSX(item).children;
+
+        const product: any =
+            inner.length == 1
+                ? inner[0]
+                : createFragment(inner)
 
         return {
             test: test && test.node,
@@ -89,7 +94,7 @@ class SwitchJSX {
 export class ElementJSX<From extends ElementInline = ElementInline> 
     extends AssembleElement<From> {
 
-    children = [] as Content[];
+    children = [] as JSXContent[];
     props = [] as Props[];
     style = new AttributeStack<ExplicitStyle>();
     statements = [] as any[];
@@ -99,7 +104,7 @@ export class ElementJSX<From extends ElementInline = ElementInline>
         this.parse();
     }
 
-    toElement(): Content {
+    toElement(): JSXContent {
         const { props, children } = this;
         const { tagName = "div" } = this.source;
 
@@ -176,9 +181,14 @@ export class ContainerJSX<T extends ElementInline>
         const tagName = this.source.tagName || "div";
 
         if(props.length == 0){
-            const [ child, next ] = children;
-            if(!next && t.isJSXElement(child))
-                return child;
+            if(children.length == 1){
+                const [ child ] = children;
+                if(t.isJSXExpressionContainer(child)){
+                    return child.expression as any
+                }
+                else if(t.isJSXElement(child))
+                    return child;
+            }
             else
                 return createFragment(children)
         }
