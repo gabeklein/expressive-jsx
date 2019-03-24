@@ -14,7 +14,12 @@ const statementLineSpacing = () =>
 const jsxReturnSpacing = () =>
     replace(/^(.+?[^{])\n(\s+return (?=\(|<))/gm, "$1\n\n$2")
 
-const prettier_config = { singleQuote: true, trailingComma: "es5", jsxBracketSameLine: true };
+const prettier_config = { 
+    singleQuote: true, 
+    trailingComma: "es5", 
+    jsxBracketSameLine: true,
+    printWidth: 40
+};
 const babel_config = require("./babel.config");
       babel_config.babelrc = false
 
@@ -35,13 +40,17 @@ function onFault(a){
             const name = /\[as (\w+)\]/.exec(x);
             if(name)
                 return `${error.slice(error.indexOf("index.js") + 8).replace(": ", `\n${name[1]}: `)}`
+            else
+                return x
         }
         return x;
     });
     
+    error = error.replace(/:.+?:/, ":")
+    
     let marginMax = trace.reduce((margin, string) => Math.max(margin, string.indexOf("(/")), 0);
 
-    let print = `\n`;
+    let print = `\n${error}\n \n`;
     for(const line of trace){
         const loc = /at (.+) \(.+packages\/plugin-(.+):(\d+):(\d+)/.exec(line);
         if(loc){
@@ -51,10 +60,10 @@ function onFault(a){
             print += `  at ${scope}${spacing}   ${relative}:${ln} \n`
         }
         else 
-            print += line + "\n";
+            print += "\n " + line + "\n";
     }
 
-    console.error(print);
+    console.error(print + "\n ");
 }
 
 function onDone(a, b){
