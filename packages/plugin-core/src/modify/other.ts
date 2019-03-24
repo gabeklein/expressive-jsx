@@ -1,6 +1,6 @@
 import { LabeledStatement } from '@babel/types';
-import { BunchOf, Path, ModTuple, ModifyAction } from 'types';
-import { AttributeBody, ExplicitStyle, ModifyProcess, ElementModifier } from 'internal';
+import { AttributeBody, ElementModifier, ModifyProcess } from 'internal';
+import { BunchOf, ModifyAction, ModTuple, Path } from 'types';
 
 export function ApplyModifier(
     recipient: AttributeBody, 
@@ -80,10 +80,12 @@ export function ApplyModifier(
     }
     while(true)
 
-    for(const name in accumulated.style){
-        const item = accumulated.style[name];
-        recipient.apply(new ExplicitStyle(name, item));
-    }
+    throw new Error("Not Implemented")
+    
+    // for(const name in accumulated.style){
+    //     const item = accumulated.style[name];
+    //     recipient.apply(new ExplicitStyle(name, item));
+    // }
 }
 
 export class GeneralModifier {

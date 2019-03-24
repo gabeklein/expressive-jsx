@@ -15,10 +15,10 @@ export class ElementModifier extends AttributeBody {
         super(context);
         this.name = name;
 
-        this.parse(
-            body.isBlockStatement() ? 
-            body.get("body") : [body]
-        );
+        const content = body.isBlockStatement() ? body.get("body") : [body];
+
+        for(const item of content)
+            this.parse(item);
     }
 
     generate(): Syntax {

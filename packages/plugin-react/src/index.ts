@@ -1,16 +1,17 @@
-import { VisitNodeObject as Visit } from '@babel/traverse';
-import Visitor, { DoExpressive, ComponentExpression } from '@expressive/babel-plugin-core';
-import { ContainerJSX } from './jsx';
+import { Path as Path } from '@babel/traverse';
+import Core, { ComponentExpression, DoExpressive } from '@expressive/babel-plugin-core';
+
+import { ContainerJSX } from './internal';
 
 export default (options: any) => {
     return {
-        inherits: Visitor,
+        inherits: Core,
         visitor: {
-            DoExpression: <Visit<DoExpressive>>{
-                exit(path){
-                    const { meta } = path.node;
-                    if(meta instanceof ComponentExpression)
-                        new ContainerJSX(meta).replace(path);
+            DoExpression: {
+                exit(path: Path<DoExpressive>){
+                    const entry = path.node.meta;
+                    if(entry instanceof ComponentExpression)
+                        new ContainerJSX(entry).replace(path);
                 }
             }
         }

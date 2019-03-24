@@ -10,12 +10,12 @@ import t, {
     TaggedTemplateExpression,
 } from '@babel/types';
 
-import { ElementInline, Exceptions, inParenthesis, NonComponent, Opts, Shared, preventDefaultPolyfill } from 'internal';
+import { ElementInline, PossibleExceptions, inParenthesis, Opts, Shared, preventDefaultPolyfill } from 'internal';
 import { Prop, SpreadItem } from 'handle/item';
 import { DoExpressive, ListElement, Path } from 'types';
 
 const New = Object.create;
-const Error = Exceptions({
+const Error = PossibleExceptions({
     NoParenChildren: "Children in Parenthesis are not allowed, for direct insertion used an Array literal",
     SemicolonRequired: "Due to how parser works, a semicolon is required after the element preceeding escaped children.",
     DoExists: "Do Expression was already declared!",
@@ -35,7 +35,7 @@ export function ApplyElementExpression(
     insertInto: ElementInline ){
         
     if(inParenthesis(subject)){
-        insertInto.sequence.push(new NonComponent(subject));
+        insertInto.adopt(subject);
         return;
     }
 
@@ -70,7 +70,7 @@ export function ApplyElementExpression(
 
         parseIdentity(segment, child);
 
-        insertInto.sequence.push(child);
+        insertInto.adopt(child);
         insertInto = child;
     }    
 
@@ -124,7 +124,7 @@ function parseIdentity(
         applyNameImplications("string", target);
         applyNameImplications(Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "span", target, true)
 
-        target.sequence.push(new NonComponent(tag as Path<Expression>))
+        target.add(tag)
         preventDefaultPolyfill(tag);
     }
 
@@ -160,9 +160,7 @@ function parseLayers(
                     content = t.stringLiteral(text);
                 }
 
-                target.add(
-                    new NonComponent(content)
-                )
+                target.add(quasi)
             }
 
             current = exp.get("tag");
@@ -214,7 +212,7 @@ function parseProps(
             case "TemplateLiteral":
             case "ExpressionLiteral":
             case "ArrowFunctionExpression": 
-                target.add(new NonComponent(path as Path<Expression>))
+                target.add(path as Path<Expression>)
             break;
 
             case "TaggedTemplateExpression": {
@@ -223,7 +221,7 @@ function parseProps(
                 if(tag.type != "Identifier") 
                     throw path.buildCodeFrameError("Prop must be an Identifier");
     
-                target.sequence.push(
+                target.add(
                     new Prop(
                         tag.name,
                         quasi.expressions.length == 0

@@ -1,7 +1,6 @@
-import t, { Expression, IfStatement, Statement } from '@babel/types';
-import { DoExpressive, Path } from 'types';
-
+import t, { Expression, IfStatement, Statement, ExpressionStatement } from '@babel/types';
 import { ElementInline } from 'internal';
+import { Path, DoExpressive } from 'types';
 
 export class ComponentIf {
 
@@ -16,13 +15,14 @@ export class ComponentIf {
         let layer: Path<Statement> = path;
 
         do {
-            children.push(
+            const consequent = 
                 new ComponentConsequent(
                     this,
                     layer.get("consequent") as Path<Statement>,
                     layer.get("test") as Path<Expression>
                 )
-            );
+
+            children.push(consequent);
             
             layer = layer.get("alternate") as Path<Statement>
 
@@ -33,33 +33,32 @@ export class ComponentIf {
                 new ComponentConsequent(this, layer)
             )
 
-        path.replaceWithMultiple(this.children.map(
-            option => option.replacement
-        ))
+        const doInsert = [] as ExpressionStatement[];
+
+        for(const { doBlock: body } of children)
+            if(body)
+                doInsert.push(
+                    t.expressionStatement(body)
+                );
+
+        if(doInsert.length)
+            path.replaceWith(
+                t.blockStatement(doInsert)
+            );
     }
 }
 
-
 export class ComponentConsequent extends ElementInline {
-    replacement: Statement;
+
+    doBlock?: DoExpressive;
 
     constructor(
         public logicalParent: ComponentIf, 
         public path: Path<Statement>, 
         public test?: Path<Expression>){
 
-        super(logicalParent.parent.context)
+        super(logicalParent.parent.context);
 
-        let content = path.node;
-        if(content.type !== "BlockStatement"){
-            this.replacement = content;
-            this.parse(path)
-            return;
-        }
-
-        const body = t.doExpression(content) as DoExpressive;
-
-        body.meta = this;
-        this.replacement = t.expressionStatement(body);
+        this.doBlock = this.handleContentBody(path);
     }
 }

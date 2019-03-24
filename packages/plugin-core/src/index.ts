@@ -11,14 +11,11 @@ export {
 	SpreadItem,
     Prop,
     Syntax,
-    Element,
     AssembleElement,
-    Attribute,
-    InnerStatement,
-    NonComponent,
     ComponentExpression,
     ComponentConsequent,
-    ComponentIf as ComponentSwitch
+    ComponentIf,
+    PossibleExceptions
 } from "internal";
 
 export default (options: any) => {

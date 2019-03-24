@@ -5,7 +5,7 @@ import { ModifyDelegate } from 'modify/delegate';
 import { ElementModifier } from 'modify/element';
 import { GeneralModifier } from 'modify/other';
 import { ElementInline } from 'handle/element';
-import { Attribute, InnerStatement, NonComponent } from 'handle/item';
+import { Attribute } from 'handle/item';
 
 export interface Path<T = any> extends NodePath<T> {}
 export interface BabelVisitor<T> extends VisitNodeObject<T> {}
@@ -23,11 +23,11 @@ export interface DoExpressive extends DoExpression {
 // }
 
 export type ListElement = Expression | SpreadElement;
-export type ElementItem = Attribute | ElementInline | NonComponent<any> | InnerStatement<any>;
+export type ElementItem = Attribute | ElementInline | NodePath<Expression | Statement>;
 export type ModTuple = [GeneralModifier, Path<Statement>];
 
-export type Literal = string | number | boolean | null;
-export type Value = string | number;
+export type FlatValue = string | number | boolean | null;
+// export type Value = string | number;
 
 export interface BunchOf<T> {
     [key: string]: T

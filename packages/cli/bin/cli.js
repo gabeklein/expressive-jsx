@@ -14,7 +14,12 @@ const statementLineSpacing = () =>
 const jsxReturnSpacing = () =>
     replace(/^(.+?[^{])\n(\s+return (?=\(|<))/gm, "$1\n\n$2")
 
-const prettier_config = { singleQuote: true, trailingComma: "es5", jsxBracketSameLine: true };
+const prettier_config = { 
+    singleQuote: true, 
+    trailingComma: "es5", 
+    jsxBracketSameLine: true,
+    printWidth: 40
+};
 const babel_config = require("./babel.config");
       babel_config.babelrc = false
 
@@ -30,27 +35,39 @@ let output = outDir.replace(/\/$/, "");
 
 function onFault(a){
     let [error, ...trace] = a.stack.split("\n");
-    trace = trace.filter(x => x.indexOf("node_modules") < 0);
-    
-    let marginMax = trace.reduce((margin, string) => Math.max(margin, string.indexOf("(")), 0)
-
-    console.error()
-
-    trace = trace.map(
-        loc => {
-            const [_, scope, file, line, column] = /at (.+) \(.+plugin-react-xjs(.+):(\d+):(\d)/.exec(loc)
-            const spacing = Array(marginMax - loc.indexOf("(")).fill(" ").join("");
-            const relative = file.replace(/^\/src/, "");
-            return `  at ${scope}${spacing}   ${relative}:${line} `
-
+    trace = trace.filter(x => x.indexOf("node_modules") < 0).map(x => {    
+        if(/at Object\.PossibleExceptions/.test(x)){
+            const name = /\[as (\w+)\]/.exec(x);
+            if(name)
+                return `${error.slice(error.indexOf("index.js") + 8).replace(": ", `\n${name[1]}: `)}`
+            else
+                return x
         }
-    )
+        return x;
+    });
 
-    console.error( [`${a.fileName}\n\n${error}`].concat(trace, "").join("\n") );
+    error = error.replace(/:.+?:/, ":")
+    
+    let marginMax = trace.reduce((margin, string) => Math.max(margin, string.indexOf("(/")), 0);
+
+    let print = `\n${error}\n \n`;
+    for(const line of trace){
+        const loc = /at (.+) \(.+packages\/plugin-(.+):(\d+):(\d+)/.exec(line);
+        if(loc){
+            const [_, scope, file, ln, column] = loc;
+            const spacing = Array(marginMax - line.indexOf("(/")).fill(" ").join("");
+            const relative = file.replace(/\/src/, "");
+            print += `  at ${scope}${spacing}   ${relative}:${ln} \n`
+        }
+        else 
+            print += "\n " + line + "\n";
+    }
+
+    console.error(print + "\n ");
 }
 
 function onDone(a, b){
-    console.log("Compiled Successfully")
+    console.log("Done")
 }
 
 gulp.task('onChange', () => {
@@ -64,7 +81,9 @@ gulp.task('xjs', () => {
         .pipe(prettier(prettier_config))
         .pipe(statementLineSpacing())
         .pipe(jsxReturnSpacing())
-        .on('end', onDone)
+        .on('end', (a,b,c) => {
+            onDone()
+        })
         .pipe(gulp.dest(output));
 });
 

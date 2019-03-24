@@ -1,5 +1,7 @@
-import t, { Expression, LVal, Statement, JSXElement, JSXFragment } from '@babel/types';
-import { Content, Props } from 'jsx';
+import t, { Expression, LVal, Statement, JSXElement, JSXAttribute } from '@babel/types';
+import { JSXContent, Attributes } from 'internal';
+
+const FRAGMENT = t.jsxIdentifier("Fragment")
 
 export interface BunchOf<T> {
     [key: string]: T
@@ -7,8 +9,8 @@ export interface BunchOf<T> {
 
 export function createElement(
     tag: string,
-    props = [] as Props[],
-    children = [] as Content[]
+    props = [] as Attributes[],
+    children = [] as JSXContent[]
 ): JSXElement {
     const type = t.jsxIdentifier(tag);
     return (
@@ -22,13 +24,25 @@ export function createElement(
 }
 
 export function createFragment(
-    children = [] as Content[]
-): JSXFragment {
+    children = [] as JSXContent[],
+    key?: Expression
+): JSXElement {
+    const attributes: JSXAttribute[] = [];
+    
+    if(key)
+        attributes.push(
+            t.jsxAttribute(
+                t.jsxIdentifier("key"), 
+                t.jsxExpressionContainer(key)
+            )
+        )
+
     return (
-        t.jsxFragment(
-            t.jsxOpeningFragment(),
-            t.jsxClosingFragment(),
-            children
+        t.jsxElement(
+            t.jsxOpeningElement(FRAGMENT, attributes),
+            t.jsxClosingElement(FRAGMENT),
+            children,
+            false
         )
     )
 }

@@ -1,5 +1,5 @@
 import { Expression } from '@babel/types';
-import { BunchOf, Options, Path, SharedSingleton, Value } from 'types';
+import { BunchOf, Options, Path, SharedSingleton, FlatValue } from 'types';
 
 export const env = process.env || {
     NODE_ENV: "production"
@@ -26,28 +26,28 @@ export function preventDefaultPolyfill(element: Path){
     element.remove();
 }
 
-export function Exceptions<O extends BunchOf<string>> (register: O) {
-    type ParseError = (path: Path, ...args: Value[]) => Error;
+export function PossibleExceptions<O extends BunchOf<string>> (register: O) {
+    type ParseError = (path: Path, ...args: FlatValue[]) => Error;
 
     const Errors = {} as BunchOf<ParseError>
 
     for(const error in register){
-        let message = [] as Value[];
+        let message = [] as FlatValue[];
 
         for(const segment of register[error].split(/\{(?=\d+\})/)){
-            const ammend = /(\d+)\}(.+)/.exec(segment);
+            const ammend = /(\d+)\}(.*)/.exec(segment);
             if(ammend)
                 message.push(parseInt(ammend[1]), ammend[2]);
             else
                 message.push(segment);
         }
 
-        Errors[error] = (path: Path, ...args: Value[]) => {
+        Errors[error] = (path: Path, ...args: FlatValue[]) => {
             let quote = "";
             for(const slice of message)
                 quote += (
                     typeof slice == "string" 
-                        ? slice : args[slice - 1]
+                        ? slice : args[slice as number - 1]
                 )
 
             return path.buildCodeFrameError(quote)

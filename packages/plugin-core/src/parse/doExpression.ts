@@ -20,9 +20,12 @@ class ComponentImplementInterop extends ComponentExpression {
     }
 }
 
+export { ComponentImplementInterop as DoComponent }
+
 export default <BabelVisitor<DoExpressive>> {
     enter: (path, state) => {
         let meta = path.node.meta || generateEntryElement(ComponentExpression, path, state.context);
+        
         meta.didEnterOwnScope(path)
     },
     exit: (path, state) => {
@@ -106,5 +109,3 @@ function containerName(path: Path): string {
             return "do";
     }
 }
-
-export { ComponentImplementInterop as DoComponent }
