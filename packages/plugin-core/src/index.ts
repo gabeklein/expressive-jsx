@@ -18,7 +18,7 @@ export {
     NonComponent,
     ComponentExpression,
     ComponentConsequent,
-    ComponentIf as ComponentSwitch
+    PossibleExceptions
 } from "internal";
 
 export default (options: any) => {

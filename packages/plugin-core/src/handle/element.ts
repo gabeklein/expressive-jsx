@@ -1,8 +1,7 @@
-import { AssignmentExpression, Expression, TemplateLiteral, IfStatement } from '@babel/types';
-import { ApplyElementExpression, ComponentIf, AttributeBody, Exceptions, Prop } from 'internal';
+import { ApplyElementExpression, ComponentIf, AttributeBody, PossibleExceptions, ComponentFor } from 'internal';
 import { Path } from 'types';
 
-const Error = Exceptions({
+const Error = PossibleExceptions({
     PropNotIdentifier: "Assignment must be identifier name of a prop.",
     AssignmentNotEquals: "Only `=` assignment may be used here."
 })

@@ -195,11 +195,14 @@ declare const _default: (options: any) => {
 	};
 };
 
-declare type ElementItem = Attribute | ElementInline | NonComponent<any> | InnerStatement<any>;
+declare type ParseError = (path: Path, ...args: (string | number)[]) => Error;
 declare type Literal = string | number | boolean | null;
 declare type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | undefined;
 declare type Element = ElementInline | NonComponent<any>;
 declare type Syntax = [Expression, Statement[]?];
+declare function PossibleExceptions
+	<O extends BunchOf<string>>(register: O): 
+	{ readonly [P in keyof O]: ParseError };
 
 export default _default;
 
@@ -223,5 +226,5 @@ export {
 	ComponentIf,
 	ComponentConsequent,
 	ComponentFor,
-	StackFrame
+	PossibleExceptions,
 }

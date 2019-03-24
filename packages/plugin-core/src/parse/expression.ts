@@ -10,12 +10,12 @@ import t, {
     TaggedTemplateExpression,
 } from '@babel/types';
 
-import { ElementInline, Exceptions, inParenthesis, NonComponent, Opts, Shared, preventDefaultPolyfill } from 'internal';
+import { ElementInline, PossibleExceptions, inParenthesis, Opts, Shared, preventDefaultPolyfill } from 'internal';
 import { Prop, SpreadItem } from 'handle/item';
 import { DoExpressive, ListElement, Path } from 'types';
 
 const New = Object.create;
-const Error = Exceptions({
+const Error = PossibleExceptions({
     NoParenChildren: "Children in Parenthesis are not allowed, for direct insertion used an Array literal",
     SemicolonRequired: "Due to how parser works, a semicolon is required after the element preceeding escaped children.",
     DoExists: "Do Expression was already declared!",

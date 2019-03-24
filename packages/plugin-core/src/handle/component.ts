@@ -2,7 +2,7 @@ import { Expression, ExpressionStatement, LabeledStatement, Statement } from '@b
 import { ApplyModifier, Attribute, Exceptions, ExplicitStyle, Prop, StackFrame } from 'internal';
 import { BunchOf, DoExpressive, Path } from 'types';
 
-const Error = Exceptions({
+const Error = PossibleExceptions({
     ExpressionUnknown: "Unhandled expressionary statement of type {1}",
     NodeUnknown: "Unhandled node of type {1}"
 })
