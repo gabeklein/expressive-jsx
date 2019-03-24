@@ -35,7 +35,7 @@ export function ApplyElementExpression(
     insertInto: ElementInline ){
         
     if(inParenthesis(subject)){
-        insertInto.add(new NonComponent(subject));
+        insertInto.adopt(subject);
         return;
     }
 
@@ -70,7 +70,7 @@ export function ApplyElementExpression(
 
         parseIdentity(segment, child);
 
-        insertInto.add(child);
+        insertInto.adopt(child);
         insertInto = child;
     }    
 
@@ -124,7 +124,7 @@ function parseIdentity(
         applyNameImplications("string", target);
         applyNameImplications(Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "span", target, true)
 
-        target.add(new NonComponent(tag as Path<Expression>))
+        target.add(tag)
         preventDefaultPolyfill(tag);
     }
 
@@ -160,9 +160,7 @@ function parseLayers(
                     content = t.stringLiteral(text);
                 }
 
-                target.add(
-                    new NonComponent(content)
-                )
+                target.add(quasi)
             }
 
             current = exp.get("tag");
@@ -214,7 +212,7 @@ function parseProps(
             case "TemplateLiteral":
             case "ExpressionLiteral":
             case "ArrowFunctionExpression": 
-                target.add(new NonComponent(path as Path<Expression>))
+                target.add(path as Path<Expression>)
             break;
 
             case "TaggedTemplateExpression": {

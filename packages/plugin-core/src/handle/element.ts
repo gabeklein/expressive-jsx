@@ -1,5 +1,7 @@
+import { AssignmentExpression, Expression, TemplateLiteral, IfStatement, For } from '@babel/types';
 import { ApplyElementExpression, ComponentIf, AttributeBody, PossibleExceptions, ComponentFor } from 'internal';
 import { Path } from 'types';
+import { InnerContent } from 'generate/element';
 
 const Error = PossibleExceptions({
     PropNotIdentifier: "Assignment must be identifier name of a prop.",
@@ -11,30 +13,48 @@ export class ElementInline extends AttributeBody {
     primaryName?: string;
     tagName?: string;
     multilineContent?: Path<TemplateLiteral>;
+    children = [] as InnerContent[];
+
+    adopt(child: InnerContent){
+        this.children.push(child);
+        this.add(child);
+    }
 
     ExpressionDefault(path: Path<Expression>){
         ApplyElementExpression(path, this);
     }
 
     IfStatement(path: Path<IfStatement>){
-        this.add(
+        this.adopt(
             new ComponentIf(path, this)
         )
     }
 
+    ForStatement(path: Path<For>){
+        this.adopt(
+            new ComponentFor(path, this.context)
+        )
+    }
+
+    ForInStatement(path: Path<For>){
+        this.ForStatement(path)
+    }
+
+    ForOfStatement(path: Path<For>){
+        this.ForStatement(path)
+    }
+
     AssignmentExpression(path: Path<AssignmentExpression>){
+        if(path.node.operator !== "=") 
+            throw Error.AssignmentNotEquals(path)
+
         const left = path.get("left");
         
         if(!left.isIdentifier())
             throw Error.PropNotIdentifier(left)
 
-        if(path.node.operator !== "=") 
-            throw Error.AssignmentNotEquals(path)
+        let { name } = left.node;
 
-        const right = path.get("right");
-
-        const prop = new Prop(left.node.name, right.node);
-
-        this.apply(prop)
+        this.Prop(name, undefined, path.get("right"));
     }
 }

@@ -35,9 +35,11 @@ export class ComponentIf {
 
         const doInsert = [] as ExpressionStatement[];
 
-        for(const {replacement} of children)
-            if(replacement)
-                doInsert.push(replacement);
+        for(const { doBlock: body } of children)
+            if(body)
+                doInsert.push(
+                    t.expressionStatement(body)
+                );
 
         if(doInsert.length)
             path.replaceWith(
@@ -47,22 +49,16 @@ export class ComponentIf {
 }
 
 export class ComponentConsequent extends ElementInline {
-    replacement?: ExpressionStatement;
+
+    doBlock?: DoExpressive;
 
     constructor(
         public logicalParent: ComponentIf, 
         public path: Path<Statement>, 
         public test?: Path<Expression>){
 
-        super(logicalParent.parent.context)
+        super(logicalParent.parent.context);
 
-        let content = path.node;
-        if(content.type !== "BlockStatement")
-            this.parse(path)
-        else {
-            const body = t.doExpression(content) as DoExpressive;
-            body.meta = this;
-            this.replacement = t.expressionStatement(body);
-        }
+        this.doBlock = this.handleContentBody(path);
     }
 }

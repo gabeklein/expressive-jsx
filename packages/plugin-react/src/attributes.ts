@@ -1,11 +1,4 @@
-import { Attribute, ExplicitStyle, InnerStatement, NonComponent, Prop, SpreadItem, ElementInline } from '@expressive/babel-plugin-core';
-import { Statement, Expression } from '@babel/types';
-
-export type SequenceItem = Element | Prop | ExplicitStyle | SpreadItem;
-export type Element = ElementInline | NonComponent<any>;
-export type GenerateStatement = InnerStatement<any>;
-
-export type Syntax = [ Expression, Statement[]?];
+import { ExplicitStyle, Prop, SpreadItem } from '@expressive/babel-plugin-core';
 
 export class ArrayStack<Type = any, Insert = never>
     extends Array<Type[] | Insert> {
@@ -27,7 +20,7 @@ export class ArrayStack<Type = any, Insert = never>
     }
 }
 
-export class AttributeStack<Type extends Attribute> 
+export class AttributeStack<Type extends (ExplicitStyle | Prop)> 
     extends ArrayStack<Type, SpreadItem> {
 
     static = [] as Type[];
@@ -43,12 +36,12 @@ export class AttributeStack<Type extends Attribute>
         if(item instanceof SpreadItem){
             this.top = item
             this.push(item);
-            if(item.orderInsensitive)
+            if(item.insensitive)
                 return true;
         }
         else 
         if(item.value && this.length < 2 
-        || (<SpreadItem>this.top).orderInsensitive){
+        || (<SpreadItem>this.top).insensitive){
             this.static.push(item);
             return true;
         }

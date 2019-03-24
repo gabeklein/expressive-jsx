@@ -1,6 +1,8 @@
-import { Expression, ExpressionStatement, LabeledStatement, Statement } from '@babel/types';
-import { ApplyModifier, Attribute, Exceptions, ExplicitStyle, Prop, StackFrame } from 'internal';
-import { BunchOf, DoExpressive, Path } from 'types';
+import t, { Expression, ExpressionStatement, LabeledStatement, Statement } from '@babel/types';
+import { ApplyModifier, PossibleExceptions, ExplicitStyle, Prop, StackFrame } from 'internal';
+import { BunchOf, DoExpressive, Path, FlatValue } from 'types';
+import { SpreadItem } from './item';
+import { SequenceItem } from 'generate/element';
 
 const Error = PossibleExceptions({
     ExpressionUnknown: "Unhandled expressionary statement of type {1}",
@@ -9,7 +11,7 @@ const Error = PossibleExceptions({
 
 export abstract class TraversableBody {
 
-    sequence = [] as unknown[];
+    sequence = [] as SequenceItem[];
 
     willEnter?(path?: Path): void;
     willExit?(path?: Path): void;
@@ -17,14 +19,17 @@ export abstract class TraversableBody {
     constructor(
         public context: StackFrame){
     }
-    
-    add(item: unknown){
-        this.sequence.push(item);
+
+    handleContentBody(content: Path<Statement>){
+        if(content.isBlockStatement()){
+            const body = t.doExpression(content.node) as DoExpressive;
+            body.meta = this as any;
+            return body;
+        }
+        else this.parse(content)
     }
 
-    didEnterOwnScope(
-        path: Path<DoExpressive>){
-
+    didEnterOwnScope(path: Path<DoExpressive>){
         this.context = this.context.register(this);
 
         const body = path
@@ -35,16 +40,18 @@ export abstract class TraversableBody {
             this.parse(item);
     }
 
+    didExitOwnScope(path: Path<DoExpressive>){
+        this.context.pop();
+    }
+    
+    add(item: SequenceItem){
+        this.sequence.push(item);
+    }
+
     parse(item: Path<Statement>){
         if(item.type in this) 
             (this as any)[item.type](item);
         else throw Error.NodeUnknown(item, item.type)
-    }
-
-    didExitOwnScope(
-        path: Path<DoExpressive>){
-
-        this.context.pop();
     }
 
     ExpressionStatement(
@@ -63,17 +70,55 @@ export abstract class AttributeBody extends TraversableBody {
     props = {} as BunchOf<Prop>;
     style = {} as BunchOf<ExplicitStyle>;
 
-    apply(item: Attribute){
-        const { name } = item;
-        const list = item instanceof ExplicitStyle
-            ? this.style
-            : this.props;
+    // apply(item: Attribute){
+    //     const { name } = item;
+    //     const list = item instanceof ExplicitStyle
+    //         ? this.style
+    //         : this.props;
 
-        const existing = list[name];
-        if(existing) existing.overriden = true;
-        list[name] = item;
-        this.add(item);
-    } 
+    //     const existing = list[name];
+    //     if(existing) existing.overriden = true;
+    //     list[name] = item;
+    //     this.add(item);
+    // } 
+
+    Prop(
+        name: string | null, 
+        value: FlatValue | Expression | undefined, 
+        path?: Path<Expression>){
+
+        if(!name){
+            this.add(
+                new SpreadItem("props", value!, path)
+            )
+        }
+        else {
+            const { props } = this;
+            const existing = props[name];
+            if(existing) existing.overriden = true;
+            const item = props[name] = new Prop(name, value, path);
+            this.add(item);
+        }
+    }
+
+    Style(
+        name: string | null, 
+        value: FlatValue | Expression, 
+        path?: Path<Expression>){
+
+        if(!name){
+            this.add(
+                new SpreadItem("props", value!, path)
+            )
+        }
+        else {
+            const { props } = this;
+            const existing = props[name];
+            if(existing) existing.overriden = true;
+            const item = props[name] = new Prop(name, value, path);
+            this.add(item);
+        }
+    }
 
     ExpressionDefault(path: Path<Expression>){
         throw path.buildCodeFrameError("nope")
