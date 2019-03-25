@@ -45,7 +45,7 @@ export class ContentJSX implements ContentReact {
 }
 
 export class ElementJSX<T extends ElementInline = ElementInline>
-    extends AssembleElement<T>
+    extends ElementConstruct<T>
     implements ContentReact {
 
     children = [] as ContentReact[];

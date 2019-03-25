@@ -16,7 +16,7 @@ export type SequenceItem = Attr | InnerContent | Path<Statement>;
 export type InnerContent = ElementInline | ComponentIf | ComponentFor | Path<Expression>;
 // type FlatValue = string | number | boolean | null; 
 
-export abstract class AssembleElement
+export abstract class ElementConstruct
     <From extends ElementInline = ElementInline> {
 
     abstract source: From;

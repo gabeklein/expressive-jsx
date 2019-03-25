@@ -11,7 +11,7 @@ export {
 	SpreadItem,
     Prop,
     Syntax,
-    AssembleElement,
+    ElementConstruct,
     ComponentExpression,
     ComponentConsequent,
     ComponentIf,

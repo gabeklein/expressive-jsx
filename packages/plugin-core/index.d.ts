@@ -195,7 +195,7 @@ declare function PossibleExceptions
 export default _default;
 
 export {
-	AssembleElement,
+	ElementConstruct,
 	DoExpressive,
 	SequenceItem,
 	SpreadItem,
