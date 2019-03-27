@@ -1,4 +1,4 @@
-import { Expression, Statement } from '@babel/types';
+import t, { Expression, Statement } from '@babel/types';
 import { NodePath as Path } from '@babel/traverse';
 import {
     Attribute,
@@ -6,14 +6,12 @@ import {
     ElementInline,
     ExplicitStyle,
     Prop,
-    SpreadItem,
     ComponentFor
 } from 'internal';
 
-type Attr = Prop | ExplicitStyle | SpreadItem;
 export type Syntax = [ Expression, Statement[]?];
-export type SequenceItem = Attr | InnerContent | Path<Statement>;
-export type InnerContent = ElementInline | ComponentIf | ComponentFor | Path<Expression>;
+export type SequenceItem = Attribute | InnerContent | Path<Statement>;
+export type InnerContent = ElementInline | ComponentIf | ComponentFor | Path<Expression> | Expression;
 // type FlatValue = string | number | boolean | null; 
 
 export abstract class ElementConstruct
@@ -24,15 +22,17 @@ export abstract class ElementConstruct
     abstract Statement<T extends Statement = never>(item: Path<T> | T): void;
     abstract Content<T extends Expression = never>(item: Path<T> | T): void;
     abstract Child<T extends Expression = never>(item: ElementInline): void
-    abstract Props(prop: Prop | SpreadItem, overridden?: true): void;
-    abstract Style(style: ExplicitStyle | SpreadItem, overridden?: true): void;
+    abstract Props(prop: Prop): void;
+    abstract Style(style: ExplicitStyle): void;
     abstract Switch(item: ComponentIf): void;
     abstract Iterate(item: ComponentFor): void;
+
+    Attribute?(item: Attribute): boolean | undefined | Statement;
 
     willParse?(): void;
     didParse?(): void;
 
-    parse(overridden?: true){
+    parse(overridden = false, invariant = false){
         if(this.willParse)
             this.willParse();
 
@@ -49,21 +49,27 @@ export abstract class ElementConstruct
                 
             else 
             if(item instanceof Attribute) {
-                if(!overridden && item.overriden == true)
+                if(this.Attribute && this.Attribute(item))
+                    continue
+
+                if(!overridden && item.overriden === true
+                && invariant && item.invariant === true)
                     continue;
 
-                const handler = item.type == "props" 
-                    ? "Props" : "Style"
-
-                this[handler](item, overridden);
+                if(item instanceof Prop)
+                    this.Props(item);
+                else 
+                if(item instanceof ExplicitStyle)
+                    this.Style(item)
             }
 
             else {
-                const handler = item.type == "Expression"
-                    ? "Content"
-                    : "Statement";
+                const node = "node" in item ? item.node : item;
 
-                this[handler](item as Path<any>)
+                if(t.isExpression(node))
+                    this.Content(item as Path<Expression>);
+                else
+                    this.Statement(item as Path<Statement>)
             }
         }
 

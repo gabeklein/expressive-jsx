@@ -1,10 +1,27 @@
-import t, { Expression, LVal, Statement, JSXElement, JSXAttribute } from '@babel/types';
-import { JSXContent, Attributes } from 'internal';
+import t, { Expression, JSXAttribute, JSXElement, LVal, Statement } from '@babel/types';
+import { ExplicitStyle, Prop } from '@expressive/babel-plugin-core';
+import { Attributes, JSXContent } from 'internal';
 
 const FRAGMENT = t.jsxIdentifier("Fragment")
 
 export interface BunchOf<T> {
     [key: string]: T
+}
+
+export function expressionValue(item: Prop | ExplicitStyle){
+    let { value } = item;
+
+    return (
+        value === undefined ?
+            item.path!.node :
+        typeof value === "object" ?
+            value || t.nullLiteral() :
+        typeof value === "number" ?
+            t.numericLiteral(value) :
+        typeof value === "boolean" ?
+            t.booleanLiteral(value) : 
+            t.stringLiteral(value)
+    )
 }
 
 export function createElement(
@@ -124,59 +141,3 @@ export function require(module: string){
         [ t.stringLiteral(module) ]
     )
 }
-
-// export function createElement(
-//     type: string | StringLiteral | Identifier, 
-//     props: Expression = t.objectExpression([]), 
-//     ...children: Expression[] ){
-
-//     if(Opts.output == "JSX")
-//         return jsx.createElement(type, props, ...children);
-
-//     if(typeof type == "string") 
-//         type = t.stringLiteral(type);
-
-//     const CREATE_ELEMENT = Shared.stack.helpers.createElement;
-
-//     return t.callExpression(CREATE_ELEMENT, [type, props, ...children])
-// }
-
-// export function createFragment(
-//     elements: any[], 
-//     props = [] as ObjectProperty[] ){
-
-//     if(Opts.output == "JSX")
-//         return jsx.createFragment(elements, props);
-
-//     let type = Shared.stack.helpers.Fragment;
-
-//     if(elements.length == 1)
-//         return this.applyProp(
-//             elements[0],
-//             props
-//         )
-
-//     return this.createElement(
-//         type, t.objectExpression([]), ...elements
-//     )
-// }
-
-// export function applyProp(element: any, props: any){
-//     if(Opts.output == "JSX"){
-//         props = props.map(convertObjectProps);
-//         element.openingElement.attributes.push(...props)
-//     }
-//     else {
-//         element.arguments[1].properties.push(...props)
-//     }
-//     return element;
-// }
-
-// export function element(){
-//     return {
-//         inlineType: "child",
-//         transform: (type: string) => ({
-//             product: this.createElement(type)
-//         })
-//     }
-// }

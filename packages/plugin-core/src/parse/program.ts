@@ -1,9 +1,8 @@
 
 import { Program } from '@babel/types';
 import { VisitNodeObject as BabelVisitor } from "@babel/traverse";
-import { ElementInline, Shared, AttributeBody, TraversableBody, GeneralModifier } from 'internal';
-import { BunchOf } from 'types';
-// import { AssembleJSX } from 'generate/react';
+import { ElementInline, Shared, AttributeBody, TraversableBody } from 'internal';
+import { BunchOf, ModifyAction } from 'types';
 
 interface BabelState {
     context: StackFrame;
@@ -48,10 +47,11 @@ export class StackFrame {
             ...included
         ];
     
-        for(const Modifiers of imported){
+        for(const imports of imported){
             Stack = Object.create(Stack)
             
-        //     const { Helpers, ...Modifiers } = modifier as any;
+            const { Helpers, ...Modifiers } = imports as any;
+            void Helpers;
         //     if(Helpers)
         //     for(const name in Helpers)
         //         Stack.valueMod(name, Helpers[name])
@@ -87,16 +87,16 @@ export class StackFrame {
         Shared.stack = Object.getPrototypeOf(this);
     }
 
-    propertyMod(name: string): GeneralModifier;
-    propertyMod(name: string, set: Function): void;
+    propertyMod(name: string): ModifyAction;
+    propertyMod(name: string, set: ModifyAction): void;
     propertyMod(
-        this: BunchOf<GeneralModifier>, 
+        this: BunchOf<ModifyAction>, 
         name: string, 
-        set?: Function){
+        set?: ModifyAction){
 
         const ref = "__" + name;
         if(set) 
-            this[ref] = new GeneralModifier(name, set as any);
+            this[ref] = set;
         else 
             return this[ref]
     }

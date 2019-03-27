@@ -1,4 +1,4 @@
-import {
+import t, {
     ArrowFunctionExpression,
     BinaryExpression,
     CallExpression,
@@ -14,6 +14,17 @@ import {
 } from '@babel/types';
 import { inParenthesis, Opts } from 'internal';
 import { Path } from 'types';
+import { ParseErrors } from 'shared';
+
+const Error = ParseErrors({
+    StatementAsArgument: "Cannot parse statement as a modifier argument!",
+    UnaryUseless: "Unary operator here doesn't do anything",
+    HexNoNegative: "Hexadecimal numbers are converted into colors (#FFF) so negative sign doesn't mean anything here.\nParenthesize the number if you really need \"-{1}\" for some reason...",
+    ArrowNotImplemented: "Arrow Function not supported yet",
+    ArgumentSpread: "Cannot parse argument spreads for modifier handlers",
+    UnknownArgument: "Unknown argument while parsing for modifier.",
+    MustBeIdentifier: "Only Identifers allowed here! Call expression must reference another modifier."
+})
 
 function HEXColor(raw: string){
     raw = raw.substring(2);
@@ -32,6 +43,7 @@ function HEXColor(raw: string){
             return "#" + raw;
 
         if(raw.length == 4)
+            
             // (shorthand) 'F.' -> "FF..." -> 0xFF
             decimal = Array.from(raw).map(x => parseInt(x+x, 16))
 
@@ -59,13 +71,13 @@ const Arguments = new class DelegateTypes {
             if(element.isExpressionStatement())
                 element = element.get("expression");
             else 
-                throw element.buildCodeFrameError("Cannot parse statement as a modifier argument!");
+                throw Error.StatementAsArgument(element) 
         }
     
         const Handler = Arguments[element.type];
     
         if(inParenthesis(element) || !Handler)
-            return new DelegatePassThru(element, "expression");
+            return new DelegateExpression(element, "expression");
         else
             return Handler(element);
     }
@@ -78,8 +90,8 @@ const Arguments = new class DelegateTypes {
         return new DelegateWord(e.node.value, "string");
     }
 
-    TemplateLiteral(e: Path<TemplateLiteral>): DelegatePassThru {
-        return new DelegatePassThru(e, "template");
+    TemplateLiteral(e: Path<TemplateLiteral>): DelegateExpression {
+        return new DelegateExpression(e, "template");
     }
 
     UnaryExpression(e: Path<UnaryExpression>){
@@ -87,8 +99,8 @@ const Arguments = new class DelegateTypes {
         if(e.node.operator == "-" && arg.isNumericLiteral())
             return this.NumericLiteral(arg, -1)
         else if(e.node.operator == "!")
-            return new DelegatePassThru(arg, "verbatim");
-        else throw e.buildCodeFrameError("Unary operator here doesn't do anything")
+            return new DelegateExpression(arg, "verbatim");
+        else throw Error.UnaryUseless(e) 
     }
 
     NumericLiteral(number: Path<NumericLiteral>, sign = 1): DelegateNumeric | DelegateColor {
@@ -97,7 +109,7 @@ const Arguments = new class DelegateTypes {
             return new DelegateNumeric(sign*rawValue);
         else {
             if(sign == -1)
-                throw number.buildCodeFrameError(`Hexadecimal numbers are converted into colors (#FFF) so negative sign doesn't mean anything here.\nParenthesize the number if you really need "-${rawValue}" for some reason...`)
+                throw Error.HexNoNegative(number, rawValue) 
             return new DelegateColor(HEXColor(raw));
         }
     }
@@ -123,7 +135,7 @@ const Arguments = new class DelegateTypes {
     }
 
     ArrowFunctionExpression(e: Path<ArrowFunctionExpression>): never {
-        throw e.buildCodeFrameError("Arrow Function not supported yet")
+        throw Error.ArrowNotImplemented(e) 
     }
 }
 
@@ -136,7 +148,7 @@ export type DelegateAbstraction
     | DelegateColor
     | DelegateGroup
     | DelegateCall
-    | DelegatePassThru 
+    | DelegateExpression 
     | null;
 
 export class DelegateBinary {
@@ -205,13 +217,13 @@ export class DelegateCall {
             if(item.isExpression())
                 args.push(item);
             else if(item.isSpreadElement())
-                throw item.buildCodeFrameError("Cannot parse argument spreads for modifier handlers");
+                throw Error.ArgumentSpread(item) 
             else 
-                throw item.buildCodeFrameError("Unknown argument while parsing for modifier.")
+                throw Error.UnknownArgument(item) 
         }
 
         if(!callee.isIdentifier())
-            throw callee.buildCodeFrameError("Only the identifier of another modifier may be called within another modifier.")
+            throw Error.MustBeIdentifier(callee) 
 
         this.name = callee.node.name;
         this.callee = callee;
@@ -219,12 +231,16 @@ export class DelegateCall {
     }
 }
 
-export class DelegatePassThru {
+export class DelegateExpression {
     type = "expression";
 
     constructor(
         public path: Path<Expression>, 
         public kind: "verbatim" | "expression" | "template" | "spread" ){
+    }
+
+    get value(){
+        return this.path.node;
     }
 }
 
@@ -233,5 +249,14 @@ export class DelegateRequires {
 
     constructor(
         public module: string ){  
+    }
+
+    get value(){
+        return t.callExpression(
+            t.identifier("require"), 
+            [
+                t.stringLiteral(this.module)
+            ]
+        )
     }
 }

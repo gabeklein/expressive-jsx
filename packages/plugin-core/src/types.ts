@@ -1,11 +1,6 @@
 import { NodePath, VisitNodeObject } from '@babel/traverse';
 import { DoExpression, Expression, SpreadElement, Statement } from '@babel/types';
-import { StackFrame } from 'parse/program';
-import { ModifyDelegate } from 'modify/delegate';
-import { ElementModifier } from 'modify/element';
-import { GeneralModifier } from 'modify/other';
-import { ElementInline } from 'handle/element';
-import { Attribute } from 'handle/item';
+import { StackFrame, ElementModifier, ElementInline, ModifyDelegate, Attribute } from 'internal';
 
 export interface Path<T = any> extends NodePath<T> {}
 export interface BabelVisitor<T> extends VisitNodeObject<T> {}
@@ -15,19 +10,10 @@ export interface DoExpressive extends DoExpression {
     expressive_visited?: true;
 }
 
-// type BabelVisited<T> = (path: Path<T>, state: BabelState) => void;
-
-// export interface BabelVisitor<T>{
-//     enter?: BabelVisited<T>;
-//     exit?: BabelVisited<T>;
-// }
-
 export type ListElement = Expression | SpreadElement;
 export type ElementItem = Attribute | ElementInline | NodePath<Expression | Statement>;
-export type ModTuple = [GeneralModifier, Path<Statement>];
 
 export type FlatValue = string | number | boolean | null;
-// export type Value = string | number;
 
 export interface BunchOf<T> {
     [key: string]: T

@@ -1,48 +1,21 @@
-import t, { Expression, JSXElement } from '@babel/types';
+import t, { Expression, JSXElement, StringLiteral } from '@babel/types';
 import {
-    AssembleElement,
     ComponentFor,
     ComponentIf,
     DoExpressive,
+    ElementConstruct,
     ElementInline,
     ExplicitStyle,
     Path,
     Prop,
-    SpreadItem,
 } from '@expressive/babel-plugin-core';
-import { AttributeStack } from 'attributes';
-import { createElement, createFragment } from 'syntax';
-import { Attributes, JSXContent, ContentReact, SwitchJSX, IterateJSX } from 'internal';
+import { ArrayStack, AttributeStack } from 'attributes';
+import { Attributes, ContentReact, IterateJSX, JSXContent, SwitchJSX } from 'internal';
+import { createElement, createFragment, expressionValue } from 'syntax';
+
+import { ContentJSX } from './content';
 
 const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;
-
-export class ContentJSX implements ContentReact {
-    node: Expression;
-    path?: Path<Expression>
-    
-    constructor(
-        source: Path<Expression> | Expression ){
-
-        const path = source as Path<Expression>;
-        if(path.node){
-            this.path = path;
-            this.node = path.node;
-        }
-        else 
-            this.node = source as Expression;
-    }
-
-    toExpression(): Expression {
-        return t.identifier("undefined")
-    }
-
-    toElement(){
-        const { node } = this;
-        return t.isStringLiteral(node) ? 
-            t.jsxText(node.value) :
-            t.jsxExpressionContainer(node)
-    }
-}
 
 export class ElementJSX<T extends ElementInline = ElementInline>
     extends ElementConstruct<T>
@@ -51,7 +24,9 @@ export class ElementJSX<T extends ElementInline = ElementInline>
     children = [] as ContentReact[];
     statements = [] as any[];
     props = [] as Attributes[];
+    classList = new ArrayStack<string, Expression>()
     style = new AttributeStack<ExplicitStyle>();
+    style_static = [] as ExplicitStyle[];
 
     constructor(public source: T){
         super();
@@ -59,11 +34,20 @@ export class ElementJSX<T extends ElementInline = ElementInline>
     }
 
     get jsxChildren(): JSXContent[] {
-        return this.children.map(x => x.toElement())
+        const children = [];
+        for(const child of this.children){
+            const jsx = child.toElement();
+            if(Array.isArray(jsx))
+                children.push(...jsx);
+            else
+                children.push(jsx);
+        }
+        return children;
     }
 
-    add(item: ContentReact){
-        this.children.push(item)
+    didParse(){
+        if(this.classList.length)
+            this.addClassname();
     }
 
     toExpression(): Expression {
@@ -81,36 +65,77 @@ export class ElementJSX<T extends ElementInline = ElementInline>
         );
     }
 
-    Child(item: ElementInline ){
-        this.add(new ElementJSX(item));
+    private add(item: ContentReact){
+        this.children.push(item)
     }
 
-    Content(item: Path<Expression> | Expression){
-        this.add(new ContentJSX(item));
+    private addClassname(){
+        const classes = this.classList.map(x => {
+            return Array.isArray(x)
+                ? t.stringLiteral(x.join(" "))
+                : x
+        })
+
+        let classNameValue = 
+            classes.length == 1
+                ? classes[0] as StringLiteral
+                : t.jsxExpressionContainer(
+                    t.callExpression(
+                        t.memberExpression(
+                            t.arrayExpression(classes),
+                            t.identifier("join")
+                        ), [
+                            t.stringLiteral(" ")
+                        ]
+                    )
+                )
+
+        this.props.push(t.jsxAttribute(
+            t.jsxIdentifier("className"), 
+            classNameValue
+        ));
+    }
+    
+    Attribute(item: Prop | ExplicitStyle): boolean | undefined {
+        if(item instanceof ExplicitStyle)
+            return;
+
+        switch(item.name){
+            case "style":
+                this.style.insert(new ExplicitStyle(false, item.value));
+                break;
+
+            case "className": {
+                let { value } = item;
+
+                if(!value && item.path)
+                    value = item.path.node;
+
+                if(value && typeof value == "object")
+                    if(t.isStringLiteral(value))
+                        value = value.value;
+                    else {
+                        this.classList.push(value);
+                        break;
+                    }
+
+                if(typeof value == "string")
+                    for(const name of value.split(" "))
+                        this.classList.insert(name);
+            } break;
+
+            default:
+                return;
+        }
+
+        return true;
     }
 
-    Switch(item: ComponentIf){
-        this.add(new SwitchJSX(item))
-    }
-
-    Iterate(item: ComponentFor){
-        this.add(new IterateJSX(item))
-    }
-
-    Props(item: Prop | SpreadItem){
-        let { name, value } = item;
+    Props(item: Prop){
+        let { name } = item;
         let attribute: Attributes;
 
-        let expression = 
-            value === undefined ?
-                item.path!.node :
-            typeof value === "object" ?
-                value || t.nullLiteral() :
-            typeof value === "number" ?
-                t.numericLiteral(value) :
-            typeof value === "boolean" ?
-                t.booleanLiteral(value) : 
-                t.stringLiteral(value);
+        const expression = expressionValue(item);
             
         if(!name)
             attribute = t.jsxSpreadAttribute(expression);
@@ -129,8 +154,27 @@ export class ElementJSX<T extends ElementInline = ElementInline>
         this.props.push(attribute);
     }
 
-    Style(item: ExplicitStyle | SpreadItem){
-        // this.style.insert(item);
+    Style(item: ExplicitStyle){
+        if(item.invariant)
+            this.style_static.push(item as ExplicitStyle);
+        else
+            this.style.insert(item)
+    }
+
+    Child(item: ElementInline ){
+        this.add(new ElementJSX(item));
+    }
+
+    Content(item: Path<Expression> | Expression){
+        this.add(new ContentJSX(item));
+    }
+
+    Switch(item: ComponentIf){
+        this.add(new SwitchJSX(item))
+    }
+
+    Iterate(item: ComponentFor){
+        this.add(new IterateJSX(item))
     }
 
     Statement(item: any){

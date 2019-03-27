@@ -8,14 +8,13 @@ export {
 export {
 	ExplicitStyle,
     ElementInline,
-	SpreadItem,
     Prop,
     Syntax,
     ElementConstruct,
     ComponentExpression,
     ComponentConsequent,
     ComponentIf,
-    PossibleExceptions
+    ParseErrors
 } from "internal";
 
 export default (options: any) => {

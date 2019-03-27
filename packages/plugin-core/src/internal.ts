@@ -1,9 +1,9 @@
 export * from "shared";
 
-export * from "handle/component";
+export * from "handle/block";
+export * from "handle/attributes";
 export * from "handle/element"
 export * from "handle/entry";
-export * from "handle/item";
 export * from "handle/switch";
 export * from "handle/iterate";
 

@@ -1,15 +1,15 @@
-import { AssignmentExpression, Expression, TemplateLiteral, IfStatement, For } from '@babel/types';
-import { ApplyElementExpression, ComponentIf, AttributeBody, PossibleExceptions, ComponentFor } from 'internal';
+import { AssignmentExpression, Expression, For, IfStatement, TemplateLiteral } from '@babel/types';
+import { AddElementsFromExpression, AttributeBody, ComponentFor, ComponentIf, InnerContent, ParseErrors } from 'internal';
+import { inParenthesis } from 'shared';
 import { Path } from 'types';
-import { InnerContent } from 'generate/element';
 
-const Error = PossibleExceptions({
+const Error = ParseErrors({
     PropNotIdentifier: "Assignment must be identifier name of a prop.",
     AssignmentNotEquals: "Only `=` assignment may be used here."
 })
 
 export class ElementInline extends AttributeBody {
-
+    
     primaryName?: string;
     tagName?: string;
     multilineContent?: Path<TemplateLiteral>;
@@ -21,18 +21,15 @@ export class ElementInline extends AttributeBody {
     }
 
     ExpressionDefault(path: Path<Expression>){
-        ApplyElementExpression(path, this);
+        if(inParenthesis(path))
+            this.adopt(path)
+        else
+            AddElementsFromExpression(path, this);
     }
 
     IfStatement(path: Path<IfStatement>){
         this.adopt(
             new ComponentIf(path, this)
-        )
-    }
-
-    ForStatement(path: Path<For>){
-        this.adopt(
-            new ComponentFor(path, this.context)
         )
     }
 
@@ -42,6 +39,12 @@ export class ElementInline extends AttributeBody {
 
     ForOfStatement(path: Path<For>){
         this.ForStatement(path)
+    }
+
+    ForStatement(path: Path<For>){
+        this.adopt(
+            new ComponentFor(path, this.context)
+        )
     }
 
     AssignmentExpression(path: Path<AssignmentExpression>){

@@ -36,7 +36,7 @@ let output = outDir.replace(/\/$/, "");
 function onFault(a){
     let [error, ...trace] = a.stack.split("\n");
     trace = trace.filter(x => x.indexOf("node_modules") < 0).map(x => {    
-        if(/at Object\.PossibleExceptions/.test(x)){
+        if(/at Object\.ParseErrors/.test(x)){
             const name = /\[as (\w+)\]/.exec(x);
             if(name)
                 return `${error.slice(error.indexOf("index.js") + 8).replace(": ", `\n${name[1]}: `)}`

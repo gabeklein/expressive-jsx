@@ -1,9 +1,9 @@
 import t, { For, AssignmentExpression } from '@babel/types';
 import { ElementInline, StackFrame } from 'internal';
 import { Path } from 'types';
-import { PossibleExceptions } from 'shared';
+import { ParseErrors } from 'shared';
 
-const Error = PossibleExceptions({
+const Error = ParseErrors({
     AcceptsNoAssignments: "For block cannot accept Assignments",
     cantAssign: "Assignment of variable left of \"of\" must be Identifier or Destruture",
     notImplemented: "Only For-Of loop is currently implemented; complain to dev!"

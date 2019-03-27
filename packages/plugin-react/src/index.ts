@@ -9,9 +9,9 @@ export default (options: any) => {
         visitor: {
             DoExpression: {
                 exit(path: Path<DoExpressive>){
-                    const entry = path.node.meta;
-                    if(entry instanceof ComponentExpression)
-                        new ContainerJSX(entry).replace(path);
+                    const DoNode = path.node.meta;
+                    if(DoNode instanceof ComponentExpression)
+                        new ContainerJSX(DoNode).replace(path);
                 }
             }
         }

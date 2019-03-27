@@ -1,58 +1,56 @@
-import { LabeledStatement } from '@babel/types';
-import { AttributeBody, ElementModifier, ModifyProcess } from 'internal';
-import { BunchOf, ModifyAction, ModTuple, Path } from 'types';
+import { Expression } from '@babel/types';
+import { AttributeBody, ModifyDelegate } from 'internal';
+import { BunchOf, ModifyAction, Path } from 'types';
+
+import Arguments, { DelegateAbstraction } from './abstractions';
+
+export type ModTuple = [string, ModifyAction, DelegateAbstraction[]];
 
 export function ApplyModifier(
+    initial: string,
     recipient: AttributeBody, 
-    src: Path<LabeledStatement>){
+    input: Path<Expression>){
 
-    const name = src.node.label.name;
-    const body = src.get("body");
-
-    const modifier = 
-        recipient.context.propertyMod(name) || 
-        new GeneralModifier(name);
+    const handler = recipient.context.propertyMod(initial);
+    const inputs = input.isSequenceExpression()
+        ? input.get("expressions") : [ input ];
+    const args = inputs.map(Arguments.Parse);
     
-    const accumulated = { 
+    const totalOutput = { 
         props: {} as BunchOf<any>, 
         style: {} as BunchOf<any>
     };
 
     let i = 0;
     let mods = [] as ModTuple[];
-    let current: ModTuple = [ modifier, body ];
+    let current: ModTuple = [ 
+        initial, handler, args
+    ];
 
     do {
-        const [ mod, body ] = current;
-        let delegateOutput;
+        const [ name, handler, input ] = current;
+        
+        const { output } = new ModifyDelegate(handler, input, name, recipient);
 
-        if(body.isBlockStatement())
-            new ElementModifier(mod.name, body, recipient.context).declare(recipient);
-        else 
-        if(body.isExpressionStatement())
-            delegateOutput = ModifyProcess(mod, recipient, body);
-        else 
-            throw body.buildCodeFrameError(`Delegate body of type ${body.type} not supported here!`) 
-
-        if(!delegateOutput){
+        if(!output){
             i++; 
             continue; 
         }
 
-        Object.assign(accumulated.style, delegateOutput.style);
-        Object.assign(accumulated.props, delegateOutput.props);
+        Object.assign(totalOutput.style, output.style);
+        Object.assign(totalOutput.props, output.props);
 
-        const next = delegateOutput.attrs;
+        const next = output.attrs;
         const pending = [] as ModTuple[];
 
         if(next)
         for(const named in next){
-            let value = next[named];
+            let input = next[named];
             let { context } = recipient;
 
-            if(value == null) continue;
+            if(input == null) continue;
 
-            if(named == name){
+            if(named == initial){
                 let found;
                 do { 
                     found = context.hasOwnPropertyMod(named);
@@ -61,16 +59,15 @@ export function ApplyModifier(
                 while(!found);
             }
 
-            const handler = context.propertyMod(named) || new GeneralModifier(named);
-
             pending.push([
-                handler, 
-                value
+                named,
+                context.propertyMod(named), 
+                [].concat(input)
             ])
         }
         
         if(!pending.length)
-            if(mods[++i])
+            if(++i in mods)
                 current = mods[i]
             else break;
         else {
@@ -80,24 +77,8 @@ export function ApplyModifier(
     }
     while(true)
 
-    throw new Error("Not Implemented")
-    
-    // for(const name in accumulated.style){
-    //     const item = accumulated.style[name];
-    //     recipient.apply(new ExplicitStyle(name, item));
-    // }
-}
-
-export class GeneralModifier {
-    name: string;
-    transform?: ModifyAction;
-
-    constructor(
-        name: string, 
-        transform?: ModifyAction ){
-
-        this.name = name;
-        if(transform)
-            this.transform = transform;
+    for(const name in totalOutput.style){
+        const item = totalOutput.style[name];
+        recipient.Style(name, item)
     }
 }

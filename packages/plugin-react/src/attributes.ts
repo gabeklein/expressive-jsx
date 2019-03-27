@@ -1,9 +1,9 @@
-import { ExplicitStyle, Prop, SpreadItem } from '@expressive/babel-plugin-core';
+import { ExplicitStyle, Prop } from '@expressive/babel-plugin-core';
 
-export class ArrayStack<Type = any, Insert = never>
-    extends Array<Type[] | Insert> {
+export class ArrayStack<Type = any, Interrupt = Type>
+    extends Array<Type[] | Interrupt> {
 
-    top?: Type[] | Insert;
+    top?: Type[] | Interrupt;
 
     insert(x: Type){
        if(Array.isArray(this.top))
@@ -14,35 +14,27 @@ export class ArrayStack<Type = any, Insert = never>
         }
     }
 
-    push(x: Insert): number {
+    push(x: Interrupt): number {
         this.top = x;
         return super.push(x);
     }
 }
 
-export class AttributeStack<Type extends (ExplicitStyle | Prop)> 
-    extends ArrayStack<Type, SpreadItem> {
+export class AttributeStack<Type extends ExplicitStyle | Prop>
+    extends ArrayStack<Type> {
 
-    static = [] as Type[];
-    doesReoccur?: true;
+    invariant = [] as Type[];
 
-    constructor(previous?: AttributeStack<Type>){
-        super();
-        if(previous)
-            previous.doesReoccur = true;
-    }
+    insert(
+        item: Type): boolean {
 
-    insert(item: Type | SpreadItem): boolean {
-        if(item instanceof SpreadItem){
+        if(item.name === undefined){
             this.top = item
             this.push(item);
-            if(item.insensitive)
-                return true;
         }
         else 
-        if(item.value && this.length < 2 
-        || (<SpreadItem>this.top).insensitive){
-            this.static.push(item);
+        if(item.invariant && this.length < 2){
+            // this.invariant.push(item);
             return true;
         }
         else

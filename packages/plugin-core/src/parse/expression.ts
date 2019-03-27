@@ -10,12 +10,11 @@ import t, {
     TaggedTemplateExpression,
 } from '@babel/types';
 
-import { ElementInline, PossibleExceptions, inParenthesis, Opts, Shared, preventDefaultPolyfill } from 'internal';
-import { Prop, SpreadItem } from 'handle/item';
+import { ElementInline, ParseErrors, inParenthesis, Opts, Shared, preventDefaultPolyfill, Prop } from 'internal';
 import { DoExpressive, ListElement, Path } from 'types';
 
 const New = Object.create;
-const Error = PossibleExceptions({
+const Error = ParseErrors({
     NoParenChildren: "Children in Parenthesis are not allowed, for direct insertion used an Array literal",
     SemicolonRequired: "Due to how parser works, a semicolon is required after the element preceeding escaped children.",
     DoExists: "Do Expression was already declared!",
@@ -27,57 +26,53 @@ const Error = PossibleExceptions({
     BadUnary: "{1} is not a recognized operator for props",
     BadExpression: "Expression must start with an identifier",
     BadPrefix: "Improper element prefix",
-    BadObjectKeyValue: "Object based props must have a value. Got {1}"
+    BadObjectKeyValue: "Object based props must have a value. Got {1}",
+    PropNotIdentifier: "Prop name must be an Identifier",
+    NotImplemented: "{1} Not Implemented"
 })
 
-export function ApplyElementExpression(
+export function AddElementsFromExpression(
     subject: Path<Expression>, 
-    insertInto: ElementInline ){
-        
-    if(inParenthesis(subject)){
-        insertInto.adopt(subject);
-        return;
-    }
+    parent: ElementInline ){
 
-    let path = subject;
-    let baseAttributes = [] as Path<Expression>[];
+    var baseAttributes = [] as Path<Expression>[];
 
-    if(path.isSequenceExpression())
-        [path, ...baseAttributes] = path.get('expressions');
+    if(subject.isSequenceExpression())
+        [subject, ...baseAttributes] = subject.get('expressions');
 
-    if(path.isBinaryExpression({operator: ">"})){
-        const item = New(path.get("right"));
+    if(subject.isBinaryExpression({operator: ">"})){
+        const item = New(subject.get("right"));
         item.type = "ExpressionLiteral";
         baseAttributes.push(item);
-        path = path.get("left");
+        subject = subject.get("left");
     }
 
     const chain = [] as Path<Expression>[]
 
-    while(path.isBinaryExpression({operator: ">>"})){
-        const child = path.get("right")
+    while(subject.isBinaryExpression({operator: ">>"})){
+        const child = subject.get("right")
 
         if(inParenthesis(child))
             throw Error.NoParenChildren(child);
 
         chain.push(child);
-        path = path.get("left");
+        subject = subject.get("left");
     }
-    chain.push(path);
+    chain.push(subject);
 
     for(const segment of chain){
-        const child = new ElementInline(insertInto.context);
+        const child = new ElementInline(parent.context);
 
-        parseIdentity(segment, child);
+        ParseIdentity(segment, child);
 
-        insertInto.adopt(child);
-        insertInto = child;
+        parent.adopt(child);
+        parent = child;
     }    
 
-    parseProps(baseAttributes, insertInto);
+    ParseProps(baseAttributes, parent);
 }
 
-export function applyNameImplications(
+export function ApplyNameImplications(
     name: string, 
     target: ElementInline, 
     head?: true, 
@@ -99,7 +94,7 @@ export function applyNameImplications(
     // }
 }
 
-function parseIdentity(
+function ParseIdentity(
     tag: Path<Expression>,
     target: ElementInline ){
 
@@ -115,14 +110,14 @@ function parseIdentity(
         tag = tag.get("right") as any;
     }
 
-    tag = parseLayers(tag, target);
+    tag = UnwrapExpression(tag, target);
 
     if(tag.isIdentifier())
-        applyNameImplications(tag.node.name, target, true, prefix)
+        ApplyNameImplications(tag.node.name, target, true, prefix)
 
     else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
-        applyNameImplications("string", target);
-        applyNameImplications(Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "span", target, true)
+        ApplyNameImplications("string", target);
+        ApplyNameImplications(Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "span", target, true)
 
         target.add(tag)
         preventDefaultPolyfill(tag);
@@ -133,7 +128,7 @@ function parseIdentity(
 
 const containingLineBreak = /\n/;
 
-function parseLayers(
+function UnwrapExpression(
     expression: Path<Expression>,
     target: ElementInline ): Path<Expression> {
 
@@ -160,7 +155,7 @@ function parseLayers(
                     content = t.stringLiteral(text);
                 }
 
-                target.add(quasi)
+                target.add(content)
             }
 
             current = exp.get("tag");
@@ -170,7 +165,7 @@ function parseLayers(
 
         case "CallExpression": {
             const exp = current as Path<CallExpression>;
-            parseProps( 
+            ParseProps( 
                 exp.get("arguments") as Path<ListElement>[],
                 target
             );
@@ -182,7 +177,7 @@ function parseLayers(
             const exp = current as Path<MemberExpression>;
             const selector = exp.get("property") as Path;
             if(exp.node.computed !== true && selector.isIdentifier())
-                applyNameImplications(selector.node.name, target);
+                ApplyNameImplications(selector.node.name, target);
             else 
                 throw Error.SemicolonRequired(selector)
 
@@ -197,7 +192,7 @@ function parseLayers(
     return current;
 }
 
-function parseProps(
+function ParseProps(
     props: Path<ListElement>[],
     target: ElementInline ){
 
@@ -219,7 +214,7 @@ function parseProps(
                 const {tag, quasi} = path.node as TaggedTemplateExpression;
     
                 if(tag.type != "Identifier") 
-                    throw path.buildCodeFrameError("Prop must be an Identifier");
+                    throw Error.PropNotIdentifier(path)
     
                 target.add(
                     new Prop(
@@ -246,19 +241,22 @@ function parseProps(
 
             case "Identifier": {
                 const { name } = path.node as Identifier;
-                target.add(new Prop(name, t.stringLiteral("true")));
-
+                target.add(
+                    new Prop(name, t.stringLiteral("true"))
+                );
             } break;
 
-            case "SpreadElement":
-                target.add(new SpreadItem("props", (<SpreadElement>path.node).argument));
+            case "SpreadElement": 
+                target.add(
+                    new Prop(false, (<SpreadElement>path.node).argument)
+                );
             break;
 
-            case "ObjectExpression": 
+            case "ObjectExpression": {
                 const properties = (path as Path<ObjectExpression>).get("properties");
 
                 for(const property of properties){
-                    let insert: Prop | SpreadItem;
+                    let insert: Prop;
                     
                     if(property.isObjectProperty()){
                         const key = property.node.key;
@@ -272,7 +270,7 @@ function parseProps(
                     }
                     
                     else if(property.isSpreadElement()){
-                        insert = new SpreadItem("props", property.node.argument);
+                        insert = new Prop(false, property.node.argument);
                         preventDefaultPolyfill(property);
                     } 
                     
@@ -287,30 +285,11 @@ function parseProps(
 
                     target.add(insert!)
                 }
-            break;
-
-            case "UnaryExpression": {
-                // const unary = path as Path<UnaryExpression>;
-                // let { operator, argument } = unary.node;
-
-                // const value = unary.get("argument");
-                // let name: string;
-
-                // switch(operator){
-                //     case "+": 
-                //         if(argument.type == "Identifier")
-                //             name = argument.name;
-                //         else throw Error.BadProp(unary, argument.type);
-                //     break;
-
-                //     case "~":
-
-                //     break;
-
-                //     default:
-                //         throw Error.BadUnary(unary, operator)
-                // }
             } break;
+
+            case "UnaryExpression":
+                Error.NotImplemented(path, path.type);
+            break;
 
             default: 
                 throw Error.PropUnknown(path, path.type);

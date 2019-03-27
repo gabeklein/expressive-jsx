@@ -9,14 +9,14 @@ import t, {
     ForXStatement,
     Identifier,
     PatternLike,
-    BooleanLiteral,
+    StringLiteral,
 } from '@babel/types';
-import { ComponentFor, PossibleExceptions, ElementInline } from '@expressive/babel-plugin-core';
+import { ComponentFor, ElementInline, ParseErrors } from '@expressive/babel-plugin-core';
 import { ContainerJSX } from 'internal';
 import { ensureUIDIdentifier } from 'runtime';
 import { createFragment } from 'syntax';
 
-const Error = PossibleExceptions({
+const Error = ParseErrors({
     cantAssign: "Assignment of variable left of \"of\" must be Identifier or Destruture",
     notImplemented: "Only For-Of loop is currently implemented; complain to dev!"
 })
@@ -45,10 +45,8 @@ export class IterateJSX
     }
 
     parseForX(Loop: Path<ForOfStatement | ForInStatement>){
-
         let left = Loop.get("left");
         let right = Loop.get("right");
-
         let key: Identifier;
 
         if(left.isVariableDeclaration())
@@ -94,10 +92,10 @@ export class IterateJSX
             : t.jsxSpreadChild(output);
     }
 
-    toExpression(): CallExpression | BooleanLiteral {
+    toExpression(): CallExpression | StringLiteral {
 
         if(this.type != "ForOfStatement")
-            return t.booleanLiteral(false);
+            return t.stringLiteral(this.type + " NOT IMPLEMENTED");
 
         const { children } = this;
 

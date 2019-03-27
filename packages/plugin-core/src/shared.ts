@@ -26,7 +26,7 @@ export function preventDefaultPolyfill(element: Path){
     element.remove();
 }
 
-export function PossibleExceptions<O extends BunchOf<string>> (register: O) {
+export function ParseErrors<O extends BunchOf<string>> (register: O) {
     type ParseError = (path: Path, ...args: FlatValue[]) => Error;
 
     const Errors = {} as BunchOf<ParseError>

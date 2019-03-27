@@ -49,8 +49,8 @@ declare abstract class AttributeBody extends TraversableBody {
 	style: BunchOf<ExplicitStyle>;
 	value: Expression;
 	abstract generate(): Syntax;
-	Prop(name: string | null, value: FlatValue | Expression | undefined, path?: Path<Expression>): void;
-    Style(name: string | null, value: FlatValue | Expression, path?: Path<Expression>): void;
+	Prop(name: string | false, value: FlatValue | Expression | undefined, path?: Path<Expression>): void;
+    Style(name: string | false, value: FlatValue | Expression, path?: Path<Expression>): void;
 	ExpressionDefault(path: Path<Expression>): void;
 	LabeledStatement(path: Path<LabeledStatement>): void;
 }
@@ -70,6 +70,12 @@ declare class ComponentExpression extends ElementInline {
 	didExitOwnScope(path: Path<DoExpressive>): void;
 	private extractParams;
 }
+declare class ComponentIf {
+	children: ComponentConsequent[];
+	parent: ElementInline;
+	protected path: Path<IfStatement>;
+	constructor(path: Path<IfStatement>, parent: ElementInline);
+}
 declare class ComponentConsequent extends ElementInline {
 	replacement: Statement;
 	logicalParent: ComponentIf;
@@ -81,12 +87,6 @@ declare class ComponentConsequent extends ElementInline {
 		test?: Path<Expression>
 	)
 }
-declare class ComponentIf {
-	children: ComponentConsequent[];
-	parent: ElementInline;
-	protected path: Path<IfStatement>;
-	constructor(path: Path<IfStatement>, parent: ElementInline);
-}
 declare class ComponentFor extends ElementInline {
 	public path: Path<For>;
 	public context: StackFrame;
@@ -94,24 +94,20 @@ declare class ComponentFor extends ElementInline {
 	constructor(path: Path<For>, context: StackFrame);
 }
 declare abstract class Attribute<T extends Expression = Expression> {
-    type: "props" | "style";
-    name: string | undefined;
+    name: string | false;
     value: FlatValue | T | undefined;
     path?: Path<T> | undefined;
+	invariant: boolean | undefined;
     overriden?: boolean;
-    constructor(type: "props" | "style", name: string | undefined, value: FlatValue | T | undefined, path?: Path<T> | undefined);
-}
-declare class SpreadItem extends Attribute {
-    insensitive?: boolean;
-    constructor(type: "props" | "style", node: FlatValue | Expression | undefined, path?: Path<Expression>);
+    constructor(name: string | undefined, value: FlatValue | T | undefined, path?: Path<T> | undefined);
 }
 declare class Prop extends Attribute {
     synthetic?: boolean;
-    constructor(name: string, node: FlatValue | Expression | undefined, path?: Path<Expression>);
+    constructor(name: string | false, node: FlatValue | Expression | undefined, path?: Path<Expression>);
 }
 declare class ExplicitStyle extends Attribute {
-    priority: number;
-    constructor(name: string, node: FlatValue | Expression | undefined, path?: Path<Expression>);
+	priority: number;
+    constructor(name: string | false, node: FlatValue | Expression | undefined, path?: Path<Expression>);
 }
 declare class StackFrame {
 	program: any;
@@ -151,23 +147,42 @@ declare class ModifyDelegate {
 	constructor(name: string, value: Path<Expression>[], target: AttributeBody, transform?: ModifyAction);
 	assign(data: any): void;
 }
-declare abstract class AssembleElement
+declare abstract class ElementConstruct
 	<From extends ElementInline = ElementInline> {
 	abstract source: From;
 	abstract Statement<T extends Statement>(item: Path<T> | T): void;
     abstract Content<T extends Expression = never>(item: Path<T> | T): void;
     abstract Child<T extends Expression = never>(item: ElementInline): void
-    abstract Props(prop: Prop | SpreadItem, overridden?: true): void;
-    abstract Style(style: ExplicitStyle | SpreadItem, overridden?: true): void;abstract Switch(item: ComponentIf): void;
+    abstract Props(prop: Prop): void;
+	abstract Style(style: ExplicitStyle): void;
+	abstract Switch(item: ComponentIf): void;
 	abstract Iterate(item: ComponentFor): void;
-	
-    willParse?(): void;
-	didParse?(): void;
+
+	/**
+	 * Invoked on all Attributes during `this.parse()` execution.
+	 * Will be called regardless if `overridden` is true.
+	 * 
+	 * @param item Props, styles, and spread attributes encountered in source element.
+	 * 
+	 * @returns preventDefault: `true` if type callback should be skipped.
+	 * 
+	 */
+	Attribute?(item: Attribute): boolean | undefined;
 	
 	/**
 	 * @param overridden Prevent drop of named attributes where duplicates do exist.
 	 */
 	parse(overridden?: true): void;
+
+	/**
+	 * Invoked on `this.parse()` prior to scan.	
+	 */
+	willParse?(): void;
+	
+	/**
+	 * Invoked on `this.parse()` after last element has been scanned.	
+	 */
+	didParse?(): void;
 }
 declare const _default: (options: any) => {
 	manipulateOptions: (options: any, parse: any) => void;
@@ -183,12 +198,10 @@ declare type Syntax = [Expression, Statement[]?];
 declare type ElementItem = Attribute | ElementInline | Path<Expression | Statement>;
 declare type ModTuple = [GeneralModifier, Path<Statement>];
 declare type FlatValue = string | number | boolean | null;
-declare type InnerContent = ElementInline | ComponentIf | ComponentFor | Path<Expression>;
-declare type SequenceItem = Attr | InnerContent | Path<Statement>;
-declare type Attr = Prop | ExplicitStyle | SpreadItem;
+declare type InnerContent = ElementInline | ComponentIf | ComponentFor | Path<Expression> | Expression;
+declare type SequenceItem = Attribute | InnerContent | Path<Statement>;
 
-
-declare function PossibleExceptions
+declare function ParseErrors
 	<O extends BunchOf<string>>(register: O): 
 	{ readonly [P in keyof O]: ParseError };
 	
@@ -198,7 +211,6 @@ export {
 	ElementConstruct,
 	DoExpressive,
 	SequenceItem,
-	SpreadItem,
 	Prop,
 	ExplicitStyle,
 	ElementInline,
@@ -208,6 +220,6 @@ export {
 	ComponentConsequent,
 	ComponentFor,
 	StackFrame,
-	PossibleExceptions,
+	ParseErrors,
 	Path
 }

@@ -7,8 +7,14 @@ import t, {
     VariableDeclaration,
 } from '@babel/types';
 
-import { applyNameImplications, ElementInline, StackFrame } from 'internal';
+import { ApplyNameImplications, ElementInline, StackFrame } from 'internal';
 import { DoExpressive, Path } from 'types';
+import { ParseErrors } from 'shared';
+
+const Error = ParseErrors({
+    PropsCantHaveDefault: "This argument will always resolve to component props",
+    ArgumentNotSupported: "Argument of type {1} not supported here!"
+})
 
 export class ComponentExpression extends ElementInline {
 
@@ -29,7 +35,7 @@ export class ComponentExpression extends ElementInline {
 
         this.primaryName = name;
         if(/^[A-Z]/.test(name))
-            applyNameImplications(name, this);
+            ApplyNameImplications(name, this);
 
         path.node.meta = this;
     }
@@ -53,8 +59,7 @@ export class ComponentExpression extends ElementInline {
         const props = params[0];
 
         if(props.isAssignmentPattern())
-            throw props.get("right").buildCodeFrameError(
-                "This argument will always resolve to component props");
+            throw Error.PropsCantHaveDefault(props.get("right"))
         
         if(params.length > 1){
             const children = params.slice(1);
@@ -70,7 +75,7 @@ export class ComponentExpression extends ElementInline {
                     if(t.isPatternLike(child.node))
                         destructure.push(child.node)
                     else 
-                        throw child.buildCodeFrameError(`Argument of type ${child.type} not supported here!`)
+                        throw Error.ArgumentNotSupported(child, child.type)
                 }
                 assign = t.arrayPattern(destructure);
             }

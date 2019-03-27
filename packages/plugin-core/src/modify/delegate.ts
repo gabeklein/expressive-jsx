@@ -1,97 +1,38 @@
-import t, { Expression, ExpressionStatement } from '@babel/types';
-import { AttributeBody, GeneralModifier } from 'internal';
-import { BunchOf, Path, ModifyAction } from 'types';
-import Arguments from './parse';
+import t from '@babel/types';
+import { AttributeBody } from 'internal';
+import { BunchOf, ModifyAction } from 'types';
 
-export function ModifyProcess(
-    mod: GeneralModifier,
-    recipient: AttributeBody,
-    body: Path<ExpressionStatement>){
-
-    const expression = body.get("expression");
-
-    const content = expression.isSequenceExpression()
-        ? expression.get("expressions") : [ expression ];
-
-    const { name, transform } = mod;
-
-    const delegate = new ModifyDelegate(name, content, recipient, transform);
-
-    return delegate.data;
-}
+import { DelegateAbstraction } from './abstractions';
 
 export class ModifyDelegate {
-    name: string;
-    target: AttributeBody;
-    done?: true;
-    priority?: number;
+    syntax?: Array<DelegateAbstraction>
     arguments?: Array<any>
-
-    data = {} as BunchOf<any>;
+    priority?: number;
+    done?: true;
+    output = {} as BunchOf<any>;
 
     constructor(
-        name: string,
-        value: Path<Expression>[], 
-        target: AttributeBody,
-        transform: ModifyAction = propertyModifierDefault){
+        transform: ModifyAction = PropertyModifierDefault,
+        argument: DelegateAbstraction[], 
+        public name: string,
+        public target: AttributeBody){
 
-        this.name = name;
-        this.target = target;
+        this.syntax = argument;
+        const args = this.arguments = argument.map(x => x && "value" in x ? x.value : x);
 
-        const args = this.arguments = value.map(Arguments.Parse);
+        const output = transform.apply(this, args)
 
-        const output
-            = transform.length
-            ? transform.apply(this, args)
-            : transform.call(this)
+        if(!output || this.done) return
 
-        if(this.done) return
-
-        if(output)
-            this.assign(output);
+        this.assign(output);
     }
 
     public assign(data: any){
         for(const field in data)
-            if(this.data[field])
-                Object.assign(this.data[field], data[field])
-            else this.data[field] = data[field]
+            if(field in this.output)
+                Object.assign(this.output[field], data[field])
+            else this.output[field] = data[field]
     }
-
-    // get arguments(): any[] {
-
-    //     if(!this.body) throw new Error();
-
-    //     const args = this.body ? [Arguments.Parse(this.body)] : [];
-
-    //     const { context } = this.target;
-
-    //     for(const argument of args)
-    //         if(typeof argument == "object" && argument.callee){
-    //             const { inner, callee, callee } = argument;
-    //             const valueMod = context.valueMod(callee);
-
-    //             if(valueMod) 
-    //                 try {
-    //                     const computed = valueMod(...inner)
-
-    //                     if(computed.value) argument.computed = computed; 
-    //                     if(computed.require) argument.requires = computed.require;
-
-    //                 } catch(err) {
-    //                     throw callee ? callee.buildCodeFrameError(err.message) : err;
-    //                 } 
-    //             else {
-    //                 argument.computed = {value: `${ callee }(${ inner.join(" ") })`}
-    //             }
-    //         }
-
-    //     return this.arguments = args;
-    // }
-
-    // set arguments(value) {
-    //     Object.defineProperty(this, "arguments", { configurable: false, writable: false, value: value })
-    // }
 
     // declareElementModifier(
     //     name: string, 
@@ -99,8 +40,7 @@ export class ModifyDelegate {
     //     fn?: (() => void) | undefined ){
 
     //     const mod = new ExternalSelectionModifier(name, body, fn);
-    //     if(this.priority) mod.stylePriority = this.priority;
-    //     mod.declare(this.target);
+    //     if(this.priority) mod.stylePriority = this.priority; 
     // }
 
     // declareMediaQuery(
@@ -111,7 +51,7 @@ export class ModifyDelegate {
     // }
 }
 
-function propertyModifierDefault(
+function PropertyModifierDefault(
     this: ModifyDelegate){
 
     const args = this.arguments!.map(arg => {
