@@ -18,17 +18,17 @@ const program = require("./console");
 
 module.exports = {
     "presets": [
-        [env, {
-          "targets": {
-            "node": "current"
-          },
-          "modules": false
-        }],
+        // [env, {
+        //   "targets": {
+        //     "node": "current"
+        //   },
+        //   "modules": false
+        // }],
         expressiveEnhancements,        
     ],
     "plugins": [
         pluginClassProperties,
-        restSpread,
+        // restSpread,
         [inferReactComponent, {
             activeOnMethodDo: true
         }],
