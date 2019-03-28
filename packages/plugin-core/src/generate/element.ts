@@ -32,7 +32,7 @@ export abstract class ElementConstruct
     willParse?(): void;
     didParse?(): void;
 
-    parse(overridden = false, invariant = false){
+    parse(invariant: true, overridden: true){
         if(this.willParse)
             this.willParse();
 
@@ -53,7 +53,7 @@ export abstract class ElementConstruct
                     continue
 
                 if(!overridden && item.overriden === true
-                && invariant && item.invariant === true)
+                || !invariant && item.invariant === true)
                     continue;
 
                 if(item instanceof Prop)

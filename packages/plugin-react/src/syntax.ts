@@ -12,15 +12,17 @@ export function expressionValue(item: Prop | ExplicitStyle){
     let { value } = item;
 
     return (
-        value === undefined ?
-            item.path!.node :
-        typeof value === "object" ?
-            value || t.nullLiteral() :
+        typeof value === "string" ?
+            t.stringLiteral(value) :
         typeof value === "number" ?
             t.numericLiteral(value) :
         typeof value === "boolean" ?
-            t.booleanLiteral(value) : 
-            t.stringLiteral(value)
+            t.booleanLiteral(value) :
+        value === undefined && item.path ?
+            item.path.node :
+        typeof value === "object" ?
+            value || t.nullLiteral() :
+            t.identifier("undefined")
     )
 }
 

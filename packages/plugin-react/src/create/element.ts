@@ -16,6 +16,18 @@ import { createElement, createFragment, expressionValue } from 'syntax';
 import { ContentJSX } from './content';
 
 const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;
+const IsLegalIdentifier = /^[a-zA-Z_]\w+$/;
+
+function AttributeES6(src: ExplicitStyle | Prop){
+    const name = src.name as string;
+    const key = IsLegalIdentifier.test(name)
+        ? t.identifier(name)
+        : t.stringLiteral(name);
+    
+    return t.objectProperty(
+        key, expressionValue(src)
+    )
+}
 
 export class ElementJSX<T extends ElementInline = ElementInline>
     extends ElementConstruct<T>
@@ -30,7 +42,7 @@ export class ElementJSX<T extends ElementInline = ElementInline>
 
     constructor(public source: T){
         super();
-        this.parse();
+        this.parse(true);
     }
 
     get jsxChildren(): JSXContent[] {
@@ -46,7 +58,7 @@ export class ElementJSX<T extends ElementInline = ElementInline>
     }
 
     didParse(){
-        if(this.classList.length)
+        this.addInlineStyle()
             this.addClassname();
     }
 
@@ -65,11 +77,43 @@ export class ElementJSX<T extends ElementInline = ElementInline>
         );
     }
 
-    private add(item: ContentReact){
+    private adopt(item: ContentReact){
         this.children.push(item)
     }
 
+    private addInlineStyle(){
+        const { style, style_static, props } = this;
+
+        if(style_static.length)
+            style.push(style_static as any);
+
+        if(!style.length)
+            return;
+
+        let values = style.map(
+            item => item instanceof ExplicitStyle
+                ? expressionValue(item)
+                : t.objectExpression(
+                    item.map(AttributeES6)
+                )
+        )
+
+        const value = values.length == 1
+            ? values[0]
+            : t.objectExpression(
+                values.map(x => t.spreadElement(x))
+            )
+
+        props.push(t.jsxAttribute(
+            t.jsxIdentifier("style"), 
+            t.jsxExpressionContainer(value)
+        ));
+    }
+
     private addClassname(){
+        if(!this.classList.length)
+            return;
+
         const classes = this.classList.map(x => {
             return Array.isArray(x)
                 ? t.stringLiteral(x.join(" "))
@@ -102,7 +146,7 @@ export class ElementJSX<T extends ElementInline = ElementInline>
 
         switch(item.name){
             case "style":
-                this.style.insert(new ExplicitStyle(false, item.value));
+                this.style.push(new ExplicitStyle(false, expressionValue(item)));
                 break;
 
             case "className": {
@@ -131,6 +175,13 @@ export class ElementJSX<T extends ElementInline = ElementInline>
         return true;
     }
 
+    Style(item: ExplicitStyle){
+        if(item.invariant)
+            this.style_static.push(item as ExplicitStyle);
+        else
+            this.style.insert(item)
+    }
+
     Props(item: Prop){
         let { name } = item;
         let attribute: Attributes;
@@ -154,27 +205,20 @@ export class ElementJSX<T extends ElementInline = ElementInline>
         this.props.push(attribute);
     }
 
-    Style(item: ExplicitStyle){
-        if(item.invariant)
-            this.style_static.push(item as ExplicitStyle);
-        else
-            this.style.insert(item)
-    }
-
     Child(item: ElementInline ){
-        this.add(new ElementJSX(item));
+        this.adopt(new ElementJSX(item));
     }
 
     Content(item: Path<Expression> | Expression){
-        this.add(new ContentJSX(item));
+        this.adopt(new ContentJSX(item));
     }
 
     Switch(item: ComponentIf){
-        this.add(new SwitchJSX(item))
+        this.adopt(new SwitchJSX(item))
     }
 
     Iterate(item: ComponentFor){
-        this.add(new IterateJSX(item))
+        this.adopt(new IterateJSX(item))
     }
 
     Statement(item: any){
