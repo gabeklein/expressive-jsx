@@ -59,6 +59,7 @@ declare class ElementInline extends AttributeBody {
 	name?: string;
 	multilineContent?: Path<TemplateLiteral>;
     children: InnerContent[];
+    explicitTagName?: string;
 	adopt(child: InnerContent): void;
 	generate(): [Expression, (Statement[] | undefined)?];
 	ExpressionDefault(path: Path<Expression>): void;

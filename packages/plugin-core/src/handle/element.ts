@@ -14,6 +14,7 @@ export class ElementInline extends AttributeBody {
     primaryName?: string;
     multilineContent?: Path<TemplateLiteral>;
     children = [] as InnerContent[];
+    explicitTagName?: string;
 
     adopt(child: InnerContent){
         this.children.push(child);

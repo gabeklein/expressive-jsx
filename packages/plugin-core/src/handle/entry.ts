@@ -33,9 +33,11 @@ export class ComponentExpression extends ElementInline {
             this.extractParams();
         }
 
+        this.name = name;
+        this.explicitTagName = "div";
+
         if(/^[A-Z]/.test(name))
             ApplyNameImplications(name, this);
-        this.name = "name";
 
         path.node.meta = this;
     }

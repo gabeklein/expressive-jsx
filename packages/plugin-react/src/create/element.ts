@@ -44,14 +44,16 @@ export class ElementJSX<T extends ElementInline = ElementInline>
     }
 
     toElement(): JSXContent {
-        const { props, jsxChildren } = this;
-        const { name } = this.source;
-
         return createElement(
-            name || "div", 
-            props, 
-            jsxChildren
+            this.tagName, 
+            this.props, 
+            this.jsxChildren
         );
+    }
+
+    get tagName(): string {
+        const { name, explicitTagName } = this.source;
+        return explicitTagName || name || "div";
     }
 
     get jsxChildren(): JSXContent[] {

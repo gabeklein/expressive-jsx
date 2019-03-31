@@ -41,11 +41,11 @@ export class ContainerJSX<T extends ElementInline = ElementInline>
         }
     }
 
-    toExpression(name?: string): Expression {
+    toExpression(): Expression {
         return (
             this.toShallowContent() || 
             createElement(
-                name || this.source.name || "div", 
+                this.tagName, 
                 this.props, 
                 this.jsxChildren
             )
@@ -54,8 +54,6 @@ export class ContainerJSX<T extends ElementInline = ElementInline>
 }
 
 export class ComponentJSX extends ContainerJSX {
-    toExpression(): Expression {
-        return super.toExpression("div")
-    }
+    
 }
 
