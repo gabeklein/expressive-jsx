@@ -6,6 +6,7 @@ import { Syntax } from 'generate/element';
 export class ElementModifier extends AttributeBody {
 
     name: string;
+    inherits?: ElementModifier;
 
     constructor(
         name: string,
@@ -32,6 +33,6 @@ export class ElementModifier extends AttributeBody {
     }
 
     into(accumulator: ModifierOutput){
-
+        
     }
 }

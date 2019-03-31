@@ -1,17 +1,19 @@
 
 import { Program } from '@babel/types';
 import { VisitNodeObject as BabelVisitor } from "@babel/traverse";
-import { ElementInline, Shared, AttributeBody, TraversableBody } from 'internal';
+import { ElementInline, Shared, AttributeBody, TraversableBody, ElementModifier } from 'internal';
 import { BunchOf, ModifyAction } from 'types';
+import { createHash } from 'crypto';
+import { ComponentExpression } from 'handle/entry';
 
 interface BabelState {
+    filename: string;
     context: StackFrame;
     opts: any;
 }
 
 export default <BabelVisitor<Program>>{
     enter(path, state){
-        // debugger
         state.context = new StackFrame(state);
     },
     exit(path, state){
@@ -20,7 +22,17 @@ export default <BabelVisitor<Program>>{
     }
 }
 
+function Hash(data: string, length?: number){
+    return (
+        createHash("md5")
+        .update(data)
+        .digest('hex')
+        .substring(0, 6)
+    )
+}
+
 export class StackFrame {
+    loc: string;
     program = {} as any;
     styleRoot = {} as any;
     current = {} as any;
@@ -36,6 +48,7 @@ export class StackFrame {
 
         const included = state.opts.modifiers;
         this.stateSingleton = state;
+        this.loc = Hash(state.filename);
         this.options = {
             // generator: AssembleJSX as any
         };
@@ -51,11 +64,7 @@ export class StackFrame {
             Stack = Object.create(Stack)
             
             const { Helpers, ...Modifiers } = imports as any;
-            void Helpers;
-        //     if(Helpers)
-        //     for(const name in Helpers)
-        //         Stack.valueMod(name, Helpers[name])
-    
+
             for(const name in Modifiers)
                 Stack.propertyMod(name, Modifiers[name])
         }
@@ -67,8 +76,51 @@ export class StackFrame {
         return Object.getPrototypeOf(this);
     }
 
+    event(
+        this: any,
+        ref: symbol, 
+        set: Function){
+
+        if(set) 
+            this[ref] = set;
+        else 
+            return this[ref]
+    }
+
+    dispatch(
+        this: any,
+        ref: symbol,
+        ...args: any[]
+    ){
+        (<Function>this[ref]).apply(null, args)
+    }
+
     register(node: TraversableBody){
         const frame = this.stateSingleton.context = Object.create(this);
+        let nodePosition: string;
+        
+        if(node instanceof ComponentExpression){
+            nodePosition = node.name!;
+        }
+        else {
+            const { sequence } = this.current;
+            let current: any = node;
+            let i = [] as number[];
+            while(current){
+                if(current in sequence){
+                    i.push(sequence.indexOf(current) + 1);
+                    break;
+                }
+                else {
+                    i.push(1);
+                    current = current.parent!;
+                }
+            };
+            nodePosition = i.reverse().join(" ");
+        }
+        
+        frame.loc = `${this.loc} ${nodePosition}`
+
         frame.current = node;
         if(node instanceof ElementInline)
             frame.currentElement = node;
@@ -105,16 +157,16 @@ export class StackFrame {
         return this.hasOwnProperty("__" + name)
     }
 
-    // declare(modifier: ElementModifier){
-    //     const { name, body } = modifier;
-    //     if(name[0] == "_")
-    //         throw body.buildCodeFrameError(`Modifier name cannot start with _ symbol!`)
+    declare(modifier: ElementModifier){
+        const { name } = modifier;
+        // if(name[0] == "_")
+        //     throw body.buildCodeFrameError(`Modifier name cannot start with _ symbol!`)
 
-    //     if(this.hasOwnProperty(name))
-    //         throw body.buildCodeFrameError(`Duplicate declaration of named modifier!`)
+        // if(this.hasOwnProperty(name))
+        //     throw body.buildCodeFrameError(`Duplicate declaration of named modifier!`)
 
-    //     this.elementMod(name, modifier);
-    // }
+        this.elementMod(name, modifier);
+    }
 
     // declareForRuntime(modifier: ElementModifier | ElementInline){
     //     const { program, styleRoot } = this;
@@ -128,21 +180,21 @@ export class StackFrame {
     //     return this.hasOwnProperty("_all") && (this as any)._all as GeneralModifier;
     // }
 
-    // elementMod(name: string): ElementModifier;
-    // elementMod(name: string, set: ElementModifier): void;
-    // elementMod(
-    //     this: BunchOf<ElementModifier>,
-    //     name: string, 
-    //     set?: ElementModifier){
+    elementMod(name: string): ElementModifier;
+    elementMod(name: string, set: ElementModifier): void;
+    elementMod(
+        this: BunchOf<ElementModifier>,
+        name: string, 
+        set?: ElementModifier){
 
-    //     name = "_" + name;
-    //     if(set){
-    //         if(this[name])
-    //             set.inherits = this[name];
-    //         this[name] = set;
-    //     }
-    //     else return this[name]
-    // }
+        name = "_" + name;
+        if(set){
+            if(this[name])
+                set.inherits = this[name];
+            this[name] = set;
+        }
+        else return this[name]
+    }
 
     // valueMod(name: string): XJSValueHelper;
     // valueMod(name: string, set: XJSValueHelper): void;

@@ -8,6 +8,25 @@ export interface BunchOf<T> {
     [key: string]: T
 }
 
+export const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;
+export const IsLegalIdentifier = /^[a-zA-Z_]\w*$/;
+
+export function PropertyES6(
+    name: string, 
+    value: Expression){
+
+    const key = IsLegalIdentifier.test(name)
+        ? t.identifier(name)
+        : t.stringLiteral(name);
+    
+    return t.objectProperty(
+        key, value
+    )
+}
+
+export const AttributeES6 = (src: ExplicitStyle | Prop) => 
+    PropertyES6(src.name as string, expressionValue(src));
+
 export function expressionValue(item: Prop | ExplicitStyle){
     let { value } = item;
 

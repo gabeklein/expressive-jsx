@@ -36,7 +36,7 @@ export class ExplicitStyle extends Attribute {
 }
 
 export abstract class AttributeBody extends TraversableBody {
-
+    
     props = {} as BunchOf<Prop>;
     style = {} as BunchOf<ExplicitStyle>;
     props_static = {} as BunchOf<Prop>;

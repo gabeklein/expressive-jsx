@@ -8,7 +8,7 @@ export default {
     format: 'cjs',
     exports: "named"
   },
-  external: [ "@babel/types" ],
+  external: [ "@babel/types", "crypto" ],
   plugins: [
     typescript(),
     commonjs()
