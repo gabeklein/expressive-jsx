@@ -1,6 +1,6 @@
 import t, { Expression, IfStatement, Statement, ExpressionStatement } from '@babel/types';
 import { ElementInline } from 'internal';
-import { Path, DoExpressive } from 'types';
+import { Path } from 'types';
 
 export class ComponentIf {
 
