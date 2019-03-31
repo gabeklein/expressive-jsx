@@ -33,9 +33,9 @@ export class ComponentExpression extends ElementInline {
             this.extractParams();
         }
 
-        this.primaryName = name;
         if(/^[A-Z]/.test(name))
             ApplyNameImplications(name, this);
+        this.name = "name";
 
         path.node.meta = this;
     }

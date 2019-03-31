@@ -68,10 +68,10 @@ export class ElementJSX<T extends ElementInline = ElementInline>
 
     toElement(): JSXContent {
         const { props, jsxChildren } = this;
-        const { tagName } = this.source;
+        const { name } = this.source;
 
         return createElement(
-            tagName || "div", 
+            name || "div", 
             props, 
             jsxChildren
         );

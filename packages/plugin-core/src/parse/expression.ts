@@ -80,7 +80,7 @@ export function ApplyNameImplications(
 
     if(head)
         if(prefix == "html" || /^[A-Z]/.test(name))
-            target.tagName = name
+            target.name = name
         
     // const { context } = target;
     // const modify = context.elementMod(name);

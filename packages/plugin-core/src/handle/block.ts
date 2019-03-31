@@ -10,6 +10,7 @@ const Error = ParseErrors({
 
 export abstract class TraversableBody {
 
+    name?: string;
     sequence = [] as SequenceItem[];
 
     willEnter?(path?: Path): void;

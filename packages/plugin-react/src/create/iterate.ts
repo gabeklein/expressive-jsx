@@ -74,7 +74,7 @@ export class IterateJSX
 
         if(inner.length === 1
         && element instanceof ElementInline
-        && /^[A-Z]/.test(element.tagName!) === false
+        && /^[A-Z]/.test(element.name!) === false
         && element.props.key === undefined){
             element.Prop("key", this.key);
             this.mayCollapseContent = true;

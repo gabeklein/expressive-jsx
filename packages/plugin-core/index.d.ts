@@ -56,7 +56,7 @@ declare abstract class AttributeBody extends TraversableBody {
 }
 declare class ElementInline extends AttributeBody {
 	primaryName?: string;
-	tagName?: string;
+	name?: string;
 	multilineContent?: Path<TemplateLiteral>;
     children: InnerContent[];
 	adopt(child: InnerContent): void;
@@ -221,5 +221,6 @@ export {
 	ComponentFor,
 	StackFrame,
 	ParseErrors,
+	AttributeBody,
 	Path
 }

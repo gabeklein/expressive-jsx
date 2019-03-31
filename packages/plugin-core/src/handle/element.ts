@@ -11,7 +11,6 @@ const Error = ParseErrors({
 export class ElementInline extends AttributeBody {
     
     primaryName?: string;
-    tagName?: string;
     multilineContent?: Path<TemplateLiteral>;
     children = [] as InnerContent[];
 
