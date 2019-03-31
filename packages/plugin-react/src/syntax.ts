@@ -45,6 +45,20 @@ export function expressionValue(item: Prop | ExplicitStyle){
     )
 }
 
+export function ensureArray(
+    children: Expression, 
+    getFirst?: boolean){
+
+    const array = t.callExpression(
+        t.memberExpression(
+            t.arrayExpression([]),
+            t.identifier("concat")
+        ),
+        [children]
+    )
+    return getFirst ? t.memberExpression(array, t.numericLiteral(0), true) : array;
+}
+
 export function createElement(
     tag: string,
     props = [] as Attributes[],
