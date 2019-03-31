@@ -2,6 +2,11 @@
 	"name": "expressive-react",
 	"version": "0.9.0-alpha",
 	"description": "An alternative syntax for powerful react constructs using less code",
+	"scripts": {
+		"start": "concurrently \"npm:watch-core\" \"npm:watch-react\"",
+		"watch-core": "npm run watch --prefix packages/plugin-core",
+		"watch-react": "npm run watch --prefix packages/plugin-react"
+	},
 	"keywords": [
 		"react",
 		"expressive",
@@ -10,5 +15,8 @@
 	"license": "MIT",
 	"devDependencies": {
 		"lerna": "^2.8.0"
+	},
+	"dependencies": {
+		"concurrently": "^4.1.0"
 	}
 }
