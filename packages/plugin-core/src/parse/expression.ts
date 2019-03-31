@@ -66,6 +66,7 @@ export function AddElementsFromExpression(
         ParseIdentity(segment, child);
 
         parent.adopt(child);
+        child.parent = parent;
         parent = child;
     }    
 
@@ -201,6 +202,7 @@ function ParseProps(
         switch(path.type){
             case "DoExpression":
                 (path.node as DoExpressive).meta = target;
+                target.doBlock = path.node as DoExpressive;
             break;
 
             case "StringLiteral":

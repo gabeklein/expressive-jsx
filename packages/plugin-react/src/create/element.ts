@@ -45,18 +45,6 @@ export class ElementJSX<T extends ElementInline = ElementInline>
         this.parse(true);
     }
 
-    get jsxChildren(): JSXContent[] {
-        const children = [];
-        for(const child of this.children){
-            const jsx = child.toElement();
-            if(Array.isArray(jsx))
-                children.push(...jsx);
-            else
-                children.push(jsx);
-        }
-        return children;
-    }
-
     didParse(){
         this.addInlineStyle()
             this.addClassname();
@@ -75,6 +63,18 @@ export class ElementJSX<T extends ElementInline = ElementInline>
             props, 
             jsxChildren
         );
+    }
+
+    get jsxChildren(): JSXContent[] {
+        const children = [];
+        for(const child of this.children){
+            const jsx = child.toElement();
+            if(Array.isArray(jsx))
+                children.push(...jsx);
+            else
+                children.push(jsx);
+        }
+        return children;
     }
 
     private adopt(item: ContentReact){

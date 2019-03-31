@@ -10,7 +10,7 @@ import t, {
     TemplateLiteral,
     TemplateElement,
 } from '@babel/types';
-import { Path } from '@expressive/babel-plugin-core';
+import { Path } from '@babel/traverse';
 import { ElementJSX, IterateJSX, SwitchJSX } from 'internal';
 import { createElement } from 'syntax';
 

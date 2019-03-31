@@ -6,10 +6,8 @@ import { ElementJSX, ContentReact } from 'internal';
 export class SwitchJSX 
     implements ContentReact {
 
-    source: ComponentIf
-
-    constructor(source: ComponentIf){
-        this.source = source;
+    constructor(
+        public source: ComponentIf){
     };
 
     toElement(){
@@ -54,12 +52,12 @@ export class SwitchJSX
         const { test } = item;
 
         const content = new ElementJSX(item);
-        const { jsxChildren } = content;
+        const { children } = content;
 
         const product: any =
-            jsxChildren.length == 1
-                ? jsxChildren[0]
-                : createFragment(jsxChildren)
+            children.length == 1
+                ? children[0].toExpression()
+                : createFragment(content.jsxChildren)
 
         return {
             test: test && test.node,

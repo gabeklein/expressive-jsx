@@ -49,16 +49,18 @@ export class ComponentIf {
 }
 
 export class ComponentConsequent extends ElementInline {
-
-    doBlock?: DoExpressive;
-
     constructor(
-        public logicalParent: ComponentIf, 
+        public parent: ComponentIf, 
         public path: Path<Statement>, 
         public test?: Path<Expression>){
 
-        super(logicalParent.parent.context);
+        super(parent.parent.context);
 
-        this.doBlock = this.handleContentBody(path);
+        this.doBlock = this.handleContentBody(path)// || this.children[0].doBlock;
+        if(!this.doBlock){
+            const [ child ] = this.children;
+            if(child instanceof ElementInline)
+                this.doBlock = child.doBlock
+        }
     }
 }

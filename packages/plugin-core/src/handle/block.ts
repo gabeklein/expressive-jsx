@@ -1,5 +1,5 @@
 import t, { ExpressionStatement, Statement } from '@babel/types';
-import { ParseErrors, SequenceItem, StackFrame } from 'internal';
+import { ParseErrors, SequenceItem, StackFrame, ComponentIf } from 'internal';
 import { BunchOf, DoExpressive, Path } from 'types';
 
 const Error = ParseErrors({
@@ -11,6 +11,7 @@ const Error = ParseErrors({
 export abstract class TraversableBody {
 
     name?: string;
+    parent?: TraversableBody | ComponentIf;
     sequence = [] as SequenceItem[];
 
     willEnter?(path?: Path): void;
@@ -41,7 +42,12 @@ export abstract class TraversableBody {
             body.meta = this as any;
             return body;
         }
-        else this.parse(content)
+        else {
+            this.parse(content);
+            const last = this.sequence[this.sequence.length - 1];
+            if(last instanceof TraversableBody)
+                last.parent = this;
+        }
     }
     
     add(item: SequenceItem){
