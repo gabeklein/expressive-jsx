@@ -13,25 +13,25 @@ export class ElementJSX<T extends ElementInline = ElementInline>
     get jsxChildren(): JSXContent[] {
         const children = [];
         for(const child of this.children){
+            let jsx;
 
             if(child instanceof ContentExpression){
                 const inner = child.toJSX();
-                if(isArray(inner)){
+                if(!isArray(inner))
+                    jsx = inner;
+                else {
                     children.push(...inner);
                     break;
                 }
             }
+            else {
+                const output = child.toExpression();
+                jsx = t.isJSXElement(output)
+                    ? output
+                    : t.jsxExpressionContainer(output); 
+            }
 
-            const output = child.toExpression();
-
-            let jsx = t.isJSXElement(output)
-                ? output
-                : t.jsxExpressionContainer(output);
-
-            if(isArray(jsx))
-                children.push(...jsx);
-            else
-                children.push(jsx);
+            children.push(jsx);
         }
         return children;
     }
