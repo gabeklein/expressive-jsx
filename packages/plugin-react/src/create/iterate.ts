@@ -12,7 +12,7 @@ import t, {
     StringLiteral,
 } from '@babel/types';
 import { ComponentFor, ElementInline, ParseErrors } from '@expressive/babel-plugin-core';
-import { ContainerJSX } from 'internal';
+import { ElementJSX } from 'internal';
 import { ensureUIDIdentifier } from 'runtime';
 import { createFragment } from 'syntax';
 
@@ -22,7 +22,7 @@ const Error = ParseErrors({
 })
 
 export class IterateJSX 
-    extends ContainerJSX<ComponentFor> {
+    extends ElementJSX<ComponentFor> {
 
     type: "ForOfStatement" | "ForInStatement" | "ForStatement";
     mayCollapseContent?: boolean;

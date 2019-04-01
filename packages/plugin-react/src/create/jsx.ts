@@ -2,7 +2,7 @@ import { Path } from '@babel/traverse';
 import t, { Expression, JSXAttribute, JSXSpreadAttribute } from '@babel/types';
 import { ComponentFor, ComponentIf, ElementInline } from '@expressive/babel-plugin-core';
 import { Attributes, ContentExpression, ContentReact, ElementReact, IterateJSX, JSXContent, SwitchJSX } from 'internal';
-import { createElement, createFragment, IsLegalAttribute } from 'syntax';
+import { createElement, IsLegalAttribute } from 'syntax';
 
 const { isArray } = Array;
 
@@ -88,23 +88,5 @@ export class ElementJSX<T extends ElementInline = ElementInline>
 
     Iterate(item: ComponentFor){
         this.adopt(new IterateJSX(item))
-    }
-}
-
-export class ContainerJSX<T extends ElementInline = ElementInline>
-    extends ElementJSX<T> {
-
-    toExpression(): Expression {
-        if(this.props.length > 0)
-            return super.toExpression();
-
-        const { children } = this;
-
-        if(children.length > 1)
-            return createFragment(this.jsxChildren)
-        if(children.length == 0)
-            return t.booleanLiteral(false)
-
-        return children[0].toExpression();   
     }
 }

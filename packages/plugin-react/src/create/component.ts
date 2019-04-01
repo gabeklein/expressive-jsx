@@ -8,8 +8,8 @@ import t, {
     PatternLike,
 } from '@babel/types';
 import { ComponentExpression, DoExpressive, ParseErrors, Path } from '@expressive/babel-plugin-core';
-import { BabelVisitor, ContainerJSX } from 'internal';
-import { declare, ensureArray } from 'syntax';
+import { BabelVisitor, ElementJSX } from 'internal';
+import { declare, ensureArray, createFragment } from 'syntax';
 
 const Error = ParseErrors({
     PropsCantHaveDefault: "This argument will always resolve to component props",
@@ -23,7 +23,9 @@ export const DoExpression = <BabelVisitor<DoExpressive>> {
         if(!(DoNode instanceof ComponentExpression))
             return;
 
-        const factoryExpression = new ContainerJSX(DoNode).toExpression();
+        const factoryExpression = ContainerExpression.call(
+            new ElementJSX(DoNode)
+        );
 
         if(DoNode.exec)
             if(incorperateChildParameters(DoNode.exec, factoryExpression))
@@ -31,6 +33,20 @@ export const DoExpression = <BabelVisitor<DoExpressive>> {
         
         path.replaceWith(factoryExpression);
     }
+}
+
+function ContainerExpression(this: ElementJSX){
+    if(this.props.length > 0)
+            return this.toExpression();
+
+        const { children } = this;
+
+        if(children.length > 1)
+            return createFragment(this.jsxChildren)
+        if(children.length == 0)
+            return t.booleanLiteral(false)
+
+        return children[0].toExpression();  
 }
 
 function incorperateChildParameters(
