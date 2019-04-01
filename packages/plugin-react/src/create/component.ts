@@ -5,11 +5,11 @@ import t, {
     Identifier,
     MemberExpression,
     ObjectPattern,
-    PatternLike
+    PatternLike,
 } from '@babel/types';
-import { ComponentExpression, DoExpressive, ElementInline, ParseErrors, Path } from '@expressive/babel-plugin-core';
-import { BabelVisitor, ElementJSX, JSXContent } from 'internal';
-import { createElement, createFragment, declare, ensureArray } from 'syntax';
+import { ComponentExpression, DoExpressive, ParseErrors, Path } from '@expressive/babel-plugin-core';
+import { BabelVisitor, ContainerJSX } from 'internal';
+import { declare, ensureArray } from 'syntax';
 
 const Error = ParseErrors({
     PropsCantHaveDefault: "This argument will always resolve to component props",
@@ -30,48 +30,6 @@ export const DoExpression = <BabelVisitor<DoExpressive>> {
                 return
         
         path.replaceWith(factoryExpression);
-    }
-}
-
-export class ContainerJSX<T extends ElementInline = ElementInline>
-    extends ElementJSX<T> {
-
-    replace(path: Path<DoExpressive>){
-        path.replaceWith(
-            this.toExpression()
-        )
-    }
-
-    toElement(): JSXContent {
-        const output = this.toExpression();
-        if(t.isJSXElement(output))
-            return output;
-        else
-            return t.jsxExpressionContainer(output);
-    }
-
-    toShallowContent(){
-        const { props, children } = this;
-
-        if(props.length == 0){
-            if(children.length > 1)
-                return createFragment(this.jsxChildren)
-            if(children.length == 0)
-                return t.booleanLiteral(false)
-
-            return children[0].toExpression();   
-        }
-    }
-
-    toExpression(): Expression {
-        return (
-            this.toShallowContent() || 
-            createElement(
-                this.tagName, 
-                this.props, 
-                this.jsxChildren
-            )
-        );
     }
 }
 

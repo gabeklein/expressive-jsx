@@ -22,6 +22,7 @@ export interface BabelVisitor<T> {
 export * from "create/content";
 export * from "create/polyfill";
 export * from "create/element";
+export * from "create/jsx";
 export * from "create/component";
 export * from "create/switch";
 export * from "create/iterate";

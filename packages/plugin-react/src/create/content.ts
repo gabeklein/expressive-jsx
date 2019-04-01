@@ -16,14 +16,14 @@ import { createElement } from 'syntax';
 
 export type JSXContent = JSXElement | JSXFragment | JSXExpressionContainer | JSXText | JSXSpreadChild;
 export type Attributes = JSXAttribute | JSXSpreadAttribute;
-export type InnerJSX = ElementJSX | ContentJSX | SwitchJSX | IterateJSX;
+export type InnerJSX = ElementJSX | ContentExpression | SwitchJSX | IterateJSX;
 
 export interface ContentReact {
     toExpression(): Expression;
-    toElement(): JSXContent | JSXContent[];
+    toJSX?(): JSXContent | JSXContent[];
 }
 
-export class ContentJSX implements ContentReact {
+export class ContentExpression implements ContentReact {
     node: Expression;
     path?: Path<Expression>
     
@@ -38,11 +38,11 @@ export class ContentJSX implements ContentReact {
             this.node = source;
     }
 
-    toExpression(): Expression {
-        return t.identifier("undefined")
+    toExpression(){
+        return this.node;
     }
 
-    toElement(){
+    toJSX(){
         const { node } = this;
 
         if(t.isTemplateLiteral(node)){

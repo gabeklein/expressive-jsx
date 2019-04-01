@@ -34,6 +34,34 @@ export class IterateJSX
         super(source);
         this.type = source.path.type as any;
     };
+    
+    toExpression(): CallExpression | StringLiteral {
+
+        if(this.type != "ForOfStatement")
+            return t.stringLiteral(this.type + " NOT IMPLEMENTED");
+
+        const { children } = this;
+
+        let body: BlockStatement | Expression = 
+            children.length == 1 && this.mayCollapseContent ?
+                children[0].toExpression() :
+            children.length == 0 ?
+                t.booleanLiteral(false) :
+                createFragment(this.jsxChildren, this.key);
+
+        if(this.statements.length)
+            body = t.blockStatement([
+                ...this.statements,
+                t.returnStatement(body)
+            ])
+    
+        return t.callExpression(
+            t.memberExpression(this.right!, t.identifier("map")), 
+            [ 
+                t.arrowFunctionExpression([this.left!, this.key!], body)
+            ]
+        )
+    }
 
     willParse(){
         const { path } = this.source;
@@ -83,40 +111,5 @@ export class IterateJSX
 
     parseVanillaFor(Loop: Path<ForStatement>){
         throw Error.notImplemented(Loop)
-    }
-
-    toElement(){
-        const output = this.toExpression();
-        return true
-            ? t.jsxExpressionContainer(output)
-            : t.jsxSpreadChild(output);
-    }
-
-    toExpression(): CallExpression | StringLiteral {
-
-        if(this.type != "ForOfStatement")
-            return t.stringLiteral(this.type + " NOT IMPLEMENTED");
-
-        const { children } = this;
-
-        let body: BlockStatement | Expression = 
-            children.length == 1 && this.mayCollapseContent ?
-                children[0].toExpression() :
-            children.length == 0 ?
-                t.booleanLiteral(false) :
-                createFragment(this.jsxChildren, this.key);
-
-        if(this.statements.length)
-            body = t.blockStatement([
-                ...this.statements,
-                t.returnStatement(body)
-            ])
-    
-        return t.callExpression(
-            t.memberExpression(this.right!, t.identifier("map")), 
-            [ 
-                t.arrowFunctionExpression([this.left!, this.key!], body)
-            ]
-        )
     }
 }

@@ -10,14 +10,6 @@ export class SwitchJSX
         public source: ComponentIf){
     };
 
-    toElement(){
-        const output = this.toExpression();
-        if(t.isJSXElement(output))
-            return output;
-        else
-            return t.jsxExpressionContainer(output);
-    }
-
     toExpression(){
         const { children } = this.source;
         if(children.length > 1)
