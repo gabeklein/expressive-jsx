@@ -1,9 +1,9 @@
 import t, { Expression } from '@babel/types';
 import { ComponentConsequent, ComponentIf } from '@expressive/babel-plugin-core';
-import { createFragment } from 'syntax';
-import { ElementJSX, ContentReact } from 'internal';
+import { ContentReact, createContainer } from 'internal';
+import { ElementReact } from './element';
 
-export class SwitchJSX 
+export class SwitchElement 
     implements ContentReact {
 
     constructor(
@@ -43,14 +43,10 @@ export class SwitchJSX
     extract(item: ComponentConsequent): { test?: Expression, product: Expression } {
         const { test } = item;
 
-        const content = new ElementJSX(item);
-        const { children } = content;
+        const content = new ElementReact(item);
 
-        const product: any =
-            children.length == 1
-                ? children[0].toExpression()
-                : createFragment(content.jsxChildren)
-
+        const product = createContainer(content)
+        
         return {
             test: test && test.node,
             product

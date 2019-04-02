@@ -12,17 +12,16 @@ import t, {
     StringLiteral,
 } from '@babel/types';
 import { ComponentFor, ElementInline, ParseErrors } from '@expressive/babel-plugin-core';
-import { ElementJSX } from 'internal';
 import { ensureUIDIdentifier } from 'runtime';
-import { createFragment } from 'syntax';
+import { createContainer, ElementReact } from 'internal';
 
 const Error = ParseErrors({
     cantAssign: "Assignment of variable left of \"of\" must be Identifier or Destruture",
     notImplemented: "Only For-Of loop is currently implemented; complain to dev!"
 })
 
-export class IterateJSX 
-    extends ElementJSX<ComponentFor> {
+export class IterateElement 
+    extends ElementReact<ComponentFor> {
 
     type: "ForOfStatement" | "ForInStatement" | "ForStatement";
     mayCollapseContent?: boolean;
@@ -36,18 +35,14 @@ export class IterateJSX
     };
     
     toExpression(): CallExpression | StringLiteral {
-
         if(this.type != "ForOfStatement")
             return t.stringLiteral(this.type + " NOT IMPLEMENTED");
 
-        const { children } = this;
+        let body: BlockStatement | Expression;
 
-        let body: BlockStatement | Expression = 
-            children.length == 1 && this.mayCollapseContent ?
-                children[0].toExpression() :
-            children.length == 0 ?
-                t.booleanLiteral(false) :
-                createFragment(this.jsxChildren, this.key);
+        const { key, mayCollapseContent } = this;
+
+        body = createContainer(this, !mayCollapseContent && key);
 
         if(this.statements.length)
             body = t.blockStatement([
@@ -58,7 +53,7 @@ export class IterateJSX
         return t.callExpression(
             t.memberExpression(this.right!, t.identifier("map")), 
             [ 
-                t.arrowFunctionExpression([this.left!, this.key!], body)
+                t.arrowFunctionExpression([this.left!, key!], body)
             ]
         )
     }

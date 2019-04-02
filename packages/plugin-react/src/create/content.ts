@@ -9,21 +9,23 @@ import t, {
     JSXText,
     TemplateLiteral,
     TemplateElement,
+    Identifier,
 } from '@babel/types';
 import { Path } from '@babel/traverse';
-import { ElementJSX, IterateJSX, SwitchJSX } from 'internal';
-import { createElement } from 'syntax';
+import { ContentReact, IterateElement, SwitchElement } from 'internal';
+import { createElementJSX, createFragmentJSX } from './jsx';
+import { ElementReact } from './element';
 
 export type JSXContent = JSXElement | JSXFragment | JSXExpressionContainer | JSXText | JSXSpreadChild;
 export type Attributes = JSXAttribute | JSXSpreadAttribute;
-export type InnerJSX = ElementJSX | ContentExpression | SwitchJSX | IterateJSX;
+export type InnerJSX = ContentReact | ContentExpression | SwitchElement | IterateElement;
 
 export interface ContentReact {
     toExpression(): Expression;
-    toJSX?(): JSXContent | JSXContent[];
 }
 
-export class ContentExpression implements ContentReact {
+export class ContentExpression 
+    implements ContentReact {
     node: Expression;
     path?: Path<Expression>
     
@@ -71,6 +73,31 @@ export class ContentExpression implements ContentReact {
             t.jsxExpressionContainer(node)
         )
     }
+}
+
+export function createContainer(
+    from: ElementReact,
+    fragmentKey?: Identifier | false
+): Expression {
+    const { children } = from;
+
+    const product: any =
+            children.length == 1 && 
+            !fragmentKey ? 
+                children[0].toExpression() :
+            children.length == 0 ?
+                t.booleanLiteral(false) :
+                createFragmentJSX(children, fragmentKey)
+
+    return product;
+}
+
+export function createElement(from: ElementReact){
+    return createElementJSX(
+        from.tagName, 
+        from.props, 
+        from.children
+    );
 }
 
 void function breakdown(quasi: TemplateLiteral, string_only?: boolean){
@@ -159,7 +186,7 @@ function breakWithBR(
     INDENT: RegExp | null,
     i: number ){
 
-    const ELEMENT_BR = createElement("br");
+    const ELEMENT_BR = createElementJSX("br");
     let text = quasi.value.cooked;
     if(INDENT) 
         text = text.replace(INDENT, "\n");

@@ -1,8 +1,5 @@
-import t, { Expression, JSXAttribute, JSXElement, LVal, Statement } from '@babel/types';
+import t, { Expression, LVal, Statement } from '@babel/types';
 import { ExplicitStyle, Prop } from '@expressive/babel-plugin-core';
-import { Attributes, JSXContent } from 'internal';
-
-const FRAGMENT = t.jsxIdentifier("Fragment")
 
 export interface BunchOf<T> {
     [key: string]: T
@@ -57,46 +54,6 @@ export function ensureArray(
         [children]
     )
     return getFirst ? t.memberExpression(array, t.numericLiteral(0), true) : array;
-}
-
-export function createElement(
-    tag: string,
-    props = [] as Attributes[],
-    children = [] as JSXContent[]
-): JSXElement {
-    const type = t.jsxIdentifier(tag);
-    return (
-        t.jsxElement(
-            t.jsxOpeningElement(type, props),
-            t.jsxClosingElement(type),
-            children,
-            children.length > 0
-        )
-    )
-}
-
-export function createFragment(
-    children = [] as JSXContent[],
-    key?: Expression
-): JSXElement {
-    const attributes: JSXAttribute[] = [];
-    
-    if(key)
-        attributes.push(
-            t.jsxAttribute(
-                t.jsxIdentifier("key"), 
-                t.jsxExpressionContainer(key)
-            )
-        )
-
-    return (
-        t.jsxElement(
-            t.jsxOpeningElement(FRAGMENT, attributes),
-            t.jsxClosingElement(FRAGMENT),
-            children,
-            false
-        )
-    )
 }
 
 export function IIFE(stats: Statement[]){

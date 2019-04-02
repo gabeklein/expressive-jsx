@@ -1,92 +1,68 @@
-import { Path } from '@babel/traverse';
-import t, { Expression, JSXAttribute, JSXSpreadAttribute } from '@babel/types';
-import { ComponentFor, ComponentIf, ElementInline } from '@expressive/babel-plugin-core';
-import { Attributes, ContentExpression, ContentReact, ElementReact, IterateJSX, JSXContent, SwitchJSX } from 'internal';
-import { createElement, IsLegalAttribute } from 'syntax';
+import t, { Expression, JSXElement } from '@babel/types';
+import { Attributes, ContentExpression, ContentReact } from 'internal';
 
 const { isArray } = Array;
+const FRAGMENT = t.jsxIdentifier("Fragment");
 
-export class ElementJSX<T extends ElementInline = ElementInline>
-    extends ElementReact<ContentReact, Attributes, T>
-    implements ContentReact {
+export function createElementJSX(
+    tag: string,
+    props = [] as Attributes[],
+    children = [] as ContentReact[]
+): JSXElement {
+    const type = t.jsxIdentifier(tag);
+    return (
+        t.jsxElement(
+            t.jsxOpeningElement(type, props),
+            t.jsxClosingElement(type),
+            getChildrenJSX(children),
+            children.length > 0
+        ) 
+    )
+}
 
-    get jsxChildren(): JSXContent[] {
-        const children = [];
-        for(const child of this.children){
-            let jsx;
+export function createFragmentJSX(
+    children = [] as ContentReact[],
+    key?: Expression | false
+): JSXElement {
+    const attributes = !key ? [] : [
+        t.jsxAttribute(
+            t.jsxIdentifier("key"), 
+            t.jsxExpressionContainer(key)
+        )
+    ]
+    
+    return (
+        t.jsxElement(
+            t.jsxOpeningElement(FRAGMENT, attributes),
+            t.jsxClosingElement(FRAGMENT),
+            getChildrenJSX(children),
+            false
+        )
+    )
+}
 
-            if(child instanceof ContentExpression){
-                const inner = child.toJSX();
-                if(!isArray(inner))
-                    jsx = inner;
-                else {
-                    children.push(...inner);
-                    break;
-                }
-            }
+export function getChildrenJSX(input: ContentReact[]){
+    const output = [];
+    for(const child of input){
+        let jsx;
+
+        if(child instanceof ContentExpression){
+            const inner = child.toJSX();
+            if(!isArray(inner))
+                jsx = inner;
             else {
-                const output = child.toExpression();
-                jsx = t.isJSXElement(output)
-                    ? output
-                    : t.jsxExpressionContainer(output); 
+                output.push(...inner);
+                break;
             }
-
-            children.push(jsx);
         }
-        return children;
-    }
-
-    toExpression(): Expression {
-        return this.toJSX();
-    }
-
-    toJSX(){
-        return createElement(
-            this.tagName, 
-            this.props, 
-            this.jsxChildren
-        );
-    }
-
-    addProperty(
-        name: string | false | undefined, 
-        value: Expression){
-
-        let attr: JSXAttribute | JSXSpreadAttribute;
-
-        if(typeof name !== "string")
-            attr = t.jsxSpreadAttribute(value);
         else {
-            if(IsLegalAttribute.test(name) == false)
-                throw new Error(`Illegal characters in prop named ${name}`)
-
-            const insertedValue = 
-                t.isStringLiteral(value)
-                    ? value
-                    : t.jsxExpressionContainer(value)
-
-            attr = t.jsxAttribute(
-                t.jsxIdentifier(name), 
-                insertedValue
-            )
+            const output = child.toExpression();
+            jsx = t.isJSXElement(output)
+                ? output
+                : t.jsxExpressionContainer(output); 
         }
-        
-        this.props.push(attr);
-    }
 
-    Child(item: ElementInline ){
-        this.adopt(new ElementJSX(item));
+        output.push(jsx);
     }
-
-    Content(item: Path<Expression> | Expression){
-        this.adopt(new ContentExpression(item));
-    }
-
-    Switch(item: ComponentIf){
-        this.adopt(new SwitchJSX(item))
-    }
-
-    Iterate(item: ComponentFor){
-        this.adopt(new IterateJSX(item))
-    }
+    return output;
 }

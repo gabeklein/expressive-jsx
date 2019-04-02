@@ -1,25 +1,37 @@
-import t, { Expression, ObjectProperty, SpreadElement, StringLiteral } from '@babel/types';
-import { ElementConstruct, ElementInline, ExplicitStyle, Prop, StackFrame } from '@expressive/babel-plugin-core';
+import t, { Expression, JSXAttribute, JSXSpreadAttribute, ObjectProperty, SpreadElement, StringLiteral } from '@babel/types';
+import {
+    ComponentFor,
+    ComponentIf,
+    ElementConstruct,
+    ElementInline,
+    ExplicitStyle,
+    Path,
+    Prop,
+    StackFrame,
+} from '@expressive/babel-plugin-core';
 import { ArrayStack, AttributeStack } from 'attributes';
-import { StackFrameExt } from 'internal';
-import { AttributeES6, expressionValue } from 'syntax';
+import { Attributes, ContentReact, StackFrameExt, IterateElement, SwitchElement, ContentExpression, createElement } from 'internal';
+import { AttributeES6, expressionValue, IsLegalAttribute } from 'syntax';
 
-export abstract class ElementReact
-    <ContentType, AttrType, From extends ElementInline = ElementInline>
-    extends ElementConstruct<From>{
+export class ElementReact<T extends ElementInline = ElementInline>
+    extends ElementConstruct<T>{
 
     context: StackFrame
     statements = [] as any[];
-    children = [] as ContentType[];
-    props = [] as AttrType[];
+    children = [] as ContentReact[];
+    props = [] as Attributes[];
     classList = new ArrayStack<string, Expression>()
     style = new AttributeStack<ExplicitStyle>();
     style_static = [] as ExplicitStyle[];
 
-    constructor(public source: From){
+    constructor(public source: T){
         super();
         this.context = source.context;
         this.parse(true);
+    }
+
+    toExpression(): Expression {
+        return createElement(this)
     }
 
     didParse(){
@@ -28,19 +40,38 @@ export abstract class ElementReact
         this.applyClassname();
     }
 
-    abstract toExpression(): Expression;
+    addProperty(
+        name: string | false | undefined, 
+        value: Expression){
 
-    abstract addProperty(
-        named: string | false | undefined, 
-        value: Expression
-    ): void;
+        let attr: JSXAttribute | JSXSpreadAttribute;
+
+        if(typeof name !== "string")
+            attr = t.jsxSpreadAttribute(value);
+        else {
+            if(IsLegalAttribute.test(name) == false)
+                throw new Error(`Illegal characters in prop named ${name}`)
+
+            const insertedValue = 
+                t.isStringLiteral(value)
+                    ? value
+                    : t.jsxExpressionContainer(value)
+
+            attr = t.jsxAttribute(
+                t.jsxIdentifier(name), 
+                insertedValue
+            )
+        }
+        
+        this.props.push(attr);
+    }
 
     get tagName(): string {
         const { name, explicitTagName } = this.source;
         return explicitTagName || name || "div";
     }
 
-    protected adopt(item: ContentType){
+    protected adopt(item: ContentReact){
         this.children.push(item)
     }
 
@@ -159,6 +190,22 @@ export abstract class ElementReact
             this.style_static.push(item as ExplicitStyle);
         else
             this.style.insert(item)
+    }
+
+    Child(item: ElementInline ){
+        this.adopt(new ElementReact(item));
+    }
+
+    Content(item: Path<Expression> | Expression){
+        this.adopt(new ContentExpression(item));
+    }
+
+    Switch(item: ComponentIf){
+        this.adopt(new SwitchElement(item))
+    }
+
+    Iterate(item: ComponentFor){
+        this.adopt(new IterateElement(item))
     }
 
     Statement(item: any){
