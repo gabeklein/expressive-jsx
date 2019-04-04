@@ -16,7 +16,9 @@ export class ModifyDelegate {
         public target: AttributeBody){
 
         this.syntax = argument;
-        const args = this.arguments = argument.map(x => x && "value" in x ? x.value : x);
+        const args = this.arguments = argument.map(x => {
+            return x && typeof x == "object" && "value" in x ? x.value : x
+        });
 
         const output = transform.apply(this, args)
 
