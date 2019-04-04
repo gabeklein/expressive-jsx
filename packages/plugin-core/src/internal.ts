@@ -8,7 +8,7 @@ export * from "handle/switch";
 export * from "handle/iterate";
 
 export * from "parse/program";
-export * from "parse/expression";
+export * from "parse/element";
 
 export * from "generate/element";
 

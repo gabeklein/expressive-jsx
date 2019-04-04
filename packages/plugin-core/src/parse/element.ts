@@ -79,9 +79,12 @@ export function ApplyNameImplications(
     head?: true, 
     prefix?: string){
 
-    if(head)
-        if(prefix == "html" || /^[A-Z]/.test(name))
-            target.name = name
+    if(head){
+        target.name = name;
+        target.explicitTagName = 
+            prefix == "html" || /^[A-Z]/.test(name)
+                ? name: "div";
+    }
         
     // const { context } = target;
     // const modify = context.elementMod(name);
