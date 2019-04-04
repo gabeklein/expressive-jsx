@@ -99,29 +99,25 @@ export class GenerateJSX {
         fragmentKey?: Identifier | false
     ): Expression {
 
-        let children: ContentLike[] | undefined;
-        let props: PropData[];
+        let fragmentChildren: ContentLike[] | undefined;
 
         if(src instanceof ElementReact){
-            children = src.children;
-            props = src.props
-        }
-        else {
-            children = [src];
-            props = [];
+            const { props, children } = src; 
+            if(props.length == 0){
+                if(children.length)
+                    src = src.children[0] as any;
+                else 
+                    return t.booleanLiteral(false);
+            }
+
+            if(fragmentKey || children.length > 1)
+                fragmentChildren = children;
         }
 
-        if(fragmentKey || children.length > 1){
-            return this.fragment(children, fragmentKey);
+        if(fragmentKey || fragmentChildren){
+            return this.fragment(fragmentChildren, fragmentKey);
         }
 
-        if(children.length == 0)
-            return t.booleanLiteral(false);
-
-        if(src instanceof ElementReact)
-        if(props.length == 0)
-            src = src.children[0] as any;
-        
         if("toExpression" in src)
             return src.toExpression();
 
