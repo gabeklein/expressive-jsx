@@ -85,7 +85,7 @@ class Compiler {
                 block += `/* importance: ${ source.length - i } */\n`;
 
                 for(const select of Object.keys(src).sort()){
-                    const styles = registered[select] && src[select];
+                    const styles = /* registered[select] && */ src[select];
                     if(styles){
                         if(query) block += "\t"
                         block += `${select} { ${styles} }\n`;
@@ -103,12 +103,6 @@ class Compiler {
 }
 
 export function Include({ hid, css }: { hid: string, css: string }){
-
-    const Delcarator = (props: { push: any }) => {
-        props.push(hid, css.split("; "));
-        return false;
-    }
-
     return createElement(StyleDeclaration, {} as any, (props: any) => {
         props.push(hid, css.split("; "));
         return false;
