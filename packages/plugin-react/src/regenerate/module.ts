@@ -19,7 +19,7 @@ export const Program = <BabelVisitor<ProgramNode>> {
         G.Fragment = t.jsxIdentifier(Fragment);
 
         M.reactProvides.push(
-            t.importSpecifier(t.identifier(Fragment), t.identifier(Fragment))
+            t.importSpecifier(t.identifier(Fragment), t.identifier("Fragment"))
         )
     },
     exit(path, state){
