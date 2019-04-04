@@ -1,4 +1,4 @@
-import t, { Expression, JSXAttribute, JSXSpreadAttribute, ObjectProperty, SpreadElement, StringLiteral } from '@babel/types';
+import t, { Expression, ObjectProperty, SpreadElement, StringLiteral } from '@babel/types';
 import {
     ComponentFor,
     ComponentIf,
@@ -6,32 +6,43 @@ import {
     ElementInline,
     ExplicitStyle,
     Path,
-    Prop,
-    StackFrame,
+    Prop
 } from '@expressive/babel-plugin-core';
-import { ArrayStack, AttributeStack } from 'attributes';
-import { Attributes, ContentReact, StackFrameExt, IterateElement, SwitchElement, ContentExpression, createElement } from 'internal';
-import { AttributeES6, expressionValue, IsLegalAttribute } from 'syntax';
+import {
+    ArrayStack,
+    AttributeStack,
+    ContentLike,
+    ElementIterate,
+    PropData,
+    StackFrameExt,
+    ElementSwitch,
+    AttributeES,
+    expressionValue
+} from 'internal';
 
 export class ElementReact<T extends ElementInline = ElementInline>
     extends ElementConstruct<T>{
 
-    context: StackFrame
+    context: StackFrameExt
     statements = [] as any[];
-    children = [] as ContentReact[];
-    props = [] as Attributes[];
+    children = [] as ContentLike[];
+    props = [] as PropData[];
     classList = new ArrayStack<string, Expression>()
     style = new AttributeStack<ExplicitStyle>();
     style_static = [] as ExplicitStyle[];
 
     constructor(public source: T){
         super();
-        this.context = source.context;
+        this.context = source.context as StackFrameExt;
         this.parse(true);
     }
 
     toExpression(): Expression {
-        return createElement(this)
+        return this.context.Generator.element(
+            this.tagName,
+            this.props,
+            this.children
+        )
     }
 
     didParse(){
@@ -43,27 +54,8 @@ export class ElementReact<T extends ElementInline = ElementInline>
     addProperty(
         name: string | false | undefined, 
         value: Expression){
-
-        let attr: JSXAttribute | JSXSpreadAttribute;
-
-        if(typeof name !== "string")
-            attr = t.jsxSpreadAttribute(value);
-        else {
-            if(IsLegalAttribute.test(name) == false)
-                throw new Error(`Illegal characters in prop named ${name}`)
-
-            const insertedValue = 
-                t.isStringLiteral(value)
-                    ? value
-                    : t.jsxExpressionContainer(value)
-
-            attr = t.jsxAttribute(
-                t.jsxIdentifier(name), 
-                insertedValue
-            )
-        }
-        
-        this.props.push(attr);
+            
+        this.props.push({ name, value });
     }
 
     get tagName(): string {
@@ -71,11 +63,11 @@ export class ElementReact<T extends ElementInline = ElementInline>
         return explicitTagName || name || "div";
     }
 
-    protected adopt(item: ContentReact){
+    protected adopt(item: ContentLike){
         this.children.push(item)
     }
 
-    protected applyHoistedStyle(){
+    private applyHoistedStyle(){
         const { style, style_static } = this;
 
         if(style_static.length == 0)
@@ -94,7 +86,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
             this.classList.insert(reference);
     }
 
-    protected applyInlineStyle(){
+    private applyInlineStyle(){
         const { style } = this;
 
         if(!style.length)
@@ -107,21 +99,21 @@ export class ElementReact<T extends ElementInline = ElementInline>
             value = expressionValue(head);
 
         else {
-            const stuff = [] as (ObjectProperty | SpreadElement)[];
+            const chunks = [] as (ObjectProperty | SpreadElement)[];
 
             for(const item of style)
                 if(item instanceof ExplicitStyle)
-                    stuff.push(t.spreadElement(expressionValue(item)))
+                    chunks.push(t.spreadElement(expressionValue(item)))
                 else
-                    stuff.push(...item.map(AttributeES6));
+                    chunks.push(...item.map(AttributeES));
             
-            value = t.objectExpression(stuff)
+            value = t.objectExpression(chunks)
         }
 
         this.addProperty("style", value)
     }
 
-    protected applyClassname(){
+    private applyClassname(){
         if(!this.classList.length)
             return;
 
@@ -144,6 +136,17 @@ export class ElementReact<T extends ElementInline = ElementInline>
                 )
 
         this.addProperty("className", classNameValue)
+    }
+
+    Props(item: Prop){
+        this.addProperty(item.name, expressionValue(item));
+    }
+
+    Style(item: ExplicitStyle){
+        if(item.invariant)
+            this.style_static.push(item as ExplicitStyle);
+        else
+            this.style.insert(item)
     }
 
     Attribute(item: Prop | ExplicitStyle): boolean | undefined {
@@ -181,31 +184,23 @@ export class ElementReact<T extends ElementInline = ElementInline>
         return true;
     }
 
-    Props(item: Prop){
-        this.addProperty(item.name, expressionValue(item));
-    }
-
-    Style(item: ExplicitStyle){
-        if(item.invariant)
-            this.style_static.push(item as ExplicitStyle);
-        else
-            this.style.insert(item)
-    }
-
     Child(item: ElementInline ){
         this.adopt(new ElementReact(item));
     }
 
     Content(item: Path<Expression> | Expression){
-        this.adopt(new ContentExpression(item));
+        if("node" in item)
+            item = item.node;
+
+        this.adopt(item);
     }
 
     Switch(item: ComponentIf){
-        this.adopt(new SwitchElement(item))
+        this.adopt(new ElementSwitch(item, this.context))
     }
 
     Iterate(item: ComponentFor){
-        this.adopt(new IterateElement(item))
+        this.adopt(new ElementIterate(item))
     }
 
     Statement(item: any){

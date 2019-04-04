@@ -1,14 +1,8 @@
 import t, { Expression, LVal, Statement } from '@babel/types';
 import { ExplicitStyle, Prop } from '@expressive/babel-plugin-core';
+import { IsLegalIdentifier, BunchOf } from 'types';
 
-export interface BunchOf<T> {
-    [key: string]: T
-}
-
-export const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;
-export const IsLegalIdentifier = /^[a-zA-Z_]\w*$/;
-
-export function PropertyES6(
+export function PropertyES(
     name: string, 
     value: Expression){
 
@@ -21,8 +15,8 @@ export function PropertyES6(
     )
 }
 
-export const AttributeES6 = (src: ExplicitStyle | Prop) => 
-    PropertyES6(src.name as string, expressionValue(src));
+export const AttributeES = (src: ExplicitStyle | Prop) => 
+    PropertyES(src.name as string, expressionValue(src));
 
 export function expressionValue(item: Prop | ExplicitStyle){
     let { value } = item;

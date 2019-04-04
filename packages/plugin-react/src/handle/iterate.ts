@@ -9,18 +9,19 @@ import t, {
     ForXStatement,
     Identifier,
     PatternLike,
-    StringLiteral,
+    StringLiteral
 } from '@babel/types';
 import { ComponentFor, ElementInline, ParseErrors } from '@expressive/babel-plugin-core';
-import { ensureUIDIdentifier } from 'runtime';
-import { createContainer, ElementReact } from 'internal';
+import { ensureUIDIdentifier } from 'helpers';
+import { ElementReact, GenerateJSX } from 'internal';
+import { isIdentifierElement } from 'types';
 
 const Error = ParseErrors({
     cantAssign: "Assignment of variable left of \"of\" must be Identifier or Destruture",
     notImplemented: "Only For-Of loop is currently implemented; complain to dev!"
 })
 
-export class IterateElement 
+export class ElementIterate 
     extends ElementReact<ComponentFor> {
 
     type: "ForOfStatement" | "ForInStatement" | "ForStatement";
@@ -42,7 +43,9 @@ export class IterateElement
 
         const { key, mayCollapseContent } = this;
 
-        body = createContainer(this, !mayCollapseContent && key);
+        const Generator = this.context.Generator as GenerateJSX;
+
+        body = Generator.container(this, !mayCollapseContent && key);
 
         if(this.statements.length)
             body = t.blockStatement([
@@ -97,7 +100,7 @@ export class IterateElement
 
         if(inner.length === 1
         && element instanceof ElementInline
-        && /^[A-Z]/.test(element.name!) === false
+        && isIdentifierElement.test(element.name!) === false
         && element.props.key === undefined){
             element.Prop("key", this.key);
             this.mayCollapseContent = true;

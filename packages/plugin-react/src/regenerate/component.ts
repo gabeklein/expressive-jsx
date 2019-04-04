@@ -8,8 +8,8 @@ import t, {
     PatternLike,
 } from '@babel/types';
 import { ComponentExpression, DoExpressive, ParseErrors, Path } from '@expressive/babel-plugin-core';
-import { BabelVisitor, createContainer, ElementReact } from 'internal';
-import { declare, ensureArray } from 'syntax';
+import { BabelVisitor, ElementReact, GenerateJSX, declare, ensureArray } from 'internal';
+import { StackFrameExt } from 'types';
 
 const Error = ParseErrors({
     PropsCantHaveDefault: "This argument will always resolve to component props",
@@ -19,17 +19,15 @@ const Error = ParseErrors({
 export const DoExpression = <BabelVisitor<DoExpressive>> {
     exit(path){
         const DoNode = path.node.meta;
+        const Context = DoNode.context as StackFrameExt;
+        const Generator = Context.Generator = new GenerateJSX();
 
         if(!(DoNode instanceof ComponentExpression))
             return;
 
         const factory = new ElementReact(DoNode);
 
-        const factoryExpression = 
-            factory.props.length > 0
-                ? factory.toExpression()
-                : createContainer(factory)
-
+        const factoryExpression = Generator.container(factory)
 
         if(DoNode.exec)
             if(incorperateChildParameters(DoNode.exec, factoryExpression))

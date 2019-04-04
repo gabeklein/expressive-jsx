@@ -1,13 +1,14 @@
 import t, { Expression } from '@babel/types';
 import { ComponentConsequent, ComponentIf } from '@expressive/babel-plugin-core';
-import { ContentReact, createContainer } from 'internal';
-import { ElementReact } from './element';
+import { ElementReact, ContentReact, GenerateJSX } from 'internal';
+import { StackFrameExt } from 'types';
 
-export class SwitchElement 
+export class ElementSwitch 
     implements ContentReact {
 
     constructor(
-        public source: ComponentIf){
+        public source: ComponentIf,
+        private context: StackFrameExt){
     };
 
     toExpression(){
@@ -45,7 +46,9 @@ export class SwitchElement
 
         const content = new ElementReact(item);
 
-        const product = createContainer(content)
+        const Generator = this.context.Generator as GenerateJSX;
+
+        const product = Generator.container(content)
         
         return {
             test: test && test.node,

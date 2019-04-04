@@ -1,5 +1,6 @@
 import Core from '@expressive/babel-plugin-core';
-import { DoExpression, Program } from 'internal';
+import { DoExpression } from 'internal';
+import { Program } from 'regenerate/module';
 
 export default (options: any) => {
     return {

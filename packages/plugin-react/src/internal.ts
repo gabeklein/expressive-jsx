@@ -1,28 +1,13 @@
-import { Path } from '@babel/traverse';
-import { StackFrame } from '@expressive/babel-plugin-core';
-import { ModuleInsertions } from 'create/polyfill';
+// internal module pattern
+// control load order to prevent skullduggery, also cleaner
+// https://medium.com/visual-development/how-to-fix-nasty-circular-dependency-issues-once-and-for-all-in-javascript-typescript-a04c987cf0de
 
-export interface StackFrameExt extends StackFrame {
-    Module: ModuleInsertions;
-    loc: string;
-}
+export * from "types"
 
-export interface BabelState {
-    context: StackFrameExt;
-    opts: any;
-    cwd: string;
-    filename: string;
-}
-
-export interface BabelVisitor<T> {
-    enter?(path: Path<T>, state: BabelState): void;
-    exit?(path: Path<T>, state: BabelState): void;
-}
-
-export * from "create/content";
-export * from "create/polyfill";
-export * from "create/element";
-export * from "create/jsx";
-export * from "create/component";
-export * from "create/switch";
-export * from "create/iterate";
+export * from "handle/attributes";
+export * from "handle/element";
+export * from "handle/switch";
+export * from "handle/iterate";
+export * from "generate/syntax";
+export * from "generate/jsx";
+export * from "regenerate/component";
