@@ -1,7 +1,7 @@
 import { Path } from '@babel/traverse';
 import t, { Expression, ModuleSpecifier, Program as ProgramNode, Statement } from '@babel/types';
 import { ExplicitStyle } from '@expressive/babel-plugin-core';
-import { writeProvideStyleStatement } from 'generate/style';
+import { writeProvideStyleStatement } from 'regenerate/style';
 import { ensureUIDIdentifier } from 'helpers';
 import { relative } from 'path';
 import { BabelVisitor, StackFrameExt, StylesRegistered, BunchOf } from 'types';
