@@ -2,9 +2,9 @@ import { Path } from '@babel/traverse';
 import t, { Expression, ModuleSpecifier, Program as ProgramNode, Statement } from '@babel/types';
 import { ExplicitStyle } from '@expressive/babel-plugin-core';
 import { writeProvideStyleStatement } from 'generate/style';
-import { Hash, ensureUIDIdentifier } from 'helpers';
+import { ensureUIDIdentifier } from 'helpers';
 import { relative } from 'path';
-import { BabelVisitor, StackFrameExt, StylesRegistered } from 'types';
+import { BabelVisitor, StackFrameExt, StylesRegistered, BunchOf } from 'types';
 import { GenerateJSX } from 'generate/jsx';
 
 export const Program = <BabelVisitor<ProgramNode>> {
@@ -29,6 +29,7 @@ export const Program = <BabelVisitor<ProgramNode>> {
 
 export class Module {
 
+    blocksByName = {} as BunchOf<StylesRegistered>
     styleBlocks = [] as StylesRegistered[];
     reactProvides: ModuleSpecifier[];
 
@@ -44,8 +45,6 @@ export class Module {
 
         if(styleBlocks.length)
             writeProvideStyleStatement(path, styleBlocks, file);
-
-        
     }
 
     insertReact(){
@@ -73,16 +72,25 @@ export class Module {
         priority?: number,
         query?: string
     ): string | Expression {
+        const { blocksByName, styleBlocks } = this;
         const block = styles as StylesRegistered;
         const name = context.current.name;
-        const hash = Hash(context.loc);
-        const className = `${name}-${hash}`;
 
+        let className = name;
+        let increment = 2;
+
+        while(true)
+            if(className in blocksByName == false)
+                break;
+            else
+                className = name + increment++;
+        
         block.selector = className;
         block.priority = priority;
         block.query = query;
 
-        this.styleBlocks.push(block);
+        styleBlocks.push(block);
+        blocksByName[className] = block;
 
         return className;
     }
