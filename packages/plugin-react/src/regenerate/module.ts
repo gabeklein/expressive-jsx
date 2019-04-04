@@ -2,14 +2,25 @@ import { Path } from '@babel/traverse';
 import t, { Expression, ModuleSpecifier, Program as ProgramNode, Statement } from '@babel/types';
 import { ExplicitStyle } from '@expressive/babel-plugin-core';
 import { writeProvideStyleStatement } from 'generate/style';
-import { Hash } from 'helpers';
+import { Hash, ensureUIDIdentifier } from 'helpers';
 import { relative } from 'path';
 import { BabelVisitor, StackFrameExt, StylesRegistered } from 'types';
+import { GenerateJSX } from 'generate/jsx';
 
 export const Program = <BabelVisitor<ProgramNode>> {
     enter(path, state){
         const file = relative(state.cwd, state.filename);
-        state.context.Module = new Module(path, file);
+        const M = state.context.Module = new Module(path, file);
+        const G = state.context.Generator = new GenerateJSX();
+
+        const Fragment = 
+            ensureUIDIdentifier.call(path.scope, "Fragment");
+        
+        G.Fragment = t.jsxIdentifier(Fragment);
+
+        M.reactProvides.push(
+            t.importSpecifier(t.identifier(Fragment), t.identifier(Fragment))
+        )
     },
     exit(path, state){
         state.context.Module.checkout();
@@ -33,6 +44,8 @@ export class Module {
 
         if(styleBlocks.length)
             writeProvideStyleStatement(path, styleBlocks, file);
+
+        
     }
 
     insertReact(){

@@ -89,7 +89,9 @@ export class ElementIterate
             key = right.node.left as Identifier
             right = right.get("right")
         }
-        else key = ensureUIDIdentifier.call(this.source.path.scope, "i");
+        else key = t.identifier(
+            ensureUIDIdentifier.call(this.source.path.scope, "i")
+        )
 
         this.key = key;
         this.left = left.node;

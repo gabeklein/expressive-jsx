@@ -19,8 +19,8 @@ const Error = ParseErrors({
 export const DoExpression = <BabelVisitor<DoExpressive>> {
     exit(path){
         const DoNode = path.node.meta;
-        const Context = DoNode.context as StackFrameExt;
-        const Generator = Context.Generator = new GenerateJSX();
+        const context = DoNode.context as StackFrameExt;
+        const Generator = context.Generator as GenerateJSX;
 
         if(!(DoNode instanceof ComponentExpression))
             return;

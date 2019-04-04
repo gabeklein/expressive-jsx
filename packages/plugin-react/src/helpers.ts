@@ -1,5 +1,4 @@
 import { Scope } from '@babel/traverse';
-import t from '@babel/types';
 import { createHash } from 'crypto';
 
 export function Hash(data: string, length?: number){
@@ -32,5 +31,5 @@ export function ensureUIDIdentifier(
     const program = this.getProgramParent() as any;
     program.references[uid] = true;
     program.uids[uid] = true;
-    return t.identifier(uid);
+    return uid;
 }
