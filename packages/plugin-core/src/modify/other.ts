@@ -2,7 +2,7 @@ import { Expression } from '@babel/types';
 import { AttributeBody, ModifyDelegate } from 'internal';
 import { BunchOf, ModifyAction, Path } from 'types';
 
-import Arguments, { DelegateAbstraction } from './abstractions';
+import Arguments, { DelegateAbstraction } from 'parse/abstractions';
 
 export type ModTuple = [string, ModifyAction, DelegateAbstraction[]];
 

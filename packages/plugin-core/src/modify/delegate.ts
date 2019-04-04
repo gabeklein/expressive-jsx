@@ -1,8 +1,6 @@
 import t from '@babel/types';
-import { AttributeBody } from 'internal';
+import { AttributeBody, DelegateAbstraction } from 'internal';
 import { BunchOf, ModifyAction } from 'types';
-
-import { DelegateAbstraction } from './abstractions';
 
 export class ModifyDelegate {
     syntax?: Array<DelegateAbstraction>

@@ -9,6 +9,7 @@ export * from "handle/iterate";
 
 export * from "parse/program";
 export * from "parse/element";
+export * from "parse/abstractions";
 
 export * from "generate/element";
 
