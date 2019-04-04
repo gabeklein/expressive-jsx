@@ -104,7 +104,7 @@ const Arguments = new class DelegateTypes {
     }
 
     NumericLiteral(number: Path<NumericLiteral>, sign = 1): DelegateNumeric | DelegateColor {
-        const { raw, rawValue } = number.node as any;
+        const { extra: { rawValue, raw } } = number.node as any;
         if(inParenthesis(number) || !/^0x/.test(raw))
             return new DelegateNumeric(sign*rawValue);
         else {
