@@ -15,10 +15,10 @@ const jsxReturnSpacing = () =>
     replace(/^(.+?[^{])\n(\s+return (?=\(|<))/gm, "$1\n\n$2")
 
 const prettier_config = { 
-    singleQuote: true, 
-    trailingComma: "es5", 
+    singleQuote: false, 
+    trailingComma: "none", 
     jsxBracketSameLine: true,
-    printWidth: 40
+    printWidth: 60
 };
 const babel_config = require("./babel.config");
       babel_config.babelrc = false
