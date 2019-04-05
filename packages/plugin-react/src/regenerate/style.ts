@@ -1,10 +1,13 @@
 import { Path } from '@babel/traverse';
-import t, { ArrayExpression, ObjectProperty, Program } from '@babel/types';
+import t, { ArrayExpression, ObjectProperty, Program, ObjectExpression, Identifier, ImportSpecifier } from '@babel/types';
 import { StylesRegistered, PropertyES } from 'internal';
 import { BunchOf } from 'types';
+import { ensureUIDIdentifier, findExistingImport } from 'helpers';
 
 type SelectorContent = ObjectProperty[];
 type MediaGroups = SelectorContent[];
+
+const RUNTIME_PACKAGE = "@expressive/react";
 
 export function writeProvideStyleStatement(
     program: Path<Program>,
@@ -12,7 +15,7 @@ export function writeProvideStyleStatement(
     filename: string
 ){
     const programBody = program.node.body;
-    const polyfillModule = t.identifier("Module");
+    const polyfillModule = importRuntimeModule(program);
     const output = [];
 
     const media = <BunchOf<MediaGroups>> {
@@ -67,5 +70,36 @@ export function writeProvideStyleStatement(
             )
         )
 
-    programBody.push(provideStatement);
+    programBody.push(provideStatement); 
+
+}
+
+function importRuntimeModule(program: Path<Program>): Identifier {
+    const body = program.node.body;
+    let runtimeImport = findExistingImport(body, RUNTIME_PACKAGE);
+
+    if(!runtimeImport){
+        const reactImport = findExistingImport(body, "react")!;
+        const reactIndex = body.indexOf(reactImport);
+
+        runtimeImport = t.importDeclaration([], t.stringLiteral(RUNTIME_PACKAGE))
+
+        body.splice(reactIndex + 1, 0, runtimeImport)
+    }
+
+    for(const spec of runtimeImport.specifiers.slice(1)){
+        const { imported, local } = spec as ImportSpecifier;
+        if(imported.name == "Module")
+            return local;
+    }
+
+    const local = ensureUIDIdentifier(program.scope, "Module");
+
+    runtimeImport.specifiers.push(
+        t.importSpecifier(
+            local, t.identifier("Module")
+        )
+    )
+
+    return local
 }
