@@ -62,7 +62,9 @@ export class GenerateJSX {
 
             const insertedValue = 
                 t.isStringLiteral(value)
-                    ? value
+                    ? value.value == "true"
+                        ? null
+                        : value
                     : t.jsxExpressionContainer(value)
 
             return t.jsxAttribute(
