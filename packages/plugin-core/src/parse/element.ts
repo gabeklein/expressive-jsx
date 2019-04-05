@@ -60,7 +60,7 @@ export function AddElementsFromExpression(
     }
     chain.push(subject);
 
-    for(const segment of chain){
+    for(const segment of chain.reverse()){
         const child = new ElementInline(parent.context);
 
         ParseIdentity(segment, child);
