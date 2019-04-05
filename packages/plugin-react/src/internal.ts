@@ -11,3 +11,5 @@ export * from "handle/iterate";
 export * from "generate/syntax";
 export * from "generate/jsx";
 export * from "regenerate/component";
+export * from "regenerate/module"
+export * from "regenerate/style"
