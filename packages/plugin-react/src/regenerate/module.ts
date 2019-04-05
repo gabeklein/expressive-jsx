@@ -2,9 +2,9 @@ import { Path } from '@babel/traverse';
 import t, { Expression, ModuleSpecifier, Program as ProgramNode } from '@babel/types';
 import { ExplicitStyle } from '@expressive/babel-plugin-core';
 import { writeProvideStyleStatement } from 'regenerate/style';
-import { ensureUID, findExistingImport } from 'helpers';
+import { findExistingImport, hash as quickHash } from 'helpers';
 import { relative } from 'path';
-import { BabelVisitor, StackFrameExt, StylesRegistered, BunchOf } from 'types';
+import { BabelVisitor, StackFrameExt, StylesRegistered } from 'types';
 import { GenerateJSX } from 'generate/jsx';
 
 export const Program = <BabelVisitor<ProgramNode>> {
@@ -29,7 +29,6 @@ export const Program = <BabelVisitor<ProgramNode>> {
 
 export class Module {
 
-    blocksByName = {} as BunchOf<StylesRegistered>
     styleBlocks = [] as StylesRegistered[];
     reactProvides: ModuleSpecifier[];
 
@@ -72,25 +71,18 @@ export class Module {
         priority?: number,
         query?: string
     ): string | Expression {
-        const { blocksByName, styleBlocks } = this;
+        const { styleBlocks } = this;
         const block = styles as StylesRegistered;
         const name = context.current.name;
+        const hash = quickHash(context.loc)
 
-        let className = name;
-        let increment = 2;
-
-        while(true)
-            if(className in blocksByName == false)
-                break;
-            else
-                className = name + increment++;
+        let className = name + "_" + hash;
         
         block.selector = className;
         block.priority = priority;
         block.query = query;
 
         styleBlocks.push(block);
-        blocksByName[className] = block;
 
         return className;
     }
