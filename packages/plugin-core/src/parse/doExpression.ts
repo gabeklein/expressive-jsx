@@ -1,4 +1,4 @@
-import t, { ArrowFunctionExpression, VariableDeclarator, VariableDeclaration, AssignmentExpression, ObjectProperty } from '@babel/types';
+import t, { ArrowFunctionExpression, VariableDeclarator, VariableDeclaration, AssignmentExpression, ObjectProperty, FunctionDeclaration } from '@babel/types';
 import { ComponentExpression } from 'internal';
 import { BabelVisitor, DoExpressive, Path } from 'types';
 import { StackFrame }  from './program';
@@ -62,12 +62,13 @@ function generateEntryElement(
 function containerName(path: Path): string {
     let parent = path.parentPath;
 
+    while(true)
     switch(parent.type){
         case "VariableDeclarator": {
             const { id } = parent.node as VariableDeclarator;
             return t.isIdentifier(id)
                 ? id.name
-                : (parent.parentPath as Path<VariableDeclaration>).node.kind
+                : (<VariableDeclaration>parent.parentPath.node).kind
         }
 
         case "AssignmentExpression":
@@ -78,12 +79,32 @@ function containerName(path: Path): string {
                 : "assignment"
         }
 
+        case "FunctionDeclaration": 
+            return path.node.id!.name;
+
         case "ExportDefaultDeclaration":
-            return "default";
+            return "defaultExport";
         
-        case "ArrowFunctionExpression":
+        case "ArrowFunctionExpression": {
+            parent = parent.parentPath;
+            continue;
+        }
+
         case "ReturnStatement": {
-            return "returned";
+            const ancestry = path.getAncestry();
+
+            let isWithin = ancestry.find(x => x.type == "FunctionDeclaration")
+
+            if(isWithin)
+                return (<FunctionDeclaration>isWithin.node).id!.name;
+
+            isWithin = path.findParent(x => x.type == "ArrowFunctionExpression")
+
+            if(!isWithin)
+                return "unknown"
+
+            parent = isWithin.parentPath;
+            continue
         }
 
         case "ObjectProperty": {
@@ -95,7 +116,7 @@ function containerName(path: Path): string {
 
         case "SequenceExpression": {
             const isWithin = path.findParent(
-                x => ["ArrowFunctionExpression", "ClassMethod"].indexOf(x.type) >= 0
+                x => ["ArrowFunctionExpression", "ClassMethod"].includes(x.type)
             );
             if(isWithin)
                 throw isWithin.buildCodeFrameError(
@@ -108,4 +129,5 @@ function containerName(path: Path): string {
         default:
             return "do";
     }
+    
 }
