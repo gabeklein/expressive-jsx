@@ -1,10 +1,39 @@
-import t, { Expression, TemplateLiteral, Identifier } from '@babel/types';
+import t, { Expression, TemplateLiteral, Identifier, ModuleSpecifier } from '@babel/types';
 import { PropData, ContentLike, JSXContent, ElementReact } from 'internal';
 import { IsLegalAttribute } from 'types';
 import { ElementSwitch } from 'handle/switch';
+import { ensureUID } from 'helpers';
+import { Scope } from '@babel/traverse';
 
 export class GenerateJSX {
-    Fragment = t.jsxIdentifier("Fragment");
+
+    constructor(
+        private reactImports: ModuleSpecifier[],
+        private scope: Scope
+    ){}
+
+    get Fragment(){
+        let Fragment: string | undefined;
+
+        for(const spec of this.reactImports)
+            if("imported" in spec 
+            && spec.imported.name == "Fragment"){
+                Fragment = spec.local.name;
+                break;
+            }
+
+        if(!Fragment){
+            Fragment = ensureUID(this.scope, "Fragment");
+            this.reactImports.push(
+                t.importSpecifier(t.identifier(Fragment), t.identifier("Fragment"))
+            )
+        }
+
+        const JSXFragment = t.jsxIdentifier(Fragment);
+
+        Object.defineProperty(this, "Fragment", { configurable: true, value: JSXFragment })
+        return JSXFragment;
+    }
 
     element(
         tag: string,

@@ -11,16 +11,7 @@ export const Program = <BabelVisitor<ProgramNode>> {
     enter(path, state){
         const file = relative(state.cwd, state.filename);
         const M = state.context.Module = new Module(path, file);
-        const G = state.context.Generator = new GenerateJSX();
-
-        const Fragment = 
-            ensureUID(path.scope, "Fragment");
-        
-        G.Fragment = t.jsxIdentifier(Fragment);
-
-        M.reactProvides.push(
-            t.importSpecifier(t.identifier(Fragment), t.identifier("Fragment"))
-        )
+        state.context.Generator = new GenerateJSX(M.reactProvides, path.scope);
     },
     exit(path, state){
         state.context.Module.checkout();
