@@ -1,18 +1,13 @@
 import t, { Expression, LVal, Statement } from '@babel/types';
 import { ExplicitStyle, Prop } from '@expressive/babel-plugin-core';
-import { IsLegalIdentifier, BunchOf } from 'types';
+import { BunchOf } from 'types';
 
 export function PropertyES(
     name: string, 
     value: Expression){
 
-    const key = IsLegalIdentifier.test(name)
-        ? t.identifier(name)
-        : t.stringLiteral(name);
-    
-    return t.objectProperty(
-        key, value
-    )
+    const key = t.stringLiteral(name);
+    return t.objectProperty(key, value)
 }
 
 export const AttributeES = (src: ExplicitStyle | Prop) => 
