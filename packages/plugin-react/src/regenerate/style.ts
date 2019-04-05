@@ -49,10 +49,15 @@ export function writeProvideStyleStatement(
         )
     }
 
-    const computed = 
-        output.length == 1
-        ? output[0].value as ArrayExpression
-        : t.objectExpression(output)
+    let computed;
+
+    if (output.length > 1)
+        computed = t.objectExpression(output)
+    else {
+        computed = output[0].value as ArrayExpression
+        if(computed.elements.length == 1)
+            computed = computed.elements[0] as ObjectExpression;
+    }
 
     const provideStatement = 
         t.expressionStatement(

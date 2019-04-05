@@ -15,13 +15,20 @@ type StylesBySelector = BunchOf<string>
 type StylesByPriority = StylesBySelector[];
 type StylesByQuery = BunchOf<StylesByPriority>;
 
+const { isArray } = Array;
+
 const Modules = new class {
 
     blocks = {} as StylesByQuery;
 
     doesProvideStyle(css: StylesByPriority | StylesByQuery){
-        if(Array.isArray(css))
+        if(isArray(css))
             css = { default: css };
+
+        const [ anyGivenValue ] = Object.values(css);
+
+        if(isArray(anyGivenValue) == false)
+            css = { default: [ css ] } as unknown as StylesByQuery;
             
         for(let media in css){
             const styles = css[media];
