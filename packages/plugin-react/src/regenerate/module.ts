@@ -1,8 +1,8 @@
 import { Path } from '@babel/traverse';
-import t, { Expression, ModuleSpecifier, Program as ProgramNode, Statement } from '@babel/types';
+import t, { Expression, ModuleSpecifier, Program as ProgramNode } from '@babel/types';
 import { ExplicitStyle } from '@expressive/babel-plugin-core';
 import { writeProvideStyleStatement } from 'regenerate/style';
-import { ensureUIDIdentifier } from 'helpers';
+import { ensureUID, findExistingImport } from 'helpers';
 import { relative } from 'path';
 import { BabelVisitor, StackFrameExt, StylesRegistered, BunchOf } from 'types';
 import { GenerateJSX } from 'generate/jsx';
@@ -14,7 +14,7 @@ export const Program = <BabelVisitor<ProgramNode>> {
         const G = state.context.Generator = new GenerateJSX();
 
         const Fragment = 
-            ensureUIDIdentifier.call(path.scope, "Fragment");
+            ensureUID(path.scope, "Fragment");
         
         G.Fragment = t.jsxIdentifier(Fragment);
 
@@ -49,7 +49,7 @@ export class Module {
 
     insertReact(){
         const body = this.path.node.body;
-        let reactImport = FindExistingImport(body, "react");
+        let reactImport = findExistingImport(body, "react");
         let specifiers = this.reactProvides = reactImport ? reactImport.specifiers : [];
     
         if(!reactImport){
@@ -93,14 +93,6 @@ export class Module {
         blocksByName[className] = block;
 
         return className;
-    }
-}
-
-function FindExistingImport(body: Statement[], MODULE: string){
-    for(const statement of body){
-        if(statement.type == "ImportDeclaration" 
-        && statement.source.value == MODULE)
-            return statement
     }
 }
 
