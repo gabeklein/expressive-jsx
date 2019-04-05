@@ -27,7 +27,8 @@ module.exports = {
         expressiveEnhancements,        
     ],
     "plugins": [
-        pluginClassProperties,
+        // pluginClassProperties,
+        syntaxClassProperties,
         // restSpread,
         [inferReactComponent, {
             activeOnMethodDo: true
