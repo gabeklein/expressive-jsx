@@ -70,6 +70,9 @@ export class GenerateES extends GenerateReact {
     
     private recombineProps(props: PropData[]){
         const propStack = new ArrayStack<ObjectProperty, Expression>()
+
+        if(props.length == 0)
+            return t.objectExpression([]);
     
         for(const { name, value } of props)
             if(!name)
