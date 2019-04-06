@@ -1,8 +1,9 @@
 {
   "name": "@expressive/react",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.3",
   "description": "Expressive-react runtime",
   "main": "lib/index.js",
+  "types": "index.d.ts",
   "author": {
     "name": "Gabe Klein",
     "email": "gabe@termtm.com"
@@ -18,7 +19,8 @@
     "access": "public"
   },
   "files": [
-    "/lib"
+    "/lib",
+    "index.d.ts"
   ],
   "keywords": [
     "react",
