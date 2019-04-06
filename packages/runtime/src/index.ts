@@ -1,7 +1,4 @@
-//needed only to prevent a webpack "no instrumentation found" error
-
-// import { hot } from 'react-hot-loader'
-import React, { Component, Fragment, createElement, createContext } from "react";
+import React, { Component, ComponentType, createContext, createElement as create, Fragment } from 'react';
 
 const { Provider: StyleContext, Consumer: StyleDeclaration } = createContext({
     push: () => void 0
@@ -110,14 +107,14 @@ class Compiler {
 }
 
 export function Include({ hid, css }: { hid: string, css: string }){
-    return createElement(StyleDeclaration, {} as any, (props: any) => {
+    return create(StyleDeclaration, {} as any, (props: any) => {
         props.push(hid, css.split("; "));
         return false;
     });
 }
 
 function StyleOutput({ compiler }: { compiler: Compiler }){
-    return createElement("style", {
+    return create("style", {
         jsx: "true", global: "true",
         dangerouslySetInnerHTML: {
             __html: compiler.generate()
@@ -126,26 +123,45 @@ function StyleOutput({ compiler }: { compiler: Compiler }){
 }
 
 interface StyledApplicationProps {
-    compilerTarget: Compiler;
     children: any[]
 }
 
-export default class StyledApplication extends Component<StyledApplicationProps> {
-
+class StyledApplicationComponent extends Component<StyledApplicationProps> {
     compilerTarget?: Compiler;
-    
+
     componentWillMount(){
         this.compilerTarget = new Compiler();
     }
-    
+
     render(){
         const { children } = this.props || [];
 
         const styled_content = Array.isArray(children) ? children : [children];
 
-        return createElement(Fragment, {}, 
-            createElement(StyleContext, { value: this.compilerTarget as any }, ...styled_content),
-            createElement(StyleOutput, { compiler: this.compilerTarget as any })
+        return create(Fragment, {}, 
+            create(StyleContext, { value: this.compilerTarget as any }, ...styled_content),
+            create(StyleOutput, { compiler: this.compilerTarget as any })
         )
     }
 }
+
+function StyledApplication<P>(input: StyledApplicationProps | ComponentType<P>){
+
+    if(input && typeof input == "function" || input instanceof Component){
+        return (props: P) => (
+            create(
+                StyledApplicationComponent, 
+                {} as StyledApplicationProps, 
+                create(
+                    input as ComponentType<P>, 
+                    props
+                )
+            )
+        )
+    }
+
+    const { children, ...inputProps } = input as StyledApplicationProps;
+    return create(StyledApplicationComponent, input, children as any);
+}
+
+export default StyledApplication;
