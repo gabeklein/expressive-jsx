@@ -1,9 +1,9 @@
-import t, { Expression, TemplateLiteral, Identifier, ModuleSpecifier } from '@babel/types';
-import { PropData, ContentLike, JSXContent, ElementReact } from 'internal';
-import { IsLegalAttribute } from 'types';
+import { Scope } from '@babel/traverse';
+import t, { Expression, Identifier, ModuleSpecifier, TemplateLiteral } from '@babel/types';
 import { ElementSwitch } from 'handle/switch';
 import { ensureUID } from 'helpers';
-import { Scope } from '@babel/traverse';
+import { ContentLike, ElementReact, JSXContent, PropData } from 'internal';
+import { IsLegalAttribute } from 'types';
 
 export class GenerateJSX {
 

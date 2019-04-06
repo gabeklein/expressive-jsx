@@ -34,6 +34,7 @@ export const DoExpression = <BabelVisitor<DoExpressive>> {
                 return
         
         path.replaceWith(factoryExpression);
+        context.Module.lastInsertedElement = path;
     }
 }
 

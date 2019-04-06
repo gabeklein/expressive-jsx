@@ -1,6 +1,6 @@
 import { Path } from '@babel/traverse';
 import t, { Expression, ModuleSpecifier, Program as ProgramNode } from '@babel/types';
-import { ExplicitStyle } from '@expressive/babel-plugin-core';
+import { ExplicitStyle, DoExpressive } from '@expressive/babel-plugin-core';
 import { writeProvideStyleStatement } from 'regenerate/style';
 import { findExistingImport, hash as quickHash } from 'helpers';
 import { relative } from 'path';
@@ -22,19 +22,20 @@ export class Module {
 
     styleBlocks = [] as StylesRegistered[];
     reactProvides: ModuleSpecifier[];
+    lastInsertedElement?: Path<DoExpressive>
 
     constructor(
-        private path: Path<ProgramNode>,
-        private file: string ){
+        public path: Path<ProgramNode>,
+        public file: string ){
 
         this.reactProvides = this.insertReact();
     };
 
     checkout(){
-        const { styleBlocks, file, path } = this;
+        const { styleBlocks } = this;
 
         if(styleBlocks.length)
-            writeProvideStyleStatement(path, styleBlocks, file);
+            writeProvideStyleStatement(this);
     }
 
     insertReact(){

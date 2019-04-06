@@ -1,8 +1,9 @@
 import { Path } from '@babel/traverse';
-import t, { ArrayExpression, ObjectProperty, Program, ObjectExpression, Identifier, ImportSpecifier } from '@babel/types';
-import { StylesRegistered, PropertyES } from 'internal';
+import t, { ArrayExpression, ObjectProperty, Program, ObjectExpression, Identifier, ImportSpecifier, Statement } from '@babel/types';
+import { PropertyES } from 'internal';
 import { BunchOf } from 'types';
 import { ensureUIDIdentifier, findExistingImport } from 'helpers';
+import { Module } from './module';
 
 type SelectorContent = ObjectProperty[];
 type MediaGroups = SelectorContent[];
@@ -10,10 +11,14 @@ type MediaGroups = SelectorContent[];
 const RUNTIME_PACKAGE = "@expressive/react";
 
 export function writeProvideStyleStatement(
-    program: Path<Program>,
-    style: StylesRegistered[],
-    filename: string
+    Module: Module
 ){
+    const {
+        path: program,
+        styleBlocks: style,
+        lastInsertedElement: lastInsertedJSX
+    } = Module;
+
     const programBody = program.node.body;
     const polyfillModule = importRuntimeModule(program);
     const output = [];
@@ -41,7 +46,7 @@ export function writeProvideStyleStatement(
             block.map(style => `${style.name}: ${style.value}`).join("; ")
         
         targetPriority.push(
-            PropertyES(selector, t.stringLiteral(styleString))
+            PropertyES("." + selector, t.stringLiteral(styleString))
         )
     }
 
@@ -70,8 +75,10 @@ export function writeProvideStyleStatement(
             )
         )
 
-    programBody.push(provideStatement); 
-
+    const provideStatementGoesAfter = lastInsertedJSX!.getAncestry().reverse()[1];
+    const index = programBody.indexOf(provideStatementGoesAfter.node as Statement);
+    
+    programBody.splice(index + 1, 0, provideStatement)
 }
 
 function importRuntimeModule(program: Path<Program>): Identifier {
