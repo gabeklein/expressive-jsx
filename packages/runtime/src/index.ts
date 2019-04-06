@@ -1,4 +1,4 @@
-import React, { Component, ComponentType, createContext, createElement as create, Fragment } from 'react';
+import React, { Component, ComponentType, createContext, createElement as create, Fragment, ReactElement } from 'react';
 
 const { Provider: StyleContext, Consumer: StyleDeclaration } = createContext({
     push: () => void 0
@@ -162,6 +162,14 @@ function StyledApplication<P>(input: StyledApplicationProps | ComponentType<P>){
 
     const { children, ...inputProps } = input as StyledApplicationProps;
     return create(StyledApplicationComponent, input, children as any);
+}
+
+export function withStyle(Root: ComponentType): ReactElement {
+    return create(
+        StyledApplicationComponent, 
+        {} as StyledApplicationProps, 
+        create(Root, {})
+    )
 }
 
 export default StyledApplication;
