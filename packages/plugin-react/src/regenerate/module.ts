@@ -1,5 +1,5 @@
 import { Path } from '@babel/traverse';
-import t, { Expression, ModuleSpecifier, Program as ProgramNode } from '@babel/types';
+import t, { Expression, ModuleSpecifier, Program as ProgramNode, ImportSpecifier } from '@babel/types';
 import { ExplicitStyle, DoExpressive } from '@expressive/babel-plugin-core';
 import { writeProvideStyleStatement } from 'regenerate/style';
 import { findExistingImport, hash as quickHash } from 'helpers';
@@ -22,13 +22,14 @@ export class Module {
 
     styleBlocks = [] as StylesRegistered[];
     reactProvides: ModuleSpecifier[];
-    lastInsertedElement?: Path<DoExpressive>
+    lastInsertedElement?: Path<DoExpressive>;
+    reactImportExists?: true;
 
     constructor(
         public path: Path<ProgramNode>,
         public file: string ){
 
-        this.reactProvides = this.insertReact();
+        this.reactProvides = this.getReact();
     };
 
     checkout(){
@@ -36,25 +37,27 @@ export class Module {
 
         if(styleBlocks.length)
             writeProvideStyleStatement(this);
+
+        if(this.lastInsertedElement 
+        && !this.reactImportExists)
+            this.path.node.body.unshift(
+                t.importDeclaration(
+                    this.reactProvides as ImportSpecifier[], 
+                    t.stringLiteral("react")
+                )
+            )
     }
 
-    insertReact(){
-        const body = this.path.node.body;
-        let reactImport = findExistingImport(body, "react");
-        let specifiers = this.reactProvides = reactImport ? reactImport.specifiers : [];
-    
-        if(!reactImport){
-            reactImport = t.importDeclaration(specifiers, t.stringLiteral("react"));
-            body.unshift(reactImport);
-        }
+    getReact(){
+        let reactImport = findExistingImport(
+            this.path.node.body, "react"
+        );
         
-        let [ defaultSpec ] = specifiers;
-        if(!t.isImportDefaultSpecifier(defaultSpec)){
-            defaultSpec = t.importDefaultSpecifier(t.identifier("React"));
-            specifiers.unshift(defaultSpec);
+        if(reactImport){
+            this.reactImportExists = true;
+            return reactImport.specifiers;
         }
-
-        return specifiers;
+        else return [];
     }
 
     registerStyle(
