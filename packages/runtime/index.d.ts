@@ -54,4 +54,4 @@ export default _default
  * @returns `<StyledApplication><Root /></StyledApplication>`
  * 
  */
-export declare function withStyle(Root: ComponentType): ReactElement;
+export declare function withStyles(Root: ComponentType): ReactElement;

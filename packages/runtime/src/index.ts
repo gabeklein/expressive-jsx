@@ -164,7 +164,7 @@ function StyledApplication<P>(input: StyledApplicationProps | ComponentType<P>){
     return create(StyledApplicationComponent, input, children as any);
 }
 
-export function withStyle(Root: ComponentType): ReactElement {
+export function withStyles(Root: ComponentType): ReactElement {
     return create(
         StyledApplicationComponent, 
         {} as StyledApplicationProps, 
