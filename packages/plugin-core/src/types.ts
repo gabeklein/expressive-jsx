@@ -30,8 +30,8 @@ export interface SharedSingleton {
 
 export interface Options {
     compact_vars?: true;
-    reactEnv: "native" | "web";
-    output: "ES6" | "JSX";
+    env: "native" | "web";
+    output: "js" | "jsx";
     styleMode: "compile";
     formatStyles: any;
 }

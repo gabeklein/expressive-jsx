@@ -121,7 +121,7 @@ function ParseIdentity(
 
     else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
         ApplyNameImplications("string", target);
-        ApplyNameImplications(Opts.reactEnv == "native" ? Shared.stack.helpers.Text : "span", target, true)
+        ApplyNameImplications(Opts.env == "native" ? Shared.stack.helpers.Text : "span", target, true)
 
         target.add(tag)
         preventDefaultPolyfill(tag);

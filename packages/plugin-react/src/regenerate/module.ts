@@ -1,20 +1,35 @@
 import { Path } from '@babel/traverse';
 import t, { Expression, ModuleSpecifier, Program as ProgramNode, ImportSpecifier } from '@babel/types';
 import { ExplicitStyle, DoExpressive } from '@expressive/babel-plugin-core';
-import { writeProvideStyleStatement } from 'regenerate/style';
 import { findExistingImport, hash as quickHash } from 'helpers';
 import { relative } from 'path';
-import { BabelVisitor, StackFrameExt, StylesRegistered } from 'types';
-import { GenerateJSX } from 'generate/jsx';
+import { GenerateES, GenerateJSX, writeProvideStyleStatement } from 'internal';
+import { BabelVisitor, StackFrameExt, StylesRegistered, BabelState } from 'types';
 
 export const Program = <BabelVisitor<ProgramNode>> {
     enter(path, state){
-        const file = relative(state.cwd, state.filename);
-        const M = state.context.Module = new Module(path, file);
-        state.context.Generator = new GenerateJSX(M.reactProvides, path.scope);
+
+        let Generator;
+        const { output } = state.opts;
+    
+        if(output == "jsx")
+            Generator = GenerateJSX;
+        else if(output == "js" || !output)
+            Generator = GenerateES;
+        else 
+            throw new Error(
+                `Unknown output type of ${output}.\nAcceptable ['js', 'jsx'] (default 'js')`)
+
+        const M = state.context.Module = new Module(path, state);
+        const G = state.context.Generator = new Generator(M.reactProvides, path.scope);
+
+        if(G.didEnterModule) G.didEnterModule(M);
+
     },
     exit(path, state){
-        state.context.Module.checkout();
+        const { Generator: G, Module: M } = state.context;
+        if(G.willExitModule) G.willExitModule(M);
+        state.context.Module.exit();
     }
 }    
 
@@ -27,12 +42,16 @@ export class Module {
 
     constructor(
         public path: Path<ProgramNode>,
-        public file: string ){
+        public state: BabelState ){
 
         this.reactProvides = this.getReact();
     };
 
-    checkout(){
+    get relativeFileName(){
+        return relative(this.state.cwd, this.state.filename);
+    }
+
+    exit(){
         const { styleBlocks } = this;
 
         if(styleBlocks.length)
@@ -52,7 +71,7 @@ export class Module {
         let reactImport = findExistingImport(
             this.path.node.body, "react"
         );
-        
+
         if(reactImport){
             this.reactImportExists = true;
             return reactImport.specifiers;

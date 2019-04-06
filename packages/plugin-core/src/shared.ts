@@ -6,9 +6,9 @@ export const env = process.env || {
 };
 
 export const Opts: Options = {
-    reactEnv: "web",
+    env: "web",
     styleMode: "compile",
-    output: "ES6",
+    output: "js",
     formatStyles: ""
 }
 

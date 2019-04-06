@@ -39,7 +39,7 @@ function HEXColor(raw: string){
     if(raw.length % 4 == 0){
         let decimal = [] as any[];
 
-        if(Opts.reactEnv == "native")
+        if(Opts.env == "native")
             return "#" + raw;
 
         if(raw.length == 4)

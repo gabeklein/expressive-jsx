@@ -35,8 +35,7 @@ module.exports = {
         }],
         [transformExpressiveReact, {
             reactEnv: "next",
-            output: "JSX",
-            styleMode: "compile",
+            output: "jsx",
             modifiers: [
                 WebStyles
             ]
