@@ -1,38 +1,19 @@
-import { Scope } from '@babel/traverse';
-import t, { Expression, Identifier, ModuleSpecifier, TemplateLiteral } from '@babel/types';
-import { ElementSwitch } from 'handle/switch';
-import { ensureUID } from 'helpers';
-import { ContentLike, ElementReact, JSXContent, PropData } from 'internal';
+import t, { Expression, TemplateLiteral } from '@babel/types';
+import { ContentLike, JSXContent, PropData, GenerateReact } from 'internal';
 import { IsLegalAttribute } from 'types';
 
-export class GenerateJSX {
+export class GenerateJSX extends GenerateReact {
 
-    constructor(
-        private reactImports: ModuleSpecifier[],
-        private scope: Scope
-    ){}
-
-    get Fragment(){
-        let Fragment: string | undefined;
-
-        for(const spec of this.reactImports)
-            if("imported" in spec 
-            && spec.imported.name == "Fragment"){
-                Fragment = spec.local.name;
-                break;
-            }
-
-        if(!Fragment){
-            Fragment = ensureUID(this.scope, "Fragment");
-            this.reactImports.push(
-                t.importSpecifier(t.identifier(Fragment), t.identifier("Fragment"))
-            )
+    didEnterModule(){
+        let [ defaultSpec ] = this.reactImports;
+        if(!t.isImportDefaultSpecifier(defaultSpec)){
+            defaultSpec = t.importDefaultSpecifier(t.identifier("React"));
+            this.reactImports.unshift(defaultSpec);
         }
-
-        const JSXFragment = t.jsxIdentifier(Fragment);
-
-        Object.defineProperty(this, "Fragment", { configurable: true, value: JSXFragment })
-        return JSXFragment;
+    }
+    
+    get Fragment(){
+        return this.getFragmentImport(t.jsxIdentifier);
     }
 
     element(
@@ -41,37 +22,16 @@ export class GenerateJSX {
         children = [] as ContentLike[]){
 
         const type = t.jsxIdentifier(tag);
-        const properties = props.map(this.props)
+        const properties = props.map(this.recombineProps)
     
         return (
             t.jsxElement(
                 t.jsxOpeningElement(type, properties),
                 t.jsxClosingElement(type),
-                this.children(children),
+                this.recombineChildren(children),
                 children.length > 0
             ) 
         )
-    }
-    
-    props({ name, value }: PropData){
-        if(typeof name !== "string")
-            return t.jsxSpreadAttribute(value);
-        else {
-            if(IsLegalAttribute.test(name) == false)
-                throw new Error(`Illegal characters in prop named ${name}`)
-
-            const insertedValue = 
-                t.isStringLiteral(value)
-                    ? value.value == "true"
-                        ? null
-                        : value
-                    : t.jsxExpressionContainer(value)
-
-            return t.jsxAttribute(
-                t.jsxIdentifier(name), 
-                insertedValue
-            )
-        }
     }
 
     fragment(
@@ -89,22 +49,22 @@ export class GenerateJSX {
             t.jsxElement(
                 t.jsxOpeningElement(this.Fragment, attributes),
                 t.jsxClosingElement(this.Fragment),
-                this.children(children),
+                this.recombineChildren(children),
                 false
             )
         )
     }
 
-    children(
+    private recombineChildren(
         input: ContentLike[]){
-
+    
         const output = [];
         for(const child of input){
             let jsx;
     
             if(t.isExpression(child)){
                 if(t.isTemplateLiteral(child)){
-                    output.push(...this.quasi(child))
+                    output.push(...this.recombineQuasi(child))
                     continue
                 }
                 if(t.isStringLiteral(child))
@@ -121,44 +81,11 @@ export class GenerateJSX {
     
             output.push(jsx);
         }
-
+    
         return output;
     }
-
-    container(
-        src: ElementReact | ElementSwitch,
-        fragmentKey?: Identifier | false
-    ): Expression {
-
-        let fragmentChildren: ContentLike[] | undefined;
-
-        if(src instanceof ElementReact){
-            const { props, children } = src; 
-            if(props.length == 0){
-                if(children.length)
-                    src = src.children[0] as any;
-                else 
-                    return t.booleanLiteral(false);
-            }
-
-            if(fragmentKey || children.length > 1)
-                fragmentChildren = children;
-        }
-
-        if(fragmentKey || fragmentChildren){
-            return this.fragment(fragmentChildren, fragmentKey);
-        }
-
-        if("toExpression" in src)
-            return src.toExpression();
-
-        if(t.isExpression(src))
-            return src;
-
-        throw new Error("Bad Input");
-    }
-
-    quasi(node: TemplateLiteral){
+    
+    private recombineQuasi(node: TemplateLiteral){
         const { expressions, quasis } = node;
         const acc = [] as JSXContent[];
         let i = 0;
@@ -168,15 +95,35 @@ export class GenerateJSX {
             if(value)
                 acc.push( 
                     t.jsxText(value))
-
+    
             if(i in expressions)
                 acc.push(
                     t.jsxExpressionContainer(
                         expressions[i++]))
             else break;
         }
-
+    
         return acc;
     }
-
+    
+    private recombineProps({ name, value }: PropData){
+        if(typeof name !== "string")
+            return t.jsxSpreadAttribute(value);
+        else {
+            if(IsLegalAttribute.test(name) == false)
+                throw new Error(`Illegal characters in prop named ${name}`)
+    
+            const insertedValue = 
+                t.isStringLiteral(value)
+                    ? value.value == "true"
+                        ? null
+                        : value
+                    : t.jsxExpressionContainer(value)
+    
+            return t.jsxAttribute(
+                t.jsxIdentifier(name), 
+                insertedValue
+            )
+        }
+    }
 }

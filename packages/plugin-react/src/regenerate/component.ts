@@ -8,7 +8,7 @@ import t, {
     PatternLike,
 } from '@babel/types';
 import { ComponentExpression, DoExpressive, ParseErrors, Path } from '@expressive/babel-plugin-core';
-import { BabelVisitor, ElementReact, GenerateJSX, declare, ensureArray } from 'internal';
+import { BabelVisitor, ElementReact, GenerateReact, declare, ensureArray } from 'internal';
 import { StackFrameExt } from 'types';
 
 const Error = ParseErrors({
@@ -20,7 +20,7 @@ export const DoExpression = <BabelVisitor<DoExpressive>> {
     exit(path){
         const DoNode = path.node.meta;
         const context = DoNode.context as StackFrameExt;
-        const Generator = context.Generator as GenerateJSX;
+        const Generator = context.Generator as GenerateReact;
 
         if(!(DoNode instanceof ComponentExpression))
             return;

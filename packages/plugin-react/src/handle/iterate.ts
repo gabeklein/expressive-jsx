@@ -12,8 +12,8 @@ import t, {
     StringLiteral
 } from '@babel/types';
 import { ComponentFor, ElementInline, ParseErrors } from '@expressive/babel-plugin-core';
+import { ElementReact, GenerateReact } from 'internal';
 import { ensureUIDIdentifier } from 'helpers';
-import { ElementReact, GenerateJSX } from 'internal';
 import { isIdentifierElement } from 'types';
 
 const Error = ParseErrors({
@@ -43,7 +43,7 @@ export class ElementIterate
 
         const { key, mayCollapseContent } = this;
 
-        const Generator = this.context.Generator as GenerateJSX;
+        const Generator = this.context.Generator as GenerateReact;
 
         body = Generator.container(this, !mayCollapseContent && key);
 

@@ -1,6 +1,6 @@
 import t, { Expression } from '@babel/types';
 import { ComponentConsequent, ComponentIf } from '@expressive/babel-plugin-core';
-import { ElementReact, ContentReact, GenerateJSX } from 'internal';
+import { ElementReact, ContentReact, GenerateReact } from 'internal';
 import { StackFrameExt } from 'types';
 
 export class ElementSwitch 
@@ -46,7 +46,7 @@ export class ElementSwitch
 
         const content = new ElementReact(item);
 
-        const Generator = this.context.Generator as GenerateJSX;
+        const Generator = this.context.Generator as GenerateReact;
 
         const product = Generator.container(content)
         

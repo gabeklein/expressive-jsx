@@ -1,4 +1,4 @@
-import t, { Statement } from "@babel/types"
+import t, { Statement, ModuleSpecifier } from "@babel/types"
 import { Scope } from '@babel/traverse';
 import { createHash } from 'crypto';
 
@@ -39,6 +39,31 @@ export function ensureUID(
     const program = scope.getProgramParent() as any;
     program.references[uid] = true;
     program.uids[uid] = true;
+    return uid;
+}
+
+export function ensureSpecifier(
+    from: ModuleSpecifier[],
+    scope: Scope,
+    name: string,
+    alt?: string
+){
+    let uid: string | undefined;
+
+    for(const spec of from)
+        if("imported" in spec 
+        && spec.imported.name == name){
+            uid = spec.local.name;
+            break;
+        }
+
+    if(!uid){
+        uid = ensureUID(scope, alt || name);
+        from.push(
+            t.importSpecifier(t.identifier(alt || name), t.identifier(name))
+        )
+    }
+
     return uid;
 }
 

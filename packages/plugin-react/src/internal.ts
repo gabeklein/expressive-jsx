@@ -9,6 +9,8 @@ export * from "handle/element";
 export * from "handle/switch";
 export * from "handle/iterate";
 export * from "generate/syntax";
+export * from "generate/element";
+export * from "generate/es6";
 export * from "generate/jsx";
 export * from "regenerate/component";
 export * from "regenerate/module"
