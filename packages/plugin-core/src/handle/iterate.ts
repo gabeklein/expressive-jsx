@@ -30,4 +30,8 @@ export class ComponentFor extends ElementInline {
     AssignmentExpression(path: Path<AssignmentExpression>){
         Error.AcceptsNoAssignments(path);
     }
+
+    Prop(){
+        void 0
+    }
 }
