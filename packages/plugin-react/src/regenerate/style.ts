@@ -41,9 +41,16 @@ export function writeProvideStyleStatement(
             priority in targetQuery ?
                 targetQuery[priority] :
                 targetQuery[priority] = [];
+
+
                 
         const styleString = 
-            block.map(style => `${style.name}: ${style.value}`).join("; ")
+            block.map(style => {
+                let styleKey = style.name;
+                if(typeof styleKey == "string")
+                    styleKey = styleKey.replace(/([A-Z]+)/g, "-$1").toLowerCase();
+                return `${styleKey}: ${style.value}`
+            }).join("; ")
         
         targetPriority.push(
             PropertyES("." + selector, t.stringLiteral(styleString))
