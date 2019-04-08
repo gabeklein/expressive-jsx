@@ -1,43 +1,99 @@
-import t, { Expression, ObjectProperty } from '@babel/types';
-import { ContentLike, GenerateReact, ArrayStack, ElementReact, PropData } from 'internal';
-import { ensureSpecifier } from 'helpers';
+import t, { Expression, ObjectProperty, Statement } from '@babel/types';
+import { findExistingRequire, ensureUID } from 'helpers';
+import { ArrayStack, ContentLike, GenerateReact, PropData } from 'internal';
+import { Module } from 'regenerate/module';
+
 import { PropertyES } from './syntax';
+import { ElementReact } from 'handle/element';
 
 const IsComponentElement = /^[A-Z]\w*/;
 
 export class GenerateES extends GenerateReact {
 
+    reactImports: ObjectProperty[];
+
+    constructor(module: Module){
+        super(module);
+
+        const { body } = module.path.node;
+        this.reactImports = this.getReact(body);
+    }
+
+    getReact(body: Statement[]){
+        const [index, imported] = findExistingRequire(body, "react");
+
+        if(t.isObjectPattern(imported))
+            return imported.properties as ObjectProperty[];
+        else {
+            const imports = [] as ObjectProperty[];
+            const target =  
+                t.isIdentifier(imported)
+                    ? imported
+                    : t.callExpression(
+                        t.identifier("require"),
+                        [ t.stringLiteral("react") ]
+                    )
+            this.willExitModule = () => {
+                if(imports.length)
+                body.splice(index + 1, 0, 
+                    t.variableDeclaration("const", [
+                        t.variableDeclarator(
+                            t.objectPattern(imports), target
+                        )
+                    ])
+                )
+            }
+            return imports
+        }
+    }
+
     get Fragment(){
-        return this.getFragmentImport(t.identifier);
+        let id;
+        const ref = ensureUID(this.module.path.scope, "Fragment");
+        this.reactImports.push(
+            t.objectProperty(
+                t.identifier("Fragment"),
+                id = t.identifier(ref),
+                false,
+                ref == "Fragment"
+            )
+        )
+        Object.defineProperty(this, "Fragment", { value: id });
+        return id;
     }
 
     get Create(){
-        const uid = ensureSpecifier(
-            this.reactImports,
-            this.scope,
-            "createElement",
-            "create"
+        let id;
+        const ref = ensureUID(this.module.path.scope, "create");
+        this.reactImports.push(
+            t.objectProperty(
+                t.identifier("createElement"),
+                id = t.identifier(ref)
+            )
         )
-
-        const Create = t.identifier(uid);
-        Object.defineProperty(this, "Create", { configurable: true, value: Create })
-        return Create;
+        Object.defineProperty(this, "Create", { value: id });
+        return id;
     }
 
     element(
-        tag: string,
-        props = [] as PropData[],
-        children = [] as ContentLike[]){
+        src: ElementReact){
+            
+        const {
+            tagName: tag,
+            props,
+            children
+        } = src;
 
         const type = IsComponentElement.test(tag)
             ? t.identifier(tag) 
             : t.stringLiteral(tag);
 
-        let propsExpression = this.recombineProps(props);
-
         return t.callExpression(
-            this.Create, 
-            [type, propsExpression, ...this.recombineChildren(children)]
+            this.Create, [
+                type, 
+                this.recombineProps(props), 
+                ...this.recombineChildren(children)
+            ]
         ) 
     }
 
@@ -57,15 +113,15 @@ export class GenerateES extends GenerateReact {
     }
 
     private recombineChildren(input: ContentLike[]): Expression[] {
-        const output = [];
-        for(const child of input){
-            if(child instanceof ElementReact)
-                output.push(child.toExpression())
-    
-            if(t.isExpression(child))
-                output.push(child)
-        }
-        return output;
+        return input.map(child => (
+            "toExpression" in child ? 
+                child.toExpression() :
+            t.isExpression(child) ?
+                child :
+            child instanceof ElementReact 
+                ? this.element(child)
+                : t.booleanLiteral(false)
+        ));
     }
     
     private recombineProps(props: PropData[]){

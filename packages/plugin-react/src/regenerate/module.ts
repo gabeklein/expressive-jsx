@@ -1,10 +1,18 @@
-import { Path } from '@babel/traverse';
-import t, { Expression, ModuleSpecifier, Program as ProgramNode, ImportSpecifier } from '@babel/types';
-import { ExplicitStyle, DoExpressive } from '@expressive/babel-plugin-core';
-import { findExistingImport, hash as quickHash } from 'helpers';
+import t, {
+    Expression,
+    Identifier,
+    ImportDefaultSpecifier,
+    ImportNamespaceSpecifier,
+    ImportSpecifier,
+    ObjectPattern,
+    Program as ProgramNode,
+} from '@babel/types';
+import { DoExpressive, ExplicitStyle } from '@expressive/babel-plugin-core';
+import { ensureSpecifier, findExistingImport, hash as quickHash } from 'helpers';
+import { GenerateES, GenerateJSX } from 'internal';
 import { relative } from 'path';
-import { GenerateES, GenerateJSX, writeProvideStyleStatement } from 'internal';
-import { BabelVisitor, StackFrameExt, StylesRegistered, BabelState } from 'types';
+import { BabelState, BabelVisitor, StackFrameExt, StylesRegistered, Path } from 'types';
+import { writeProvideStyleStatement } from './style';
 
 export const Program = <BabelVisitor<ProgramNode>> {
     enter(path, state){
@@ -21,14 +29,13 @@ export const Program = <BabelVisitor<ProgramNode>> {
                 `Unknown output type of ${output}.\nAcceptable ['js', 'jsx'] (default 'js')`)
 
         const M = state.context.Module = new Module(path, state);
-        const G = state.context.Generator = new Generator(M.reactProvides, path.scope);
+        const G = state.context.Generator = new Generator(M);
 
-        if(G.didEnterModule) G.didEnterModule(M);
-
+        if(G.didEnterModule) G.didEnterModule();
     },
     exit(path, state){
-        const { Generator: G, Module: M } = state.context;
-        if(G.willExitModule) G.willExitModule(M);
+        const { Generator: G } = state.context;
+        if(G.willExitModule) G.willExitModule();
         state.context.Module.exit();
     }
 }    
@@ -36,15 +43,14 @@ export const Program = <BabelVisitor<ProgramNode>> {
 export class Module {
 
     styleBlocks = [] as StylesRegistered[];
-    reactProvides: ModuleSpecifier[];
     lastInsertedElement?: Path<DoExpressive>;
-    reactImportExists?: true;
+    reactImports?: (ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier)[];
+    reactRequire?: ObjectPattern | Identifier;
+    reactIndex?: number;
 
     constructor(
         public path: Path<ProgramNode>,
         public state: BabelState ){
-
-        this.reactProvides = this.getReact();
     };
 
     get relativeFileName(){
@@ -55,28 +61,7 @@ export class Module {
         const { styleBlocks } = this;
 
         if(styleBlocks.length)
-            writeProvideStyleStatement(this);
-
-        if(this.lastInsertedElement 
-        && !this.reactImportExists)
-            this.path.node.body.unshift(
-                t.importDeclaration(
-                    this.reactProvides as ImportSpecifier[], 
-                    t.stringLiteral("react")
-                )
-            )
-    }
-
-    getReact(){
-        let reactImport = findExistingImport(
-            this.path.node.body, "react"
-        );
-
-        if(reactImport){
-            this.reactImportExists = true;
-            return reactImport.specifiers;
-        }
-        else return [];
+            writeProvideStyleStatement.call(this);
     }
 
     registerStyle(
@@ -100,15 +85,52 @@ export class Module {
 
         return className;
     }
-}
 
-// for(let name of reactRequires){
-//     const ident = helpers[name]; 
-//     if(!specifiers.find(
-//         (spec: ModuleSpecifier) => 
-//             spec.type == "ImportSpecifier" && spec.local.name == ident.name
-//     ))
-//         specifiers.push(
-//             t.importSpecifier(ident, ident)
-//         )
-// }
+    public getReactImport(){
+        let reactImport = findExistingImport(
+            this.path.node.body, "react"
+        );
+
+        if(reactImport){
+            this.reactIndex = 0;
+            return this.reactImports = reactImport.specifiers;
+        }
+        else return this.reactImports = [];
+    }
+
+    public putReactImport(){
+        if(this.reactIndex === undefined
+        && this.lastInsertedElement)
+            this.path.node.body.unshift(
+                t.importDeclaration(
+                    this.reactImports as ImportSpecifier[], 
+                    t.stringLiteral("react")
+                )
+            )
+    }
+
+    public getFragmentImport<T>(
+        type: (name: string) => T
+    ): T {
+        const uid = ensureSpecifier(
+            this.reactImports!,
+            this.path.scope,
+            "Fragment"
+        )
+
+        return type(uid);
+    }
+
+    public getCreateImport(){
+        const uid = ensureSpecifier(
+            this.reactImports!,
+            this.path.scope,
+            "createElement",
+            "create"
+        )
+
+        const Create = t.identifier(uid);
+        Object.defineProperty(this, "Create", { configurable: true, value: Create })
+        return Create;
+    }
+}

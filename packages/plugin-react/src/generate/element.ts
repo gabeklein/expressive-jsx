@@ -1,17 +1,14 @@
-import { Scope } from '@babel/traverse';
-import t, { Expression, Identifier, ModuleSpecifier, CallExpression, JSXElement } from '@babel/types';
-import { ElementSwitch, ContentLike, ElementReact, Module } from 'internal';
-import { ensureSpecifier } from 'helpers';
-import { PropData } from 'types';
+import t, { CallExpression, Expression, Identifier, JSXElement } from '@babel/types';
+import { ContentLike, ElementReact, Module } from 'internal';
 
 export abstract class GenerateReact {
+
     constructor(
-        protected reactImports: ModuleSpecifier[],
-        protected scope: Scope
+        protected module: Module
     ){}
 
-    didEnterModule?(M: Module): void
-    willExitModule?(M: Module): void;
+    didEnterModule?(): void;
+    willExitModule?(): void;
 
     abstract fragment(
         children?: ContentLike[],
@@ -19,56 +16,40 @@ export abstract class GenerateReact {
     ): CallExpression | JSXElement
 
     abstract element(
-        tag: string,
-        props?: PropData[],
-        children?: ContentLike[]
+        src: ElementReact
     ): CallExpression | JSXElement;
 
-    protected getFragmentImport<T>(
-        type: (name: string) => T
-    ): T {
-        const uid = ensureSpecifier(
-            this.reactImports,
-            this.scope,
-            "Fragment"
-        )
-
-        const Fragment = type(uid);
-
-        Object.defineProperty(this, "Fragment", { configurable: true, value: Fragment })
-        return Fragment;
-    }
-
-    container(
-        src: ElementReact | ElementSwitch,
+    public container(
+        src: ElementReact,
         fragmentKey?: Identifier | false
     ): Expression {
 
-        let fragmentChildren: ContentLike[] | undefined;
+        let output: ContentLike | undefined;
 
-        if(src instanceof ElementReact){
-            const { props, children } = src; 
-            if(props.length == 0){
-                if(children.length)
-                    src = src.children[0] as any;
-                else 
-                    return t.booleanLiteral(false);
-            }
+        if(src.props.length == 0){
+            const { children } = src; 
+
+            if(children.length == 0)
+                return t.booleanLiteral(false);
 
             if(fragmentKey || children.length > 1)
-                fragmentChildren = children;
+                return this.fragment(children, fragmentKey);
+                
+            output = children[0];
         }
 
-        if(fragmentChildren){
-            return this.fragment(fragmentChildren, fragmentKey);
-        }
+        if(!output)
+            output = this.element(src)
+            
+        else if("toExpression" in output)
+            output = output.toExpression()
 
-        if("toExpression" in src)
-            return src.toExpression();
-
-        if(t.isExpression(src))
-            return src;
-
-        throw new Error("Bad Input");
+        else if(output instanceof ElementReact)
+            output = this.element(output)
+    
+        if(fragmentKey)
+            return this.fragment([ output ], fragmentKey)
+        else 
+            return output
     }
 }

@@ -1,5 +1,5 @@
-import t, { Statement, ModuleSpecifier } from "@babel/types"
 import { Scope } from '@babel/traverse';
+import t, { LVal, ModuleSpecifier, Statement } from '@babel/types';
 import { createHash } from 'crypto';
 
 export function hash(data: string, length?: number){
@@ -73,4 +73,18 @@ export function findExistingImport(body: Statement[], MODULE: string){
         && statement.source.value == MODULE)
             return statement
     }
+}
+
+export function findExistingRequire(
+    body: Statement[], 
+    MODULE: string
+) : [number, LVal?] {
+    for(let i = 0, stat; stat = body[i]; i++)
+    if(t.isVariableDeclaration(stat))
+    for(const { init, id } of stat.declarations)
+    if(t.isCallExpression(init)
+    && t.isIdentifier(init.callee, { name: "require" })
+    && t.isStringLiteral(init.arguments[0], { value: MODULE }))
+        return [i, id];
+    return [-1]
 }

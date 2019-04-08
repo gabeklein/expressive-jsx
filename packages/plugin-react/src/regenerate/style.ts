@@ -1,23 +1,30 @@
-import { Path } from '@babel/traverse';
-import t, { ArrayExpression, ObjectProperty, Program, ObjectExpression, Identifier, ImportSpecifier, Statement } from '@babel/types';
-import { PropertyES } from 'internal';
-import { BunchOf } from 'types';
+import t, {
+    ArrayExpression,
+    Identifier,
+    ImportSpecifier,
+    ObjectExpression,
+    ObjectProperty,
+    Program as ProgramNode,
+    Statement,
+} from '@babel/types';
 import { ensureUIDIdentifier, findExistingImport } from 'helpers';
+import { PropertyES } from 'internal';
+import { BunchOf, Path } from 'types';
 import { Module } from './module';
+
+const RUNTIME_PACKAGE = "@expressive/react";
 
 type SelectorContent = ObjectProperty[];
 type MediaGroups = SelectorContent[];
 
-const RUNTIME_PACKAGE = "@expressive/react";
-
 export function writeProvideStyleStatement(
-    Module: Module
+    this: Module
 ){
     const {
         path: program,
         styleBlocks: style,
-        lastInsertedElement: lastInsertedJSX
-    } = Module;
+        lastInsertedElement
+    } = this;
 
     const programBody = program.node.body;
     const polyfillModule = importRuntimeModule(program);
@@ -82,13 +89,13 @@ export function writeProvideStyleStatement(
             )
         )
 
-    const provideStatementGoesAfter = lastInsertedJSX!.getAncestry().reverse()[1];
+    const provideStatementGoesAfter = lastInsertedElement!.getAncestry().reverse()[1];
     const index = programBody.indexOf(provideStatementGoesAfter.node as Statement);
     
     programBody.splice(index + 1, 0, provideStatement)
-}
+} 
 
-function importRuntimeModule(program: Path<Program>): Identifier {
+function importRuntimeModule(program: Path<ProgramNode>): Identifier {
     const body = program.node.body;
     let runtimeImport = findExistingImport(body, RUNTIME_PACKAGE);
 

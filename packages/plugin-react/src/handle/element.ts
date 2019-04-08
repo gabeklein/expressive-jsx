@@ -5,7 +5,6 @@ import {
     ElementConstruct,
     ElementInline,
     ExplicitStyle,
-    Path,
     Prop
 } from '@expressive/babel-plugin-core';
 import {
@@ -19,6 +18,7 @@ import {
     AttributeES,
     expressionValue
 } from 'internal';
+import { Path } from 'types';
 
 export class ElementReact<T extends ElementInline = ElementInline>
     extends ElementConstruct<T>{
@@ -35,14 +35,6 @@ export class ElementReact<T extends ElementInline = ElementInline>
         super();
         this.context = source.context as StackFrameExt;
         this.parse(true);
-    }
-
-    toExpression(): Expression {
-        return this.context.Generator.element(
-            this.tagName,
-            this.props,
-            this.children
-        )
     }
 
     didParse(){

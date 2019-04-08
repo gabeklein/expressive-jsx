@@ -1,7 +1,16 @@
-import t, { ArrowFunctionExpression, VariableDeclarator, VariableDeclaration, AssignmentExpression, ObjectProperty, FunctionDeclaration } from '@babel/types';
+import t, {
+    ArrowFunctionExpression,
+    AssignmentExpression,
+    Function,
+    ObjectProperty,
+    VariableDeclaration,
+    VariableDeclarator,
+    Class,
+} from '@babel/types';
 import { ComponentExpression } from 'internal';
 import { BabelVisitor, DoExpressive, Path } from 'types';
-import { StackFrame }  from './program';
+
+import { StackFrame } from './program';
 
 class ComponentImplementInterop extends ComponentExpression {
     static get Visitor(){
@@ -93,18 +102,37 @@ function containerName(path: Path): string {
         case "ReturnStatement": {
             const ancestry = path.getAncestry();
 
-            let isWithin = ancestry.find(x => x.type == "FunctionDeclaration")
+            let within = ancestry.find((x)=> x.isFunction()) as Path<Function> | undefined;
 
-            if(isWithin)
-                return (<FunctionDeclaration>isWithin.node).id!.name;
+            if(!within)
+                throw new Error("wat");
 
-            isWithin = path.findParent(x => x.type == "ArrowFunctionExpression")
+            const { node } = within;
+            if("id" in node && node.id)
+                return node.id.name;
 
-            if(!isWithin)
-                return "unknown"
+            if(node.type == "ObjectMethod"){
+                parent = within.getAncestry()[2];
+                continue
+            }
 
-            parent = isWithin.parentPath;
-            continue
+            if(node.type == "ClassMethod"){
+                if(!t.isIdentifier(node.key))
+                    return "ClassMethod";  
+                if(node.key.name == "render"){
+                    const owner = within.parentPath.parentPath as Path<Class>;
+                    if(owner.node.id) 
+                        return owner.node.id.name;
+                    else {
+                        parent = owner.parentPath;
+                        continue
+                    }
+                }
+                else 
+                    return node.key.name; 
+            }
+
+            parent = within.parentPath
         }
 
         case "ObjectProperty": {

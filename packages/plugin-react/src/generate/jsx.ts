@@ -1,25 +1,36 @@
-import t, { Expression, TemplateLiteral } from '@babel/types';
-import { ContentLike, JSXContent, PropData, GenerateReact } from 'internal';
+import t, { Expression, TemplateLiteral, JSXElement } from '@babel/types';
+import { ContentLike, GenerateReact, JSXContent, PropData } from 'internal';
 import { IsLegalAttribute } from 'types';
+import { ElementReact } from 'handle/element';
 
 export class GenerateJSX extends GenerateReact {
+    constructor(path: any){
+        super(path);
 
-    didEnterModule(){
-        let [ defaultSpec ] = this.reactImports;
-        if(!t.isImportDefaultSpecifier(defaultSpec)){
-            defaultSpec = t.importDefaultSpecifier(t.identifier("React"));
-            this.reactImports.unshift(defaultSpec);
-        }
+        const imports = this.module.getReactImport();
+        if(!t.isImportDefaultSpecifier(imports[0]))
+            imports.unshift(
+                t.importDefaultSpecifier(t.identifier("React"))
+            );
     }
     
     get Fragment(){
-        return this.getFragmentImport(t.jsxIdentifier);
+        const Fragment = this.module.getFragmentImport(t.jsxIdentifier);
+        Object.defineProperty(this, "Fragment", { configurable: true, value: Fragment })
+        return Fragment;
     }
 
-    element(
-        tag: string,
-        props = [] as PropData[],
-        children = [] as ContentLike[]){
+    willExitModule(){
+        this.module.putReactImport();
+    }
+    
+    element(src: ElementReact): JSXElement {
+            
+        const {
+            tagName: tag,
+            props,
+            children
+        } = src;
 
         const type = t.jsxIdentifier(tag);
         const properties = props.map(this.recombineProps)
@@ -73,10 +84,9 @@ export class GenerateJSX extends GenerateReact {
                     jsx = t.jsxExpressionContainer(child);
             }
             else {
-                const output = child.toExpression();
-                jsx = t.isJSXElement(output)
-                    ? output
-                    : t.jsxExpressionContainer(output); 
+                jsx = "toExpression" in child
+                    ? t.jsxExpressionContainer(child.toExpression())
+                    : this.element(child)
             }
     
             output.push(jsx);

@@ -1,10 +1,9 @@
 import t, { Expression } from '@babel/types';
 import { ComponentConsequent, ComponentIf } from '@expressive/babel-plugin-core';
-import { ElementReact, ContentReact, GenerateReact } from 'internal';
+import { ElementReact, GenerateReact } from 'internal';
 import { StackFrameExt } from 'types';
 
-export class ElementSwitch 
-    implements ContentReact {
+export class ElementSwitch {
 
     constructor(
         public source: ComponentIf,

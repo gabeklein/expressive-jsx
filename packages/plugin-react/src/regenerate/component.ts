@@ -7,9 +7,9 @@ import t, {
     ObjectPattern, 
     PatternLike,
 } from '@babel/types';
-import { ComponentExpression, DoExpressive, ParseErrors, Path } from '@expressive/babel-plugin-core';
+import { ComponentExpression, DoExpressive, ParseErrors } from '@expressive/babel-plugin-core';
 import { BabelVisitor, ElementReact, GenerateReact, declare, ensureArray } from 'internal';
-import { StackFrameExt } from 'types';
+import { StackFrameExt, Path } from 'types';
 
 const Error = ParseErrors({
     PropsCantHaveDefault: "This argument will always resolve to component props",

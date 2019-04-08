@@ -1,4 +1,3 @@
-import { Path as Path } from '@babel/traverse';
 import t, {
     BlockStatement,
     CallExpression,
@@ -14,7 +13,7 @@ import t, {
 import { ComponentFor, ElementInline, ParseErrors } from '@expressive/babel-plugin-core';
 import { ElementReact, GenerateReact } from 'internal';
 import { ensureUIDIdentifier } from 'helpers';
-import { isIdentifierElement } from 'types';
+import { isIdentifierElement, Path } from 'types';
 
 const Error = ParseErrors({
     cantAssign: "Assignment of variable left of \"of\" must be Identifier or Destruture",

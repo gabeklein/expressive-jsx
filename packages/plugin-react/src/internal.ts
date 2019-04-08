@@ -13,5 +13,4 @@ export * from "generate/element";
 export * from "generate/es6";
 export * from "generate/jsx";
 export * from "regenerate/component";
-export * from "regenerate/module"
-export * from "regenerate/style"
+export * from "regenerate/module";

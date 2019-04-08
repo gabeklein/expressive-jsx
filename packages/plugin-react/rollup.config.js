@@ -7,7 +7,7 @@ export default {
     file: 'index.js',
     format: 'cjs'
   },
-  external: [ "@babel/types", "@expressive/babel-plugin-core", "crypto" ],
+  external: [ "@babel/types", "@expressive/babel-plugin-core", "crypto", "path" ],
   plugins: [
     typescript(),
     commonjs()
