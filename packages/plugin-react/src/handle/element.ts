@@ -5,6 +5,7 @@ import {
     ElementConstruct,
     ElementInline,
     ExplicitStyle,
+    SequenceItem,
     Prop
 } from '@expressive/babel-plugin-core';
 import {
@@ -35,6 +36,17 @@ export class ElementReact<T extends ElementInline = ElementInline>
         super();
         this.context = source.context as StackFrameExt;
         this.parse(true);
+    }
+
+    willParse(sequence: SequenceItem[]){
+        const pre = [] as SequenceItem[];
+        for(const mod of this.source.modifiers){
+            if(mod.appliesTo == 1)
+                pre.push(...mod.sequence)
+        }
+
+        if(pre.length)
+            return pre.concat(sequence)
     }
 
     didParse(){
