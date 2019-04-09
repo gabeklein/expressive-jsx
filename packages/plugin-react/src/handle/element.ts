@@ -129,6 +129,9 @@ export class ElementReact<T extends ElementInline = ElementInline>
     }
 
     private applyClassname(){
+
+        const imports = this.context.Imports.ensure("@expressive/react", "put");
+
         if(!this.classList.length)
             return;
 
@@ -142,12 +145,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
             classes.length == 1
                 ? classes[0] as StringLiteral
                 : t.callExpression(
-                    t.memberExpression(
-                        t.arrayExpression(classes),
-                        t.identifier("join")
-                    ), [
-                        t.stringLiteral(" ")
-                    ]
+                    imports, classes
                 )
 
         this.addProperty("className", classNameValue)

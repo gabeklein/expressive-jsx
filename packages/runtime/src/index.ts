@@ -164,6 +164,15 @@ function StyledApplication<P>(input: StyledApplicationProps | ComponentType<P>){
     return create(StyledApplicationComponent, input, children as any);
 }
 
+export function put(...args: string[]){
+    let className = "";
+    for(const name of arguments){
+        if(!name) continue;
+        className += " " + name
+    }
+    return className.slice(1)
+}
+
 export function withStyles(Root: ComponentType): ReactElement {
     return create(
         StyledApplicationComponent, 
