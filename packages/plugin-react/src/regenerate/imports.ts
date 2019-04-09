@@ -44,7 +44,7 @@ export class ImportManager
         alt?: string){
 
         let uid;
-        const list = this.imports[from] = this.ensureImported(from);
+        const list = this.imports[from] || this.ensureImported(from);
 
         if(name == "default"){
             if(t.isImportDefaultSpecifier(list[0]))
