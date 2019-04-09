@@ -28,9 +28,7 @@ export function ApplyModifier(
     ];
 
     do {
-        const [ name, handler, input ] = current;
-        
-        const { output } = new ModifyDelegate(handler, input, name, recipient);
+        const { output } = new ModifyDelegate(recipient, ...current);
 
         if(!output){
             i++; 

@@ -3,19 +3,17 @@ import { AttributeBody, DelegateAbstraction } from 'internal';
 import { BunchOf, ModifyAction } from 'types';
 
 export class ModifyDelegate {
-    syntax?: Array<DelegateAbstraction>
     arguments?: Array<any>
     priority?: number;
     done?: true;
     output = {} as BunchOf<any>;
 
     constructor(
-        transform: ModifyAction = PropertyModifierDefault,
-        argument: DelegateAbstraction[], 
+        public target: AttributeBody,
         public name: string,
-        public target: AttributeBody){
+        transform: ModifyAction = PropertyModifierDefault,
+        argument: DelegateAbstraction[]){
 
-        this.syntax = argument;
         const args = this.arguments = argument.map(x => {
             return x && typeof x == "object" && "value" in x ? x.value : x
         });
