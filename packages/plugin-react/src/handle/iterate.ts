@@ -10,7 +10,7 @@ import t, {
     PatternLike,
     StringLiteral
 } from '@babel/types';
-import { ComponentFor, ElementInline, ParseErrors } from '@expressive/babel-plugin-core';
+import { ComponentFor, ElementInline, ParseErrors, SequenceItem } from '@expressive/babel-plugin-core';
 import { ElementReact, GenerateReact } from 'internal';
 import { ensureUIDIdentifier } from 'helpers';
 import { isIdentifierElement, Path } from 'types';
@@ -60,13 +60,15 @@ export class ElementIterate
         )
     }
 
-    willParse(){
+    willParse(sequence: SequenceItem[]){
         const { path } = this.source;
 
         if(path.isForStatement())
             this.parseVanillaFor(path);
         else 
             this.parseForX(path as Path<ForXStatement>);
+
+        return undefined;
     }
 
     parseForX(Loop: Path<ForOfStatement | ForInStatement>){

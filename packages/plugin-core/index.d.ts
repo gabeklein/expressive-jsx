@@ -46,6 +46,7 @@ declare abstract class TraversableBody {
 	ExpressionStatement(this: BunchOf<Function>, path: Path<ExpressionStatement>): void;
 }
 declare abstract class AttributeBody extends TraversableBody {
+	sequence: Attribute[];
 	props: BunchOf<Prop>;
 	style: BunchOf<ExplicitStyle>;
 	value: Expression;
@@ -166,7 +167,7 @@ declare abstract class ElementConstruct
 	abstract source: From;
 	abstract Statement<T extends Statement>(item: Path<T> | T): void;
     abstract Content<T extends Expression = never>(item: Path<T> | T): void;
-    abstract Child<T extends Expression = never>(item: ElementInline): void
+    abstract Child(item: ElementInline): void
     abstract Props(prop: Prop): void;
 	abstract Style(style: ExplicitStyle): void;
 	abstract Switch(item: ComponentIf): void;
@@ -190,8 +191,12 @@ declare abstract class ElementConstruct
 
 	/**
 	 * Invoked on `this.parse()` prior to scan.	
+	 * 
+	 * @param sequence The sequence which is about to be scanned.
+	 * 
+	 * @returns (optional) A new sequence which you want to scan instead.
 	 */
-	willParse?(): void;
+	willParse?(sequence: SequenceItem[]): SequenceItem[] | void;
 	
 	/**
 	 * Invoked on `this.parse()` after last element has been scanned.	

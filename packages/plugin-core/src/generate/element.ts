@@ -21,7 +21,7 @@ export abstract class ElementConstruct
 
     abstract Statement<T extends Statement = never>(item: Path<T> | T): void;
     abstract Content<T extends Expression = never>(item: Path<T> | T): void;
-    abstract Child<T extends Expression = never>(item: ElementInline): void
+    abstract Child(item: ElementInline): void
     abstract Props(prop: Prop): void;
     abstract Style(style: ExplicitStyle): void;
     abstract Switch(item: ComponentIf): void;
@@ -29,14 +29,19 @@ export abstract class ElementConstruct
 
     Attribute?(item: Attribute): boolean | undefined | Statement;
 
-    willParse?(): void;
+    willParse?(sequence: SequenceItem[]): SequenceItem[] | undefined;
     didParse?(): void;
 
     parse(invariant: true, overridden: true){
-        if(this.willParse)
-            this.willParse();
+        let { sequence } = this.source;
 
-        for(const item of this.source.sequence as SequenceItem[]){
+        if(this.willParse){
+            const replace = this.willParse(sequence);
+            if(replace && replace !== sequence) 
+                sequence = replace;
+        }
+
+        for(const item of sequence as SequenceItem[]){
             if(item instanceof ComponentIf)
                 this.Switch(item)
             
