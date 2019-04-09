@@ -1,20 +1,21 @@
-import t, { Statement } from '@babel/types';
-import { AttributeBody, StackFrame } from 'internal';
-import { Path, ModifierOutput } from "types";
-import { Syntax } from 'generate/element';
+import { Statement } from '@babel/types';
+import { AttributeBody } from 'internal';
+import { Path } from 'types';
+import { StackFrame } from 'parse/program';
+import { ElementInline } from 'handle/element';
 
 export class ElementModifier extends AttributeBody {
 
-    name: string;
     inherits?: ElementModifier;
+    provides = [] as ElementModifier[];
+    appliesTo = 0;
 
     constructor(
-        name: string,
+        public name: string,
         body: Path<Statement>,
         context: StackFrame ){
 
         super(context);
-        this.name = name;
 
         const content = body.isBlockStatement() ? body.get("body") : [body];
 
@@ -22,17 +23,16 @@ export class ElementModifier extends AttributeBody {
             this.parse(item);
     }
 
-    generate(): Syntax {
-        return [
-            t.booleanLiteral(true)
-        ]
+    declare<T extends AttributeBody>(target: T){
+        target.ElementModifier(this);
     }
 
-    declare(target: AttributeBody){
-        // debugger
+    apply(element: ElementInline){
+        element.modifiers.push(this);
+        this.appliesTo++;
     }
 
-    into(accumulator: ModifierOutput){
-        
+    ElementModifier(mod: ElementModifier){
+        this.provides.push(mod);
     }
 }

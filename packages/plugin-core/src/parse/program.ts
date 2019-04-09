@@ -157,17 +157,6 @@ export class StackFrame {
         return this.hasOwnProperty("__" + name)
     }
 
-    declare(modifier: ElementModifier){
-        const { name } = modifier;
-        // if(name[0] == "_")
-        //     throw body.buildCodeFrameError(`Modifier name cannot start with _ symbol!`)
-
-        // if(this.hasOwnProperty(name))
-        //     throw body.buildCodeFrameError(`Duplicate declaration of named modifier!`)
-
-        this.elementMod(name, modifier);
-    }
-
     // declareForRuntime(modifier: ElementModifier | ElementInline){
     //     const { program, styleRoot } = this;
     //     program.computedStyleMayInclude(modifier);
@@ -181,19 +170,18 @@ export class StackFrame {
     // }
 
     elementMod(name: string): ElementModifier;
-    elementMod(name: string, set: ElementModifier): void;
+    elementMod(set: ElementModifier): void;
     elementMod(
         this: BunchOf<ElementModifier>,
-        name: string, 
-        set?: ElementModifier){
+        mod: string | ElementModifier){
 
-        name = "_" + name;
-        if(set){
-            if(this[name])
-                set.inherits = this[name];
-            this[name] = set;
-        }
-        else return this[name]
+        if(typeof mod == "string")
+            return this["_" + mod];
+        
+        const name = "_" + mod.name;
+        if(this[name])
+            mod.inherits = this[name];
+        this[name] = mod;
     }
 
     // valueMod(name: string): XJSValueHelper;

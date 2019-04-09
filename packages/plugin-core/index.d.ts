@@ -58,10 +58,12 @@ declare class ElementInline extends AttributeBody {
 	primaryName?: string;
 	name?: string;
 	multilineContent?: Path<TemplateLiteral>;
-    children: InnerContent[];
+	children: InnerContent[];
+	modifiers: ElementModifier[]
     explicitTagName?: string;
 	adopt(child: InnerContent): void;
 	generate(): [Expression, (Statement[] | undefined)?];
+	ElementModifier(mod: ElementModifier): void;
 	ExpressionDefault(path: Path<Expression>): void;
 	AssignmentExpression(path: Path<AssignmentExpression>): void;
 }
@@ -111,6 +113,7 @@ declare class ExplicitStyle extends Attribute {
     constructor(name: string | false, node: FlatValue | Expression | undefined, path?: Path<Expression>);
 }
 declare class StackFrame {
+	loc: string;
 	program: any;
 	styleRoot: any;
 	current: any;
@@ -118,20 +121,29 @@ declare class StackFrame {
 	stateSingleton: BabelState;
 	options: {};
 	constructor(state: BabelState);
-	readonly parent: any;
-	register(node: TraversableBody): any;
+	readonly parent: StackFrame;
+	event(ref: symbol): Function;
+	event(ref: symbol, set: Function): void;
+	dispatch(ref: symbol, ...args: any[]): void;
+	register(node: TraversableBody): StackFrame;
 	push(node: AttributeBody): void;
 	pop(): void;
 	propertyMod(name: string): GeneralModifier;
 	propertyMod(name: string, set: Function): void;
+	elementMod(name: string): ElementModifier;
+    elementMod(set: ElementModifier): void;
 	hasOwnPropertyMod(name: string): boolean;
 }
 declare class ElementModifier extends AttributeBody {
 	name: string;
+	inherits?: ElementModifier;
+	provides: ElementModifier[];
+	appliesTo: number;
 	constructor(name: string, body: Path<Statement>, context: StackFrame);
 	generate(): Syntax;
-	declare(target: AttributeBody): void;
-	into(accumulator: ModifierOutput): void;
+	declare<T extends AttributeBody>(target: T): void;
+	apply(element: ElementInline): void;
+	ElementModifier(mod: ElementModifier): void;
 }
 declare class GeneralModifier {
 	name: string;

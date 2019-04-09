@@ -1,7 +1,15 @@
 import { AssignmentExpression, Expression, For, IfStatement, TemplateLiteral } from '@babel/types';
-import { AddElementsFromExpression, AttributeBody, ComponentFor, ComponentIf, InnerContent, ParseErrors } from 'internal';
-import { inParenthesis } from 'shared';
-import { Path, DoExpressive } from 'types';
+import {
+    AddElementsFromExpression,
+    AttributeBody,
+    ComponentFor,
+    ComponentIf,
+    ElementModifier,
+    InnerContent,
+    inParenthesis,
+    ParseErrors,
+} from 'internal';
+import { DoExpressive, Path } from 'types';
 
 const Error = ParseErrors({
     PropNotIdentifier: "Assignment must be identifier name of a prop.",
@@ -15,6 +23,7 @@ export class ElementInline extends AttributeBody {
     multilineContent?: Path<TemplateLiteral>;
     children = [] as InnerContent[];
     explicitTagName?: string;
+    modifiers = [] as ElementModifier[];
 
     adopt(child: InnerContent){
         this.children.push(child);
@@ -26,6 +35,10 @@ export class ElementInline extends AttributeBody {
             this.adopt(path)
         else
             AddElementsFromExpression(path, this);
+    }
+
+    ElementModifier(mod: ElementModifier){
+        this.context.elementMod(mod);
     }
 
     IfStatement(path: Path<IfStatement>){

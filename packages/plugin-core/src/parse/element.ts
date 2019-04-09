@@ -9,8 +9,16 @@ import t, {
     SpreadElement,
     TaggedTemplateExpression,
 } from '@babel/types';
-
-import { ElementInline, ParseErrors, inParenthesis, Opts, Shared, preventDefaultPolyfill, Prop } from 'internal';
+import {
+    ElementInline,
+    ElementModifier,
+    inParenthesis,
+    Opts,
+    ParseErrors,
+    preventDefaultPolyfill,
+    Prop,
+    Shared,
+} from 'internal';
 import { DoExpressive, ListElement, Path } from 'types';
 
 const New = Object.create;
@@ -78,6 +86,10 @@ export function ApplyNameImplications(
     target: ElementInline, 
     head?: true, 
     prefix?: string){
+        
+    const { context } = target;
+    let modify: ElementModifier | undefined =
+        context.elementMod(name);
 
     if(head){
         target.name = name;
@@ -85,17 +97,17 @@ export function ApplyNameImplications(
             prefix == "html" || /^[A-Z]/.test(name)
                 ? name: "div";
     }
-        
-    // const { context } = target;
-    // const modify = context.elementMod(name);
     
-    // if(modify && typeof modify.insert == "function"){
-    //     modify.insert(this, [], target)
+    if(!modify) return;
 
-    //     for(const sub of modify.provides){
-    //         context.declare(sub)
-    //     }
-    // }
+    for(const sub of modify.provides)
+        context.elementMod(sub)
+
+    do {
+        modify.apply(target);
+        modify = modify.inherits;
+    }
+    while(modify);
 }
 
 function ParseIdentity(
