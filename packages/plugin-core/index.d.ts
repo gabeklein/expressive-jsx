@@ -141,6 +141,7 @@ declare class ElementModifier extends AttributeBody {
 	inherits?: ElementModifier;
 	provides: ElementModifier[];
 	appliesTo: number;
+    className?: string;
 	constructor(name: string, body: Path<Statement>, context: StackFrame);
 	generate(): Syntax;
 	declare<T extends AttributeBody>(target: T): void;
@@ -240,5 +241,6 @@ export {
 	ComponentFor,
 	StackFrame,
 	ParseErrors,
-	AttributeBody
+	AttributeBody,
+	ElementModifier
 }

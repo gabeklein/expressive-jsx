@@ -9,6 +9,7 @@ export class ElementModifier extends AttributeBody {
     inherits?: ElementModifier;
     provides = [] as ElementModifier[];
     appliesTo = 0;
+    className?: string;
 
     constructor(
         public name: string,

@@ -1,10 +1,11 @@
-import { Expression, Program as ProgramNode } from '@babel/types';
-import { DoExpressive, ElementInline, ExplicitStyle } from '@expressive/babel-plugin-core';
+import { Program as ProgramNode } from '@babel/types';
+import { DoExpressive, ElementInline, ElementModifier, ExplicitStyle } from '@expressive/babel-plugin-core';
 import { hash as quickHash } from 'helpers';
 import { GenerateES, GenerateJSX } from 'internal';
 import { relative } from 'path';
 import { BabelState, BabelVisitor, Path, StylesRegistered } from 'types';
-import { ImportManager, ExternalsManager } from './imports';
+
+import { ExternalsManager, ImportManager } from './imports';
 import { writeProvideStyleStatement } from './style';
 
 export const Program = <BabelVisitor<ProgramNode>> {
@@ -66,11 +67,11 @@ export class Module {
     }
 
     registerStyle(
-        src: ElementInline,
+        src: ElementInline | ElementModifier,
         styles: ExplicitStyle[],
         priority?: number,
         query?: string
-    ): string | Expression {
+    ): string {
         const { styleBlocks } = this;
         const block = styles as StylesRegistered;
         const name = src.name;

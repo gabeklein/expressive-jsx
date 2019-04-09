@@ -41,8 +41,19 @@ export class ElementReact<T extends ElementInline = ElementInline>
     willParse(sequence: SequenceItem[]){
         const pre = [] as SequenceItem[];
         for(const mod of this.source.modifiers){
-            if(mod.appliesTo == 1)
-                pre.push(...mod.sequence)
+            if(mod.appliesTo == 1){
+                pre.push(...mod.sequence);
+                continue;
+            }
+            let c = mod.className;
+            if(!c){
+                const s = mod.sequence.filter(x => x instanceof ExplicitStyle);
+                c = mod.className = 
+                    this.context.Module.registerStyle(
+                        mod, s as ExplicitStyle[]
+                    )
+            }
+            this.classList.insert(c);
         }
 
         if(pre.length)
