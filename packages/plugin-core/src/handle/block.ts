@@ -24,7 +24,7 @@ export abstract class TraversableBody {
     }
 
     didEnterOwnScope(path: Path<DoExpressive>){
-        this.context = this.context.register(this);
+        this.context = this.context.push(this);
 
         const body = path
             .get("body") //body element
