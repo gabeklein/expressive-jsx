@@ -1,9 +1,9 @@
 import { Expression, Program as ProgramNode } from '@babel/types';
-import { DoExpressive, ExplicitStyle } from '@expressive/babel-plugin-core';
+import { DoExpressive, ElementInline, ExplicitStyle } from '@expressive/babel-plugin-core';
 import { hash as quickHash } from 'helpers';
 import { GenerateES, GenerateJSX } from 'internal';
 import { relative } from 'path';
-import { BabelState, BabelVisitor, Path, StackFrameExt, StylesRegistered } from 'types';
+import { BabelState, BabelVisitor, Path, StylesRegistered } from 'types';
 import { ImportManager, ExternalsManager } from './imports';
 import { writeProvideStyleStatement } from './style';
 
@@ -66,15 +66,15 @@ export class Module {
     }
 
     registerStyle(
-        context: StackFrameExt,
+        src: ElementInline,
         styles: ExplicitStyle[],
         priority?: number,
         query?: string
     ): string | Expression {
         const { styleBlocks } = this;
         const block = styles as StylesRegistered;
-        const name = context.current.name;
-        const hash = quickHash(context.loc)
+        const name = src.name;
+        const hash = quickHash(src.loc)
 
         let className = name + "_" + hash;
         

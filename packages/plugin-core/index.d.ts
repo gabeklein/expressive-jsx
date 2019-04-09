@@ -33,6 +33,7 @@ interface ModifierOutput {
 	installed_style?: (ElementModifier | ElementInline)[];
 }
 declare abstract class TraversableBody {
+	loc: string;
 	sequence: unknown[];
 	context: StackFrame;
 	didEnter?(path?: Path): void;

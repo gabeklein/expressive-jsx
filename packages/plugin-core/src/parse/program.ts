@@ -95,31 +95,39 @@ export class StackFrame {
         (<Function>this[ref]).apply(null, args)
     }
 
+    getLocationFor(node: TraversableBody){
+        let current: any = node;
+        let i = [] as number[];
+        let nodePosition: string;
+
+        while(current){
+            const { sequence } = this.current;
+            if(sequence && current in sequence){
+                i.push(sequence.indexOf(current) + 1);
+                break;
+            }
+            else {
+                const last = i.length - 1;
+                const tip = i[last];
+                if(tip < 2)
+                    i[last]--
+                else 
+                    i.push(1)
+                current = current.parent!;
+            }
+        }
+        nodePosition = i.reverse().join(" ");
+
+        return `${this.loc} ${nodePosition}`;
+    }
+
     register(node: TraversableBody){
         const frame = this.stateSingleton.context = Object.create(this);
-        let nodePosition: string;
         
-        if(node instanceof ComponentExpression){
-            nodePosition = node.name!;
-        }
-        else {
-            const { sequence } = this.current;
-            let current: any = node;
-            let i = [] as number[];
-            while(current){
-                if(current in sequence){
-                    i.push(sequence.indexOf(current) + 1);
-                    break;
-                }
-                else {
-                    i.push(1);
-                    current = current.parent!;
-                }
-            };
-            nodePosition = i.reverse().join(" ");
-        }
-        
-        frame.loc = `${this.loc} ${nodePosition}`
+        if(node instanceof ComponentExpression)
+            frame.loc = `${this.loc} ${node.name}`
+        else 
+            frame.loc = node.loc
 
         frame.current = node;
         if(node instanceof ElementInline)

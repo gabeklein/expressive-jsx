@@ -72,7 +72,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
 
         const context = this.context as StackFrameExt;
 
-        const reference = context.Module.registerStyle(context, style_static);
+        const reference = context.Module.registerStyle(this.source, style_static);
 
         if(typeof reference == "string")
             this.classList.insert(reference);

@@ -25,5 +25,6 @@ export class ComponentExpression extends ElementInline {
             ApplyNameImplications(name, this);
 
         path.node.meta = this;
+        this.loc = `${context.loc} ${name}`
     }
 }

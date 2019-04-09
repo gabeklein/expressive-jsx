@@ -10,6 +10,7 @@ const Error = ParseErrors({
 
 export abstract class TraversableBody {
 
+    loc: string;
     name?: string;
     parent?: TraversableBody | ComponentIf;
     sequence = [] as SequenceItem[];
@@ -19,6 +20,7 @@ export abstract class TraversableBody {
 
     constructor(
         public context: StackFrame){
+        this.loc = context.getLocationFor(this);
     }
 
     didEnterOwnScope(path: Path<DoExpressive>){
