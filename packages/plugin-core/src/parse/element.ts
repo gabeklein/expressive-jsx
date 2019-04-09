@@ -68,9 +68,15 @@ export function AddElementsFromExpression(
     }
     chain.push(subject);
 
-    for(const segment of chain.reverse()){
-        const child = new ElementInline(parent.context);
+    let context = parent.context
 
+    for(const segment of chain.reverse()){
+        for(const mod of parent.modifiers)
+        for(const sub of mod.provides)
+            context.elementMod(sub)
+
+        context = Object.create(context);
+        const child = new ElementInline(context);
         ParseIdentity(segment, child);
 
         parent.adopt(child);
@@ -99,9 +105,6 @@ export function ApplyNameImplications(
     }
     
     if(!modify) return;
-
-    for(const sub of modify.provides)
-        context.elementMod(sub)
 
     do {
         modify.apply(target);
