@@ -108,6 +108,10 @@ export function ApplyNameImplications(
 
     do {
         modify.apply(target);
+        if(modify === modify.inherits){
+            // debugger
+            break
+        }
         modify = modify.inherits;
     }
     while(modify);
