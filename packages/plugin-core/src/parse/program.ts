@@ -101,8 +101,10 @@ export class StackFrame {
 
         while(current){
             const { sequence } = this.current;
-            if(sequence && current in sequence){
-                i.push(sequence.indexOf(current) + 1);
+            const index = sequence && sequence.indexOf(current) + 1;
+
+            if(index){
+                i.push(index);
                 break;
             }
             else {
