@@ -1,25 +1,18 @@
-import t, {
-    Expression,
-    Identifier,
-    ImportDefaultSpecifier,
-    ImportNamespaceSpecifier,
-    ImportSpecifier,
-    ObjectPattern,
-    Program as ProgramNode,
-} from '@babel/types';
+import { Expression, Program as ProgramNode } from '@babel/types';
 import { DoExpressive, ExplicitStyle } from '@expressive/babel-plugin-core';
-import { ensureSpecifier, findExistingImport, hash as quickHash } from 'helpers';
+import { hash as quickHash } from 'helpers';
 import { GenerateES, GenerateJSX } from 'internal';
 import { relative } from 'path';
-import { BabelState, BabelVisitor, StackFrameExt, StylesRegistered, Path } from 'types';
+import { BabelState, BabelVisitor, Path, StackFrameExt, StylesRegistered } from 'types';
+import { ImportManager, ExternalsManager } from './imports';
 import { writeProvideStyleStatement } from './style';
 
 export const Program = <BabelVisitor<ProgramNode>> {
     enter(path, state){
-
         let Generator;
+        const { context } = state;
         const { output } = state.opts;
-    
+
         if(output == "jsx")
             Generator = GenerateJSX;
         else if(output == "js" || !output)
@@ -28,15 +21,25 @@ export const Program = <BabelVisitor<ProgramNode>> {
             throw new Error(
                 `Unknown output type of ${output}.\nAcceptable ['js', 'jsx'] (default 'js')`)
 
-        const M = state.context.Module = new Module(path, state);
-        const G = state.context.Generator = new Generator(M);
+        const I = context.Imports = new ImportManager(path);
+        const M = context.Module = new Module(path, state, I);
+        const G = context.Generator = new Generator(M, I);
 
-        if(G.didEnterModule) G.didEnterModule();
+        if(G.didEnterModule) 
+            G.didEnterModule();
     },
     exit(path, state){
-        const { Generator: G } = state.context;
-        if(G.willExitModule) G.willExitModule();
-        state.context.Module.exit();
+        const {
+            Generator: G,
+            Imports: I,
+            Module: M
+        } = state.context;
+
+        if(G.willExitModule) 
+            G.willExitModule();
+
+        M.EOF();
+        I.EOF();
     }
 }    
 
@@ -44,20 +47,18 @@ export class Module {
 
     styleBlocks = [] as StylesRegistered[];
     lastInsertedElement?: Path<DoExpressive>;
-    reactImports?: (ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier)[];
-    reactRequire?: ObjectPattern | Identifier;
-    reactIndex?: number;
 
     constructor(
         public path: Path<ProgramNode>,
-        public state: BabelState ){
+        public state: BabelState,
+        public imports: ExternalsManager ){
     };
 
     get relativeFileName(){
         return relative(this.state.cwd, this.state.filename);
     }
 
-    exit(){
+    EOF(){
         const { styleBlocks } = this;
 
         if(styleBlocks.length)
@@ -84,53 +85,5 @@ export class Module {
         styleBlocks.push(block);
 
         return className;
-    }
-
-    public getReactImport(){
-        let reactImport = findExistingImport(
-            this.path.node.body, "react"
-        );
-
-        if(reactImport){
-            this.reactIndex = 0;
-            return this.reactImports = reactImport.specifiers;
-        }
-        else return this.reactImports = [];
-    }
-
-    public putReactImport(){
-        if(this.reactIndex === undefined
-        && this.lastInsertedElement)
-            this.path.node.body.unshift(
-                t.importDeclaration(
-                    this.reactImports as ImportSpecifier[], 
-                    t.stringLiteral("react")
-                )
-            )
-    }
-
-    public getFragmentImport<T>(
-        type: (name: string) => T
-    ): T {
-        const uid = ensureSpecifier(
-            this.reactImports!,
-            this.path.scope,
-            "Fragment"
-        )
-
-        return type(uid);
-    }
-
-    public getCreateImport(){
-        const uid = ensureSpecifier(
-            this.reactImports!,
-            this.path.scope,
-            "createElement",
-            "create"
-        )
-
-        const Create = t.identifier(uid);
-        Object.defineProperty(this, "Create", { configurable: true, value: Create })
-        return Create;
     }
 }

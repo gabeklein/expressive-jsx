@@ -1,76 +1,23 @@
-import t, { Expression, ObjectProperty, Statement } from '@babel/types';
-import { findExistingRequire, ensureUID } from 'helpers';
-import { ArrayStack, ContentLike, GenerateReact, PropData } from 'internal';
-import { Module } from 'regenerate/module';
-
-import { PropertyES } from './syntax';
+import t, { Expression, ObjectProperty } from '@babel/types';
 import { ElementReact } from 'handle/element';
+import { ArrayStack, ContentLike, GenerateReact, PropData } from 'internal';
+import { PropertyES } from './syntax';
 
 const IsComponentElement = /^[A-Z]\w*/;
 
 export class GenerateES extends GenerateReact {
 
-    reactImports: ObjectProperty[];
-
-    constructor(module: Module){
-        super(module);
-
-        const { body } = module.path.node;
-        this.reactImports = this.getReact(body);
-    }
-
-    getReact(body: Statement[]){
-        const [index, imported] = findExistingRequire(body, "react");
-
-        if(t.isObjectPattern(imported))
-            return imported.properties as ObjectProperty[];
-        else {
-            const imports = [] as ObjectProperty[];
-            const target =  
-                t.isIdentifier(imported)
-                    ? imported
-                    : t.callExpression(
-                        t.identifier("require"),
-                        [ t.stringLiteral("react") ]
-                    )
-            this.willExitModule = () => {
-                if(imports.length)
-                body.splice(index + 1, 0, 
-                    t.variableDeclaration("const", [
-                        t.variableDeclarator(
-                            t.objectPattern(imports), target
-                        )
-                    ])
-                )
-            }
-            return imports
-        }
-    }
-
     get Fragment(){
-        let id;
-        const ref = ensureUID(this.module.path.scope, "Fragment");
-        this.reactImports.push(
-            t.objectProperty(
-                t.identifier("Fragment"),
-                id = t.identifier(ref),
-                false,
-                ref == "Fragment"
-            )
-        )
+        let id = this.external.ensure("react", "Fragment");
         Object.defineProperty(this, "Fragment", { value: id });
         return id;
     }
 
     get Create(){
-        let id;
-        const ref = ensureUID(this.module.path.scope, "create");
-        this.reactImports.push(
-            t.objectProperty(
-                t.identifier("createElement"),
-                id = t.identifier(ref)
-            )
-        )
+        let id = this.external.ensure(
+            "react", "createElement", "create"
+        );
+
         Object.defineProperty(this, "Create", { value: id });
         return id;
     }

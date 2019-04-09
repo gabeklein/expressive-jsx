@@ -4,26 +4,20 @@ import { IsLegalAttribute } from 'types';
 import { ElementReact } from 'handle/element';
 
 export class GenerateJSX extends GenerateReact {
-    constructor(path: any){
-        super(path);
-
-        const imports = this.module.getReactImport();
-        if(!t.isImportDefaultSpecifier(imports[0]))
-            imports.unshift(
-                t.importDefaultSpecifier(t.identifier("React"))
-            );
-    }
     
     get Fragment(){
-        const Fragment = this.module.getFragmentImport(t.jsxIdentifier);
+        const Fragment = t.jsxIdentifier(
+            this.external.ensure("react", "Fragment").name
+        );
         Object.defineProperty(this, "Fragment", { configurable: true, value: Fragment })
         return Fragment;
     }
-
-    willExitModule(){
-        this.module.putReactImport();
-    }
     
+    willExitModule(){
+        if(this.module.lastInsertedElement)
+            this.external.ensure("react", "default", "React")
+    }
+
     element(src: ElementReact): JSXElement {
             
         const {

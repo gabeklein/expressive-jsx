@@ -1,10 +1,12 @@
 import t, { CallExpression, Expression, Identifier, JSXElement } from '@babel/types';
 import { ContentLike, ElementReact, Module } from 'internal';
+import { ExternalsManager } from 'regenerate/imports';
 
 export abstract class GenerateReact {
 
     constructor(
-        protected module: Module
+        protected module: Module,
+        protected external: ExternalsManager
     ){}
 
     didEnterModule?(): void;

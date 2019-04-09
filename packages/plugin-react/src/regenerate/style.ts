@@ -1,18 +1,10 @@
-import t, {
-    ArrayExpression,
-    Identifier,
-    ImportSpecifier,
-    ObjectExpression,
-    ObjectProperty,
-    Program as ProgramNode,
-    Statement,
-} from '@babel/types';
-import { ensureUIDIdentifier, findExistingImport } from 'helpers';
+import t, { ArrayExpression, ObjectExpression, ObjectProperty, Statement } from '@babel/types';
 import { PropertyES } from 'internal';
-import { BunchOf, Path } from 'types';
+import { BunchOf } from 'types';
+
 import { Module } from './module';
 
-const RUNTIME_PACKAGE = "@expressive/react";
+const RUNTIME = "@expressive/react";
 
 type SelectorContent = ObjectProperty[];
 type MediaGroups = SelectorContent[];
@@ -27,7 +19,10 @@ export function writeProvideStyleStatement(
     } = this;
 
     const programBody = program.node.body;
-    const polyfillModule = importRuntimeModule(program);
+
+    // this.imports.ensureImported(RUNTIME, )
+
+    const polyfillModule = this.imports.ensure(RUNTIME, "Module")
     const output = [];
 
     const media = <BunchOf<MediaGroups>> {
@@ -49,8 +44,6 @@ export function writeProvideStyleStatement(
                 targetQuery[priority] :
                 targetQuery[priority] = [];
 
-
-                
         const styleString = 
             block.map(style => {
                 let styleKey = style.name;
@@ -93,34 +86,4 @@ export function writeProvideStyleStatement(
     const index = programBody.indexOf(provideStatementGoesAfter.node as Statement);
     
     programBody.splice(index + 1, 0, provideStatement)
-} 
-
-function importRuntimeModule(program: Path<ProgramNode>): Identifier {
-    const body = program.node.body;
-    let runtimeImport = findExistingImport(body, RUNTIME_PACKAGE);
-
-    if(!runtimeImport){
-        const reactImport = findExistingImport(body, "react")!;
-        const reactIndex = body.indexOf(reactImport);
-
-        runtimeImport = t.importDeclaration([], t.stringLiteral(RUNTIME_PACKAGE))
-
-        body.splice(reactIndex + 1, 0, runtimeImport)
-    }
-
-    for(const spec of runtimeImport.specifiers.slice(1)){
-        const { imported, local } = spec as ImportSpecifier;
-        if(imported.name == "Module")
-            return local;
-    }
-
-    const local = ensureUIDIdentifier(program.scope, "Module");
-
-    runtimeImport.specifiers.push(
-        t.importSpecifier(
-            local, t.identifier("Module")
-        )
-    )
-
-    return local
 }

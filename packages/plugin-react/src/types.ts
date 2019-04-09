@@ -11,6 +11,7 @@ import {
 } from '@babel/types';
 import { ExplicitStyle, StackFrame } from '@expressive/babel-plugin-core';
 import { Module } from 'regenerate/module';
+import { ExternalsManager } from 'regenerate/imports';
 import { ElementSwitch } from 'handle/switch';
 import { ElementIterate } from 'handle/iterate';
 import { ElementReact } from 'handle/element';
@@ -32,6 +33,7 @@ export interface BunchOf<T> {
 export interface StackFrameExt extends StackFrame {
 	Generator: any;
     Module: Module;
+    Imports: ExternalsManager;
     loc: string;
 }
 
