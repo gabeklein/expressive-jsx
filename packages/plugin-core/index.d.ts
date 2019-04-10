@@ -112,6 +112,7 @@ declare class ExplicitStyle extends Attribute {
     constructor(name: string | false, node: FlatValue | Expression | undefined, path?: Path<Expression>);
 }
 declare class StackFrame {
+	loc: string;
 	program: any;
 	styleRoot: any;
 	current: any;

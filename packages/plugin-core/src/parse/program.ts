@@ -123,7 +123,7 @@ export class StackFrame {
     }
 
     append(append?: string){
-        return this.current.loc + " " + append || ""
+        return this.loc = this.loc + " " + append || ""
     }
 
     create(node: TraversableBody){
