@@ -1,5 +1,5 @@
-import t, { Expression } from '@babel/types';
-import { AttributeBody, DelegateAbstraction, ExplicitStyle } from 'internal';
+import t, { Expression, LabeledStatement } from '@babel/types';
+import { AttributeBody, DelegateAbstraction, ExplicitStyle, MediaQueryModifier } from 'internal';
 import Arguments from 'parse/abstractions';
 import { BunchOf, ModifyAction, Path } from 'types';
 
@@ -119,12 +119,12 @@ export class ModifyDelegate {
     //     if(this.priority) mod.stylePriority = this.priority; 
     // }
 
-    // declareMediaQuery(
-    //     query: string, 
-    //     body: Path<LabeledStatement>){
+    declareMediaQuery(
+        query: string, 
+        body: Path<LabeledStatement>){
 
-    //     new MediaQueryModifier(query, body).declare(this.target)
-    // }
+        new MediaQueryModifier(query, body, this.target.context).declare(this.target)
+    }
 }
 
 function PropertyModifierDefault(

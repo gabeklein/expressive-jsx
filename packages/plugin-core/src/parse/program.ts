@@ -42,6 +42,7 @@ export class StackFrame {
         //     new(from: ElementInline | NonComponent): AssembleElement;
         // }
     }
+    ModifierQuery?: string;
 
     constructor(state: BabelState){
 

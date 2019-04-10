@@ -1,8 +1,6 @@
 import { Statement } from '@babel/types';
-import { AttributeBody } from 'internal';
+import { AttributeBody, ElementInline, StackFrame } from 'internal';
 import { Path } from 'types';
-import { StackFrame } from 'parse/program';
-import { ElementInline } from 'handle/element';
 
 export class ElementModifier extends AttributeBody {
 
@@ -38,3 +36,18 @@ export class ElementModifier extends AttributeBody {
         this.provides.push(mod);
     }
 }
+
+export class MediaQueryModifier
+    extends ElementModifier {
+    constructor(
+        query: string,
+        body: Path<Statement>,
+        context: StackFrame){
+
+        context = Object.create(context);
+        context.ModifierQuery = query;
+
+        super("media", body, context);
+    }   
+}
+
