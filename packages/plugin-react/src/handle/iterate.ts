@@ -8,11 +8,11 @@ import t, {
     ForXStatement,
     Identifier,
     PatternLike,
-    StringLiteral
+    StringLiteral,
 } from '@babel/types';
-import { ComponentFor, ElementInline, ParseErrors, SequenceItem } from '@expressive/babel-plugin-core';
-import { ElementReact, GenerateReact } from 'internal';
+import { ComponentFor, ElementInline, ParseErrors, Prop, SequenceItem } from '@expressive/babel-plugin-core';
 import { ensureUIDIdentifier } from 'helpers';
+import { ElementReact, GenerateReact } from 'internal';
 import { isIdentifierElement, Path } from 'types';
 
 const Error = ParseErrors({
@@ -103,7 +103,8 @@ export class ElementIterate
         && element instanceof ElementInline
         && isIdentifierElement.test(element.name!) === false
         && element.props.key === undefined){
-            element.Prop("key", this.key);
+            element.insert(
+                new Prop("key", this.key));
             this.mayCollapseContent = true;
         }
     }

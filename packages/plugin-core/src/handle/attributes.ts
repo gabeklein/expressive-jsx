@@ -10,70 +10,20 @@ const Error = ParseErrors({
     DuplicateModifier: "Duplicate declaration of named modifier!"
 })
 
-export abstract class Attribute<T extends Expression = Expression> {
-    name?: string;
-    overriden?: boolean;
-    invariant?: boolean;
-    value: FlatValue | T | undefined
-    path?: Path<T>
-
-    constructor(
-        name: string | false,
-        value: FlatValue | T | undefined, 
-        path?: Path<T>){
-
-        if(name) this.name = name;
-        if(value) this.value = value;
-        if(path) this.path = path;
-
-        if(value === null || typeof value !== "object")
-            this.invariant = true
-    }
-};
-
-export class Prop extends Attribute {}
-
-export class ExplicitStyle extends Attribute {
-    priority = 1;
-}
-
 export abstract class AttributeBody extends TraversableBody {
     
     props = {} as BunchOf<Prop>;
     style = {} as BunchOf<ExplicitStyle>;
-    props_static = {} as BunchOf<Prop>;
-    style_static = {} as BunchOf<ExplicitStyle>;
-
-    Prop(
-        name: string | false, 
-        value: FlatValue | Expression | undefined, 
-        path?: Path<Expression>){
-
-        this.addAttribute(
-            new Prop(name, value, path),
-            this.props
-        );
-    }
-
-    Style(
-        name: string | false, 
-        value: FlatValue | Expression | undefined, 
-        path?: Path<Expression>){
-
-        this.addAttribute(
-            new ExplicitStyle(name, value, path),
-            this.style
-        );
-    }
     
-    private addAttribute(
-        item: Attribute,
-        accumulator: BunchOf<typeof item>){
+    insert(item: Prop | ExplicitStyle){
+        const { name } = item;
+        const accumulator = item instanceof Prop
+            ? this.props : this.style;
 
-        if(item.name){
-            const existing = accumulator[item.name];
+        if(name){
+            const existing = accumulator[name];
             if(existing) existing.overriden = true;
-            accumulator[item.name] = item;
+            accumulator[name] = item;
         }
 
         this.add(item);
@@ -108,3 +58,27 @@ export abstract class AttributeBody extends TraversableBody {
         throw Error.ExpressionUnknown(path, path.type);
     }
 }
+
+export abstract class Attribute<T extends Expression = Expression> {
+    name?: string;
+    overriden?: boolean;
+    invariant?: boolean;
+    value: FlatValue | T | undefined
+    path?: Path<T>
+
+    constructor(
+        name: string | false,
+        value: FlatValue | T | undefined, 
+        path?: Path<T>){
+
+        if(name) this.name = name;
+        if(value) this.value = value;
+        if(path) this.path = path;
+
+        if(value === null || typeof value !== "object")
+            this.invariant = true
+    }
+};
+
+export class Prop extends Attribute {}
+export class ExplicitStyle extends Attribute {}

@@ -1,5 +1,5 @@
 import t, { Expression } from '@babel/types';
-import { AttributeBody, DelegateAbstraction } from 'internal';
+import { AttributeBody, DelegateAbstraction, ExplicitStyle } from 'internal';
 import Arguments from 'parse/abstractions';
 import { BunchOf, ModifyAction, Path } from 'types';
 
@@ -76,7 +76,7 @@ export function ApplyModifier(
 
     for(const name in totalOutput.style){
         const item = totalOutput.style[name];
-        recipient.Style(name, item)
+        recipient.insert(new ExplicitStyle(name, item))
     }
 }
 

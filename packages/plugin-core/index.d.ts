@@ -49,10 +49,8 @@ declare abstract class AttributeBody extends TraversableBody {
 	sequence: Attribute[];
 	props: BunchOf<Prop>;
 	style: BunchOf<ExplicitStyle>;
-	value: Expression;
+	insert(item: Prop | ExplicitStyle): void;
 	abstract generate(): Syntax;
-	Prop(name: string | false, value: FlatValue | Expression | undefined, path?: Path<Expression>): void;
-    Style(name: string | false, value: FlatValue | Expression, path?: Path<Expression>): void;
 	ExpressionDefault(path: Path<Expression>): void;
 	LabeledStatement(path: Path<LabeledStatement>): void;
 }

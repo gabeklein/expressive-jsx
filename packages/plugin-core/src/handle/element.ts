@@ -8,9 +8,10 @@ import {
     InnerContent,
     inParenthesis,
     ParseErrors,
+    Prop,
+    TraversableBody,
 } from 'internal';
 import { DoExpressive, Path } from 'types';
-import { TraversableBody } from './block';
 
 const Error = ParseErrors({
     PropNotIdentifier: "Assignment must be identifier name of a prop.",
@@ -77,6 +78,7 @@ export class ElementInline extends AttributeBody {
 
         let { name } = left.node;
 
-        this.Prop(name, undefined, path.get("right"));
+        this.insert(
+            new Prop(name, undefined, path.get("right")));
     }
 }
