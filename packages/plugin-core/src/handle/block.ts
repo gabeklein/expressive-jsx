@@ -10,6 +10,7 @@ const Error = ParseErrors({
 
 export abstract class TraversableBody {
 
+    context: StackFrame
     loc: string = "";
     name?: string;
     parent?: TraversableBody | ComponentIf;
@@ -20,23 +21,17 @@ export abstract class TraversableBody {
     wasAddedTo?<T extends TraversableBody>(element?: T): void;
 
     constructor(
-        public context: StackFrame){
+        context: StackFrame){
+        this.context = context.create(this);
     }
 
     didEnterOwnScope(path: Path<DoExpressive>){
-        this.context = this.context.push(this);
-
-        const body = path
-            .get("body") //body element
-            .get("body") //elements list
-
+        const body = path.get("body.body") as Path<Statement>[];
         for(const item of body)
             this.parse(item);
     }
 
-    didExitOwnScope(path: Path<DoExpressive>){
-        this.context.pop(); 
-    }
+    didExitOwnScope?(path: Path<DoExpressive>): void;
 
     handleContentBody(content: Path<Statement>){
         if(content.isBlockStatement()){

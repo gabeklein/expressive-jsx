@@ -113,7 +113,6 @@ declare class ExplicitStyle extends Attribute {
     constructor(name: string | false, node: FlatValue | Expression | undefined, path?: Path<Expression>);
 }
 declare class StackFrame {
-	loc: string;
 	program: any;
 	styleRoot: any;
 	current: any;
@@ -125,7 +124,8 @@ declare class StackFrame {
 	event(ref: symbol): Function;
 	event(ref: symbol, set: Function): void;
 	dispatch(ref: symbol, ...args: any[]): void;
-	push(node: TraversableBody): StackFrame;
+	create(node: TraversableBody): StackFrame;
+	push(node: TraversableBody): void;
 	pop(): void;
 	propertyMod(name: string): GeneralModifier;
 	propertyMod(name: string, set: Function): void;

@@ -1,8 +1,7 @@
 import { VisitNodeObject as BabelVisitor } from '@babel/traverse';
 import { Program } from '@babel/types';
 import { createHash } from 'crypto';
-import { ComponentExpression } from 'handle/entry';
-import { ElementInline, ElementModifier, Shared, TraversableBody } from 'internal';
+import { ElementInline, ElementModifier, TraversableBody } from 'internal';
 import { BunchOf, ModifyAction } from 'types';
 
 interface BabelState {
@@ -124,29 +123,26 @@ export class StackFrame {
     }
 
     append(append?: string){
-        return this.loc + " " + append || ""
+        return this.current.loc + " " + append || ""
     }
 
-    push(node: TraversableBody){
-        const frame = this.stateSingleton.context = Object.create(this);
-        
-        if(node instanceof ComponentExpression)
-            frame.loc = this.append(node.name)
-        else 
-            frame.loc = node.loc
-
+    create(node: TraversableBody){
+        const frame = Object.create(this);
         frame.current = node;
         if(node instanceof ElementInline)
             frame.currentElement = node;
         return frame;
     }
 
+    push(node: TraversableBody){
+        this.stateSingleton.context = node.context;
+    }
+
     pop(){
         let up = this;
-        do {
-            up = Shared.stack = Object.getPrototypeOf(up)
-        } 
+        do { up = Object.getPrototypeOf(up) } 
         while(up.current === undefined)
+        this.stateSingleton.context = up;
     }
 
     propertyMod(name: string): ModifyAction;

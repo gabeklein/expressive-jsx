@@ -33,13 +33,18 @@ export { ComponentImplementInterop as DoComponent }
 
 export default <BabelVisitor<DoExpressive>> {
     enter: (path, state) => {
-        let meta = path.node.meta || generateEntryElement(ComponentExpression, path, state.context);
-        
+        const { context } = state;
+        let meta = path.node.meta || 
+            generateEntryElement(path, context);
+        context.push(meta);
+        if(meta.didEnterOwnScope)
         meta.didEnterOwnScope(path)
     },
     exit: (path, state) => {
         state.context.pop();
-        path.node.meta.didExitOwnScope(path)
+        const { meta } = path.node;
+        if(meta.didExitOwnScope)
+            meta.didExitOwnScope(path)
     }
 }
 

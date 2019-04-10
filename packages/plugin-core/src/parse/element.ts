@@ -68,15 +68,12 @@ export function AddElementsFromExpression(
     }
     chain.push(subject);
 
-    let context = parent.context
-
     for(const segment of chain.reverse()){
         for(const mod of parent.modifiers)
         for(const sub of mod.provides)
-            context.elementMod(sub)
+            parent.context.elementMod(sub)
 
-        context = Object.create(context);
-        const child = new ElementInline(context);
+        const child = new ElementInline(parent.context);
         ParseIdentity(segment, child);
 
         parent.adopt(child);
