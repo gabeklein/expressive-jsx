@@ -4,13 +4,13 @@ import { Path } from 'types';
 
 export class ComponentIf {
 
-    children = [] as ComponentConsequent[];
+    forks: ComponentConsequent[];
 
     constructor(
         protected path: Path<IfStatement>, 
         public parent: ElementInline){
         
-        const children = this.children;
+        const forks = this.forks = [] as ComponentConsequent[];
 
         let layer: Path<Statement> = path;
 
@@ -22,20 +22,20 @@ export class ComponentIf {
                     layer.get("test") as Path<Expression>
                 )
 
-            children.push(consequent);
+            forks.push(consequent);
             
             layer = layer.get("alternate") as Path<Statement>
 
         } while(layer.type == "IfStatement");
 
         if(layer.node)
-            children.push(
+            forks.push(
                 new ComponentConsequent(this, layer)
             )
 
         const doInsert = [] as ExpressionStatement[]; 
         
-        for(const { doBlock } of children)
+        for(const { doBlock } of forks)
             if(doBlock) doInsert.push(
                 t.expressionStatement(doBlock)
             )
@@ -55,7 +55,7 @@ export class ComponentConsequent extends ElementInline {
 
         super(parent.parent.context);
 
-        this.doBlock = this.handleContentBody(path)// || this.children[0].doBlock;
+        this.doBlock = this.handleContentBody(path);
         if(!this.doBlock){
             const [ child ] = this.children;
             if(child instanceof ElementInline)

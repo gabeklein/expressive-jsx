@@ -76,7 +76,7 @@ declare class ComponentExpression extends ElementInline {
 	private extractParams;
 }
 declare class ComponentIf {
-	children: ComponentConsequent[];
+	forks: ComponentConsequent[];
 	parent: ElementInline;
 	protected path: Path<IfStatement>;
 	constructor(path: Path<IfStatement>, parent: ElementInline);

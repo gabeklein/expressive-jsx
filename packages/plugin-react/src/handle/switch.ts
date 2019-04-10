@@ -11,14 +11,14 @@ export class ElementSwitch {
     };
 
     toExpression(){
-        const { children } = this.source;
-        if(children.length > 1)
-            return children.reduceRight(
+        const { forks } = this.source;
+        if(forks.length > 1)
+            return forks.reduceRight(
                 this.inlineReduction.bind(this), 
                 t.booleanLiteral(false)
             );
         else {
-            let { test, product } = this.extract(children[0]);
+            let { test, product } = this.extract(forks[0]);
             
             let check: Expression = test!;
 
