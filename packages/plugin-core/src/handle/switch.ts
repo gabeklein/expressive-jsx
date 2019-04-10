@@ -1,4 +1,4 @@
-import t, { Expression, IfStatement, Statement, ExpressionStatement } from '@babel/types';
+import t, { Expression, ExpressionStatement, IfStatement, Statement } from '@babel/types';
 import { ElementInline } from 'internal';
 import { Path } from 'types';
 
@@ -33,13 +33,12 @@ export class ComponentIf {
                 new ComponentConsequent(this, layer)
             )
 
-        const doInsert = [] as ExpressionStatement[];
-
-        for(const { doBlock: body } of children)
-            if(body)
-                doInsert.push(
-                    t.expressionStatement(body)
-                );
+        const doInsert = [] as ExpressionStatement[]; 
+        
+        for(const { doBlock } of children)
+            if(doBlock) doInsert.push(
+                t.expressionStatement(doBlock)
+            )
 
         if(doInsert.length)
             path.replaceWith(
