@@ -1,9 +1,7 @@
-import transformReactClass      from "@expressive/babel-plugin-react-class";
-import transformReactXJS from "@expressive/babel-plugin-react-xjs";
-import ExpressiveEnhancements from "babel-preset-expressive-enhancements"
-
+const PresetEnhance = require("babel-preset-expressive-enhancements").default;
+const PluginReactClass = require("@expressive/babel-plugin-react-class").default;
+const PluginReact = require("@expressive/babel-plugin-react")
 const NativeStyles = require("@expressive/react-modifiers");
-
 const Plugins = require("babel-preset-react-native/plugins")
 
 function plugin(name) {
@@ -11,10 +9,10 @@ function plugin(name) {
     return imported.default || imported;
 }
 
-module.exports = options => {
+module.exports = function(){
     return {
         presets: [
-            ExpressiveEnhancements
+            PresetEnhance
         ],
         plugins: [
 
@@ -43,12 +41,12 @@ module.exports = options => {
             plugin('transform-object-assign'),
             
             
-            [transformReactClass, {
+            [PluginReactClass, {
                 activeOnMethodDo: true
             }],
-            [transformReactXJS, {
+            [PluginReact, {
                 reactEnv: "native",
-                output: "es6",
+                output: "js",
                 styleMode: "compile",
                 modifiers: [
                     NativeStyles

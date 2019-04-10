@@ -1,19 +1,18 @@
-import transformReactClass      from "@expressive/babel-plugin-react-class";
-import transformReactXJS from "@expressive/babel-plugin-core";
-import ExpressiveEnhancements   from "babel-preset-expressive-enhancements"
-
+const PluginEnhance = require("babel-preset-expressive-enhancements").default;
+const PluginReactClass = require("@expressive/babel-plugin-react-class").default;
+const PluginReact = require("@expressive/babel-plugin-react")
 const WebStyles = require("@expressive/react-modifiers");
 
-module.exports = options => {
+module.exports = function(options){
     return {
         presets: [
-            ExpressiveEnhancements
+            PluginEnhance
         ],
         plugins: [
-            [transformReactClass, {
+            [PluginReactClass, {
                 activeOnMethodDo: true
             }],
-            [transformReactXJS, {
+            [PluginReact, {
                 reactEnv: "web",
                 output: "es6",
                 styleMode: "compile",

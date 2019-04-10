@@ -16,21 +16,10 @@
     "react",
     "xjs"
   ],
-  "main": "lib/index.js",
+  "main": "index.js",
   "files": [
-    "/lib"
+    "/index.js"
   ],
-  "scripts": {
-    "prebuild": "rm -rf ./lib",
-    "build": "babel ./src --out-dir ./lib",
-    "watch": "babel ./src --out-dir ./lib --source-maps --watch",
-    "prepare": "npm run build"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "7.0.0"
-  },
   "dependencies": {
     "@expressive/babel-plugin-react": "^1.0.0-beta.5",
     "@expressive/babel-plugin-react-class": "^1.0.0-beta.5",
