@@ -1,5 +1,4 @@
 /// <reference types="babel__traverse" />
-/// <reference types="node" />
 import { NodePath as Path, VisitNodeObject as BabelVisitor } from '@babel/traverse';
 import t, {
     ArrowFunctionExpression,

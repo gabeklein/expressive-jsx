@@ -12,25 +12,6 @@ import { BabelVisitor, DoExpressive, Path } from 'types';
 
 import { StackFrame } from './program';
 
-class ComponentImplementInterop extends ComponentExpression {
-    static get Visitor(){
-        return {
-            DoExpression: <BabelVisitor<DoExpressive>> {
-                enter: (path, state) => {
-                    let meta = path.node.meta || generateEntryElement(this, path, state.context);
-                    meta.didEnterOwnScope(path)
-                },
-                exit: (path, state) => {
-                    state.context.pop();
-                    path.node.meta.didExitOwnScope(path)
-                }
-            }
-        }
-    }
-}
-
-export { ComponentImplementInterop as DoComponent }
-
 export default <BabelVisitor<DoExpressive>> {
     enter: (path, state) => {
         const { context } = state;
@@ -38,7 +19,7 @@ export default <BabelVisitor<DoExpressive>> {
             generateEntryElement(path, context);
         context.push(meta);
         if(meta.didEnterOwnScope)
-        meta.didEnterOwnScope(path)
+            meta.didEnterOwnScope(path)
     },
     exit: (path, state) => {
         state.context.pop();
@@ -49,7 +30,6 @@ export default <BabelVisitor<DoExpressive>> {
 }
 
 function generateEntryElement(
-    implementation: typeof ComponentExpression, 
     path: Path<DoExpressive>, 
     context: StackFrame){
 
@@ -70,7 +50,7 @@ function generateEntryElement(
 
     const name = containerName(containerFn || path);
     
-    return new implementation(name, context, path, containerFn);
+    return new ComponentExpression(name, context, path, containerFn);
 }
 
 function containerName(path: Path): string {

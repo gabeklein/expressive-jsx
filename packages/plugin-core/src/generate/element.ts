@@ -12,7 +12,6 @@ import {
 export type Syntax = [ Expression, Statement[]?];
 export type SequenceItem = Attribute | InnerContent | Path<Statement>;
 export type InnerContent = ElementInline | ComponentIf | ComponentFor | Path<Expression> | Expression;
-// type FlatValue = string | number | boolean | null; 
 
 export abstract class ElementConstruct
     <From extends ElementInline = ElementInline> {

@@ -20,11 +20,11 @@ export class ComponentFor extends ElementInline {
             throw Error.notImplemented(path)
 
         const body = path.get("body");
-        const block = this.handleContentBody(body);
+        const doBlock = this.handleContentBody(body);
 
-        if(block)
+        if(doBlock)
             body.replaceWith(
-                t.expressionStatement(block));
+                t.expressionStatement(doBlock));
     }
 
     AssignmentExpression(path: Path<AssignmentExpression>){

@@ -45,8 +45,10 @@ export function AddElementsFromExpression(
 
     var baseAttributes = [] as Path<Expression>[];
 
-    if(subject.isSequenceExpression())
-        [subject, ...baseAttributes] = subject.get('expressions');
+    if(subject.isSequenceExpression()){
+        const exps = subject.get('expressions');
+        [subject, ...baseAttributes] = exps;
+    }
 
     if(subject.isBinaryExpression({operator: ">"})){
         const item = New(subject.get("right"));
@@ -185,8 +187,9 @@ function UnwrapExpression(
 
         case "CallExpression": {
             const exp = current as Path<CallExpression>;
+            const args = exp.get("arguments");
             ParseProps( 
-                exp.get("arguments") as Path<ListElement>[],
+                args as Path<ListElement>[],
                 target
             );
             current = exp.get("callee");
