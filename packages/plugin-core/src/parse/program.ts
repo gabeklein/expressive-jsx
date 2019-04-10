@@ -119,14 +119,18 @@ export class StackFrame {
         }
         nodePosition = i.reverse().join(" ");
 
-        return `${this.loc} ${nodePosition}`;
+        return this.append(nodePosition);
+    }
+
+    append(append?: string){
+        return this.loc + " " + append || ""
     }
 
     push(node: TraversableBody){
         const frame = this.stateSingleton.context = Object.create(this);
         
         if(node instanceof ComponentExpression)
-            frame.loc = `${this.loc} ${node.name}`
+            frame.loc = this.append(node.name)
         else 
             frame.loc = node.loc
 

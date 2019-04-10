@@ -26,7 +26,7 @@ export class ElementModifier extends AttributeBody {
 
     declare<T extends AttributeBody>(target: T){
         target.ElementModifier(this);
-        this.loc = this.context.loc + " " + this.name;
+        this.loc = this.context.append(this.name)
     }
 
     apply(element: ElementInline){

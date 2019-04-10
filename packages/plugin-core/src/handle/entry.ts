@@ -29,6 +29,6 @@ export class ComponentExpression extends ElementInline {
     }
 
     wasAddedTo(){
-        this.loc = `${this.context.loc} ${this.name}`;
+        this.loc = this.context.append(this.name);
     }
 }
