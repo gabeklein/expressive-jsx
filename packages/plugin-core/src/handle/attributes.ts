@@ -5,9 +5,7 @@ import { BunchOf, FlatValue, Path } from 'types';
 const Error = ParseErrors({
     ExpressionUnknown: "Unhandled expressionary statement of type {1}",
     NodeUnknown: "Unhandled node of type {1}",
-    BadInputModifier: "Modifier input of type {1} not supported here!",
-    BadModifierName: "Modifier name cannot start with _ symbol!",
-    DuplicateModifier: "Duplicate declaration of named modifier!"
+    BadInputModifier: "Modifier input of type {1} not supported here!"
 })
 
 export abstract class AttributeBody extends TraversableBody {
@@ -37,15 +35,8 @@ export abstract class AttributeBody extends TraversableBody {
         const { name } = path.node.label;
         const body = path.get("body");
     
-        if(body.isBlockStatement()){
-            if(name[0] == "_")
-                throw Error.BadModifierName(body)
-
-            if(this.context.hasOwnProperty("_" + name))
-                throw Error.DuplicateModifier(body);
-
-            new ElementModifier(name, body, this.context).declare(this);
-        }
+        if(body.isBlockStatement())
+            new ElementModifier(name, body, this.context).declare(applyTo || this);
 
         else if(body.isExpressionStatement())
             ApplyModifier(name, this, body.get("expression"));
