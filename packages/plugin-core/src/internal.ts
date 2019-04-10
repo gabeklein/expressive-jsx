@@ -6,18 +6,11 @@ export * from "handle/element"
 export * from "handle/entry";
 export * from "handle/switch";
 export * from "handle/iterate";
+export * from "handle/modifier";
+
+export * from "generate/element";
+export * from "generate/modifier";
 
 export * from "parse/program";
 export * from "parse/element";
 export * from "parse/abstractions";
-
-export * from "generate/element";
-
-export * from "modify/element";
-export * from "modify/other";
-export * from "modify/delegate";
-
-// export * from "quasi";
-// export * from "forloop";
-// export * from "ifstatement";
-// export * from "styles";
