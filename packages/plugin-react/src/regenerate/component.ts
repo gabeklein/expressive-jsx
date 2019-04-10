@@ -8,7 +8,7 @@ import t, {
     PatternLike,
 } from '@babel/types';
 import { ComponentExpression, DoExpressive, ParseErrors } from '@expressive/babel-plugin-core';
-import { BabelVisitor, ElementReact, GenerateReact, declare, ensureArray } from 'internal';
+import { memberExpression, BabelVisitor, ElementReact, GenerateReact, declare, ensureArray } from 'internal';
 import { StackFrameExt, Path } from 'types';
 
 const Error = ParseErrors({
@@ -85,10 +85,7 @@ function incorperateChildParameters(
             )
         )
     else if(props.isIdentifier())
-        init = t.memberExpression(
-            props.node, 
-            t.identifier("children")
-        );
+        init = memberExpression(props.node, "children");
 
     arrowFn.params = [props.node as Identifier | ObjectPattern];
     

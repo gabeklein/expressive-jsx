@@ -1,5 +1,5 @@
 import t, { ArrayExpression, ObjectExpression, ObjectProperty, Statement } from '@babel/types';
-import { PropertyES } from 'internal';
+import { PropertyES, memberExpression, callExpression } from 'internal';
 import { BunchOf } from 'types';
 
 import { Module } from './module';
@@ -76,9 +76,9 @@ export function writeProvideStyleStatement(
 
     const provideStatement = 
         t.expressionStatement(
-            t.callExpression(
-                t.memberExpression(polyfillModule, t.identifier("doesProvideStyle")), 
-                [ computed ]
+            callExpression(
+                memberExpression(polyfillModule, "doesProvideStyle"), 
+                computed 
             )
         )
 

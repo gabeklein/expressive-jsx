@@ -12,7 +12,7 @@ import t, {
 } from '@babel/types';
 import { ComponentFor, ElementInline, ParseErrors, Prop, SequenceItem } from '@expressive/babel-plugin-core';
 import { ensureUIDIdentifier } from 'helpers';
-import { ElementReact, GenerateReact } from 'internal';
+import { ElementReact, GenerateReact, memberExpression, callExpression } from 'internal';
 import { isIdentifierElement, Path } from 'types';
 
 const Error = ParseErrors({
@@ -52,11 +52,9 @@ export class ElementIterate
                 t.returnStatement(body)
             ])
     
-        return t.callExpression(
-            t.memberExpression(this.right!, t.identifier("map")), 
-            [ 
-                t.arrowFunctionExpression([this.left!, key!], body)
-            ]
+        return callExpression(
+            memberExpression(this.right!, "map"),
+            t.arrowFunctionExpression([this.left!, key!], body)
         )
     }
 

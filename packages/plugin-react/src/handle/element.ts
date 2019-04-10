@@ -17,7 +17,8 @@ import {
     StackFrameExt,
     ElementSwitch,
     AttributeES,
-    expressionValue
+    expressionValue,
+    callExpression
 } from 'internal';
 import { Path } from 'types';
 
@@ -144,8 +145,8 @@ export class ElementReact<T extends ElementInline = ElementInline>
         let classNameValue = 
             classes.length == 1
                 ? classes[0] as StringLiteral
-                : t.callExpression(
-                    imports, classes
+                : callExpression(
+                    imports, ...classes
                 )
 
         this.addProperty("className", classNameValue)

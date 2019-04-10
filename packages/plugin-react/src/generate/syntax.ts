@@ -1,4 +1,4 @@
-import t, { Expression, LVal, Statement } from '@babel/types';
+import t, { Expression, LVal, Statement, MemberExpression } from '@babel/types';
 import { ExplicitStyle, Prop } from '@expressive/babel-plugin-core';
 import { BunchOf } from 'types';
 
@@ -35,42 +35,46 @@ export function ensureArray(
     children: Expression, 
     getFirst?: boolean){
 
-    const array = t.callExpression(
-        t.memberExpression(
-            t.arrayExpression([]),
-            t.identifier("concat")
+    const array = callExpression(
+        memberExpression(
+            t.arrayExpression([]), "concat"
         ),
-        [children]
+        children
     )
-    return getFirst ? t.memberExpression(array, t.numericLiteral(0), true) : array;
+    return getFirst ? memberExpression(array, 0) : array;
 }
 
 export function IIFE(stats: Statement[]){
-    return t.callExpression(
+    return callExpression(
         t.arrowFunctionExpression([], 
             t.blockStatement(stats as any)
-        ), []
+        )
     )
 }
 
-export function object(obj: BunchOf<any>){
+export function objectExpression(obj?: BunchOf<Expression | false | undefined>){
     const properties = [];
-    for(const x in obj)
+    for(const x in obj){
+        if(obj[x])
         properties.push(
             t.objectProperty(
                 t.identifier(x),
-                obj[x]
+                obj[x] as Expression
             )
         )
+    }
     return t.objectExpression(properties);
 }
 
-export function member(
-    object: Expression | "this", 
+export function memberExpression(
+    object: string | Expression, 
     ...path: (string | number)[] ){
 
     if(object == "this") 
         object = t.thisExpression()
+
+    if(typeof object == "string")
+        path = [...object.split("."), ...path]
 
     for(let member of path){
         let select;
@@ -82,12 +86,22 @@ export function member(
         }
         else if(typeof member == "number")
             select = t.numericLiteral(member);
+        else
+            throw new Error("Bad member id, only strings and numbers are allowed")
         
-
-        object = t.memberExpression(object, select, select!.type !== "Identifier")
+        object = typeof object == "object"
+            ? t.memberExpression(object, select, select!.type !== "Identifier")
+            : select;
     }
     
-    return object
+    return object as MemberExpression;
+}
+
+export function callExpression(
+    callee: Expression,
+    ...args: Expression[]
+){
+    return t.callExpression(callee, args)
 }
 
 export function declare(
@@ -99,26 +113,5 @@ export function declare(
         t.variableDeclaration(type, [
             t.variableDeclarator(id, init)
         ])
-    )
-}
-
-export function array(
-    children: Expression, 
-    getFirst: boolean = false ){
-
-    const array = t.callExpression(
-        t.memberExpression(
-            t.arrayExpression([]),
-            t.identifier("concat")
-        ),
-        [children]
-    )
-    return getFirst ? t.memberExpression(array, t.numericLiteral(0), true) : array;
-}
-
-export function require(module: string){
-    return t.callExpression(
-        t.identifier("require"), 
-        [ t.stringLiteral(module) ]
     )
 }

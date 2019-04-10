@@ -1,7 +1,7 @@
 import t, { Expression, ObjectProperty } from '@babel/types';
 import { ElementReact } from 'handle/element';
 import { ArrayStack, ContentLike, GenerateReact, PropData } from 'internal';
-import { PropertyES } from './syntax';
+import { PropertyES, objectExpression, memberExpression, callExpression } from './syntax';
 
 const IsComponentElement = /^[A-Z]\w*/;
 
@@ -35,12 +35,11 @@ export class GenerateES extends GenerateReact {
             ? t.identifier(tag) 
             : t.stringLiteral(tag);
 
-        return t.callExpression(
-            this.Create, [
-                type, 
-                this.recombineProps(props), 
-                ...this.recombineChildren(children)
-            ]
+        return callExpression(
+            this.Create, 
+            type, 
+            this.recombineProps(props), 
+            ...this.recombineChildren(children)
         ) 
     }
 
@@ -48,14 +47,13 @@ export class GenerateES extends GenerateReact {
         children = [] as ContentLike[],
         key?: Expression | false
     ){
-        const attributes = key ? [PropertyES("key", key)] : [];
-        
         return (
-            t.callExpression(this.Create, [
+            callExpression(
+                this.Create,
                 this.Fragment,
-                t.objectExpression(attributes),
+                objectExpression({ key }),
                 ...this.recombineChildren(children)
-            ]) 
+            ) 
         )
     }
 
@@ -75,7 +73,7 @@ export class GenerateES extends GenerateReact {
         const propStack = new ArrayStack<ObjectProperty, Expression>()
 
         if(props.length == 0)
-            return t.objectExpression([]);
+            return objectExpression()
     
         for(const { name, value } of props)
             if(!name)
@@ -93,18 +91,15 @@ export class GenerateES extends GenerateReact {
     
         if(properties[0].type !== "ObjectExpression")
             properties.unshift(
-                t.objectExpression([])
+                objectExpression()
             )
     
         return (
             properties.length == 1
                 ? properties[0]
-                : t.callExpression(
-                    t.memberExpression(
-                        t.identifier("Object"),
-                        t.identifier("assign")
-                    ), 
-                    properties
+                : callExpression(
+                    memberExpression("Object.assign"), 
+                    ...properties
                 )
         )
     }

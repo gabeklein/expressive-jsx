@@ -9,6 +9,7 @@ import t, {
 } from '@babel/types';
 import { ensureUID, ensureUIDIdentifier } from 'helpers';
 import { BunchOf, Path } from 'types';
+import { callExpression } from 'internal';
 
 type ImportSpecific = ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier;
 
@@ -198,9 +199,9 @@ export class RequirementManager
                 t.variableDeclaration("const", [
                     t.variableDeclarator(
                         t.objectPattern(list), 
-                        target || t.callExpression(
+                        target || callExpression(
                             t.identifier("require"),
-                            [ t.stringLiteral(name) ]
+                            t.stringLiteral(name)
                         )
                     )
                 ])
