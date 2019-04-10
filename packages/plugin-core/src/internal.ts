@@ -9,7 +9,7 @@ export * from "handle/iterate";
 export * from "handle/modifier";
 
 export * from "generate/element";
-export * from "generate/modifier";
+export * from "parse/modifier";
 
 export * from "parse/program";
 export * from "parse/element";
