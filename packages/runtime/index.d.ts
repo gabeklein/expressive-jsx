@@ -55,3 +55,8 @@ export default _default
  * 
  */
 export declare function withStyles(Root: ComponentType): ReactElement;
+
+/**
+ * Joins all truthy arguments using a space as delimiter.
+ */
+export declare function join(...args: string[]): string;
