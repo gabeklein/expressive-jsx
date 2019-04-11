@@ -1,11 +1,6 @@
 import { Statement } from '@babel/types';
-import { AttributeBody, ElementInline, StackFrame, ParseErrors } from 'internal';
+import { AttributeBody, ElementInline, StackFrame } from 'internal';
 import { Path } from 'types';
-
-const Error = ParseErrors({
-    BadModifierName: "Modifier name cannot start with _ symbol!",
-    DuplicateModifier: "Duplicate declaration of named modifier!"
-})
 
 export class ElementModifier extends AttributeBody {
 
@@ -20,12 +15,6 @@ export class ElementModifier extends AttributeBody {
         context: StackFrame ){
 
         super(context);
-
-        if(name[0] == "_")
-            throw Error.BadModifierName(body)
-
-        if(this.context.hasOwnProperty("_" + name))
-            throw Error.DuplicateModifier(body);    
 
         const content = body.isBlockStatement() ? body.get("body") : [body];
 
