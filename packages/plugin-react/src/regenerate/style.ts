@@ -56,7 +56,7 @@ export function writeProvideStyleStatement(
     }
 
     for(const query in media){
-        const priorityBunches = media[query].map(x => t.objectExpression(x));
+        const priorityBunches = media[query].map(x => t.objectExpression(x)).filter(x => x);
         output.push(
             PropertyES(query, t.arrayExpression(priorityBunches))
         )

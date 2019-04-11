@@ -75,14 +75,24 @@ export class Module {
         const { styleBlocks } = this;
         const block = styles as StylesRegistered;
         const name = src.name;
-        const hash = quickHash(src.loc)
+        const hash = quickHash(src.loc);
 
         let className = name + "_" + hash;
-        
-        block.selector = className;
         block.priority = priority;
         block.query = query;
+        
+        if(src instanceof ElementInline){
+            block.priority = 2
+        }
+        else {
+            for(const cont of src.contingents || []){
+                block.priority = 3
+                className += cont
+            }
+        }
 
+        block.selector = className;
+        
         styleBlocks.push(block);
 
         return className;
