@@ -1,25 +1,23 @@
-import t, { Expression, ObjectProperty, SpreadElement, StringLiteral } from '@babel/types';
+import t, { Expression, ObjectProperty, SpreadElement } from '@babel/types';
 import {
     ComponentFor,
     ComponentIf,
     ElementConstruct,
     ElementInline,
     ExplicitStyle,
+    Prop,
     SequenceItem,
-    Prop
 } from '@expressive/babel-plugin-core';
 import { hash as quickHash } from 'helpers';
 import {
-    ArrayStack,
+    AttributeES,
     AttributeStack,
     ContentLike,
     ElementIterate,
+    ElementSwitch,
+    expressionValue,
     PropData,
     StackFrameExt,
-    ElementSwitch,
-    AttributeES,
-    expressionValue,
-    callExpression
 } from 'internal';
 import { Path } from 'types';
 
@@ -42,20 +40,25 @@ export class ElementReact<T extends ElementInline = ElementInline>
 
     willParse(sequence: SequenceItem[]){
         const pre = [] as SequenceItem[];
+
         for(const mod of this.source.modifiers){
             if(mod.appliesTo == 1){
-                pre.push(...mod.sequence);
+                const exists = this.source.style;
+                for(const style of mod.sequence)
+                    if(style.name in exists == false)
+                        pre.push(style)
                 continue;
             }
-            let c = mod.className;
-            if(!c){
-                const s = mod.sequence.filter(x => x instanceof ExplicitStyle);
-                c = mod.className = 
+            let className = mod.className;
+            if(!className){
+                const staticStyles = mod.sequence.filter(x => x instanceof ExplicitStyle);
+                className = mod.className = 
                     this.context.Module.registerStyle(
-                        mod, s as ExplicitStyle[]
+                        mod, staticStyles as ExplicitStyle[]
                     )
             }
-            this.classList.push(cName);
+            if(mod.appliesTo !== -1)
+                this.classList.push(className);
         }
 
         if(pre.length)
@@ -144,7 +147,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
         if(classList)
             selectors.unshift(
                 t.stringLiteral(classList.slice(1))
-                )
+            )
 
         this.addProperty("className", 
             selectors.length == 1
@@ -212,7 +215,17 @@ export class ElementReact<T extends ElementInline = ElementInline>
     }
 
     Switch(item: ComponentIf){
-        this.adopt(new ElementSwitch(item, this.context))
+        const fork = new ElementSwitch(item, this.context)
+        
+        if(item.hasElementOutput)
+            this.adopt(fork)
+
+        if(item.hasStyleOutput){
+            this.classList.push(
+                fork.classLogic()
+            );
+            this.source.doesHaveContingentStyle = true
+        }
     }
 
     Iterate(item: ComponentFor){

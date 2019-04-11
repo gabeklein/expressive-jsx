@@ -57,4 +57,23 @@ export class ElementSwitch {
 
         return sum || t.booleanLiteral(false)
     }
+
+    classLogic(){
+        const conditions = this.source.forks;
+        let sum: Expression | undefined;
+        let i = conditions.length;
+
+        while(i > 0){
+            let select;
+            const cond = conditions[--i];
+            const test = cond.test && cond.test.node;
+            
+            if(cond.usesClassname)
+                select = t.stringLiteral(cond.usesClassname);
+            
+            sum = fork(test, select, sum)
+        }
+
+        return sum || t.booleanLiteral(false)
+    }
 }

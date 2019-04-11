@@ -1,16 +1,18 @@
-import t, { Expression, ExpressionStatement, IfStatement, Statement } from '@babel/types';
-import { ElementInline } from 'internal';
+import t, { Expression, ExpressionStatement, IfStatement, LabeledStatement, Statement } from '@babel/types';
+import { ElementInline, ElementModifier, InnerContent, StackFrame } from 'internal';
 import { Path } from 'types';
 
 export class ComponentIf {
 
     forks: ComponentConsequent[];
     context: StackFrame;
+    hasElementOutput?: true;
+    hasStyleOutput?: true;
 
     constructor(
         protected path: Path<IfStatement>, 
         public parent: ElementInline){
-        
+
         this.context = parent.context.create(this);
         this.context.appendWithLocation()
         
@@ -52,6 +54,12 @@ export class ComponentIf {
 }
 
 export class ComponentConsequent extends ElementInline {
+
+    slaveModifier?: ElementModifier;
+    usesClassname?: string;
+    parentElement: ElementInline;
+    index: number;
+
     constructor(
         public parent: ComponentIf, 
         public path: Path<Statement>, 
@@ -59,11 +67,68 @@ export class ComponentConsequent extends ElementInline {
 
         super(parent.context);
 
+        this.parentElement = parent.context.currentElement!
+        this.index = parent.forks.length;
+
         this.doBlock = this.handleContentBody(path);
         if(!this.doBlock){
-            const [ child ] = this.children;
+            this.didExitOwnScope();
+            const child = this.children[0];
             if(child instanceof ElementInline)
                 this.doBlock = child.doBlock
         }
+    }
+
+    adopt(child: InnerContent){
+        this.parent.hasElementOutput = true;
+        super.adopt(child)
+    }
+
+    didExitOwnScope(){
+        const mod = this.slaveModifier!;
+        const parent = this.parentElement;
+
+        if(!mod) return;
+            
+        parent.modifiers.push(mod);
+        mod.appliesTo = -1;
+
+        for(const sub of mod.provides)
+            parent.context.elementMod(sub)
+    }
+
+    LabeledStatement(path: Path<LabeledStatement>){
+        const mod = this.slaveModifier || this.slaveNewModifier()
+        super.LabeledStatement(path, mod);
+    }
+
+    private slaveNewModifier(){
+        this.parent.hasStyleOutput = true;
+
+        let { test } = this;
+        const { context } = this.parent;
+        const parent = this.parentElement;
+        let selector = `op${this.index}`;
+
+        if(test){
+            let ref = "is";
+            if(test.isUnaryExpression({ operator: "!" })){
+                test = test.get("argument");
+                ref = "not"
+            }
+            if(test.isIdentifier()){
+                const { name } = test.node;
+                selector = ref + name[0].toUpperCase() + name.slice(1);
+            }
+        }
+        
+        this.usesClassname = selector;
+
+        const mod = new ElementModifier(context);
+        mod.name = parent.name;
+        mod.contingents = [`.${selector}`]
+        mod.loc = parent.loc;
+
+        return this.slaveModifier = mod;
     }
 }

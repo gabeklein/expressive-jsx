@@ -58,7 +58,7 @@ declare class ElementInline extends AttributeBody {
 	multilineContent?: Path<TemplateLiteral>;
 	children: InnerContent[];
 	modifiers: ElementModifier[]
-    explicitTagName?: string;
+	explicitTagName?: string;
 	doBlock?: DoExpressive;
 	doesHaveContingentStyle?: true;
 	adopt(child: InnerContent): void;
@@ -75,20 +75,25 @@ declare class ComponentExpression extends ElementInline {
 declare class ComponentIf {
 	forks: ComponentConsequent[];
     context: StackFrame;
+    hasElementOutput?: boolean;
+    hasStyleOutput?: boolean;
 	parent: ElementInline;
 	protected path: Path<IfStatement>;
 	constructor(path: Path<IfStatement>, parent: ElementInline);
 }
 declare class ComponentConsequent extends ElementInline {
-	replacement: Statement;
-	logicalParent: ComponentIf;
+	slaveModifier?: ElementModifier;
+    usesClassname?: string;
+    parentElement: ElementInline;
+	parent: ComponentIf;
 	path: Path<Statement>;
 	test?: Path<Expression>;
 	constructor( 
-		logicalParent: ComponentIf,
+		parent: ComponentIf,
 		path: Path<Statement>,
 		test?: Path<Expression>
 	)
+	didExitOwnScope(): void;
 }
 declare class ComponentFor extends ElementInline {
 	public path: Path<For>;
@@ -141,7 +146,8 @@ declare class ElementModifier extends AttributeBody {
 	inherits?: ElementModifier;
 	provides: ElementModifier[];
 	appliesTo: number;
-    className?: string;
+	className?: string;
+	contingents?: string[];
 	constructor(context: StackFrame, name?: string, body?: Path<Statement>);
 	declare<T extends AttributeBody>(target: T): void;
 	apply(element: ElementInline): void;
