@@ -44,7 +44,7 @@ export abstract class AttributeBody extends TraversableBody {
             throw Error.DuplicateModifier(path); 
     
         if(body.isBlockStatement())
-            new ElementModifier(name, body, this.context).declare(applyTo || this);
+            new ElementModifier(this.context, name, body).declare(applyTo || this);
 
         else if(body.isExpressionStatement())
             ApplyModifier(name, this, body.get("expression"));

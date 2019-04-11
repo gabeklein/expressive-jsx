@@ -140,8 +140,7 @@ declare class ElementModifier extends AttributeBody {
 	provides: ElementModifier[];
 	appliesTo: number;
     className?: string;
-	constructor(name: string, body: Path<Statement>, context: StackFrame);
-	generate(): Syntax;
+	constructor(context: StackFrame, name?: string, body?: Path<Statement>);
 	declare<T extends AttributeBody>(target: T): void;
 	apply(element: ElementInline): void;
 	ElementModifier(mod: ElementModifier): void;

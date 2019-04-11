@@ -10,16 +10,17 @@ export class ElementModifier extends AttributeBody {
     className?: string;
 
     constructor(
-        public name: string,
-        body: Path<Statement>,
-        context: StackFrame ){
+        context: StackFrame,
+        public name?: string,
+        body?: Path<Statement>){
 
         super(context);
 
+        if(body){
         const content = body.isBlockStatement() ? body.get("body") : [body];
-
         for(const item of content)
             this.parse(item);
+    }
     }
 
     declare<T extends AttributeBody>(target: T){
@@ -47,7 +48,7 @@ export class MediaQueryModifier
         context = Object.create(context);
         context.ModifierQuery = query;
 
-        super("media", body, context);
+        super(context, "media", body);
     }   
 }
 
