@@ -94,20 +94,20 @@ export class StackFrame {
         (<Function>this[ref]).apply(null, args)
     }
 
-    getLocationFor(node: TraversableBody){
-        let current: any = node;
+    appendWithLocation(){
+        const { sequence } = this.current;
+        let current = this.current;
         let i = [] as number[];
         let nodePosition: string;
 
         while(current){
-            const { sequence } = this.current;
             const index = sequence && sequence.indexOf(current) + 1;
 
             if(index){
                 i.push(index);
                 break;
             }
-            else {
+            
                 const last = i.length - 1;
                 const tip = i[last];
                 if(tip < 2)
@@ -116,7 +116,6 @@ export class StackFrame {
                     i.push(1)
                 current = current.parent!;
             }
-        }
         nodePosition = i.reverse().join(" ");
 
         return this.append(nodePosition);

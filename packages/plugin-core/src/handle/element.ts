@@ -28,7 +28,7 @@ export class ElementInline extends AttributeBody {
     modifiers = [] as ElementModifier[];
 
     wasAddedTo(element?: TraversableBody){
-        this.loc = this.context.getLocationFor(this);
+        this.loc = this.context.appendWithLocation();
     }
 
     adopt(child: InnerContent){

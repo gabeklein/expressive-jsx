@@ -124,7 +124,8 @@ declare class StackFrame {
 	event(ref: symbol): Function;
 	event(ref: symbol, set: Function): void;
 	dispatch(ref: symbol, ...args: any[]): void;
-	create(node: TraversableBody): StackFrame;
+	appendWithLocation(): void;
+	append(as?: string): void;
 	push(node: TraversableBody): void;
 	pop(): void;
 	propertyMod(name: string): GeneralModifier;
