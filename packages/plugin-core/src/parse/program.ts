@@ -107,15 +107,15 @@ export class StackFrame {
                 i.push(index);
                 break;
             }
-            
-                const last = i.length - 1;
-                const tip = i[last];
-                if(tip < 2)
-                    i[last]--
-                else 
-                    i.push(1)
-                current = current.parent!;
-            }
+
+            const last = i.length - 1;
+            const tip = i[last];
+            if(tip < 2)
+                i[last]--
+            else 
+                i.push(1)
+            current = current.parent!;
+        }
         nodePosition = i.reverse().join(" ");
 
         return this.append(nodePosition);
@@ -125,7 +125,7 @@ export class StackFrame {
         return this.loc = this.loc + " " + append || ""
     }
 
-    create(node: TraversableBody){
+    create(node: any){
         const frame = Object.create(this);
         frame.current = node;
         if(node instanceof ElementInline)

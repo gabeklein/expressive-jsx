@@ -74,6 +74,7 @@ declare class ComponentExpression extends ElementInline {
 }
 declare class ComponentIf {
 	forks: ComponentConsequent[];
+    context: StackFrame;
 	parent: ElementInline;
 	protected path: Path<IfStatement>;
 	constructor(path: Path<IfStatement>, parent: ElementInline);
@@ -126,6 +127,7 @@ declare class StackFrame {
 	dispatch(ref: symbol, ...args: any[]): void;
 	appendWithLocation(): void;
 	append(as?: string): void;
+	create(node: any): StackFrame;
 	push(node: TraversableBody): void;
 	pop(): void;
 	propertyMod(name: string): GeneralModifier;

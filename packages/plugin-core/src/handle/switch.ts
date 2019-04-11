@@ -5,10 +5,14 @@ import { Path } from 'types';
 export class ComponentIf {
 
     forks: ComponentConsequent[];
+    context: StackFrame;
 
     constructor(
         protected path: Path<IfStatement>, 
         public parent: ElementInline){
+        
+        this.context = parent.context.create(this);
+        this.context.appendWithLocation()
         
         const forks = this.forks = [] as ComponentConsequent[];
 
@@ -53,7 +57,7 @@ export class ComponentConsequent extends ElementInline {
         public path: Path<Statement>, 
         public test?: Path<Expression>){
 
-        super(parent.parent.context);
+        super(parent.context);
 
         this.doBlock = this.handleContentBody(path);
         if(!this.doBlock){
