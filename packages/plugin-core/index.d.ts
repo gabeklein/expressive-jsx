@@ -60,6 +60,7 @@ declare class ElementInline extends AttributeBody {
 	modifiers: ElementModifier[]
     explicitTagName?: string;
 	doBlock?: DoExpressive;
+	doesHaveContingentStyle?: true;
 	adopt(child: InnerContent): void;
 	ElementModifier(mod: ElementModifier): void;
 	ExpressionDefault(path: Path<Expression>): void;

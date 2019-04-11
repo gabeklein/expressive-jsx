@@ -26,6 +26,7 @@ export class ElementInline extends AttributeBody {
     children = [] as InnerContent[];
     explicitTagName?: string;
     modifiers = [] as ElementModifier[];
+    doesHaveContingentStyle?: true;
 
     wasAddedTo(element?: TraversableBody){
         this.loc = this.context.appendWithLocation();

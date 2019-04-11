@@ -8,6 +8,7 @@ import {
     SequenceItem,
     Prop
 } from '@expressive/babel-plugin-core';
+import { hash as quickHash } from 'helpers';
 import {
     ArrayStack,
     AttributeStack,
@@ -85,11 +86,14 @@ export class ElementReact<T extends ElementInline = ElementInline>
 
     private applyHoistedStyle(){
         const { source, style_static } = this;
+        let reference;
 
-        if(style_static.length == 0)
-            return
-
-        const reference = this.context.Module.registerStyle(source, style_static);
+        if(style_static.length > 0)
+            reference = this.context.Module.registerStyle(source, style_static);
+        else if(source.doesHaveContingentStyle)
+            reference = source.name + "_" + quickHash(source.loc);
+        else
+            return;
 
         this.classList.push(reference);
     }
