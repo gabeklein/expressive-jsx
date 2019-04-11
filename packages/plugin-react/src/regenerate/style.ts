@@ -20,8 +20,6 @@ export function writeProvideStyleStatement(
 
     const programBody = program.node.body;
 
-    // this.imports.ensureImported(RUNTIME, )
-
     const polyfillModule = this.imports.ensure(RUNTIME, "Module")
     const output = [];
 

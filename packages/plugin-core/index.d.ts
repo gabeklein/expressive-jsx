@@ -49,7 +49,6 @@ declare abstract class AttributeBody extends TraversableBody {
 	props: BunchOf<Prop>;
 	style: BunchOf<ExplicitStyle>;
 	insert(item: Prop | ExplicitStyle): void;
-	abstract generate(): Syntax;
 	ExpressionDefault(path: Path<Expression>): void;
 	LabeledStatement(path: Path<LabeledStatement>): void;
 }
@@ -60,8 +59,8 @@ declare class ElementInline extends AttributeBody {
 	children: InnerContent[];
 	modifiers: ElementModifier[]
     explicitTagName?: string;
+	doBlock?: DoExpressive;
 	adopt(child: InnerContent): void;
-	generate(): [Expression, (Statement[] | undefined)?];
 	ElementModifier(mod: ElementModifier): void;
 	ExpressionDefault(path: Path<Expression>): void;
 	AssignmentExpression(path: Path<AssignmentExpression>): void;
@@ -203,6 +202,7 @@ declare abstract class ElementConstruct
 	 */
 	didParse?(): void;
 }
+
 declare const _default: (options: any) => {
 	manipulateOptions: (options: any, parse: any) => void;
 	visitor: {
@@ -213,7 +213,6 @@ declare const _default: (options: any) => {
 declare type ParseError = (path: Path, ...args: (string | number)[]) => Error;
 declare type Literal = string | number | boolean | null;
 declare type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | undefined;
-declare type Syntax = [Expression, Statement[]?];
 declare type ElementItem = Attribute | ElementInline | Path<Expression | Statement>;
 declare type ModTuple = [GeneralModifier, Path<Statement>];
 declare type FlatValue = string | number | boolean | null;
@@ -233,7 +232,6 @@ export {
 	Prop,
 	ExplicitStyle,
 	ElementInline,
-	Syntax,
 	ComponentExpression,
 	ComponentIf,
 	ComponentConsequent,

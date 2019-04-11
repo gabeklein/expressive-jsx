@@ -109,16 +109,7 @@ export class ModifyDelegate {
                 Object.assign(this.output[field], data[field])
             else this.output[field] = data[field]
     }
-
-    // declareElementModifier(
-    //     name: string, 
-    //     body: Path<t.LabeledStatement>, 
-    //     fn?: (() => void) | undefined ){
-
-    //     const mod = new ExternalSelectionModifier(name, body, fn);
-    //     if(this.priority) mod.stylePriority = this.priority; 
-    // }
-
+    
     declareMediaQuery(
         query: string, 
         body: Path<LabeledStatement>){
