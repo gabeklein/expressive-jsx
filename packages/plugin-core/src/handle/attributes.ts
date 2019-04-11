@@ -33,7 +33,10 @@ export abstract class AttributeBody extends TraversableBody {
         mod: ElementModifier
     ): void;
 
-    LabeledStatement(path: Path<LabeledStatement>){
+    LabeledStatement(
+        path: Path<LabeledStatement>, 
+        applyTo: AttributeBody = this){
+
         const { name } = path.node.label;
         const body = path.get("body");
     
@@ -44,10 +47,10 @@ export abstract class AttributeBody extends TraversableBody {
             throw Error.DuplicateModifier(path); 
     
         if(body.isBlockStatement())
-            new ElementModifier(this.context, name, body).declare(applyTo || this);
+            new ElementModifier(this.context, name, body).declare(applyTo);
 
         else if(body.isExpressionStatement())
-            ApplyModifier(name, this, body.get("expression"));
+            ApplyModifier(name, applyTo, body.get("expression"));
 
         else
             throw Error.BadInputModifier(body, body.type)

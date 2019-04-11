@@ -50,7 +50,7 @@ declare abstract class AttributeBody extends TraversableBody {
 	style: BunchOf<ExplicitStyle>;
 	insert(item: Prop | ExplicitStyle): void;
 	ExpressionDefault(path: Path<Expression>): void;
-	LabeledStatement(path: Path<LabeledStatement>): void;
+	LabeledStatement(path: Path<LabeledStatement>, applyTo?: AttributeBody): void;
 }
 declare class ElementInline extends AttributeBody {
 	primaryName?: string;
