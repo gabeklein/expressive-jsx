@@ -29,7 +29,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
     statements = [] as any[];
     children = [] as ContentLike[];
     props = [] as PropData[];
-    classList = new ArrayStack<string, Expression>()
+    classList = [] as Array<string | Expression>
     style = new AttributeStack<ExplicitStyle>();
     style_static = [] as ExplicitStyle[];
 
@@ -54,7 +54,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
                         mod, s as ExplicitStyle[]
                     )
             }
-            this.classList.insert(c);
+            this.classList.push(cName);
         }
 
         if(pre.length)
@@ -84,22 +84,14 @@ export class ElementReact<T extends ElementInline = ElementInline>
     }
 
     private applyHoistedStyle(){
-        const { style, style_static } = this;
+        const { source, style_static } = this;
 
         if(style_static.length == 0)
             return
 
-        if(void 0){
-            style.push(style_static as any);
-            return;
-        }
+        const reference = this.context.Module.registerStyle(source, style_static);
 
-        const context = this.context as StackFrameExt;
-
-        const reference = context.Module.registerStyle(this.source, style_static);
-
-        if(typeof reference == "string")
-            this.classList.insert(reference);
+        this.classList.push(reference);
     }
 
     private applyInlineStyle(){
@@ -136,20 +128,27 @@ export class ElementReact<T extends ElementInline = ElementInline>
         if(!this.classList.length)
             return;
 
-        const classes = this.classList.map(x => {
-            return Array.isArray(x)
-                ? t.stringLiteral(x.join(" "))
-                : x
-        })
+        const selectors = [] as Expression[]; 
+        let classList = "";
 
-        let classNameValue = 
-            classes.length == 1
-                ? classes[0] as StringLiteral
-                : callExpression(
-                    join, ...classes
+        for(const item of this.classList)
+            if(typeof item == "string")
+                classList += " " + item;
+            else
+                selectors.push(item);
+
+        if(classList)
+            selectors.unshift(
+                t.stringLiteral(classList.slice(1))
                 )
 
-        this.addProperty("className", classNameValue)
+        this.addProperty("className", 
+            selectors.length == 1
+                ? selectors[0]
+                : t.callExpression(
+                    join, selectors
+                )
+        )
     }
 
     Props(item: Prop){
@@ -187,8 +186,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
                     }
 
                 if(typeof value == "string")
-                    for(const name of value.split(" "))
-                        this.classList.insert(name);
+                    this.classList.push(value.trim());
             } break;
 
             default:
