@@ -8,7 +8,8 @@ export class ElementModifier extends AttributeBody {
     provides = [] as ElementModifier[];
     appliesTo = 0;
     className?: string;
-
+    contingents?: string[];
+    
     constructor(
         context: StackFrame,
         public name?: string,
@@ -17,10 +18,10 @@ export class ElementModifier extends AttributeBody {
         super(context);
 
         if(body){
-        const content = body.isBlockStatement() ? body.get("body") : [body];
-        for(const item of content)
-            this.parse(item);
-    }
+            const content = body.isBlockStatement() ? body.get("body") : [body];
+            for(const item of content)
+                this.parse(item);
+        }
     }
 
     declare<T extends AttributeBody>(target: T){
