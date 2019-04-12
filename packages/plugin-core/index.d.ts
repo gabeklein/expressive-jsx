@@ -32,7 +32,6 @@ interface ModifierOutput {
 	installed_style?: (ElementModifier | ElementInline)[];
 }
 declare abstract class TraversableBody {
-	loc: string;
 	sequence: unknown[];
 	context: StackFrame;
 	didEnter?(path?: Path): void;
@@ -118,7 +117,7 @@ declare class ExplicitStyle extends Attribute {
     constructor(name: string | false, node: FlatValue | Expression | undefined, path?: Path<Expression>);
 }
 declare class StackFrame {
-	loc: string;
+	prefix: string;
 	program: any;
 	styleRoot: any;
 	current: any;

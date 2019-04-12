@@ -7,9 +7,9 @@ import {
     ElementModifier,
     InnerContent,
     inParenthesis,
-    ParseErrors,
     Prop,
-    TraversableBody,
+    StackFrame,
+    ParseErrors
 } from 'internal';
 import { DoExpressive, Path } from 'types';
 
@@ -28,12 +28,10 @@ export class ElementInline extends AttributeBody {
     modifiers = [] as ElementModifier[];
     doesHaveContingentStyle?: true;
 
-    wasAddedTo(element?: TraversableBody){
-        this.loc = this.context.appendWithLocation();
-    }
-
     adopt(child: InnerContent){
-        this.children.push(child);
+        const index = this.children.push(child);
+        if("context" in child && child.context instanceof StackFrame)
+            child.context.append(index);
         this.add(child);
     }
 

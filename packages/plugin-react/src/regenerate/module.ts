@@ -75,7 +75,7 @@ export class Module {
         const { styleBlocks } = this;
         const block = styles as StylesRegistered;
         const name = src.name;
-        const hash = quickHash(src.loc);
+        const hash = quickHash(src.context.prefix);
 
         let className = name + "_" + hash;
         block.priority = priority;

@@ -94,7 +94,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
         if(style_static.length > 0)
             reference = this.context.Module.registerStyle(source, style_static);
         else if(source.doesHaveContingentStyle)
-            reference = source.name + "_" + quickHash(source.loc);
+            reference = source.name + "_" + quickHash(source.context.prefix);
         else
             return;
 

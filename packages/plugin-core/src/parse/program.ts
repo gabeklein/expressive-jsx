@@ -30,7 +30,7 @@ function Hash(data: string, length?: number){
 }
 
 export class StackFrame {
-    loc: string;
+    prefix: string;
     program = {} as any;
     styleRoot = {} as any;
     current = {} as any;
@@ -47,7 +47,7 @@ export class StackFrame {
 
         const included = state.opts.modifiers;
         this.stateSingleton = state;
-        this.loc = Hash(state.filename);
+        this.prefix = Hash(state.filename);
         this.options = {
             // generator: AssembleJSX as any
         };
@@ -94,35 +94,8 @@ export class StackFrame {
         (<Function>this[ref]).apply(null, args)
     }
 
-    appendWithLocation(){
-        const { sequence } = this.current;
-        let current = this.current;
-        let i = [] as number[];
-        let nodePosition: string;
-
-        while(current){
-            const index = sequence && sequence.indexOf(current) + 1;
-
-            if(index){
-                i.push(index);
-                break;
-            }
-
-            const last = i.length - 1;
-            const tip = i[last];
-            if(tip < 2)
-                i[last]--
-            else 
-                i.push(1)
-            current = current.parent!;
-        }
-        nodePosition = i.reverse().join(" ");
-
-        return this.append(nodePosition);
-    }
-
-    append(append?: string){
-        return this.loc = this.loc + " " + append || ""
+    append(append?: string | number){
+        this.prefix = this.prefix + " " + append || "";
     }
 
     create(node: any){

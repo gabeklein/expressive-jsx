@@ -11,7 +11,6 @@ const Error = ParseErrors({
 export abstract class TraversableBody {
 
     context: StackFrame
-    loc: string = "";
     name?: string;
     parent?: TraversableBody | ComponentIf;
     sequence = [] as SequenceItem[];

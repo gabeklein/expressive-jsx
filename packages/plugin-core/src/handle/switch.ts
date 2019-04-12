@@ -14,10 +14,9 @@ export class ComponentIf {
         public parent: ElementInline){
 
         this.context = parent.context.create(this);
-        this.context.appendWithLocation()
         
         const forks = this.forks = [] as ComponentConsequent[];
-
+        
         let layer: Path<Statement> = path;
 
         do {
@@ -127,7 +126,7 @@ export class ComponentConsequent extends ElementInline {
         const mod = new ElementModifier(context);
         mod.name = parent.name;
         mod.contingents = [`.${selector}`]
-        mod.loc = parent.loc;
+        mod.context.prefix = parent.context.prefix;
 
         return this.slaveModifier = mod;
     }

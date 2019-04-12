@@ -34,7 +34,7 @@ export interface StackFrameExt extends StackFrame {
 	Generator: any;
     Module: Module;
     Imports: ExternalsManager;
-    loc: string;
+    prefix: string;
 }
 
 export interface BabelState {
