@@ -48,7 +48,7 @@ export class ElementInline extends AttributeBody {
 
     IfStatement(path: Path<IfStatement>){
         this.adopt(
-            new ComponentIf(path, this)
+            new ComponentIf(path, this.context)
         )
     }
 

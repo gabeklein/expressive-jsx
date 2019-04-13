@@ -4,18 +4,16 @@ import { Path } from 'types';
 
 export class ComponentIf {
 
-    forks: ComponentConsequent[];
+    forks = [] as ComponentConsequent[];
     context: StackFrame;
     hasElementOutput?: true;
     hasStyleOutput?: true;
 
     constructor(
         protected path: Path<IfStatement>, 
-        public parent: ElementInline){
+        context: StackFrame){
 
-        this.context = parent.context.create(this);
-        
-        const forks = this.forks = [] as ComponentConsequent[];
+        this.context = context.create(this);
         
         let layer: Path<Statement> = path;
 
