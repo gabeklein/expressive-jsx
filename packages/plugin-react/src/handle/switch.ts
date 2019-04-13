@@ -28,7 +28,7 @@ function reducerAlgorithm(
             sum = product
                 ? opt(test, product, sum)
                 : and(anti(test), sum)
-        if(product)
+        else if(product)
             sum = test
                 ? and(test, product)
                 : product
