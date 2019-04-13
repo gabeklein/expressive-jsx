@@ -72,7 +72,8 @@ declare class ComponentExpression extends ElementInline {
 	private extractParams;
 }
 declare class ComponentIf {
-	forks: ComponentConsequent[];
+	forks: Array<ComponentConsequent | ComponentIf>;
+	test?: Path<Expression>;
     context: StackFrame;
     hasElementOutput?: boolean;
     hasStyleOutput?: boolean;
@@ -122,6 +123,8 @@ declare class StackFrame {
 	styleRoot: any;
 	current: any;
 	currentElement?: ElementInline;
+    currentIf?: ComponentIf;
+    entryIf?: ComponentIf;
 	stateSingleton: BabelState;
 	options: {};
 	constructor(state: BabelState);

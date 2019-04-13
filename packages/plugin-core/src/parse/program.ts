@@ -3,6 +3,7 @@ import { Program } from '@babel/types';
 import { createHash } from 'crypto';
 import { ElementInline, ElementModifier, TraversableBody } from 'internal';
 import { BunchOf, ModifyAction } from 'types';
+import { ComponentIf } from 'handle/switch';
 
 interface BabelState {
     filename: string;
@@ -35,6 +36,8 @@ export class StackFrame {
     styleRoot = {} as any;
     current = {} as any;
     currentElement?: ElementInline;
+    currentIf?: ComponentIf;
+    entryIf?: ComponentIf;
     stateSingleton: BabelState;
     options: {
         // generator: { 

@@ -2,46 +2,72 @@ import t, { Expression, ExpressionStatement, IfStatement, LabeledStatement, Stat
 import { ElementInline, ElementModifier, InnerContent, StackFrame } from 'internal';
 import { Path } from 'types';
 
+type Consequent = ComponentIf | ComponentConsequent;
+
 export class ComponentIf {
 
-    forks = [] as ComponentConsequent[];
+    forks = [] as Consequent[];
     context: StackFrame;
     hasElementOutput?: true;
-    hasStyleOutput?: true;
+    hasStyleOutput?: true;  
 
     constructor(
         protected path: Path<IfStatement>, 
-        context: StackFrame){
+        context: StackFrame, 
+        public test?: Path<Expression>){
 
-        this.context = context.create(this);
+        context = this.context = context.create(this);
+        context.currentIf = this;
+        if(!test)
+            context.entryIf = this;
         
         let layer: Path<Statement> = path;
 
-        do {
-            const consequent = 
-                new ComponentConsequent(
-                    this,
-                    layer.get("consequent") as Path<Statement>,
-                    layer.get("test") as Path<Expression>
+        while(true){
+            let consequent = layer.get("consequent") as Path<Statement>;
+            const test = layer.get("test") as Path<Expression>
+
+            if(consequent.isBlockStatement()){
+                const inner = consequent.get("body");
+                if(inner.length == 1)
+                    consequent = inner[0]
+            }
+
+            const fork = consequent.isIfStatement()
+                ? new ComponentIf(consequent, context, test)
+                : new ComponentConsequent(
+                    consequent, 
+                    context, 
+                    this.forks.length + 1,
+                    test
                 )
 
-            forks.push(consequent);
+            const index = this.forks.push(fork);
+            fork.context.append(index);
+
+            if(fork instanceof ComponentConsequent)
+                fork.index = index;
             
             layer = layer.get("alternate") as Path<Statement>
 
-        } while(layer.type == "IfStatement");
-
-        if(layer.node)
-            forks.push(
-                new ComponentConsequent(this, layer)
-            )
-
+            if(layer.type !== "IfStatement"){
+                if(layer.node){
+                    this.forks.push(
+                        new ComponentConsequent(layer, this.context, this.forks.length + 1)
+                    )
+                }
+                break;
+            }
+        };
+            
         const doInsert = [] as ExpressionStatement[]; 
         
-        for(const { doBlock } of forks)
-            if(doBlock) doInsert.push(
-                t.expressionStatement(doBlock)
-            )
+        for(const fork of this.forks)
+            if(fork instanceof ComponentConsequent 
+            && fork.doBlock) 
+                doInsert.push(
+                    t.expressionStatement(fork.doBlock)
+                )
 
         if(doInsert.length)
             path.replaceWith(
@@ -54,18 +80,14 @@ export class ComponentConsequent extends ElementInline {
 
     slaveModifier?: ElementModifier;
     usesClassname?: string;
-    parentElement: ElementInline;
-    index: number;
 
     constructor(
-        public parent: ComponentIf, 
         public path: Path<Statement>, 
+        public context: StackFrame, 
+        public index: number,
         public test?: Path<Expression>){
 
-        super(parent.context);
-
-        this.parentElement = parent.context.currentElement!
-        this.index = parent.forks.length;
+        super(context);
 
         this.doBlock = this.handleContentBody(path);
         if(!this.doBlock){
@@ -76,14 +98,25 @@ export class ComponentConsequent extends ElementInline {
         }
     }
 
+    get parentElement(){
+        return this.context.currentElement;
+    }
+
     adopt(child: InnerContent){
-        this.parent.hasElementOutput = true;
+        let { context } = this;
+        if(!context.currentIf!.hasElementOutput)
+            do {
+                if(context.current instanceof ComponentIf)
+                    context.current.hasElementOutput = true;
+                else break;
+            }
+            while(context = context.parent)
         super.adopt(child)
     }
 
     didExitOwnScope(){
         const mod = this.slaveModifier!;
-        const parent = this.parentElement;
+        const parent = this.context.currentElement!;
 
         if(!mod) return;
             
@@ -100,12 +133,10 @@ export class ComponentConsequent extends ElementInline {
     }
 
     private slaveNewModifier(){
-        this.parent.hasStyleOutput = true;
+        let { context } = this;
 
         let { test } = this;
-        const { context } = this.parent;
-        const parent = this.parentElement;
-        let selector = `op${this.index}`;
+        let selector = `opt${this.index}`;
 
         if(test){
             let ref = "is";
@@ -122,9 +153,16 @@ export class ComponentConsequent extends ElementInline {
         this.usesClassname = selector;
 
         const mod = new ElementModifier(context);
-        mod.name = parent.name;
-        mod.contingents = [`.${selector}`]
-        mod.context.prefix = parent.context.prefix;
+        mod.name = context.currentElement!.name;
+        mod.contingents = [`.${selector}`];
+
+        if(!context.currentIf!.hasStyleOutput)
+            do {
+                if(context.current instanceof ComponentIf)
+                    context.current.hasStyleOutput = true;
+                else break;
+            }
+            while(context = context.parent)
 
         return this.slaveModifier = mod;
     }

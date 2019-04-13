@@ -2,7 +2,8 @@ import t, { Expression } from '@babel/types';
 import { ComponentIf, ComponentConsequent } from '@expressive/babel-plugin-core';
 import { ElementReact, GenerateReact } from 'internal';
 
-type GetProduct = (fork: ComponentConsequent) => Expression | undefined;
+type Consequent = ComponentIf | ComponentConsequent;
+type GetProduct = (fork: Consequent) => Expression | undefined;
 
 const opt = t.conditionalExpression;
 const not = (a: Expression) => t.unaryExpression("!", a);
@@ -13,7 +14,7 @@ const and = (a: Expression, b: Expression) => t.logicalExpression("&&", a, b);
 const anti = not; 
 
 function reducerAlgorithm(
-    forks: ComponentConsequent[], 
+    forks: Consequent[], 
     predicate: GetProduct){
 
     forks = forks.slice().reverse();
@@ -47,12 +48,16 @@ export class ElementSwitch {
             this.source.forks, 
             (cond) => {
                 let product;
-                
+
+                if(cond instanceof ComponentIf)
+                    product = new ElementSwitch(cond).toExpression(Generator)
+                else 
                 if(cond.children.length)
                     product = Generator.container(
                         new ElementReact(cond)
                     )
-                else return;
+                else 
+                    return;
     
                 if(t.isBooleanLiteral(product, { value: false }))
                     product = undefined;
@@ -66,8 +71,14 @@ export class ElementSwitch {
         return reducerAlgorithm(
             this.source.forks,
             (cond) => {
-                if(cond.usesClassname)
-                    return t.stringLiteral(cond.usesClassname);
+                if("usesClassname" in cond){
+                    if(cond.usesClassname)
+                        return t.stringLiteral(cond.usesClassname);
+                }
+                else if("hasStyleOutput" in cond){
+                    if(cond.hasStyleOutput)
+                        return new ElementSwitch(cond).classLogic()
+                }
             }
         )
     }
