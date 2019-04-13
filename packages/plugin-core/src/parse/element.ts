@@ -36,12 +36,13 @@ const Error = ParseErrors({
     BadPrefix: "Improper element prefix",
     BadObjectKeyValue: "Object based props must have a value. Got {1}",
     PropNotIdentifier: "Prop name must be an Identifier",
-    NotImplemented: "{1} Not Implemented"
+    NotImplemented: "{1} Not Implemented",
+    VoidArgsOverzealous: "Pass-Thru (void) elements can only receive styles through `do { }` statement."
 })
 
 export function AddElementsFromExpression(
     subject: Path<Expression>, 
-    parent: ElementInline ){
+    current: ElementInline ){
 
     var baseAttributes = [] as Path<Expression>[];
 
@@ -50,6 +51,66 @@ export function AddElementsFromExpression(
         [subject, ...baseAttributes] = exps;
     }
 
+    const passthru = CheckForValue(subject);
+
+    const target = passthru
+        ? ApplyPassthru(passthru, current, baseAttributes)
+        : CollateLayers(subject, current, baseAttributes)
+
+    if(target)
+        ParseProps(baseAttributes, target);
+}
+
+function CheckForValue(subject: Path<Expression>){
+    let target = subject;
+    while(target.isBinaryExpression())
+        target = target.get("left");
+
+    if(target.isUnaryExpression({operator: "void"})){
+        target.replaceWith(target.get("argument"))
+        return subject
+    }
+
+    if(target.isStringLiteral())
+        return subject
+}
+
+function ApplyPassthru(
+    subject: Path<Expression>,
+    parent: ElementInline,
+    baseAttributes: Path<Expression>[]
+){
+
+    if(baseAttributes.length == 0){
+        parent.adopt(subject);
+        return
+    }
+
+    if(baseAttributes.length > 1
+    && baseAttributes[0].type !== "DoExpression")
+        throw Error.VoidArgsOverzealous(subject)
+
+    const container = new ElementInline(
+        parent.context
+    )
+    ApplyNameImplications(
+        subject.type == "StringLiteral" 
+            ? "string" : "void",
+        container,
+        true
+    );
+    container.explicitTagName = "span";
+    container.adopt(subject);
+    container.parent = parent;
+    parent.adopt(container);
+    return container;
+}
+
+function CollateLayers(
+    subject: Path<Expression>,
+    parent: ElementInline,
+    baseAttributes: Path<Expression>[]
+){
     if(subject.isBinaryExpression({operator: ">"})){
         const item = New(subject.get("right"));
         item.type = "ExpressionLiteral";
@@ -81,9 +142,9 @@ export function AddElementsFromExpression(
         parent.adopt(child);
         child.parent = parent;
         parent = child;
-    }    
-
-    ParseProps(baseAttributes, parent);
+    }   
+    
+    return parent;
 }
 
 export function ApplyNameImplications(
