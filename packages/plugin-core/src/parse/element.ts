@@ -108,7 +108,7 @@ export function ApplyNameImplications(
     do {
         modify.apply(target);
         if(modify === modify.inherits){
-            // debugger
+            console.error(`Still haven't fixed inheritance leak apparently. \n target: ${name}`)
             break
         }
         modify = modify.inherits;
