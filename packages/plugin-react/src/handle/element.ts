@@ -215,7 +215,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
     }
 
     Switch(item: ComponentIf){
-        const fork = new ElementSwitch(item, this.context)
+        const fork = new ElementSwitch(item)
         
         if(item.hasElementOutput)
             this.adopt(fork)

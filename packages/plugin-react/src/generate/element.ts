@@ -44,7 +44,7 @@ export abstract class GenerateReact {
             output = this.element(src)
             
         else if("toExpression" in output)
-            output = output.toExpression()
+            output = output.toExpression(this)
 
         else if(output instanceof ElementReact)
             output = this.element(output)

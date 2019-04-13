@@ -60,7 +60,7 @@ export class GenerateES extends GenerateReact {
     private recombineChildren(input: ContentLike[]): Expression[] {
         return input.map(child => (
             "toExpression" in child ? 
-                child.toExpression() :
+                child.toExpression(this) :
             t.isExpression(child) ?
                 child :
             child instanceof ElementReact 

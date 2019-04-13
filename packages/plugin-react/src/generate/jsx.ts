@@ -63,7 +63,7 @@ export class GenerateJSX extends GenerateReact {
     private recombineChildren(
         input: ContentLike[]){
     
-        const output = [];
+        const output = [] as JSXContent[];
         for(const child of input){
             let jsx;
     
@@ -79,7 +79,7 @@ export class GenerateJSX extends GenerateReact {
             }
             else {
                 jsx = "toExpression" in child
-                    ? t.jsxExpressionContainer(child.toExpression())
+                    ? t.jsxExpressionContainer(child.toExpression(this))
                     : this.element(child)
             }
     

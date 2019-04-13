@@ -1,7 +1,6 @@
 import t, { Expression } from '@babel/types';
 import { ComponentIf, ComponentConsequent } from '@expressive/babel-plugin-core';
 import { ElementReact, GenerateReact } from 'internal';
-import { StackFrameExt } from 'types';
 
 type GetProduct = (fork: ComponentConsequent) => Expression | undefined;
 
@@ -40,12 +39,10 @@ function reducerAlgorithm(
 export class ElementSwitch {
 
     constructor(
-        public source: ComponentIf,
-        private context: StackFrameExt){
+        public source: ComponentIf){
     };
 
-    toExpression(): Expression {
-        const Generator = this.context.Generator as GenerateReact;
+    toExpression(Generator: GenerateReact): Expression {
         return reducerAlgorithm(
             this.source.forks, 
             (cond) => {
