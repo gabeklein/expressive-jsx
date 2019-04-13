@@ -135,26 +135,14 @@ export class ComponentConsequent extends ElementInline {
     private slaveNewModifier(){
         let { context } = this;
 
-        let { test } = this;
+        //TODO: Discover helpfulness of customized className.
+        // let selector = specifyOption(this.test) || `opt${this.index}`;
         let selector = `opt${this.index}`;
-
-        if(test){
-            let ref = "is";
-            if(test.isUnaryExpression({ operator: "!" })){
-                test = test.get("argument");
-                ref = "not"
-            }
-            if(test.isIdentifier()){
-                const { name } = test.node;
-                selector = ref + name[0].toUpperCase() + name.slice(1);
-            }
-        }
-        
-        this.usesClassname = selector;
 
         const mod = new ElementModifier(context);
         mod.name = context.currentElement!.name;
         mod.contingents = [`.${selector}`];
+        this.usesClassname = selector;
 
         if(!context.currentIf!.hasStyleOutput)
             do {
@@ -165,5 +153,20 @@ export class ComponentConsequent extends ElementInline {
             while(context = context.parent)
 
         return this.slaveModifier = mod;
+    }
+}
+
+void function specifyOption(test?: Path<Expression>){
+    if(!test)
+        return "else"
+
+    let ref = "";
+    if(test.isUnaryExpression({ operator: "!" })){
+        test = test.get("argument");
+        ref = "-"
+    }
+    if(test.isIdentifier()){
+        const { name } = test.node;
+        return ref + name;
     }
 }
