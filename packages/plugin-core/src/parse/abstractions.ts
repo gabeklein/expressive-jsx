@@ -126,8 +126,9 @@ const Arguments = new class DelegateTypes {
             return new DelegateBinary(e);
     }
     
-    SequenceExpression(e: Path<SequenceExpression>): DelegateGroup {
-        return new DelegateGroup(e.get("expressions"));
+    SequenceExpression(sequence: Path<SequenceExpression>): DelegateGroup {
+        const expressions = sequence.get("expressions");
+        return new DelegateGroup(expressions);
     }
 
     CallExpression(e: Path<CallExpression>): DelegateCall {
