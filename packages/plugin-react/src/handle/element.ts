@@ -148,21 +148,15 @@ export class ElementReact<T extends ElementInline = ElementInline>
         )
     }
 
-    Props(item: Prop){
-        this.addProperty(item.name, expressionValue(item));
-    }
-
     Style(item: ExplicitStyle){
         if(item.invariant)
-            this.style_static.push(item as ExplicitStyle);
+            this.style_static.push(item);
         else
             this.style.insert(item)
+        
     }
 
-    Attribute(item: Prop | ExplicitStyle): boolean | undefined {
-        if(item instanceof ExplicitStyle)
-            return;
-
+    Props(item: Prop){
         switch(item.name){
             case "style":
                 this.style.push(new ExplicitStyle(false, expressionValue(item)));
@@ -187,10 +181,8 @@ export class ElementReact<T extends ElementInline = ElementInline>
             } break;
 
             default:
-                return;
+                this.addProperty(item.name, expressionValue(item));
         }
-
-        return true;
     }
 
     Child(item: ElementInline ){
