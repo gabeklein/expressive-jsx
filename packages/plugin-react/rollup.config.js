@@ -4,7 +4,7 @@ import commonjs from 'rollup-plugin-commonjs'
 export default {
   input: './src/index.ts',
   output: {
-    file: 'index.js',
+    file: 'lib/index.js',
     format: 'cjs'
   },
   external: [ "@babel/types", "@expressive/babel-plugin-core", "crypto", "path" ],

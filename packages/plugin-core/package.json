@@ -17,15 +17,16 @@
     "expressive",
     "xjs"
   ],
-  "main": "index.js",
+  "main": "lib/index.js",
   "types": "index.d.ts",
   "files": [
-    "/index.js",
+    "/lib",
     "/index.d.ts"
   ],
   "scripts": {
     "build": "rollup --config",
     "watch": "rollup --config --watch --sourcemap",
+    "prebuild": "rm -rf lib",
     "prepare": "npm run build"
   },
   "devDependencies": {
@@ -40,5 +41,5 @@
   "dependencies": {
     "@babel/template": "^7.4.0",
     "@babel/types": "^7.4.0"
-}
+  }
 }

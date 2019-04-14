@@ -17,13 +17,14 @@
     "expressive",
     "xjs"
   ],
-  "main": "index.js",
+  "main": "lib/index.js",
   "files": [
-    "/index.js"
+    "/lib"
   ],
   "scripts": {
     "build": "rollup --config",
     "watch": "rollup --config --watch --sourcemap",
+    "prebuild": "rm -rf lib",
     "prepare": "npm run build"
   },
   "devDependencies": {
