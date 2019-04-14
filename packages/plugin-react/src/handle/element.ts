@@ -8,7 +8,6 @@ import {
     Prop,
     SequenceItem,
 } from '@expressive/babel-plugin-core';
-import { hash as quickHash } from 'helpers';
 import { AttributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue } from 'internal';
 import { Path, PropData, StackFrame, ContentLike } from 'types';
 
@@ -85,7 +84,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
         if(style_static.length > 0)
             reference = this.context.Module.registerStyle(source, style_static);
         else if(source.doesHaveContingentStyle)
-            reference = source.name + "_" + quickHash(source.context.prefix);
+            reference = source.uid;
         else
             return;
 

@@ -1,6 +1,5 @@
 import { Program as ProgramNode } from '@babel/types';
 import { BabelState, DoExpressive, ElementInline, ElementModifier, ExplicitStyle } from '@expressive/babel-plugin-core';
-import { hash as quickHash } from 'helpers';
 import { ExternalsManager, GenerateES, GenerateJSX, ImportManager, writeProvideStyleStatement } from 'internal';
 import { relative } from 'path';
 import { Path, StylesRegistered, Visitor } from 'types';
@@ -71,23 +70,19 @@ export class Module {
     ): string {
         const { styleBlocks } = this;
         const block = styles as StylesRegistered;
-        const name = src.name;
-        const hash = quickHash(src.context.prefix);
 
-        let className = name + "_" + hash;
-        block.priority = priority;
-        block.query = query;
+        let className = src.uid;
         
-        if(src instanceof ElementInline){
-            block.priority = 2
-        }
-        else {
+        if(src instanceof ElementInline)
+            priority = 2
+        else 
             for(const cont of src.contingents || []){
-                block.priority = 3
+                priority = 3
                 className += cont
             }
-        }
 
+        block.query = query;
+        block.priority = priority
         block.selector = className;
         
         styleBlocks.push(block);

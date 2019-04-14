@@ -1,5 +1,5 @@
 import { Expression, LabeledStatement } from '@babel/types';
-import { ApplyModifier, ElementModifier, ParseErrors, TraversableBody } from 'internal';
+import { ApplyModifier, ElementModifier, ParseErrors, TraversableBody, quickHash } from 'internal';
 import { BunchOf, FlatValue, Path } from 'types';
 
 const Error = ParseErrors({
@@ -27,6 +27,15 @@ export abstract class AttributeBody extends TraversableBody {
         }
 
         this.add(item);
+    }
+
+    get uid(){
+        const hash = quickHash(this.context.prefix);
+        return this.uid = this.name + "_" + hash;
+    }
+
+    set uid(uid: string){
+        Object.defineProperty(this, "uid", { value: uid });
     }
 
     abstract ElementModifier(

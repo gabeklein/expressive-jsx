@@ -49,6 +49,7 @@ declare abstract class AttributeBody extends TraversableBody {
 	sequence: Attribute[];
 	props: BunchOf<Prop>;
 	style: BunchOf<ExplicitStyle>;
+	uid: string;
 	insert(item: Prop | ExplicitStyle): void;
 	ExpressionDefault(path: Path<Expression>): void;
 	LabeledStatement(path: Path<LabeledStatement>, applyTo?: AttributeBody): void;
@@ -151,7 +152,8 @@ declare class ElementModifier extends AttributeBody {
 	provides: ElementModifier[];
 	appliesTo: number;
 	className?: string;
-	contingents?: string[];
+	selectors: string[];
+    contingentUpon?: ElementInline | ElementModifier;
 	constructor(context: StackFrame, name?: string, body?: Path<Statement>);
 	declare<T extends AttributeBody>(target: T): void;
 	apply(element: ElementInline): void;

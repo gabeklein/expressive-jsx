@@ -1,5 +1,6 @@
 import { Expression } from '@babel/types';
 import { BunchOf, Options, Path, SharedSingleton, FlatValue } from 'types';
+import { createHash } from 'crypto';
 
 export const env = process.env || {
     NODE_ENV: "production"
@@ -11,6 +12,15 @@ export const Opts: Options = {
     output: "js",
     formatStyles: ""
 }
+
+export function quickHash(data: string, length?: number){
+    return (
+        createHash("md5")
+        .update(data)
+        .digest('hex')
+        .substring(0, 6)
+    )
+} 
 
 export const Shared = {} as SharedSingleton;
 
