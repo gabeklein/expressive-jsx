@@ -9,17 +9,8 @@ import {
     SequenceItem,
 } from '@expressive/babel-plugin-core';
 import { hash as quickHash } from 'helpers';
-import {
-    AttributeES,
-    AttributeStack,
-    ContentLike,
-    ElementIterate,
-    ElementSwitch,
-    expressionValue,
-    PropData,
-    StackFrame,
-} from 'internal';
-import { Path } from 'types';
+import { AttributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue } from 'internal';
+import { Path, PropData, StackFrame, ContentLike } from 'types';
 
 export class ElementReact<T extends ElementInline = ElementInline>
     extends ElementConstruct<T>{

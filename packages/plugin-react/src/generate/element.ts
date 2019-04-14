@@ -1,6 +1,6 @@
 import t, { CallExpression, Expression, Identifier, JSXElement } from '@babel/types';
-import { ContentLike, ElementReact, Module } from 'internal';
-import { ExternalsManager } from 'regenerate/imports';
+import { ElementReact, Module, ExternalsManager } from 'internal';
+import { ContentLike } from 'types';
 
 export abstract class GenerateReact {
 

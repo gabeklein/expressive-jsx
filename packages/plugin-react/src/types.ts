@@ -13,7 +13,7 @@ import { ExplicitStyle, StackFrame as CoreStackFrame, Visitor as CoreVisitor } f
 import { ElementReact } from 'handle/element';
 import { ElementIterate } from 'handle/iterate';
 import { ElementSwitch } from 'handle/switch';
-import { ExternalsManager } from 'regenerate/imports';
+import { ExternalsManager } from 'regenerate/scope';
 import { Module } from 'regenerate/module';
 
 export interface Path<T = any> extends NodePath<T> {}

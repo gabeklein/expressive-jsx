@@ -1,5 +1,5 @@
 import t, { Expression, LabeledStatement } from '@babel/types';
-import { AttributeBody, DelegateAbstraction, ExplicitStyle, MediaQueryModifier } from 'internal';
+import { AttributeBody, DelegateAbstraction, ElementModifier, ExplicitStyle } from 'internal';
 import Arguments from 'parse/abstractions';
 import { BunchOf, ModifyAction, Path } from 'types';
 
@@ -114,7 +114,7 @@ export class ModifyDelegate {
         query: string, 
         body: Path<LabeledStatement>){
 
-        new MediaQueryModifier(query, body, this.target.context).declare(this.target)
+        new ElementModifier(this.target.context).declare(this.target)
     }
 }
 
