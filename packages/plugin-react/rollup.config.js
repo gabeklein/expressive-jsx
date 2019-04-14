@@ -9,7 +9,9 @@ export default {
   },
   external: [ "@babel/types", "@expressive/babel-plugin-core", "crypto", "path" ],
   plugins: [
-    typescript(),
+    typescript({
+      transpileOnly: true
+    }),
     commonjs()
   ],
   onwarn: (message, warn) => {

@@ -10,7 +10,9 @@ export default {
   },
   external: [ "@babel/types", "crypto" ],
   plugins: [
-    typescript(),
+    typescript({
+      transpileOnly: true
+    }),
     commonjs()
   ],
   onwarn: (message, warn) => {
