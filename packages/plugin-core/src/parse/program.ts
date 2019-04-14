@@ -1,17 +1,10 @@
-import { VisitNodeObject as BabelVisitor } from '@babel/traverse';
 import { Program } from '@babel/types';
 import { createHash } from 'crypto';
-import { ElementInline, ElementModifier, TraversableBody } from 'internal';
-import { BunchOf, ModifyAction } from 'types';
 import { ComponentIf } from 'handle/switch';
+import { ElementInline, ElementModifier, TraversableBody } from 'internal';
+import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
 
-interface BabelState {
-    filename: string;
-    context: StackFrame;
-    opts: any;
-}
-
-export default <BabelVisitor<Program>>{
+export default <Visitor<Program>>{
     enter(path, state){
         state.context = new StackFrame(state);
     },

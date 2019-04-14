@@ -9,12 +9,12 @@ import {
     JSXSpreadChild,
     JSXText,
 } from '@babel/types';
-import { ExplicitStyle, StackFrame } from '@expressive/babel-plugin-core';
-import { Module } from 'regenerate/module';
-import { ExternalsManager } from 'regenerate/imports';
-import { ElementSwitch } from 'handle/switch';
-import { ElementIterate } from 'handle/iterate';
+import { ExplicitStyle, StackFrame as CoreStackFrame, Visitor as CoreVisitor } from '@expressive/babel-plugin-core';
 import { ElementReact } from 'handle/element';
+import { ElementIterate } from 'handle/iterate';
+import { ElementSwitch } from 'handle/switch';
+import { ExternalsManager } from 'regenerate/imports';
+import { Module } from 'regenerate/module';
 
 export interface Path<T = any> extends NodePath<T> {}
 
@@ -30,7 +30,7 @@ export interface BunchOf<T> {
     [key: string]: T
 }
 
-export interface StackFrameExt extends StackFrame {
+export interface StackFrame extends CoreStackFrame {
 	Generator: any;
     Module: Module;
     Imports: ExternalsManager;
@@ -38,16 +38,13 @@ export interface StackFrameExt extends StackFrame {
 }
 
 export interface BabelState {
-    context: StackFrameExt;
+    context: StackFrame;
     opts: any;
     cwd: string;
     filename: string;
 }
 
-export interface BabelVisitor<T> {
-    enter?(path: Path<T>, state: BabelState): void;
-    exit?(path: Path<T>, state: BabelState): void;
-}
+export type Visitor<T> = CoreVisitor<T, StackFrame>
 
 export type PropData = {
     name: string | false | undefined, 

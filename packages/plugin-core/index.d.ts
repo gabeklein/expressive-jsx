@@ -1,5 +1,5 @@
 /// <reference types="babel__traverse" />
-import { NodePath as Path, VisitNodeObject as BabelVisitor } from '@babel/traverse';
+import { NodePath as Path, VisitNodeObject } from '@babel/traverse';
 import t, {
     ArrowFunctionExpression,
     AssignmentExpression,
@@ -14,18 +14,20 @@ import t, {
     TemplateLiteral,
 } from '@babel/types';
 
-interface BunchOf<T> {
+declare interface BunchOf<T> {
 	[key: string]: T;
 }
-interface DoExpressive extends DoExpression {
+declare interface BabelState<S extends StackFrame = StackFrame> {
+    filename: string;
+    cwd: string;
+    context: S;
+    opts: any;
+}
+declare interface DoExpressive extends DoExpression {
 	meta: ElementInline;
 	expressive_visited?: true;
 }
-interface BabelState {
-	context: StackFrame;
-	opts: any;
-}
-interface ModifierOutput {
+declare interface ModifierOutput {
 	attrs?: BunchOf<any>;
 	style?: BunchOf<any>;
 	props?: BunchOf<any>;
@@ -215,10 +217,11 @@ declare abstract class ElementConstruct
 declare const _default: (options: any) => {
 	manipulateOptions: (options: any, parse: any) => void;
 	visitor: {
-		Program: BabelVisitor<Program>;
+		Program: Visitor<Program>;
 	};
 };
 
+declare type Visitor<T, S extends StackFrame = StackFrame> = VisitNodeObject<BabelState<S>, T>
 declare type ParseError = (path: Path, ...args: (string | number)[]) => Error;
 declare type Literal = string | number | boolean | null;
 declare type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | undefined;
@@ -248,5 +251,7 @@ export {
 	StackFrame,
 	ParseErrors,
 	AttributeBody,
-	ElementModifier
+	ElementModifier,
+	Visitor,
+	BabelState
 }

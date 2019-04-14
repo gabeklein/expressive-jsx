@@ -52,7 +52,7 @@ export function IIFE(stats: Statement[]){
     )
 }
 
-export function objectExpression(obj?: BunchOf<Expression | false | undefined>){
+export function objectExpression(obj: BunchOf<Expression | false | undefined> = {}){
     const properties = [];
     for(const x in obj){
         if(obj[x])

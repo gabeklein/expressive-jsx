@@ -1,14 +1,14 @@
 import { Program as ProgramNode } from '@babel/types';
-import { DoExpressive, ElementInline, ElementModifier, ExplicitStyle } from '@expressive/babel-plugin-core';
+import { BabelState, DoExpressive, ElementInline, ElementModifier, ExplicitStyle } from '@expressive/babel-plugin-core';
 import { hash as quickHash } from 'helpers';
 import { GenerateES, GenerateJSX } from 'internal';
 import { relative } from 'path';
-import { BabelState, BabelVisitor, Path, StylesRegistered } from 'types';
+import { Path, StylesRegistered, Visitor } from 'types';
 
 import { ExternalsManager, ImportManager } from './imports';
 import { writeProvideStyleStatement } from './style';
 
-export const Program = <BabelVisitor<ProgramNode>> {
+export const Program = <Visitor<ProgramNode>> {
     enter(path, state){
         let Generator;
         const { context } = state;

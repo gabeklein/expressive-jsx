@@ -1,5 +1,5 @@
 import t, { Expression } from '@babel/types';
-import { ComponentIf, ComponentConsequent } from '@expressive/babel-plugin-core';
+import { ComponentConsequent, ComponentIf } from '@expressive/babel-plugin-core';
 import { ElementReact, GenerateReact } from 'internal';
 
 type Consequent = ComponentIf | ComponentConsequent;

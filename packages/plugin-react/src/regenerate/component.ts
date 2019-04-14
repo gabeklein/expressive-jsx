@@ -4,22 +4,22 @@ import t, {
     Expression,
     Identifier,
     MemberExpression,
-    ObjectPattern, 
+    ObjectPattern,
     PatternLike,
 } from '@babel/types';
 import { ComponentExpression, DoExpressive, ParseErrors } from '@expressive/babel-plugin-core';
-import { memberExpression, BabelVisitor, ElementReact, GenerateReact, declare, ensureArray } from 'internal';
-import { StackFrameExt, Path } from 'types';
+import { declare, ElementReact, ensureArray, GenerateReact, memberExpression } from 'internal';
+import { Path, StackFrame, Visitor } from 'types';
 
 const Error = ParseErrors({
     PropsCantHaveDefault: "This argument will always resolve to component props",
     ArgumentNotSupported: "Argument of type {1} not supported here!"
 })
 
-export const DoExpression = <BabelVisitor<DoExpressive>> {
+export const DoExpression = <Visitor<DoExpressive>> {
     exit(path){
         const DoNode = path.node.meta;
-        const context = DoNode.context as StackFrameExt;
+        const context = DoNode.context as StackFrame;
         const Generator = context.Generator as GenerateReact;
 
         if(!(DoNode instanceof ComponentExpression))

@@ -17,14 +17,14 @@ import {
     ElementSwitch,
     expressionValue,
     PropData,
-    StackFrameExt,
+    StackFrame,
 } from 'internal';
 import { Path } from 'types';
 
 export class ElementReact<T extends ElementInline = ElementInline>
     extends ElementConstruct<T>{
 
-    context: StackFrameExt
+    context: StackFrame
     statements = [] as any[];
     children = [] as ContentLike[];
     props = [] as PropData[];
@@ -34,7 +34,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
 
     constructor(public source: T){
         super();
-        this.context = source.context as StackFrameExt;
+        this.context = source.context as StackFrame;
         this.parse(true);
     }
 

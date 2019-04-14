@@ -1,18 +1,18 @@
 import t, {
     ArrowFunctionExpression,
     AssignmentExpression,
+    Class,
     Function,
     ObjectProperty,
     VariableDeclaration,
     VariableDeclarator,
-    Class,
 } from '@babel/types';
 import { ComponentExpression } from 'internal';
-import { BabelVisitor, DoExpressive, Path } from 'types';
+import { DoExpressive, Path, Visitor } from 'types';
 
 import { StackFrame } from './program';
 
-export default <BabelVisitor<DoExpressive>> {
+export default <Visitor<DoExpressive>> {
     enter: (path, state) => {
         const { context } = state;
         let meta = path.node.meta || 

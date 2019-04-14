@@ -1,9 +1,17 @@
 import { NodePath, VisitNodeObject } from '@babel/traverse';
 import { DoExpression, Expression, SpreadElement, Statement } from '@babel/types';
-import { StackFrame, ElementModifier, ElementInline, ModifyDelegate, Attribute } from 'internal';
+import { Attribute, ElementInline, ElementModifier, ModifyDelegate, StackFrame } from 'internal';
 
 export interface Path<T = any> extends NodePath<T> {}
-export interface BabelVisitor<T> extends VisitNodeObject<T> {}
+export type Visitor<T, S extends StackFrame = StackFrame> = 
+    VisitNodeObject<BabelState<S>, T>
+
+export interface BabelState<S extends StackFrame = StackFrame> {
+    filename: string;
+    cwd: string;
+    context: S;
+    opts: any;
+}
 
 export interface DoExpressive extends DoExpression {
     meta: ElementInline;
