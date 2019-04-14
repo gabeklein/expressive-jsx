@@ -34,15 +34,13 @@ export class ElementIterate
         this.type = source.path.type as any;
     };
     
-    toExpression(): CallExpression | StringLiteral {
+    toExpression(Generator: GenerateReact): CallExpression | StringLiteral {
         if(this.type != "ForOfStatement")
             return t.stringLiteral(this.type + " NOT IMPLEMENTED");
 
         let body: BlockStatement | Expression;
 
         const { key, mayCollapseContent } = this;
-
-        const Generator = this.context.Generator as GenerateReact;
 
         body = Generator.container(this, !mayCollapseContent && key);
 
