@@ -8,10 +8,12 @@ import t, {
     ObjectExpression,
     SpreadElement,
     TaggedTemplateExpression,
+    UnaryExpression,
 } from '@babel/types';
 import {
     ElementInline,
     ElementModifier,
+    ExplicitStyle,
     inParenthesis,
     Opts,
     ParseErrors,
@@ -37,7 +39,8 @@ const Error = ParseErrors({
     BadObjectKeyValue: "Object based props must have a value. Got {1}",
     PropNotIdentifier: "Prop name must be an Identifier",
     NotImplemented: "{1} Not Implemented",
-    VoidArgsOverzealous: "Pass-Thru (void) elements can only receive styles through `do { }` statement."
+    VoidArgsOverzealous: "Pass-Thru (void) elements can only receive styles through `do { }` statement.",
+    BadShorthandProp: "\"+\" shorthand prop must be an identifier!"
 })
 
 export function AddElementsFromExpression(
@@ -143,7 +146,7 @@ function CollateLayers(
         child.parent = parent;
         parent = child;
     }   
-    
+
     return parent;
 }
 
@@ -372,9 +375,32 @@ function ParseProps(
                 }
             } break;
 
-            case "UnaryExpression":
-                Error.NotImplemented(path, path.type);
-            break;
+            case "UnaryExpression": {
+                const unary = path as Path<UnaryExpression>;
+                const value = path.get("argument") as Path<Expression>;
+                switch(unary.node.operator){
+                    case "+": 
+                        if(value.isIdentifier())
+                            target.add(
+                                new Prop(value.node.name, value.node)
+                            );
+                        else 
+                            throw Error.BadShorthandProp(unary);
+                    break;
+
+                    case "-":
+                        target.add(
+                            new Prop("className", value.node)
+                        );
+                    break;
+
+                    case "~": 
+                        target.add(
+                            new ExplicitStyle(false, value.node)
+                        );
+                    break
+                }
+            } break;
 
             default: 
                 throw Error.PropUnknown(path, path.type);

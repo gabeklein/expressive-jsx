@@ -1,21 +1,24 @@
-import { AssignmentExpression, Expression, For, IfStatement, TemplateLiteral } from '@babel/types';
+import { AssignmentExpression, Expression, For, IfStatement, TemplateLiteral, UnaryExpression } from '@babel/types';
 import {
     AddElementsFromExpression,
     AttributeBody,
     ComponentFor,
     ComponentIf,
     ElementModifier,
+    ExplicitStyle,
     InnerContent,
     inParenthesis,
+    ParseErrors,
     Prop,
     StackFrame,
-    ParseErrors
 } from 'internal';
 import { DoExpressive, Path } from 'types';
 
 const Error = ParseErrors({
     PropNotIdentifier: "Assignment must be identifier name of a prop.",
-    AssignmentNotEquals: "Only `=` assignment may be used here."
+    AssignmentNotEquals: "Only `=` assignment may be used here.",
+    BadShorthandProp: "\"+\" shorthand prop must be an identifier!",
+    UnarySpaceRequired: "Unary Expression must include a space between {1} and the value."
 })
 
 export class ElementInline extends AttributeBody {
@@ -64,6 +67,38 @@ export class ElementInline extends AttributeBody {
         this.adopt(
             new ComponentFor(path, this.context)
         )
+    }
+
+    UnaryExpression(path: Path<UnaryExpression>){
+        const unary = path as Path<UnaryExpression>;
+        const value = path.get("argument") as Path<Expression>;
+        const op = unary.node.operator
+
+        if(unary.node.start !== value.node.start! - 2)
+            throw Error.UnarySpaceRequired(unary, op)
+
+        switch(op){
+            case "+": 
+                if(value.isIdentifier())
+                    this.add(
+                        new Prop(value.node.name, value.node)
+                    );
+                else 
+                    throw Error.BadShorthandProp(unary);
+            break;
+
+            case "-":
+                this.add(
+                    new Prop("className", value.node)
+                );
+            break;
+
+            case "~": 
+                this.add(
+                    new ExplicitStyle(false, value.node)
+                );
+            break
+        }
     }
 
     AssignmentExpression(path: Path<AssignmentExpression>){
