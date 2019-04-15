@@ -1,20 +1,17 @@
 import DoExpression from 'parse/doExpression';
 import Program from 'parse/program';
 
-export { 
-    DoExpressive
-} from "types"
 
 export {
-	ExplicitStyle,
-    ElementInline,
-    Prop,
-    Syntax,
     ElementConstruct,
+
     ComponentExpression,
-    ComponentConsequent,
     ComponentIf,
-    ParseErrors
+    Prop,
+    ParseErrors,
+    ElementInline,
+	ExplicitStyle,
+    ContingentModifier
 } from "internal";
 
 export default (options: any) => {

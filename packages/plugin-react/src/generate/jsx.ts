@@ -1,7 +1,6 @@
-import t, { Expression, TemplateLiteral, JSXElement } from '@babel/types';
-import { ContentLike, GenerateReact, JSXContent, PropData } from 'internal';
-import { IsLegalAttribute } from 'types';
-import { ElementReact } from 'handle/element';
+import t, { Expression, JSXElement, TemplateLiteral } from '@babel/types';
+import { ElementReact, GenerateReact } from 'internal';
+import { ContentLike, IsLegalAttribute, JSXContent, PropData } from 'types';
 
 export class GenerateJSX extends GenerateReact {
     

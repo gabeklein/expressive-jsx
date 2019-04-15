@@ -7,130 +7,107 @@ import t, {
     Expression,
     ExpressionStatement,
     For,
-    IfStatement,
     LabeledStatement,
     Program,
     Statement,
     TemplateLiteral,
 } from '@babel/types';
 
-declare interface BunchOf<T> {
+interface BunchOf<T> {
 	[key: string]: T;
 }
-declare interface BabelState<S extends StackFrame = StackFrame> {
-    filename: string;
-    cwd: string;
-    context: S;
-    opts: any;
+interface BabelState<S extends StackFrame = StackFrame> {
+    readonly filename: string;
+    readonly cwd: string;
+    readonly context: S;
+    readonly opts: any;
 }
-declare interface DoExpressive extends DoExpression {
-	meta: ElementInline;
-	expressive_visited?: true;
+interface DoExpressive extends DoExpression {
+	readonly meta: ElementInline;
+	readonly expressive_visited?: true;
 }
-declare interface ModifierOutput {
-	attrs?: BunchOf<any>;
-	style?: BunchOf<any>;
-	props?: BunchOf<any>;
-	installed_style?: (ElementModifier | ElementInline)[];
+interface ModifierOutput {
+	readonly attrs?: BunchOf<any>;
+	readonly style?: BunchOf<any>;
+	readonly props?: BunchOf<any>;
+	readonly installed_style?: (ElementModifier | ElementInline)[];
 }
 declare abstract class TraversableBody {
-	sequence: unknown[];
-	context: StackFrame;
-	didEnter?(path?: Path): void;
-	didExit?(path?: Path): void;
-	constructor(context: StackFrame);
+	protected constructor();
+	readonly sequence: unknown[];
+	readonly context: StackFrame;
 	parse(body: Path<Statement>): void;
 	add(item: unknown): void;
-	didEnterOwnScope(path: Path<DoExpressive>): void;
-	didExitOwnScope(path: Path<DoExpressive>): void;
-	ExpressionStatement(this: BunchOf<Function>, path: Path<ExpressionStatement>): void;
 }
 declare abstract class AttributeBody extends TraversableBody {
-	sequence: Attribute[];
-	props: BunchOf<Prop>;
-	style: BunchOf<ExplicitStyle>;
-	uid: string;
+	readonly sequence: Attribute[];
+	readonly props: BunchOf<Prop>;
+	readonly style: BunchOf<ExplicitStyle>;
+	readonly uid: string;
 	insert(item: Prop | ExplicitStyle): void;
-	ExpressionDefault(path: Path<Expression>): void;
-	LabeledStatement(path: Path<LabeledStatement>, applyTo?: AttributeBody): void;
 }
 declare class ElementInline extends AttributeBody {
-	primaryName?: string;
-	name?: string;
-	multilineContent?: Path<TemplateLiteral>;
-	children: InnerContent[];
-	modifiers: ElementModifier[]
-	explicitTagName?: string;
-	doBlock?: DoExpressive;
-	doesHaveContingentStyle?: true;
+	readonly primaryName?: string;
+	readonly name?: string;
+	readonly multilineContent?: Path<TemplateLiteral>;
+	readonly children: InnerContent[];
+	readonly modifiers: ElementModifier[]
+	readonly explicitTagName?: string;
+	readonly doBlock?: DoExpressive;
 	adopt(child: InnerContent): void;
-	ElementModifier(mod: ElementModifier): void;
-	ExpressionDefault(path: Path<Expression>): void;
-	AssignmentExpression(path: Path<AssignmentExpression>): void;
 }
 declare class ComponentExpression extends ElementInline {
-	exec?: Path<ArrowFunctionExpression>;
-	constructor(name: string, context: StackFrame, path: Path<DoExpressive>, exec?: Path<ArrowFunctionExpression>);
-	didExitOwnScope(path: Path<DoExpressive>): void;
-	private extractParams;
+	private constructor();
+	readonly exec?: Path<ArrowFunctionExpression>;
 }
 declare class ComponentIf {
-	forks: Array<ComponentConsequent | ComponentIf>;
-	test?: Path<Expression>;
-    context: StackFrame;
-    hasElementOutput?: boolean;
-    hasStyleOutput?: boolean;
-	parent: ElementInline;
-	protected path: Path<IfStatement>;
-	constructor(path: Path<IfStatement>, parent: ElementInline);
+	private constructor();
+	readonly forks: Array<ComponentConsequent | ComponentIf>;
+	readonly test?: Path<Expression>;
+	readonly context: StackFrame;
+	readonly hasElementOutput?: boolean;
+	readonly hasStyleOutput?: boolean;
+	readonly parent: ElementInline;
 }
 declare class ComponentConsequent extends ElementInline {
-	slaveModifier?: ElementModifier;
-    usesClassname?: string;
-    parentElement: ElementInline;
-	parent: ComponentIf;
-	path: Path<Statement>;
-	test?: Path<Expression>;
-	constructor( 
-		parent: ComponentIf,
-		path: Path<Statement>,
-		test?: Path<Expression>
-	)
-	didExitOwnScope(): void;
+	private constructor()
+	readonly usesClassname?: string;
+	readonly parentElement: ElementInline;
+	readonly parent: ComponentIf;
+	readonly path: Path<Statement>;
+	readonly test?: Path<Expression>;
 }
 declare class ComponentFor extends ElementInline {
-	public path: Path<For>;
-	public context: StackFrame;
-
-	constructor(path: Path<For>, context: StackFrame);
+	private constructor();
+	readonly path: Path<For>;
+	readonly context: StackFrame;
 }
 declare abstract class Attribute<T extends Expression = Expression> {
-    name: string | false;
-    value: FlatValue | T | undefined;
-    path?: Path<T> | undefined;
+    protected constructor();
+	readonly name: string | false;
+	readonly value: FlatValue | T | undefined;
+	readonly path?: Path<T> | undefined;
 	invariant: boolean | undefined;
-    overriden?: boolean;
-    constructor(name: string | undefined, value: FlatValue | T | undefined, path?: Path<T> | undefined);
+	readonly overriden?: boolean;
 }
 declare class Prop extends Attribute {
-    synthetic?: boolean;
     constructor(name: string | false, node: FlatValue | Expression | undefined, path?: Path<Expression>);
+	readonly synthetic?: boolean;
 }
 declare class ExplicitStyle extends Attribute {
-	priority: number;
     constructor(name: string | false, node: FlatValue | Expression | undefined, path?: Path<Expression>);
+	priority: number;
 }
-declare class StackFrame {
-	prefix: string;
-	program: any;
-	styleRoot: any;
-	current: any;
-	currentElement?: ElementInline;
-    currentIf?: ComponentIf;
-    entryIf?: ComponentIf;
-	stateSingleton: BabelState;
-	options: {};
-	constructor(state: BabelState);
+interface StackFrame {
+	readonly prefix: string;
+	readonly program: any;
+	readonly styleRoot: any;
+	readonly current: any;
+	readonly currentElement?: ElementInline;
+	readonly currentIf?: ComponentIf;
+	readonly entryIf?: ComponentIf;
+	readonly stateSingleton: BabelState;
+	readonly options: {};
 	readonly parent: StackFrame;
 	event(ref: symbol): Function;
 	event(ref: symbol, set: Function): void;
@@ -139,38 +116,42 @@ declare class StackFrame {
 	create(node: any): StackFrame;
 	push(node: TraversableBody): void;
 	pop(): void;
-	propertyMod(name: string): GeneralModifier;
-	propertyMod(name: string, set: Function): void;
+	propertyMod(name: string): ModifyAction;
+	propertyMod(name: string, set: ModifyAction): void;
 	elementMod(name: string): ElementModifier;
-    elementMod(set: ElementModifier): void;
+	elementMod(set: ElementModifier): void;
 	hasOwnPropertyMod(name: string): boolean;
 }
-declare class ElementModifier extends AttributeBody {
-	name: string;
-	next?: ElementModifier;
-	provides: ElementModifier[];
-	appliesTo: number;
-	className?: string;
-	selectors: string[];
-    contingentUpon?: ElementInline | ElementModifier;
+declare abstract class Modifier extends AttributeBody {
+    forSelector?: string[];
+    onlyWithin?: Modifier;
+    onGlobalStatus?: string[];
+    priority?: number;
+}
+declare class ElementModifier extends Modifier {
 	constructor(context: StackFrame, name?: string, body?: Path<Statement>);
+	readonly name: string;
+	readonly next?: ElementModifier;
+	readonly nTargets: number;
+	readonly provides: ElementModifier[];
 	declare<T extends AttributeBody>(target: T): void;
 	apply(element: ElementInline): void;
-	ElementModifier(mod: ElementModifier): void;
 }
-declare class GeneralModifier {
-	name: string;
-	transform?: ModifyAction;
-	constructor(name: string, transform?: ModifyAction);
+declare class ContingentModifier extends Modifier {
+	constructor(
+        context: StackFrame,
+        parent: ContingentModifier | ElementModifier | ElementInline,
+        contingent?: string
+    )
+	readonly anchor: ElementModifier | ElementInline;
 }
-declare class ModifyDelegate {
-	name: string;
-	target: AttributeBody;
+interface ModifyDelegate {
+	readonly name: string;
+	readonly target: AttributeBody;
+	readonly data: BunchOf<any>;
+	readonly priority?: number;
+	readonly arguments?: Array<any>;
 	done?: true;
-	priority?: number;
-	arguments?: Array<any>;
-	data: BunchOf<any>;
-	constructor(name: string, value: Path<Expression>[], target: AttributeBody, transform?: ModifyAction);
 	assign(data: any): void;
 }
 declare abstract class ElementConstruct
@@ -222,15 +203,12 @@ declare const _default: (options: any) => {
 	};
 };
 
-declare type Visitor<T, S extends StackFrame = StackFrame> = VisitNodeObject<BabelState<S>, T>
-declare type ParseError = (path: Path, ...args: (string | number)[]) => Error;
-declare type Literal = string | number | boolean | null;
-declare type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | undefined;
-declare type ElementItem = Attribute | ElementInline | Path<Expression | Statement>;
-declare type ModTuple = [GeneralModifier, Path<Statement>];
-declare type FlatValue = string | number | boolean | null;
-declare type InnerContent = ElementInline | ComponentIf | ComponentFor | Path<Expression> | Expression;
-declare type SequenceItem = Attribute | InnerContent | Path<Statement>;
+type Visitor<T, S extends StackFrame = StackFrame> = VisitNodeObject<BabelState<S>, T>
+type ParseError = (path: Path, ...args: (string | number)[]) => Error;
+type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | undefined;
+type FlatValue = string | number | boolean | null;
+type InnerContent = ElementInline | ComponentIf | ComponentFor | Path<Expression> | Expression;
+type SequenceItem = Attribute | InnerContent | Path<Statement>;
 
 declare function ParseErrors
 	<O extends BunchOf<string>>(register: O): 
@@ -254,5 +232,7 @@ export {
 	AttributeBody,
 	ElementModifier,
 	Visitor,
-	BabelState
+	BabelState,
+	Modifier,
+	ContingentModifier
 }

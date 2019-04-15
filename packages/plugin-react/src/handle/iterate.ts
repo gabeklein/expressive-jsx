@@ -11,8 +11,7 @@ import t, {
     StringLiteral,
 } from '@babel/types';
 import { ComponentFor, ElementInline, ParseErrors, Prop, SequenceItem } from '@expressive/babel-plugin-core';
-import { ensureUIDIdentifier } from 'helpers';
-import { ElementReact, GenerateReact, memberExpression, callExpression } from 'internal';
+import { ElementReact, GenerateReact, memberExpression, callExpression, ensureUIDIdentifier } from 'internal';
 import { isIdentifierElement, Path } from 'types';
 
 const Error = ParseErrors({

@@ -1,7 +1,7 @@
 import t, { Expression, ObjectProperty } from '@babel/types';
-import { ElementReact } from 'handle/element';
-import { ArrayStack, ContentLike, GenerateReact, PropData } from 'internal';
-import { PropertyES, objectExpression, memberExpression, callExpression } from './syntax';
+import { ArrayStack, ElementReact, GenerateReact } from 'internal';
+import { ContentLike, PropData } from 'types';
+import { callExpression, memberExpression, objectExpression, PropertyES } from './syntax';
 
 const IsComponentElement = /^[A-Z]\w*/;
 
