@@ -35,7 +35,9 @@ module.exports = {
         }],
         [transformExpressiveReact, {
             reactEnv: "next",
-            output: "js",
+            output: program.jsx ? "jsx" : "js",
+            useRequire: program.useRequire,
+            useImport: program.useImport, 
             modifiers: [
                 WebStyles
             ]

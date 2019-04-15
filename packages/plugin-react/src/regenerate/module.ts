@@ -3,22 +3,34 @@ import { BabelState, DoExpressive, Modifier } from '@expressive/babel-plugin-cor
 import { ExternalsManager, GenerateES, GenerateJSX, ImportManager, writeProvideStyleStatement } from 'internal';
 import { relative } from 'path';
 import { Path, StylesRegistered, Visitor } from 'types';
+import { RequirementManager } from './scope';
 
 export const Program = <Visitor<ProgramNode>> {
     enter(path, state){
         let Generator;
-        const { context } = state;
-        const { output } = state.opts;
+        let Importer;
 
-        if(output == "jsx")
+        const { context } = state;
+        const { output, useRequire, useImport } = state.opts;
+
+        if(output == "jsx"){
+            Importer = ImportManager
             Generator = GenerateJSX;
-        else if(output == "js" || !output)
+        }
+        else if(output == "js" || !output){
+            Importer = RequirementManager
             Generator = GenerateES;
+        }
         else 
             throw new Error(
                 `Unknown output type of ${output}.\nAcceptable ['js', 'jsx'] (default 'js')`)
 
-        const I = context.Imports = new ImportManager(path);
+        if(useRequire)
+            Importer = RequirementManager
+        if(useImport)
+            Importer = ImportManager
+
+        const I = context.Imports = new Importer(path);
         const M = context.Module = new Module(path, state, I);
         const G = context.Generator = new Generator(M, I);
 
