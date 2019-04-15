@@ -1,5 +1,5 @@
 import { Expression, LabeledStatement } from '@babel/types';
-import { ApplyModifier, ElementModifier, ParseErrors, TraversableBody, quickHash } from 'internal';
+import { ApplyModifier, ElementModifier, Modifier, ParseErrors, quickHash, TraversableBody } from 'internal';
 import { BunchOf, FlatValue, Path } from 'types';
 
 const Error = ParseErrors({
@@ -39,7 +39,7 @@ export abstract class AttributeBody extends TraversableBody {
     }
 
     abstract ElementModifier(
-        mod: ElementModifier
+        mod: Modifier
     ): void;
 
     LabeledStatement(
@@ -56,7 +56,9 @@ export abstract class AttributeBody extends TraversableBody {
             throw Error.DuplicateModifier(path); 
     
         if(body.isBlockStatement())
-            new ElementModifier(this.context, name, body).declare(applyTo);
+            applyTo.ElementModifier(
+                new ElementModifier(this.context, name, body)
+            )
 
         else if(body.isExpressionStatement())
             ApplyModifier(name, applyTo, body.get("expression"));

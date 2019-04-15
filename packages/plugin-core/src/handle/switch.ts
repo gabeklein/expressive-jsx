@@ -1,5 +1,5 @@
 import t, { Expression, ExpressionStatement, IfStatement, LabeledStatement, Statement } from '@babel/types';
-import { ElementInline, ElementModifier, InnerContent, StackFrame } from 'internal';
+import { ContingentModifier, ElementInline, InnerContent, StackFrame } from 'internal';
 import { Path } from 'types';
 
 type Consequent = ComponentIf | ComponentConsequent;
@@ -78,7 +78,7 @@ export class ComponentIf {
 
 export class ComponentConsequent extends ElementInline {
 
-    slaveModifier?: ElementModifier;
+    slaveModifier?: ContingentModifier;
     usesClassname?: string;
 
     constructor(
@@ -121,10 +121,6 @@ export class ComponentConsequent extends ElementInline {
         if(!mod) return;
             
         parent.modifiers.push(mod);
-        mod.appliesTo = -1;
-
-        for(const sub of mod.provides)
-            parent.context.elementMod(sub)
     }
 
     LabeledStatement(path: Path<LabeledStatement>){
@@ -138,11 +134,13 @@ export class ComponentConsequent extends ElementInline {
         //TODO: Discover helpfulness of customized className.
         // let selector = specifyOption(this.test) || `opt${this.index}`;
         let selector = `opt${this.index}`;
+        const parent = context.currentElement!;
 
-        const mod = new ElementModifier(context);
-        mod.name = context.currentElement!.name;
-        mod.contingents = [`.${selector}`];
-        this.usesClassname = selector;
+        const mod = new ContingentModifier(
+            context, parent, `.${selector}`
+        );
+
+        parent.modifiers.push(mod);
 
         if(!context.currentIf!.hasStyleOutput)
             do {
@@ -152,6 +150,7 @@ export class ComponentConsequent extends ElementInline {
             }
             while(context = context.parent)
 
+        this.usesClassname = selector;
         return this.slaveModifier = mod;
     }
 }

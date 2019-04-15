@@ -14,9 +14,11 @@ export function writeProvideStyleStatement(
 ){
     const {
         path: program,
-        styleBlocks: style,
-        lastInsertedElement
+        lastInsertedElement,
+        modifiersDeclared
     } = this;
+
+    void modifiersDeclared;
 
     const programBody = program.node.body;
 
@@ -27,8 +29,11 @@ export function writeProvideStyleStatement(
         default: [] 
     };
 
-    for(const block of style){
-        const { priority = 0, query, selector } = block;
+    for(const block of modifiersDeclared){
+        const { priority = 0 } = block;
+
+        let query = undefined;
+        let selectors = block.forSelector!
 
         let targetQuery: MediaGroups =
             query === undefined ?
@@ -43,7 +48,7 @@ export function writeProvideStyleStatement(
                 targetQuery[priority] = [];
 
         const styleString = 
-            block.map(style => {
+            block.sequence.map(style => {
                 let styleKey = style.name;
                 if(typeof styleKey == "string")
                     styleKey = styleKey.replace(/([A-Z]+)/g, "-$1").toLowerCase();
@@ -51,7 +56,7 @@ export function writeProvideStyleStatement(
             }).join("; ")
         
         targetPriority.push(
-            PropertyES("." + selector, t.stringLiteral(styleString))
+            PropertyES(selectors.join(""), t.stringLiteral(styleString))
         )
     }
 

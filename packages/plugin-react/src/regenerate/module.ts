@@ -1,5 +1,5 @@
 import { Program as ProgramNode } from '@babel/types';
-import { BabelState, DoExpressive, ElementInline, ElementModifier, ExplicitStyle } from '@expressive/babel-plugin-core';
+import { BabelState, DoExpressive, Modifier } from '@expressive/babel-plugin-core';
 import { ExternalsManager, GenerateES, GenerateJSX, ImportManager, writeProvideStyleStatement } from 'internal';
 import { relative } from 'path';
 import { Path, StylesRegistered, Visitor } from 'types';
@@ -42,6 +42,7 @@ export const Program = <Visitor<ProgramNode>> {
 
 export class Module {
 
+    modifiersDeclared = new Set<Modifier>()
     styleBlocks = [] as StylesRegistered[];
     lastInsertedElement?: Path<DoExpressive>;
 
@@ -56,37 +57,9 @@ export class Module {
     }
 
     EOF(){
-        const { styleBlocks } = this;
+        const { modifiersDeclared } = this;
 
-        if(styleBlocks.length)
+        if(modifiersDeclared.size)
             writeProvideStyleStatement.call(this);
-    }
-
-    registerStyle(
-        src: ElementInline | ElementModifier,
-        styles: ExplicitStyle[],
-        priority?: number,
-        query?: string
-    ): string {
-        const { styleBlocks } = this;
-        const block = styles as StylesRegistered;
-
-        let className = src.uid;
-        
-        if(src instanceof ElementInline)
-            priority = 2
-        else 
-            for(const cont of src.contingents || []){
-                priority = 3
-                className += cont
-            }
-
-        block.query = query;
-        block.priority = priority
-        block.selector = className;
-        
-        styleBlocks.push(block);
-
-        return className;
     }
 }

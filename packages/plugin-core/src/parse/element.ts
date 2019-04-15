@@ -136,6 +136,7 @@ function CollateLayers(
 
     for(const segment of chain.reverse()){
         for(const mod of parent.modifiers)
+        if(mod instanceof ElementModifier)
         for(const sub of mod.provides)
             parent.context.elementMod(sub)
 
@@ -170,7 +171,8 @@ export function ApplyNameImplications(
     if(!modify) return;
 
     do {
-        modify.apply(target);
+        target.modifiers.push(modify);
+        modify.nTargets++
         if(modify === modify.next){
             console.error(`Still haven't fixed inheritance leak apparently. \n target: ${name}`)
             break

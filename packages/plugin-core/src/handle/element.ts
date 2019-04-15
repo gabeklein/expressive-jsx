@@ -13,6 +13,7 @@ import {
     StackFrame,
 } from 'internal';
 import { DoExpressive, Path } from 'types';
+import { Modifier } from './modifier';
 
 const Error = ParseErrors({
     PropNotIdentifier: "Assignment must be identifier name of a prop.",
@@ -28,8 +29,7 @@ export class ElementInline extends AttributeBody {
     multilineContent?: Path<TemplateLiteral>;
     children = [] as InnerContent[];
     explicitTagName?: string;
-    modifiers = [] as ElementModifier[];
-    doesHaveContingentStyle?: true;
+    modifiers = [] as Modifier[];
 
     adopt(child: InnerContent){
         const index = this.children.push(child);

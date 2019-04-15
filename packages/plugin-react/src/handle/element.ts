@@ -7,6 +7,7 @@ import {
     ExplicitStyle,
     Prop,
     SequenceItem,
+    ContingentModifier
 } from '@expressive/babel-plugin-core';
 import { AttributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue } from 'internal';
 import { Path, PropData, StackFrame, ContentLike } from 'types';
@@ -31,25 +32,18 @@ export class ElementReact<T extends ElementInline = ElementInline>
     willParse(sequence: SequenceItem[]){
         const pre = [] as SequenceItem[];
 
-        for(const mod of this.source.modifiers){
-            if(mod.appliesTo == 1){
+        for(const mod of this.source.modifiers)
+            if(mod.nTargets == 1){
                 const exists = this.source.style;
                 for(const style of mod.sequence)
                     if(style.name in exists == false)
                         pre.push(style)
-                continue;
             }
-            let className = mod.className;
-            if(!className){
-                const staticStyles = mod.sequence.filter(x => x instanceof ExplicitStyle);
-                className = mod.className = 
-                    this.context.Module.registerStyle(
-                        mod, staticStyles as ExplicitStyle[]
-                    )
+            else {
+                this.context.Module.modifiersDeclared.add(mod);
+                if(!(mod instanceof ContingentModifier))
+                    this.classList.push(mod.uid);
             }
-            if(mod.appliesTo !== -1)
-                this.classList.push(className);
-        }
 
         if(pre.length)
             return pre.concat(sequence)
@@ -78,17 +72,14 @@ export class ElementReact<T extends ElementInline = ElementInline>
     }
 
     private applyHoistedStyle(){
-        const { source, style_static } = this;
-        let reference;
+        const { style_static, context } = this;
 
-        if(style_static.length > 0)
-            reference = this.context.Module.registerStyle(source, style_static);
-        else if(source.doesHaveContingentStyle)
-            reference = source.uid;
-        else
-            return;
-
-        this.classList.push(reference);
+        if(style_static.length > 0){
+            const mod = new ContingentModifier(context, this.source);
+            mod.sequence.push(...style_static);
+            mod.forSelector = [ `.${this.source.uid}` ];
+            context.Module.modifiersDeclared.add(mod);
+        }
     }
 
     private applyInlineStyle(){
@@ -121,6 +112,9 @@ export class ElementReact<T extends ElementInline = ElementInline>
     private applyClassname(){
 
         const join = this.context.Imports.ensure("@expressive/react", "join");
+
+        if(this.source.hasOwnProperty("uid"))
+            this.classList.push(this.source.uid);
 
         if(!this.classList.length)
             return;
@@ -180,7 +174,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
                     this.classList.push(value.trim());
             } break;
 
-            default:
+            default: 
                 this.addProperty(item.name, expressionValue(item));
         }
     }
@@ -206,7 +200,6 @@ export class ElementReact<T extends ElementInline = ElementInline>
             this.classList.push(
                 fork.classLogic()
             );
-            this.source.doesHaveContingentStyle = true
         }
     }
 

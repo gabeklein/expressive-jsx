@@ -1,5 +1,5 @@
-import t, { Expression, LabeledStatement } from '@babel/types';
-import { AttributeBody, DelegateAbstraction, ElementModifier, ExplicitStyle } from 'internal';
+import t, { Expression } from '@babel/types';
+import { AttributeBody, DelegateAbstraction, ElementInline, ExplicitStyle, Modifier } from 'internal';
 import Arguments from 'parse/abstractions';
 import { BunchOf, ModifyAction, Path } from 'types';
 
@@ -7,7 +7,7 @@ export type ModTuple = [string, ModifyAction, DelegateAbstraction[]];
 
 export function ApplyModifier(
     initial: string,
-    recipient: AttributeBody, 
+    recipient: Modifier | ElementInline, 
     input: Path<Expression>){
 
     const handler = recipient.context.propertyMod(initial);
@@ -108,13 +108,6 @@ export class ModifyDelegate {
             if(field in this.output)
                 Object.assign(this.output[field], data[field])
             else this.output[field] = data[field]
-    }
-    
-    declareMediaQuery(
-        query: string, 
-        body: Path<LabeledStatement>){
-
-        new ElementModifier(this.target.context).declare(this.target)
     }
 }
 
