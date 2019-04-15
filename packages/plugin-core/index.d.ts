@@ -135,8 +135,7 @@ declare class StackFrame {
 	event(ref: symbol): Function;
 	event(ref: symbol, set: Function): void;
 	dispatch(ref: symbol, ...args: any[]): void;
-	appendWithLocation(): void;
-	append(as?: string): void;
+	resolve(as?: string): void;
 	create(node: any): StackFrame;
 	push(node: TraversableBody): void;
 	pop(): void;
@@ -148,7 +147,7 @@ declare class StackFrame {
 }
 declare class ElementModifier extends AttributeBody {
 	name: string;
-	inherits?: ElementModifier;
+	next?: ElementModifier;
 	provides: ElementModifier[];
 	appliesTo: number;
 	className?: string;

@@ -4,7 +4,7 @@ import { Path } from 'types';
 
 export class ElementModifier extends AttributeBody {
 
-    inherits?: ElementModifier;
+    next?: ElementModifier;
     provides = [] as ElementModifier[];
     appliesTo = 0;
     className?: string;

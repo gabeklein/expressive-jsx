@@ -43,7 +43,7 @@ export class ComponentIf {
                 )
 
             const index = this.forks.push(fork);
-            fork.context.append(index);
+            fork.context.resolve(index);
 
             if(fork instanceof ComponentConsequent)
                 fork.index = index;

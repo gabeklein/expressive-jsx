@@ -25,6 +25,6 @@ export class ComponentExpression extends ElementInline {
             ApplyNameImplications(name, this);
 
         path.node.meta = this;
-        this.context.append(this.name);
+        this.context.resolve(this.name);
     }
 }

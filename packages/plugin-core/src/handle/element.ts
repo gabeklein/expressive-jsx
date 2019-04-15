@@ -34,7 +34,7 @@ export class ElementInline extends AttributeBody {
     adopt(child: InnerContent){
         const index = this.children.push(child);
         if("context" in child && child.context instanceof StackFrame)
-            child.context.append(index);
+            child.context.resolve(index);
         this.add(child);
     }
 

@@ -90,7 +90,7 @@ export class StackFrame {
         (<Function>this[ref]).apply(null, args)
     }
 
-    append(append?: string | number){
+    resolve(append?: string | number){
         this.prefix = this.prefix + " " + append || "";
     }
 
@@ -154,7 +154,7 @@ export class StackFrame {
         
         const name = "_" + mod.name;
         if(this[name])
-            mod.inherits = this[name];
+            mod.next = this[name];
         this[name] = mod;
     }
 

@@ -171,11 +171,11 @@ export function ApplyNameImplications(
 
     do {
         modify.apply(target);
-        if(modify === modify.inherits){
+        if(modify === modify.next){
             console.error(`Still haven't fixed inheritance leak apparently. \n target: ${name}`)
             break
         }
-        modify = modify.inherits;
+        modify = modify.next;
     }
     while(modify);
 }
