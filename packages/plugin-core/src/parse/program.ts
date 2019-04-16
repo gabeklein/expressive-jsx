@@ -32,28 +32,17 @@ export class StackFrame {
     currentIf?: ComponentIf;
     entryIf?: ComponentIf;
     stateSingleton: BabelState;
-    options: {
-        // generator: { 
-        //     new(from: ElementInline | NonComponent): AssembleElement;
-        // }
-    }
+    options: {}
     ModifierQuery?: string;
 
     constructor(state: BabelState){
-
+        let Stack = this;
         const included = state.opts.modifiers;
+        const imported = [ ...included ];
+
         this.stateSingleton = state;
         this.prefix = Hash(state.filename);
-        this.options = {
-            // generator: AssembleJSX as any
-        };
-
-        let Stack = this;
-
-        const imported = [
-            // ReservedModifiers,
-            ...included
-        ];
+        this.options = {};
     
         for(const imports of imported){
             Stack = Object.create(Stack)
@@ -131,18 +120,6 @@ export class StackFrame {
         return this.hasOwnProperty("__" + name)
     }
 
-    // declareForRuntime(modifier: ElementModifier | ElementInline){
-    //     const { program, styleRoot } = this;
-    //     program.computedStyleMayInclude(modifier);
-    //     if(styleRoot)
-    //         styleRoot.computedStyleMayInclude(modifier)
-    //     else return true; //styleroot not found
-    // }
-
-    // get allMod(){
-    //     return this.hasOwnProperty("_all") && (this as any)._all as GeneralModifier;
-    // }
-
     elementMod(name: string): ElementModifier;
     elementMod(set: ElementModifier): void;
     elementMod(
@@ -157,16 +134,4 @@ export class StackFrame {
             mod.next = this[name];
         this[name] = mod;
     }
-
-    // valueMod(name: string): XJSValueHelper;
-    // valueMod(name: string, set: XJSValueHelper): void;
-    // valueMod(
-    //     this: BunchOf<XJSValueHelper>,
-    //     name: string, 
-    //     set?: XJSValueHelper ){
-            
-    //     name = "___" + name;
-    //     if(set) this[name] = set;
-    //     else return this[name]
-    // }
 }

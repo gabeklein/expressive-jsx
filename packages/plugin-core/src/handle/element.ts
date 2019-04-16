@@ -50,9 +50,8 @@ export class ElementInline extends AttributeBody {
     }
 
     IfStatement(path: Path<IfStatement>){
-        this.adopt(
-            new ComponentIf(path, this.context)
-        )
+        const mod = new ComponentIf(path, this.context);
+        this.adopt(mod)
     }
 
     ForInStatement(path: Path<For>){
@@ -68,11 +67,18 @@ export class ElementInline extends AttributeBody {
             new ComponentFor(path, this.context)
         )
     }
-
+    
     UnaryExpression(path: Path<UnaryExpression>){
         const unary = path as Path<UnaryExpression>;
         const value = path.get("argument") as Path<Expression>;
         const op = unary.node.operator
+
+        switch(op){
+            case "void":
+            case "!":
+                this.ExpressionDefault(path)
+                return 
+        }
 
         if(unary.node.start !== value.node.start! - 2)
             throw Error.UnarySpaceRequired(unary, op)
