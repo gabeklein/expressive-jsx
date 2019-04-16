@@ -29,11 +29,11 @@ export function writeProvideStyleStatement(
         default: [] 
     };
 
-    for(const block of modifiersDeclared){
+    for(let block of modifiersDeclared){
         const { priority = 0 } = block;
 
         let query = undefined;
-        let selectors = block.forSelector!
+        let selection = [];
 
         let targetQuery: MediaGroups =
             query === undefined ?
@@ -54,9 +54,16 @@ export function writeProvideStyleStatement(
                     styleKey = styleKey.replace(/([A-Z]+)/g, "-$1").toLowerCase();
                 return `${styleKey}: ${style.value}`
             }).join("; ")
+
+        do {
+            selection.push(
+                block.forSelector!.join("")
+            )
+        }
+        while(block = block.onlyWithin!);
         
         targetPriority.push(
-            PropertyES(selectors.join(""), t.stringLiteral(styleString))
+            PropertyES(selection.reverse().join(" "), t.stringLiteral(styleString))
         )
     }
 

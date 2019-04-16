@@ -33,7 +33,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
         const pre = [] as SequenceItem[];
 
         for(const mod of this.source.modifiers)
-            if(mod.nTargets == 1){
+            if(mod.nTargets == 1 && !mod.onlyWithin){
                 const exists = this.source.style;
                 for(const style of mod.sequence)
                     if(style.name in exists == false)
