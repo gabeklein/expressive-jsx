@@ -1,6 +1,6 @@
 {
   "name": "@expressive/babel-preset-react",
-  "version": "1.0.0-beta.6",
+  "version": "1.0.0-beta.7",
   "description": "An alternative syntax for feature rich components using less code",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
@@ -21,9 +21,9 @@
     "/index.js"
   ],
   "dependencies": {
-    "@expressive/babel-plugin-react": "^1.0.0-beta.6",
-    "@expressive/babel-plugin-react-class": "^1.0.0-beta.6",
-    "@expressive/react-modifiers": "^1.0.0-beta.6",
+    "@expressive/babel-plugin-react": "^1.0.0-beta.7",
+    "@expressive/babel-plugin-react-class": "^1.0.0-beta.7",
+    "@expressive/react-modifiers": "^1.0.0-beta.7",
     "babel-preset-expressive-enhancements": "^1.0.1"
   },
   "peerDependencies": {
