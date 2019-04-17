@@ -33,7 +33,7 @@ export function toArray<T> (value: T | T[]): T[] {
 }
 
 export function preventDefaultPolyfill(element: Path){
-    element.parentPath.remove();
+    // element.parentPath.remove();
 }
 
 export function ParseErrors<O extends BunchOf<string>> (register: O) {
