@@ -71,7 +71,9 @@ export class GenerateJSX extends GenerateReact {
                     output.push(...this.recombineQuasi(child))
                     continue
                 }
-                if(t.isStringLiteral(child))
+                if(t.isStringLiteral(child) 
+                && child.value.indexOf("{") < 0
+                && input.length == 1)
                     jsx = t.jsxText(child.value)
                 else
                     jsx = t.jsxExpressionContainer(child);
@@ -97,7 +99,10 @@ export class GenerateJSX extends GenerateReact {
             const value = quasis[i].value.cooked as string;
             if(value)
                 acc.push( 
-                    t.jsxText(value))
+                    value.indexOf("{") < 0
+                        ? t.jsxText(value)
+                        : t.jsxExpressionContainer(t.stringLiteral(value))
+                )
     
             if(i in expressions)
                 acc.push(
