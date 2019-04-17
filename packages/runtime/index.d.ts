@@ -56,6 +56,8 @@ export default _default
  */
 export declare function withStyles(Root: ComponentType): ReactElement;
 
+export { withStyles as withStyle }
+
 /**
  * Joins all truthy arguments using a space as delimiter.
  */

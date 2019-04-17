@@ -181,4 +181,6 @@ export function withStyles(Root: ComponentType): ReactElement {
     )
 }
 
+export { withStyles as withStyle }
+
 export default StyledApplication;
