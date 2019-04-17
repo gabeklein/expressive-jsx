@@ -5,7 +5,7 @@ import { DoExpressive, Path } from 'types';
 export class ComponentExpression extends ElementInline {
 
     exec?: Path<ArrowFunctionExpression>;
-    statements = [] as Path<Statement>[];
+    statements = [] as Statement[];
 
     constructor(
         name: string,
@@ -30,6 +30,6 @@ export class ComponentExpression extends ElementInline {
     }
 
     VariableDeclaration(path: Path<VariableDeclaration>){
-        this.statements.push(path);
+        this.statements.push(path.node);
     }
 }

@@ -59,7 +59,7 @@ declare class ElementInline extends AttributeBody {
 declare class ComponentExpression extends ElementInline {
 	private constructor();
 	readonly exec?: Path<ArrowFunctionExpression>;
-	readonly statements: Path<Statement>[];
+	readonly statements: Statement[];
 }
 declare class ComponentIf {
 	private constructor();

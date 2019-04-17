@@ -1,15 +1,7 @@
-import t, {
-    ArrayPattern,
-    ArrowFunctionExpression,
-    Expression,
-    Identifier,
-    MemberExpression,
-    ObjectPattern,
-    PatternLike,
-} from '@babel/types';
+import t, { ArrayPattern, Identifier, MemberExpression, ObjectPattern, PatternLike } from '@babel/types';
 import { ComponentExpression, DoExpressive, ParseErrors } from '@expressive/babel-plugin-core';
-import { declare, ElementReact, ensureArray, GenerateReact, memberExpression } from 'internal';
-import { Path, StackFrame, Visitor } from 'types';
+import { declare, ElementReact, ensureArray, ExternalsManager, GenerateReact, memberExpression } from 'internal';
+import { StackFrame, Visitor } from 'types';
 
 const Error = ParseErrors({
     PropsCantHaveDefault: "This argument will always resolve to component props",
@@ -17,28 +9,30 @@ const Error = ParseErrors({
 })
 
 export const DoExpression = <Visitor<DoExpressive>> {
-    exit(path){
-        const DoNode = path.node.meta;
-        const context = DoNode.context as StackFrame;
+    exit(path, state){
+        const Do = path.node.meta;
+        const context = Do.context as StackFrame;
         const Generator = context.Generator as GenerateReact;
 
-        if(!(DoNode instanceof ComponentExpression))
+        if(!(Do instanceof ComponentExpression))
             return;
 
-        const factory = new ElementReact(DoNode);
+        const factory = new ElementReact(Do);
 
         const factoryExpression = Generator.container(factory)
 
-        if(DoNode.exec){
-            if(incorperateChildParameters(DoNode.exec, factoryExpression))
-                return
-        }
+        if(Do instanceof ComponentExpression && Do.exec)
+            incorperateChildParameters(Do, state.context.Imports)
 
-        if(DoNode.exec && DoNode.statements.length){
-            path.replaceWith(t.blockStatement([
-                ...DoNode.statements.map(x => x.node),
+        if(Do.exec && Do.statements.length){
+            const replacement = [
+                ...Do.statements,
                 t.returnStatement(factoryExpression)
-            ]))
+            ];
+            if(path.parentPath.isReturnStatement())
+                path.parentPath.replaceWithMultiple(replacement)
+            else
+                path.replaceWith(t.blockStatement(replacement))
         }
         else {
             path.replaceWith(factoryExpression);
@@ -49,9 +43,10 @@ export const DoExpression = <Visitor<DoExpressive>> {
 }
 
 function incorperateChildParameters(
-    wrapperFunction: Path<ArrowFunctionExpression>,
-    outputExpression: Expression
+    Do: ComponentExpression,
+    Imports: ExternalsManager
 ){
+    const { exec: wrapperFunction } = Do;
     let assign: Identifier | ArrayPattern | ObjectPattern
     let init: Identifier | MemberExpression | undefined;
 
@@ -98,18 +93,9 @@ function incorperateChildParameters(
         init = memberExpression(props.node, "children");
 
     arrowFn.params = [props.node as Identifier | ObjectPattern];
-    
-    if(init){
-        const { body } = arrowFn;
-        const augment = declare("var", assign, ensureArray(init, count == 1));
         
-        if(t.isBlockStatement(body))
-            body.body.unshift(augment)
-        else
-            arrowFn.body = t.blockStatement([
-                augment,
-                t.returnStatement(outputExpression)
-            ])
-        return true
+    if(init){
+        const declarator = declare("var", assign, ensureArray(init, count == 1));
+        Do.statements.unshift(declarator)
     }
 }
