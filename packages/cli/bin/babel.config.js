@@ -9,6 +9,8 @@ const expressiveEnhancements = require("babel-preset-expressive-enhancements");
 const syntaxClassProperties = require("@babel/plugin-syntax-class-properties");
 const pluginClassProperties = require("@babel/plugin-proposal-class-properties");
 
+const transformRuntime = require("@babel/plugin-transform-runtime")
+
 const restSpread = require("@babel/plugin-proposal-object-rest-spread");
 const env = require("@babel/preset-env");
 
@@ -18,12 +20,9 @@ const program = require("./console");
 
 module.exports = {
     "presets": [
-        // [env, {
-        //   "targets": {
-        //     "node": "current"
-        //   },
-        //   "modules": false
-        // }],
+        [env, {
+          "modules": false
+        }],
         expressiveEnhancements,        
     ],
     "plugins": [
@@ -32,6 +31,12 @@ module.exports = {
         // restSpread,
         [inferReactComponent, {
             activeOnMethodDo: true
+        }],
+        [transformRuntime, {
+            corejs: false,
+            helpers: true,
+            regenerator: true,
+            useESModules: false
         }],
         [transformExpressiveReact, {
             reactEnv: "next",
