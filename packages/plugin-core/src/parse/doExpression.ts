@@ -42,9 +42,14 @@ function generateEntryElement(
         break;
 
         case "ReturnStatement": 
-            const container = parent.getAncestry()[3];
-            if(container.isArrowFunctionExpression())
-                containerFn = container;
+            const container = parent.findParent(x => {
+                const t = /.*Function.*/.test(x.type);
+                return t
+            });
+            if(container.type == "ArrowFunctionExpression"){
+
+                containerFn = container as Path<ArrowFunctionExpression>;
+            }
         break;
     }
 
@@ -117,7 +122,8 @@ function containerName(path: Path): string {
                     return node.key.name; 
             }
 
-            parent = within.parentPath
+            parent = within.parentPath;
+            continue;
         }
 
         case "ObjectProperty": {
