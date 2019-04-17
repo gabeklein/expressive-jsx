@@ -1,9 +1,9 @@
 import t, { Expression } from '@babel/types';
-import { AttributeBody, DelegateAbstraction, ElementInline, ExplicitStyle, Modifier } from 'internal';
-import Arguments from 'parse/abstractions';
+import { AttributeBody, ElementInline, ExplicitStyle, Modifier } from 'internal';
+import Arguments from 'parse/arguments';
 import { BunchOf, ModifyAction, Path } from 'types';
 
-export type ModTuple = [string, ModifyAction, DelegateAbstraction[]];
+export type ModTuple = [string, ModifyAction, any[]];
 
 export function ApplyModifier(
     initial: string,
@@ -11,9 +11,7 @@ export function ApplyModifier(
     input: Path<Expression>){
 
     const handler = recipient.context.propertyMod(initial);
-    const inputs = input.isSequenceExpression()
-        ? input.get("expressions") : [ input ];
-    const args = inputs.map(Arguments.Parse);
+    const args = Arguments.Parse(input)
     
     const totalOutput = { 
         props: {} as BunchOf<any>, 
@@ -90,11 +88,9 @@ export class ModifyDelegate {
         public target: AttributeBody,
         public name: string,
         transform: ModifyAction = PropertyModifierDefault,
-        argument: DelegateAbstraction[]){
+        args: any[]){
 
-        const args = this.arguments = argument.map(x => {
-            return x && typeof x == "object" && "value" in x ? x.value : x
-        });
+        this.arguments = args;
 
         const output = transform.apply(this, args)
 
