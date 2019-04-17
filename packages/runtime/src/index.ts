@@ -1,8 +1,7 @@
 import React, { Component, ComponentType, createContext, createElement as create, Fragment, ReactElement } from 'react';
 
-const { Provider: StyleContext, Consumer: StyleDeclaration } = createContext({
-    push: () => void 0
-});
+const { Provider: StyleContext, Consumer: StyleDeclaration } = 
+    createContext({ push: () => void 0 });
 
 export interface BunchOf<T> {
     [key: string]: T
@@ -162,6 +161,10 @@ function StyledApplication<P>(input: StyledApplicationProps | ComponentType<P>){
 
     const { children, ...inputProps } = input as StyledApplicationProps;
     return create(StyledApplicationComponent, input, children as any);
+}
+
+export function body(props: { children: any | any[] }){
+    return [].concat(props.children)
 }
 
 export function join(...args: string[]){

@@ -28,7 +28,6 @@ export declare interface Modules {
  * @param extend The root component you wish to render with styles.
  * 
  * @returns Higher Order Component - Fragment with children `extend` and accumulated styles.
- * 
  */
 declare function StyledApplication<P>(extend: ComponentType<P>): ComponentType<P>;
 
@@ -45,6 +44,13 @@ declare const _default: ComponentStyledApplication & typeof StyledApplication;
 export default _default
 
 /**
+ * Return children as array.
+ * 
+ * @param props Component props from which to retrieve children.
+ */
+export declare function body(props: { children: any | any[] }): any[];
+
+/**
  * StyledApplication Element containing instantiated `Root`
  * 
  * Convenience argument for `ReactDOM.render()` and returnable from Components.
@@ -52,7 +58,6 @@ export default _default
  * @param Root Component to initialize with [default] wrapper.
  * 
  * @returns `<StyledApplication><Root /></StyledApplication>`
- * 
  */
 export declare function withStyles(Root: ComponentType): ReactElement;
 

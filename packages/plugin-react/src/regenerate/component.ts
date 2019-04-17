@@ -1,6 +1,6 @@
-import t, { ArrayPattern, Identifier, MemberExpression, ObjectPattern, PatternLike } from '@babel/types';
+import t, { ArrayPattern, Expression, Identifier, MemberExpression, ObjectPattern, PatternLike } from '@babel/types';
 import { ComponentExpression, DoExpressive, ParseErrors } from '@expressive/babel-plugin-core';
-import { declare, ElementReact, ensureArray, ExternalsManager, GenerateReact, memberExpression } from 'internal';
+import { callExpression, declare, ElementReact, ExternalsManager, GenerateReact, memberExpression } from 'internal';
 import { StackFrame, Visitor } from 'types';
 
 const Error = ParseErrors({
@@ -95,7 +95,12 @@ function incorperateChildParameters(
     arrowFn.params = [props.node as Identifier | ObjectPattern];
         
     if(init){
-        const declarator = declare("var", assign, ensureArray(init, count == 1));
+        const inner = Imports.ensure("@expressive/react", "body");
+        let getKids = callExpression(inner, props.node as Expression) as Expression;
+        if(count == 1)
+            getKids = t.memberExpression(getKids, t.numericLiteral(0), true)
+
+        const declarator = declare("var", assign, getKids);
         Do.statements.unshift(declarator)
     }
 }
