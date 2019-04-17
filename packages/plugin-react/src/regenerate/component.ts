@@ -29,11 +29,21 @@ export const DoExpression = <Visitor<DoExpressive>> {
 
         const factoryExpression = Generator.container(factory)
 
-        if(DoNode.exec)
+        if(DoNode.exec){
             if(incorperateChildParameters(DoNode.exec, factoryExpression))
                 return
-        
-        path.replaceWith(factoryExpression);
+        }
+
+        if(DoNode.exec && DoNode.statements.length){
+            path.replaceWith(t.blockStatement([
+                ...DoNode.statements.map(x => x.node),
+                t.returnStatement(factoryExpression)
+            ]))
+        }
+        else {
+            path.replaceWith(factoryExpression);
+        }
+
         context.Module.lastInsertedElement = path;
     }
 }

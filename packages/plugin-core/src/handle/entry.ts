@@ -1,10 +1,11 @@
-import { ArrowFunctionExpression } from '@babel/types';
+import { ArrowFunctionExpression, VariableDeclaration, Statement } from '@babel/types';
 import { ApplyNameImplications, ElementInline, StackFrame } from 'internal';
 import { DoExpressive, Path } from 'types';
 
 export class ComponentExpression extends ElementInline {
 
-    exec?: Path<ArrowFunctionExpression>
+    exec?: Path<ArrowFunctionExpression>;
+    statements = [] as Path<Statement>[];
 
     constructor(
         name: string,
@@ -26,5 +27,9 @@ export class ComponentExpression extends ElementInline {
 
         path.node.meta = this;
         this.context.resolve(this.name);
+    }
+
+    VariableDeclaration(path: Path<VariableDeclaration>){
+        this.statements.push(path);
     }
 }
