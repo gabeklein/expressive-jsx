@@ -187,7 +187,7 @@ function ParseIdentity(
     target: ElementInline ){
 
     let prefix: string | undefined;
-
+    
     if(tag.isBinaryExpression({operator: "-"})){
         const left = tag.get("left") as Path<Expression>;
 
@@ -196,6 +196,11 @@ function ParseIdentity(
         else
             throw Error.BadPrefix(left);
         tag = tag.get("right") as any;
+    }
+
+    if(tag.isUnaryExpression({operator: "!"})){
+        prefix = "html"
+        tag = tag.get("argument");
     }
 
     tag = UnwrapExpression(tag, target);
