@@ -73,7 +73,13 @@ export function ApplyModifier(
     while(true)
 
     for(const name in totalOutput.style){
-        const item = totalOutput.style[name];
+        let item = totalOutput.style[name];
+
+        if(Array.isArray(item)){
+            const [ callee, ...args ] = item;
+            item = `${callee}(${args.join(" ")})`
+        }
+
         recipient.insert(new ExplicitStyle(name, item))
     }
 }
@@ -100,10 +106,12 @@ export class ModifyDelegate {
     }
 
     public assign(data: any){
-        for(const field in data)
+        for(const field in data){
+            let value = data[field];
             if(field in this.output)
-                Object.assign(this.output[field], data[field])
-            else this.output[field] = data[field]
+                Object.assign(this.output[field], value)
+            else this.output[field] = value
+        }
     }
 }
 
