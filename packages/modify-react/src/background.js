@@ -1,3 +1,5 @@
+const { URL_IMAGES } = process.env;
+
 export function image(a){
     const CDN = process.env.CDN || "";
     if(CDN)
@@ -6,6 +8,24 @@ export function image(a){
     return {
         style: {
             backgroundImage: `url("${a}")`
+        }
+    }
+}
+
+export function bg(a){
+    let value;
+    if(Array.isArray(x)){
+        return {
+            style: {
+                backgroundImage: `url(${URL_IMAGES + a})`
+            }
+        }
+    }
+    else {
+        return {
+            style: {
+                backgroundColor: a
+            }
         }
     }
 }

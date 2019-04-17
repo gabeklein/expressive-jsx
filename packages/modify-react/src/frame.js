@@ -2,14 +2,20 @@ const EXPORT = exports;
 
 import { rect, appendUnitToN, handleUnits } from "./util"
 
-export function size(x, y, unit){
-    if(typeof y == "string" && typeof x == "number")
-        unit = y, y = null;
+for(const type of ["min", "max", ""]){
+    const size = type ? `${type}Size` : "size";
+    const width = type ? `${type}Width` : "width";
+    const height = type ? `${type}Height` : "height";
 
-    return {
-        attrs: {
-            width: [x,      unit], 
-            height: [y || x, unit]
+    EXPORT[size] = (x, y, unit) => {
+        if(typeof y == "string" && typeof x == "number")
+            unit = y, y = null;
+
+        return {
+            attrs: {
+                [width]: [x,      unit], 
+                [height]: [y || x, unit]
+            }
         }
     }
 }
@@ -74,6 +80,14 @@ for (const kind of [
                 style: { [kind]: value }
             }
         }
+}
+
+export function shadow(color, radius = 10, x = 2, y = x){
+    return {
+        style: {
+            boxShadow: `${x}px ${y}px ${radius}px ${color}`
+        }
+    }
 }
 
 export function outline(a, b){
