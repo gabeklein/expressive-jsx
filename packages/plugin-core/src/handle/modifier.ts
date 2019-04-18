@@ -48,7 +48,7 @@ export class ElementModifier
         super(context);
         this.name = name;
         this.context.resolve(name);
-        this.forSelector = [ this.uid ];
+        this.forSelector = [ `.${this.uid}` ];
         this.parse(body);
     }
 
