@@ -14,7 +14,7 @@ export function image(a){
 
 export function bg(a){
     let value;
-    if(Array.isArray(x)){
+    if(Array.isArray(a)){
         return {
             style: {
                 backgroundImage: `url(${URL_IMAGES + a})`
