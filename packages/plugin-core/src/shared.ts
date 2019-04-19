@@ -1,4 +1,4 @@
-import { Expression } from '@babel/types';
+import t, { Expression } from '@babel/types';
 import { BunchOf, Options, Path, SharedSingleton, FlatValue } from 'types';
 import { createHash } from 'crypto';
 
@@ -33,7 +33,7 @@ export function toArray<T> (value: T | T[]): T[] {
 }
 
 export function preventDefaultPolyfill(element: Path){
-    // element.parentPath.remove();
+    element.replaceWith(t.booleanLiteral(false));
 }
 
 export function ParseErrors<O extends BunchOf<string>> (register: O) {
