@@ -1,17 +1,27 @@
-import t, { Expression } from '@babel/types';
+import t, { BlockStatement, ExpressionStatement, IfStatement, LabeledStatement } from '@babel/types';
+import { ContingentModifier } from 'handle/modifier';
 import { AttributeBody, ElementInline, ExplicitStyle, Modifier } from 'internal';
 import Arguments from 'parse/arguments';
 import { BunchOf, ModifyAction, Path } from 'types';
+import { ParseErrors } from 'shared';
 
-export type ModTuple = [string, ModifyAction, any[]];
+const Error = ParseErrors({
+    ContingentNotImplemented: "Cant integrate this contingent request. Only directly in an element block."
+})
+
+type ModiferBody = Path<ExpressionStatement | BlockStatement | LabeledStatement | IfStatement>;
+export type ModTuple = [string, ModifyAction, any[] | undefined, ModiferBody? ];
 
 export function ApplyModifier(
     initial: string,
     recipient: Modifier | ElementInline, 
-    input: Path<Expression>){
+    input: ModiferBody){
 
     const handler = recipient.context.propertyMod(initial);
-    const args = Arguments.Parse(input)
+    let args;
+    
+    if(input.isExpressionStatement())
+        args = Arguments.Parse(input.get("expression"));
     
     const totalOutput = { 
         props: {} as BunchOf<any>, 
@@ -19,10 +29,8 @@ export function ApplyModifier(
     };
 
     let i = 0;
-    let mods = [] as ModTuple[];
-    let current: ModTuple = [ 
-        initial, handler, args
-    ];
+    let stack = [] as ModTuple[];
+    let current: ModTuple = [ initial, handler, args, input ];
 
     do {
         const { output } = new ModifyDelegate(recipient, ...current);
@@ -61,14 +69,13 @@ export function ApplyModifier(
             ])
         }
         
-        if(!pending.length)
-            if(++i in mods)
-                current = mods[i]
-            else break;
-        else {
-            mods = pending.concat(mods.slice(i+1));
-            current = mods[i = 0];
+        if(pending.length){
+            stack = [...pending, ...stack.slice(i+1)];
+            current = stack[i = 0];
         }
+        else if(++i in stack)
+            current = stack[i]
+        else break;
     }
     while(true)
 
@@ -94,24 +101,40 @@ export class ModifyDelegate {
         public target: AttributeBody,
         public name: string,
         transform: ModifyAction = PropertyModifierDefault,
-        args: any[]){
+        args: any[] | undefined,
+        private body?: ModiferBody){
 
         this.arguments = args;
 
-        const output = transform.apply(this, args)
+        const output = transform.apply(this, args || [])
 
         if(!output || this.done) return
 
         this.assign(output);
     }
 
-    public assign(data: any){
+    assign(data: any){
         for(const field in data){
             let value = data[field];
             if(field in this.output)
                 Object.assign(this.output[field], value)
             else this.output[field] = value
         }
+    }
+
+    setContingent(contingent: string){
+        const body = this.body!;
+        const mod = new ContingentModifier(
+            this.target.context,
+            this.target as any,
+            contingent
+        )
+        mod.parse(body);
+        const { target } = this;
+        if(target instanceof ElementInline)
+            target.modifiers.push(mod);
+        else 
+            throw Error.ContingentNotImplemented(body)
     }
 }
 

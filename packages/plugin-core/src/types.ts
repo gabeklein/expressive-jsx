@@ -54,7 +54,7 @@ export interface ComponentRecipient {
     children: ElementItem[];
 }
 
-export type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | undefined;
+export type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | void;
 
 export interface ModifierOutput {
     attrs?: BunchOf<any>

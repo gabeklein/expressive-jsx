@@ -54,14 +54,18 @@ export abstract class AttributeBody extends TraversableBody {
 
         if(this.context.hasOwnProperty("_" + name))
             throw Error.DuplicateModifier(path); 
+
+        const handler = applyTo.context.propertyMod(name);
     
-        if(body.isBlockStatement())
+        if(!handler && body.isBlockStatement())
             applyTo.ElementModifier(
                 new ElementModifier(this.context, name, body)
             )
 
-        else if(body.isExpressionStatement())
-            ApplyModifier(name, applyTo, body.get("expression"));
+        else if(body.isExpressionStatement() || body.isBlockStatement())
+            ApplyModifier(
+                name, applyTo, body
+            );
 
         else
             throw Error.BadInputModifier(body, body.type)

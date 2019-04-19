@@ -1,14 +1,21 @@
+const EXPORT = exports;
+
 const PSEUDO = {
     hover: ":hover",
     active: ":active",
     focus: ":focus",
     after: "::after",
     before: "::before",
-    hoverAfter: ":hover::after",
-    hoverBefore: ":hover::before",
-    focusAfter: ":focus::after",
-    focusBefore: ":focus::before"
+    afterOnHover: ":hover::after",
+    beforeOnHover: ":hover::before",
+    afterOnFocus: ":focus::after",
+    beforeOnFocus: ":focus::before"
 }
+
+for(const name in PSEUDO)
+    EXPORT[name] = function(){
+        this.setContingent(PSEUDO[name])
+    }
 
 function on(){
     this.priority = 7;
