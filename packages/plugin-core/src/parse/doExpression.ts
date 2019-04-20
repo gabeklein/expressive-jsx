@@ -60,6 +60,7 @@ function generateEntryElement(
 
 function containerName(path: Path): string {
     let parent = path.parentPath;
+    let encounteredReturn;
 
     while(true)
     switch(parent.type){
@@ -90,6 +91,10 @@ function containerName(path: Path): string {
         }
 
         case "ReturnStatement": {
+            if(encounteredReturn)
+                return "return";
+
+            encounteredReturn = path;
             const ancestry = path.getAncestry();
 
             let within = ancestry.find((x)=> x.isFunction()) as Path<Function> | undefined;
