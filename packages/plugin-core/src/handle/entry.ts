@@ -1,4 +1,4 @@
-import { ArrowFunctionExpression, VariableDeclaration, Statement } from '@babel/types';
+import { ArrowFunctionExpression, VariableDeclaration, Statement, DebuggerStatement } from '@babel/types';
 import { ApplyNameImplications, ElementInline, StackFrame } from 'internal';
 import { DoExpressive, Path } from 'types';
 
@@ -30,6 +30,10 @@ export class ComponentExpression extends ElementInline {
     }
 
     VariableDeclaration(path: Path<VariableDeclaration>){
+        this.statements.push(path.node);
+    }
+
+    DebuggerStatement(path: Path<DebuggerStatement>){
         this.statements.push(path.node);
     }
 }
