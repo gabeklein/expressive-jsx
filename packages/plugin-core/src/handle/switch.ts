@@ -132,8 +132,8 @@ export class ComponentConsequent extends ElementInline {
         let { context } = this;
 
         //TODO: Discover helpfulness of customized className.
-        // let selector = specifyOption(this.test) || `opt${this.index}`;
-        let selector = `opt${this.index}`;
+        let selector = specifyOption(this.test) || `opt${this.index}`;
+        // let selector = `opt${this.index}`;
         const parent = context.currentElement!;
 
         const mod = new ContingentModifier(
@@ -155,7 +155,7 @@ export class ComponentConsequent extends ElementInline {
     }
 }
 
-void function specifyOption(test?: Path<Expression>){
+function specifyOption(test?: Path<Expression>){
     if(!test)
         return "else"
 
