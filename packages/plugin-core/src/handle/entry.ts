@@ -26,7 +26,7 @@ export class ComponentExpression extends ElementInline {
             ApplyNameImplications(name, this);
 
         path.node.meta = this;
-        this.context.resolve(this.name);
+        this.context.resolveFor(this.name);
     }
 
     VariableDeclaration(path: Path<VariableDeclaration>){

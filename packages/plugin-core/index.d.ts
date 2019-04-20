@@ -113,7 +113,7 @@ interface StackFrame {
 	event(ref: symbol): Function;
 	event(ref: symbol, set: Function): void;
 	dispatch(ref: symbol, ...args: any[]): void;
-	resolve(as?: string): void;
+	resolveFor(as?: string): void;
 	create(node: any): StackFrame;
 	push(node: TraversableBody): void;
 	pop(): void;

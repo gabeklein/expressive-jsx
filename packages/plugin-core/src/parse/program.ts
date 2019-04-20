@@ -105,7 +105,7 @@ export class StackFrame {
         (<Function>this[ref]).apply(null, args)
     }
 
-    resolve(append?: string | number){
+    resolveFor(append?: string | number){
         this.prefix = this.prefix + " " + append || "";
     }
 
