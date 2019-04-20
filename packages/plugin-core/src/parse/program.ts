@@ -3,10 +3,36 @@ import { createHash } from 'crypto';
 import { ComponentIf } from 'handle/switch';
 import { ElementInline, ElementModifier, TraversableBody } from 'internal';
 import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
+import { ParseErrors } from 'shared';
+
+const Error = ParseErrors({
+    IllegalInProgramContext: "Cannot apply element styles in top-level of program",
+    BadModifierName: "Modifier name cannot start with _ symbol!",
+    DuplicateModifier: "Duplicate declaration of named modifier!"
+})
 
 export default <Visitor<Program>>{
     enter(path, state){
-        state.context = new StackFrame(state);
+        const context = state.context = new StackFrame(state);
+
+        for(const statement of path.get("body"))
+            if(statement.isLabeledStatement()){
+                const { name } = statement.node.label;
+                const body = statement.get("body");
+
+                if(name[0] == "_")
+                    throw Error.BadModifierName(path)
+
+                if(this.context.hasOwnProperty("_" + name))
+                    throw Error.DuplicateModifier(path);
+
+                if(body.isExpressionStatement(body))
+                    throw Error.IllegalInProgramContext(statement)
+
+                const mod = new ElementModifier(context, name, body);
+                context.elementMod(mod)
+                statement.remove();
+            }
     },
     exit(path, state){
         if(~process.execArgv.join().indexOf("inspect-brk"))
