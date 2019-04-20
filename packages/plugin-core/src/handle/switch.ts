@@ -20,8 +20,11 @@ export class ComponentIf {
         context.currentIf = this;
         if(!test)
             context.entryIf = this;
+    }
         
-        let layer: Path<Statement> = path;
+    wasAddedTo(parent: TraversableBody){
+        const { context } = this;
+        let layer: Path<Statement> = this.path;
 
         while(true){
             let consequent = layer.get("consequent") as Path<Statement>;
@@ -70,7 +73,7 @@ export class ComponentIf {
                 )
 
         if(doInsert.length)
-            path.replaceWith(
+            this.path.replaceWith(
                 t.blockStatement(doInsert)
             );
     }
