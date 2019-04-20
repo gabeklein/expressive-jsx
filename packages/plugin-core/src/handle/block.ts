@@ -1,4 +1,4 @@
-import t, { ExpressionStatement, Statement } from '@babel/types';
+import t, { ExpressionStatement, Statement, Expression } from '@babel/types';
 import { ComponentIf, ParseErrors, SequenceItem, StackFrame } from 'internal';
 import { BunchOf, DoExpressive, Path } from 'types';
 
@@ -59,13 +59,23 @@ export abstract class TraversableBody {
         else throw Error.NodeUnknown(item, item.type)
     }
 
+    abstract ExpressionDefault(path: Path<Expression>): void;
+
     ExpressionStatement(
-        this: BunchOf<Function>, 
         path: Path<ExpressionStatement>){
 
-        const expr = path.get("expression");
-        if(expr.type in this) this[expr.type](expr);
-        else if(this.ExpressionDefault) this.ExpressionDefault(expr);
-        else throw Error.ExpressionUnknown(expr, expr.type);
+        return this.Expression(path.get("expression"))
+    }
+
+    Expression(
+        path: Path<Expression>){
+        const self = this as unknown as BunchOf<Function>
+
+        if(path.type in this) 
+            self[path.type](path);
+        else if(this.ExpressionDefault) 
+            this.ExpressionDefault(path);
+        else 
+            throw Error.ExpressionUnknown(path, path.type);
     }
 }
