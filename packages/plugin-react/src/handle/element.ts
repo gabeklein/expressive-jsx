@@ -32,6 +32,11 @@ export class ElementReact<T extends ElementInline = ElementInline>
     willParse(sequence: SequenceItem[]){
         const pre = [] as SequenceItem[];
 
+        const { classList } = this.source.data;
+
+        if(classList)
+            this.classList.push(...classList);
+
         for(const mod of this.source.modifiers)
             if(mod.nTargets == 1 && !mod.onlyWithin){
                 const exists = this.source.style;
