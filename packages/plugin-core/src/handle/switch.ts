@@ -1,6 +1,16 @@
-import t, { Expression, ExpressionStatement, IfStatement, LabeledStatement, Statement } from '@babel/types';
-import { ContingentModifier, ElementInline, InnerContent, StackFrame } from 'internal';
-import { Path } from 'types';
+import t, { Expression, ExpressionStatement, IfStatement, LabeledStatement, Statement, ReturnStatement } from '@babel/types';
+import { ContingentModifier, ElementInline, InnerContent, StackFrame, ParseErrors } from 'internal';
+import { Path, DoExpressive } from 'types';
+import { ComponentExpression } from './entry';
+import { TraversableBody } from './block';
+
+const Error = ParseErrors({
+    ReturnElseNotImplemented: "This is an else condition, returning from here is not implemented.",
+    IfStatementCannotContinue: "Previous consequent already returned, cannot integrate another clause.",
+    CantReturnInNestedIf: "Cant return because this if-statement is nested!",
+    CanOnlyReturnTopLevel: "Cant return here because immediate parent is not the component.",
+    CanOnlyReturnFromLeadingIf: "Cant return here because it's not the first if consequent in-chain."
+})
 
 type Consequent = ComponentIf | ComponentConsequent;
 
@@ -21,7 +31,7 @@ export class ComponentIf {
         if(!test)
             context.entryIf = this;
     }
-        
+
     wasAddedTo(parent: TraversableBody){
         const { context } = this;
         let layer: Path<Statement> = this.path;
@@ -53,14 +63,30 @@ export class ComponentIf {
             
             layer = layer.get("alternate") as Path<Statement>
 
-            if(layer.type !== "IfStatement"){
-                if(layer.node){
-                    this.forks.push(
-                        new ComponentConsequent(layer, this.context, this.forks.length + 1)
-                    )
-                }
-                break;
+            const overrideRest = (<ComponentConsequent>fork).doesReturn || false;
+
+            if(overrideRest && layer.node)
+                throw Error.IfStatementCannotContinue(layer)
+
+            if(layer.type === "IfStatement")
+                continue
+
+            const final = new ComponentConsequent(
+                layer.node && layer, 
+                this.context, 
+                this.forks.length + 1
+            );
+
+            this.forks.push(final);
+
+            if(overrideRest){
+                final.name = context.currentElement!.name
+                final.explicitTagName = "div"
+                const { current } = context.parent;
+                if(current instanceof ComponentExpression)
+                    current.forwardTo = final
             }
+            break;
         };
             
         const doInsert = [] as ExpressionStatement[]; 
@@ -83,14 +109,18 @@ export class ComponentConsequent extends ElementInline {
 
     slaveModifier?: ContingentModifier;
     usesClassname?: string;
+    doesReturn?: true;
 
     constructor(
-        public path: Path<Statement>, 
+        public path: Path<Statement> | undefined, 
         public context: StackFrame, 
         public index: number,
         public test?: Path<Expression>){
 
         super(context);
+
+        if(!path)
+            return;
 
         this.doBlock = this.handleContentBody(path);
         if(!this.doBlock){
@@ -124,6 +154,32 @@ export class ComponentConsequent extends ElementInline {
         if(!mod) return;
             
         parent.modifiers.push(mod);
+    }
+
+    ReturnStatement(path: Path<ReturnStatement>){
+        const arg = path.get("argument");
+        const { context } = this;
+
+        if(!this.test)
+            throw Error.ReturnElseNotImplemented(path)
+
+        if(this.index !== 1)
+            throw Error.CanOnlyReturnFromLeadingIf(path)
+
+        if(context.currentIf !== context.entryIf)
+            throw Error.CantReturnInNestedIf(path);
+
+        if(!(context.currentElement instanceof ComponentExpression))
+            throw Error.CanOnlyReturnTopLevel(path);
+
+        if(arg)
+            if(arg.isDoExpression())
+                (<DoExpressive>arg.node).meta = this;
+                
+            else if(arg.isExpression())
+                this.Expression(arg);
+
+        this.doesReturn = true;
     }
 
     LabeledStatement(path: Path<LabeledStatement>){

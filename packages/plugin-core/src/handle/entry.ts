@@ -1,12 +1,13 @@
-import { ArrowFunctionExpression, VariableDeclaration, Statement, DebuggerStatement } from '@babel/types';
-import { ApplyNameImplications, ElementInline, StackFrame } from 'internal';
+import { ArrowFunctionExpression, DebuggerStatement, Statement, VariableDeclaration } from '@babel/types';
+import { ApplyNameImplications, ComponentConsequent, ElementInline, InnerContent, SequenceItem, StackFrame } from 'internal';
 import { DoExpressive, Path } from 'types';
 
 export class ComponentExpression extends ElementInline {
 
     exec?: Path<ArrowFunctionExpression>;
     statements = [] as Statement[];
-
+    forwardTo?: ComponentConsequent;
+    
     constructor(
         name: string,
         context: StackFrame,
@@ -27,6 +28,22 @@ export class ComponentExpression extends ElementInline {
 
         path.node.meta = this;
         this.context.resolveFor(this.name);
+    }
+
+    add(item: SequenceItem){
+        if(this.forwardTo){
+            this.forwardTo.add(item)
+            return 
+        }
+        super.add(item)
+    }
+
+    adopt(child: InnerContent){
+        if(this.forwardTo){
+            this.forwardTo.adopt(child)
+            return 
+        }
+        super.adopt(child)
     }
 
     VariableDeclaration(path: Path<VariableDeclaration>){
