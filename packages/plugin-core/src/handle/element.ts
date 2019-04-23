@@ -12,7 +12,7 @@ import {
     Prop,
     StackFrame,
 } from 'internal';
-import { DoExpressive, Path } from 'types';
+import { DoExpressive, Path, BunchOf } from 'types';
 import { Modifier } from './modifier';
 
 const Error = ParseErrors({
@@ -30,6 +30,7 @@ export class ElementInline extends AttributeBody {
     children = [] as InnerContent[];
     explicitTagName?: string;
     modifiers = [] as Modifier[];
+    data = {} as BunchOf<any>;
 
     adopt(child: InnerContent){
         const index = this.children.push(child);

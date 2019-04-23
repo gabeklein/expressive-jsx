@@ -54,6 +54,7 @@ declare class ElementInline extends AttributeBody {
 	readonly modifiers: ElementModifier[]
 	readonly explicitTagName?: string;
 	readonly doBlock?: DoExpressive;
+	readonly data: BunchOf<any>;
 	adopt(child: InnerContent): void;
 }
 declare class ComponentExpression extends ElementInline {
