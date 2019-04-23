@@ -1,9 +1,9 @@
 import { Program } from '@babel/types';
 import { createHash } from 'crypto';
 import { ComponentIf } from 'handle/switch';
-import { ElementInline, ElementModifier, TraversableBody } from 'internal';
-import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
+import { ElementInline, ElementModifier, Modifier, TraversableBody } from 'internal';
 import { ParseErrors } from 'shared';
+import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
 
 const Error = ParseErrors({
     IllegalInProgramContext: "Cannot apply element styles in top-level of program",
@@ -49,6 +49,14 @@ function Hash(data: string, length?: number){
     )
 }
 
+const BuiltIn: BunchOf<ModifyAction> = {
+    priority(priority: number){
+        const { target } = this;
+        if(target instanceof Modifier)
+            target.priority = priority
+    }
+}
+
 export class StackFrame {
     prefix: string;
     program = {} as any;
@@ -64,7 +72,7 @@ export class StackFrame {
     constructor(state: BabelState){
         let Stack = this;
         const included = state.opts.modifiers;
-        const imported = [ ...included ];
+        const imported = [ BuiltIn, ...included ];
 
         this.stateSingleton = state;
         this.prefix = Hash(state.filename);
