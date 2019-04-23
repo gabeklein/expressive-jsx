@@ -199,6 +199,8 @@ export class ComponentConsequent extends ElementInline {
             context, parent, `.${selector}`
         );
 
+        mod.priority = 5
+
         parent.modifiers.push(mod);
 
         if(!context.currentIf!.hasStyleOutput)

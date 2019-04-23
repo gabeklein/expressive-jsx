@@ -122,13 +122,14 @@ export class ModifyDelegate {
         }
     }
 
-    setContingent(contingent: string){
+    setContingent(contingent: string, priority?: number){
         const body = this.body!;
         const mod = new ContingentModifier(
             this.target.context,
             this.target as any,
             contingent
         )
+        mod.priority = priority || this.priority;
         mod.parse(body);
         const { target } = this;
         if(target instanceof ElementInline)

@@ -155,6 +155,7 @@ interface ModifyDelegate {
 	readonly arguments?: Array<any>;
 	done?: true;
 	assign(data: any): void;
+	setContingent(contingent: string, priority?: number): void;
 }
 declare abstract class ElementConstruct
 	<From extends ElementInline = ElementInline> {

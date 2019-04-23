@@ -39,6 +39,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
 
         for(const mod of this.source.modifiers)
             if(mod.nTargets == 1 && !mod.onlyWithin){
+                // TODO: respect priority differences!
                 const exists = this.source.style;
                 for(const style of mod.sequence)
                     if(style.name in exists == false)
@@ -83,6 +84,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
 
         if(style_static.length > 0){
             const mod = new ContingentModifier(context, this.source);
+            mod.priority = 2;
             mod.sequence.push(...style_static);
             mod.forSelector = [ `.${this.source.uid}` ];
             context.Module.modifiersDeclared.add(mod);

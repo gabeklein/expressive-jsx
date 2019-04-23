@@ -39,6 +39,7 @@ export class ElementModifier
     next?: ElementModifier;
     nTargets = 0;
     provides = [] as ElementModifier[];
+    priority = 1;
     
     constructor(
         context: StackFrame,
@@ -53,6 +54,7 @@ export class ElementModifier
     }
 
     ElementModifier(mod: ElementModifier){
+        mod.priority = this.priority;
         this.provides.push(mod);
         this.onlyWithin = mod.onlyWithin;
         concat(mod, this, "onGlobalStatus")
@@ -92,6 +94,7 @@ export class ContingentModifier
         const { anchor } = this;
 
         mod.onlyWithin = this;
+        mod.priority = 4;
 
         if(anchor instanceof ElementModifier)
             anchor.provides.push(mod)

@@ -9,13 +9,17 @@ const PSEUDO = {
     afterOnHover: ":hover::after",
     beforeOnHover: ":hover::before",
     afterOnFocus: ":focus::after",
-    beforeOnFocus: ":focus::before"
+    beforeOnFocus: ":focus::before",
+    afterOnActive: ":active::after",
+    beforeOnActive: ":active::before"
 }
 
-for(const name in PSEUDO)
+for(const name in PSEUDO){
+    let priority = ~name.indexOf("Active") ? 7 : 6;
     EXPORT[name] = function(){
-        this.setContingent(PSEUDO[name])
+        this.setContingent(PSEUDO[name], priority)
     }
+}
 
 export function css(){
     const { data } = this.target;
