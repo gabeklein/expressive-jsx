@@ -1,9 +1,9 @@
 const EXPORT = exports;
 
 const PSEUDO = {
-    hover: ":hover",
-    active: ":active",
-    focus: ":focus",
+    onHover: ":hover",
+    onActive: ":active",
+    onFocus: ":focus",
     after: "::after",
     before: "::before",
     afterOnHover: ":hover::after",
