@@ -162,11 +162,15 @@ export function ApplyNameImplications(
         context.elementMod(name);
 
     if(head){
-        target.name = name;
-        target.explicitTagName = 
-            prefix == "html" || /^[A-Z]/.test(name)
-                ? name: "div";
+        let explicit;
+        if(prefix == "html" || /^[A-Z]/.test(name))
+            explicit = target.explicitTagName = name
+        
+        if(!explicit || !target.name)
+            target.name = name;
     }
+    else 
+        target.name = name;
     
     if(!modify) return;
 

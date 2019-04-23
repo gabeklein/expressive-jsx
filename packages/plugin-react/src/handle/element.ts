@@ -64,7 +64,9 @@ export class ElementReact<T extends ElementInline = ElementInline>
 
     get tagName(): string {
         const { name, explicitTagName } = this.source;
-        return explicitTagName || name || "div";
+        return explicitTagName || (
+            name && /^[A-Z]/.test(name) ? name : "div"
+        );
     }
 
     protected adopt(item: ContentLike){
