@@ -1,16 +1,17 @@
 import t, { Expression, ObjectProperty, SpreadElement } from '@babel/types';
 import {
+    ComponentExpression,
     ComponentFor,
     ComponentIf,
+    ContingentModifier,
     ElementConstruct,
     ElementInline,
     ExplicitStyle,
     Prop,
     SequenceItem,
-    ContingentModifier
 } from '@expressive/babel-plugin-core';
 import { AttributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue } from 'internal';
-import { Path, PropData, StackFrame, ContentLike } from 'types';
+import { ContentLike, Path, PropData, StackFrame } from 'types';
 
 export class ElementReact<T extends ElementInline = ElementInline>
     extends ElementConstruct<T>{
@@ -84,9 +85,15 @@ export class ElementReact<T extends ElementInline = ElementInline>
 
         if(style_static.length > 0){
             const mod = new ContingentModifier(context, this.source);
-            mod.priority = 2;
+            const { name, uid } = this.source;
+
+            const classMostLikelyForwarded = 
+                /^[A-Z]/.test(name!) && 
+                !(this.source instanceof ComponentExpression);
+
+            mod.priority = classMostLikelyForwarded ? 3 : 2;
             mod.sequence.push(...style_static);
-            mod.forSelector = [ `.${this.source.uid}` ];
+            mod.forSelector = [ `.${uid}` ];
             context.Module.modifiersDeclared.add(mod);
         }
     }
