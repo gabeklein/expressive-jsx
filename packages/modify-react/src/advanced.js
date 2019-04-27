@@ -21,12 +21,32 @@ for(const name in PSEUDO){
     }
 }
 
+// const PascalToDash = x => x.replace(/([A-Z]+)/g, "-$1").toLowerCase();
+
 export function css(){
+    let body = this.body;
+    if(body && body.isStatement()){
+        if(body.isBlockStatement())
+            body = body.get("body");
+        else
+            body = [body];
+
+        for(const item of body){
+            const className = "." + item.node.label.name;
+            if(!item.isLabeledStatement())
+                throw new Error("css modifier blew up")
+            this.setContingent(className, 5, item.get("body"))
+        }
+
+        return;
+    }
+
     const { data } = this.target;
     let list = data.classList;
     if(!list)
         list = data.classList = [];
 
-    for(const className of this.arguments)
-        list.push(className);
+    for(const className of this.arguments){
+        list.push(PascalToDash(className));
+    }
 }
