@@ -134,6 +134,11 @@ export class ModifyDelegate {
         const { target } = this;
         if(target instanceof ElementInline)
             target.modifiers.push(mod);
+        else if(
+            target instanceof ContingentModifier &&
+            target.anchor instanceof ElementInline){
+            target.anchor.modifiers.push(mod);
+        }
         else 
             throw Error.ContingentNotImplemented(body)
     }

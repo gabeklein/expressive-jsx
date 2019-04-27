@@ -38,7 +38,9 @@ export class ElementReact<T extends ElementInline = ElementInline>
         if(classList)
             this.classList.push(...classList);
 
-        for(const mod of this.source.modifiers)
+        for(const mod of this.source.modifiers){
+            if(mod.sequence.length == 0)
+                continue
             if(mod.nTargets == 1 && !mod.onlyWithin){
                 // TODO: respect priority differences!
                 const exists = this.source.style;
@@ -51,6 +53,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
                 if(!(mod instanceof ContingentModifier))
                     this.classList.push(mod.uid);
             }
+        }
 
         if(pre.length)
             return pre.concat(sequence)
