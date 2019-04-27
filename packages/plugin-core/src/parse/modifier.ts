@@ -1,4 +1,4 @@
-import t, { BlockStatement, ExpressionStatement, IfStatement, LabeledStatement } from '@babel/types';
+import t, { BlockStatement, ExpressionStatement, IfStatement, LabeledStatement, Statement } from '@babel/types';
 import { ContingentModifier } from 'handle/modifier';
 import { AttributeBody, ElementInline, ExplicitStyle, Modifier } from 'internal';
 import Arguments from 'parse/arguments';
@@ -122,8 +122,8 @@ export class ModifyDelegate {
         }
     }
 
-    setContingent(contingent: string, priority?: number){
-        const body = this.body!;
+    setContingent(contingent: string, priority?: number, usingBody?: Path<Statement>){
+        const body = usingBody || this.body!;
         const mod = new ContingentModifier(
             this.target.context,
             this.target as any,
