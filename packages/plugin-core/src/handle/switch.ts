@@ -1,8 +1,10 @@
-import t, { Expression, ExpressionStatement, IfStatement, LabeledStatement, Statement, ReturnStatement } from '@babel/types';
-import { ContingentModifier, ElementInline, InnerContent, StackFrame, ParseErrors } from 'internal';
-import { Path, DoExpressive } from 'types';
-import { ComponentExpression } from './entry';
+import t, { Expression, ExpressionStatement, IfStatement, LabeledStatement, ReturnStatement, Statement } from '@babel/types';
+import { ContingentModifier, ElementInline, InnerContent, ParseErrors, StackFrame } from 'internal';
+import { quickHash } from 'shared';
+import { DoExpressive, Path } from 'types';
+
 import { TraversableBody } from './block';
+import { ComponentExpression } from './entry';
 
 const Error = ParseErrors({
     ReturnElseNotImplemented: "This is an else condition, returning from here is not implemented.",
@@ -190,9 +192,11 @@ export class ComponentConsequent extends ElementInline {
     private slaveNewModifier(){
         let { context } = this;
 
+        const uid = quickHash(this.context.prefix)
+
         //TODO: Discover helpfulness of customized className.
         let selector = specifyOption(this.test) || `opt${this.index}`;
-        // let selector = `opt${this.index}`;
+        selector += `_${uid}`;
         const parent = context.currentElement!;
 
         const mod = new ContingentModifier(
@@ -220,10 +224,10 @@ function specifyOption(test?: Path<Expression>){
     if(!test)
         return "else"
 
-    let ref = "";
+    let ref = "if_";
     if(test.isUnaryExpression({ operator: "!" })){
         test = test.get("argument");
-        ref = "-"
+        ref = "not_"
     }
     if(test.isIdentifier()){
         const { name } = test.node;
