@@ -1,6 +1,6 @@
 {
   "name": "@expressive/babel-preset-react-native",
-  "version": "1.0.0-beta.8",
+  "version": "1.0.0-beta.9",
   "description": "Expressive-React preset for Native React",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
@@ -21,9 +21,9 @@
     "/index.js"
   ],
   "dependencies": {
-    "@expressive/babel-plugin-core": "^1.0.0-beta.8",
-    "@expressive/babel-plugin-react-class": "^1.0.0-beta.8",
-    "@expressive/react-native-modifiers": "^1.0.0-beta.8",
+    "@expressive/babel-plugin-core": "^1.0.0-beta.9",
+    "@expressive/babel-plugin-react-class": "^1.0.0-beta.9",
+    "@expressive/react-native-modifiers": "^1.0.0-beta.9",
     "babel-preset-expressive-enhancements": "^1.0.1",
     "babel-preset-react-native": "^4.0.0"
   }
