@@ -9,6 +9,7 @@ import t, {
     SpreadElement,
     TaggedTemplateExpression,
     UnaryExpression,
+    ArrayExpression,
 } from '@babel/types';
 import {
     ElementInline,
@@ -307,6 +308,15 @@ function ParseProps(
             case "ExpressionLiteral":
             case "ArrowFunctionExpression": 
                 target.add(path as Path<Expression>)
+            break;
+
+            case "ArrayExpression": {
+                const array = path as Path<ArrayExpression>;
+
+                for(const item of array.get("elements"))
+                    if(item.isExpression())
+                        target.add(item);
+            }
             break;
 
             case "TaggedTemplateExpression": {
