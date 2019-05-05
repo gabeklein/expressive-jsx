@@ -1,6 +1,6 @@
 {
   "name": "@expressive/react",
-  "version": "1.0.0-beta.9",
+  "version": "1.0.0-beta.11",
   "description": "Expressive-react runtime",
   "main": "lib/index.js",
   "types": "index.d.ts",
