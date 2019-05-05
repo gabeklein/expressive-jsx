@@ -15,7 +15,7 @@
 	],
 	"license": "MIT",
 	"devDependencies": {
-		"lerna": "^2.8.0"
+		"lerna": "^3.13.4"
 	},
 	"dependencies": {
 		"concurrently": "^4.1.0"
