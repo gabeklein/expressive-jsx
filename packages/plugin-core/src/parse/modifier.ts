@@ -1,7 +1,7 @@
 import t, { BlockStatement, ExpressionStatement, IfStatement, LabeledStatement, Statement } from '@babel/types';
 import { ContingentModifier } from 'handle/modifier';
 import { AttributeBody, ElementInline, ExplicitStyle, Modifier } from 'internal';
-import Arguments from 'parse/arguments';
+import { Arguments } from 'parse/arguments';
 import { BunchOf, ModifyAction, Path } from 'types';
 import { ParseErrors } from 'shared';
 
@@ -141,6 +141,8 @@ export class ModifyDelegate {
         }
         else 
             throw Error.ContingentNotImplemented(body)
+
+        return mod;
     }
 }
 

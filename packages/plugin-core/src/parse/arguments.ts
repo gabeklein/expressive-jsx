@@ -63,7 +63,7 @@ function HEXColor(raw: string){
     else return "#" + raw;
 }
 
-export default new class DelegateTypes {
+export const Arguments = new class DelegateTypes {
 
     [type: string]: (...args: any[]) => any;
 
@@ -92,7 +92,13 @@ export default new class DelegateTypes {
         }
     
         const { type } = element;
-    
+        const { node } = element as any;
+
+        const paren = node.extra && node.extra.parenthesized;
+
+        if(paren)
+            return node;
+
         if(!this[type])
             throw Error.UnknownArgument(element)
         else
@@ -110,7 +116,7 @@ export default new class DelegateTypes {
     TemplateLiteral(e: Path<TemplateLiteral>) {
         const { quasis } = e.node;
         if(quasis.length > 1)
-            throw Error.TemplateMustBeText(e);
+            return e.node;
         return e.node.quasis[0].value;
     }
 
