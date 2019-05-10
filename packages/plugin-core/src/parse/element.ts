@@ -22,7 +22,11 @@ import {
     Prop,
     Shared,
 } from 'internal';
-import { DoExpressive, ListElement, Path } from 'types';
+import {
+    DoExpressive,
+    ListElement,
+    Path
+} from 'types';
 
 const New = Object.create;
 const Error = ParseErrors({
@@ -41,7 +45,9 @@ const Error = ParseErrors({
     PropNotIdentifier: "Prop name must be an Identifier",
     NotImplemented: "{1} Not Implemented",
     VoidArgsOverzealous: "Pass-Thru (void) elements can only receive styles through `do { }` statement.",
-    BadShorthandProp: "\"+\" shorthand prop must be an identifier!"
+    BadShorthandProp: "\"+\" shorthand prop must be an identifier!",
+    NestOperatorInEffect: "",
+    UnrecognizedBinary: ""
 })
 
 export function AddElementsFromExpression(
@@ -55,28 +61,27 @@ export function AddElementsFromExpression(
         [subject, ...baseAttributes] = exps;
     }
 
-    const passthru = CheckForValue(subject);
+    const Handler = IsSubjectJustAValue(subject) 
+        ? ApplyPassthru 
+        : CollateLayers;
 
-    const target = passthru
-        ? ApplyPassthru(passthru, current, baseAttributes)
-        : CollateLayers(subject, current, baseAttributes)
-
-    if(target)
-        ParseProps(baseAttributes, target);
+    Handler(subject, current, baseAttributes);
 }
 
-function CheckForValue(subject: Path<Expression>){
+function IsSubjectJustAValue(subject: Path<Expression>){
     let target = subject;
     while(target.isBinaryExpression())
         target = target.get("left");
 
     if(target.isUnaryExpression({operator: "void"})){
         target.replaceWith(target.get("argument"))
-        return subject
+        return true
     }
 
     if(target.isStringLiteral())
-        return subject
+        return true
+
+    return false;
 }
 
 function ApplyPassthru(
@@ -106,49 +111,78 @@ function ApplyPassthru(
     container.adopt(subject);
     container.parent = parent;
     parent.adopt(container);
-    return container;
+
+    ParseProps(baseAttributes, container);
 }
 
 function CollateLayers(
     subject: Path<Expression>,
     parent: ElementInline,
-    baseAttributes: Path<Expression>[]
+    baseAttributes: Path<Expression>[],
+    consumedInSequence?: true
 ){
+    const chain = [] as Path<Expression>[];
+    let restAreChildren;
+    let nestedExpression: Path<Expression> | undefined;
+    let leftMost: ElementInline | undefined;
+
     if(subject.isBinaryExpression({operator: ">"})){
         const item = New(subject.get("right"));
         item.type = "ExpressionLiteral";
-        baseAttributes.push(item);
+        nestedExpression = item;
         subject = subject.get("left");
     }
 
-    const chain = [] as Path<Expression>[]
+    while(subject.isBinaryExpression()){
+        const { operator } = subject.node;
+        const rightHand = subject.get("right");
+        const leftHand = subject.get("left");
 
-    while(subject.isBinaryExpression({operator: ">>"})){
-        const child = subject.get("right")
+        if(operator == ">>>"){
+            if(consumedInSequence)
+                throw Error.NestOperatorInEffect(subject);
 
-        if(inParenthesis(child))
-            throw Error.NoParenChildren(child);
+            restAreChildren = true
+        }
+        else 
+        if(operator !== ">>")
+            throw Error.UnrecognizedBinary(subject);
+        else
+        if(inParenthesis(rightHand))
+            throw Error.NoParenChildren(rightHand);
 
-        chain.push(child);
-        subject = subject.get("left");
+        chain.unshift(rightHand);
+        subject = leftHand
     }
-    chain.push(subject);
+    chain.unshift(subject);
 
-    for(const segment of chain.reverse()){
+    for(const segment of chain){
         for(const mod of parent.modifiers)
         if(mod instanceof ElementModifier)
         for(const sub of mod.provides)
             parent.context.elementMod(sub)
 
         const child = new ElementInline(parent.context);
+
         ParseIdentity(segment, child);
 
+        if(!leftMost)
+            leftMost = child;
+        
         parent.adopt(child);
         child.parent = parent;
         parent = child;
     }   
+    
+    if(restAreChildren){
+        for(const child of baseAttributes)
+            CollateLayers(child, leftMost!, [], true);
+        baseAttributes = nestedExpression ? [nestedExpression] : []
+    }
+    else if(nestedExpression)
+        baseAttributes.unshift(nestedExpression);
 
-    return parent;
+    ParseProps(baseAttributes, parent);
 }
 
 export function ApplyNameImplications(
