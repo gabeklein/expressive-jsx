@@ -2,6 +2,7 @@ import { Statement } from '@babel/types';
 import { AttributeBody, StackFrame } from 'internal';
 import { Path, BunchOf } from 'types';
 import { ElementInline } from './element';
+import { ExplicitStyle } from './attributes';
 
 function concat(
     to: any,
@@ -29,6 +30,12 @@ export abstract class Modifier extends AttributeBody {
         const content = body.isBlockStatement() ? body.get("body") : [body];
         for(const item of content)
             super.parse(item);
+    }
+
+    addStyle(name: string, value: any){
+        this.insert(
+            new ExplicitStyle(name, value)
+        )
     }
 }
 

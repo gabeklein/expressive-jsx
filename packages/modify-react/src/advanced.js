@@ -17,7 +17,11 @@ const PSEUDO = {
 for(const name in PSEUDO){
     let priority = ~name.indexOf("Active") ? 7 : 6;
     EXPORT[name] = function(){
-        this.setContingent(PSEUDO[name], priority)
+        const select = PSEUDO[name];
+        const mod = this.setContingent(select, priority);
+        if(select.indexOf("::") !== -1)
+        if("content" in mod.style == false)
+            mod.addStyle("content", "\"\"")
     }
 }
 

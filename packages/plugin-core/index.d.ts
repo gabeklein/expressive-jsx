@@ -128,7 +128,8 @@ declare abstract class Modifier extends AttributeBody {
     forSelector?: string[];
     onlyWithin?: Modifier;
     onGlobalStatus?: string[];
-    priority?: number;
+	priority?: number;
+	addStyle(name: string, value: any): void;
 }
 declare class ElementModifier extends Modifier {
 	constructor(context: StackFrame, name?: string, body?: Path<Statement>);

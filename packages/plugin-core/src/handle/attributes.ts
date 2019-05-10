@@ -44,7 +44,7 @@ export abstract class AttributeBody extends TraversableBody {
 
     LabeledStatement(
         path: Path<LabeledStatement>, 
-        applyTo: AttributeBody = this){
+        applyTo: Modifier = this as any){
 
         const { name } = path.node.label;
         const body = path.get("body");
