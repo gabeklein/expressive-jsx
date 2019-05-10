@@ -8,10 +8,7 @@ import {
     Prop,
     ComponentFor
 } from 'handle';
-
-export type Syntax = [ Expression, Statement[]?];
-export type SequenceItem = Attribute | InnerContent | Path<Statement>;
-export type InnerContent = ElementInline | ComponentIf | ComponentFor | Path<Expression> | Expression;
+import { SequenceItem } from 'types';
 
 export abstract class ElementConstruct
     <From extends ElementInline = ElementInline> {

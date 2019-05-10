@@ -1,8 +1,8 @@
 import { AssignmentExpression, Expression, For, IfStatement, TemplateLiteral, UnaryExpression } from '@babel/types';
 import { AttributeBody, ComponentFor, ComponentIf, ElementModifier, ExplicitStyle, Prop } from 'handle';
-import { AddElementsFromExpression, InnerContent, StackFrame } from 'internal';
+import { AddElementsFromExpression, StackFrame } from 'internal';
 import { inParenthesis, ParseErrors } from 'shared';
-import { BunchOf, DoExpressive, Path } from 'types';
+import { BunchOf, DoExpressive, InnerContent, Path } from 'types';
 
 import { Modifier } from './modifier';
 

@@ -1,8 +1,8 @@
 import t, { Expression, ExpressionStatement, Statement } from '@babel/types';
 import { ComponentIf } from 'handle';
-import { SequenceItem, StackFrame } from 'internal';
+import { StackFrame } from 'internal';
 import { ParseErrors } from 'shared';
-import { BunchOf, DoExpressive, Path } from 'types';
+import { BunchOf, DoExpressive, Path, SequenceItem } from 'types';
 
 const Error = ParseErrors({
     ExpressionUnknown: "Unhandled expressionary statement of type {1}",

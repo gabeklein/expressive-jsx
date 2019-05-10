@@ -1,6 +1,6 @@
 import { NodePath, VisitNodeObject } from '@babel/traverse';
 import { DoExpression, Expression, SpreadElement, Statement } from '@babel/types';
-import { Attribute, ElementInline, ElementModifier } from 'handle';
+import { Attribute, ElementInline, ElementModifier, ComponentFor, ComponentIf } from 'handle';
 import { ModifyDelegate, StackFrame } from 'internal';
 
 export interface Path<T = any> extends NodePath<T> {}
@@ -63,3 +63,7 @@ export interface ModifierOutput {
     props?: BunchOf<any>
     installed_style?: (ElementModifier | ElementInline)[]
 }
+
+export type Syntax = [ Expression, Statement[]?];
+export type SequenceItem = Attribute | InnerContent | Path<Statement>;
+export type InnerContent = ElementInline | ComponentIf | ComponentFor | Path<Expression> | Expression;

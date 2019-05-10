@@ -2,8 +2,8 @@ import DoExpression from 'parse/doExpression';
 import Program from 'parse/program';
 
 export {
-    ElementConstruct
-} from "internal";
+    ParseErrors
+} from 'shared';
 
 export {
     ComponentExpression,
@@ -15,8 +15,8 @@ export {
 } from "handle";
 
 export {
-    ParseErrors
-} from 'shared';
+    ElementConstruct
+} from "generate";
 
 export default (options: any) => {
     return {

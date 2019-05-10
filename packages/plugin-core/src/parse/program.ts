@@ -1,7 +1,6 @@
 import { Program } from '@babel/types';
 import { createHash } from 'crypto';
-import { ElementInline, ElementModifier, Modifier, TraversableBody } from 'handle';
-import { ComponentIf } from 'handle/switch';
+import { ComponentIf, ElementInline, ElementModifier, Modifier, TraversableBody } from 'handle';
 import { ParseErrors } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
 
