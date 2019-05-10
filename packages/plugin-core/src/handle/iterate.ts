@@ -1,7 +1,7 @@
 import { NodePath as Path } from '@babel/traverse';
 import t, { AssignmentExpression, For } from '@babel/types';
 import { ElementInline } from 'handle';
-import { StackFrame } from 'internal';
+import { StackFrame } from 'parse';
 import { ParseErrors } from 'shared';
 
 const Error = ParseErrors({

@@ -1,7 +1,7 @@
 import { NodePath as Path } from '@babel/traverse';
 import t, { Expression, ExpressionStatement, Statement } from '@babel/types';
 import { ComponentIf } from 'handle';
-import { StackFrame } from 'internal';
+import { StackFrame } from 'parse';
 import { ParseErrors } from 'shared';
 import { BunchOf, DoExpressive, SequenceItem } from 'types';
 

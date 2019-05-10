@@ -1,7 +1,7 @@
 import { NodePath as Path } from '@babel/traverse';
 import t, { Expression, ExpressionStatement, IfStatement, LabeledStatement, ReturnStatement, Statement } from '@babel/types';
 import { ContingentModifier, ElementInline } from 'handle';
-import { InnerContent, StackFrame } from 'internal';
+import { StackFrame } from 'parse';
 import { ParseErrors, quickHash } from 'shared';
 import { DoExpressive } from 'types';
 
