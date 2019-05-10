@@ -1,7 +1,26 @@
 import { NodePath as Path } from '@babel/traverse';
 import { booleanLiteral, Expression } from '@babel/types';
-import { BunchOf, Options, SharedSingleton, FlatValue } from 'types';
 import { createHash } from 'crypto';
+import { BunchOf, FlatValue } from 'types';
+
+export interface SharedSingleton {
+    stack: any
+    opts?: any
+    state: {
+        expressive_for_used?: true;
+    }
+    styledApplicationComponentName?: string
+}
+
+interface Options {
+    compact_vars?: true;
+    env: "native" | "web";
+    output: "js" | "jsx";
+    styleMode: "compile";
+    formatStyles: any;
+}
+
+export const Shared = {} as SharedSingleton;
 
 export const env = process.env || {
     NODE_ENV: "production"
@@ -23,8 +42,6 @@ export function quickHash(data: string, length?: number){
     )
 } 
 
-export const Shared = {} as SharedSingleton;
-
 export function toArray<T> (value: T | T[]): T[] {
     return value !== undefined
         ? Array.isArray(value) 
@@ -35,6 +52,11 @@ export function toArray<T> (value: T | T[]): T[] {
 
 export function preventDefaultPolyfill(element: Path){
     element.replaceWith(booleanLiteral(false));
+}
+
+export function inParenthesis(path: Path<Expression>): boolean {
+    const node = path.node as any;
+    return node.extra ? node.extra.parenthesized === true : false;
 }
 
 export function ParseErrors<O extends BunchOf<string>> (register: O) {
@@ -68,9 +90,4 @@ export function ParseErrors<O extends BunchOf<string>> (register: O) {
     return Errors as {
         readonly [P in keyof O]: ParseError
     };
-}
-
-export function inParenthesis(path: Path<Expression>): boolean {
-    const node = path.node as any;
-    return node.extra ? node.extra.parenthesized === true : false;
 }

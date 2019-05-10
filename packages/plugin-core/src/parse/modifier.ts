@@ -15,12 +15,13 @@ import { Arguments } from 'parse/arguments';
 import { ParseErrors } from 'shared';
 import { BunchOf, ModifyAction } from 'types';
 
+type ModiferBody = Path<ExpressionStatement | BlockStatement | LabeledStatement | IfStatement>;
+type ModTuple = [string, ModifyAction, any[] | undefined, ModiferBody? ];
+
 const Error = ParseErrors({
     ContingentNotImplemented: "Cant integrate this contingent request. Only directly in an element block."
 })
 
-type ModiferBody = Path<ExpressionStatement | BlockStatement | LabeledStatement | IfStatement>;
-export type ModTuple = [string, ModifyAction, any[] | undefined, ModiferBody? ];
 
 export function ApplyModifier(
     initial: string,

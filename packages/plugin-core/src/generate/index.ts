@@ -1,13 +1,6 @@
-import { Expression, isExpression, Statement } from '@babel/types';
 import { NodePath as Path } from '@babel/traverse';
-import {
-    Attribute,
-    ComponentIf,
-    ElementInline,
-    ExplicitStyle,
-    Prop,
-    ComponentFor
-} from 'handle';
+import { Expression, isExpression, Statement } from '@babel/types';
+import { Attribute, ComponentFor, ComponentIf, ElementInline, ExplicitStyle, Prop } from 'handle';
 import { SequenceItem } from 'types';
 
 export abstract class ElementConstruct

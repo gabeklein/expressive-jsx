@@ -15,9 +15,10 @@ import {
 } from '@babel/types';
 import { ElementInline, ElementModifier, ExplicitStyle, Prop } from 'handle';
 import { inParenthesis, Opts, ParseErrors, preventDefaultPolyfill, Shared } from 'shared';
-import { DoExpressive, ListElement } from 'types';
+import { DoExpressive } from 'types';
 
-const New = Object.create;
+type ListElement = Expression | SpreadElement;
+
 const Error = ParseErrors({
     NoParenChildren: "Children in Parenthesis are not allowed, for direct insertion used an Array literal",
     SemicolonRequired: "Due to how parser works, a semicolon is required after the element preceeding escaped children.",
@@ -50,14 +51,14 @@ export function AddElementsFromExpression(
         [subject, ...baseAttributes] = exps;
     }
 
-    const Handler = IsSubjectJustAValue(subject) 
+    const Handler = IsJustAValue(subject) 
         ? ApplyPassthru 
         : CollateLayers;
 
     Handler(subject, current, baseAttributes);
 }
 
-function IsSubjectJustAValue(subject: Path<Expression>){
+function IsJustAValue(subject: Path<Expression>){
     let target = subject;
     while(target.isBinaryExpression())
         target = target.get("left");
@@ -108,15 +109,15 @@ function CollateLayers(
     subject: Path<Expression>,
     parent: ElementInline,
     baseAttributes: Path<Expression>[],
-    consumedInSequence?: true
+    inSequence?: true
 ){
     const chain = [] as Path<Expression>[];
-    let restAreChildren;
+    let restAreChildren: true | undefined;
     let nestedExpression: Path<Expression> | undefined;
     let leftMost: ElementInline | undefined;
 
     if(subject.isBinaryExpression({operator: ">"})){
-        const item = New(subject.get("right"));
+        const item = Object.create(subject.get("right"));
         item.type = "ExpressionLiteral";
         nestedExpression = item;
         subject = subject.get("left");
@@ -128,7 +129,7 @@ function CollateLayers(
         const leftHand = subject.get("left");
 
         if(operator == ">>>"){
-            if(consumedInSequence)
+            if(inSequence)
                 throw Error.NestOperatorInEffect(subject);
 
             restAreChildren = true

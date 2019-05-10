@@ -12,7 +12,7 @@ import {
 import { ContingentModifier, ElementInline } from 'handle';
 import { StackFrame } from 'parse';
 import { ParseErrors, quickHash } from 'shared';
-import { DoExpressive } from 'types';
+import { DoExpressive, InnerContent } from 'types';
 
 import { TraversableBody } from './block';
 import { ComponentExpression } from './entry';
