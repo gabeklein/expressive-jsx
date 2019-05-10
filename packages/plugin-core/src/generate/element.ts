@@ -7,7 +7,7 @@ import {
     ExplicitStyle,
     Prop,
     ComponentFor
-} from 'internal';
+} from 'handle';
 
 export type Syntax = [ Expression, Statement[]?];
 export type SequenceItem = Attribute | InnerContent | Path<Statement>;

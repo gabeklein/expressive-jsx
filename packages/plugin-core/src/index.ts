@@ -1,18 +1,22 @@
 import DoExpression from 'parse/doExpression';
 import Program from 'parse/program';
 
+export {
+    ElementConstruct
+} from "internal";
 
 export {
-    ElementConstruct,
-
     ComponentExpression,
     ComponentIf,
     Prop,
-    ParseErrors,
     ElementInline,
 	ExplicitStyle,
     ContingentModifier
-} from "internal";
+} from "handle";
+
+export {
+    ParseErrors
+} from 'shared';
 
 export default (options: any) => {
     return {

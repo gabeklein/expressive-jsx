@@ -1,4 +1,5 @@
 import t, {
+    ArrayExpression,
     AssignmentExpression,
     CallExpression,
     Expression,
@@ -9,24 +10,10 @@ import t, {
     SpreadElement,
     TaggedTemplateExpression,
     UnaryExpression,
-    ArrayExpression,
 } from '@babel/types';
-import {
-    ElementInline,
-    ElementModifier,
-    ExplicitStyle,
-    inParenthesis,
-    Opts,
-    ParseErrors,
-    preventDefaultPolyfill,
-    Prop,
-    Shared,
-} from 'internal';
-import {
-    DoExpressive,
-    ListElement,
-    Path
-} from 'types';
+import { ElementInline, ElementModifier, ExplicitStyle, Prop } from 'handle';
+import { inParenthesis, Opts, ParseErrors, preventDefaultPolyfill, Shared } from 'shared';
+import { DoExpressive, ListElement, Path } from 'types';
 
 const New = Object.create;
 const Error = ParseErrors({
@@ -173,7 +160,7 @@ function CollateLayers(
         child.parent = parent;
         parent = child;
     }   
-    
+
     if(restAreChildren){
         for(const child of baseAttributes)
             CollateLayers(child, leftMost!, [], true);

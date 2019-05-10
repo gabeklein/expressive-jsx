@@ -7,7 +7,7 @@ import t, {
     VariableDeclaration,
     VariableDeclarator,
 } from '@babel/types';
-import { ComponentExpression } from 'internal';
+import { ComponentExpression } from 'handle';
 import { DoExpressive, Path, Visitor } from 'types';
 
 import { StackFrame } from './program';

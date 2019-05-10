@@ -1,6 +1,7 @@
 import { NodePath, VisitNodeObject } from '@babel/traverse';
 import { DoExpression, Expression, SpreadElement, Statement } from '@babel/types';
-import { Attribute, ElementInline, ElementModifier, ModifyDelegate, StackFrame } from 'internal';
+import { Attribute, ElementInline, ElementModifier } from 'handle';
+import { ModifyDelegate, StackFrame } from 'internal';
 
 export interface Path<T = any> extends NodePath<T> {}
 export type Visitor<T, S extends StackFrame = StackFrame> = 

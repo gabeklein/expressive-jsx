@@ -1,8 +1,10 @@
 import { Statement } from '@babel/types';
-import { AttributeBody, StackFrame } from 'internal';
-import { Path, BunchOf } from 'types';
-import { ElementInline } from './element';
+import { AttributeBody } from 'handle';
+import { StackFrame } from 'internal';
+import { BunchOf, Path } from 'types';
+
 import { ExplicitStyle } from './attributes';
+import { ElementInline } from './element';
 
 function concat(
     to: any,

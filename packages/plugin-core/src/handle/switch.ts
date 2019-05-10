@@ -1,6 +1,7 @@
 import t, { Expression, ExpressionStatement, IfStatement, LabeledStatement, ReturnStatement, Statement } from '@babel/types';
-import { ContingentModifier, ElementInline, InnerContent, ParseErrors, StackFrame } from 'internal';
-import { quickHash } from 'shared';
+import { ContingentModifier, ElementInline } from 'handle';
+import { InnerContent, StackFrame } from 'internal';
+import { ParseErrors, quickHash } from 'shared';
 import { DoExpressive, Path } from 'types';
 
 import { TraversableBody } from './block';

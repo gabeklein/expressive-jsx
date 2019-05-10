@@ -1,9 +1,9 @@
 import t, { BlockStatement, ExpressionStatement, IfStatement, LabeledStatement, Statement } from '@babel/types';
+import { AttributeBody, ElementInline, ExplicitStyle, Modifier } from 'handle';
 import { ContingentModifier } from 'handle/modifier';
-import { AttributeBody, ElementInline, ExplicitStyle, Modifier } from 'internal';
 import { Arguments } from 'parse/arguments';
-import { BunchOf, ModifyAction, Path } from 'types';
 import { ParseErrors } from 'shared';
+import { BunchOf, ModifyAction, Path } from 'types';
 
 const Error = ParseErrors({
     ContingentNotImplemented: "Cant integrate this contingent request. Only directly in an element block."

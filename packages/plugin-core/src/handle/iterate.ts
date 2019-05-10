@@ -1,7 +1,8 @@
-import t, { For, AssignmentExpression } from '@babel/types';
-import { ElementInline, StackFrame } from 'internal';
-import { Path } from 'types';
+import t, { AssignmentExpression, For } from '@babel/types';
+import { ElementInline } from 'handle';
+import { StackFrame } from 'internal';
 import { ParseErrors } from 'shared';
+import { Path } from 'types';
 
 const Error = ParseErrors({
     AcceptsNoAssignments: "For block cannot accept Assignments",

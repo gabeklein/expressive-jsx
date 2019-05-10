@@ -1,5 +1,7 @@
-import t, { ExpressionStatement, Statement, Expression } from '@babel/types';
-import { ComponentIf, ParseErrors, SequenceItem, StackFrame } from 'internal';
+import t, { Expression, ExpressionStatement, Statement } from '@babel/types';
+import { ComponentIf } from 'handle';
+import { SequenceItem, StackFrame } from 'internal';
+import { ParseErrors } from 'shared';
 import { BunchOf, DoExpressive, Path } from 'types';
 
 const Error = ParseErrors({

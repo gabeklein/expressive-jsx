@@ -1,3 +1,4 @@
+import { NodePath as Path } from '@babel/traverse';
 import {
     ArrowFunctionExpression,
     BinaryExpression,
@@ -13,9 +14,7 @@ import {
     TemplateLiteral,
     UnaryExpression,
 } from '@babel/types';
-import { inParenthesis, Opts } from 'internal';
-import { ParseErrors } from 'shared';
-import { NodePath as Path } from '@babel/traverse';
+import { inParenthesis, Opts, ParseErrors } from 'shared';
 
 const Error = ParseErrors({
     StatementAsArgument: "Cannot parse statement as a modifier argument!",
