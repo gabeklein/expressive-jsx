@@ -1,4 +1,4 @@
-import { Program } from '@babel/types';
+import { Program as BabelProgram } from '@babel/types';
 import { createHash } from 'crypto';
 import { ComponentIf, ElementInline, ElementModifier, Modifier, TraversableBody } from 'handle';
 import { ParseErrors } from 'shared';
@@ -10,7 +10,7 @@ const Error = ParseErrors({
     DuplicateModifier: "Duplicate declaration of named modifier!"
 })
 
-export default <Visitor<Program>>{
+export const Program = <Visitor<BabelProgram>>{
     enter(path, state){
         const context = state.context = new StackFrame(state);
 

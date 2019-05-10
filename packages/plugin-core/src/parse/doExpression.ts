@@ -12,7 +12,7 @@ import { DoExpressive, Path, Visitor } from 'types';
 
 import { StackFrame } from './program';
 
-export default <Visitor<DoExpressive>> {
+export const DoExpression = <Visitor<DoExpressive>> {
     enter: (path, state) => {
         const { context } = state;
         let meta = path.node.meta || 

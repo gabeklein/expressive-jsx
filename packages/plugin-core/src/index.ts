@@ -1,5 +1,4 @@
-import DoExpression from 'parse/doExpression';
-import Program from 'parse/program';
+import { DoExpression, Program } from 'parse';
 
 export {
     ParseErrors
