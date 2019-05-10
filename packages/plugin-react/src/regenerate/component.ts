@@ -2,6 +2,7 @@ import t, { ArrayPattern, Expression, Identifier, MemberExpression, ObjectPatter
 import { ComponentExpression, DoExpressive, ParseErrors } from '@expressive/babel-plugin-core';
 import { callExpression, declare, ElementReact, ExternalsManager, GenerateReact, memberExpression } from 'internal';
 import { StackFrame, Visitor } from 'types';
+import { objectExpression } from 'generate/syntax';
 
 const Error = ParseErrors({
     PropsCantHaveDefault: "This argument will always resolve to component props",
@@ -18,6 +19,15 @@ export const DoExpression = <Visitor<DoExpressive>> {
             return;
 
         const factory = new ElementReact(Do);
+
+        context.Module.lastInsertedElement = path;
+
+        if(factory.children.length == 0 && Do.exec === undefined){
+            path.replaceWith(
+                asOnlyAttributes(factory)
+            )
+            return;
+        }
 
         const factoryExpression = Generator.container(factory)
 
@@ -37,9 +47,23 @@ export const DoExpression = <Visitor<DoExpressive>> {
         else {
             path.replaceWith(factoryExpression);
         }
-
-        context.Module.lastInsertedElement = path;
     }
+}
+
+function asOnlyAttributes(factory: ElementReact){
+    const classNames = factory.classList as string[];
+    let style: Expression | undefined;
+
+    for(const prop of factory.props)
+        if(prop.name == "style")
+            style = prop.value || objectExpression()
+
+    return objectExpression({
+        className: t.stringLiteral(
+            classNames.join(" ")
+        ),
+        style: style
+    })
 }
 
 function incorperateChildParameters(
