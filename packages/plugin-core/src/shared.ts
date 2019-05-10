@@ -1,5 +1,5 @@
 import { NodePath as Path } from '@babel/traverse';
-import t, { Expression } from '@babel/types';
+import { booleanLiteral, Expression } from '@babel/types';
 import { BunchOf, Options, SharedSingleton, FlatValue } from 'types';
 import { createHash } from 'crypto';
 
@@ -34,7 +34,7 @@ export function toArray<T> (value: T | T[]): T[] {
 }
 
 export function preventDefaultPolyfill(element: Path){
-    element.replaceWith(t.booleanLiteral(false));
+    element.replaceWith(booleanLiteral(false));
 }
 
 export function ParseErrors<O extends BunchOf<string>> (register: O) {

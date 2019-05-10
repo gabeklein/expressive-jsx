@@ -1,5 +1,14 @@
 import { NodePath as Path } from '@babel/traverse';
-import t, { BlockStatement, ExpressionStatement, IfStatement, LabeledStatement, Statement } from '@babel/types';
+import {
+    BlockStatement,
+    callExpression,
+    ExpressionStatement,
+    identifier,
+    IfStatement,
+    LabeledStatement,
+    Statement,
+    stringLiteral,
+} from '@babel/types';
 import { AttributeBody, ElementInline, ExplicitStyle, Modifier } from 'handle';
 import { ContingentModifier } from 'handle/modifier';
 import { Arguments } from 'parse/arguments';
@@ -157,11 +166,11 @@ function PropertyModifierDefault(
         if(value) return value;
 
         else if(requires)
-            return t.callExpression(
-                t.identifier("require"), 
+            return callExpression(
+                identifier("require"), 
                 [
                     typeof requires == "string"
-                        ? t.stringLiteral(requires)
+                        ? stringLiteral(requires)
                         : requires
                 ]
             )

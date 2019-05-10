@@ -1,5 +1,5 @@
 import { NodePath as Path } from '@babel/traverse';
-import t, { AssignmentExpression, For } from '@babel/types';
+import { AssignmentExpression, For, expressionStatement } from '@babel/types';
 import { ElementInline } from 'handle';
 import { StackFrame } from 'parse';
 import { ParseErrors } from 'shared';
@@ -25,7 +25,7 @@ export class ComponentFor extends ElementInline {
 
         if(doBlock)
             body.replaceWith(
-                t.expressionStatement(doBlock));
+                expressionStatement(doBlock));
     }
 
     AssignmentExpression(path: Path<AssignmentExpression>){

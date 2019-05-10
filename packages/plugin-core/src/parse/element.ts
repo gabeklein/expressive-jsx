@@ -1,5 +1,5 @@
 import { NodePath as Path } from '@babel/traverse';
-import t, {
+import {
     ArrayExpression,
     AssignmentExpression,
     CallExpression,
@@ -11,6 +11,7 @@ import t, {
     SpreadElement,
     TaggedTemplateExpression,
     UnaryExpression,
+    stringLiteral
 } from '@babel/types';
 import { ElementInline, ElementModifier, ExplicitStyle, Prop } from 'handle';
 import { inParenthesis, Opts, ParseErrors, preventDefaultPolyfill, Shared } from 'shared';
@@ -271,7 +272,7 @@ function UnwrapExpression(
 
                 if(content.expressions.length == 0){
                     const text = content.quasis[0].value.cooked;
-                    content = t.stringLiteral(text);
+                    content = stringLiteral(text);
                 }
 
                 target.add(content)
@@ -350,7 +351,7 @@ function ParseProps(
                     new Prop(
                         tag.name,
                         quasi.expressions.length == 0
-                        ? t.stringLiteral(quasi.quasis[0].value.raw)
+                        ? stringLiteral(quasi.quasis[0].value.raw)
                         : quasi
                     )
                 )
@@ -372,7 +373,7 @@ function ParseProps(
             case "Identifier": {
                 const { name } = path.node as Identifier;
                 target.add(
-                    new Prop(name, t.stringLiteral("true"))
+                    new Prop(name, stringLiteral("true"))
                 );
             } break;
 

@@ -1,4 +1,5 @@
 import { NodePath as Path } from '@babel/traverse';
+import {
     ArrowFunctionExpression,
     AssignmentExpression,
     Class,
@@ -6,6 +7,8 @@ import { NodePath as Path } from '@babel/traverse';
     ObjectProperty,
     VariableDeclaration,
     VariableDeclarator,
+    FunctionDeclaration,
+    isIdentifier,
 } from '@babel/types';
 import { ComponentExpression } from 'handle';
 import { DoExpressive, Visitor } from 'types';
@@ -66,7 +69,7 @@ function containerName(path: Path): string {
     switch(parent.type){
         case "VariableDeclarator": {
             const { id } = parent.node as VariableDeclarator;
-            return t.isIdentifier(id)
+            return isIdentifier(id)
                 ? id.name
                 : (<VariableDeclaration>parent.parentPath.node).kind
         }
@@ -74,13 +77,13 @@ function containerName(path: Path): string {
         case "AssignmentExpression":
         case "AssignmentPattern": {
             const { left } = parent.node as AssignmentExpression;
-            return t.isIdentifier(left)
+            return isIdentifier(left)
                 ? left.name
                 : "assignment"
         }
 
         case "FunctionDeclaration": 
-            return path.node.id!.name;
+            return (<FunctionDeclaration>path.node).id!.name;
 
         case "ExportDefaultDeclaration":
             return "defaultExport";
@@ -112,7 +115,7 @@ function containerName(path: Path): string {
             }
 
             if(node.type == "ClassMethod"){
-                if(!t.isIdentifier(node.key))
+                if(!isIdentifier(node.key))
                     return "ClassMethod";  
                 if(node.key.name == "render"){
                     const owner = within.parentPath.parentPath as Path<Class>;
@@ -133,7 +136,7 @@ function containerName(path: Path): string {
 
         case "ObjectProperty": {
             const { key } = parent.node as ObjectProperty;
-            return t.isIdentifier(key)
+            return isIdentifier(key)
                 ? key.name
                 : "property"
         }

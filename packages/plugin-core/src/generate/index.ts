@@ -1,4 +1,4 @@
-import t, { Expression, Statement } from '@babel/types';
+import { Expression, isExpression, Statement } from '@babel/types';
 import { NodePath as Path } from '@babel/traverse';
 import {
     Attribute,
@@ -67,7 +67,7 @@ export abstract class ElementConstruct
             else {
                 const node = "node" in item ? item.node : item;
 
-                if(t.isExpression(node))
+                if(isExpression(node))
                     this.Content(item as Path<Expression>);
                 else
                     this.Statement(item as Path<Statement>)

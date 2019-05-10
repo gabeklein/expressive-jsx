@@ -1,5 +1,5 @@
 import { NodePath as Path } from '@babel/traverse';
-import t, { Expression, ExpressionStatement, Statement } from '@babel/types';
+import { Expression, ExpressionStatement, Statement, doExpression } from '@babel/types';
 import { ComponentIf } from 'handle';
 import { StackFrame } from 'parse';
 import { ParseErrors } from 'shared';
@@ -37,7 +37,7 @@ export abstract class TraversableBody {
 
     handleContentBody(content: Path<Statement>){
         if(content.isBlockStatement()){
-            const body = t.doExpression(content.node) as DoExpressive;
+            const body = doExpression(content.node) as DoExpressive;
             body.meta = this as any;
             return body;
         }

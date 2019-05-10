@@ -1,5 +1,14 @@
 import { NodePath as Path } from '@babel/traverse';
-import t, { Expression, ExpressionStatement, IfStatement, LabeledStatement, ReturnStatement, Statement } from '@babel/types';
+import {
+    blockStatement,
+    Expression,
+    ExpressionStatement,
+    expressionStatement,
+    IfStatement,
+    LabeledStatement,
+    ReturnStatement,
+    Statement,
+} from '@babel/types';
 import { ContingentModifier, ElementInline } from 'handle';
 import { StackFrame } from 'parse';
 import { ParseErrors, quickHash } from 'shared';
@@ -99,12 +108,12 @@ export class ComponentIf {
             if(fork instanceof ComponentConsequent 
             && fork.doBlock) 
                 doInsert.push(
-                    t.expressionStatement(fork.doBlock)
+                    expressionStatement(fork.doBlock)
                 )
 
         if(doInsert.length)
             this.path.replaceWith(
-                t.blockStatement(doInsert)
+                blockStatement(doInsert)
             );
     }
 }
