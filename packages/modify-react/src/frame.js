@@ -34,9 +34,21 @@ export function aspectSize(x, y, unit){
 }
 
 export function radius(a){
+    if(a == "round")
+        a = 999;
+        
     return {
         attrs: {
             borderRadius: a
+        }
+    }    
+}
+
+export function circle(a){
+    return {
+        attrs: {
+            borderRadius: a / 2,
+            size: a
         }
     }    
 }
