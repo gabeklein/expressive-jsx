@@ -1,7 +1,8 @@
+import { NodePath as Path } from '@babel/traverse';
 import { Statement } from '@babel/types';
 import { AttributeBody } from 'handle';
 import { StackFrame } from 'internal';
-import { BunchOf, Path } from 'types';
+import { BunchOf } from 'types';
 
 import { ExplicitStyle } from './attributes';
 import { ElementInline } from './element';

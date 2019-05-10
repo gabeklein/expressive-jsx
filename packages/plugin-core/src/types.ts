@@ -3,7 +3,6 @@ import { DoExpression, Expression, SpreadElement, Statement } from '@babel/types
 import { Attribute, ElementInline, ElementModifier, ComponentFor, ComponentIf } from 'handle';
 import { ModifyDelegate, StackFrame } from 'internal';
 
-export interface Path<T = any> extends NodePath<T> {}
 export type Visitor<T, S extends StackFrame = StackFrame> = 
     VisitNodeObject<BabelState<S>, T>
 

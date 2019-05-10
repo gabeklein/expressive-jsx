@@ -1,3 +1,4 @@
+import { NodePath as Path } from '@babel/traverse';
 import {
     ArrowFunctionExpression,
     DebuggerStatement,
@@ -7,7 +8,7 @@ import {
 } from '@babel/types';
 import { ComponentConsequent, ElementInline } from 'handle';
 import { ApplyNameImplications, StackFrame } from 'internal';
-import { DoExpressive, InnerContent, Path, SequenceItem } from 'types';
+import { DoExpressive, InnerContent, SequenceItem } from 'types';
 
 export class ComponentExpression extends ElementInline {
 

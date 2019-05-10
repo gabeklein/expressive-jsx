@@ -1,8 +1,9 @@
+import { NodePath as Path } from '@babel/traverse';
 import { AssignmentExpression, Expression, For, IfStatement, TemplateLiteral, UnaryExpression } from '@babel/types';
 import { AttributeBody, ComponentFor, ComponentIf, ElementModifier, ExplicitStyle, Prop } from 'handle';
 import { AddElementsFromExpression, StackFrame } from 'internal';
 import { inParenthesis, ParseErrors } from 'shared';
-import { BunchOf, DoExpressive, InnerContent, Path } from 'types';
+import { BunchOf, DoExpressive, InnerContent } from 'types';
 
 import { Modifier } from './modifier';
 

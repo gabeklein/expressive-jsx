@@ -1,8 +1,9 @@
+import { NodePath as Path } from '@babel/traverse';
 import t, { Expression, ExpressionStatement, IfStatement, LabeledStatement, ReturnStatement, Statement } from '@babel/types';
 import { ContingentModifier, ElementInline } from 'handle';
 import { InnerContent, StackFrame } from 'internal';
 import { ParseErrors, quickHash } from 'shared';
-import { DoExpressive, Path } from 'types';
+import { DoExpressive } from 'types';
 
 import { TraversableBody } from './block';
 import { ComponentExpression } from './entry';

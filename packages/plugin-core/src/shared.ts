@@ -1,5 +1,6 @@
+import { NodePath as Path } from '@babel/traverse';
 import t, { Expression } from '@babel/types';
-import { BunchOf, Options, Path, SharedSingleton, FlatValue } from 'types';
+import { BunchOf, Options, SharedSingleton, FlatValue } from 'types';
 import { createHash } from 'crypto';
 
 export const env = process.env || {

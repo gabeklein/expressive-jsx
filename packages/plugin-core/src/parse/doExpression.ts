@@ -1,4 +1,4 @@
-import t, {
+import { NodePath as Path } from '@babel/traverse';
     ArrowFunctionExpression,
     AssignmentExpression,
     Class,
@@ -8,7 +8,7 @@ import t, {
     VariableDeclarator,
 } from '@babel/types';
 import { ComponentExpression } from 'handle';
-import { DoExpressive, Path, Visitor } from 'types';
+import { DoExpressive, Visitor } from 'types';
 
 import { StackFrame } from './program';
 

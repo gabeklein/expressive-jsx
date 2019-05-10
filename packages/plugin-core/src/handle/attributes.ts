@@ -1,7 +1,8 @@
+import { NodePath as Path } from '@babel/traverse';
 import { Expression, LabeledStatement } from '@babel/types';
 import { ApplyModifier } from 'internal';
 import { ParseErrors, quickHash } from 'shared';
-import { BunchOf, FlatValue, Path } from 'types';
+import { BunchOf, FlatValue } from 'types';
 
 import { ElementModifier, Modifier, TraversableBody } from './';
 

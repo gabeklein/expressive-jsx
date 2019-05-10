@@ -1,8 +1,8 @@
+import { NodePath as Path } from '@babel/traverse';
 import t, { AssignmentExpression, For } from '@babel/types';
 import { ElementInline } from 'handle';
 import { StackFrame } from 'internal';
 import { ParseErrors } from 'shared';
-import { Path } from 'types';
 
 const Error = ParseErrors({
     AcceptsNoAssignments: "For block cannot accept Assignments",

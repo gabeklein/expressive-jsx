@@ -1,9 +1,10 @@
+import { NodePath as Path } from '@babel/traverse';
 import t, { BlockStatement, ExpressionStatement, IfStatement, LabeledStatement, Statement } from '@babel/types';
 import { AttributeBody, ElementInline, ExplicitStyle, Modifier } from 'handle';
 import { ContingentModifier } from 'handle/modifier';
 import { Arguments } from 'parse/arguments';
 import { ParseErrors } from 'shared';
-import { BunchOf, ModifyAction, Path } from 'types';
+import { BunchOf, ModifyAction } from 'types';
 
 const Error = ParseErrors({
     ContingentNotImplemented: "Cant integrate this contingent request. Only directly in an element block."

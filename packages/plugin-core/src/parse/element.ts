@@ -1,3 +1,4 @@
+import { NodePath as Path } from '@babel/traverse';
 import t, {
     ArrayExpression,
     AssignmentExpression,
@@ -13,7 +14,7 @@ import t, {
 } from '@babel/types';
 import { ElementInline, ElementModifier, ExplicitStyle, Prop } from 'handle';
 import { inParenthesis, Opts, ParseErrors, preventDefaultPolyfill, Shared } from 'shared';
-import { DoExpressive, ListElement, Path } from 'types';
+import { DoExpressive, ListElement } from 'types';
 
 const New = Object.create;
 const Error = ParseErrors({
