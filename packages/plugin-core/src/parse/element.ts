@@ -84,7 +84,6 @@ function ApplyPassthru(
     parent: ElementInline,
     baseAttributes: Path<Expression>[]
 ){
-
     if(baseAttributes.length == 0){
         parent.adopt(subject);
         return
@@ -103,7 +102,7 @@ function ApplyPassthru(
         container,
         true
     );
-    container.explicitTagName = "span";
+    container.explicitTagName = "div";
     container.adopt(subject);
     container.parent = parent;
     parent.adopt(container);
