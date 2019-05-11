@@ -9,13 +9,11 @@ import {
     ReturnStatement,
     Statement,
 } from '@babel/types';
-import { ContingentModifier, ElementInline } from 'handle';
 import { StackFrame } from 'parse';
 import { ParseErrors, quickHash } from 'shared';
 import { DoExpressive, InnerContent } from 'types';
 
-import { TraversableBody } from './block';
-import { ComponentExpression } from './entry';
+import { ComponentExpression, ContingentModifier, ElementInline, TraversableBody } from './';
 
 const Error = ParseErrors({
     ReturnElseNotImplemented: "This is an else condition, returning from here is not implemented.",

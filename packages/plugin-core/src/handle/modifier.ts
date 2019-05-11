@@ -1,11 +1,9 @@
 import { NodePath as Path } from '@babel/traverse';
 import { Statement } from '@babel/types';
-import { AttributeBody } from 'handle';
 import { StackFrame } from 'parse';
 import { BunchOf } from 'types';
 
-import { ExplicitStyle } from './attributes';
-import { ElementInline } from './element';
+import { AttributeBody, ExplicitStyle, ElementInline } from './';
 
 function concat(
     to: any,

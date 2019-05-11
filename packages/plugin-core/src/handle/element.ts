@@ -1,11 +1,10 @@
 import { NodePath as Path } from '@babel/traverse';
 import { AssignmentExpression, Expression, For, IfStatement, TemplateLiteral, UnaryExpression } from '@babel/types';
-import { AttributeBody, ComponentFor, ComponentIf, ElementModifier, ExplicitStyle, Prop } from 'handle';
 import { AddElementsFromExpression, StackFrame } from 'parse';
 import { inParenthesis, ParseErrors } from 'shared';
 import { BunchOf, DoExpressive, InnerContent } from 'types';
 
-import { Modifier } from './modifier';
+import { AttributeBody, ComponentFor, ComponentIf, ElementModifier, ExplicitStyle, Modifier, Prop } from './';
 
 const Error = ParseErrors({
     PropNotIdentifier: "Assignment must be identifier name of a prop.",

@@ -9,11 +9,11 @@ import {
     Statement,
     stringLiteral,
 } from '@babel/types';
-import { AttributeBody, ElementInline, ExplicitStyle, Modifier } from 'handle';
-import { ContingentModifier } from 'handle/modifier';
-import { Arguments } from 'parse/arguments';
+import { AttributeBody, ElementInline, ExplicitStyle, Modifier, ContingentModifier } from 'handle';
 import { ParseErrors } from 'shared';
 import { BunchOf, ModifyAction } from 'types';
+
+import { Arguments } from './';
 
 type ModiferBody = Path<ExpressionStatement | BlockStatement | LabeledStatement | IfStatement>;
 type ModTuple = [string, ModifyAction, any[] | undefined, ModiferBody? ];

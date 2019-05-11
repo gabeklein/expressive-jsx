@@ -13,7 +13,7 @@ import {
 import { ComponentExpression } from 'handle';
 import { DoExpressive, Visitor } from 'types';
 
-import { StackFrame } from './program';
+import { StackFrame } from './';
 
 export const DoExpression = <Visitor<DoExpressive>> {
     enter: (path, state) => {

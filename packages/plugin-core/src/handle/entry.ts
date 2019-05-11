@@ -6,9 +6,10 @@ import {
     Statement,
     VariableDeclaration,
 } from '@babel/types';
-import { ComponentConsequent, ElementInline } from 'handle';
 import { ApplyNameImplications, StackFrame } from 'parse';
 import { DoExpressive, InnerContent, SequenceItem } from 'types';
+
+import { ComponentConsequent, ElementInline } from './';
 
 export class ComponentExpression extends ElementInline {
 
