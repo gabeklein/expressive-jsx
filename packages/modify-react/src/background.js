@@ -18,10 +18,11 @@ export function bg(a){
 
     if(Array.isArray(a)){
         const [ head, ...tail ] = a;
+        const dir = URL_IMAGES || "";
         switch(head){
             case "url":
                 output = {
-                    backgroundImage: `url(${URL_IMAGES + tail[1]})`
+                    backgroundImage: `url(${dir + tail[1]})`
                 };
                 break;
 
