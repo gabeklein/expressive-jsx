@@ -25,7 +25,8 @@ export abstract class TraversableBody {
 
     constructor(
         context: StackFrame){
-        this.context = context.create(this);
+        const ctx = this.context = context.create(this);
+        ctx.push(this);
     }
 
     didEnterOwnScope(path: Path<DoExpressive>){
