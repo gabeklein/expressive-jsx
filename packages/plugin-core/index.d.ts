@@ -81,6 +81,7 @@ declare class ComponentConsequent extends ElementInline {
 }
 declare class ComponentFor extends ElementInline {
 	private constructor();
+    readonly node: For;
 	readonly path: Path<For>;
 	readonly context: StackFrame;
 }
@@ -89,7 +90,7 @@ declare abstract class Attribute<T extends Expression = Expression> {
 	readonly name: string | false;
 	readonly value: FlatValue | T | undefined;
 	readonly path?: Path<T> | undefined;
-	invariant: boolean | undefined;
+	readonly invariant: boolean | undefined;
 	readonly overriden?: boolean;
 }
 declare class Prop extends Attribute {

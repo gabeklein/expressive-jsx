@@ -1,23 +1,28 @@
-import t, {
+import {
+    arrayExpression,
+    arrowFunctionExpression,
     BlockStatement,
+    blockStatement,
     CallExpression,
+    callExpression,
     Expression,
-    ForInStatement,
-    ForOfStatement,
-    ForStatement,
-    ForXStatement,
+    expressionStatement,
+    identifier,
     Identifier,
+    isArrayPattern,
+    isBinaryExpression,
+    isIdentifier,
+    isObjectPattern,
+    memberExpression,
     PatternLike,
-    StringLiteral,
+    returnStatement,
+    isForOfStatement,
+    isVariableDeclaration
 } from '@babel/types';
-import { ComponentFor, ElementInline, ParseErrors, Prop, SequenceItem } from '@expressive/babel-plugin-core';
-import { ElementReact, GenerateReact, memberExpression, callExpression, ensureUIDIdentifier } from 'internal';
-import { isIdentifierElement, Path } from 'types';
-
-const Error = ParseErrors({
-    cantAssign: "Assignment of variable left of \"of\" must be Identifier or Destruture",
-    notImplemented: "Only For-Of loop is currently implemented; complain to dev!"
-})
+import { ComponentFor, ElementInline, Prop, SequenceItem } from '@expressive/babel-plugin-core';
+import { ElementReact, ensureUIDIdentifier, GenerateReact } from 'internal';
+import { isIdentifierElement } from 'types';
+import { declare, IIFE } from 'generate/syntax'; 
 
 export class ElementIterate 
     extends ElementReact<ComponentFor> {
@@ -33,63 +38,41 @@ export class ElementIterate
         this.type = source.path.type as any;
     };
     
-    toExpression(Generator: GenerateReact): CallExpression | StringLiteral {
-        if(this.type != "ForOfStatement")
-            return t.stringLiteral(this.type + " NOT IMPLEMENTED");
-
-        let body: BlockStatement | Expression;
-
-        const { key, mayCollapseContent } = this;
-
-        body = Generator.container(this, !mayCollapseContent && key);
-
-        if(this.statements.length)
-            body = t.blockStatement([
-                ...this.statements,
-                t.returnStatement(body)
-            ])
-    
-        return callExpression(
-            memberExpression(this.right!, "map"),
-            t.arrowFunctionExpression([this.left!, key!], body)
-        )
+    toExpression(Generator: GenerateReact): CallExpression {
+        if(this.type === "ForOfStatement")
+            return this.toMapExpression(Generator)
+        else
+            return this.toInvokedForLoop(Generator) as any
     }
 
     willParse(sequence: SequenceItem[]){
-        const { path } = this.source;
+        const { node } = this.source;
 
-        if(path.isForStatement())
-            this.parseVanillaFor(path);
-        else 
-            this.parseForX(path as Path<ForXStatement>);
+        if(!isForOfStatement(node))
+            return
 
-        return undefined;
-    }
-
-    parseForX(Loop: Path<ForOfStatement | ForInStatement>){
-        let left = Loop.get("left");
-        let right = Loop.get("right");
         let key: Identifier;
+        let { left, right } = node;
 
-        if(left.isVariableDeclaration())
-            left = left.get("declarations")[0].get("id")
+        if(isVariableDeclaration(left))
+            left = left.declarations[0].id;
 
-        if(left.isIdentifier() 
-        || left.isObjectPattern() 
-        || left.isArrayPattern())
+        if(isIdentifier(left) 
+        || isObjectPattern(left) 
+        || isArrayPattern(left))
             void 0;
         else 
-            throw Error.cantAssign(left);
+            throw new Error("Assignment of variable left of \"of\" must be Identifier or Destruture")
 
-        if(right.isBinaryExpression({operator: "in"})){
-            key = right.node.left as Identifier
-            right = right.get("right")
+        if(isBinaryExpression(right, {operator: "in"})){
+            key = right.left as Identifier
+            right = right.right as any;
         }
         else key = ensureUIDIdentifier(this.source.path.scope, "i");
 
         this.key = key;
-        this.left = left.node;
-        this.right = right.node;
+        this.left = left;
+        this.right = right;
 
         const inner = this.source.children;
         const [ element ] = inner;
@@ -102,9 +85,51 @@ export class ElementIterate
                 new Prop("key", this.key));
             this.mayCollapseContent = true;
         }
+
+        return undefined
     }
 
-    parseVanillaFor(Loop: Path<ForStatement>){
-        throw Error.notImplemented(Loop)
+    toMapExpression(Generator: GenerateReact): CallExpression {
+        let body: BlockStatement | Expression;
+        const { key, mayCollapseContent } = this;
+        const { left, right } = this;
+
+        body = Generator.container(this, !mayCollapseContent && key);
+
+        if(this.statements.length)
+            body = blockStatement([
+                ...this.statements,
+                returnStatement(body)
+            ])
+    
+        return callExpression(
+            memberExpression(right!, identifier("map")),
+            [ arrowFunctionExpression([left!, key!], body) ]
+        )
+    }
+
+    toInvokedForLoop(Generator: GenerateReact){
+        const accumulator = ensureUIDIdentifier(this.source.path.scope, "acc");
+        const sourceLoop = this.source.node;
+        const content = Generator.container(this);
+
+        sourceLoop.body = blockStatement([
+            ...this.statements,
+            expressionStatement(
+                callExpression(
+                    memberExpression(
+                        accumulator,
+                        identifier("push")
+                    ),
+                    [ content ]
+                )
+            )
+        ])
+
+        return IIFE([
+            declare("const", accumulator, arrayExpression()),
+            sourceLoop,
+            returnStatement(accumulator)
+        ])
     }
 }
