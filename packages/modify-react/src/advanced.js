@@ -11,7 +11,8 @@ const PSEUDO = {
     afterOnFocus: ":focus::after",
     beforeOnFocus: ":focus::before",
     afterOnActive: ":active::after",
-    beforeOnActive: ":active::before"
+    beforeOnActive: ":active::before",
+    placeholder: "::placeholder"
 }
 
 for(const name in PSEUDO){

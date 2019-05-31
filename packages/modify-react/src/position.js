@@ -23,7 +23,7 @@ export function select(a){
         style: {
             WebkitUserSelect: "none",
             MoxUserSelect: "none",
-            UserSelect: "none"
+            userSelect: "none"
         }
     }
 }

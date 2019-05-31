@@ -10,6 +10,7 @@ export * from "./background"
 export * from "./advanced"
 export * from "./text"
 export * from "./media"
+export * from "./macro"
 
 import * as Helpers from "./helpers"
 export { Helpers }
