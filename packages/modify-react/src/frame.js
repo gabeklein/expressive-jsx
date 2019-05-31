@@ -8,7 +8,8 @@ for(const type of ["min", "max", ""]){
     const height = type ? `${type}Height` : "height";
 
     EXPORT[size] = (x, y, unit) => {
-        if(typeof y == "string" && typeof x == "number")
+        if(typeof y == "string" 
+        && typeof x == "number")
             unit = y, y = null;
 
         return {

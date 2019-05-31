@@ -27,16 +27,26 @@ export function rect(a, b, c, d){
     return [top, right, bottom, left]
 }
 
-export function appendUnitToN(val, unit = "px") {
-    return (
-        typeof val == "number" 
-            ? val == 0 
-                ? "0"
-                : val + unit
-        : typeof val == "undefined"
-            ? ""
-            : val
-    )
+export function appendUnitToN(val, unit) {
+    switch(typeof val){
+        case "number":
+            return val != 0 
+                ? val + (unit || "px")
+                : "0"
+
+        case "string": 
+            return val != "0"
+                ? /^\d\.\d$/.test(val)
+                    ? val + (unit || "em")
+                    : val
+                : "0"
+        
+        case "undefined":
+            return ""
+
+        default:
+            return val
+    }
 }
 
 export function handleUnits(name) {

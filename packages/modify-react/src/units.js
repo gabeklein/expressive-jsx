@@ -32,4 +32,3 @@ function nToNUnits(value, unit) {
         }
     }
 }
-
