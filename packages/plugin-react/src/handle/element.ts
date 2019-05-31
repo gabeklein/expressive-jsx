@@ -17,7 +17,6 @@ export class ElementReact<T extends ElementInline = ElementInline>
     extends ElementConstruct<T>{
 
     context: StackFrame
-    statements = [] as any[];
     children = [] as ContentLike[];
     props = [] as PropData[];
     classList = [] as Array<string | Expression>

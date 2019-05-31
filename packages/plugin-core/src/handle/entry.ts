@@ -1,17 +1,11 @@
 import { NodePath as Path } from '@babel/traverse';
-import {
-    ArrowFunctionExpression,
-    DebuggerStatement,
-    FunctionDeclaration,
-    Statement,
-    VariableDeclaration,
-} from '@babel/types';
+import { ArrowFunctionExpression, Statement } from '@babel/types';
 import { ApplyNameImplications, StackFrame } from 'parse';
 import { DoExpressive, InnerContent, SequenceItem } from 'types';
 
-import { ComponentConsequent, ElementInline } from './';
+import { ComponentConsequent, ComponentContainer } from './';
 
-export class ComponentExpression extends ElementInline {
+export class ComponentExpression extends ComponentContainer {
 
     exec?: Path<ArrowFunctionExpression>;
     statements = [] as Statement[];
@@ -53,17 +47,5 @@ export class ComponentExpression extends ElementInline {
             return 
         }
         super.adopt(child)
-    }
-
-    VariableDeclaration(path: Path<VariableDeclaration>){
-        this.statements.push(path.node);
-    }
-
-    DebuggerStatement(path: Path<DebuggerStatement>){
-        this.statements.push(path.node);
-    }
-
-    FunctionDeclaration(path: Path<FunctionDeclaration>){
-        this.statements.push(path.node);
     }
 }

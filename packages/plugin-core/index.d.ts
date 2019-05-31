@@ -57,10 +57,12 @@ declare class ElementInline extends AttributeBody {
 	readonly data: BunchOf<any>;
 	adopt(child: InnerContent): void;
 }
-declare class ComponentExpression extends ElementInline {
+declare class ComponentContainer extends ElementInline {
+	readonly statements: Statement[];
+}
+declare class ComponentExpression extends ComponentContainer {
 	private constructor();
 	readonly exec?: Path<ArrowFunctionExpression>;
-	readonly statements: Statement[];
 }
 declare class ComponentIf {
 	private constructor();
@@ -79,7 +81,7 @@ declare class ComponentConsequent extends ElementInline {
 	readonly path: Path<Statement>;
 	readonly test?: Path<Expression>;
 }
-declare class ComponentFor extends ElementInline {
+declare class ComponentFor extends ComponentContainer {
 	private constructor();
     readonly node: For;
 	readonly path: Path<For>;

@@ -96,9 +96,9 @@ export class ElementIterate
 
         body = Generator.container(this, !mayCollapseContent && key);
 
-        if(this.statements.length)
+        if(this.source.statements.length)
             body = blockStatement([
-                ...this.statements,
+                ...this.source.statements,
                 returnStatement(body)
             ])
     
@@ -114,7 +114,7 @@ export class ElementIterate
         const content = Generator.container(this);
 
         sourceLoop.body = blockStatement([
-            ...this.statements,
+            ...this.source.statements,
             expressionStatement(
                 callExpression(
                     memberExpression(

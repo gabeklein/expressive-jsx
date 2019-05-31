@@ -2,9 +2,9 @@ import { NodePath as Path } from '@babel/traverse';
 import { AssignmentExpression, expressionStatement, For } from '@babel/types';
 import { StackFrame } from 'parse';
 
-import { ElementInline } from './';
+import { ComponentContainer } from './';
 
-export class ComponentFor extends ElementInline {
+export class ComponentFor extends ComponentContainer {
 
     node: For;
 

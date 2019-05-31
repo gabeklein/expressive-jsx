@@ -1,5 +1,5 @@
 import { NodePath as Path } from '@babel/traverse';
-import { AssignmentExpression, Expression, For, IfStatement, TemplateLiteral, UnaryExpression } from '@babel/types';
+import { AssignmentExpression, Expression, For, IfStatement, TemplateLiteral, UnaryExpression, Statement, VariableDeclaration, DebuggerStatement, FunctionDeclaration, expressionStatement } from '@babel/types';
 import { AddElementsFromExpression, StackFrame } from 'parse';
 import { inParenthesis, ParseErrors } from 'shared';
 import { BunchOf, DoExpressive, InnerContent } from 'types';
@@ -10,7 +10,8 @@ const Error = ParseErrors({
     PropNotIdentifier: "Assignment must be identifier name of a prop.",
     AssignmentNotEquals: "Only `=` assignment may be used here.",
     BadShorthandProp: "\"+\" shorthand prop must be an identifier!",
-    UnarySpaceRequired: "Unary Expression must include a space between {1} and the value."
+    UnarySpaceRequired: "Unary Expression must include a space between {1} and the value.",
+    StatementInElement: "Statement insertion not implemented while within elements!",
 })
 
 export class ElementInline extends AttributeBody {
@@ -61,19 +62,22 @@ export class ElementInline extends AttributeBody {
     }
     
     UnaryExpression(path: Path<UnaryExpression>){
-        const unary = path as Path<UnaryExpression>;
-        const value = path.get("argument") as Path<Expression>;
-        const op = unary.node.operator
+        const value = path.get("argument");
+        const op = path.node.operator
 
         switch(op){
+            case "delete":
+                this.ExpressionAsStatement(value);
+                return
+
             case "void":
             case "!":
                 this.ExpressionDefault(path)
                 return 
         }
 
-        if(unary.node.start !== value.node.start! - 2)
-            throw Error.UnarySpaceRequired(unary, op)
+        if(path.node.start !== value.node.start! - 2)
+            throw Error.UnarySpaceRequired(path, op)
 
         switch(op){
             case "+": 
@@ -82,7 +86,7 @@ export class ElementInline extends AttributeBody {
                         new Prop(value.node.name, value.node)
                     );
                 else 
-                    throw Error.BadShorthandProp(unary);
+                    throw Error.BadShorthandProp(path);
             break;
 
             case "-":
@@ -99,6 +103,10 @@ export class ElementInline extends AttributeBody {
         }
     }
 
+    ExpressionAsStatement(path: Path<Expression>){
+        throw Error.StatementInElement(path)
+    }
+
     AssignmentExpression(path: Path<AssignmentExpression>){
         if(path.node.operator !== "=") 
             throw Error.AssignmentNotEquals(path)
@@ -112,5 +120,26 @@ export class ElementInline extends AttributeBody {
 
         this.insert(
             new Prop(name, undefined, path.get("right")));
+    }
+}
+
+export class ComponentContainer extends ElementInline {
+
+    statements = [] as Statement[];
+
+    ExpressionAsStatement(path: Path<Expression>){
+        this.statements.push(expressionStatement(path.node));
+    }
+
+    VariableDeclaration(path: Path<VariableDeclaration>){
+        this.statements.push(path.node);
+    }
+
+    DebuggerStatement(path: Path<DebuggerStatement>){
+        this.statements.push(path.node);
+    }
+
+    FunctionDeclaration(path: Path<FunctionDeclaration>){
+        this.statements.push(path.node);
     }
 }
