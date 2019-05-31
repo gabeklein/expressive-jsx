@@ -1,5 +1,5 @@
 import { NodePath as Path } from '@babel/traverse';
-import { AssignmentExpression, Expression, For, IfStatement, TemplateLiteral, UnaryExpression, Statement, VariableDeclaration, DebuggerStatement, FunctionDeclaration, expressionStatement } from '@babel/types';
+import { AssignmentExpression, Expression, For, IfStatement, TemplateLiteral, UnaryExpression, Statement, VariableDeclaration, DebuggerStatement, FunctionDeclaration, expressionStatement, UpdateExpression } from '@babel/types';
 import { AddElementsFromExpression, StackFrame } from 'parse';
 import { inParenthesis, ParseErrors } from 'shared';
 import { BunchOf, DoExpressive, InnerContent } from 'types';
@@ -12,6 +12,7 @@ const Error = ParseErrors({
     BadShorthandProp: "\"+\" shorthand prop must be an identifier!",
     UnarySpaceRequired: "Unary Expression must include a space between {1} and the value.",
     StatementInElement: "Statement insertion not implemented while within elements!",
+    MinusMinusNotImplemented: "-- is not implemented as an integration statement."
 })
 
 export class ElementInline extends AttributeBody {
@@ -58,6 +59,21 @@ export class ElementInline extends AttributeBody {
     ForStatement(path: Path<For>){
         this.adopt(
             new ComponentFor(path, this.context)
+        )
+    }
+
+    UpdateExpression(path: Path<UpdateExpression>){
+        const value = path.get("argument");
+        const op = path.node.operator;
+
+        if(path.node.start !== value.node.start! - 3)
+            throw Error.UnarySpaceRequired(path, op)
+
+        if(op !== "++")
+            throw Error.MinusMinusNotImplemented(path)
+
+        this.add(
+            new Prop(false, value.node)
         )
     }
     
