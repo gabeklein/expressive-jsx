@@ -4,8 +4,10 @@ import { ComponentIf, ElementInline, ElementModifier, Modifier, TraversableBody 
 import { ParseErrors } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
 
+const { getPrototypeOf, create, assign } = Object;
+
 const Error = ParseErrors({
-    IllegalInProgramContext: "Cannot apply element styles in top-level of program",
+    IllegalAtTopLevel: "Cannot apply element styles in top-level of program",
     BadModifierName: "Modifier name cannot start with _ symbol!",
     DuplicateModifier: "Duplicate declaration of named modifier!"
 })
@@ -26,7 +28,7 @@ export const Program = <Visitor<BabelProgram>>{
                     throw Error.DuplicateModifier(path);
 
                 if(body.isExpressionStatement(body))
-                    throw Error.IllegalInProgramContext(statement)
+                    throw Error.IllegalAtTopLevel(statement)
 
                 const mod = new ElementModifier(context, name, body);
                 context.elementMod(mod)
@@ -48,7 +50,7 @@ function Hash(data: string, length?: number){
     )
 }
 
-const BuiltIn: BunchOf<ModifyAction> = {
+const builtIn: BunchOf<ModifyAction> = {
     priority(priority: number){
         const { target } = this;
         if(target instanceof Modifier)
@@ -70,15 +72,15 @@ export class StackFrame {
 
     constructor(state: BabelState){
         let Stack = this;
-        const included = state.opts.modifiers;
-        const imported = [ BuiltIn, ...included ];
+        const external = [].concat(state.opts.modifiers || []);
+        const included = assign({}, ...external);
 
         this.stateSingleton = state;
         this.prefix = Hash(state.filename);
         this.options = {};
     
-        for(const imports of imported){
-            Stack = Object.create(Stack)
+        for(const imports of [ builtIn, included ]){
+            Stack = create(Stack)
             
             const { Helpers, ...Modifiers } = imports as any;
 
@@ -90,7 +92,7 @@ export class StackFrame {
     }
 
     get parent(){
-        return Object.getPrototypeOf(this);
+        return getPrototypeOf(this);
     }
 
     event(
@@ -117,7 +119,7 @@ export class StackFrame {
     }
 
     create(node: any){
-        const frame = Object.create(this);
+        const frame = create(this);
         frame.current = node;
         if(node instanceof ElementInline)
             frame.currentElement = node;
@@ -130,7 +132,7 @@ export class StackFrame {
 
     pop(){
         let up = this;
-        do { up = Object.getPrototypeOf(up) } 
+        do { up = getPrototypeOf(up) } 
         while(up.current === undefined)
         this.stateSingleton.context = up;
     }

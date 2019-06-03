@@ -22,7 +22,6 @@ const Error = ParseErrors({
     ContingentNotImplemented: "Cant integrate this contingent request. Only directly in an element block."
 })
 
-
 export function ApplyModifier(
     initial: string,
     recipient: Modifier | ElementInline, 
