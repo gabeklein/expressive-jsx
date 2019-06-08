@@ -58,7 +58,7 @@ function roundHslAlpha(color){
     .split(',')
     .map(
       string =>
-        string.indexOf('%') === -1 ? Number(string).toFixed(3) : string.trim()
+        string.indexOf('%') === -1 ? string.length > 4 ? Number(string).toFixed(3) : string : string.trim()
     )
   return `${ prefix }(${ values.join(', ') })`
 }
@@ -69,6 +69,6 @@ function normalize(...colors){
             ? color
             : chroma(colors[Math.abs(i - 1)])
                 .alpha(0)
-                .css('hsl')
+                .css('rgb')
     ))
 }
