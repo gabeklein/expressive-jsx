@@ -196,18 +196,15 @@ export function ApplyNameImplications(
     else 
         target.name = name;
     
-    if(!modify) return;
-
-    do {
+    while(modify){
         target.modifiers.push(modify);
-        modify.nTargets++
+        modify.nTargets += 1
         if(modify === modify.next){
             console.error(`Still haven't fixed inheritance leak apparently. \n target: ${name}`)
             break
         }
         modify = modify.next;
     }
-    while(modify);
 }
 
 function ParseIdentity(
@@ -372,9 +369,9 @@ function ParseProps(
             } break;
 
             case "Identifier": {
-                const { name } = path.node as Identifier;
+                const { node } = path as Path<Identifier>;
                 target.add(
-                    new Prop(name, stringLiteral("true"))
+                    new Prop(node.name, node)
                 );
             } break;
 
