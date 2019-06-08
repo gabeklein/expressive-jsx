@@ -13,7 +13,7 @@ import { AttributeBody, ElementInline, ExplicitStyle, Modifier, ContingentModifi
 import { ParseErrors } from 'shared';
 import { BunchOf, ModifyAction } from 'types';
 
-import { Arguments } from './';
+import { Arguments } from './arguments';
 
 type ModiferBody = Path<ExpressionStatement | BlockStatement | LabeledStatement | IfStatement>;
 type ModTuple = [string, ModifyAction, any[] | undefined, ModiferBody? ];

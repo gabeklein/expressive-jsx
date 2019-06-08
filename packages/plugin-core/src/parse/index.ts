@@ -1,5 +1,4 @@
-export * from "./modifier";
-export * from "./program";
-export * from "./element";
-export * from "./arguments";
-export * from "./doExpression";
+export { ApplyModifier, ModifyDelegate } from "./modifier";
+export { ApplyNameImplications, AddElementsFromExpression } from './element';
+export { StackFrame, Program } from "./program";
+export { DoExpression } from "./doExpression";
