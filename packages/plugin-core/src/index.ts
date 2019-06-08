@@ -7,10 +7,10 @@ export {
 export {
     ComponentExpression,
     ComponentIf,
-    Prop,
+    ContingentModifier,
     ElementInline,
 	ExplicitStyle,
-    ContingentModifier
+    Prop
 } from "handle";
 
 export {

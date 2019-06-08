@@ -224,22 +224,22 @@ declare function ParseErrors
 export default _default;
 
 export {
+    AttributeBody,
+    BabelState,
+    ComponentConsequent,
+    ComponentExpression,
+    ComponentFor,
+    ComponentIf,
+    ContingentModifier,
+    DoExpressive,
+    EitherModifier as Modifier,
 	ElementConstruct,
-	DoExpressive,
+    ElementInline,
+    ElementModifier,
+    ExplicitStyle,
+    ParseErrors,
+    Prop,
 	SequenceItem,
-	Prop,
-	ExplicitStyle,
-	ElementInline,
-	ComponentExpression,
-	ComponentIf,
-	ComponentConsequent,
-	ComponentFor,
 	StackFrame,
-	ParseErrors,
-	AttributeBody,
-	ElementModifier,
-	Visitor,
-	BabelState,
-	Modifier,
-	ContingentModifier
+    Visitor
 }
