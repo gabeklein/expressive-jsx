@@ -39,11 +39,12 @@ export function ApplyModifier(
     };
 
     let i = 0;
-    let stack = [] as ModTuple[];
-    let current: ModTuple = [ initial, handler, args, input ];
+    let stack = [
+        [ initial, handler, args, input ] as ModTuple
+    ];
 
     do {
-        const { output } = new ModifyDelegate(recipient, ...current);
+        const { output } = new ModifyDelegate(recipient, ...stack[i]);
 
         if(!output){
             i++; 
@@ -81,13 +82,11 @@ export function ApplyModifier(
         
         if(pending.length){
             stack = [...pending, ...stack.slice(i+1)];
-            current = stack[i = 0];
+            i = 0;
         }
-        else if(++i in stack)
-            current = stack[i]
-        else break;
+        else i++
     }
-    while(true)
+    while(i in stack)
 
     for(const name in totalOutput.style){
         let item = totalOutput.style[name];
