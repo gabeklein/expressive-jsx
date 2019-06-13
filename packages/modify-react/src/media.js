@@ -47,21 +47,21 @@ function Transform(e){
 export function screen(){
     let { body } = this;
     body = body.type == "BlockStatement"
-         ? body.get("body")
-         : body.type == "IfStatement"
-         ? [body]
-         : [];
+        ? body.get("body")
+        : body.type == "IfStatement"
+        ? [body]
+        : [];
 
     for(const node of body)
-        if(node.type == "IfStatement"){
-            let query = this.parse(node.get("test"));
-                query = query.map(Transform).join(" and ");
+    if(node.type == "IfStatement"){
+        let query = this.parse(node.get("test"));
+            query = query.map(Transform).join(" and ");
 
-            this.declareMediaQuery(
-                'only screen' + (query ? ' and ' + query : ''),
-                node.get("consequent")
-            );
-        }
+        this.declareMediaQuery(
+            'only screen' + (query ? ' and ' + query : ''),
+            node.get("consequent")
+        );
+    }
 }
 
 export function mobile(){
