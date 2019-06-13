@@ -95,20 +95,6 @@ for (const kind of [
         }
 }
 
-export function shadow(color, radius = 10, x = 2, y = x){
-    return {
-        style: {
-            boxShadow: `${x}px ${y}px ${radius}px ${color}`
-        }
-    }
-}
-
-export function outline(a, b){
-    return a == "none"     ? {style: { outline: "none" }}
-        :  b == undefined  ? {style: { outline: `1px dashed ${a || "green"}` }}
-        :  {attrs: { outline: this.arguments }}
-}
-
 for(const kind of [
     "border",
     "borderTop",

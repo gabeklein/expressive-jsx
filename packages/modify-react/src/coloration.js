@@ -13,6 +13,27 @@ export function image(a){
     }
 }
 
+export function shadow(color, radius = 10, x = 2, y = x){
+    let value;
+    if(color == "intial" || color == "none")
+        value = color;
+    else {
+        value = `${x}px ${y}px ${radius}px ${color}`;
+    }
+    return {
+        style: {
+            boxShadow: value
+        }
+    }
+}
+
+export function outline(a, b){
+    return a == "none"     ? {style: { outline: "none" }}
+        :  b == undefined  ? {style: { outline: `1px dashed ${a || "green"}` }}
+        :  {attrs: { outline: this.arguments }}
+}
+
+
 export function bg(a){
     let output;
 
