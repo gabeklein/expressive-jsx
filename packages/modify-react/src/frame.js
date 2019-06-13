@@ -2,6 +2,13 @@ const EXPORT = exports;
 
 import { rect, appendUnitToN, handleUnits } from "./util"
 
+const sides = {
+    top: [1, 1, 0, 0],
+    left: [1, 0, 0, 1],
+    right: [0, 1, 1, 0],
+    bottom: [0, 0, 1, 1]
+}
+
 for(const type of ["min", "max", ""]){
     const size = type ? `${type}Size` : "size";
     const width = type ? `${type}Width` : "width";
@@ -34,10 +41,29 @@ export function aspectSize(x, y, unit){
     }
 }
 
-export function radius(a){
+export function radius(a, r1, r2){
     if(a == "round")
         a = 999;
-        
+    else 
+    if(typeof a == "string" && r1){
+        let [x, y] = a.split('-');
+        x = sides[x];
+        if(y)
+            x = x.map((x, i) => sides[y][i] ? x : 0);
+
+        a = x.map((r, i) => {
+            if(r){
+                let val = i && r2 || r1;
+                if(isNaN(val) == false)
+                    val += Math.round(val) != val
+                        ? "em" : "px"
+                return val;
+            }
+            else 
+                return 0;
+        }).join(" ")
+    }
+
     return {
         attrs: {
             borderRadius: a
