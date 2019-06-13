@@ -1,8 +1,10 @@
 import { Program as BabelProgram } from '@babel/types';
 import { createHash } from 'crypto';
-import { ComponentIf, ElementInline, ElementModifier, Modifier, TraversableBody } from 'handle';
+import { ComponentIf, ElementInline, ElementModifier, TraversableBody } from 'handle';
 import { ParseErrors } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
+
+import * as builtIn from "./builtin"
 
 const { getPrototypeOf, create, assign } = Object;
 
@@ -48,14 +50,6 @@ function Hash(data: string, length?: number){
         .digest('hex')
         .substring(0, 6)
     )
-}
-
-const builtIn: BunchOf<ModifyAction> = {
-    priority(priority: number){
-        const { target } = this;
-        if(target instanceof Modifier)
-            target.priority = priority
-    }
 }
 
 export class StackFrame {
