@@ -159,7 +159,7 @@ export class ComponentConsequent extends ElementInline {
     }
 
     didExitOwnScope(){
-        const mod = this.slaveModifier!;
+        const mod = this.slaveModifier;
         const parent = this.context.currentElement!;
 
         if(!mod) return;

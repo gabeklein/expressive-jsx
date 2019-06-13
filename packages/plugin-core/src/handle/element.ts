@@ -97,12 +97,11 @@ export class ElementInline extends AttributeBody {
 
         switch(op){
             case "+": 
-                if(value.isIdentifier())
-                    this.add(
-                        new Prop(value.node.name, value.node)
-                    );
-                else 
+                if(!value.isIdentifier())
                     throw Error.BadShorthandProp(path);
+                this.add(
+                    new Prop(value.node.name, value.node)
+                );
             break;
 
             case "-":

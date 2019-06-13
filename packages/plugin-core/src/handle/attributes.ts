@@ -66,7 +66,9 @@ export abstract class AttributeBody extends TraversableBody {
                 new ElementModifier(this.context, name, body)
             )
 
-        else if(body.isExpressionStatement() || body.isBlockStatement() || body.isLabeledStatement())
+        else if(body.isExpressionStatement() 
+             || body.isBlockStatement() 
+             || body.isLabeledStatement())
             ApplyModifier(
                 name, applyTo, body
             );

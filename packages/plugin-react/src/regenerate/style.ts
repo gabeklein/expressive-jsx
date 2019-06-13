@@ -17,9 +17,7 @@ export function writeProvideStyleStatement(
         lastInsertedElement,
         modifiersDeclared
     } = this;
-
-    void modifiersDeclared;
-
+    
     const programBody = program.node.body;
 
     const polyfillModule = this.imports.ensure(RUNTIME, "Module")
