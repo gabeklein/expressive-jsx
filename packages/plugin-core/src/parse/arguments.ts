@@ -13,8 +13,12 @@ import {
     StringLiteral,
     TemplateLiteral,
     UnaryExpression,
+    LabeledStatement,
+    BlockStatement,
+    IfStatement,
 } from '@babel/types';
 import { inParenthesis, Opts, ParseErrors } from 'shared';
+import { BunchOf, CallAbstraction , IfAbstraction } from 'types'
 
 const Error = ParseErrors({
     StatementAsArgument: "Cannot parse statement as a modifier argument!",
@@ -24,7 +28,9 @@ const Error = ParseErrors({
     ArgumentSpread: "Cannot parse argument spreads for modifier handlers",
     UnknownArgument: "Unknown argument while parsing for modifier.",
     MustBeIdentifier: "Only Identifers allowed here! Call expression must reference another modifier.",
-    TemplateMustBeText: "Template can only contain text here"
+    TemplateMustBeText: "Template can only contain text here",
+    ModiferCantParse: "Illegal value in modifier",
+    ElseNotSupported: "An else statement in an if modifier is not yet supported"
 })
 
 function HEXColor(raw: string){
@@ -70,40 +76,40 @@ export const Arguments = new class DelegateTypes {
         element: Path<Expression> | Path<Statement>, 
         get?: string): any[] {
 
-        const args = element.isSequenceExpression()
-        ? element.get("expressions") : [ element ];
+        if(element.isExpressionStatement())
+            element = element.get("expression")
 
-        return args.map(x => this.Extract(x))
+        return [].concat(
+            element.isExpression()
+                ? this.Expression(element)
+                : this.Extract(element)
+        )
     }
 
     Extract(
-        element: Path<Expression> | Path<Statement>, 
-        get?: string): any {
-
-        if(get)
-            element = element.get(get) as typeof element;
-
-        if(element.isStatement()){
-            if(element.isExpressionStatement())
-                element = element.get("expression");
-            else 
-                throw Error.StatementAsArgument(element) 
-        }
-    
-        const { type } = element;
-        const { node } = element as any;
-
-        const paren = node.extra && node.extra.parenthesized;
-
-        if(paren)
-            return node;
-
-        if(!this[type])
+        element: Path<Expression | Statement>
+    ){
+        if(element.type in this)
+            return this[element.type](element);
+        else 
             throw Error.UnknownArgument(element)
-        else
-            return this[type](element);
     }
 
+    Expression(
+        element: Path<Expression>, 
+        childKey?: string): any {
+
+        if(childKey)
+            element = element.get(childKey) as typeof element;
+    
+        const { node } = element as any;
+
+        if(node.extra && node.extra.parenthesized)
+            return node;
+
+        return this.Extract(element)
+    }
+    
     Identifier(e: Path<Identifier>){
         return e.node.name
     }
@@ -150,19 +156,25 @@ export const Arguments = new class DelegateTypes {
         return null;
     }
 
-    BinaryExpression(e: Path<BinaryExpression>){
-        const {left, right, operator} = e.node;
+    BinaryExpression(binary: Path<BinaryExpression>){
+        const {left, right, operator} = binary.node;
         if(operator == "-" 
         && left.type == "Identifier"  
         && right.type == "Identifier" 
         && right.start == left.end! + 1)
             return left.name + "-" + right.name
         else 
-            return [operator, this.Extract(e, "left"), this.Extract(e, "right")]
+            return [
+                operator, 
+                this.Expression(binary, "left"), 
+                this.Expression(binary, "right")
+            ]
     }
     
     SequenceExpression(sequence: Path<SequenceExpression>){
-        return sequence.get("expressions").map(x => this.Extract(x))
+        return sequence
+            .get("expressions")
+            .map(x => this.Expression(x))
     }
 
     CallExpression(e: Path<CallExpression>){
@@ -179,12 +191,63 @@ export const Arguments = new class DelegateTypes {
         }
 
         if(!callee.isIdentifier())
-            throw Error.MustBeIdentifier(callee) 
+            throw Error.MustBeIdentifier(callee)
+
+        const call = args.map(x => this.Expression(x)) as CallAbstraction;
+        call.callee = callee.node.name;
             
-        return [callee, ...args].map(x => this.Extract(x))
+        return call;
     }
 
     ArrowFunctionExpression(e: Path<ArrowFunctionExpression>): never {
         throw Error.ArrowNotImplemented(e) 
+    }
+
+    IfStatement(
+        statement: Path<IfStatement>
+    ){
+        const alt = statement.get("alternate");
+        const test = statement.get("test");
+        const body = statement.get("body");
+
+        const data = {
+            test: this.Expression(test)
+        } as IfAbstraction
+
+        if(alt)
+            throw Error.ElseNotSupported(test);
+
+        if(Array.isArray(body))
+            throw "?"
+
+        if(body.isBlockStatement()
+        || body.isLabeledStatement()){
+            Object.assign(data, this.Extract(body))
+        }
+
+        return data; 
+    }
+
+    LabeledStatement(
+        statement: Path<LabeledStatement>
+    ){
+        return {
+            [statement.node.label.name]: this.Parse(statement.get("body"))
+        }
+    }
+
+    BlockStatement(
+        statement: Path<BlockStatement>
+    ){
+        const map = {} as BunchOf<any>
+
+        for(const item of statement.get("body")){
+            if(!item.isLabeledStatement())
+                throw Error.ModiferCantParse(statement);
+            
+            map[item.node.label.name] = this.Parse(item.get("body"))
+        }
+
+        return map;
     }
 }

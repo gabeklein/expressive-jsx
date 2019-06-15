@@ -32,3 +32,12 @@ export interface ModifierOutput {
     style?: BunchOf<any>
     props?: BunchOf<any>
 }
+
+export interface CallAbstraction extends Array<any> {
+    callee: string;
+}
+
+export interface IfAbstraction {
+    [type: string]: (...args: any[]) => any;
+    test: any;
+}
