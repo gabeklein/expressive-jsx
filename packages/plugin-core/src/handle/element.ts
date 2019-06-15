@@ -1,6 +1,6 @@
 import { NodePath as Path } from '@babel/traverse';
-import { AssignmentExpression, Expression, For, IfStatement, TemplateLiteral, UnaryExpression, Statement, VariableDeclaration, DebuggerStatement, FunctionDeclaration, expressionStatement, UpdateExpression } from '@babel/types';
-import { AddElementsFromExpression, StackFrame } from 'parse';
+import { AssignmentExpression, Expression, For, IfStatement, TemplateLiteral, UnaryExpression, Statement, VariableDeclaration, DebuggerStatement, FunctionDeclaration, expressionStatement, UpdateExpression, BlockStatement, doExpression, blockStatement } from '@babel/types';
+import { AddElementsFromExpression, StackFrame, ApplyNameImplications } from 'parse';
 import { inParenthesis, ParseErrors } from 'shared';
 import { BunchOf, DoExpressive, InnerContent } from 'types';
 
@@ -59,6 +59,21 @@ export class ElementInline extends AttributeBody {
     ForStatement(path: Path<For>){
         this.adopt(
             new ComponentFor(path, this.context)
+        )
+    }
+
+    BlockStatement(path: Path<BlockStatement>){
+        const blockElement = new ElementInline(this.context);
+        const block = blockStatement(path.node.body);
+        const doExp = doExpression(block) as DoExpressive;
+
+        ApplyNameImplications("block", blockElement);
+        this.add(blockElement)
+
+        blockElement.doBlock = doExp;
+        doExp.meta = blockElement;
+        path.replaceWith(
+            expressionStatement(doExp)
         )
     }
 
