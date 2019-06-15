@@ -10,7 +10,8 @@ export {
     ContingentModifier,
     ElementInline,
 	ExplicitStyle,
-    Prop
+    Prop,
+    ElementModifier
 } from "handle";
 
 export {
