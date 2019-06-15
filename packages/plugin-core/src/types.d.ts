@@ -15,6 +15,8 @@ export type InnerContent = ElementInline | ComponentIf | ComponentFor | Path<Exp
 
 export type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | void;
 
+export type SelectionProvider = (forSelector: string[]) => void
+
 export interface BabelState<S extends StackFrame = StackFrame> {
     filename: string;
     cwd: string;

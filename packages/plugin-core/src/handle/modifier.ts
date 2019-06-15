@@ -1,7 +1,7 @@
 import { NodePath as Path } from '@babel/traverse';
 import { Statement } from '@babel/types';
 import { StackFrame } from 'parse';
-import { BunchOf } from 'types';
+import { BunchOf, SelectionProvider } from 'types';
 
 import { AttributeBody, ExplicitStyle, ElementInline } from './';
 
@@ -77,7 +77,7 @@ export class ContingentModifier
     constructor(
         context: StackFrame,
         parent: ContingentModifier | ElementModifier | ElementInline,
-        contingent?: string
+        contingent?: string | SelectionProvider
     ){
         super(context);
 
@@ -91,7 +91,9 @@ export class ContingentModifier
                 parent = parent.anchor;
         }
 
-        if(contingent)
+        if(typeof contingent == "function")
+            contingent(select)
+        else if(contingent)
             select.push(contingent);
 
         this.anchor = parent;
