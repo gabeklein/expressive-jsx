@@ -1,5 +1,13 @@
 import { NodePath as Path, VisitNodeObject } from '@babel/traverse';
-import { DoExpression, Expression, Statement } from '@babel/types';
+import {
+    BlockStatement,
+    DoExpression,
+    Expression,
+    ExpressionStatement,
+    IfStatement,
+    LabeledStatement,
+    Statement,
+} from '@babel/types';
 import { Attribute, ComponentFor, ComponentIf, ElementInline } from 'handle';
 import { ModifyDelegate, StackFrame } from 'parse';
 
@@ -11,9 +19,11 @@ export type FlatValue = string | number | boolean | null;
 
 export type SequenceItem = Attribute | InnerContent | Path<Statement>;
 
-export type InnerContent = ElementInline | ComponentIf | ComponentFor | Path<Expression> | Expression;
+export type InnerContent = Path<Expression> | Expression | ElementInline | ComponentIf | ComponentFor;
 
 export type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | void;
+
+export type ModiferBody = Path<ExpressionStatement | BlockStatement | LabeledStatement | IfStatement>;
 
 export type SelectionProvider = (forSelector: string[]) => void
 

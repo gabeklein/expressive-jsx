@@ -11,11 +11,9 @@ import {
 } from '@babel/types';
 import { AttributeBody, ElementInline, ExplicitStyle, Modifier, ContingentModifier } from 'handle';
 import { ParseErrors } from 'shared';
-import { BunchOf, ModifyAction } from 'types';
+import { BunchOf, ModifyAction, ModiferBody } from 'types';
+import { Arguments } from 'parse';
 
-import { Arguments } from './arguments';
-
-type ModiferBody = Path<ExpressionStatement | BlockStatement | LabeledStatement | IfStatement>;
 type ModTuple = [string, ModifyAction, any[] | undefined, ModiferBody? ];
 
 const Error = ParseErrors({
@@ -131,16 +129,20 @@ export class ModifyDelegate {
         }
     }
 
-    setContingent(contingent: string, priority?: number, usingBody?: Path<Statement>){
-        const body = usingBody || this.body!;
+    setContingent(
+        contingent: string, 
+        priority?: number, 
+        usingBody?: Path<Statement>){
+
+        const { target } = this;
         const mod = new ContingentModifier(
             this.target.context,
             this.target as any,
             contingent
         )
+        
         mod.priority = priority || this.priority;
-        mod.parse(body);
-        const { target } = this;
+        mod.parse(usingBody || this.body!);
         if(target instanceof ElementInline)
             target.modifiers.push(mod);
         else if(
