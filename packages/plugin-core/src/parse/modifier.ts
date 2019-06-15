@@ -1,24 +1,11 @@
 import { NodePath as Path } from '@babel/traverse';
-import {
-    BlockStatement,
-    callExpression,
-    ExpressionStatement,
-    identifier,
-    IfStatement,
-    LabeledStatement,
-    Statement,
-    stringLiteral,
-} from '@babel/types';
-import { AttributeBody, ElementInline, ExplicitStyle, Modifier, ContingentModifier } from 'handle';
-import { ParseErrors } from 'shared';
+import { callExpression, identifier, Statement, stringLiteral } from '@babel/types';
+import { AttributeBody, ContingentModifier, ElementInline, ElementModifier, ExplicitStyle, Modifier } from 'handle';
+
 import { BunchOf, ModifyAction, ModiferBody } from 'types';
 import { Arguments } from 'parse';
 
 type ModTuple = [string, ModifyAction, any[] | ModiferBody ];
-
-const Error = ParseErrors({
-    ContingentNotImplemented: "Cant integrate this contingent request. Only directly in an element block."
-})
 
 export function ApplyModifier(
     initial: string,
@@ -146,13 +133,15 @@ export class ModifyDelegate {
         mod.parse(usingBody || this.body!);
         if(target instanceof ElementInline)
             target.modifiers.push(mod);
-        else if(
-            target instanceof ContingentModifier &&
-            target.anchor instanceof ElementInline){
-            target.anchor.modifiers.push(mod);
-        }
+        else
+
+        if(target instanceof ElementModifier)
+            target.applicable.push(mod);
         else 
-            throw Error.ContingentNotImplemented(body)
+
+        if(target instanceof ContingentModifier 
+        && target.anchor instanceof ElementInline)      
+            target.anchor.modifiers.push(mod);
 
         return mod;
     }

@@ -18,7 +18,7 @@ export function use(
             target.modifiers.push(mod);
         else
         if(target instanceof Modifier){
-            target.dependants.push(mod);
+            target.applicable.push(mod);
         }
     }
 }

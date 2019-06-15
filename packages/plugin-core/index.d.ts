@@ -129,7 +129,8 @@ interface StackFrame {
 }
 declare abstract class ModifierBase extends AttributeBody {
     forSelector?: string[];
-    onlyWithin?: Modifier;
+    onlyWithin?: ContingentModifier;
+    applicable: Modifier[];
     onGlobalStatus?: string[];
     priority?: number;
     addStyle(name: string, value: any): void;

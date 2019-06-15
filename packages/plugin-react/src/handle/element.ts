@@ -9,6 +9,7 @@ import {
     ExplicitStyle,
     Prop,
     SequenceItem,
+    ElementModifier
 } from '@expressive/babel-plugin-core';
 import { AttributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue } from 'internal';
 import { ContentLike, Path, PropData, StackFrame } from 'types';
@@ -38,9 +39,13 @@ export class ElementReact<T extends ElementInline = ElementInline>
             this.classList.push(...classList);
 
         for(const mod of this.source.modifiers){
-            if(mod.sequence.length == 0)
+            if(!mod.sequence.length 
+            && !mod.applicable.length)
                 continue
-            if(mod.nTargets == 1 && !mod.onlyWithin){
+            
+            if(mod.nTargets == 1 
+            && !mod.onlyWithin
+            && !mod.applicable.length){
                 // TODO: respect priority differences!
                 const exists = this.source.style;
                 for(const style of mod.sequence)
@@ -48,9 +53,24 @@ export class ElementReact<T extends ElementInline = ElementInline>
                         pre.push(style)
             }
             else {
-                this.context.Module.modifiersDeclared.add(mod);
-                if(!(mod instanceof ContingentModifier))
-                    this.classList.push(mod.uid);
+                let doesProvideAStyle = false;
+                const declared = this.context.Module.modifiersDeclared;
+                
+                for(const applicable of [mod, ...mod.applicable]){
+                    if(applicable.sequence.length)
+                        declared.add(applicable);
+
+                    if(applicable instanceof ContingentModifier)
+                        doesProvideAStyle = true;
+                    else 
+
+                    if(applicable instanceof ElementModifier)
+                        if(applicable.sequence.length)
+                            this.classList.push(applicable.uid);
+                }
+
+                if(doesProvideAStyle)
+                    declared.add(mod);
             }
         }
 

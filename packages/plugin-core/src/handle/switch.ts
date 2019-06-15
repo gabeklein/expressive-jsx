@@ -162,9 +162,21 @@ export class ComponentConsequent extends ElementInline {
         const mod = this.slaveModifier;
         const parent = this.context.currentElement!;
 
-        if(!mod) return;
-            
-        parent.modifiers.push(mod);
+        if(mod){
+            // mod.didFinishParsing();
+            if(mod.sequence.length)
+                parent.modifiers.push(mod);
+            else 
+                this.usesClassname = "";
+
+            if(mod.applicable.length){
+                const uids = mod.applicable.map(x => x.uid).join(" ");
+                if(this.usesClassname)
+                    this.usesClassname += " " + uids;
+                else
+                    this.usesClassname = uids;
+            }
+        };
     }
 
     ReturnStatement(path: Path<ReturnStatement>){
@@ -185,7 +197,7 @@ export class ComponentConsequent extends ElementInline {
 
         if(arg)
             if(arg.isDoExpression())
-                (<DoExpressive>arg.node).meta = this;
+                (arg.node as DoExpressive).meta = this;
                 
             else if(arg.isExpression())
                 this.Expression(arg);
@@ -213,8 +225,6 @@ export class ComponentConsequent extends ElementInline {
         );
 
         mod.priority = 5
-
-        parent.modifiers.push(mod);
 
         if(!context.currentIf!.hasStyleOutput)
             do {

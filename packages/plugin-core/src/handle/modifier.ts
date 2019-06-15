@@ -23,7 +23,8 @@ function concat(
 
 export abstract class Modifier extends AttributeBody {
     forSelector?: string[];
-    onlyWithin?: Modifier;
+    onlyWithin?: ContingentModifier;
+    applicable = [] as Modifier[];
     onGlobalStatus?: string[];
     priority?: number;
 
@@ -110,5 +111,9 @@ export class ContingentModifier
             anchor.provides.push(mod)
         else 
             anchor.context.elementMod(mod)
+    }
+
+    didFinishParsing(){
+        
     }
 }
