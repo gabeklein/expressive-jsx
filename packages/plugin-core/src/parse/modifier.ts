@@ -14,7 +14,7 @@ import { ParseErrors } from 'shared';
 import { BunchOf, ModifyAction, ModiferBody } from 'types';
 import { Arguments } from 'parse';
 
-type ModTuple = [string, ModifyAction, any[] | undefined, ModiferBody? ];
+type ModTuple = [string, ModifyAction, any[] | ModiferBody ];
 
 const Error = ParseErrors({
     ContingentNotImplemented: "Cant integrate this contingent request. Only directly in an element block."
@@ -26,10 +26,6 @@ export function ApplyModifier(
     input: ModiferBody){
 
     const handler = recipient.context.propertyMod(initial);
-    let args;
-    
-    if(input.isExpressionStatement())
-        args = Arguments.Parse(input.get("expression"));
     
     const totalOutput = { 
         props: {} as BunchOf<any>, 
@@ -38,7 +34,7 @@ export function ApplyModifier(
 
     let i = 0;
     let stack = [
-        [ initial, handler, args, input ] as ModTuple
+        [ initial, handler, input ] as ModTuple
     ];
 
     do {
@@ -103,17 +99,22 @@ export class ModifyDelegate {
     priority?: number;
     done?: true;
     output = {} as BunchOf<any>;
+    body?: ModiferBody;
 
     constructor(
         public target: AttributeBody,
         public name: string,
         transform: ModifyAction = PropertyModifierDefault,
-        args: any[] | undefined,
-        private body?: ModiferBody){
+        input: any[] | ModiferBody){
 
-        this.arguments = args;
+        if(Array.isArray(input))
+            this.arguments = input;
+        else {
+            this.arguments = Arguments.Parse(input);
+            this.body = input;
+        }
 
-        const output = transform.apply(this, args || [])
+        const output = transform.apply(this, this.arguments)
 
         if(!output || this.done) return
 
