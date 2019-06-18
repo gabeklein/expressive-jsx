@@ -13,12 +13,14 @@ type StylesByQuery = BunchOf<StylesByPriority>;
 
 const { isArray } = Array;
 
-const Modules = new class {
+class Modules {
 
     include = [] as string[];
     blocks = {} as StylesByQuery;
 
-    doesProvideStyle(css: StylesByPriority | StylesByQuery){
+    doesProvideStyle(
+        css: StylesByPriority | StylesByQuery
+    ){
         if(isArray(css))
             css = { default: css };
 
@@ -46,8 +48,6 @@ const Modules = new class {
     }
 }
 
-export { Modules as Module }
-
 class Compiler {
 
     registered = {} as BunchOf<true>;
@@ -55,8 +55,8 @@ class Compiler {
 
     push(
         hashID: string, 
-        selectors: string[]){
-
+        selectors: string[]
+    ){
         const { registered, alreadyIncluded } = this;
         
         if(hashID in alreadyIncluded) return;
@@ -80,8 +80,8 @@ class Compiler {
         for(const style of Module.include)
             output += style + "\n"
 
-        for(let query in Modules.blocks){
-            const source = Modules.blocks[query];
+        for(let query in Module.blocks){
+            const source = Module.blocks[query];
             let block = "";
 
             if(query == "default")
@@ -109,27 +109,13 @@ class Compiler {
     }
 }
 
-export function Include({ hid, css }: { hid: string, css: string }){
-    return create(StyleDeclaration, {} as any, (props: any) => {
-        props.push(hid, css.split("; "));
-        return false;
-    });
-}
-
-function StyleOutput({ compiler }: { compiler: Compiler }){
-    return create("style", {
-        jsx: "true", global: "true",
-        dangerouslySetInnerHTML: {
-            __html: compiler.generate()
-        }
-    })
-}
-
 interface StyledApplicationProps {
     children: any[]
 }
 
-class StyledApplicationComponent extends Component<StyledApplicationProps> {
+class StyledApplicationComponent 
+    extends Component<StyledApplicationProps> {
+
     compilerTarget?: Compiler;
 
     componentWillMount(){
@@ -147,14 +133,23 @@ class StyledApplicationComponent extends Component<StyledApplicationProps> {
             //     { value: this.compilerTarget as any }, ...styled_content
             // ),
             ...styled_content,
-            create(StyleOutput, { compiler: this.compilerTarget as any })
+            create("style", {
+                jsx: "true", 
+                global: "true",
+                dangerouslySetInnerHTML: {
+                    __html: this.compilerTarget!.generate()
+                }
+            })
         )
     }
 }
 
-function StyledApplication<P>(input: StyledApplicationProps | ComponentType<P>){
-
-    if(input && typeof input == "function" || input instanceof Component){
+function StyledApplication<P>(
+    input: StyledApplicationProps | ComponentType<P>
+){
+    if(input  
+    && input instanceof Component
+    || typeof input == "function"){
         return (props: P) => (
             create(
                 StyledApplicationComponent, 
@@ -167,6 +162,14 @@ function StyledApplication<P>(input: StyledApplicationProps | ComponentType<P>){
         )
     }
 
+    else {
+        const { children, ...props } = input;
+        return create(
+            StyledApplicationComponent, 
+            props as any, 
+            children
+        );
+    }
 }
 
 StyledApplication.include = (cssText: string) => {
@@ -200,21 +203,20 @@ export function body(props: { children: any | any[] }){
 }
 
 export function join(...args: string[]){
-    let className = "";
-    for(const name of arguments){
-        if(!name) continue;
-        className += " " + name
-    }
-    return className.slice(1)
+    return args.filter(x => x).join(" ");
 }
 
-export function withStyles(Root: ComponentType): ReactElement {
+export function withStyles(
+    Root: ComponentType
+): ReactElement {
     return create(
         StyledApplicationComponent, 
         {} as StyledApplicationProps, 
         create(Root, {})
     )
 }
+
+export const Module = new Modules();
 
 export { withStyles as withStyle }
 
