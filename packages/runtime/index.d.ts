@@ -37,6 +37,15 @@ interface StyledApplicationProps {
 
 declare interface ComponentStyledApplication 
     extends StatelessComponent<StyledApplicationProps> {
+
+    /**
+     * Register styles which should be inserted within <style> tag.
+     * 
+     * You may use the method anywhere in your application.
+     * 
+     * @param cssText CSS which should be present amongst computed styles.
+     */
+    shouldInclude(cssText: string): void;
 }
 
 declare const _default: ComponentStyledApplication & typeof StyledApplication;
