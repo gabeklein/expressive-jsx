@@ -15,6 +15,7 @@ const { isArray } = Array;
 
 const Modules = new class {
 
+    include = [] as string[];
     blocks = {} as StylesByQuery;
 
     doesProvideStyle(css: StylesByPriority | StylesByQuery){
@@ -75,6 +76,9 @@ class Compiler {
     generate(){
         let output = `\n`;
         const { registered } = this;
+
+        for(const style of Module.include)
+            output += style + "\n"
 
         for(let query in Modules.blocks){
             const source = Modules.blocks[query];
@@ -163,8 +167,19 @@ function StyledApplication<P>(input: StyledApplicationProps | ComponentType<P>){
         )
     }
 
-    const { children, ...inputProps } = input as StyledApplicationProps;
-    return create(StyledApplicationComponent, input, children as any);
+}
+
+StyledApplication.include = (cssText: string) => {
+    const indentMatch = /^\n( *)/.exec(cssText);
+
+    if(indentMatch){
+        const trim = new RegExp(`\n${indentMatch[1]}`, "g");
+        cssText = cssText.replace(trim, "\n");
+    }
+
+    cssText = cssText.replace(/^\n/, "").replace(/\s+$/, "");
+
+    Module.include.push(cssText);
 }
 
 // export function Include(
