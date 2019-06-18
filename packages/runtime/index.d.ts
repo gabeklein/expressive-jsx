@@ -20,15 +20,6 @@ export declare interface Modules {
     doesProvideStyle(css: StylesByQuery): void;
 }
 
-/**
- * StyledApplication HOC
- * Will return component which includes global <style>.
- * Includes all styles from all imported modules, which called [Module.doesProvideStyle()]
- * 
- * @param extend The root component you wish to render with styles.
- * 
- * @returns Higher Order Component - Fragment with children `extend` and accumulated styles.
- */
 declare function StyledApplication<P>(extend: ComponentType<P>): ComponentType<P>;
 
 interface StyledApplicationProps {
@@ -48,6 +39,19 @@ declare interface ComponentStyledApplication
     shouldInclude(cssText: string): void;
 }
 
+/**
+ * Use as a component or HOC constructor, both will work.
+ * 
+ * Integrates all style from imported/required modules, which call [Module.doesProvideStyle()]
+ * 
+ * `<ApplicationStyle />` - Include in your app, will render `<style>`.
+ * 
+ * `StyledApplication HOC` - Will return component which appends global `<style>` to source content.
+ * 
+ * @param extend The root component you wish to render with styles.
+ * 
+ * @returns Higher Order Component - Fragment with children `extend` and accumulated styles.
+ */
 declare const _default: ComponentStyledApplication & typeof StyledApplication;
 
 export default _default
