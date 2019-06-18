@@ -172,7 +172,7 @@ function StyledApplication<P>(
     }
 }
 
-StyledApplication.include = (cssText: string) => {
+StyledApplication.shouldInclude = (cssText: string) => {
     const indentMatch = /^\n( *)/.exec(cssText);
 
     if(indentMatch){
