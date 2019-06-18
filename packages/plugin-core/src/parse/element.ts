@@ -200,7 +200,8 @@ export function ApplyNameImplications(
         target.modifiers.push(modify);
         modify.nTargets += 1
         if(modify === modify.next){
-            console.error(`Still haven't fixed inheritance leak apparently. \n target: ${name}`)
+            if(~process.execArgv.join().indexOf("inspect-brk"))
+                console.error(`Still haven't fixed inheritance leak apparently. \n target: ${name}`)
             break
         }
         modify = modify.next;
