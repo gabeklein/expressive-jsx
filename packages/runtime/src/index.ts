@@ -1,7 +1,7 @@
 import React, { Component, ComponentType, createContext, createElement as create, Fragment, ReactElement } from 'react';
 
-const { Provider: StyleContext, Consumer: StyleDeclaration } = 
-    createContext({ push: () => void 0 });
+// const { Provider: StyleContext, Consumer: StyleDeclaration } = 
+//     createContext({ push: () => void 0 });
 
 export interface BunchOf<T> {
     [key: string]: T
@@ -138,7 +138,11 @@ class StyledApplicationComponent extends Component<StyledApplicationProps> {
         const styled_content = Array.isArray(children) ? children : [children];
 
         return create(Fragment, {}, 
-            create(StyleContext, { value: this.compilerTarget as any }, ...styled_content),
+            // create(
+            //     StyleContext, 
+            //     { value: this.compilerTarget as any }, ...styled_content
+            // ),
+            ...styled_content,
             create(StyleOutput, { compiler: this.compilerTarget as any })
         )
     }
@@ -162,6 +166,19 @@ function StyledApplication<P>(input: StyledApplicationProps | ComponentType<P>){
     const { children, ...inputProps } = input as StyledApplicationProps;
     return create(StyledApplicationComponent, input, children as any);
 }
+
+// export function Include(
+//     { hid, css }: { hid: string, css: string }
+// ){
+//     return create(
+//         StyleDeclaration, 
+//         {} as any, 
+//         (props: any) => {
+//             props.push(hid, css.split("; "));
+//             return false;
+//         }
+//     );
+// }
 
 export function body(props: { children: any | any[] }){
     return [].concat(props.children)
