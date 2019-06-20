@@ -1,6 +1,6 @@
 {
   "name": "@expressive/react-cli",
-  "version": "1.0.0-beta.14",
+  "version": "1.0.0-beta.15",
   "description": "CLI tool for converting react XJS into something else",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
@@ -24,8 +24,8 @@
     "@babel/plugin-proposal-object-rest-spread": "7.0.0",
     "@babel/plugin-transform-runtime": "^7.4.3",
     "@babel/preset-env": "^7.0.0",
-    "@expressive/babel-plugin-core": "^1.0.0-beta.14",
-    "@expressive/babel-plugin-react": "^1.0.0-beta.14",
+    "@expressive/babel-plugin-core": "^1.0.0-beta.15",
+    "@expressive/babel-plugin-react": "^1.0.0-beta.15",
     "@expressive/babel-plugin-react-class": "^1.0.0-beta.11",
     "@expressive/react-modifiers": "^1.0.0-beta.13",
     "@expressive/react-native-modifiers": "^1.0.0-beta.11",
