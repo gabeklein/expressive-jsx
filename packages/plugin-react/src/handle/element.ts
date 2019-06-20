@@ -148,9 +148,6 @@ export class ElementReact<T extends ElementInline = ElementInline>
     }
 
     private applyClassname(){
-
-        const join = this.context.Imports.ensure("@expressive/react", "join");
-
         if(this.source.hasOwnProperty("uid"))
             this.classList.push(this.source.uid);
 
@@ -171,13 +168,15 @@ export class ElementReact<T extends ElementInline = ElementInline>
                 t.stringLiteral(classList.slice(1))
             )
 
-        this.addProperty("className", 
-            selectors.length == 1
-                ? selectors[0]
-                : t.callExpression(
-                    join, selectors
-                )
-        )
+        let computeClassname = selectors[0];
+
+        if(selectors.length > 1){
+            debugger
+            const join = this.context.Imports.ensure("@expressive/react", "join");
+            computeClassname = t.callExpression(join, selectors)
+        }
+
+        this.addProperty("className", computeClassname)
     }
 
     Style(item: ExplicitStyle){
