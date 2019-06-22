@@ -51,24 +51,31 @@ export abstract class AttributeBody extends TraversableBody {
         applyTo: Modifier = this as any){
 
         const { name } = path.node.label;
+        const { context } = this;
         const body = path.get("body");
     
         if(name[0] == "_")
             throw Error.BadModifierName(path)
 
-        if(this.context.hasOwnProperty("_" + name))
+        if(context.hasOwnProperty("_" + name))
             throw Error.DuplicateModifier(path); 
 
-        if(body.isBlockStatement()
-        || body.isLabeledStatement())
-            applyTo.ElementModifier(
-                new ElementModifier(this.context, name, body)
-            )
+        const handler = applyTo.context.propertyMod(name);
 
-        else if(body.isExpressionStatement())
+        if(body.isExpressionStatement() 
+        || handler && (
+            body.isBlockStatement() ||
+            body.isLabeledStatement()
+        ))
             ApplyModifier(
                 name, applyTo, body
             );
+
+        else if(body.isBlockStatement()
+        || body.isLabeledStatement())
+            applyTo.ElementModifier(
+                new ElementModifier(context, name, body)
+            )
 
         else
             throw Error.BadInputModifier(body, body.type)
