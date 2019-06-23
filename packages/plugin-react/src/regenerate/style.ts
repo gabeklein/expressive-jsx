@@ -1,29 +1,28 @@
-import t, { ArrayExpression, ObjectExpression, ObjectProperty, Statement } from '@babel/types';
-import { PropertyES, memberExpression, callExpression } from 'internal';
+import t, { Statement, identifier } from '@babel/types';
+import { Modifier } from '@expressive/babel-plugin-core';
+import { callExpression, memberExpression } from 'internal';
 import { BunchOf } from 'types';
 
 import { Module } from './module';
 
 const RUNTIME = "@expressive/react";
 
-type SelectorContent = ObjectProperty[];
+type SelectorContent = [ string, string[] ][];
 type MediaGroups = SelectorContent[];
 
 export function writeProvideStyleStatement(
-    this: Module
+    this: Module,
+    opts: any
 ){
-    const {
-        path: program,
-        lastInsertedElement,
-        modifiersDeclared
-    } = this;
-    
-    const programBody = program.node.body;
+    const media = orderSyntax(this.modifiersDeclared);
+    const text = createSyntax(media, opts);
+    writeSyntax(this, text, opts);
+}
 
-    const polyfillModule = this.imports.ensure(RUNTIME, "Module")
-    const output = [];
-
-    const media = <BunchOf<MediaGroups>> {
+function orderSyntax(
+    modifiersDeclared: Set<Modifier>
+){
+    const media: BunchOf<MediaGroups> = {
         default: [] 
     };
 
@@ -31,7 +30,6 @@ export function writeProvideStyleStatement(
         const { priority = 0 } = block;
 
         let query = undefined;
-        let selection = [];
 
         let targetQuery: MediaGroups =
             query === undefined ?
@@ -45,52 +43,83 @@ export function writeProvideStyleStatement(
                 targetQuery[priority] :
                 targetQuery[priority] = [];
 
-        const styleString = 
+        const styles = 
             block.sequence.map(style => {
                 let styleKey = style.name;
                 if(typeof styleKey == "string")
                     styleKey = styleKey.replace(/([A-Z]+)/g, "-$1").toLowerCase();
                 return `${styleKey}: ${style.value}`
-            }).join("; ")
+            })
 
+        let selection = "";
         do {
-            selection.push(
-                block.forSelector!.join("")
-            )
+            let select = block.forSelector!.join("");
+            if(selection)
+                select += " " + selection;
+            selection = select;
         }
         while(block = block.onlyWithin!);
         
-        targetPriority.push(
-            PropertyES(selection.reverse().join(" "), t.stringLiteral(styleString))
-        )
+        targetPriority.push([selection, styles])
     }
+
+    return media;
+}
+
+function createSyntax(
+    media: BunchOf<MediaGroups>,
+    opts: any
+){
+    const lines = [];
 
     for(const query in media){
-        const priorityBunches = media[query].map(x => t.objectExpression(x)).filter(x => x);
-        output.push(
-            PropertyES(query, t.arrayExpression(priorityBunches))
-        )
+        const priorityBunches = media[query].filter(x => x);
+
+        for(const bunch of priorityBunches)
+            for(const [ name, styles ] of bunch){
+                if(opts.printStyle == "pretty"){
+                    let rules = styles.map(x => `\t${x};`);
+                    lines.push(name + " { ", ...rules, " }")
+                }
+                else 
+                    lines.push(`${name} { ${styles.join("; ")} }`)
+            }
     }
 
-    let computed;
+    const content = lines.map(x => "\t" + x).join("\n")
 
-    if (output.length > 1)
-        computed = t.objectExpression(output)
-    else {
-        computed = output[0].value as ArrayExpression
-        if(computed.elements.length == 1)
-            computed = computed.elements[0] as ObjectExpression;
-    }
+    return `\n${content}\n`
+}
+
+function writeSyntax(
+    module: Module,
+    computedStyle: string,
+    opts: any
+){
+    const {
+        path: program,
+        lastInsertedElement: pivot,
+        imports
+    } = module;
+
+    const programBody = program.node.body;
+    const polyfillModule = imports.ensure(RUNTIME, "default", "StyleSheet");
+
+    const filenameMaybe = opts.hot !== false
+        ? [ identifier("__filename") ] : [];
 
     const provideStatement = 
         t.expressionStatement(
             callExpression(
-                memberExpression(polyfillModule, "doesProvideStyle"), 
-                computed 
+                memberExpression(polyfillModule, "shouldInclude"), 
+                t.templateLiteral([
+                    t.templateElement({raw: computedStyle, cooked: computedStyle}, true)
+                ], []),
+                ...filenameMaybe
             )
         )
 
-    const provideStatementGoesAfter = lastInsertedElement!.getAncestry().reverse()[1];
+    const provideStatementGoesAfter = pivot!.getAncestry().reverse()[1];
     const index = programBody.indexOf(provideStatementGoesAfter.node as Statement);
     
     programBody.splice(index + 1, 0, provideStatement)

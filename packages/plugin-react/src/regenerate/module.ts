@@ -47,7 +47,7 @@ export const Program = <Visitor<ProgramNode>> {
         if(G.willExitModule) 
             G.willExitModule();
 
-        M.EOF();
+        M.EOF(state.opts);
         I.EOF();
     }
 }    
@@ -68,10 +68,10 @@ export class Module {
         return relative(this.state.cwd, this.state.filename);
     }
 
-    EOF(){
+    EOF(opts: any){
         const { modifiersDeclared } = this;
 
         if(modifiersDeclared.size)
-            writeProvideStyleStatement.call(this);
+            writeProvideStyleStatement.call(this, opts);
     }
 }
