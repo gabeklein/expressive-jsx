@@ -28,7 +28,7 @@ for(const name in PSEUDO){
 
 // const PascalToDash = x => x.replace(/([A-Z]+)/g, "-$1").toLowerCase();
 
-export function also(){
+export function css(){
     let body = this.body;
     if(body && body.isStatement()){
         if(body.isBlockStatement())
