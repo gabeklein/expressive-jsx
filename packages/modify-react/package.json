@@ -1,6 +1,6 @@
 {
   "name": "@expressive/react-modifiers",
-  "version": "1.0.0-beta.13",
+  "version": "1.0.0-beta.18",
   "description": "Style Modifiers for most CSS keywords",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
