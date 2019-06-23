@@ -1,4 +1,4 @@
-import t, { Statement, identifier } from '@babel/types';
+import t, { Statement, stringLiteral } from '@babel/types';
 import { Modifier } from '@expressive/babel-plugin-core';
 import { callExpression, memberExpression } from 'internal';
 import { BunchOf } from 'types';
@@ -99,14 +99,15 @@ function writeSyntax(
     const {
         path: program,
         lastInsertedElement: pivot,
-        imports
+        imports,
+        relativeFileName
     } = module;
 
     const programBody = program.node.body;
     const polyfillModule = imports.ensure(RUNTIME, "default", "StyleSheet");
 
     const filenameMaybe = opts.hot !== false
-        ? [ identifier("__filename") ] : [];
+        ? [ stringLiteral(relativeFileName) ] : [];
 
     const provideStatement = 
         t.expressionStatement(
