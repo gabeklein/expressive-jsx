@@ -4,22 +4,6 @@ interface BunchOf<T> {
     [key: string]: T
 }
 
-type StylesBySelector = BunchOf<string>
-type StylesByPriority = StylesBySelector[];
-type StylesByQuery = BunchOf<StylesByPriority>;
-
-export declare interface Modules {
-    /**
-     * (Typically consumed by `@expressive/babel-plugin-react`).
-     * 
-     * Registers css for global accumulator.
-     * All styles registered with this function are available to [StyledApplication]
-     */
-    doesProvideStyle(css: StylesBySelector): void;
-    doesProvideStyle(css: StylesByPriority): void;
-    doesProvideStyle(css: StylesByQuery): void;
-}
-
 declare function StyledApplication<P>(extend: ComponentType<P>): ComponentType<P>;
 
 interface StyledApplicationProps {
@@ -34,9 +18,10 @@ declare interface ComponentStyledApplication
      * 
      * You may use the method anywhere in your application.
      * 
-     * @param cssText CSS which should be present amongst computed styles.
+     * @param cssText CSS which should be included in computed styles.
+     * @param recurringKey - Unique identifier (usually a module path) to prevent duping, where this may be called again with updates (e.g. hot-module-reload). 
      */
-    shouldInclude(cssText: string): void;
+    shouldInclude(cssText: string, recurringKey: string): void;
 }
 
 /**
