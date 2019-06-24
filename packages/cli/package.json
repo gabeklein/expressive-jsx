@@ -1,0 +1,38 @@
+{
+  "name": "@expressive/react-cli",
+  "version": "1.0.0-beta.16",
+  "description": "CLI tool for converting react XJS into something else",
+  "repository": "https://github.com/gabeklein/expressive-dsl",
+  "author": {
+    "name": "Gabe Klein",
+    "email": "gabe@termtm.com",
+    "url": "https://github.com/gabeklein"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "xjs": "./bin/cli.js"
+  },
+  "files": [
+    "/bin"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "7.0.0",
+    "@babel/plugin-transform-runtime": "^7.4.3",
+    "@babel/preset-env": "^7.0.0",
+    "@expressive/babel-plugin-core": "^1.0.0-beta.16",
+    "@expressive/babel-plugin-react": "^1.0.0-beta.17",
+    "@expressive/babel-plugin-react-class": "^1.0.0-beta.11",
+    "@expressive/react-modifiers": "^1.0.0-beta.18",
+    "babel-preset-expressive-enhancements": "^1.0.1",
+    "commander": "^2.18.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^8.0.0",
+    "gulp-prettier": "^2.0.0",
+    "gulp-replace": "^1.0.0"
+  }
+}
