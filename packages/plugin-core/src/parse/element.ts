@@ -79,7 +79,10 @@ function ApplyPassthru(
     parent: ElementInline,
     baseAttributes: Path<Expression>[]
 ){
-    if(baseAttributes.length == 0){
+    const identifierName = subject.isIdentifier() && subject.node.name;
+
+    if(baseAttributes.length == 0
+    && !parent.context.elementMod("$" + identifierName)){
         parent.adopt(subject);
         return
     }
@@ -92,11 +95,16 @@ function ApplyPassthru(
         parent.context
     )
     ApplyNameImplications(
-        subject.type == "StringLiteral" 
-            ? "string" : "void",
-        container,
-        true
+        subject.type == "StringLiteral" ? "string" : "void",
+        container
     );
+    if(identifierName){
+        ApplyNameImplications(
+            "$" + identifierName, 
+            container
+        );
+        container.name = identifierName;
+    }
     container.explicitTagName = "div";
     container.adopt(subject);
     container.parent = parent;
