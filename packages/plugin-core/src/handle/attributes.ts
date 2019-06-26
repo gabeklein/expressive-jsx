@@ -99,7 +99,7 @@ export abstract class Attribute<T extends Expression = Expression> {
         path?: Path<T>){
 
         if(name) this.name = name;
-        if(value) this.value = value;
+        if(value !== undefined) this.value = value;
         if(path) this.path = path;
 
         if(value === null || typeof value !== "object")
