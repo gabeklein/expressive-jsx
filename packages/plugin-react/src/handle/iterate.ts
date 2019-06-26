@@ -23,7 +23,6 @@ import {
 import { ComponentFor, ElementInline, Prop, SequenceItem } from '@expressive/babel-plugin-core';
 import { declare, IIFE } from 'generate/syntax';
 import { ElementReact, ensureUIDIdentifier, GenerateReact } from 'internal';
-import { isIdentifierElement } from 'types';
 
 export class ElementIterate 
     extends ElementReact<ComponentFor> {
@@ -91,7 +90,6 @@ export class ElementIterate
 
         if(inner.length === 1
         && element instanceof ElementInline
-        && isIdentifierElement.test(element.name!) === false
         && element.props.key === undefined){
             element.insert(
                 new Prop("key", this.key));
