@@ -19,7 +19,10 @@ const program = require("./console");
 module.exports = {
     "presets": [
         [env, {
-          "modules": false
+          "modules": false,
+          "targets": {
+              node: "current"
+          }
         }],
         expressiveEnhancements,        
     ],
@@ -37,6 +40,7 @@ module.exports = {
         [transformExpressiveReact, {
             reactEnv: "next",
             output: program.jsx ? "jsx" : "js",
+            hot: false, 
             useRequire: program.useRequire,
             useImport: program.useImport, 
             modifiers: [
