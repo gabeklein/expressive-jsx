@@ -44,6 +44,9 @@ export class ElementIterate
             this.type === "ForInStatement" 
             && memberExpression(identifier("Object"), identifier("keys"))
 
+        //unused in favor of Object.keys(...).map
+        void this.toInvokedForLoop;
+
         return this.toMapExpression(Generator, wrapper)
     }
 
@@ -154,7 +157,7 @@ export class ElementIterate
         )
     }
 
-    toInvokedForLoop(Generator: GenerateReact){
+    private toInvokedForLoop(Generator: GenerateReact){
         const accumulator = ensureUIDIdentifier(this.source.path.scope, "acc");
         const sourceLoop = this.source.node;
         const content = this.elementOutput(Generator);
