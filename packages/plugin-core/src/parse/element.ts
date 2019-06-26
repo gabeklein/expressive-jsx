@@ -60,7 +60,8 @@ export function AddElementsFromExpression(
 
 function IsJustAValue(subject: Path<Expression>){
     let target = subject;
-    while(target.isBinaryExpression())
+    while(target.isBinaryExpression() || 
+          target.isLogicalExpression())
         target = target.get("left");
 
     if(target.isUnaryExpression({operator: "void"})){
@@ -326,13 +327,18 @@ function ParseProps(
 
     if(!props) return;
     for(let path of props){
+
+        if(IsJustAValue(path as Path<Expression>)){
+            target.add(path as Path<Expression>)
+            continue;
+        }
+
         switch(path.type){
             case "DoExpression":
                 (path.node as DoExpressive).meta = target;
                 target.doBlock = path.node as DoExpressive;
             break;
 
-            case "StringLiteral":
             case "TemplateLiteral":
             case "ExpressionLiteral":
             case "ArrowFunctionExpression": 
