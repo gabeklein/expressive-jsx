@@ -34,7 +34,6 @@ export class GenerateJSX extends GenerateReact {
     }
 
     element(src: ElementReact){
-            
         const {
             tagName: tag,
             props,
@@ -43,14 +42,13 @@ export class GenerateJSX extends GenerateReact {
 
         const type = jsxIdentifier(tag);
         const properties = props.map(this.recombineProps)
+        const empty = children.length === 0
     
-        return (
-            jsxElement(
-                jsxOpeningElement(type, properties),
-                jsxClosingElement(type),
-                this.recombineChildren(children),
-                children.length > 0
-            ) 
+        return jsxElement(
+            jsxOpeningElement(type, properties, empty),
+            jsxClosingElement(type),
+            this.recombineChildren(children),
+            empty
         )
     }
 
@@ -65,13 +63,11 @@ export class GenerateJSX extends GenerateReact {
             )
         ]
         
-        return (
-            jsxElement(
-                jsxOpeningElement(this.Fragment, attributes),
-                jsxClosingElement(this.Fragment),
-                this.recombineChildren(children),
-                false
-            )
+        return jsxElement(
+            jsxOpeningElement(this.Fragment, attributes),
+            jsxClosingElement(this.Fragment),
+            this.recombineChildren(children),
+            false
         )
     }
 
