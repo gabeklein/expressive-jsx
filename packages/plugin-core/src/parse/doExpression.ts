@@ -17,10 +17,9 @@ import { StackFrame } from './program';
 
 export const DoExpression = <Visitor<DoExpressive>> {
     enter: (path, state) => {
-        const { context } = state;
         let meta = path.node.meta || 
-            generateEntryElement(path, context);
-        context.push(meta);
+            generateEntryElement(path, state.context);
+            
         if(meta.didEnterOwnScope)
             meta.didEnterOwnScope(path)
     },
