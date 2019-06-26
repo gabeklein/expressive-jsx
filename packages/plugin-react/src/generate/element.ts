@@ -34,7 +34,7 @@ export abstract class GenerateReact {
             if(children.length == 0)
                 return t.booleanLiteral(false);
 
-            if(fragmentKey || children.length > 1)
+            if(children.length > 1)
                 return this.fragment(children, fragmentKey);
                 
             output = children[0];

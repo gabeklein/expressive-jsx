@@ -7,22 +7,23 @@ import {
     callExpression,
     Expression,
     expressionStatement,
-    identifier,
     Identifier,
     isArrayPattern,
     isBinaryExpression,
     isIdentifier,
     isObjectPattern,
+    isVariableDeclaration,
     memberExpression,
     PatternLike,
     returnStatement,
-    isForOfStatement,
-    isVariableDeclaration
+    identifier,
+    isForXStatement,
+    isForInStatement,
 } from '@babel/types';
 import { ComponentFor, ElementInline, Prop, SequenceItem } from '@expressive/babel-plugin-core';
+import { declare, IIFE } from 'generate/syntax';
 import { ElementReact, ensureUIDIdentifier, GenerateReact } from 'internal';
 import { isIdentifierElement } from 'types';
-import { declare, IIFE } from 'generate/syntax'; 
 
 export class ElementIterate 
     extends ElementReact<ComponentFor> {
@@ -39,16 +40,17 @@ export class ElementIterate
     };
     
     toExpression(Generator: GenerateReact): CallExpression {
-        if(this.type === "ForOfStatement")
-            return this.toMapExpression(Generator)
-        else
-            return this.toInvokedForLoop(Generator) as any
+        const wrapper =
+            this.type === "ForInStatement" 
+            && memberExpression(identifier("Object"), identifier("keys"))
+
+        return this.toMapExpression(Generator, wrapper)
     }
 
     willParse(sequence: SequenceItem[]){
         const { node } = this.source;
 
-        if(!isForOfStatement(node))
+        if(!isForXStatement(node))
             return
 
         let key: Identifier;
@@ -68,7 +70,14 @@ export class ElementIterate
             key = right.left as Identifier
             right = right.right as any;
         }
-        else key = ensureUIDIdentifier(this.source.path.scope, "i");
+        else if(isForInStatement(node) && isIdentifier(left)){
+            if(isIdentifier(left))
+                key = left
+            else
+                throw new Error("Left of ForInStatement must be an Identifier here!")
+        }
+        else 
+            key = ensureUIDIdentifier(this.source.path.scope, "i");
 
         this.key = key;
         this.left = left;
@@ -89,18 +98,55 @@ export class ElementIterate
         return undefined
     }
 
-    toMapExpression(Generator: GenerateReact): CallExpression {
-        let body: BlockStatement | Expression;
-        const { key, mayCollapseContent } = this;
-        const { left, right } = this;
+    private elementOutput(
+        Generator: GenerateReact
+    ){
+        let { key, mayCollapseContent } = this;
 
-        body = Generator.container(this, !mayCollapseContent && key);
+        if(this.props.length){
+            let exists = this.props.find(
+                x => x.name === "key"
+            )
+
+            if(!exists)
+                this.props = 
+                this.props.concat({
+                    name: "key",
+                    value: key
+                } as any)
+
+            mayCollapseContent = true
+        }
+
+        return Generator.container(this, !mayCollapseContent && key);
+
+    }
+
+    private toMapExpression(
+        Generator: GenerateReact,
+        extractor?: Expression | false
+    ): CallExpression {
+        let { key } = this;
+        let { left, right } = this;
+
+        let body: BlockStatement | Expression = 
+            this.elementOutput(Generator)
 
         if(this.source.statements.length)
             body = blockStatement([
                 ...this.source.statements,
                 returnStatement(body)
             ])
+
+        if(extractor){
+            return callExpression(
+                memberExpression(
+                    callExpression(extractor, [ right! ]), 
+                    identifier("map")
+                ),
+                [ arrowFunctionExpression([left!], body) ]
+            )
+        }
     
         return callExpression(
             memberExpression(right!, identifier("map")),
@@ -111,14 +157,14 @@ export class ElementIterate
     toInvokedForLoop(Generator: GenerateReact){
         const accumulator = ensureUIDIdentifier(this.source.path.scope, "acc");
         const sourceLoop = this.source.node;
-        const content = Generator.container(this);
+        const content = this.elementOutput(Generator);
 
         sourceLoop.body = blockStatement([
             ...this.source.statements,
             expressionStatement(
                 callExpression(
                     memberExpression(
-                        accumulator,
+                        accumulator, 
                         identifier("push")
                     ),
                     [ content ]
