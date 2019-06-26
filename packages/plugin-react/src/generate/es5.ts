@@ -22,9 +22,7 @@ export class GenerateES extends GenerateReact {
         return id;
     }
 
-    element(
-        src: ElementReact){
-            
+    element(src: ElementReact){
         const {
             tagName: tag,
             props,

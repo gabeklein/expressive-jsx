@@ -18,6 +18,7 @@ export class GenerateJSX extends GenerateReact {
     }
 
     element(src: ElementReact){
+            
         const {
             tagName: tag,
             props,
