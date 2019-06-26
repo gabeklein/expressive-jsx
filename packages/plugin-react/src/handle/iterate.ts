@@ -1,14 +1,12 @@
 import {
-    arrayExpression,
     arrowFunctionExpression,
-    BlockStatement,
     blockStatement,
+    BlockStatement,
     CallExpression,
     callExpression,
     Expression,
-    expressionStatement,
-    identifier,
     Identifier,
+    identifier,
     isArrayPattern,
     isBinaryExpression,
     isForInStatement,
@@ -21,7 +19,6 @@ import {
     returnStatement,
 } from '@babel/types';
 import { ComponentFor, ElementInline, Prop, SequenceItem } from '@expressive/babel-plugin-core';
-import { declare, IIFE } from 'generate/syntax';
 import { ElementReact, ensureUIDIdentifier, GenerateReact } from 'internal';
 
 export class ElementIterate 
@@ -42,9 +39,6 @@ export class ElementIterate
         const wrapper =
             this.type === "ForInStatement" 
             && memberExpression(identifier("Object"), identifier("keys"))
-
-        //unused in favor of Object.keys(...).map
-        void this.toInvokedForLoop;
 
         return this.toMapExpression(Generator, wrapper)
     }
@@ -155,6 +149,7 @@ export class ElementIterate
         )
     }
 
+    /*
     private toInvokedForLoop(Generator: GenerateReact){
         const accumulator = ensureUIDIdentifier(this.source.path.scope, "acc");
         const sourceLoop = this.source.node;
@@ -179,4 +174,5 @@ export class ElementIterate
             returnStatement(accumulator)
         ])
     }
+    */
 }
