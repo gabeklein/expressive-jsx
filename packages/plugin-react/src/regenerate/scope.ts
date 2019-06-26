@@ -1,15 +1,30 @@
-import t, {
+import { Scope } from '@babel/traverse';
+import {
     Expression,
     Identifier,
+    identifier,
+    importDeclaration,
     ImportDefaultSpecifier,
+    importDefaultSpecifier,
     ImportNamespaceSpecifier,
     ImportSpecifier,
+    importSpecifier,
+    isCallExpression,
+    isIdentifier,
+    isImportDefaultSpecifier,
+    isObjectPattern,
+    isStringLiteral,
+    isVariableDeclaration,
+    objectPattern,
     ObjectProperty,
+    objectProperty,
     Program,
+    stringLiteral,
+    variableDeclaration,
+    variableDeclarator,
 } from '@babel/types';
-import { Scope } from '@babel/traverse';
+import { callExpress } from 'internal';
 import { BunchOf, Path } from 'types';
-import { callExpression } from 'internal';
 
 type ImportSpecific = ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier;
 
@@ -17,7 +32,7 @@ export function ensureUIDIdentifier(
     scope: Scope,
     name: string = "temp"){
 
-    return t.identifier(ensureUID(scope, name))
+    return identifier(ensureUID(scope, name))
 }
 
 export function ensureUID(
@@ -79,11 +94,11 @@ export class ImportManager
         const list = this.imports[from] || this.ensureImported(from);
 
         if(name == "default"){
-            if(t.isImportDefaultSpecifier(list[0]))
+            if(isImportDefaultSpecifier(list[0]))
                 return list[0].local;
             else {
                 uid = ensureUIDIdentifier(this.scope, alt || from);
-                list.unshift(t.importDefaultSpecifier(uid));
+                list.unshift(importDefaultSpecifier(uid));
                 return uid
             }
         }
@@ -91,14 +106,14 @@ export class ImportManager
         for(const spec of list)
             if("imported" in spec 
             && spec.imported.name == name){
-                uid = t.identifier(spec.local.name);
+                uid = identifier(spec.local.name);
                 break;
             }
     
         if(!uid){
             uid = ensureUIDIdentifier(this.scope, alt || name);
             list.push(
-                t.importSpecifier(uid, t.identifier(name))
+                importSpecifier(uid, identifier(name))
             )
         }
     
@@ -132,7 +147,7 @@ export class ImportManager
                 continue
 
             this.body.splice(index, 0,
-                t.importDeclaration(list, t.stringLiteral(name))
+                importDeclaration(list, stringLiteral(name))
             )
         }
     }
@@ -160,16 +175,16 @@ export class RequirementManager
 
         if(!alt)
         for(const item of source)
-            if(t.isIdentifier(item.key, { name })
-            && t.isIdentifier(item.value))
+            if(isIdentifier(item.key, { name })
+            && isIdentifier(item.value))
                 return item.value;
 
         const uid = ensureUID(this.scope, alt || name);
-        const ref = t.identifier(uid);
+        const ref = identifier(uid);
         
         source.push(
-            t.objectProperty(
-                t.identifier(name),
+            objectProperty(
+                identifier(name),
                 ref,
                 false,
                 uid === name
@@ -188,16 +203,16 @@ export class RequirementManager
         let list;
 
         for(let i = 0, stat; stat = this.body[i]; i++)
-        if(t.isVariableDeclaration(stat))
+        if(isVariableDeclaration(stat))
         for(const { init, id } of stat.declarations)
-        if(t.isCallExpression(init)
-        && t.isIdentifier(init.callee, { name: "require" })
-        && t.isStringLiteral(init.arguments[0], { value: from })){
+        if(isCallExpression(init)
+        && isIdentifier(init.callee, { name: "require" })
+        && isStringLiteral(init.arguments[0], { value: from })){
             target = id;
             insertableAt = i + 1;
         }
 
-        if(t.isObjectPattern(target))
+        if(isObjectPattern(target))
             list = this.imports[from] = target.properties as ObjectProperty[];
         else {
             list = this.imports[from] = [];
@@ -205,7 +220,7 @@ export class RequirementManager
             this.importIndices[from] = insertableAt || 0;
 
             this.importTargets[from] =
-                t.isIdentifier(target) && target;
+                isIdentifier(target) && target;
         }
         
         return list;
@@ -227,12 +242,12 @@ export class RequirementManager
 
             this.body.splice(
                 index, 0, 
-                t.variableDeclaration("const", [
-                    t.variableDeclarator(
-                        t.objectPattern(list), 
-                        target || callExpression(
-                            t.identifier("require"),
-                            t.stringLiteral(name)
+                variableDeclaration("const", [
+                    variableDeclarator(
+                        objectPattern(list), 
+                        target || callExpress(
+                            identifier("require"),
+                            stringLiteral(name)
                         )
                     )
                 ])

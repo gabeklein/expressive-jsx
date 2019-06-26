@@ -1,7 +1,7 @@
-import t, { Expression, ObjectProperty } from '@babel/types';
+import { Expression, ObjectProperty, identifier, stringLiteral, isExpression, booleanLiteral, callExpression, memberExpression, objectExpression, objectProperty, } from '@babel/types';
 import { ArrayStack, ElementReact, GenerateReact } from 'internal';
 import { ContentLike, PropData } from 'types';
-import { callExpression, memberExpression, objectExpression, PropertyES } from './syntax';
+import { PropertyES } from './syntax';
 
 const IsComponentElement = /^[A-Z]\w*/;
 
@@ -30,15 +30,15 @@ export class GenerateES extends GenerateReact {
         } = src;
 
         const type = IsComponentElement.test(tag)
-            ? t.identifier(tag) 
-            : t.stringLiteral(tag);
+            ? identifier(tag) 
+            : stringLiteral(tag);
 
         return callExpression(
-            this.Create, 
+            this.Create, [
             type, 
             this.recombineProps(props), 
             ...this.recombineChildren(children)
-        ) 
+        ]) 
     }
 
     fragment(
@@ -47,11 +47,16 @@ export class GenerateES extends GenerateReact {
     ){
         return (
             callExpression(
-                this.Create,
+                this.Create, [
                 this.Fragment,
-                objectExpression({ key }),
+                objectExpression([
+                    objectProperty(
+                        identifier("key"),
+                        key ? key : identifier("undefined")
+                    )
+                ]),
                 ...this.recombineChildren(children)
-            ) 
+            ]) 
         )
     }
 
@@ -59,11 +64,11 @@ export class GenerateES extends GenerateReact {
         return input.map(child => (
             "toExpression" in child ? 
                 child.toExpression(this) :
-            t.isExpression(child) ?
+            isExpression(child) ?
                 child :
             child instanceof ElementReact 
                 ? this.element(child)
-                : t.booleanLiteral(false)
+                : booleanLiteral(false)
         ));
     }
     
@@ -71,7 +76,7 @@ export class GenerateES extends GenerateReact {
         const propStack = new ArrayStack<ObjectProperty, Expression>()
 
         if(props.length == 0)
-            return objectExpression()
+            return objectExpression([])
     
         for(const { name, value } of props)
             if(!name)
@@ -83,21 +88,24 @@ export class GenerateES extends GenerateReact {
     
         let properties = propStack.map(chunk => 
             Array.isArray(chunk)
-                ? t.objectExpression(chunk)
+                ? objectExpression(chunk)
                 : chunk
         )
     
         if(properties[0].type !== "ObjectExpression")
             properties.unshift(
-                objectExpression()
+                objectExpression([])
             )
     
         return (
             properties.length == 1
                 ? properties[0]
                 : callExpression(
-                    memberExpression("Object.assign"), 
-                    ...properties
+                    memberExpression(
+                        identifier("Object"),
+                        identifier("assign")
+                    ), 
+                    properties
                 )
         )
     }

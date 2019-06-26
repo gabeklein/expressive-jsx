@@ -3,6 +3,7 @@ import { BabelState, DoExpressive, Modifier } from '@expressive/babel-plugin-cor
 import { ExternalsManager, GenerateES, GenerateJSX, ImportManager, writeProvideStyleStatement } from 'internal';
 import { relative } from 'path';
 import { Path, StylesRegistered, Visitor } from 'types';
+
 import { RequirementManager } from './scope';
 
 export const Program = <Visitor<ProgramNode>> {

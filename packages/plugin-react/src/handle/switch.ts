@@ -1,16 +1,24 @@
-import t, { Expression } from '@babel/types';
+import {
+    booleanLiteral,
+    conditionalExpression,
+    Expression,
+    isBooleanLiteral,
+    logicalExpression,
+    stringLiteral,
+    unaryExpression,
+} from '@babel/types';
 import { ComponentConsequent, ComponentIf } from '@expressive/babel-plugin-core';
 import { ElementReact, GenerateReact } from 'internal';
 
 type Consequent = ComponentIf | ComponentConsequent;
 type GetProduct = (fork: Consequent) => Expression | undefined;
 
-const opt = t.conditionalExpression;
-const not = (a: Expression) => t.unaryExpression("!", a);
-const and = (a: Expression, b: Expression) => t.logicalExpression("&&", a, b);
+const opt = conditionalExpression;
+const not = (a: Expression) => unaryExpression("!", a);
+const and = (a: Expression, b: Expression) => logicalExpression("&&", a, b);
 
 //TODO: figure out if falsey values interfere before allowing them through
-// const anti = (a: Expression) => t.isUnaryExpression(a, { operator: "!" }) ? a.argument : not(a);
+// const anti = (a: Expression) => isUnaryExpression(a, { operator: "!" }) ? a.argument : not(a);
 const anti = not; 
 
 function reducerAlgorithm(
@@ -34,7 +42,7 @@ function reducerAlgorithm(
                 : product
     }
 
-    return sum || t.booleanLiteral(false)
+    return sum || booleanLiteral(false)
 }
 
 export class ElementSwitch {
@@ -59,7 +67,7 @@ export class ElementSwitch {
                 else 
                     return;
     
-                if(t.isBooleanLiteral(product, { value: false }))
+                if(isBooleanLiteral(product, { value: false }))
                     product = undefined;
     
                 return product
@@ -73,7 +81,7 @@ export class ElementSwitch {
             (cond) => {
                 if("usesClassname" in cond){
                     if(cond.usesClassname)
-                        return t.stringLiteral(cond.usesClassname);
+                        return stringLiteral(cond.usesClassname);
                 }
                 else if("hasStyleOutput" in cond){
                     if(cond.hasStyleOutput)

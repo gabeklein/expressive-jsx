@@ -1,6 +1,6 @@
-import t, { Statement, stringLiteral } from '@babel/types';
+import { expressionStatement, Statement, stringLiteral, templateElement, templateLiteral } from '@babel/types';
 import { Modifier } from '@expressive/babel-plugin-core';
-import { callExpression, memberExpression } from 'internal';
+import { callExpress, memberExpress } from 'internal';
 import { BunchOf } from 'types';
 
 import { Module } from './module';
@@ -110,11 +110,11 @@ function writeSyntax(
         ? [ stringLiteral(relativeFileName) ] : [];
 
     const provideStatement = 
-        t.expressionStatement(
-            callExpression(
-                memberExpression(polyfillModule, "shouldInclude"), 
-                t.templateLiteral([
-                    t.templateElement({raw: computedStyle, cooked: computedStyle}, true)
+        expressionStatement(
+            callExpress(
+                memberExpress(polyfillModule, "shouldInclude"), 
+                templateLiteral([
+                    templateElement({raw: computedStyle, cooked: computedStyle}, true)
                 ], []),
                 ...filenameMaybe
             )

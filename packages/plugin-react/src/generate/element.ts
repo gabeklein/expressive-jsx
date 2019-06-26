@@ -1,4 +1,4 @@
-import t, { CallExpression, Expression, Identifier, JSXElement } from '@babel/types';
+import { booleanLiteral, CallExpression, Expression, Identifier, JSXElement } from '@babel/types';
 import { ElementReact, ExternalsManager, Module } from 'internal';
 import { ContentLike } from 'types';
 
@@ -32,7 +32,7 @@ export abstract class GenerateReact {
             const { children } = src; 
 
             if(children.length == 0)
-                return t.booleanLiteral(false);
+                return booleanLiteral(false);
 
             if(children.length > 1)
                 return this.fragment(children, fragmentKey);

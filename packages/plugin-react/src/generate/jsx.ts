@@ -1,11 +1,27 @@
-import t, { Expression, TemplateLiteral } from '@babel/types';
+import {
+    Expression,
+    isExpression,
+    isJSXElement,
+    isStringLiteral,
+    isTemplateLiteral,
+    jsxAttribute,
+    jsxClosingElement,
+    jsxElement,
+    jsxExpressionContainer,
+    jsxIdentifier,
+    jsxOpeningElement,
+    jsxSpreadAttribute,
+    jsxText,
+    stringLiteral,
+    TemplateLiteral,
+} from '@babel/types';
 import { ElementReact, GenerateReact } from 'internal';
 import { ContentLike, IsLegalAttribute, JSXContent, PropData } from 'types';
 
 export class GenerateJSX extends GenerateReact {
     
     get Fragment(){
-        const Fragment = t.jsxIdentifier(
+        const Fragment = jsxIdentifier(
             this.external.ensure("react", "Fragment").name
         );
         Object.defineProperty(this, "Fragment", { configurable: true, value: Fragment })
@@ -25,13 +41,13 @@ export class GenerateJSX extends GenerateReact {
             children
         } = src;
 
-        const type = t.jsxIdentifier(tag);
+        const type = jsxIdentifier(tag);
         const properties = props.map(this.recombineProps)
     
         return (
-            t.jsxElement(
-                t.jsxOpeningElement(type, properties),
-                t.jsxClosingElement(type),
+            jsxElement(
+                jsxOpeningElement(type, properties),
+                jsxClosingElement(type),
                 this.recombineChildren(children),
                 children.length > 0
             ) 
@@ -43,16 +59,16 @@ export class GenerateJSX extends GenerateReact {
         key?: Expression | false
     ){
         const attributes = !key ? [] : [
-            t.jsxAttribute(
-                t.jsxIdentifier("key"), 
-                t.jsxExpressionContainer(key)
+            jsxAttribute(
+                jsxIdentifier("key"), 
+                jsxExpressionContainer(key)
             )
         ]
         
         return (
-            t.jsxElement(
-                t.jsxOpeningElement(this.Fragment, attributes),
-                t.jsxClosingElement(this.Fragment),
+            jsxElement(
+                jsxOpeningElement(this.Fragment, attributes),
+                jsxClosingElement(this.Fragment),
                 this.recombineChildren(children),
                 false
             )
@@ -66,23 +82,23 @@ export class GenerateJSX extends GenerateReact {
         for(const child of input){
             let jsx;
     
-            if(t.isJSXElement(child))
+            if(isJSXElement(child))
                 jsx = child
-            else if(t.isExpression(child)){
-                if(t.isTemplateLiteral(child)){
+            else if(isExpression(child)){
+                if(isTemplateLiteral(child)){
                     output.push(...this.recombineQuasi(child))
                     continue
                 }
-                if(t.isStringLiteral(child) 
+                if(isStringLiteral(child) 
                 && child.value.indexOf("{") < 0
                 && input.length == 1)
-                    jsx = t.jsxText(child.value)
+                    jsx = jsxText(child.value)
                 else
-                    jsx = t.jsxExpressionContainer(child);
+                    jsx = jsxExpressionContainer(child);
             }
             else {
                 jsx = "toExpression" in child
-                    ? t.jsxExpressionContainer(child.toExpression(this))
+                    ? jsxExpressionContainer(child.toExpression(this))
                     : this.element(child)
             }
     
@@ -102,13 +118,13 @@ export class GenerateJSX extends GenerateReact {
             if(value)
                 acc.push( 
                     value.indexOf("{") < 0
-                        ? t.jsxText(value)
-                        : t.jsxExpressionContainer(t.stringLiteral(value))
+                        ? jsxText(value)
+                        : jsxExpressionContainer(stringLiteral(value))
                 )
     
             if(i in expressions)
                 acc.push(
-                    t.jsxExpressionContainer(
+                    jsxExpressionContainer(
                         expressions[i++]))
             else break;
         }
@@ -118,20 +134,20 @@ export class GenerateJSX extends GenerateReact {
     
     private recombineProps({ name, value }: PropData){
         if(typeof name !== "string")
-            return t.jsxSpreadAttribute(value);
+            return jsxSpreadAttribute(value);
         else {
             if(IsLegalAttribute.test(name) == false)
                 throw new Error(`Illegal characters in prop named ${name}`)
     
             const insertedValue = 
-                t.isStringLiteral(value)
+                isStringLiteral(value)
                     ? value.value == "true"
                         ? null
                         : value
-                    : t.jsxExpressionContainer(value)
+                    : jsxExpressionContainer(value)
     
-            return t.jsxAttribute(
-                t.jsxIdentifier(name), 
+            return jsxAttribute(
+                jsxIdentifier(name), 
                 insertedValue
             )
         }

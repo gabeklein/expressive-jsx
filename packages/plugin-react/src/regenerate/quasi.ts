@@ -1,4 +1,4 @@
-import t, { TemplateElement, Expression, TemplateLiteral } from "@babel/types";
+import { TemplateElement, Expression, TemplateLiteral, stringLiteral } from "@babel/types";
 
 export function breakdown(quasi: TemplateLiteral, string_only?: boolean){
     const { quasis, expressions } = quasi;
@@ -11,7 +11,7 @@ export function breakdown(quasi: TemplateLiteral, string_only?: boolean){
         return quasi;
 
     if(expressions.length == 0)
-        return t.stringLiteral(quasis[0].value.raw)
+        return stringLiteral(quasis[0].value.raw)
 
     const starting_indentation = /^\n( *)/.exec(quasis[0].value.cooked);
     const INDENT = starting_indentation && new RegExp("\n" + starting_indentation[1], "g");
@@ -68,13 +68,13 @@ export function breakForNative(
     for(let line, j=0; line = lines[j]; j++)
         if(line[0] == "\n"){
             if(lines[j+1] || then){
-                items.push(t.stringLiteral("\n"))
+                items.push(stringLiteral("\n"))
                 items.push(
-                    t.stringLiteral(line.substring(1))
+                    stringLiteral(line.substring(1))
                 )
             }
         }
-        else items.push(t.stringLiteral( line ))
+        else items.push(stringLiteral( line ))
     
     if(then) items.push(then);
 }
@@ -99,14 +99,14 @@ export function breakWithBR(
             if(lines[j+1] || then){
                 items.push(ELEMENT_BR)
                 items.push(
-                    t.stringLiteral(
+                    stringLiteral(
                         line.substring(1)
                     )
                 )
             }
         }
         else items.push(
-            t.stringLiteral( line ))
+            stringLiteral( line ))
     
     if(then) items.push(then);
 }

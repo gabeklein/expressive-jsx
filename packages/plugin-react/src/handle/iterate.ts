@@ -7,18 +7,18 @@ import {
     callExpression,
     Expression,
     expressionStatement,
+    identifier,
     Identifier,
     isArrayPattern,
     isBinaryExpression,
+    isForInStatement,
+    isForXStatement,
     isIdentifier,
     isObjectPattern,
     isVariableDeclaration,
     memberExpression,
     PatternLike,
     returnStatement,
-    identifier,
-    isForXStatement,
-    isForInStatement,
 } from '@babel/types';
 import { ComponentFor, ElementInline, Prop, SequenceItem } from '@expressive/babel-plugin-core';
 import { declare, IIFE } from 'generate/syntax';

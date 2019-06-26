@@ -1,4 +1,24 @@
-import t, { Expression, LVal, Statement, MemberExpression } from '@babel/types';
+import {
+    arrayExpression,
+    arrowFunctionExpression,
+    blockStatement,
+    booleanLiteral,
+    Expression,
+    identifier,
+    LVal,
+    MemberExpression,
+    nullLiteral,
+    numericLiteral,
+    objectProperty,
+    Statement,
+    stringLiteral,
+    thisExpression,
+    variableDeclaration,
+    variableDeclarator,
+    objectExpression,
+    memberExpression,
+    callExpression,
+} from '@babel/types';
 import { ExplicitStyle, Prop } from '@expressive/babel-plugin-core';
 import { BunchOf } from 'types';
 
@@ -6,8 +26,8 @@ export function PropertyES(
     name: string, 
     value: Expression){
 
-    const key = t.stringLiteral(name);
-    return t.objectProperty(key, value)
+    const key = stringLiteral(name);
+    return objectProperty(key, value)
 }
 
 export const AttributeES = (src: ExplicitStyle | Prop) => 
@@ -18,16 +38,16 @@ export function expressionValue(item: Prop | ExplicitStyle){
 
     return (
         typeof value === "string" ?
-            t.stringLiteral(value) :
+            stringLiteral(value) :
         typeof value === "number" ?
-            t.numericLiteral(value) :
+            numericLiteral(value) :
         typeof value === "boolean" ?
-            t.booleanLiteral(value) :
+            booleanLiteral(value) :
         value === undefined && item.path ?
             item.path.node :
         typeof value === "object" ?
-            value || t.nullLiteral() :
-            t.identifier("undefined")
+            value || nullLiteral() :
+            identifier("undefined")
     )
 }
 
@@ -37,41 +57,41 @@ export function ensureArray(
 
     const array = callExpression(
         memberExpression(
-            t.arrayExpression([]), "concat"
+            arrayExpression([]), "concat"
         ),
-        children
+        [ children ]
     )
     return getFirst ? memberExpression(array, 0) : array;
 }
 
 export function IIFE(stats: Statement[]){
-    return callExpression(
-        t.arrowFunctionExpression([], 
-            t.blockStatement(stats as any)
+    return callExpress(
+        arrowFunctionExpression([], 
+            blockStatement(stats as any)
         )
     )
 }
 
-export function objectExpression(obj: BunchOf<Expression | false | undefined> = {}){
+export function objectExpress(obj: BunchOf<Expression | false | undefined> = {}){
     const properties = [];
     for(const x in obj){
         if(obj[x])
         properties.push(
-            t.objectProperty(
-                t.identifier(x),
+            objectProperty(
+                identifier(x),
                 obj[x] as Expression
             )
         )
     }
-    return t.objectExpression(properties);
+    return objectExpression(properties);
 }
 
-export function memberExpression(
+export function memberExpress(
     object: string | Expression, 
     ...path: (string | number)[] ){
 
     if(object == "this") 
-        object = t.thisExpression()
+        object = thisExpression()
 
     if(typeof object == "string")
         path = [...object.split("."), ...path]
@@ -81,27 +101,27 @@ export function memberExpression(
         
         if(typeof member == "string"){
             select = /^[A-Za-z0-9$_]+$/.test(member)
-                ? t.identifier(member)
-                : t.stringLiteral(member);
+                ? identifier(member)
+                : stringLiteral(member);
         }
         else if(typeof member == "number")
-            select = t.numericLiteral(member);
+            select = numericLiteral(member);
         else
             throw new Error("Bad member id, only strings and numbers are allowed")
         
         object = typeof object == "object"
-            ? t.memberExpression(object, select, select!.type !== "Identifier")
+            ? memberExpression(object, select, select!.type !== "Identifier")
             : select;
     }
     
     return object as MemberExpression;
 }
 
-export function callExpression(
+export function callExpress(
     callee: Expression,
     ...args: Expression[]
 ){
-    return t.callExpression(callee, args)
+    return callExpression(callee, args)
 }
 
 export function declare(
@@ -110,8 +130,8 @@ export function declare(
     init?: Expression ){
 
     return (
-        t.variableDeclaration(type, [
-            t.variableDeclarator(id, init)
+        variableDeclaration(type, [
+            variableDeclarator(id, init)
         ])
     )
 }

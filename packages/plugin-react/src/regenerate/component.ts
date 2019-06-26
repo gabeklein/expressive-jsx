@@ -1,8 +1,26 @@
-import t, { ArrayPattern, Expression, Identifier, MemberExpression, ObjectPattern, PatternLike } from '@babel/types';
+import {
+    ArrayPattern,
+    arrayPattern,
+    blockStatement,
+    Expression,
+    Identifier,
+    identifier,
+    isIdentifier,
+    isPatternLike,
+    isRestElement,
+    MemberExpression,
+    memberExpression,
+    numericLiteral,
+    ObjectPattern,
+    objectProperty,
+    PatternLike,
+    returnStatement,
+    stringLiteral,
+} from '@babel/types';
 import { ComponentExpression, DoExpressive, ParseErrors } from '@expressive/babel-plugin-core';
-import { callExpression, declare, ElementReact, ExternalsManager, GenerateReact, memberExpression } from 'internal';
+import { callExpress, declare, objectExpress } from 'generate/syntax';
+import { ElementReact, ExternalsManager, GenerateReact } from 'internal';
 import { StackFrame, Visitor } from 'types';
-import { objectExpression } from 'generate/syntax';
 
 const Error = ParseErrors({
     PropsCantHaveDefault: "This argument will always resolve to component props",
@@ -37,12 +55,12 @@ export const DoExpression = <Visitor<DoExpressive>> {
         if(Do.exec && Do.statements.length){
             const replacement = [
                 ...Do.statements,
-                t.returnStatement(factoryExpression)
+                returnStatement(factoryExpression)
             ];
             if(path.parentPath.isReturnStatement())
                 path.parentPath.replaceWithMultiple(replacement)
             else
-                path.replaceWith(t.blockStatement(replacement))
+                path.replaceWith(blockStatement(replacement))
         }
         else {
             path.replaceWith(factoryExpression);
@@ -56,10 +74,10 @@ function asOnlyAttributes(factory: ElementReact){
 
     for(const prop of factory.props)
         if(prop.name == "style")
-            style = prop.value || objectExpression()
+            style = prop.value || objectExpress()
 
-    return objectExpression({
-        className: t.stringLiteral(
+    return objectExpress({
+        className: stringLiteral(
             classNames.join(" ")
         ),
         style: style
@@ -87,28 +105,28 @@ function incorperateChildParameters(
     if(props.isAssignmentPattern())
         throw Error.PropsCantHaveDefault(props.get("right"))
 
-    if(t.isRestElement(first)){
+    if(isRestElement(first)){
         assign = first.argument as typeof assign;
         count += 1;
     }
     else {
         const destructure = [] as PatternLike[];
         for(const child of children){
-            if(t.isPatternLike(child.node))
+            if(isPatternLike(child.node))
                 destructure.push(child.node)
             else 
                 throw Error.ArgumentNotSupported(child, child.type)
         }
         assign = count > 1
-            ? t.arrayPattern(destructure)
+            ? arrayPattern(destructure)
             : destructure[0] as Identifier;
     }
 
     if(props.isObjectPattern())
         props.node.properties.push(
-            t.objectProperty(
-                t.identifier("children"), 
-                t.isIdentifier(assign) 
+            objectProperty(
+                identifier("children"), 
+                isIdentifier(assign) 
                     ? assign
                     : init = wrapperFunction.scope.generateUidIdentifier("children")
             )
@@ -120,9 +138,9 @@ function incorperateChildParameters(
         
     if(init){
         const inner = Imports.ensure("@expressive/react", "body");
-        let getKids = callExpression(inner, props.node as Expression) as Expression;
+        let getKids = callExpress(inner, props.node as Expression) as Expression;
         if(count == 1)
-            getKids = t.memberExpression(getKids, t.numericLiteral(0), true)
+            getKids = memberExpression(getKids, numericLiteral(0), true)
 
         const declarator = declare("var", assign, getKids);
         Do.statements.unshift(declarator)

@@ -1,4 +1,13 @@
-import t, { Expression, ObjectProperty, SpreadElement } from '@babel/types';
+import {
+    callExpression,
+    Expression,
+    isStringLiteral,
+    objectExpression,
+    ObjectProperty,
+    SpreadElement,
+    spreadElement,
+    stringLiteral,
+} from '@babel/types';
 import {
     ComponentExpression,
     ComponentFor,
@@ -6,10 +15,10 @@ import {
     ContingentModifier,
     ElementConstruct,
     ElementInline,
+    ElementModifier,
     ExplicitStyle,
     Prop,
     SequenceItem,
-    ElementModifier
 } from '@expressive/babel-plugin-core';
 import { AttributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue } from 'internal';
 import { ContentLike, Path, PropData, StackFrame } from 'types';
@@ -137,11 +146,11 @@ export class ElementReact<T extends ElementInline = ElementInline>
 
             for(const item of style)
                 if(item instanceof ExplicitStyle)
-                    chunks.push(t.spreadElement(expressionValue(item)))
+                    chunks.push(spreadElement(expressionValue(item)))
                 else
                     chunks.push(...item.map(AttributeES));
             
-            value = t.objectExpression(chunks)
+            value = objectExpression(chunks)
         }
 
         this.addProperty("style", value)
@@ -165,14 +174,14 @@ export class ElementReact<T extends ElementInline = ElementInline>
 
         if(classList)
             selectors.unshift(
-                t.stringLiteral(classList.slice(1))
+                stringLiteral(classList.slice(1))
             )
 
         let computeClassname = selectors[0];
 
         if(selectors.length > 1){
             const join = this.context.Imports.ensure("@expressive/react", "join");
-            computeClassname = t.callExpression(join, selectors)
+            computeClassname = callExpression(join, selectors)
         }
 
         this.addProperty("className", computeClassname)
@@ -199,7 +208,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
                     value = item.path.node;
 
                 if(value && typeof value == "object")
-                    if(t.isStringLiteral(value))
+                    if(isStringLiteral(value))
                         value = value.value;
                     else {
                         this.classList.push(value);
