@@ -1,4 +1,4 @@
-import t, { Expression, JSXElement, TemplateLiteral } from '@babel/types';
+import t, { Expression, TemplateLiteral } from '@babel/types';
 import { ElementReact, GenerateReact } from 'internal';
 import { ContentLike, IsLegalAttribute, JSXContent, PropData } from 'types';
 
@@ -17,8 +17,7 @@ export class GenerateJSX extends GenerateReact {
             this.external.ensure("react", "default", "React")
     }
 
-    element(src: ElementReact): JSXElement {
-            
+    element(src: ElementReact){
         const {
             tagName: tag,
             props,
@@ -66,7 +65,9 @@ export class GenerateJSX extends GenerateReact {
         for(const child of input){
             let jsx;
     
-            if(t.isExpression(child)){
+            if(t.isJSXElement(child))
+                jsx = child
+            else if(t.isExpression(child)){
                 if(t.isTemplateLiteral(child)){
                     output.push(...this.recombineQuasi(child))
                     continue
