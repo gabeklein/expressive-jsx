@@ -9,15 +9,17 @@ import {
     MemberExpression,
     ObjectExpression,
     SpreadElement,
+    stringLiteral,
     TaggedTemplateExpression,
     UnaryExpression,
-    stringLiteral
 } from '@babel/types';
 import { ElementInline, ElementModifier, ExplicitStyle, Prop } from 'handle';
 import { inParenthesis, Opts, ParseErrors, preventDefaultPolyfill, Shared } from 'shared';
 import { DoExpressive } from 'types';
 
 type ListElement = Expression | SpreadElement;
+
+const containsLineBreak = /\n/;
 
 const Error = ParseErrors({
     NoParenChildren: "Children in Parenthesis are not allowed, for direct insertion used an Array literal",
@@ -254,8 +256,6 @@ function ParseIdentity(
     else throw Error.BadExpression(tag);
 }
 
-const containingLineBreak = /\n/;
-
 function UnwrapExpression(
     expression: Path<Expression>,
     target: ElementInline ): Path<Expression> {
@@ -267,24 +267,15 @@ function UnwrapExpression(
         case "TaggedTemplateExpression": {
             const exp = current as Path<TaggedTemplateExpression>;
             const quasi = exp.get("quasi");
-            let deferred = false;
+            let content: Expression = quasi.node;
 
-            for(const element of quasi.node.quasis)
-                if(containingLineBreak.test(element.value.cooked)){
-                    target.multilineContent = quasi;
-                    deferred = true;
-                }
-
-            if(!deferred){
-                let content: Expression = quasi.node;
-
-                if(content.expressions.length == 0){
-                    const text = content.quasis[0].value.cooked;
-                    content = stringLiteral(text);
-                }
-
-                target.add(content)
+            if(content.expressions.length === 0 &&
+               containsLineBreak.test(content.quasis[0].value.cooked) === false){
+                const text = content.quasis[0].value.cooked;
+                content = stringLiteral(text);
             }
+
+            target.add(content)
 
             current = exp.get("tag");
             preventDefaultPolyfill(exp);

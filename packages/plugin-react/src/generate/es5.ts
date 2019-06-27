@@ -1,6 +1,20 @@
-import { Expression, ObjectProperty, identifier, stringLiteral, isExpression, booleanLiteral, callExpression, memberExpression, objectExpression, objectProperty, } from '@babel/types';
+import {
+    booleanLiteral,
+    callExpression,
+    Expression,
+    identifier,
+    isExpression,
+    isTemplateLiteral,
+    memberExpression,
+    objectExpression,
+    ObjectProperty,
+    objectProperty,
+    stringLiteral,
+} from '@babel/types';
 import { ArrayStack, ElementReact, GenerateReact } from 'internal';
+import { dedent } from 'regenerate/quasi';
 import { ContentLike, PropData } from 'types';
+
 import { PropertyES } from './syntax';
 
 const IsComponentElement = /^[A-Z]\w*/;
@@ -65,6 +79,8 @@ export class GenerateES extends GenerateReact {
             "toExpression" in child ? 
                 child.toExpression(this) :
             isExpression(child) ?
+                isTemplateLiteral(child) ?
+                    dedent(child) :
                 child :
             child instanceof ElementReact 
                 ? this.element(child)

@@ -1,39 +1,60 @@
-import { TemplateElement, Expression, TemplateLiteral, stringLiteral } from "@babel/types";
+import { Expression, TemplateElement, TemplateLiteral } from '@babel/types';
 
-export function breakdown(quasi: TemplateLiteral, string_only?: boolean){
-    const { quasis, expressions } = quasi;
-
-    const iForgotWhatImTestingForHere = quasis.find(
-        element => /[{}]/.test(element.value.raw)
-    )
-
-    if(iForgotWhatImTestingForHere)   
-        return quasi;
-
-    if(expressions.length == 0)
-        return stringLiteral(quasis[0].value.raw)
-
+export function dedent(quasi: TemplateLiteral){
+    const { quasis } = quasi;
     const starting_indentation = /^\n( *)/.exec(quasis[0].value.cooked);
     const INDENT = starting_indentation && new RegExp("\n" + starting_indentation[1], "g");
+    let i = 0;
 
-    const items = [] as any[];
+    for(const { value } of quasis){
+        let text = value.cooked;
+        if(INDENT)
+            text = text.replace(INDENT, "\n");
+        if(i === 0) 
+            text = text.replace("\n", "")
+        if(i === quasis.length - 1)
+            text = text.replace(/\s*\n*$/, "")
 
-    const HANDLE_LINEBREAKS = 
-        string_only ?
-            breakForString :
-        false ?
-            breakForNative :
-            breakWithBR;
+        value.cooked = text;
+        value.raw = text.replace(/\n/g, "\\n")
 
-    for(let i=0; i < quasis.length; i++)
-        HANDLE_LINEBREAKS(quasis[i], expressions[i], items, INDENT, i, quasis.length);
-
-    if(string_only)
-        return quasi;
-    else {
-        if(INDENT) items.shift();
-        return items.map(x => x.node)
+        i++;
     }
+
+    return quasi;
+}
+
+export function breakdown(quasi: TemplateLiteral){
+    const { quasis, expressions } = quasi;
+    const starting_indentation = /^\n( *)/.exec(quasis[0].value.cooked);
+    const INDENT = starting_indentation && new RegExp("\n" + starting_indentation[1], "g");
+    const acc = [] as Array<string | Expression>
+    let i = 0;
+
+    while(true){
+        let text: string | Array<any> = quasis[i].value.raw as string;
+        if(INDENT)
+            text = text.replace(INDENT, "\n");
+        if(i === 0) 
+            text = text.replace("\n", "")
+        if(i === quasis.length - 1)
+            text = text.replace(/\s*\n*$/, "")
+
+        let chunks: any[] = text.split("\n");
+        for(const chunk of chunks){
+            if(chunk !== "")
+                acc.push(chunk)
+            acc.push("\n")
+        }
+        acc.pop();
+        
+        const expression = expressions[i++];
+        if(expression)
+            acc.push(expression);
+        else break
+    }
+
+    return acc;
 }
 
 export function breakForString(
@@ -52,61 +73,4 @@ export function breakForString(
             text = text.replace(/\s+$/, "")
         quasi.value[x] = text
     }
-}
-
-export function breakForNative(
-    quasi: TemplateElement,
-    then: Expression,
-    items: any[],
-    INDENT: RegExp | null ){
-
-    let text = quasi.value.cooked;
-    if(INDENT) 
-        text = text.replace(INDENT, "\n");
-    const lines = text.split(/(?=\n)/g);
-
-    for(let line, j=0; line = lines[j]; j++)
-        if(line[0] == "\n"){
-            if(lines[j+1] || then){
-                items.push(stringLiteral("\n"))
-                items.push(
-                    stringLiteral(line.substring(1))
-                )
-            }
-        }
-        else items.push(stringLiteral( line ))
-    
-    if(then) items.push(then);
-}
-
-export function breakWithBR(
-    quasi: TemplateElement,
-    then: Expression,
-    items: any[],
-    INDENT: RegExp | null,
-    i: number ){
-
-    throw new Error("not implemented")
-
-    const ELEMENT_BR = null as any; // GenerateES.element("br");
-    let text = quasi.value.cooked;
-    if(INDENT) 
-        text = text.replace(INDENT, "\n");
-    const lines = text.split(/(?=\n)/g);
-
-    for(let line, j=0; line = lines[j]; j++)
-        if(line[0] == "\n"){
-            if(lines[j+1] || then){
-                items.push(ELEMENT_BR)
-                items.push(
-                    stringLiteral(
-                        line.substring(1)
-                    )
-                )
-            }
-        }
-        else items.push(
-            stringLiteral( line ))
-    
-    if(then) items.push(then);
 }

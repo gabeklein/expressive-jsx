@@ -16,6 +16,7 @@ import {
     TemplateLiteral,
 } from '@babel/types';
 import { ElementReact, GenerateReact } from 'internal';
+import { breakdown, dedent } from 'regenerate/quasi';
 import { ContentLike, IsLegalAttribute, JSXContent, PropData } from 'types';
 
 export class GenerateJSX extends GenerateReact {
@@ -43,11 +44,12 @@ export class GenerateJSX extends GenerateReact {
         const type = jsxIdentifier(tag);
         const properties = props.map(this.recombineProps)
         const empty = children.length === 0
+        const acceptBr = /a-z/.test(tag[0]);
     
         return jsxElement(
             jsxOpeningElement(type, properties, empty),
             jsxClosingElement(type),
-            this.recombineChildren(children),
+            this.recombineChildren(children, acceptBr),
             empty
         )
     }
@@ -66,13 +68,14 @@ export class GenerateJSX extends GenerateReact {
         return jsxElement(
             jsxOpeningElement(this.Fragment, attributes),
             jsxClosingElement(this.Fragment),
-            this.recombineChildren(children),
+            this.recombineChildren(children, true),
             false
         )
     }
 
     private recombineChildren(
-        input: ContentLike[]){
+        input: ContentLike[],
+        acceptBr: boolean){
     
         const output = [] as JSXContent[];
         for(const child of input){
@@ -82,7 +85,7 @@ export class GenerateJSX extends GenerateReact {
                 jsx = child
             else if(isExpression(child)){
                 if(isTemplateLiteral(child)){
-                    output.push(...this.recombineQuasi(child))
+                    output.push(...this.recombineQuasi(child, acceptBr))
                     continue
                 }
                 if(isStringLiteral(child) 
@@ -104,19 +107,26 @@ export class GenerateJSX extends GenerateReact {
         return output;
     }
     
-    private recombineQuasi(node: TemplateLiteral){
+    private recombineQuasi(
+        node: TemplateLiteral,
+        acceptBr: boolean){
+
         const { expressions, quasis } = node;
-        const acc = [] as JSXContent[];
+        let acc = [] as JSXContent[];
         let i = 0;
     
         while(true) {
             const value = quasis[i].value.cooked as string;
             if(value)
-                acc.push( 
-                    value.indexOf("{") < 0
-                        ? jsxText(value)
-                        : jsxExpressionContainer(stringLiteral(value))
-                )
+                if(/\n/.test(value))
+                    if(acceptBr){
+                        const chunks = breakdown(node);
+                        return this.recombineMultilineJSX(chunks);
+                    }
+                    else {
+                        dedent(node);
+                        return [ jsxExpressionContainer(node) ]
+                    }
     
             if(i in expressions)
                 acc.push(
@@ -126,6 +136,28 @@ export class GenerateJSX extends GenerateReact {
         }
     
         return acc;
+    }
+
+    private recombineMultilineJSX(
+        chunks: Array<string | Expression>
+    ): JSXContent[] {
+        return chunks.map(chunk => {
+            if(chunk === "\n")
+                return jsxElement(
+                    jsxOpeningElement(jsxIdentifier("br"), [], true),
+                    undefined, [], true
+                ) 
+            if(typeof chunk === "string")
+                return chunk.indexOf("{") < 0
+                ? jsxText(chunk)
+                : jsxExpressionContainer(stringLiteral(chunk))
+
+            else if(isJSXElement(chunk))
+                return chunk
+                
+            else 
+                return jsxExpressionContainer(chunk)
+        })
     }
     
     private recombineProps({ name, value }: PropData){
