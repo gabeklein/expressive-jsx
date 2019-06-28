@@ -1,0 +1,13 @@
+{
+  "description": "Tests and Debug",
+  "main": "bin/debug.js",
+  "dependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-prettier": "^2.0.0",
+    "gulp-replace": "^1.0.0",
+    "source-map-support": "^0.5.10"
+  }
+}

@@ -1,10 +1,11 @@
 .DS_Store
 .rpt2_cache
 node_modules/
+tests/input/
+tests/output/
 /packages/*/lib/
 *.log
 *.cache
 package-lock.json
-**/yarn.lock
+yarn.lock
 **/.reference
-.vscode
