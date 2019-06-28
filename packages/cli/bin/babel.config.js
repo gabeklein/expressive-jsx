@@ -41,6 +41,7 @@ module.exports = {
             reactEnv: "next",
             output: program.jsx ? "jsx" : "js",
             hot: false, 
+            printStyle: "pretty",
             useRequire: program.useRequire,
             useImport: program.useImport, 
             modifiers: [
