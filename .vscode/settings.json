@@ -1,0 +1,12 @@
+{
+    "files.exclude": {
+        "package-lock.json": false,
+        "yarn.lock": false,
+        "LICENSE": false,
+        ".gitignore": false,
+        "**/.DS_Store": false,
+        "node_modules": false,
+        ".vscode": false,
+        ".git": false
+    }
+}
