@@ -1,121 +1,109 @@
-import React, { Component, ComponentType, createContext, createElement as create, Fragment, ReactElement } from 'react';
-
-export interface BunchOf<T> {
+interface BunchOf<T> {
     [key: string]: T
 }
 
-class Modules {
-    include = [] as string[];
-    loaded = {} as BunchOf<string>;
-}
+const arrayPushMethod = Array.prototype.push;
+const valuesOf = Object.values;
 
-class Compiler {
-    generate(){
-        let output = `\n`;
+// allowing subsequent calls to override previous ones. Intended to prevent duping, especially on hot reloads.
 
-        for(const style of Module.include)
-            output += style + "\n"
+const StyleSheet = new class RuntimeStyleController {
+    chunks = {} as BunchOf<string>;
+    contentIncludes = {} as BunchOf<boolean | string>;
+    ref?: HTMLStyleElement;
 
-        for(const file in Module.loaded)
-            output += Module.loaded[file] + "\n"
+    constructor(){
+        Object.defineProperty(this.chunks, "length", {
+            enumerable: false,
+            writable: true
+        })
 
-        return output.length > 1 && output || "";
+        window.addEventListener('load', () => {
+            const tag 
+                = this.ref 
+                = document.createElement("style");
+    
+            tag.setAttribute("expressive", "");
+            tag.innerHTML = this.cssText;
+    
+            document.body.appendChild(tag);
+        }, false);
+    }
+
+    /**
+     * Apply styles from cssText to generated stylesheet.
+     * 
+     * @param cssText - plain CSS to be included
+     * @param reoccuringKey - dedupe identifier (for HMR or potentially dynamic style)
+     */
+    shouldInclude(cssText: string, reoccuringKey: string){
+        if(this.ref)
+            this.include(cssText, reoccuringKey)
+        else
+            this.apply(cssText, reoccuringKey)
+    }
+
+    get cssText(){
+        let output = valuesOf(this.chunks).join("\n\n");
+        return output ? `\n${output}\n` : "";
+    }
+
+    /**
+     * Inlcude cssText in rendered <style>.
+     * 
+     * Will bail if cssText already exists, and overwrite chunks which share `reoccuringKey`.
+     */
+    private include(cssText: string, reoccuringKey: string){
+        const existing = this.contentIncludes;
+
+        if(cssText in existing)
+            return
+        else {
+            if(reoccuringKey)
+            for(const text in existing)
+            if(reoccuringKey === existing[text])
+                delete existing[text];
+        }
+
+        this.apply(cssText, reoccuringKey)
+        this.ref!.innerHTML = this.cssText;
+    }
+
+    /**
+     * Reindent CSS text and register for inclusion.
+     */
+    private apply(cssText: string, reoccuringKey: string){
+        const regularIndent = /^\n(\s*)/.exec(cssText);
+        
+        this.contentIncludes[cssText] = reoccuringKey || true;
+
+        if(regularIndent){
+            const trim = new RegExp(`\n${ regularIndent[1] }`, "g");
+            cssText = cssText.replace(trim, "\n\t");
+        }
+    
+        cssText = cssText
+            .replace(/^\n/, "")
+            .replace(/\s+$/, "");
+
+        if(reoccuringKey)
+            this.chunks[reoccuringKey] = cssText;
+        else 
+            arrayPushMethod.call(this.chunks, cssText);
     }
 }
 
-interface StyledApplicationProps {
-    children: any[]
-}
-
-class StyledApplicationComponent 
-    extends Component<StyledApplicationProps> {
-
-    compilerTarget?: Compiler;
-
-    componentWillMount(){
-        this.compilerTarget = new Compiler();
-    }
-
-    render(){
-        const { children } = this.props || [];
-
-        const styled_content = Array.isArray(children) ? children : [children];
-
-        return create(Fragment, {}, 
-            ...styled_content,
-            create("style", {
-                dangerouslySetInnerHTML: {
-                    __html: this.compilerTarget!.generate()
-                }
-            })
-        )
-    }
-}
-
-function StyledApplication<P>(
-    input: StyledApplicationProps | ComponentType<P>
-){
-    if(input  
-    && input instanceof Component
-    || typeof input == "function"){
-        return (props: P) => (
-            create(
-                StyledApplicationComponent, 
-                {} as StyledApplicationProps, 
-                create(
-                    input as ComponentType<P>, 
-                    props
-                )
-            )
-        )
-    }
-
-    else {
-        const { children, ...props } = input;
-        return create(
-            StyledApplicationComponent, 
-            props as any, 
-            children
-        );
-    }
-}
-
-StyledApplication.shouldInclude = (cssText: string, module: string) => {
-    const indentMatch = /^\n( *)/.exec(cssText);
-
-    if(indentMatch){
-        const trim = new RegExp(`\n${indentMatch[1]}`, "g");
-        cssText = cssText.replace(trim, "\n");
-    }
-
-    cssText = cssText.replace(/^\n/, "").replace(/\s+$/, "");
-
-    if(module)
-        Module.loaded[module] = cssText;
-    else
-        Module.include.push(cssText);
-}
-
-export const Module = new Modules();
-
-export function body(props: { children: any | any[] }){
+function body(props: { children: any | any[] }){
     return [].concat(props.children)
 }
 
-export function join(...args: string[]){
+function join(...args: string[]){
     return args.filter(x => x).join(" ");
 }
 
-export function withStyles(
-    Root: ComponentType
-): ReactElement {
-    return create(
-        StyledApplicationComponent, 
-        {} as StyledApplicationProps, 
-        create(Root, {})
-    )
+export { 
+    body,
+    join
 }
 
-export { withStyles as withStyle }
-
-export default StyledApplication;
+export default StyleSheet;

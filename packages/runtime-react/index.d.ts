@@ -1,45 +1,54 @@
-import { ComponentType, Component, StatelessComponent, ReactElement } from "react";
+import { string } from "prop-types";
 
 interface BunchOf<T> {
     [key: string]: T
 }
 
-declare function StyledApplication<P>(extend: ComponentType<P>): ComponentType<P>;
-
-interface StyledApplicationProps {
-    children: Element | Element[]
-}
-
-declare interface ComponentStyledApplication 
-    extends StatelessComponent<StyledApplicationProps> {
+/**
+ * Expressive-React Runtime Style Singleton
+ * 
+ * Exposed to all modules consuming the expressive-react style API. 
+ * Accumulates and handles all style defined using this method.
+ * 
+ * On page-load this will spawn a `<style>`, fill it, and propagate any updates automatically.
+ */
+interface RuntimeStyleController {
 
     /**
-     * Register styles which should be inserted within <style> tag.
+     * Collection of post-processed style chunks.
      * 
-     * You may use the method anywhere in your application.
-     * 
-     * @param cssText CSS which should be included in computed styles.
-     * @param recurringKey - Unique identifier (usually a module path) to prevent duping, where this may be called again with updates (e.g. hot-module-reload). 
+     * Dumped to `cssText`.
      */
-    shouldInclude(cssText: string, recurringKey: string): void;
+    chunks: BunchOf<string>;
+
+    /**
+     * Collection of keys which are already-defined styles, actively included in stylesheet.
+     * 
+     * Values are `true` where style chunk is unclaimed. 
+     * Where claimed by a reference or module, value is that unique identifier.
+     */
+    contentIncludes: BunchOf<boolean | string>;
+
+    /**
+     * Reference to slave <style> tag
+     */
+    ref?: HTMLStyleElement;
+
+    /**
+     * Computed CSS body.
+     */
+    cssText: string;
+
+    /**
+     * Apply styles within in `cssText` to global stylesheet.
+     * 
+     * @param cssText - plain CSS to be included
+     * @param reoccuringKey - dedupe identifier (for HMR or dynamic style)
+     */
+    shouldInclude(cssText: string, reoccuringKey: string): void;
 }
 
-/**
- * Use as a component or HOC constructor, both will work.
- * 
- * Integrates all style from imported/required modules, which call [Module.doesProvideStyle()]
- * 
- * `<ApplicationStyle />` - Include in your app, will render `<style>`.
- * 
- * `StyledApplication HOC` - Will return component which appends global `<style>` to source content.
- * 
- * @param extend The root component you wish to render with styles.
- * 
- * @returns Higher Order Component - Fragment with children `extend` and accumulated styles.
- */
-declare const _default: ComponentStyledApplication & typeof StyledApplication;
-
-export default _default
+export default RuntimeStyleController
 
 /**
  * Return children as array.
@@ -47,19 +56,6 @@ export default _default
  * @param props Component props from which to retrieve children.
  */
 export declare function body(props: { children: any | any[] }): any[];
-
-/**
- * StyledApplication Element containing instantiated `Root`
- * 
- * Convenience argument for `ReactDOM.render()` and returnable from Components.
- * 
- * @param Root Component to initialize with [default] wrapper.
- * 
- * @returns `<StyledApplication><Root /></StyledApplication>`
- */
-export declare function withStyles(Root: ComponentType): ReactElement;
-
-export { withStyles as withStyle }
 
 /**
  * Joins all truthy arguments using a space as delimiter.
