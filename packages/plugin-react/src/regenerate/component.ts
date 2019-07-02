@@ -131,8 +131,9 @@ function incorperateChildParameters(
                     : init = wrapperFunction.scope.generateUidIdentifier("children")
             )
         )
+        
     else if(props.isIdentifier())
-        init = memberExpression(props.node, "children");
+        init = memberExpression(props.node, identifier("children"));
 
     arrowFn.params = [props.node as Identifier | ObjectPattern];
         
