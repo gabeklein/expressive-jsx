@@ -1,5 +1,5 @@
 const PluginReact = require("@expressive/babel-plugin-react")
-const WebStyles = require("@expressive/react-modifiers");
+const WebStyles = require("@expressive/modify-style");
 
 module.exports = (compiler, options = {}) => {
   let { modifiers, ...opts } = options;

@@ -1,6 +1,6 @@
 const EXPORT = exports;
 
-import { rect, appendUnitToN, handleUnits } from "./util"
+import { rect, appendUnitToN, handleUnits } from "./util";
 
 const sides = {
     top: [1, 1, 0, 0],

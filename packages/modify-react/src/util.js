@@ -58,3 +58,15 @@ export function handleUnits(name) {
         }
     }
 }
+
+export function nToNUnits(value, unit) {
+    if(value.named){
+        unit = value.named;
+        value = value.inner[0]
+    }
+    return {
+        style: {
+            [this.name]: appendUnitToN(value, unit)
+        }
+    }
+}

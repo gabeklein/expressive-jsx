@@ -23,7 +23,7 @@
   "dependencies": {
     "@expressive/babel-plugin-react": "^1.0.0-beta.19",
     "@expressive/babel-plugin-react-class": "^1.0.0-beta.11",
-    "@expressive/react-modifiers": "^1.0.0-beta.18",
+    "@expressive/modify-style": "^1.0.0-beta.18",
     "babel-preset-expressive-enhancements": "^1.0.1"
   },
   "peerDependencies": {

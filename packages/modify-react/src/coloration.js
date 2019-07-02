@@ -2,10 +2,6 @@ const { URL_IMAGES } = process.env;
 const { rgba, hsla } = require("./helpers.js")
 
 export function image(a){
-    const CDN = process.env.CDN || "";
-    if(CDN)
-        a = CDN + a;
-    
     return {
         style: {
             backgroundImage: `url("${a}")`
@@ -32,7 +28,6 @@ export function outline(a, b){
         :  b == undefined  ? {style: { outline: `1px dashed ${a || "green"}` }}
         :  {attrs: { outline: this.arguments }}
 }
-
 
 export function bg(a){
     let output;

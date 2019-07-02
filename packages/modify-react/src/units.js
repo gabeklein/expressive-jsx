@@ -1,6 +1,6 @@
-const EXPORT = exports;
+import { nToNUnits } from './util';
 
-import { appendUnitToN } from './util';
+const EXPORT = exports;
 
 for(const style of [
     "top",
@@ -18,17 +18,6 @@ for(const style of [
     "outlineWidth",
     "borderRadius",
     "backgroundSize"
-]) 
-EXPORT[style] = nToNUnits;
-
-function nToNUnits(value, unit) {
-    if(value.named){
-        unit = value.named;
-        value = value.inner[0]
-    }
-    return {
-        style: {
-            [this.name]: appendUnitToN(value, unit)
-        }
-    }
+]){
+    EXPORT[style] = nToNUnits;
 }
