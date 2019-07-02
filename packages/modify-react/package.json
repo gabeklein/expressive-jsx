@@ -23,8 +23,8 @@
   ],
   "scripts": {
     "prebuild": "rm -rf ./lib",
-    "build": "babel ./src --out-dir ./lib",
-    "watch": "babel ./src --out-dir ./lib --source-maps --watch",
+    "build": "babel ./src --out-dir ./lib --presets @babel/env",
+    "watch": "npm run build -- --source-maps --watch",
     "prepare": "npm run build"
   },
   "dependencies": {
@@ -34,7 +34,6 @@
   "devDependencies": {
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
-    "@babel/plugin-proposal-class-properties": "^7.0.0",
     "@babel/preset-env": "^7.0.0"
   }
 }
