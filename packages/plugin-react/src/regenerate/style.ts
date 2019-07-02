@@ -79,7 +79,7 @@ function createSyntax(
             for(const [ name, styles ] of bunch){
                 if(opts.printStyle == "pretty"){
                     let rules = styles.map(x => `\t${x};`);
-                    lines.push(name + " { ", ...rules, " }")
+                    lines.push(name + " { ", ...rules, "}")
                 }
                 else 
                     lines.push(`${name} { ${styles.join("; ")} }`)
