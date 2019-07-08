@@ -1,6 +1,5 @@
 import { NodePath as Path } from '@babel/traverse';
 import { booleanLiteral, Expression } from '@babel/types';
-import { createHash } from 'crypto';
 import { BunchOf, FlatValue } from 'types';
 
 export interface SharedSingleton {
@@ -33,14 +32,15 @@ export const Opts: Options = {
     formatStyles: ""
 }
 
-export function quickHash(data: string, length?: number){
-    return (
-        createHash("md5")
-        .update(data)
-        .digest('hex')
-        .substring(0, 6)
-    )
-} 
+export function simpleHash(data: string, length: number = 3){
+    var hash = 0;
+    for (var i = 0; i < data.length; i++) {
+        var char = data.charCodeAt(i);
+        hash = ((hash<<5)-hash)+char;
+        hash = hash & hash;
+    }
+    return Math.abs(hash).toString(36).substring(0, length);
+}
 
 export function toArray<T> (value: T | T[]): T[] {
     return value !== undefined

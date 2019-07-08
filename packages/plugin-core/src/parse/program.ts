@@ -1,7 +1,6 @@
 import { Program as BabelProgram } from '@babel/types';
-import { createHash } from 'crypto';
 import { ComponentIf, ElementInline, ElementModifier, TraversableBody } from 'handle';
-import { ParseErrors } from 'shared';
+import { ParseErrors, simpleHash } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
 
 import * as builtIn from "./builtin"
@@ -43,15 +42,6 @@ export const Program = <Visitor<BabelProgram>>{
     }
 }
 
-function Hash(data: string, length?: number){
-    return (
-        createHash("md5")
-        .update(data)
-        .digest('hex')
-        .substring(0, 6)
-    )
-}
-
 export class StackFrame {
     prefix: string;
     program = {} as any;
@@ -70,7 +60,7 @@ export class StackFrame {
         const included = assign({}, ...external);
 
         this.stateSingleton = state;
-        this.prefix = Hash(state.filename);
+        this.prefix = simpleHash(state.filename);
         this.options = {};
     
         for(const imports of [ builtIn, included ]){

@@ -1,7 +1,7 @@
 import { NodePath as Path } from '@babel/traverse';
 import { Expression, LabeledStatement } from '@babel/types';
 import { ApplyModifier } from 'parse';
-import { ParseErrors, quickHash } from 'shared';
+import { ParseErrors, simpleHash } from 'shared';
 import { BunchOf, FlatValue } from 'types';
 
 import { ElementModifier, Modifier, TraversableBody } from './';
@@ -34,8 +34,8 @@ export abstract class AttributeBody extends TraversableBody {
     }
 
     get uid(){
-        const hash = quickHash(this.context.prefix);
-        return this.uid = this.name + "_" + hash;
+        const hash = simpleHash(this.context.prefix);
+        return this.uid = this.name + "-" + hash;
     }
 
     set uid(uid: string){

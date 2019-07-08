@@ -10,7 +10,7 @@ import {
     Statement,
 } from '@babel/types';
 import { StackFrame } from 'parse';
-import { ParseErrors, quickHash } from 'shared';
+import { ParseErrors, simpleHash } from 'shared';
 import { DoExpressive, InnerContent } from 'types';
 
 import { ComponentExpression, ContingentModifier, ElementInline, TraversableBody } from './';
@@ -213,11 +213,11 @@ export class ComponentConsequent extends ElementInline {
     private slaveNewModifier(){
         let { context } = this;
 
-        const uid = quickHash(this.context.prefix)
+        const uid = simpleHash(this.context.prefix)
 
         //TODO: Discover helpfulness of customized className.
         let selector = specifyOption(this.test) || `opt${this.index}`;
-        selector += `_${uid}`;
+        selector += `-${uid}`;
         const parent = context.currentElement!;
 
         const mod = new ContingentModifier(
