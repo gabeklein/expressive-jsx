@@ -57,7 +57,7 @@ export abstract class AttributeBody extends TraversableBody {
         if(name[0] == "_")
             throw Error.BadModifierName(path)
 
-        if(context.hasOwnProperty("_" + name))
+        if(context.hasOwnModifier(name))
             throw Error.DuplicateModifier(path); 
 
         const handler = applyTo.context.propertyMod(name);

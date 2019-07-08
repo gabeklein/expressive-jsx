@@ -26,7 +26,7 @@ export const Program = <Visitor<BabelProgram>>{
                 if(name[0] == "_")
                     throw Error.BadModifierName(path)
 
-                if(this.context.hasOwnProperty("_" + name))
+                if(this.context.hasOwnModifier(name))
                     throw Error.DuplicateModifier(path);
 
                 if(body.isExpressionStatement(body))
@@ -147,6 +147,10 @@ export class StackFrame {
 
     hasOwnPropertyMod(name: string): boolean {
         return this.hasOwnProperty("__" + name)
+    }
+
+    hasOwnModifier(name: string): boolean {
+        return this.hasOwnProperty("_" + name)
     }
 
     elementMod(name: string): ElementModifier;
