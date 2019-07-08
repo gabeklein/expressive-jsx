@@ -1,6 +1,6 @@
 const env = require("@babel/preset-env");
 const transformExpressiveReact = require("../../packages/plugin-react");
-const webstyleModifiers = require("../../packages/modify-react")
+const webstyleModifiers = require("../../packages/modify-style")
 const gradientModifiers = require("../../packages/modify-gradient");
 
 const { 
