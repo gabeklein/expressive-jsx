@@ -72,9 +72,9 @@ export function preventDefaultPolyfill(element: Path){
     element.replaceWith(booleanLiteral(false));
 }
 
-export function inParenthesis(path: Path<Expression>): boolean {
-    const node = path.node as any;
-    return node.extra ? node.extra.parenthesized === true : false;
+export function inParenthesis(node: Expression): boolean {
+    const { extra } = node as any;
+    return extra ? extra.parenthesized === true : false;
 }
 
 type ParseError = <T extends BaseNode>(node: Path<T> | T, ...args: FlatValue[]) => Error;

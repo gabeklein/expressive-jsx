@@ -149,7 +149,7 @@ function CollateLayers(
         if(operator !== ">>")
             throw Error.UnrecognizedBinary(subject);
         else
-        if(inParenthesis(rightHand))
+        if(inParenthesis(rightHand.node))
             throw Error.NoParenChildren(rightHand);
 
         chain.unshift(rightHand);
@@ -261,7 +261,7 @@ function UnwrapExpression(
     target: ElementInline ): Path<Expression> {
 
     let current = expression;
-    while(!inParenthesis(current)) 
+    while(!inParenthesis(current.node)) 
         switch(current.type){
 
         case "TaggedTemplateExpression": {

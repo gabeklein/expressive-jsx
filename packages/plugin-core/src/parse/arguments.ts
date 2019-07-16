@@ -142,7 +142,7 @@ export const Arguments = new class DelegateTypes {
 
     NumericLiteral(number: Path<NumericLiteral>, sign = 1){
         const { extra: { rawValue, raw } } = number.node as any;
-        if(inParenthesis(number) || !/^0x/.test(raw)){
+        if(inParenthesis(number.node) || !/^0x/.test(raw)){
             if(raw.indexOf(".") > 0)
                 return sign == -1 ? "-" + raw : raw;
             return sign*rawValue;

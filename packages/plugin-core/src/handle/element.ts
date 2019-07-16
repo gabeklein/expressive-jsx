@@ -33,7 +33,7 @@ export class ElementInline extends AttributeBody {
     }
 
     ExpressionDefault(path: Path<Expression>){
-        if(inParenthesis(path))
+        if(inParenthesis(path.node))
             this.adopt(path)
         else
             AddElementsFromExpression(path, this);
