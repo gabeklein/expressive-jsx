@@ -1,6 +1,6 @@
 import { Program as BabelProgram } from '@babel/types';
 import { ComponentIf, ElementInline, ElementModifier, TraversableBody } from 'handle';
-import { ParseErrors, hash } from 'shared';
+import { ParseErrors, hash, Shared, BabelFile } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
 
 import * as builtIn from "./builtin"
@@ -14,8 +14,10 @@ const Error = ParseErrors({
 })
 
 export const Program = <Visitor<BabelProgram>>{
-    enter(path, state){
+    enter(path, state: any){
         const context = state.context = new StackFrame(state);
+
+        Shared.currentFile = state.file as BabelFile;
 
         for(const statement of path.get("body"))
             if(statement.isLabeledStatement()){

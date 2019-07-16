@@ -1,6 +1,10 @@
 import { NodePath as Path } from '@babel/traverse';
-import { booleanLiteral, Expression } from '@babel/types';
+import { BaseNode, booleanLiteral, Expression } from '@babel/types';
 import { BunchOf, FlatValue } from 'types';
+
+export interface BabelFile {
+    buildCodeFrameError<TError extends Error>(node: BaseNode, msg: string, Error?: new (msg: string) => TError): TError;
+}
 
 export interface SharedSingleton {
     stack: any
@@ -8,6 +12,7 @@ export interface SharedSingleton {
     state: {
         expressive_for_used?: true;
     }
+    currentFile: BabelFile
     styledApplicationComponentName?: string
 }
 
@@ -94,7 +99,7 @@ export function ParseErrors<O extends BunchOf<string>> (register: O) {
                         ? slice : args[slice as number - 1]
                 )
 
-            return path.buildCodeFrameError(quote)
+            return Shared.currentFile.buildCodeFrameError(path.node, quote);
         }
     }
 
