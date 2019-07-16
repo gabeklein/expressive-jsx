@@ -30,8 +30,8 @@ export function PropertyES(
     return objectProperty(key, value)
 }
 
-export const AttributeES = (src: ExplicitStyle | Prop) => 
-    PropertyES(src.name as string, expressionValue(src));
+export const AttributeES = (src: Prop | ExplicitStyle) => 
+    PropertyES(src.name as string, expressionValue(src) as Expression);
 
 export function expressionValue(item: Prop | ExplicitStyle){
     let { value } = item;

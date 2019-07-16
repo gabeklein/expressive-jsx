@@ -1,4 +1,3 @@
-import { NodePath } from '@babel/traverse';
 import {
     Expression,
     JSXAttribute,
@@ -15,8 +14,6 @@ import { ElementIterate } from 'handle/iterate';
 import { ElementSwitch } from 'handle/switch';
 import { ExternalsManager } from 'regenerate/scope';
 import { Module } from 'regenerate/module';
-
-export interface Path<T = any> extends NodePath<T> {}
 
 export type JSXContent = JSXElement | JSXFragment | JSXExpressionContainer | JSXText | JSXSpreadChild;
 export type Attributes = JSXAttribute | JSXSpreadAttribute;

@@ -1,4 +1,4 @@
-import { Scope } from '@babel/traverse';
+import { NodePath as Path, Scope } from '@babel/traverse';
 import {
     Expression,
     Identifier,
@@ -24,7 +24,8 @@ import {
     variableDeclarator,
 } from '@babel/types';
 import { callExpress } from 'internal';
-import { BunchOf, Path } from 'types';
+import { BunchOf } from 'types';
+
 
 type ImportSpecific = ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier;
 

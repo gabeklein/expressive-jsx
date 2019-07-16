@@ -15,6 +15,7 @@ import {
     objectProperty,
     PatternLike,
     returnStatement,
+    Statement,
     stringLiteral,
 } from '@babel/types';
 import { ComponentExpression, DoExpressive, ParseErrors } from '@expressive/babel-plugin-core';
@@ -54,7 +55,7 @@ export const DoExpression = <Visitor<DoExpressive>> {
 
         if(Do.exec && Do.statements.length){
             const replacement = [
-                ...Do.statements,
+                ...Do.statements as Statement[],
                 returnStatement(factoryExpression)
             ];
             if(path.parentPath.isReturnStatement())
@@ -88,12 +89,13 @@ function incorperateChildParameters(
     Do: ComponentExpression,
     Imports: ExternalsManager
 ){
-    const { exec: wrapperFunction } = Do;
+    const wrapperFunction = Do.exec;
     let assign: Identifier | ArrayPattern | ObjectPattern
     let init: Identifier | MemberExpression | undefined;
 
     if(wrapperFunction === undefined) return;
-    const params = wrapperFunction.get("params")
+    
+    const params = wrapperFunction.get("params") as any;
     if(params.length < 2) return; 
 
     const props = params[0];
