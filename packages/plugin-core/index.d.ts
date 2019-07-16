@@ -1,6 +1,6 @@
 /// <reference types="babel__traverse" />
 import { NodePath as Path, VisitNodeObject } from '@babel/traverse';
-import t, {
+import {
     ArrowFunctionExpression,
     AssignmentExpression,
     DoExpression,
@@ -11,6 +11,7 @@ import t, {
     Program,
     Statement,
     TemplateLiteral,
+    BaseNode,
 } from '@babel/types';
 
 interface BunchOf<T> {
@@ -216,7 +217,7 @@ declare const _default: (options: any) => {
 };
 
 type Visitor<T, S extends StackFrame = StackFrame> = VisitNodeObject<BabelState<S>, T>
-type ParseError = (path: Path, ...args: (string | number)[]) => Error;
+type ParseError = <T extends BaseNode>(node: Path<T> | T, ...args: FlatValue[]) => Error;
 type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | undefined;
 type FlatValue = string | number | boolean | null;
 type InnerContent = ElementInline | ComponentIf | ComponentFor | Path<Expression> | Expression;

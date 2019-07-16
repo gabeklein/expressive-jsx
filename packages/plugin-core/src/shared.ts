@@ -77,8 +77,9 @@ export function inParenthesis(path: Path<Expression>): boolean {
     return node.extra ? node.extra.parenthesized === true : false;
 }
 
+type ParseError = <T extends BaseNode>(node: Path<T> | T, ...args: FlatValue[]) => Error;
+
 export function ParseErrors<O extends BunchOf<string>> (register: O) {
-    type ParseError = (path: Path, ...args: FlatValue[]) => Error;
 
     const Errors = {} as BunchOf<ParseError>
 
@@ -93,7 +94,10 @@ export function ParseErrors<O extends BunchOf<string>> (register: O) {
                 message.push(segment);
         }
 
-        Errors[error] = (path: Path, ...args: FlatValue[]) => {
+        Errors[error] = <T extends BaseNode>(node: Path<T> | T, ...args: FlatValue[]) => {
+            if("node" in node)
+                node = node.node;
+
             let quote = "";
             for(const slice of message)
                 quote += (
@@ -101,7 +105,7 @@ export function ParseErrors<O extends BunchOf<string>> (register: O) {
                         ? slice : args[slice as number - 1]
                 )
 
-            return Shared.currentFile.buildCodeFrameError(path.node, quote);
+            return Shared.currentFile.buildCodeFrameError(node, quote);
         }
     }
 
