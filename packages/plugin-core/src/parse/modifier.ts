@@ -99,7 +99,7 @@ export class ModifyDelegate {
         if(isArray(input))
             this.arguments = input;
         else {
-            this.arguments = Arguments.Parse(input);
+            this.arguments = Arguments.Parse(input.node);
             this.body = input;
         }
 
