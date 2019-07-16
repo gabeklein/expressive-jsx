@@ -7,6 +7,8 @@ import { Arguments } from 'parse';
 
 type ModTuple = [string, ModifyAction, any[] | ModiferBody ];
 
+const { isArray } = Array;
+
 export function ApplyModifier(
     initial: string,
     recipient: Modifier | ElementInline, 
@@ -72,7 +74,7 @@ export function ApplyModifier(
     for(const name in totalOutput.style){
         let item = totalOutput.style[name];
 
-        if(Array.isArray(item)){
+        if(isArray(item)){
             const [ callee, ...args ] = item;
             item = `${callee}(${args.join(" ")})`
         }
@@ -94,7 +96,7 @@ export class ModifyDelegate {
         transform: ModifyAction = PropertyModifierDefault,
         input: any[] | ModiferBody){
 
-        if(Array.isArray(input))
+        if(isArray(input))
             this.arguments = input;
         else {
             this.arguments = Arguments.Parse(input);

@@ -2,6 +2,16 @@ import { NodePath as Path } from '@babel/traverse';
 import { BaseNode, booleanLiteral, Expression } from '@babel/types';
 import { BunchOf, FlatValue } from 'types';
 
+const { isArray } = Array;
+
+interface Options {
+    compact_vars?: true;
+    env: "native" | "web";
+    output: "js" | "jsx";
+    styleMode: "compile";
+    formatStyles: any;
+}
+
 export interface BabelFile {
     buildCodeFrameError<TError extends Error>(node: BaseNode, msg: string, Error?: new (msg: string) => TError): TError;
 }
@@ -14,14 +24,6 @@ export interface SharedSingleton {
     }
     currentFile: BabelFile
     styledApplicationComponentName?: string
-}
-
-interface Options {
-    compact_vars?: true;
-    env: "native" | "web";
-    output: "js" | "jsx";
-    styleMode: "compile";
-    formatStyles: any;
 }
 
 export const Shared = {} as SharedSingleton;
@@ -60,7 +62,7 @@ export function hash(data: string, length: number = 3){
 
 export function toArray<T> (value: T | T[]): T[] {
     return value !== undefined
-        ? Array.isArray(value) 
+        ? isArray(value) 
             ? value 
             : [value] 
         : [];

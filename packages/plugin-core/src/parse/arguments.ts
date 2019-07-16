@@ -20,6 +20,8 @@ import {
 import { inParenthesis, Opts, ParseErrors } from 'shared';
 import { BunchOf, CallAbstraction , IfAbstraction } from 'types'
 
+const { isArray } = Array;
+
 const Error = ParseErrors({
     StatementAsArgument: "Cannot parse statement as a modifier argument!",
     UnaryUseless: "Unary operator here doesn't do anything",
@@ -217,7 +219,7 @@ export const Arguments = new class DelegateTypes {
         if(alt)
             throw Error.ElseNotSupported(test);
 
-        if(Array.isArray(body))
+        if(isArray(body))
             throw "?"
 
         if(body.isBlockStatement()
