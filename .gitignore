@@ -9,3 +9,4 @@ tests/output/
 package-lock.json
 yarn.lock
 **/.reference
+tests/.env

@@ -6,9 +6,10 @@ const prettier = require("gulp-prettier");
 const printError = require("./error")
 const babelrc = require("./babel.config")
 
-const {
-  INPUT = "input/",
-  OUT = "output/"
+let {
+  TEST_INPUT,
+  TEST_OUTPUT,
+  TEST_DEFAULT
 } = process.env;
 
 const statementLineSpacing = () =>
@@ -17,8 +18,14 @@ const statementLineSpacing = () =>
 const jsxReturnSpacing = () =>
     replace(/^(.+?[^{])\n(\s+return (?=\(|<))/gm, "$1\n\n$2")
 
-const inDir = INPUT.replace(/\/$/, "").concat("/*.js");
-const outDir = OUT.replace(/\/$/, "");
+if(TEST_DEFAULT || !TEST_INPUT)
+  TEST_INPUT = "input/"
+
+if(TEST_DEFAULT || !TEST_OUTPUT)
+  TEST_OUTPUT = "output/"
+
+const inDir = TEST_INPUT.replace(/\/$/, "").concat("/*.js");
+const outDir = TEST_OUTPUT.replace(/\/$/, "");
 
 const prettyConfig = { 
   singleQuote: false, 
