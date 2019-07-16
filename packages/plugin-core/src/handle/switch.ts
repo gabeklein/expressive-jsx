@@ -8,6 +8,8 @@ import {
     LabeledStatement,
     ReturnStatement,
     Statement,
+    isUnaryExpression,
+    isIdentifier,
 } from '@babel/types';
 import { StackFrame } from 'parse';
 import { ParseErrors, hash } from 'shared';
@@ -216,7 +218,7 @@ export class ComponentConsequent extends ElementInline {
         const uid = hash(this.context.prefix)
 
         //TODO: Discover helpfulness of customized className.
-        let selector = specifyOption(this.test) || `opt${this.index}`;
+        let selector = specifyOption(this.test && this.test.node) || `opt${this.index}`;
         selector += `_${uid}`;
         const parent = context.currentElement!;
 
@@ -239,17 +241,17 @@ export class ComponentConsequent extends ElementInline {
     }
 }
 
-function specifyOption(test?: Path<Expression>){
+function specifyOption(test?: Expression){
     if(!test)
         return "else"
 
     let ref = "if_";
-    if(test.isUnaryExpression({ operator: "!" })){
-        test = test.get("argument");
+    if(isUnaryExpression(test, { operator: "!" })){
+        test = test.argument;
         ref = "not_"
     }
-    if(test.isIdentifier()){
-        const { name } = test.node;
+    if(isIdentifier(test)){
+        const { name } = test;
         return ref + name;
     }
 }
