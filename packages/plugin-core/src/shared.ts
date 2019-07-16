@@ -94,7 +94,7 @@ export function ParseErrors<O extends BunchOf<string>> (register: O) {
                 message.push(segment);
         }
 
-        Errors[error] = <T extends BaseNode>(node: Path<T> | T, ...args: FlatValue[]) => {
+        Errors[error] = (node, ...args) => {
             if("node" in node)
                 node = node.node;
 
