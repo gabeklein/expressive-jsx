@@ -92,16 +92,13 @@ export abstract class Attribute<T extends Expression = Expression> {
     overriden?: boolean;
     invariant?: boolean;
     value: FlatValue | T | undefined
-    path?: Path<T>
 
     constructor(
         name: string | false,
-        value: FlatValue | T | undefined, 
-        path?: Path<T>){
+        value: FlatValue | T){
 
         if(name) this.name = name;
         if(value !== undefined) this.value = value;
-        if(path) this.path = path;
 
         if(value === null || typeof value !== "object")
             this.invariant = true

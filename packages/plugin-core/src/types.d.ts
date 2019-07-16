@@ -17,9 +17,9 @@ export type Visitor<T, S extends StackFrame = StackFrame> = VisitNodeObject<Babe
 
 export type FlatValue = string | number | boolean | null;
 
-export type SequenceItem = Attribute | InnerContent | Path<Statement>;
+export type SequenceItem = Attribute | InnerContent | Statement;
 
-export type InnerContent = Path<Expression> | Expression | ElementInline | ComponentIf | ComponentFor;
+export type InnerContent = Expression | ElementInline | ComponentIf | ComponentFor;
 
 export type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | void;
 

@@ -1,4 +1,3 @@
-import { NodePath as Path } from '@babel/traverse';
 import { Expression, isExpression, Statement } from '@babel/types';
 import { Attribute, ComponentFor, ComponentIf, ElementInline, ExplicitStyle, Prop } from 'handle';
 import { SequenceItem } from 'types';
@@ -8,8 +7,8 @@ export abstract class ElementConstruct
 
     abstract source: From;
 
-    abstract Statement<T extends Statement = never>(item: Path<T> | T): void;
-    abstract Content<T extends Expression = never>(item: Path<T> | T): void;
+    abstract Statement(item: Statement): void;
+    abstract Content(item: Expression): void;
     abstract Child(item: ElementInline): void
     abstract Props(prop: Prop): void;
     abstract Style(style: ExplicitStyle): void;
@@ -58,12 +57,10 @@ export abstract class ElementConstruct
             }
 
             else {
-                const node = "node" in item ? item.node : item;
-
-                if(isExpression(node))
-                    this.Content(item as Path<Expression>);
+                if(isExpression(item))
+                    this.Content(item);
                 else
-                    this.Statement(item as Path<Statement>)
+                    this.Statement(item)
             }
         }
 

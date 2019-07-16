@@ -1,6 +1,21 @@
 import { NodePath as Path } from '@babel/traverse';
-import { AssignmentExpression, Expression, For, IfStatement, TemplateLiteral, UnaryExpression, Statement, VariableDeclaration, DebuggerStatement, FunctionDeclaration, expressionStatement, UpdateExpression, BlockStatement, doExpression, blockStatement } from '@babel/types';
-import { AddElementsFromExpression, StackFrame, ApplyNameImplications } from 'parse';
+import {
+    AssignmentExpression,
+    BlockStatement,
+    blockStatement,
+    DebuggerStatement,
+    doExpression,
+    Expression,
+    expressionStatement,
+    For,
+    FunctionDeclaration,
+    IfStatement,
+    Statement,
+    UnaryExpression,
+    UpdateExpression,
+    VariableDeclaration,
+} from '@babel/types';
+import { AddElementsFromExpression, ApplyNameImplications, StackFrame } from 'parse';
 import { inParenthesis, ParseErrors } from 'shared';
 import { BunchOf, DoExpressive, InnerContent } from 'types';
 
@@ -19,7 +34,6 @@ export class ElementInline extends AttributeBody {
     
     doBlock?: DoExpressive
     primaryName?: string;
-    multilineContent?: Path<TemplateLiteral>;
     children = [] as InnerContent[];
     explicitTagName?: string;
     modifiers = [] as Modifier[];
@@ -34,7 +48,7 @@ export class ElementInline extends AttributeBody {
 
     ExpressionDefault(path: Path<Expression>){
         if(inParenthesis(path.node))
-            this.adopt(path)
+            this.adopt(path.node)
         else
             AddElementsFromExpression(path, this);
     }
@@ -149,7 +163,7 @@ export class ElementInline extends AttributeBody {
         let { name } = left.node;
 
         this.insert(
-            new Prop(name, undefined, path.get("right")));
+            new Prop(name, path.get("right").node));
     }
 }
 

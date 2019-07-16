@@ -34,11 +34,10 @@ export class ComponentExpression extends ComponentContainer {
     }
 
     add(item: SequenceItem){
-        if(this.forwardTo){
+        if(this.forwardTo)
             this.forwardTo.add(item)
-            return 
-        }
-        super.add(item)
+        else
+            super.add(item)
     }
 
     adopt(child: InnerContent){
