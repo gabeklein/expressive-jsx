@@ -1,3 +1,4 @@
+import { NodePath as Path } from '@babel/traverse';
 import {
     callExpression,
     Expression,
@@ -21,7 +22,7 @@ import {
     SequenceItem,
 } from '@expressive/babel-plugin-core';
 import { AttributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue } from 'internal';
-import { ContentLike, Path, PropData, StackFrame } from 'types';
+import { ContentLike, PropData, StackFrame } from 'types';
 
 export class ElementReact<T extends ElementInline = ElementInline>
     extends ElementConstruct<T>{
