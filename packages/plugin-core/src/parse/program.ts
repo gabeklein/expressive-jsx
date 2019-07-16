@@ -1,6 +1,6 @@
 import { Program as BabelProgram } from '@babel/types';
 import { ComponentIf, ElementInline, ElementModifier, TraversableBody } from 'handle';
-import { ParseErrors, simpleHash } from 'shared';
+import { ParseErrors, hash } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
 
 import * as builtIn from "./builtin"
@@ -60,7 +60,7 @@ export class StackFrame {
         const included = assign({}, ...external);
 
         this.stateSingleton = state;
-        this.prefix = simpleHash(state.filename);
+        this.prefix = hash(state.filename);
         this.options = {};
     
         for(const imports of [ builtIn, included ]){

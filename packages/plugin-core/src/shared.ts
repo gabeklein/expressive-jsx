@@ -32,14 +32,25 @@ export const Opts: Options = {
     formatStyles: ""
 }
 
-export function simpleHash(data: string, length: number = 3){
-    var hash = 0;
+const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+export function hash(data: string, length: number = 3){
+    let hash = 0;
+    let result = '';
+    let mod: number;
     for (var i = 0; i < data.length; i++) {
         var char = data.charCodeAt(i);
         hash = ((hash<<5)-hash)+char;
         hash = hash & hash;
     }
-    return Math.abs(hash).toString(36).substring(0, length);
+    hash = Math.abs(hash)
+    do {
+        mod = hash % 62;
+        result = ALPHA[mod] + result;
+        hash = Math.floor(hash / 62);
+    } while(hash > 0);
+
+    return result.slice(0, length);
 }
 
 export function toArray<T> (value: T | T[]): T[] {

@@ -1,7 +1,7 @@
 import { NodePath as Path } from '@babel/traverse';
 import { Expression, LabeledStatement } from '@babel/types';
 import { ApplyModifier } from 'parse';
-import { ParseErrors, simpleHash } from 'shared';
+import { ParseErrors, hash } from 'shared';
 import { BunchOf, FlatValue } from 'types';
 
 import { ElementModifier, Modifier, TraversableBody } from './';
@@ -26,7 +26,8 @@ export abstract class AttributeBody extends TraversableBody {
 
         if(name){
             const existing = accumulator[name];
-            if(existing) existing.overriden = true;
+            if(existing) 
+                existing.overriden = true;
             accumulator[name] = item;
         }
 
@@ -34,8 +35,8 @@ export abstract class AttributeBody extends TraversableBody {
     }
 
     get uid(){
-        const hash = simpleHash(this.context.prefix);
-        return this.uid = this.name + "-" + hash;
+        return this.uid = 
+            this.name + "_" + hash(this.context.prefix);
     }
 
     set uid(uid: string){
