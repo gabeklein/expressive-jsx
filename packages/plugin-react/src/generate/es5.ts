@@ -59,16 +59,19 @@ export class GenerateES extends GenerateReact {
         children = [] as ContentLike[],
         key?: Expression | false
     ){
+        const properties = [] as ObjectProperty[];
+        if(key)
+            properties.push(
+                objectProperty(
+                    identifier("key"), key
+                )
+            )
+
         return (
             callExpression(
                 this.Create, [
                 this.Fragment,
-                objectExpression([
-                    objectProperty(
-                        identifier("key"),
-                        key ? key : identifier("undefined")
-                    )
-                ]),
+                objectExpression(properties),
                 ...this.recombineChildren(children)
             ]) 
         )

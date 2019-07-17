@@ -1,20 +1,25 @@
 import { NodePath as Path } from '@babel/traverse';
 import {
-    ArrayExpression,
-    AssignmentExpression,
-    CallExpression,
+    BinaryExpression,
     Expression,
     FunctionExpression,
-    Identifier,
-    MemberExpression,
-    ObjectExpression,
+    isBinaryExpression,
+    isExpression,
+    isIdentifier,
+    isLogicalExpression,
+    isObjectMethod,
+    isObjectProperty,
+    isSequenceExpression,
+    isSpreadElement,
+    isStringLiteral,
+    isTemplateLiteral,
+    isUnaryExpression,
+    LogicalExpression,
     SpreadElement,
     stringLiteral,
-    TaggedTemplateExpression,
-    UnaryExpression,
 } from '@babel/types';
 import { ElementInline, ElementModifier, ExplicitStyle, Prop } from 'handle';
-import { inParenthesis, Opts, ParseErrors, preventDefaultPolyfill, Shared } from 'shared';
+import { inParenthesis, Opts, ParseErrors, Shared } from 'shared';
 import { DoExpressive } from 'types';
 
 type ListElement = Expression | SpreadElement;
@@ -43,13 +48,13 @@ const Error = ParseErrors({
 })
 
 export function AddElementsFromExpression(
-    subject: Path<Expression>, 
+    subject: Expression, 
     current: ElementInline ){
 
-    var baseAttributes = [] as Path<Expression>[];
+    var baseAttributes = [] as Expression[];
 
-    if(subject.isSequenceExpression()){
-        const exps = subject.get('expressions');
+    if(isSequenceExpression(subject)){
+        const exps = subject.expressions;
         [subject, ...baseAttributes] = exps;
     }
 
@@ -60,31 +65,42 @@ export function AddElementsFromExpression(
     Handler(subject, current, baseAttributes);
 }
 
-function IsJustAValue(subject: Path<Expression>){
+function IsJustAValue(subject: Expression){
+    let leftOf: BinaryExpression | LogicalExpression | undefined;
     let target = subject;
-    while(target.isBinaryExpression() || 
-          target.isLogicalExpression())
-        target = target.get("left");
+    while(isBinaryExpression(target) || 
+          isLogicalExpression(target)){
+            leftOf = target;
+            target = target.left;
+          }
 
-    if(target.isUnaryExpression({operator: "void"})){
-        target.replaceWith(target.get("argument"))
+    if(isUnaryExpression(target, {operator: "void"})){
+        if(leftOf)
+            leftOf.left = target.argument;
+        else {
+            Object.assign(target, target.argument);
+            delete target.prefix;
+            delete target.argument;
+            delete target.operator;
+        }
         return true
     }
 
-    if(target.isStringLiteral())
+    if(isStringLiteral(target))
         return true
 
     return false;
 }
 
 function ApplyPassthru(
-    subject: Path<Expression>,
+    subject: Expression,
     parent: ElementInline,
-    baseAttributes: Path<Expression>[]
+    baseAttributes: Expression[]
 ){
-    const identifierName = subject.isIdentifier() && subject.node.name;
+    const identifierName = isIdentifier(subject) && subject.name;
 
     if(baseAttributes.length == 0
+    && identifierName
     && !parent.context.elementMod("$" + identifierName)){
         parent.adopt(subject);
         return
@@ -98,7 +114,7 @@ function ApplyPassthru(
         parent.context
     )
     ApplyNameImplications(
-        subject.type == "StringLiteral" ? "string" : "void",
+        isStringLiteral(subject) ? "string" : "void",
         container
     );
     if(identifierName){
@@ -117,27 +133,27 @@ function ApplyPassthru(
 }
 
 function CollateLayers(
-    subject: Path<Expression>,
+    subject: Expression,
     parent: ElementInline,
-    baseAttributes: Path<Expression>[],
+    baseAttributes: Expression[],
     inSequence?: true
 ){
-    const chain = [] as Path<Expression>[];
+    const chain = [] as Expression[];
     let restAreChildren: true | undefined;
-    let nestedExpression: Path<Expression> | undefined;
+    let nestedExpression: Expression | undefined;
     let leftMost: ElementInline | undefined;
 
-    if(subject.isBinaryExpression({operator: ">"})){
-        const item = Object.create(subject.get("right"));
-        item.type = "ExpressionLiteral";
-        nestedExpression = item;
-        subject = subject.get("left");
+    if(isBinaryExpression(subject, {operator: ">"})){
+        const { left, right } = subject;
+        (<any>right).doNotTransform = true;
+        nestedExpression = right;
+        subject = left;
     }
 
-    while(subject.isBinaryExpression()){
-        const { operator } = subject.node;
-        const rightHand = subject.get("right");
-        const leftHand = subject.get("left");
+    while(isBinaryExpression(subject)){
+        const { operator } = subject;
+        const rightHand = subject.right;
+        const leftHand = subject.left;
 
         if(operator == ">>>"){
             if(inSequence)
@@ -149,7 +165,7 @@ function CollateLayers(
         if(operator !== ">>")
             throw Error.UnrecognizedBinary(subject);
         else
-        if(inParenthesis(rightHand.node))
+        if(inParenthesis(rightHand))
             throw Error.NoParenChildren(rightHand);
 
         chain.unshift(rightHand);
@@ -220,54 +236,51 @@ export function ApplyNameImplications(
 }
 
 function ParseIdentity(
-    tag: Path<Expression>,
+    tag: Expression,
     target: ElementInline ){
 
     let prefix: string | undefined;
     
-    if(tag.isBinaryExpression({operator: "-"})){
-        const left = tag.get("left") as Path<Expression>;
+    if(isBinaryExpression(tag, {operator: "-"})){
+        const left = tag.left;
 
-        if(left.isIdentifier())
-            prefix = left.node.name;
+        if(isIdentifier(left))
+            prefix = left.name;
         else
             throw Error.BadPrefix(left);
-        tag = tag.get("right") as any;
+        tag = tag.right as any;
     }
 
-    if(tag.isUnaryExpression({operator: "!"})){
+    if(isUnaryExpression(tag, {operator: "!"})){
         prefix = "html"
-        tag = tag.get("argument");
+        tag = tag.argument;
     }
 
-    tag = UnwrapExpression(tag, target);
+    tag = unwrapExpression(tag, target);
 
-    if(tag.isIdentifier())
-        ApplyNameImplications(tag.node.name, target, true, prefix)
+    if(isIdentifier(tag))
+        ApplyNameImplications(tag.name, target, true, prefix)
 
-    else if(tag.isStringLiteral() || tag.isTemplateLiteral()){
+    else if(isStringLiteral(tag) || isTemplateLiteral(tag)){
         ApplyNameImplications("string", target);
         ApplyNameImplications(Opts.env == "native" ? Shared.stack.helpers.Text : "span", target, true)
 
         target.add(tag)
-        preventDefaultPolyfill(tag);
+        // preventDefaultPolyfill(tag);
     }
 
     else throw Error.BadExpression(tag);
 }
 
-function UnwrapExpression(
-    expression: Path<Expression>,
-    target: ElementInline ): Path<Expression> {
+function unwrapExpression(
+    expression: Expression,
+    target: ElementInline ): Expression {
 
-    let current = expression;
-    while(!inParenthesis(current.node)) 
-        switch(current.type){
+    while(!inParenthesis(expression)) 
+        switch(expression.type){
 
         case "TaggedTemplateExpression": {
-            const exp = current as Path<TaggedTemplateExpression>;
-            const quasi = exp.get("quasi");
-            let content: Expression = quasi.node;
+            let content: Expression = expression.quasi;
 
             if(content.expressions.length === 0 &&
                containsLineBreak.test(content.quasis[0].value.cooked) === false){
@@ -277,79 +290,76 @@ function UnwrapExpression(
 
             target.add(content)
 
-            current = exp.get("tag");
-            preventDefaultPolyfill(exp);
+            expression = expression.tag;
+            // preventDefaultPolyfill(exp);
             break;
         }
 
         case "CallExpression": {
-            const exp = current as Path<CallExpression>;
-            const args = exp.get("arguments");
+            const exp = expression;
+            const args = exp.arguments;
             ParseProps( 
-                args as Path<ListElement>[],
+                args as ListElement[],
                 target
             );
-            current = exp.get("callee");
+            expression = exp.callee;
             break;
         }
 
         case "MemberExpression": {
-            const exp = current as Path<MemberExpression>;
-            const selector = exp.get("property") as Path;
-            if(exp.node.computed !== true && selector.isIdentifier())
-                ApplyNameImplications(selector.node.name, target);
+            const selector = expression.property as Path;
+            if(expression.computed !== true && isIdentifier(selector))
+                ApplyNameImplications(selector.name, target);
             else 
                 throw Error.SemicolonRequired(selector)
 
-            return exp.get("object");
+            return expression.object;
             break;
         }
 
         default: 
-            return current;
+            return expression;
     }
 
-    return current;
+    return expression;
 }
 
 function ParseProps(
-    props: Path<ListElement>[],
+    props: ListElement[],
     target: ElementInline ){
 
     if(!props) return;
-    for(let path of props){
+    for(let node of props){
 
-        if(IsJustAValue(path as Path<Expression>)){
-            target.add(path as Path<Expression>)
+        if((<any>node).doNotTransform 
+        || IsJustAValue(node as Expression)){
+            target.add(node as Expression)
             continue;
         }
 
-        switch(path.type){
+        switch(node.type){
             case "DoExpression":
-                (path.node as DoExpressive).meta = target;
-                target.doBlock = path.node as DoExpressive;
+                (<DoExpressive>node).meta = target;
+                target.doBlock = node as DoExpressive;
             break;
 
             case "TemplateLiteral":
-            case "ExpressionLiteral":
             case "ArrowFunctionExpression": 
-                target.add(path as Path<Expression>)
+                target.add(node)
             break;
 
             case "ArrayExpression": {
-                const array = path as Path<ArrayExpression>;
-
-                for(const item of array.get("elements"))
-                    if(item.isExpression())
+                for(const item of node.elements)
+                    if(isExpression(item))
                         target.add(item);
             }
             break;
 
             case "TaggedTemplateExpression": {
-                const {tag, quasi} = path.node as TaggedTemplateExpression;
+                const {tag, quasi} = node;
     
                 if(tag.type != "Identifier") 
-                    throw Error.PropNotIdentifier(path)
+                    throw Error.PropNotIdentifier(node)
     
                 target.add(
                     new Prop(
@@ -360,22 +370,20 @@ function ParseProps(
                     )
                 )
                 
-                preventDefaultPolyfill(path);
+                // preventDefaultPolyfill(node);
             } break;
 
             case "AssignmentExpression": {
-                const assign = path as Path<AssignmentExpression>;
-                const name = assign.get("left");
-                const value = assign.get("right");
+                const name = node.left;
+                const value = node.right;
 
-                if(!name.isIdentifier())
+                if(!isIdentifier(name))
                     throw Error.AssignOnlyIdent(name);
 
-                target.add(new Prop(name.node.name, value.node));
+                target.add(new Prop(name.name, value));
             } break;
 
             case "Identifier": {
-                const { node } = path as Path<Identifier>;
                 target.add(
                     new Prop(node.name, node)
                 );
@@ -383,39 +391,35 @@ function ParseProps(
 
             case "SpreadElement": 
                 target.add(
-                    new Prop(false, (<SpreadElement>path.node).argument)
+                    new Prop(false, node.argument)
                 );
             break;
 
             case "ObjectExpression": {
-                const properties = (path as Path<ObjectExpression>).get("properties");
-
-                for(const property of properties){
+                for(const property of node.properties){
                     let insert: Prop;
                     
-                    if(property.isObjectProperty()){
-                        const key = property.node.key;
-                        const value = property.get("value")
+                    if(isObjectProperty(property)){
+                        const { key, value } = property;
                         const name: string = key.value || key.name;
 
-                        if(!value.isExpression())
+                        if(!isExpression(value))
                             throw Error.BadObjectKeyValue(value, value.type);
 
-                        insert = new Prop(name, value.node)
+                        insert = new Prop(name, value)
                     }
                     
-                    else if(property.isSpreadElement()){
-                        insert = new Prop(false, property.node.argument);
-                        preventDefaultPolyfill(property);
+                    else if(isSpreadElement(property)){
+                        insert = new Prop(false, property.argument);
+                        // preventDefaultPolyfill(property);
                     } 
                     
-                    else if(property.isObjectMethod()){
-                        const node = property.node;
+                    else if(isObjectMethod(property)){
                         const func = Object.assign(
                             { id: null, type: "FunctionExpression" }, 
-                            node as any
+                            property as any
                         );
-                        insert = new Prop(node.key, func as FunctionExpression)
+                        insert = new Prop(property.key, func as FunctionExpression)
                     }
 
                     target.add(insert!)
@@ -423,34 +427,34 @@ function ParseProps(
             } break;
 
             case "UnaryExpression": {
-                const unary = path as Path<UnaryExpression>;
-                const value = path.get("argument") as Path<Expression>;
-                switch(unary.node.operator){
+                const value = node.argument
+                switch(node.operator){
                     case "+": 
-                        if(value.isIdentifier())
+                        if(isIdentifier(value))
                             target.add(
-                                new Prop(value.node.name, value.node)
+                                new Prop(value.name, value)
                             );
                         else 
-                            throw Error.BadShorthandProp(unary);
+                            throw Error.BadShorthandProp(node);
                     break;
 
                     case "-":
                         target.add(
-                            new Prop("className", value.node)
+                            new Prop("className", value)
                         );
                     break;
 
                     case "~": 
                         target.add(
-                            new ExplicitStyle(false, value.node)
+                            new ExplicitStyle(false, value)
                         );
                     break
                 }
             } break;
 
-            default: 
-                throw Error.PropUnknown(path, path.type);
+            default: {
+                throw Error.PropUnknown(node, node.type);
+            }
         }
     }
 }

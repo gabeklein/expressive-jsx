@@ -50,7 +50,7 @@ export class ElementInline extends AttributeBody {
         if(inParenthesis(path.node))
             this.adopt(path.node)
         else
-            AddElementsFromExpression(path, this);
+            AddElementsFromExpression(path.node, this);
     }
 
     ElementModifier(mod: ElementModifier){
