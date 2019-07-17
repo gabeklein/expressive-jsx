@@ -2,6 +2,7 @@ const gulp = require("gulp");
 const babel = require("gulp-babel");
 const replace = require('gulp-replace');
 const prettier = require("gulp-prettier");
+const prettyjson = require("prettyjson")
 
 const printError = require("./error")
 const babelrc = require("./babel.config")
@@ -42,7 +43,10 @@ gulp.task('xjs', (done) => {
   gulp.src([inDir])
       .pipe(babel({ babelrc: false, ...babelrc }))
       .on('error', function(e){
-        printError(e);
+        // printError(e);
+        console.error(
+          prettyjson.render(e).replace(/\n/g, "\n  ")
+        )
         console.log("\n\Watch task has crashed, restart session to resume.")
       })
       .pipe(prettier(prettyConfig))
