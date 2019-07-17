@@ -170,8 +170,8 @@ interface ModifyDelegate {
 declare abstract class ElementConstruct
     <From extends ElementInline = ElementInline> {
     abstract source: From;
-    abstract Statement<T extends Statement>(item: Path<T> | T): void;
-    abstract Content<T extends Expression = never>(item: Path<T> | T): void;
+    abstract Statement(item: Statement): void;
+    abstract Content(item: Expression): void;
     abstract Child(item: ElementInline): void
     abstract Props(prop: Prop): void;
     abstract Style(style: ExplicitStyle): void;

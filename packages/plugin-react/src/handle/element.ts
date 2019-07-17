@@ -1,4 +1,3 @@
-import { NodePath as Path } from '@babel/traverse';
 import {
     callExpression,
     Expression,
@@ -193,7 +192,6 @@ export class ElementReact<T extends ElementInline = ElementInline>
             this.style_static.push(item);
         else
             this.style.insert(item)
-        
     }
 
     Props(item: Prop){
@@ -229,10 +227,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
         this.adopt(new ElementReact(item));
     }
 
-    Content(item: Path<Expression> | Expression){
-        if("node" in item)
-            item = item.node;
-
+    Content(item: Expression){
         this.adopt(item);
     }
 
