@@ -1,4 +1,3 @@
-import { NodePath as Path } from '@babel/traverse';
 import { callExpression, identifier, Statement, stringLiteral } from '@babel/types';
 import { AttributeBody, ContingentModifier, ElementInline, ElementModifier, ExplicitStyle, Modifier } from 'handle';
 
@@ -6,6 +5,8 @@ import { BunchOf, ModifyAction, ModiferBody } from 'types';
 import { Arguments } from 'parse';
 
 type ModTuple = [string, ModifyAction, any[] | ModiferBody ];
+
+const { isArray } = Array;
 
 export function ApplyModifier(
     initial: string,
@@ -72,7 +73,7 @@ export function ApplyModifier(
     for(const name in totalOutput.style){
         let item = totalOutput.style[name];
 
-        if(Array.isArray(item)){
+        if(isArray(item)){
             const [ callee, ...args ] = item;
             item = `${callee}(${args.join(" ")})`
         }
@@ -94,7 +95,7 @@ export class ModifyDelegate {
         transform: ModifyAction = PropertyModifierDefault,
         input: any[] | ModiferBody){
 
-        if(Array.isArray(input))
+        if(isArray(input))
             this.arguments = input;
         else {
             this.arguments = Arguments.Parse(input);
@@ -120,7 +121,7 @@ export class ModifyDelegate {
     setContingent(
         contingent: string, 
         priority?: number, 
-        usingBody?: Path<Statement>){
+        usingBody?: Statement){
 
         const { target } = this;
         const mod = new ContingentModifier(
@@ -130,7 +131,7 @@ export class ModifyDelegate {
         )
         
         mod.priority = priority || this.priority;
-        mod.parse(usingBody || this.body!);
+        mod.parseNodes(usingBody || this.body!);
         if(target instanceof ElementInline)
             target.modifiers.push(mod);
         else

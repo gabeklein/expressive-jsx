@@ -32,7 +32,7 @@ export class ElementIterate
 
     constructor(source: ComponentFor){
         super(source);
-        this.type = source.path.type as any;
+        this.type = source.node.type as any;
     };
     
     toExpression(Generator: GenerateReact): CallExpression {

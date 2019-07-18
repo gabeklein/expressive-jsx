@@ -1,6 +1,6 @@
 /// <reference types="babel__traverse" />
-import { NodePath as Path, VisitNodeObject } from '@babel/traverse';
-import t, {
+import { Path as Path, VisitNodeObject } from '@babel/traverse';
+import {
     ArrowFunctionExpression,
     AssignmentExpression,
     DoExpression,
@@ -11,6 +11,7 @@ import t, {
     Program,
     Statement,
     TemplateLiteral,
+    BaseNode,
 } from '@babel/types';
 
 interface BunchOf<T> {
@@ -49,7 +50,6 @@ declare abstract class AttributeBody extends TraversableBody {
 declare class ElementInline extends AttributeBody {
     readonly primaryName?: string;
     readonly name?: string;
-    readonly multilineContent?: Path<TemplateLiteral>;
     readonly children: InnerContent[];
     readonly modifiers: ElementModifier[]
     readonly explicitTagName?: string;
@@ -67,7 +67,7 @@ declare class ComponentExpression extends ComponentContainer {
 declare class ComponentIf {
     private constructor();
     readonly forks: Array<ComponentConsequent | ComponentIf>;
-    readonly test?: Path<Expression>;
+    readonly test?: Expression;
     readonly context: StackFrame;
     readonly hasElementOutput?: boolean;
     readonly hasStyleOutput?: boolean;
@@ -79,7 +79,7 @@ declare class ComponentConsequent extends ElementInline {
     readonly parentElement: ElementInline;
     readonly parent: ComponentIf;
     readonly path: Path<Statement>;
-    readonly test?: Path<Expression>;
+    readonly test?: Expression;
 }
 declare class ComponentFor extends ComponentContainer {
     private constructor();
@@ -90,17 +90,17 @@ declare class ComponentFor extends ComponentContainer {
 declare abstract class Attribute<T extends Expression = Expression> {
     protected constructor();
     readonly name: string | false;
+    readonly node: T | undefined;
     readonly value: FlatValue | T | undefined;
-    readonly path?: Path<T> | undefined;
     readonly invariant: boolean | undefined;
     readonly overriden?: boolean;
 }
 declare class Prop extends Attribute {
-    constructor(name: string | false, node: FlatValue | Expression | undefined, path?: Path<Expression>);
+    constructor(name: string | false, node: FlatValue | Expression | undefined);
     readonly synthetic?: boolean;
 }
 declare class ExplicitStyle extends Attribute {
-    constructor(name: string | false, node: FlatValue | Expression | undefined, path?: Path<Expression>);
+    constructor(name: string | false, node: FlatValue | Expression | undefined);
     priority: number;
 }
 interface StackFrame {
@@ -139,7 +139,7 @@ declare class ElementModifier extends ModifierBase {
     constructor(
         context: StackFrame, 
         name?: string, 
-        body?: Path<Statement>
+        body?: Statement
     );
     readonly name: string;
     readonly next?: ElementModifier;
@@ -169,8 +169,8 @@ interface ModifyDelegate {
 declare abstract class ElementConstruct
     <From extends ElementInline = ElementInline> {
     abstract source: From;
-    abstract Statement<T extends Statement>(item: Path<T> | T): void;
-    abstract Content<T extends Expression = never>(item: Path<T> | T): void;
+    abstract Statement(item: Statement): void;
+    abstract Content(item: Expression): void;
     abstract Child(item: ElementInline): void
     abstract Props(prop: Prop): void;
     abstract Style(style: ExplicitStyle): void;
@@ -216,11 +216,11 @@ declare const _default: (options: any) => {
 };
 
 type Visitor<T, S extends StackFrame = StackFrame> = VisitNodeObject<BabelState<S>, T>
-type ParseError = (path: Path, ...args: (string | number)[]) => Error;
+type ParseError = <T extends BaseNode>(node: Path<T> | T, ...args: FlatValue[]) => Error;
 type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | undefined;
 type FlatValue = string | number | boolean | null;
-type InnerContent = ElementInline | ComponentIf | ComponentFor | Path<Expression> | Expression;
-type SequenceItem = Attribute | InnerContent | Path<Statement>;
+type InnerContent = ElementInline | ComponentIf | ComponentFor | Expression | Expression;
+type SequenceItem = Attribute | InnerContent | Statement;
 type Modifier = ElementModifier | ContingentModifier;
 
 declare function ParseErrors

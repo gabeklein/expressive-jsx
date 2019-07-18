@@ -1,15 +1,8 @@
 import { NodePath as Path } from '@babel/traverse';
-import { booleanLiteral, Expression } from '@babel/types';
+import { BaseNode, Expression } from '@babel/types';
 import { BunchOf, FlatValue } from 'types';
 
-export interface SharedSingleton {
-    stack: any
-    opts?: any
-    state: {
-        expressive_for_used?: true;
-    }
-    styledApplicationComponentName?: string
-}
+const { isArray } = Array;
 
 interface Options {
     compact_vars?: true;
@@ -17,6 +10,20 @@ interface Options {
     output: "js" | "jsx";
     styleMode: "compile";
     formatStyles: any;
+}
+
+export interface BabelFile {
+    buildCodeFrameError<TError extends Error>(node: BaseNode, msg: string, Error?: new (msg: string) => TError): TError;
+}
+
+export interface SharedSingleton {
+    stack: any
+    opts?: any
+    state: {
+        expressive_for_used?: true;
+    }
+    currentFile: BabelFile
+    styledApplicationComponentName?: string
 }
 
 export const Shared = {} as SharedSingleton;
@@ -55,23 +62,24 @@ export function hash(data: string, length: number = 3){
 
 export function toArray<T> (value: T | T[]): T[] {
     return value !== undefined
-        ? Array.isArray(value) 
+        ? isArray(value) 
             ? value 
             : [value] 
         : [];
 }
 
-export function preventDefaultPolyfill(element: Path){
-    element.replaceWith(booleanLiteral(false));
+// export function preventDefaultPolyfill(element: Path){
+//     element.replaceWith(booleanLiteral(false));
+// }
+
+export function inParenthesis(node: Expression): boolean {
+    const { extra } = node as any;
+    return extra ? extra.parenthesized === true : false;
 }
 
-export function inParenthesis(path: Path<Expression>): boolean {
-    const node = path.node as any;
-    return node.extra ? node.extra.parenthesized === true : false;
-}
+type ParseError = <T extends BaseNode>(node: Path<T> | T, ...args: FlatValue[]) => Error;
 
 export function ParseErrors<O extends BunchOf<string>> (register: O) {
-    type ParseError = (path: Path, ...args: FlatValue[]) => Error;
 
     const Errors = {} as BunchOf<ParseError>
 
@@ -86,7 +94,10 @@ export function ParseErrors<O extends BunchOf<string>> (register: O) {
                 message.push(segment);
         }
 
-        Errors[error] = (path: Path, ...args: FlatValue[]) => {
+        Errors[error] = (node, ...args) => {
+            if("node" in node)
+                node = node.node;
+
             let quote = "";
             for(const slice of message)
                 quote += (
@@ -94,7 +105,7 @@ export function ParseErrors<O extends BunchOf<string>> (register: O) {
                         ? slice : args[slice as number - 1]
                 )
 
-            return path.buildCodeFrameError(quote)
+            return Shared.currentFile.buildCodeFrameError(node, quote);
         }
     }
 

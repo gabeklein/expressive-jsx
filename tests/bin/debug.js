@@ -2,13 +2,15 @@ const gulp = require("gulp");
 const babel = require("gulp-babel");
 const replace = require('gulp-replace');
 const prettier = require("gulp-prettier");
+const prettyjson = require("prettyjson")
 
 const printError = require("./error")
 const babelrc = require("./babel.config")
 
-const {
-  INPUT = "input/",
-  OUT = "output/"
+let {
+  TEST_INPUT,
+  TEST_OUTPUT,
+  TEST_DEFAULT
 } = process.env;
 
 const statementLineSpacing = () =>
@@ -17,8 +19,14 @@ const statementLineSpacing = () =>
 const jsxReturnSpacing = () =>
     replace(/^(.+?[^{])\n(\s+return (?=\(|<))/gm, "$1\n\n$2")
 
-const inDir = INPUT.replace(/\/$/, "").concat("/*.js");
-const outDir = OUT.replace(/\/$/, "");
+if(TEST_DEFAULT || !TEST_INPUT)
+  TEST_INPUT = "input/"
+
+if(TEST_DEFAULT || !TEST_OUTPUT)
+  TEST_OUTPUT = "output/"
+
+const inDir = TEST_INPUT.replace(/\/$/, "").concat("/*.js");
+const outDir = TEST_OUTPUT.replace(/\/$/, "");
 
 const prettyConfig = { 
   singleQuote: false, 
@@ -35,7 +43,10 @@ gulp.task('xjs', (done) => {
   gulp.src([inDir])
       .pipe(babel({ babelrc: false, ...babelrc }))
       .on('error', function(e){
-        printError(e);
+        // printError(e);
+        console.error(
+          prettyjson.render(e).replace(/\n/g, "\n  ")
+        )
         console.log("\n\Watch task has crashed, restart session to resume.")
       })
       .pipe(prettier(prettyConfig))

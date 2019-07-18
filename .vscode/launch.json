@@ -15,9 +15,10 @@
       "env": {
         "TARGET": "jsx"
       },
+      "envFile": "${workspaceRoot}/tests/.env",
       "runtimeArgs": [
-          "-r",
-          "source-map-support/register"
+        "-r",
+        "source-map-support/register"
       ]
     },
     {
@@ -31,9 +32,10 @@
       "env": {
         "TARGET": "js"
       },
+      "envFile": "${workspaceRoot}/tests/.env",
       "runtimeArgs": [
-          "-r",
-          "source-map-support/register"
+        "-r",
+        "source-map-support/register"
       ]
     },
   ]

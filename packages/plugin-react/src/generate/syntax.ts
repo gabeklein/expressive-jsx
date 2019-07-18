@@ -43,8 +43,8 @@ export function expressionValue(item: Prop | ExplicitStyle){
             numericLiteral(value) :
         typeof value === "boolean" ?
             booleanLiteral(value) :
-        value === undefined && item.path ?
-            item.path.node :
+        value === undefined && item.node ?
+            item.node :
         typeof value === "object" ?
             value || nullLiteral() :
             identifier("undefined")

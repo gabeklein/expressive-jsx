@@ -21,7 +21,7 @@ import {
     SequenceItem,
 } from '@expressive/babel-plugin-core';
 import { AttributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue } from 'internal';
-import { ContentLike, Path, PropData, StackFrame } from 'types';
+import { ContentLike, PropData, StackFrame } from 'types';
 
 export class ElementReact<T extends ElementInline = ElementInline>
     extends ElementConstruct<T>{
@@ -192,7 +192,6 @@ export class ElementReact<T extends ElementInline = ElementInline>
             this.style_static.push(item);
         else
             this.style.insert(item)
-        
     }
 
     Props(item: Prop){
@@ -204,8 +203,8 @@ export class ElementReact<T extends ElementInline = ElementInline>
             case "className": {
                 let { value } = item;
 
-                if(!value && item.path)
-                    value = item.path.node;
+                if(!value && item.node)
+                    value = item.node;
 
                 if(value && typeof value == "object")
                     if(isStringLiteral(value))
@@ -228,10 +227,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
         this.adopt(new ElementReact(item));
     }
 
-    Content(item: Path<Expression> | Expression){
-        if("node" in item)
-            item = item.node;
-
+    Content(item: Expression){
         this.adopt(item);
     }
 

@@ -1,5 +1,5 @@
 import { NodePath as Path } from '@babel/traverse';
-import { doExpression, Expression, ExpressionStatement, Statement } from '@babel/types';
+import { doExpression, Expression, ExpressionStatement, Statement, isBlockStatement, blockStatement } from '@babel/types';
 import { StackFrame } from 'parse';
 import { ParseErrors } from 'shared';
 import { BunchOf, DoExpressive, SequenceItem } from 'types';
@@ -19,6 +19,8 @@ export abstract class TraversableBody {
     parent?: TraversableBody | ComponentIf;
     sequence = [] as SequenceItem[];
 
+    abstract ExpressionDefault(node: Expression): void;
+
     willEnter?(path?: Path): void;
     willExit?(path?: Path): void;
     wasAddedTo?<T extends TraversableBody>(element?: T): void;
@@ -30,25 +32,20 @@ export abstract class TraversableBody {
     }
 
     didEnterOwnScope(path: Path<DoExpressive>){
-        const body = path.get("body.body") as Path<Statement>[];
-        for(const item of body)
+        const traversable = path.get("body").get("body")
+        for(const item of traversable)
             this.parse(item);
     }
 
     didExitOwnScope?(path: Path<DoExpressive>): void;
 
-    handleContentBody(content: Path<Statement>){
-        if(content.isBlockStatement()){
-            const body = doExpression(content.node) as DoExpressive;
-            body.meta = this as any;
-            return body;
-        }
-        else {
-            this.parse(content);
-            const last = this.sequence[this.sequence.length - 1];
-            if(last instanceof TraversableBody)
-                last.parent = this;
-        }
+    handleContentBody(content: Statement){
+        if(!isBlockStatement(content))
+            content = blockStatement([content])
+
+        const body = doExpression(content) as DoExpressive;
+        body.meta = this as any;
+        return body;
     }
     
     add(item: SequenceItem){
@@ -59,28 +56,39 @@ export abstract class TraversableBody {
     }
 
     parse(item: Path<Statement>){
-        if(item.type in this) 
-            (this as any)[item.type](item);
-        else throw Error.NodeUnknown(item, item.type)
+        const content = item.isBlockStatement() ? item.get("body") : [item];
+        for(const item of content)
+            if(item.type in this) 
+                (this as any)[item.type](item.node, item);
+            else {
+                throw Error.NodeUnknown(item, item.type)
+            }
     }
 
-    abstract ExpressionDefault(path: Path<Expression>): void;
+    parseNodes(body: Statement){
+        const content = isBlockStatement(body) ? body.body : [body];
+        for(const item of content){
+            if(item.type in this) 
+                (this as any)[item.type](item);
+            else throw Error.NodeUnknown(item, item.type)
+        }
+    }
 
     ExpressionStatement(
-        path: Path<ExpressionStatement>){
+        node: ExpressionStatement){
 
-        return this.Expression(path.get("expression"))
+        return this.Expression(node.expression)
     }
 
     Expression(
-        path: Path<Expression>){
+        node: Expression){
         const self = this as unknown as BunchOf<Function>
 
-        if(path.type in this) 
-            self[path.type](path);
+        if(node.type in this) 
+            self[node.type](node);
         else if(this.ExpressionDefault) 
-            this.ExpressionDefault(path);
+            this.ExpressionDefault(node);
         else 
-            throw Error.ExpressionUnknown(path, path.type);
+            throw Error.ExpressionUnknown(node, node.type);
     }
 }

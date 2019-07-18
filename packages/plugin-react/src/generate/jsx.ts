@@ -117,16 +117,25 @@ export class GenerateJSX extends GenerateReact {
     
         while(true) {
             const value = quasis[i].value.cooked as string;
-            if(value)
+            if(value){
+                let text: JSXContent | undefined;
                 if(/\n/.test(value))
-                    if(acceptBr){
-                        const chunks = breakdown(node);
-                        return this.recombineMultilineJSX(chunks);
-                    }
-                    else {
-                        dedent(node);
-                        return [ jsxExpressionContainer(node) ]
-                    }
+                    if(acceptBr)
+                        return this.recombineMultilineJSX(node);
+                    else 
+                        return [ 
+                            jsxExpressionContainer(
+                                dedent(node)
+                            )
+                        ]
+                else if(/[{}]/.test(value))
+                    jsxExpressionContainer(
+                        stringLiteral(value))
+                else 
+                    text = jsxText(value);
+
+                acc.push(text!)
+            }
     
             if(i in expressions)
                 acc.push(
@@ -139,9 +148,9 @@ export class GenerateJSX extends GenerateReact {
     }
 
     private recombineMultilineJSX(
-        chunks: Array<string | Expression>
+        node: TemplateLiteral
     ): JSXContent[] {
-        return chunks.map(chunk => {
+        return breakdown(node).map(chunk => {
             if(chunk === "\n")
                 return jsxElement(
                     jsxOpeningElement(jsxIdentifier("br"), [], true),

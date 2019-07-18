@@ -1,9 +1,9 @@
 import { Program as BabelProgram } from '@babel/types';
 import { ComponentIf, ElementInline, ElementModifier, TraversableBody } from 'handle';
-import { ParseErrors, hash } from 'shared';
+import { BabelFile, hash, ParseErrors, Shared } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
 
-import * as builtIn from "./builtin"
+import * as builtIn from './builtin';
 
 const { getPrototypeOf, create, assign } = Object;
 
@@ -14,8 +14,10 @@ const Error = ParseErrors({
 })
 
 export const Program = <Visitor<BabelProgram>>{
-    enter(path, state){
+    enter(path, state: any){
         const context = state.context = new StackFrame(state);
+
+        Shared.currentFile = state.file as BabelFile;
 
         for(const statement of path.get("body"))
             if(statement.isLabeledStatement()){
@@ -31,7 +33,7 @@ export const Program = <Visitor<BabelProgram>>{
                 if(body.isExpressionStatement(body))
                     throw Error.IllegalAtTopLevel(statement)
 
-                const mod = new ElementModifier(context, name, body);
+                const mod = new ElementModifier(context, name, body.node);
                 context.elementMod(mod)
                 statement.remove();
             }

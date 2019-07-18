@@ -1,4 +1,3 @@
-import { NodePath as Path } from '@babel/traverse';
 import {
     ArrowFunctionExpression,
     BinaryExpression,
@@ -16,6 +15,13 @@ import {
     LabeledStatement,
     BlockStatement,
     IfStatement,
+    isNumericLiteral,
+    isExpression,
+    isSpreadElement,
+    isLabeledStatement,
+    isBlockStatement,
+    isExpressionStatement,
+    isIdentifier,
 } from '@babel/types';
 import { inParenthesis, Opts, ParseErrors } from 'shared';
 import { BunchOf, CallAbstraction , IfAbstraction } from 'types'
@@ -73,21 +79,21 @@ export const Arguments = new class DelegateTypes {
     [type: string]: (...args: any[]) => any;
 
     Parse(
-        element: Path<Expression> | Path<Statement>, 
+        element: Expression | Statement, 
         get?: string): any[] {
 
-        if(element.isExpressionStatement())
-            element = element.get("expression")
+        if(isExpressionStatement(element))
+            element = element.expression
 
         return [].concat(
-            element.isExpression()
+            isExpression(element)
                 ? this.Expression(element)
                 : this.Extract(element)
         )
     }
 
     Extract(
-        element: Path<Expression | Statement>
+        element: Expression | Statement
     ){
         if(element.type in this)
             return this[element.type](element);
@@ -95,51 +101,49 @@ export const Arguments = new class DelegateTypes {
             throw Error.UnknownArgument(element)
     }
 
-    Expression(
-        element: Path<Expression>, 
-        childKey?: string): any {
+    Expression<T extends Expression>(
+        element: T, 
+        childKey?: keyof T): any {
 
         if(childKey)
-            element = element.get(childKey) as typeof element;
-    
-        const { node } = element as any;
+            element = element[childKey] as unknown as T;
 
-        if(node.extra && node.extra.parenthesized)
-            return node;
+        if(inParenthesis(element))
+            return element;
 
         return this.Extract(element)
     }
     
-    Identifier(e: Path<Identifier>){
-        return e.node.name
+    Identifier(e: Identifier){
+        return e.name
     }
 
-    StringLiteral(e: Path<StringLiteral>){
-        return e.node.value
+    StringLiteral(e: StringLiteral){
+        return e.value
     }
 
-    TemplateLiteral(e: Path<TemplateLiteral>) {
-        const { quasis } = e.node;
+    TemplateLiteral(e: TemplateLiteral) {
+        const { quasis } = e;
         if(quasis.length > 1)
-            return e.node;
-        return e.node.quasis[0].value;
+            return e;
+        return e.quasis[0].value;
     }
 
-    UnaryExpression(e: Path<UnaryExpression>){
-        const arg = e.get("argument");
-        if(e.node.operator == "-" && arg.isNumericLiteral())
+    UnaryExpression(e: UnaryExpression){
+        const arg = e.argument;
+        if(e.operator == "-" && isNumericLiteral(arg))
             return this.NumericLiteral(arg, -1)
-        // else if(e.node.operator == "!")
+        // else if(e.operator == "!")
         //     return new DelegateExpression(arg, "verbatim");
         else throw Error.UnaryUseless(e) 
     }
 
-    BooleanLiteral(bool: Path<BooleanLiteral>){
-        return bool.node.value
+    BooleanLiteral(bool: BooleanLiteral){
+        return bool.value
     }
 
-    NumericLiteral(number: Path<NumericLiteral>, sign = 1){
-        const { extra: { rawValue, raw } } = number.node as any;
+    NumericLiteral(number: NumericLiteral, sign = 1){
+        const { extra: { rawValue, raw } } = number as any;
         if(inParenthesis(number) || !/^0x/.test(raw)){
             if(raw.indexOf(".") > 0)
                 return sign == -1 ? "-" + raw : raw;
@@ -152,12 +156,12 @@ export const Arguments = new class DelegateTypes {
         }
     }
 
-    NullLiteral(_e: Path<NullLiteral>){
+    NullLiteral(_e: NullLiteral){
         return null;
     }
 
-    BinaryExpression(binary: Path<BinaryExpression>){
-        const {left, right, operator} = binary.node;
+    BinaryExpression(binary: BinaryExpression){
+        const {left, right, operator} = binary;
         if(operator == "-" 
         && left.type == "Identifier"  
         && right.type == "Identifier" 
@@ -171,44 +175,43 @@ export const Arguments = new class DelegateTypes {
             ]
     }
     
-    SequenceExpression(sequence: Path<SequenceExpression>){
-        return sequence
-            .get("expressions")
+    SequenceExpression(sequence: SequenceExpression){
+        return sequence.expressions
             .map(x => this.Expression(x))
     }
 
-    CallExpression(e: Path<CallExpression>){
-        const callee = e.get("callee");
-        const args = [] as Path<Expression>[];
+    CallExpression(e: CallExpression){
+        const callee = e.callee;
+        const args = [] as Expression[];
         
-        for(const item of e.get("arguments")){
-            if(item.isExpression())
+        for(const item of e.arguments){
+            if(isExpression(item))
                 args.push(item);
-            else if(item.isSpreadElement())
+            else if(isSpreadElement(item))
                 throw Error.ArgumentSpread(item) 
             else 
                 throw Error.UnknownArgument(item) 
         }
 
-        if(!callee.isIdentifier())
+        if(!isIdentifier(callee))
             throw Error.MustBeIdentifier(callee)
 
         const call = args.map(x => this.Expression(x)) as CallAbstraction;
-        call.callee = callee.node.name;
+        call.callee = callee.name;
             
         return call;
     }
 
-    ArrowFunctionExpression(e: Path<ArrowFunctionExpression>): never {
+    ArrowFunctionExpression(e: ArrowFunctionExpression): never {
         throw Error.ArrowNotImplemented(e) 
     }
 
     IfStatement(
-        statement: Path<IfStatement>
+        statement: IfStatement
     ){
-        const alt = statement.get("alternate");
-        const test = statement.get("test");
-        const body = statement.get("body");
+        const alt = statement.alternate;
+        const test = statement.test;
+        const body = statement.consequent;
 
         const data = {
             test: this.Expression(test)
@@ -217,11 +220,9 @@ export const Arguments = new class DelegateTypes {
         if(alt)
             throw Error.ElseNotSupported(test);
 
-        if(Array.isArray(body))
-            throw "?"
-
-        if(body.isBlockStatement()
-        || body.isLabeledStatement()){
+        if(isBlockStatement(body)
+        || isLabeledStatement(body)
+        || isExpressionStatement(body)) {
             Object.assign(data, this.Extract(body))
         }
 
@@ -229,23 +230,23 @@ export const Arguments = new class DelegateTypes {
     }
 
     LabeledStatement(
-        statement: Path<LabeledStatement>
+        statement: LabeledStatement
     ){
         return {
-            [statement.node.label.name]: this.Parse(statement.get("body"))
+            [statement.label.name]: this.Parse(statement.body)
         }
     }
 
     BlockStatement(
-        statement: Path<BlockStatement>
+        statement: BlockStatement
     ){
         const map = {} as BunchOf<any>
 
-        for(const item of statement.get("body")){
-            if(!item.isLabeledStatement())
+        for(const item of statement.body){
+            if(!isLabeledStatement(item))
                 throw Error.ModiferCantParse(statement);
             
-            map[item.node.label.name] = this.Parse(item.get("body"))
+            map[item.label.name] = this.Parse(item.body)
         }
 
         return map;
