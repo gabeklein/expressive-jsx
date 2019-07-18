@@ -1,4 +1,4 @@
-import { NodePath as Path, Scope } from '@babel/traverse';
+import { Path as Path, Scope } from '@babel/traverse';
 import {
     Expression,
     Identifier,

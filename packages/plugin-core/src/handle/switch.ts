@@ -1,18 +1,19 @@
 import { NodePath as Path } from '@babel/traverse';
 import {
-    blockStatement,
     Expression,
-    ExpressionStatement,
     expressionStatement,
+    ExpressionStatement,
     IfStatement,
+    isDoExpression,
+    isExpression,
+    isIdentifier,
+    isUnaryExpression,
     LabeledStatement,
     ReturnStatement,
     Statement,
-    isUnaryExpression,
-    isIdentifier,
 } from '@babel/types';
 import { StackFrame } from 'parse';
-import { ParseErrors, hash } from 'shared';
+import { hash, ParseErrors } from 'shared';
 import { DoExpressive, InnerContent } from 'types';
 
 import { ComponentExpression, ContingentModifier, ElementInline, TraversableBody } from './';
@@ -33,11 +34,12 @@ export class ComponentIf {
     context: StackFrame;
     hasElementOutput?: true;
     hasStyleOutput?: true;  
+    doBlocks = [] as ExpressionStatement[];
 
     constructor(
         protected path: Path<IfStatement>, 
         context: StackFrame, 
-        public test?: Path<Expression>){
+        public test?: Expression){
 
         context = this.context = context.create(this);
         context.currentIf = this;
@@ -60,12 +62,16 @@ export class ComponentIf {
             }
 
             const fork = consequent.isIfStatement()
-                ? new ComponentIf(consequent, context, test)
+                ? new ComponentIf(
+                    consequent, 
+                    context, 
+                    test.node
+                )
                 : new ComponentConsequent(
                     consequent, 
                     context, 
                     this.forks.length + 1,
-                    test
+                    test.node
                 )
 
             const index = this.forks.push(fork);
@@ -85,7 +91,7 @@ export class ComponentIf {
                 continue
 
             const final = new ComponentConsequent(
-                layer.node && layer, 
+                layer, 
                 this.context, 
                 this.forks.length + 1
             );
@@ -101,7 +107,7 @@ export class ComponentIf {
             }
             break;
         };
-            
+        
         const doInsert = [] as ExpressionStatement[]; 
         
         for(const fork of this.forks)
@@ -110,11 +116,12 @@ export class ComponentIf {
                 doInsert.push(
                     expressionStatement(fork.doBlock)
                 )
-
-        if(doInsert.length)
-            this.path.replaceWith(
-                blockStatement(doInsert)
-            );
+                
+        this.doBlocks = doInsert;
+        // if(doInsert.length)
+        //     this.path.replaceWith(
+        //         blockStatement()
+        //     );
     }
 }
 
@@ -128,14 +135,14 @@ export class ComponentConsequent extends ElementInline {
         public path: Path<Statement> | undefined, 
         public context: StackFrame, 
         public index: number,
-        public test?: Path<Expression>){
+        public test?: Expression){
 
         super(context);
 
-        if(!path)
+        if(!path || !path.node)
             return;
 
-        this.doBlock = this.handleContentBody(path);
+        this.doBlock = this.handleContentBody(path.node);
         if(!this.doBlock){
             this.didExitOwnScope();
             const child = this.children[0];
@@ -181,35 +188,35 @@ export class ComponentConsequent extends ElementInline {
         };
     }
 
-    ReturnStatement(path: Path<ReturnStatement>){
-        const arg = path.get("argument");
+    ReturnStatement(node: ReturnStatement){
+        const arg = node.argument;
         const { context } = this;
 
         if(!this.test)
-            throw Error.ReturnElseNotImplemented(path)
+            throw Error.ReturnElseNotImplemented(node)
 
         if(this.index !== 1)
-            throw Error.CanOnlyReturnFromLeadingIf(path)
+            throw Error.CanOnlyReturnFromLeadingIf(node)
 
         if(context.currentIf !== context.entryIf)
-            throw Error.CantReturnInNestedIf(path);
+            throw Error.CantReturnInNestedIf(node);
 
         if(!(context.currentElement instanceof ComponentExpression))
-            throw Error.CanOnlyReturnTopLevel(path);
+            throw Error.CanOnlyReturnTopLevel(node);
 
         if(arg)
-            if(arg.isDoExpression())
-                (arg.node as DoExpressive).meta = this;
+            if(isDoExpression(arg))
+                (<DoExpressive>arg).meta = this;
                 
-            else if(arg.isExpression())
+            else if(isExpression(arg))
                 this.Expression(arg);
 
         this.doesReturn = true;
     }
 
-    LabeledStatement(path: Path<LabeledStatement>){
+    LabeledStatement(node: LabeledStatement){
         const mod = this.slaveModifier || this.slaveNewModifier()
-        super.LabeledStatement(path, mod);
+        super.LabeledStatement(node, null, mod);
     }
 
     private slaveNewModifier(){
@@ -218,7 +225,7 @@ export class ComponentConsequent extends ElementInline {
         const uid = hash(this.context.prefix)
 
         //TODO: Discover helpfulness of customized className.
-        let selector = specifyOption(this.test && this.test.node) || `opt${this.index}`;
+        let selector = specifyOption(this.test) || `opt${this.index}`;
         selector += `_${uid}`;
         const parent = context.currentElement!;
 

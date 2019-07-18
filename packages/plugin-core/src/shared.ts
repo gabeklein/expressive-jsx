@@ -1,5 +1,5 @@
 import { NodePath as Path } from '@babel/traverse';
-import { BaseNode, booleanLiteral, Expression } from '@babel/types';
+import { BaseNode, Expression } from '@babel/types';
 import { BunchOf, FlatValue } from 'types';
 
 const { isArray } = Array;
@@ -68,9 +68,9 @@ export function toArray<T> (value: T | T[]): T[] {
         : [];
 }
 
-export function preventDefaultPolyfill(element: Path){
-    element.replaceWith(booleanLiteral(false));
-}
+// export function preventDefaultPolyfill(element: Path){
+//     element.replaceWith(booleanLiteral(false));
+// }
 
 export function inParenthesis(node: Expression): boolean {
     const { extra } = node as any;

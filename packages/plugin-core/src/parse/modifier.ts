@@ -1,4 +1,3 @@
-import { NodePath as Path } from '@babel/traverse';
 import { callExpression, identifier, Statement, stringLiteral } from '@babel/types';
 import { AttributeBody, ContingentModifier, ElementInline, ElementModifier, ExplicitStyle, Modifier } from 'handle';
 
@@ -99,7 +98,7 @@ export class ModifyDelegate {
         if(isArray(input))
             this.arguments = input;
         else {
-            this.arguments = Arguments.Parse(input.node);
+            this.arguments = Arguments.Parse(input);
             this.body = input;
         }
 
@@ -122,7 +121,7 @@ export class ModifyDelegate {
     setContingent(
         contingent: string, 
         priority?: number, 
-        usingBody?: Path<Statement>){
+        usingBody?: Statement){
 
         const { target } = this;
         const mod = new ContingentModifier(
@@ -132,7 +131,7 @@ export class ModifyDelegate {
         )
         
         mod.priority = priority || this.priority;
-        mod.parse(usingBody || this.body!);
+        mod.parseNodes(usingBody || this.body!);
         if(target instanceof ElementInline)
             target.modifiers.push(mod);
         else

@@ -1,8 +1,8 @@
 import { NodePath as Path } from '@babel/traverse';
 import {
     AssignmentExpression,
-    BlockStatement,
     blockStatement,
+    BlockStatement,
     DebuggerStatement,
     doExpression,
     Expression,
@@ -10,6 +10,7 @@ import {
     For,
     FunctionDeclaration,
     IfStatement,
+    isIdentifier,
     Statement,
     UnaryExpression,
     UpdateExpression,
@@ -46,39 +47,44 @@ export class ElementInline extends AttributeBody {
         this.add(child);
     }
 
-    ExpressionDefault(path: Path<Expression>){
-        if(inParenthesis(path.node))
-            this.adopt(path.node)
-        else
-            AddElementsFromExpression(path.node, this);
+    ExpressionDefault(node: Expression){
+        if(inParenthesis(node))
+            this.adopt(node)
+        else 
+            AddElementsFromExpression(node, this);
     }
 
     ElementModifier(mod: ElementModifier){
         this.context.elementMod(mod);
     }
 
-    IfStatement(path: Path<IfStatement>){
+    IfStatement(_: IfStatement, path: Path<IfStatement>){
         const mod = new ComponentIf(path, this.context);
         this.adopt(mod)
-    }
-
-    ForInStatement(path: Path<For>){
-        this.ForStatement(path)
-    }
-
-    ForOfStatement(path: Path<For>){
-        this.ForStatement(path)
-    }
-
-    ForStatement(path: Path<For>){
-        this.adopt(
-            new ComponentFor(path, this.context)
+        path.replaceWith(
+            blockStatement(mod.doBlocks!)
         )
     }
 
-    BlockStatement(path: Path<BlockStatement>){
+    ForInStatement(_: For, stat: Path<For>){
+        this.ForStatement(_, stat)
+    }
+
+    ForOfStatement(_: For, stat: Path<For>){
+        this.ForStatement(_, stat)
+    }
+
+    ForStatement(_: For, stat: Path<For>){
+        const element = new ComponentFor(stat, this.context);
+        this.adopt(element)
+        const { doBlock } = element;
+        if(doBlock)
+            stat.replaceWith(doBlock)
+    }
+
+    BlockStatement(node: BlockStatement, path: Path<BlockStatement>){
         const blockElement = new ElementInline(this.context);
-        const block = blockStatement(path.node.body);
+        const block = blockStatement(node.body);
         const doExp = doExpression(block) as DoExpressive;
 
         ApplyNameImplications("block", blockElement);
@@ -91,24 +97,24 @@ export class ElementInline extends AttributeBody {
         )
     }
 
-    UpdateExpression(path: Path<UpdateExpression>){
-        const value = path.get("argument");
-        const op = path.node.operator;
+    UpdateExpression(node: UpdateExpression){
+        const value = node.argument;
+        const op = node.operator;
 
-        if(path.node.start !== value.node.start! - 3)
-            throw Error.UnarySpaceRequired(path, op)
+        if(node.start !== value.start! - 3)
+            throw Error.UnarySpaceRequired(node, op)
 
         if(op !== "++")
-            throw Error.MinusMinusNotImplemented(path)
+            throw Error.MinusMinusNotImplemented(node)
 
         this.add(
-            new Prop(false, value.node)
+            new Prop(false, value)
         )
     }
     
-    UnaryExpression(path: Path<UnaryExpression>){
-        const value = path.get("argument");
-        const op = path.node.operator
+    UnaryExpression(node: UnaryExpression){
+        const value = node.argument;
+        const op = node.operator
 
         switch(op){
             case "delete":
@@ -117,53 +123,53 @@ export class ElementInline extends AttributeBody {
 
             case "void":
             case "!":
-                this.ExpressionDefault(path)
+                this.ExpressionDefault(node)
                 return 
         }
 
-        if(path.node.start !== value.node.start! - 2)
-            throw Error.UnarySpaceRequired(path, op)
+        if(node.start !== value.start! - 2)
+            throw Error.UnarySpaceRequired(node, op)
 
         switch(op){
             case "+": 
-                if(!value.isIdentifier())
-                    throw Error.BadShorthandProp(path);
+                if(!isIdentifier(value))
+                    throw Error.BadShorthandProp(node);
                 this.add(
-                    new Prop(value.node.name, value.node)
+                    new Prop(value.name, value)
                 );
             break;
 
             case "-":
                 this.add(
-                    new Prop("className", value.node)
+                    new Prop("className", value)
                 );
             break;
 
             case "~": 
                 this.add(
-                    new ExplicitStyle(false, value.node)
+                    new ExplicitStyle(false, value)
                 );
             break
         }
     }
 
-    ExpressionAsStatement(path: Path<Expression>){
-        throw Error.StatementInElement(path)
+    ExpressionAsStatement(node: Expression){
+        throw Error.StatementInElement(node)
     }
 
-    AssignmentExpression(path: Path<AssignmentExpression>){
-        if(path.node.operator !== "=") 
-            throw Error.AssignmentNotEquals(path)
+    AssignmentExpression(node: AssignmentExpression){
+        if(node.operator !== "=") 
+            throw Error.AssignmentNotEquals(node)
 
-        const left = path.get("left");
+        const left = node.left;
         
-        if(!left.isIdentifier())
+        if(!isIdentifier(left))
             throw Error.PropNotIdentifier(left)
 
-        let { name } = left.node;
+        let { name } = left;
 
         this.insert(
-            new Prop(name, path.get("right").node));
+            new Prop(name, node.right));
     }
 }
 
@@ -171,19 +177,19 @@ export class ComponentContainer extends ElementInline {
 
     statements = [] as Statement[];
 
-    ExpressionAsStatement(path: Path<Expression>){
-        this.statements.push(expressionStatement(path.node));
+    ExpressionAsStatement(node: Expression){
+        this.statements.push(expressionStatement(node));
     }
 
-    VariableDeclaration(path: Path<VariableDeclaration>){
-        this.statements.push(path.node);
+    VariableDeclaration(node: VariableDeclaration){
+        this.statements.push(node);
     }
 
-    DebuggerStatement(path: Path<DebuggerStatement>){
-        this.statements.push(path.node);
+    DebuggerStatement(node: DebuggerStatement){
+        this.statements.push(node);
     }
 
-    FunctionDeclaration(path: Path<FunctionDeclaration>){
-        this.statements.push(path.node);
+    FunctionDeclaration(node: FunctionDeclaration){
+        this.statements.push(node);
     }
 }

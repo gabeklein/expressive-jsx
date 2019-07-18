@@ -203,8 +203,8 @@ export class ElementReact<T extends ElementInline = ElementInline>
             case "className": {
                 let { value } = item;
 
-                if(!value && item.path)
-                    value = item.path.node;
+                if(!value && item.node)
+                    value = item.node;
 
                 if(value && typeof value == "object")
                     if(isStringLiteral(value))

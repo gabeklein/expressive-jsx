@@ -1,7 +1,6 @@
-import { NodePath as Path } from '@babel/traverse';
-import { Expression, LabeledStatement } from '@babel/types';
+import { Expression, isBlockStatement, isExpressionStatement, isLabeledStatement, LabeledStatement } from '@babel/types';
 import { ApplyModifier } from 'parse';
-import { ParseErrors, hash } from 'shared';
+import { hash, ParseErrors } from 'shared';
 import { BunchOf, FlatValue } from 'types';
 
 import { ElementModifier, Modifier, TraversableBody } from './';
@@ -48,32 +47,34 @@ export abstract class AttributeBody extends TraversableBody {
     ): void;
 
     LabeledStatement(
-        path: Path<LabeledStatement>, 
+        node: LabeledStatement, 
+        _path: any,
         applyTo: Modifier = this as any){
 
-        const { name } = path.node.label;
+        if(!node.label) debugger;
+        const { name } = node.label;
         const { context } = this;
-        const body = path.get("body");
+        const body = node.body;
     
         if(name[0] == "_")
-            throw Error.BadModifierName(path)
+            throw Error.BadModifierName(node)
 
         if(context.hasOwnModifier(name))
-            throw Error.DuplicateModifier(path); 
+            throw Error.DuplicateModifier(node); 
 
         const handler = applyTo.context.propertyMod(name);
 
-        if(body.isExpressionStatement() 
+        if(isExpressionStatement(body) 
         || handler && (
-            body.isBlockStatement() ||
-            body.isLabeledStatement()
+            isBlockStatement(body) ||
+            isLabeledStatement(body)
         ))
             ApplyModifier(
                 name, applyTo, body
             );
 
-        else if(body.isBlockStatement()
-        || body.isLabeledStatement())
+        else if(isBlockStatement(body)
+        || isLabeledStatement(body))
             applyTo.ElementModifier(
                 new ElementModifier(context, name, body)
             )
@@ -82,8 +83,8 @@ export abstract class AttributeBody extends TraversableBody {
             throw Error.BadInputModifier(body, body.type)
     }
 
-    ExpressionDefault(path: Path<Expression>){
-        throw Error.ExpressionUnknown(path, path.type);
+    ExpressionDefault(e: Expression){
+        throw Error.ExpressionUnknown(e, e.type);
     }
 }
 

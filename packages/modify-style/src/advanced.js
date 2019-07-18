@@ -26,21 +26,21 @@ for(const name in PSEUDO){
     }
 }
 
-// const PascalToDash = x => x.replace(/([A-Z]+)/g, "-$1").toLowerCase();
+const PascalToDash = x => x.replace(/([A-Z]+)/g, "-$1").toLowerCase();
 
 export function css(){
     let body = this.body;
-    if(body && body.isStatement()){
-        if(body.isBlockStatement())
+    if(body){
+        if(body.type == "BlockStatement")
             body = body.get("body");
         else
             body = [body];
 
         for(const item of body){
-            const className = "." + item.node.label.name;
-            if(!item.isLabeledStatement())
+            const className = "." + item.label.name;
+            if(!item.type == "LabeledStatement")
                 throw new Error("css modifier blew up")
-            this.setContingent(className, 5, item.get("body"))
+            this.setContingent(className, 5, item.body)
         }
 
         return;

@@ -62,7 +62,7 @@ export function AddElementsFromExpression(
         ? ApplyPassthru 
         : CollateLayers;
 
-    Handler(subject, current, baseAttributes);
+    return Handler(subject, current, baseAttributes);
 }
 
 function IsJustAValue(subject: Expression){
@@ -103,7 +103,7 @@ function ApplyPassthru(
     && identifierName
     && !parent.context.elementMod("$" + identifierName)){
         parent.adopt(subject);
-        return
+        return subject
     }
 
     if(baseAttributes.length > 1
@@ -130,6 +130,7 @@ function ApplyPassthru(
     parent.adopt(container);
 
     ParseProps(baseAttributes, container);
+    return container;
 }
 
 function CollateLayers(
@@ -200,6 +201,7 @@ function CollateLayers(
         baseAttributes.unshift(nestedExpression);
 
     ParseProps(baseAttributes, parent);
+    return parent;
 }
 
 export function ApplyNameImplications(

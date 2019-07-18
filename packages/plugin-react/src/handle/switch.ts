@@ -29,7 +29,7 @@ function reducerAlgorithm(
     let sum: Expression | undefined;
 
     for(const cond of forks){
-        const test = cond.test && cond.test.node;
+        const test = cond.test;
         const product = predicate(cond);
 
         if(sum && test)

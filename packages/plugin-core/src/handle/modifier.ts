@@ -1,9 +1,14 @@
 import { NodePath as Path } from '@babel/traverse';
 import { Statement } from '@babel/types';
 import { StackFrame } from 'parse';
+import { ParseErrors } from 'shared';
 import { BunchOf, SelectionProvider } from 'types';
 
-import { AttributeBody, ExplicitStyle, ElementInline } from './';
+import { AttributeBody, ElementInline, ExplicitStyle } from './';
+
+const Error = ParseErrors({
+    NodeUnknown: "Unhandled node of type {1}",
+})
 
 function concat(
     to: any,
@@ -30,8 +35,11 @@ export abstract class Modifier extends AttributeBody {
 
     parse(body: Path<Statement>){
         const content = body.isBlockStatement() ? body.get("body") : [body];
-        for(const item of content)
-            super.parse(item);
+        for(const item of content){
+            if(item.type in this) 
+                (this as any)[item.type](item.node, item);
+            else throw Error.NodeUnknown(item, item.type)
+        }
     }
 
     addStyle(name: string, value: any){
@@ -53,13 +61,13 @@ export class ElementModifier
     constructor(
         context: StackFrame,
         name: string,
-        body: Path<Statement>){
+        body: Statement){
 
         super(context);
         this.name = name;
         this.context.resolveFor(name);
         this.forSelector = [ `.${this.uid}` ];
-        this.parse(body);
+        this.parseNodes(body);
     }
 
     ElementModifier(mod: ElementModifier){

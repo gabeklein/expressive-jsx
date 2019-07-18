@@ -1,9 +1,9 @@
 import { Program as BabelProgram } from '@babel/types';
 import { ComponentIf, ElementInline, ElementModifier, TraversableBody } from 'handle';
-import { ParseErrors, hash, Shared, BabelFile } from 'shared';
+import { BabelFile, hash, ParseErrors, Shared } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
 
-import * as builtIn from "./builtin"
+import * as builtIn from './builtin';
 
 const { getPrototypeOf, create, assign } = Object;
 
@@ -33,7 +33,7 @@ export const Program = <Visitor<BabelProgram>>{
                 if(body.isExpressionStatement(body))
                     throw Error.IllegalAtTopLevel(statement)
 
-                const mod = new ElementModifier(context, name, body);
+                const mod = new ElementModifier(context, name, body.node);
                 context.elementMod(mod)
                 statement.remove();
             }

@@ -23,7 +23,7 @@ export type InnerContent = Expression | ElementInline | ComponentIf | ComponentF
 
 export type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | void;
 
-export type ModiferBody = Path<ExpressionStatement | BlockStatement | LabeledStatement | IfStatement>;
+export type ModiferBody = ExpressionStatement | BlockStatement | LabeledStatement | IfStatement;
 
 export type SelectionProvider = (forSelector: string[]) => void
 

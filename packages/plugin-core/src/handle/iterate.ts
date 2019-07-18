@@ -1,12 +1,19 @@
 import { NodePath as Path } from '@babel/traverse';
-import { AssignmentExpression, expressionStatement, For, isVariableDeclaration, isIdentifier, ForXStatement, isForXStatement } from '@babel/types';
+import {
+    AssignmentExpression,
+    For,
+    ForXStatement,
+    isForXStatement,
+    isIdentifier,
+    isVariableDeclaration,
+} from '@babel/types';
 import { StackFrame } from 'parse';
 
 import { ComponentContainer } from './';
 
 export class ComponentFor extends ComponentContainer {
 
-    node: For;
+    node: For
 
     constructor(
         public path: Path<For>, 
@@ -14,16 +21,9 @@ export class ComponentFor extends ComponentContainer {
             
         super(context);
 
-        this.node = path.node;
+        this.node = path.node
         this.name = this.generateName();
-
-        const body = path.get("body");
-        const doBlock = this.handleContentBody(body);
-
-        if(doBlock)
-            body.replaceWith(
-                expressionStatement(doBlock)
-            );
+        this.doBlock = this.handleContentBody(path.node.body);
     }
 
     private generateName(){
@@ -52,7 +52,7 @@ export class ComponentFor extends ComponentContainer {
             return "for"
     }
 
-    AssignmentExpression(path: Path<AssignmentExpression>){
+    AssignmentExpression(path: AssignmentExpression){
         throw new Error("For block cannot accept Assignments");
     }
 

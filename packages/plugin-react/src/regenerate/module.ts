@@ -1,9 +1,9 @@
-import { NodePath as Path } from '@babel/traverse';
+import { Path as Path } from '@babel/traverse';
 import { Program as ProgramNode } from '@babel/types';
 import { BabelState, DoExpressive, Modifier } from '@expressive/babel-plugin-core';
 import { ExternalsManager, GenerateES, GenerateJSX, ImportManager, writeProvideStyleStatement } from 'internal';
 import { relative } from 'path';
-import { StylesRegistered, Visitor } from 'types';
+import { Visitor } from 'types';
 
 import { RequirementManager } from './scope';
 
@@ -57,7 +57,6 @@ export const Program = <Visitor<ProgramNode>> {
 export class Module {
 
     modifiersDeclared = new Set<Modifier>()
-    styleBlocks = [] as StylesRegistered[];
     lastInsertedElement?: Path<DoExpressive>;
 
     constructor(
