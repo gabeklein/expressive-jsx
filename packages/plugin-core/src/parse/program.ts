@@ -1,5 +1,5 @@
-import { Program as BabelProgram } from '@babel/types';
-import { ComponentIf, ElementInline, ElementModifier, TraversableBody } from 'handle';
+import { isExpressionStatement, isLabeledStatement, Program as BabelProgram, Statement } from '@babel/types';
+import { ComponentIf, ElementInline, ElementModifier } from 'handle';
 import { BabelFile, hash, ParseErrors, Shared } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
 
@@ -14,29 +14,33 @@ const Error = ParseErrors({
 })
 
 export const Program = <Visitor<BabelProgram>>{
-    enter(path, state: any){
+    enter({ node }, state: any){
         const context = state.context = new StackFrame(state);
 
         Shared.currentFile = state.file as BabelFile;
 
-        for(const statement of path.get("body"))
-            if(statement.isLabeledStatement()){
-                const { name } = statement.node.label;
-                const body = statement.get("body");
+        const filtered = [] as Statement[];
+
+        for(const statement of node.body)
+            if(isLabeledStatement(statement)){
+                const { name } = statement.label;
+                const { body } = statement;
 
                 if(name[0] == "_")
-                    throw Error.BadModifierName(path)
+                    throw Error.BadModifierName(node)
 
                 if(this.context.hasOwnModifier(name))
-                    throw Error.DuplicateModifier(path);
+                    throw Error.DuplicateModifier(node);
 
-                if(body.isExpressionStatement(body))
+                if(isExpressionStatement(body))
                     throw Error.IllegalAtTopLevel(statement)
 
-                const mod = new ElementModifier(context, name, body.node);
+                const mod = new ElementModifier(context, name, statement);
                 context.elementMod(mod)
-                statement.remove();
             }
+            else filtered.push(statement);
+
+        node.body = filtered;
     },
     exit(path, state){
         if(~process.execArgv.join().indexOf("inspect-brk"))
