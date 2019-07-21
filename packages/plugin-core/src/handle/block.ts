@@ -19,17 +19,15 @@ export abstract class TraversableBody {
     parent?: TraversableBody | ComponentIf;
     sequence = [] as SequenceItem[];
 
+    constructor(context: StackFrame){
+        this.context = context.create(this);
+    }
+
     abstract ExpressionDefault(node: Expression): void;
 
     willEnter?(path?: Path): void;
     willExit?(path?: Path): void;
     wasAddedTo?<T extends TraversableBody>(element?: T): void;
-
-    constructor(
-        context: StackFrame){
-        const ctx = this.context = context.create(this);
-        ctx.push(this);
-    }
 
     didEnterOwnScope(path: Path<DoExpressive>){
         const traversable = path.get("body").get("body")
@@ -37,7 +35,7 @@ export abstract class TraversableBody {
             this.parse(item);
     }
 
-    didExitOwnScope?(path: Path<DoExpressive>): void;
+    didExitOwnScope?(path?: Path<DoExpressive>): void;
 
     handleContentBody(content: Statement){
         if(!isBlockStatement(content))

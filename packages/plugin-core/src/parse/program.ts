@@ -5,6 +5,10 @@ import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
 
 import * as builtIn from './builtin';
 
+interface Stackable {
+    context: StackFrame;
+}
+
 const { getPrototypeOf, create, assign } = Object;
 
 const Error = ParseErrors({
@@ -108,23 +112,35 @@ export class StackFrame {
         this.prefix = this.prefix + " " + append || "";
     }
 
-    create(node: any){
+    create(node: Stackable): StackFrame {
         const frame = create(this);
         frame.current = node;
         if(node instanceof ElementInline)
             frame.currentElement = node;
+        this.stateSingleton.context = frame;
         return frame;
     }
+    
+    pop(
+        meta: ElementInline, 
+        state: BabelState<StackFrame>){
+            
+        let { context } = state;
+        let newContext: StackFrame | undefined;
 
-    push(node: TraversableBody){
-        this.stateSingleton.context = node.context;
-    }
+        while(true){
+            newContext = Object.getPrototypeOf(context);
+            if(!newContext)
+                break;
+            if(context.current === meta)
+                break;
+            context = newContext;
+        }
 
-    pop(){
-        let up = this;
-        do { up = getPrototypeOf(up) } 
-        while(up.current === undefined)
-        this.stateSingleton.context = up;
+        if(context)
+            state.context = context;
+        else 
+            console.error("StackFrame underflow");
     }
 
     propertyMod(name: string): ModifyAction;
