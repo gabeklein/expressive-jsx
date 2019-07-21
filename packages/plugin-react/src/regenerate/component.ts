@@ -30,18 +30,19 @@ const Error = ParseErrors({
 
 export const DoExpression = <Visitor<DoExpressive>> {
     exit(path, state){
-        const Do = path.node.meta;
-        const context = Do.context as StackFrame;
+
+        const meta = path.node.meta;
+        const context = meta.context as StackFrame;
         const Generator = context.Generator as GenerateReact;
 
-        if(!(Do instanceof ComponentExpression))
+        if(!(meta instanceof ComponentExpression))
             return;
 
-        const factory = new ElementReact(Do);
+        const factory = new ElementReact(meta);
 
         context.Module.lastInsertedElement = path;
 
-        if(factory.children.length == 0 && Do.exec === undefined){
+        if(factory.children.length == 0 && meta.exec === undefined){
             path.replaceWith(
                 asOnlyAttributes(factory)
             )
@@ -50,12 +51,12 @@ export const DoExpression = <Visitor<DoExpressive>> {
 
         const factoryExpression = Generator.container(factory)
 
-        if(Do instanceof ComponentExpression && Do.exec)
-            incorperateChildParameters(Do, state.context.Imports)
+        if(meta instanceof ComponentExpression && meta.exec)
+            incorperateChildParameters(meta, state.context.Imports)
 
-        if(Do.exec && Do.statements.length){
+        if(meta.exec && meta.statements.length){
             const replacement = [
-                ...Do.statements as Statement[],
+                ...meta.statements as Statement[],
                 returnStatement(factoryExpression)
             ];
             if(path.parentPath.isReturnStatement())

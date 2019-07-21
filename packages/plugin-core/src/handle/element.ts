@@ -161,7 +161,7 @@ export class ElementInline extends AttributeBody {
         if(node.operator !== "=") 
             throw Error.AssignmentNotEquals(node)
 
-        const left = node.left;
+        let { left, right } = node;
         
         if(!isIdentifier(left))
             throw Error.PropNotIdentifier(left)
@@ -169,7 +169,7 @@ export class ElementInline extends AttributeBody {
         let { name } = left;
 
         this.insert(
-            new Prop(name, node.right));
+            new Prop(name, right));
     }
 }
 

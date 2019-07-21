@@ -33,7 +33,7 @@ export function PropertyES(
 export const AttributeES = (src: Prop | ExplicitStyle) => 
     PropertyES(src.name as string, expressionValue(src) as Expression);
 
-export function expressionValue(item: Prop | ExplicitStyle){
+export function expressionValue(item: Prop | ExplicitStyle): Expression {
     let { value } = item;
 
     return (
@@ -44,7 +44,7 @@ export function expressionValue(item: Prop | ExplicitStyle){
         typeof value === "boolean" ?
             booleanLiteral(value) :
         value === undefined && item.node ?
-            item.node :
+            item.node as unknown as Expression :
         typeof value === "object" ?
             value || nullLiteral() :
             identifier("undefined")
