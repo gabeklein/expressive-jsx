@@ -41,7 +41,7 @@ export abstract class ElementConstruct
                 this.Child(item);
                 
             else 
-            if(item instanceof Attribute) {
+            if(item instanceof Attribute){
                 if(this.Attribute && this.Attribute(item))
                     continue
 

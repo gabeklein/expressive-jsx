@@ -68,10 +68,6 @@ export function toArray<T> (value: T | T[]): T[] {
         : [];
 }
 
-// export function preventDefaultPolyfill(element: Path){
-//     element.replaceWith(booleanLiteral(false));
-// }
-
 export function inParenthesis(node: Expression): boolean {
     const { extra } = node as any;
     return extra ? extra.parenthesized === true : false;

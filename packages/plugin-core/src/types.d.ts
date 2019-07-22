@@ -1,4 +1,4 @@
-import { NodePath as Path, VisitNodeObject } from '@babel/traverse';
+import { VisitNodeObject } from '@babel/traverse';
 import {
     BlockStatement,
     DoExpression,

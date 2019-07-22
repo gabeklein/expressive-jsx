@@ -101,7 +101,7 @@ export abstract class Attribute<T extends Expression = Expression> {
         if(name) this.name = name;
         if(value !== undefined) this.value = value;
 
-        if(value === null || typeof value !== "object")
+        if(typeof value !== "object" || value === null)
             this.invariant = true
     }
 };

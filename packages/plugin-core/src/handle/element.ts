@@ -136,21 +136,15 @@ export class ElementInline extends AttributeBody {
             case "+": 
                 if(!isIdentifier(value))
                     throw Error.BadShorthandProp(node);
-                this.add(
-                    new Prop(value.name, value)
-                );
+                this.add(new Prop(value.name, value));
             break;
 
             case "-":
-                this.add(
-                    new Prop("className", value)
-                );
+                this.add(new Prop("className", value));
             break;
 
             case "~": 
-                this.add(
-                    new ExplicitStyle(false, value)
-                );
+                this.add(new ExplicitStyle(false, value));
             break
         }
     }
