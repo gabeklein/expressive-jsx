@@ -45,7 +45,7 @@ export abstract class ElementConstruct
                 if(this.Attribute && this.Attribute(item))
                     continue
 
-                if(!overridden && item.overriden === true
+                if(!overridden && item.overridden === true
                 || !invariant && item.invariant === true)
                     continue;
 

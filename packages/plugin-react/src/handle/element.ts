@@ -9,6 +9,7 @@ import {
     stringLiteral,
 } from '@babel/types';
 import {
+    Attribute,
     ComponentExpression,
     ComponentFor,
     ComponentIf,
@@ -21,7 +22,7 @@ import {
     SequenceItem,
 } from '@expressive/babel-plugin-core';
 import { AttributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue } from 'internal';
-import { ContentLike, PropData, StackFrame } from 'types';
+import { BunchOf, ContentLike, PropData, StackFrame } from 'types';
 
 export class ElementReact<T extends ElementInline = ElementInline>
     extends ElementConstruct<T>{
@@ -40,9 +41,10 @@ export class ElementReact<T extends ElementInline = ElementInline>
     }
 
     willParse(sequence: SequenceItem[]){
-        const pre = [] as SequenceItem[];
-
         const { classList } = this.source.data;
+        const accumulator = {} as BunchOf<Attribute>
+        const existsAlready = this.source.style;
+        // TODO: respect priority differences!
 
         if(classList)
             this.classList.push(...classList);
@@ -55,11 +57,11 @@ export class ElementReact<T extends ElementInline = ElementInline>
             if(mod.nTargets == 1 
             && !mod.onlyWithin
             && !mod.applicable.length){
-                // TODO: respect priority differences!
-                const exists = this.source.style;
                 for(const style of mod.sequence)
-                    if(style.name in exists == false)
-                        pre.push(style)
+                    if(style.name in existsAlready == false
+                    && style.name in accumulator == false){
+                        accumulator[style.name as string] = style;
+                    }
             }
             else {
                 let doesProvideAStyle = false;
@@ -83,8 +85,13 @@ export class ElementReact<T extends ElementInline = ElementInline>
             }
         }
 
+        for(const name in accumulator)
+            existsAlready[name] = accumulator[name] as ExplicitStyle;
+
+        const pre: SequenceItem[] = Object.values(accumulator);
+
         if(pre.length)
-            return pre.concat(sequence)
+            return pre.concat(sequence);
     }
 
     didParse(){
@@ -210,7 +217,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
                     if(isStringLiteral(value))
                         value = value.value;
                     else {
-                        this.classList.push(value);
+                        this.classList.push(value as Expression);
                         break;
                     }
 

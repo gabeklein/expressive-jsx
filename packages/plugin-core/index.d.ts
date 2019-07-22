@@ -94,7 +94,7 @@ declare abstract class Attribute<T extends Expression = Expression> {
     readonly node: T | undefined;
     value: FlatValue | T | undefined;
     readonly invariant: boolean | undefined;
-    readonly overriden?: boolean;
+    readonly overridden?: boolean;
 }
 declare class Prop extends Attribute {
     constructor(name: string | false, node: FlatValue | Expression | undefined);
@@ -231,6 +231,7 @@ declare function ParseErrors
 export default _default;
 
 export {
+    Attribute,
     AttributeBody,
     BabelState,
     ComponentConsequent,

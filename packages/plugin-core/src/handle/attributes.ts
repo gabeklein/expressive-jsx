@@ -26,7 +26,7 @@ export abstract class AttributeBody extends TraversableBody {
         if(name){
             const existing = accumulator[name];
             if(existing) 
-                existing.overriden = true;
+                existing.overridden = true;
             accumulator[name] = item;
         }
 
@@ -90,7 +90,7 @@ export abstract class AttributeBody extends TraversableBody {
 
 export abstract class Attribute<T extends Expression = Expression> {
     name?: string;
-    overriden?: boolean;
+    overridden?: boolean;
     invariant?: boolean;
     value: FlatValue | T | undefined
 
