@@ -1,15 +1,17 @@
 import { NodePath as Path } from '@babel/traverse';
 import {
     AssignmentExpression,
-    blockStatement,
     BlockStatement,
+    blockStatement,
     DebuggerStatement,
     doExpression,
     Expression,
     expressionStatement,
     For,
     FunctionDeclaration,
+    identifier,
     IfStatement,
+    isDoExpression,
     isIdentifier,
     Statement,
     UnaryExpression,
@@ -168,8 +170,14 @@ export class ElementInline extends AttributeBody {
 
         let { name } = left;
 
-        this.insert(
-            new Prop(name, right));
+        if(isDoExpression(right)){
+            const prop = new Prop(name, identifier("undefined"));
+            (<DoExpressive>right).expressive_parent = prop;
+            this.insert(prop);
+        }
+
+        else 
+            this.insert(new Prop(name, right));
     }
 }
 

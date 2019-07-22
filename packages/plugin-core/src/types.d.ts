@@ -8,7 +8,7 @@ import {
     LabeledStatement,
     Statement,
 } from '@babel/types';
-import { Attribute, ComponentFor, ComponentIf, ElementInline } from 'handle';
+import { Attribute, ComponentFor, ComponentIf, ElementInline, Prop } from 'handle';
 import { ModifyDelegate, StackFrame } from 'parse';
 
 export interface BunchOf<T> { [key: string]: T }
@@ -37,6 +37,7 @@ export interface BabelState<S extends StackFrame = StackFrame> {
 export interface DoExpressive extends DoExpression {
     meta: ElementInline;
     expressive_visited?: true;
+    expressive_parent?: Prop;
 }
 
 export interface ModifierOutput {

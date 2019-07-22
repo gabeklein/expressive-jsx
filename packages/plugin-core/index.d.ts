@@ -26,6 +26,7 @@ interface BabelState<S extends StackFrame = StackFrame> {
 interface DoExpressive extends DoExpression {
     readonly meta: ElementInline;
     readonly expressive_visited?: true;
+    readonly expressive_parent?: Prop;
 }
 interface ModifierOutput {
     readonly attrs?: BunchOf<any>;
@@ -91,7 +92,7 @@ declare abstract class Attribute<T extends Expression = Expression> {
     protected constructor();
     readonly name: string | false;
     readonly node: T | undefined;
-    readonly value: FlatValue | T | undefined;
+    value: FlatValue | T | undefined;
     readonly invariant: boolean | undefined;
     readonly overriden?: boolean;
 }

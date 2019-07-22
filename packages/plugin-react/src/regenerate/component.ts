@@ -65,7 +65,11 @@ export const DoExpression = <Visitor<DoExpressive>> {
                 path.replaceWith(blockStatement(replacement))
         }
         else {
-            path.replaceWith(factoryExpression);
+            const prop = path.node.expressive_parent;
+            if(prop)
+                prop.value = factoryExpression as Expression;
+            else
+                path.replaceWith(factoryExpression);
         }
     }
 }
