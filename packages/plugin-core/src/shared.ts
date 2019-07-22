@@ -1,5 +1,5 @@
 import { NodePath as Path } from '@babel/traverse';
-import { BaseNode, Expression } from '@babel/types';
+import { BaseNode, Expression, File } from '@babel/types';
 import { BunchOf, FlatValue } from 'types';
 
 const { isArray } = Array;
@@ -12,7 +12,7 @@ interface Options {
     formatStyles: any;
 }
 
-export interface BabelFile {
+export interface BabelFile extends File {
     buildCodeFrameError<TError extends Error>(node: BaseNode, msg: string, Error?: new (msg: string) => TError): TError;
 }
 

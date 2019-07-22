@@ -1,4 +1,4 @@
-import { isExpressionStatement, isLabeledStatement, Program as BabelProgram, Statement } from '@babel/types';
+import { File, isExpressionStatement, isLabeledStatement, Program as BabelProgram, Statement } from '@babel/types';
 import { ComponentIf, ElementInline, ElementModifier } from 'handle';
 import { BabelFile, hash, ParseErrors, Shared } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
@@ -19,7 +19,8 @@ const Error = ParseErrors({
 
 export const Program = <Visitor<BabelProgram>>{
     enter({ node }, state: any){
-        const context = state.context = new StackFrame(state);
+        let context = state.context = new StackFrame(state).create(this);
+        context.currentFile = state.file;
 
         Shared.currentFile = state.file as BabelFile;
 
@@ -39,7 +40,7 @@ export const Program = <Visitor<BabelProgram>>{
                 if(isExpressionStatement(body))
                     throw Error.IllegalAtTopLevel(statement)
 
-                const mod = new ElementModifier(context, name, statement);
+                const mod = new ElementModifier(context, name, body);
                 context.elementMod(mod)
             }
             else filtered.push(statement);
@@ -59,6 +60,7 @@ export class StackFrame {
     current = {} as any;
     currentElement?: ElementInline;
     currentIf?: ComponentIf;
+    currentFile?: File;
     entryIf?: ComponentIf;
     stateSingleton: BabelState;
     options: {}
@@ -122,8 +124,8 @@ export class StackFrame {
     }
     
     pop(
-        meta: ElementInline, 
-        state: BabelState<StackFrame>){
+        meta: ElementInline | ElementModifier, 
+        state: BabelState<StackFrame> = this.stateSingleton){
             
         let { context } = state;
         let newContext: StackFrame | undefined;
@@ -137,10 +139,10 @@ export class StackFrame {
             context = newContext;
         }
 
-        if(context)
-            state.context = context;
+        if(context.current)
+            state.context = newContext!;
         else 
-            console.error("StackFrame underflow");
+            console.error("StackFrame shouldn't bottom out like this");
     }
 
     propertyMod(name: string): ModifyAction;

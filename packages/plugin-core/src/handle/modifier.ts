@@ -68,6 +68,7 @@ export class ElementModifier
         this.context.resolveFor(name);
         this.forSelector = [ `.${this.uid}` ];
         this.parseNodes(body);
+        this.context.pop(this);
     }
 
     ElementModifier(mod: ElementModifier){
