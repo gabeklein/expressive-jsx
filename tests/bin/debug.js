@@ -13,6 +13,9 @@ let {
   TEST_DEFAULT
 } = process.env;
 
+if(TEST_DEFAULT == "false")
+  TEST_DEFAULT = false;
+
 const statementLineSpacing = () =>
     replace(/^(.+?)\n(export|const|let)/gm, "$1\n\n$2")
 
