@@ -17,7 +17,7 @@ export class ComponentFor extends ComponentContainer {
 
     constructor(
         public path: Path<For>, 
-        public context: StackFrame){
+        context: StackFrame){
             
         super(context);
 

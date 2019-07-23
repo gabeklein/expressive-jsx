@@ -49,7 +49,7 @@ const Error = ParseErrors({
 
 export function AddElementsFromExpression(
     subject: Expression, 
-    current: ElementInline ){
+    parent: ElementInline ){
 
     var baseAttributes = [] as Expression[];
 
@@ -62,7 +62,7 @@ export function AddElementsFromExpression(
         ? ApplyPassthru 
         : CollateLayers;
 
-    return Handler(subject, current, baseAttributes);
+    return Handler(subject, parent, baseAttributes);
 }
 
 function IsJustAValue(subject: Expression){
@@ -175,11 +175,6 @@ function CollateLayers(
     chain.unshift(subject);
 
     for(const segment of chain){
-        for(const mod of parent.modifiers)
-        if(mod instanceof ElementModifier)
-        for(const sub of mod.provides)
-            parent.context.elementMod(sub)
-
         const child = new ElementInline(parent.context);
 
         ParseIdentity(segment, child);
@@ -228,6 +223,12 @@ export function ApplyNameImplications(
     while(modify){
         target.modifiers.push(modify);
         modify.nTargets += 1
+
+        // for(const mod of parent.modifiers)
+        // if(mod instanceof ElementModifier)
+        for(const sub of modify.provides)
+            target.context.elementMod(sub)
+        
         if(modify === modify.next){
             if(~process.execArgv.join().indexOf("inspect-brk"))
                 console.error(`Still haven't fixed inheritance leak apparently. \n target: ${name}`)

@@ -66,6 +66,10 @@ export class StackFrame {
     options: {}
     ModifierQuery?: string;
 
+    get parent(){
+        return getPrototypeOf(this);
+    }
+
     constructor(state: BabelState){
         let Stack = this;
         const external = [].concat(state.opts.modifiers || []);
@@ -87,40 +91,16 @@ export class StackFrame {
         return Stack;
     }
 
-    get parent(){
-        return getPrototypeOf(this);
-    }
-
-    event(
-        this: any,
-        ref: symbol, 
-        set: Function){
-
-        if(set) 
-            this[ref] = set;
-        else 
-            return this[ref]
-    }
-
-    dispatch(
-        this: any,
-        ref: symbol,
-        ...args: any[]
-    ){
-        (<Function>this[ref]).apply(null, args)
-    }
-
-    resolveFor(append?: string | number){
-        this.prefix = this.prefix + " " + append || "";
-    }
-
     create(node: Stackable): StackFrame {
         const frame = create(this);
         frame.current = node;
         if(node instanceof ElementInline)
             frame.currentElement = node;
-        this.stateSingleton.context = frame;
         return frame;
+    }
+
+    push(){
+        this.stateSingleton.context = this;
     }
     
     pop(
@@ -145,6 +125,37 @@ export class StackFrame {
             console.error("StackFrame shouldn't bottom out like this");
     }
 
+    resolveFor(append?: string | number){
+        this.prefix = this.prefix + " " + append || "";
+    }
+
+    event(
+        this: any,
+        ref: symbol, 
+        set: Function){
+
+        if(set) 
+            this[ref] = set;
+        else 
+            return this[ref]
+    }
+
+    dispatch(
+        this: any,
+        ref: symbol,
+        ...args: any[]
+    ){
+        (<Function>this[ref]).apply(null, args)
+    }
+
+    hasOwnPropertyMod(name: string): boolean {
+        return this.hasOwnProperty("__" + name)
+    }
+
+    hasOwnModifier(name: string): boolean {
+        return this.hasOwnProperty("_" + name)
+    }
+
     propertyMod(name: string): ModifyAction;
     propertyMod(name: string, set: ModifyAction): void;
     propertyMod(
@@ -157,14 +168,6 @@ export class StackFrame {
             this[ref] = set;
         else 
             return this[ref]
-    }
-
-    hasOwnPropertyMod(name: string): boolean {
-        return this.hasOwnProperty("__" + name)
-    }
-
-    hasOwnModifier(name: string): boolean {
-        return this.hasOwnProperty("_" + name)
     }
 
     elementMod(name: string): ElementModifier;

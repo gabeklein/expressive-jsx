@@ -30,12 +30,15 @@ export abstract class TraversableBody {
     wasAddedTo?<T extends TraversableBody>(element?: T): void;
 
     didEnterOwnScope(path: Path<DoExpressive>){
+        this.context.push()
         const traversable = path.get("body").get("body")
         for(const item of traversable)
             this.parse(item);
     }
 
-    didExitOwnScope?(path?: Path<DoExpressive>): void;
+    didExitOwnScope(path: Path<DoExpressive>){
+        this.context.pop(this as any);
+    }
 
     handleContentBody(content: Statement){
         if(!isBlockStatement(content))

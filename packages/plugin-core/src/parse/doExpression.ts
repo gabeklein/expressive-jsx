@@ -20,14 +20,10 @@ export const DoExpression = <Visitor<DoExpressive>> {
         let meta = path.node.meta || 
             generateEntryElement(path, state.context);
 
-        if(meta.didEnterOwnScope)
-            meta.didEnterOwnScope(path)
+        meta.didEnterOwnScope(path)
     },
-    exit: (path, state) => {
-        const { meta } = path.node;
-        state.context.pop(meta, state);
-        if(meta.didExitOwnScope)
-            meta.didExitOwnScope(path)
+    exit: (path) => {
+        path.node.meta.didExitOwnScope(path)
     }
 }
 
