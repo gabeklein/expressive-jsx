@@ -8,7 +8,7 @@ export default {
     format: 'cjs',
     exports: "named"
   },
-  external: [ "@babel/types", "crypto" ],
+  external: [ "@babel/types", "crypto", "path" ],
   plugins: [
     typescript({
       transpileOnly: true
