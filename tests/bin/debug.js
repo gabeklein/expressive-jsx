@@ -17,10 +17,19 @@ if(TEST_DEFAULT == "false")
   TEST_DEFAULT = false;
 
 const statementLineSpacing = () =>
-    replace(/^(.+?)\n(export|const|let)/gm, "$1\n\n$2")
+  replace(/^(.+?)\n(export|const|let)/gm, "$1\n\n$2")
 
 const jsxReturnSpacing = () =>
-    replace(/^(.+?[^{])\n(\s+return (?=\(|<))/gm, "$1\n\n$2")
+  replace(/^(.+?[^{])\n(\s+return (?=\(|<))/gm, "$1\n\n$2")
+
+const removeDoubleLines = () =>
+  replace(/\n{3,}/g, "\n\n")
+
+const spaceOutBlocks = () =>
+  replace(/([\t \r]*\n)([\)\}\]]+;?)([\t \r]*\n{1})(\s*[^\ni])/g, "$1$2$3\n$4")
+
+const spaceAfterImports = () =>
+  replace(/(from ".+";?)([\t \r]*\n)([^\ni])/g, "$1$2\n$3");
 
 if(TEST_DEFAULT || !TEST_INPUT)
   TEST_INPUT = "input/"
@@ -55,6 +64,9 @@ gulp.task('xjs', (done) => {
       .pipe(prettier(prettyConfig))
       .pipe(statementLineSpacing())
       .pipe(jsxReturnSpacing())
+      .pipe(spaceOutBlocks())
+      .pipe(spaceAfterImports())
+      .pipe(removeDoubleLines())
       .pipe(gulp.dest(outDir))
       .on('end', done);
 });
