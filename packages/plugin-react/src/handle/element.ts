@@ -57,11 +57,15 @@ export class ElementReact<T extends ElementInline = ElementInline>
             if(mod.nTargets == 1 
             && !mod.onlyWithin
             && !mod.applicable.length){
-                for(const style of mod.sequence)
-                    if(style.name in existsAlready == false
-                    && style.name in accumulator == false){
-                        accumulator[style.name as string] = style;
-                    }
+                for(const style of mod.sequence){
+                    const name = style.name as string;
+                    if(name in existsAlready
+                    || name in accumulator
+                    && accumulator[name].overridden !== true)
+                        continue;
+
+                    accumulator[name as string] = style;
+                }
             }
             else {
                 let doesProvideAStyle = false;
