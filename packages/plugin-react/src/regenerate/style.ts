@@ -110,7 +110,7 @@ function writeSyntax(
     const provideStatement = 
         expressionStatement(
             callExpress(
-                memberExpress(polyfillModule, "shouldInclude"), 
+                memberExpress(polyfillModule, "include"), 
                 templateLiteral([
                     templateElement({raw: computedStyle, cooked: computedStyle}, true)
                 ], []),

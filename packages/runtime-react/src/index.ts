@@ -36,9 +36,9 @@ const StyleSheet = new class RuntimeStyleController {
      * @param cssText - plain CSS to be included
      * @param reoccuringKey - dedupe identifier (for HMR or potentially dynamic style)
      */
-    shouldInclude(cssText: string, reoccuringKey: string){
+    include(cssText: string, reoccuringKey: string){
         if(this.ref)
-            this.include(cssText, reoccuringKey)
+            this._include(cssText, reoccuringKey)
         else
             this.apply(cssText, reoccuringKey)
     }
@@ -53,7 +53,7 @@ const StyleSheet = new class RuntimeStyleController {
      * 
      * Will bail if cssText already exists, and overwrite chunks which share `reoccuringKey`.
      */
-    private include(cssText: string, reoccuringKey: string){
+    private _include(cssText: string, reoccuringKey: string){
         const existing = this.contentIncludes;
 
         if(cssText in existing)

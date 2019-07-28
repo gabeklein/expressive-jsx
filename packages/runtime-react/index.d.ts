@@ -45,7 +45,7 @@ interface RuntimeStyleController {
      * @param cssText - plain CSS to be included
      * @param reoccuringKey - dedupe identifier (for HMR or dynamic style)
      */
-    shouldInclude(cssText: string, reoccuringKey: string): void;
+    include(cssText: string, reoccuringKey: string): void;
 }
 
 export default RuntimeStyleController
