@@ -2,6 +2,7 @@ import { File, isExpressionStatement, isLabeledStatement, Program as BabelProgra
 import { ComponentIf, ElementInline, ElementModifier } from 'handle';
 import { BabelFile, hash, ParseErrors, Shared } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
+import { relative } from "path"
 
 import * as builtIn from './builtin';
 
@@ -10,6 +11,7 @@ interface Stackable {
 }
 
 const { getPrototypeOf, create, assign } = Object;
+const debug = ~process.execArgv.join().indexOf("inspect-brk")
 
 const Error = ParseErrors({
     IllegalAtTopLevel: "Cannot apply element styles in top-level of program",
@@ -19,6 +21,9 @@ const Error = ParseErrors({
 
 export const Program = <Visitor<BabelProgram>>{
     enter({ node }, state: any){
+        if(debug)
+            console.log(" - ", relative(process.cwd(), state.filename))
+
         let context = state.context = new StackFrame(state).create(this);
         context.currentFile = state.file;
 
@@ -46,10 +51,6 @@ export const Program = <Visitor<BabelProgram>>{
             else filtered.push(statement);
 
         node.body = filtered;
-    },
-    exit(path, state){
-        if(~process.execArgv.join().indexOf("inspect-brk"))
-            console.log("done")
     }
 }
 
