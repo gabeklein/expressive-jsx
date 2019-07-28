@@ -145,7 +145,7 @@ function incorperateChildParameters(
     arrowFn.params = [props.node as Identifier | ObjectPattern];
         
     if(init){
-        const inner = Imports.ensure("@expressive/react", "body");
+        const inner = Imports.ensure("$runtime", "body");
         let getKids = callExpress(inner, props.node as Expression) as Expression;
         if(count == 1)
             getKids = memberExpression(getKids, numericLiteral(0), true)

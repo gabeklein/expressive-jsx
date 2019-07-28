@@ -5,8 +5,6 @@ import { BunchOf } from 'types';
 
 import { Module } from './module';
 
-const RUNTIME = "@expressive/react";
-
 type SelectorContent = [ string, string[] ][];
 type MediaGroups = SelectorContent[];
 
@@ -104,7 +102,7 @@ function writeSyntax(
     } = module;
 
     const programBody = program.node.body;
-    const polyfillModule = imports.ensure(RUNTIME, "default", "StyleSheet");
+    const polyfillModule = imports.ensure("$runtime", "default", "Styles");
 
     const filenameMaybe = opts.hot !== false
         ? [ stringLiteral(relativeFileName) ] : [];

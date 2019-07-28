@@ -23,7 +23,7 @@ export class GenerateJSX extends GenerateReact {
     
     get Fragment(){
         const Fragment = jsxIdentifier(
-            this.external.ensure("react", "Fragment").name
+            this.external.ensure("$pragma", "Fragment").name
         );
         Object.defineProperty(this, "Fragment", { configurable: true, value: Fragment })
         return Fragment;
@@ -31,7 +31,7 @@ export class GenerateJSX extends GenerateReact {
     
     willExitModule(){
         if(this.module.lastInsertedElement)
-            this.external.ensure("react", "default", "React")
+            this.external.ensure("$pragma", "default", "React")
     }
 
     element(src: ElementReact){

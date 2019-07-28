@@ -61,6 +61,8 @@ export function ensureUID(
 }
 
 export interface ExternalsManager {
+    opts?: any;
+
     ensure(
         from: string, 
         name: string,
@@ -83,7 +85,8 @@ export class ImportManager
     scope = this.path.scope;
 
     constructor(
-        protected path: Path<Program>
+        protected path: Path<Program>,
+        public opts: any
     ){}
 
     ensure(
@@ -91,6 +94,9 @@ export class ImportManager
         name: string,
         alt?: string){
 
+        if(from[0] == "$")
+            from = this.opts[from.slice(1)]
+            
         let uid;
         const list = this.imports[from] || this.ensureImported(from);
 
@@ -164,13 +170,17 @@ export class RequirementManager
     scope = this.path.scope;
     
     constructor(
-        protected path: Path<Program>
+        protected path: Path<Program>,
+        public opts: any
     ){}
 
     ensure(
         from: string, 
         name: string,
         alt?: string){
+
+        if(from[0] == "$")
+            from = this.opts[from.slice(1)]
         
         const source = this.imports[from] || this.ensureImported(from);
 

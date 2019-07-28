@@ -187,7 +187,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
         let computeClassname = selectors[0];
 
         if(selectors.length > 1){
-            const join = this.context.Imports.ensure("@expressive/react", "join");
+            const join = this.context.Imports.ensure("$runtime", "join");
             computeClassname = callExpression(join, selectors)
         }
 

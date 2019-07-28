@@ -22,14 +22,14 @@ const IsComponentElement = /^[A-Z]\w*/;
 export class GenerateES extends GenerateReact {
 
     get Fragment(){
-        let id = this.external.ensure("react", "Fragment");
+        let id = this.external.ensure("$pragma", "Fragment");
         Object.defineProperty(this, "Fragment", { value: id });
         return id;
     }
 
     get Create(){
         let id = this.external.ensure(
-            "react", "createElement", "create"
+            "$pragma", "createElement", "create"
         );
 
         Object.defineProperty(this, "Create", { value: id });

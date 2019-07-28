@@ -13,7 +13,16 @@ export const Program = <Visitor<ProgramNode>> {
         let Importer;
 
         const { context } = state;
-        const { output, useRequire, useImport } = state.opts;
+        const opts = (<any>state.opts) =
+            Object.assign(
+                {
+                    runtime: "@expressive/react",
+                    pragma: "react"
+                },
+                state.opts
+            )
+
+        const { output, useRequire, useImport } = opts;
 
         if(output == "jsx"){
             Importer = ImportManager
@@ -32,7 +41,7 @@ export const Program = <Visitor<ProgramNode>> {
         if(useImport)
             Importer = ImportManager
 
-        const I = context.Imports = new Importer(path);
+        const I = context.Imports = new Importer(path, opts);
         const M = context.Module = new Module(path, state, I);
         const G = context.Generator = new Generator(M, I);
 
