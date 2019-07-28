@@ -77,12 +77,8 @@ function IsJustAValue(subject: Expression){
     if(isUnaryExpression(target, {operator: "void"})){
         if(leftOf)
             leftOf.left = target.argument;
-        else {
+        else 
             Object.assign(target, target.argument);
-            delete target.prefix;
-            delete target.argument;
-            delete target.operator;
-        }
         return true
     }
 
