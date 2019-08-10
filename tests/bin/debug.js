@@ -16,6 +16,15 @@ let {
 if(TEST_DEFAULT == "false")
   TEST_DEFAULT = false;
 
+if(TEST_DEFAULT || !TEST_INPUT)
+  TEST_INPUT = "input/"
+
+if(TEST_DEFAULT || !TEST_OUTPUT)
+  TEST_OUTPUT = "output/"
+
+const inDir = TEST_INPUT.replace(/\/$/, "").concat("/*.js");
+const outDir = TEST_OUTPUT.replace(/\/$/, "");
+
 const statementLineSpacing = () =>
   replace(/^(.+?)\n(export|const|let)/gm, "$1\n\n$2")
 
@@ -31,45 +40,35 @@ const spaceOutBlocks = () =>
 const spaceAfterImports = () =>
   replace(/(from ".+";?)([\t \r]*\n)([^\ni])/g, "$1$2\n$3");
 
-if(TEST_DEFAULT || !TEST_INPUT)
-  TEST_INPUT = "input/"
-
-if(TEST_DEFAULT || !TEST_OUTPUT)
-  TEST_OUTPUT = "output/"
-
-const inDir = TEST_INPUT.replace(/\/$/, "").concat("/*.js");
-const outDir = TEST_OUTPUT.replace(/\/$/, "");
-
-const prettyConfig = { 
-  singleQuote: false, 
-  trailingComma: "none", 
-  jsxBracketSameLine: true,
-  printWidth: 60
-};
+gulp.task('xjs', (done) => {
+  gulp
+    .src([inDir])
+    .pipe(babel({ babelrc: false, ...babelrc }))
+    .on('error', function(e){
+      // printError(e);
+      console.error(
+        prettyjson.render(e).replace(/\n/g, "\n  ")
+      )
+      console.log("\n\Watch task has crashed, restart session to resume.")
+    })
+    .pipe(prettier({ 
+      singleQuote: false, 
+      trailingComma: "none", 
+      jsxBracketSameLine: true,
+      printWidth: 60
+    }))
+    .pipe(statementLineSpacing())
+    .pipe(jsxReturnSpacing())
+    .pipe(spaceOutBlocks())
+    .pipe(spaceAfterImports())
+    .pipe(removeDoubleLines())
+    .pipe(gulp.dest(outDir))
+    .on('end', done);
+});
 
 gulp.task('onChange', () => {
   console.log("File Changed!")
 })
-
-gulp.task('xjs', (done) => {
-  gulp.src([inDir])
-      .pipe(babel({ babelrc: false, ...babelrc }))
-      .on('error', function(e){
-        // printError(e);
-        console.error(
-          prettyjson.render(e).replace(/\n/g, "\n  ")
-        )
-        console.log("\n\Watch task has crashed, restart session to resume.")
-      })
-      .pipe(prettier(prettyConfig))
-      .pipe(statementLineSpacing())
-      .pipe(jsxReturnSpacing())
-      .pipe(spaceOutBlocks())
-      .pipe(spaceAfterImports())
-      .pipe(removeDoubleLines())
-      .pipe(gulp.dest(outDir))
-      .on('end', done);
-});
 
 gulp.task("watch", () => {
   gulp.watch(inDir, gulp.series(['xjs', 'onChange']));
