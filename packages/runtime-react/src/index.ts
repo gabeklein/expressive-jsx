@@ -17,17 +17,24 @@ const StyleSheet = new class RuntimeStyleController {
             enumerable: false,
             writable: true
         })
+        this.bootstrap();
+    }
 
-        window.addEventListener('load', () => {
-            const tag 
-                = this.ref 
-                = document.createElement("style");
+    bootstrap(){
+        const tag 
+            = this.ref 
+            = document.createElement("style");
+
+        tag.setAttribute("expressive", "");
+        tag.innerHTML = this.cssText;
+
+        document.body.appendChild(tag);
+    }
+
     
-            tag.setAttribute("expressive", "");
-            tag.innerHTML = this.cssText;
-    
-            document.body.appendChild(tag);
-        }, false);
+    get cssText(){
+        let output = valuesOf(this.chunks).join("\n\n");
+        return output ? `\n${output}\n` : "";
     }
 
     /**
@@ -37,23 +44,6 @@ const StyleSheet = new class RuntimeStyleController {
      * @param reoccuringKey - dedupe identifier (for HMR or potentially dynamic style)
      */
     include(cssText: string, reoccuringKey: string){
-        if(this.ref)
-            this._include(cssText, reoccuringKey)
-        else
-            this.apply(cssText, reoccuringKey)
-    }
-
-    get cssText(){
-        let output = valuesOf(this.chunks).join("\n\n");
-        return output ? `\n${output}\n` : "";
-    }
-
-    /**
-     * Inlcude cssText in rendered <style>.
-     * 
-     * Will bail if cssText already exists, and overwrite chunks which share `reoccuringKey`.
-     */
-    private _include(cssText: string, reoccuringKey: string){
         const existing = this.contentIncludes;
 
         if(cssText in existing)
