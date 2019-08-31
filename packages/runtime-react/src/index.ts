@@ -1,3 +1,5 @@
+import { createElement } from "react";
+
 interface BunchOf<T> {
     [key: string]: T
 }
@@ -7,7 +9,7 @@ const valuesOf = Object.values;
 
 // allowing subsequent calls to override previous ones. Intended to prevent duping, especially on hot reloads.
 
-const StyleSheet = new class RuntimeStyleController {
+const Controller = new class RuntimeStyleController {
     chunks = {} as BunchOf<string>;
     contentIncludes = {} as BunchOf<boolean | string>;
     ref?: HTMLStyleElement;
@@ -21,14 +23,17 @@ const StyleSheet = new class RuntimeStyleController {
     }
 
     bootstrap(){
-        const tag 
-            = this.ref 
-            = document.createElement("style");
+        try {
+            const tag 
+                = this.ref 
+                = document.createElement("style");
 
-        tag.setAttribute("expressive", "");
-        tag.innerHTML = this.cssText;
+            tag.setAttribute("expressive", "");
+            tag.innerHTML = this.cssText;
 
-        document.body.appendChild(tag);
+            document.body.appendChild(tag);
+        }
+        catch(err){}
     }
 
     
@@ -56,7 +61,10 @@ const StyleSheet = new class RuntimeStyleController {
         }
 
         this.apply(cssText, reoccuringKey)
-        this.ref!.innerHTML = this.cssText;
+        try {
+            this.ref!.innerHTML = this.cssText;
+        }
+        catch(err){}
     }
 
     /**
@@ -95,5 +103,15 @@ export {
     body,
     join
 }
+
+const StyleSheet = () => {
+    return createElement(
+        "style", {
+            dangerouslySetInnerHTML: { __html: Controller.cssText }
+        }
+    )
+}
+
+StyleSheet.include = Controller.include.bind(Controller);
 
 export default StyleSheet;
