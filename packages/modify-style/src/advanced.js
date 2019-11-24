@@ -15,6 +15,23 @@ const PSEUDO = {
     placeholder: "::placeholder"
 }
 
+export function nthOfType(){
+    const inner = this.body.body;
+    let i = 0;
+    let select;
+    for(const item of inner){
+        if(item.label.name !== "select"){
+            i++;
+            continue;
+        }
+        else {
+            inner.splice(i, 1);
+            select = item.body.expression.value;
+        }
+    }
+    this.setContingent(`:nth-of-type(${select})`, 6);
+}
+
 for(const name in PSEUDO){
     let priority = ~name.indexOf("Active") ? 7 : 6;
     EXPORT[name] = function(){
