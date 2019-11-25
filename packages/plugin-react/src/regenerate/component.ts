@@ -129,24 +129,27 @@ function incorperateChildParameters(
             : destructure[0] as Identifier;
     }
 
-    if(props.isObjectPattern())
+    if(props.isIdentifier())
+        init = memberExpression(props.node, identifier("children"));
+
+    else if(props.isObjectPattern()){
+        let propertyAs: Identifier = 
+            isIdentifier(assign) ? assign : 
+                init = wrapperFunction.scope.generateUidIdentifier("children");
+
         props.node.properties.push(
             objectProperty(
                 identifier("children"), 
-                isIdentifier(assign) 
-                    ? assign
-                    : init = wrapperFunction.scope.generateUidIdentifier("children")
+                propertyAs
             )
         )
-        
-    else if(props.isIdentifier())
-        init = memberExpression(props.node, identifier("children"));
+    }
 
     arrowFn.params = [props.node as Identifier | ObjectPattern];
         
     if(init){
         const inner = Imports.ensure("$runtime", "body");
-        let getKids = callExpress(inner, props.node as Expression) as Expression;
+        let getKids: Expression = callExpress(inner, props.node);
         if(count == 1)
             getKids = memberExpression(getKids, numericLiteral(0), true)
 

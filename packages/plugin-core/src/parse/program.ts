@@ -1,5 +1,5 @@
 import { File, isExpressionStatement, isLabeledStatement, Program as BabelProgram, Statement } from '@babel/types';
-import { ComponentIf, ElementInline, ElementModifier } from 'handle';
+import { ComponentIf, ElementInline, ElementModifier, ComponentExpression } from 'handle';
 import { BabelFile, hash, ParseErrors, Shared } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
 import { relative } from "path"
@@ -59,6 +59,7 @@ export class StackFrame {
     program = {} as any;
     styleRoot = {} as any;
     current = {} as any;
+    currentComponent?: ComponentExpression;
     currentElement?: ElementInline;
     currentIf?: ComponentIf;
     currentFile?: File;

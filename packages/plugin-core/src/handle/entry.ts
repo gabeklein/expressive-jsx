@@ -19,6 +19,8 @@ export class ComponentExpression extends ComponentContainer {
 
         super(context);
 
+        this.context.currentComponent = this;
+
         if(exec){
             this.exec = exec;
         }

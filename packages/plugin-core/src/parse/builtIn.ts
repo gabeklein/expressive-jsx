@@ -32,8 +32,10 @@ export function priority(
         target.priority = priority
 }
 
-export function css(
-    this: ModifyDelegate
-){
+export function css(this: ModifyDelegate){
     debugger;
+}
+
+export function forward(this: ModifyDelegate, ...args: any[]){
+    this.forwardFromParentProps(args);
 }
