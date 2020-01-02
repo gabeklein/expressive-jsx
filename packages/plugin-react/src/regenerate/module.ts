@@ -1,9 +1,10 @@
 import { Path as Path } from '@babel/traverse';
 import { Program as ProgramNode } from '@babel/types';
 import { BabelState, DoExpressive, Modifier } from '@expressive/babel-plugin-core';
+import { createHash } from 'crypto';
 import { ExternalsManager, GenerateES, GenerateJSX, ImportManager, writeProvideStyleStatement } from 'internal';
-import { relative } from 'path';
 import { Visitor } from 'types';
+// import { relative } from 'path';
 
 import { RequirementManager } from './scope';
 
@@ -63,6 +64,13 @@ export const Program = <Visitor<ProgramNode>> {
     }
 }    
 
+export function hash(data: string, length: number = 3){
+    return createHash("md5")		
+        .update(data)		
+        .digest('hex')		     
+        .substring(0, length)
+}
+
 export class Module {
 
     modifiersDeclared = new Set<Modifier>()
@@ -75,7 +83,8 @@ export class Module {
     };
 
     get relativeFileName(){
-        return relative(this.state.cwd, this.state.filename);
+        // return relative(this.state.cwd, this.state.filename);
+        return hash(this.state.filename, 10)
     }
 
     EOF(opts: any){
