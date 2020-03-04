@@ -51,8 +51,8 @@ export const DoExpression = <Visitor<DoExpressive>> {
 
         const factoryExpression = Generator.container(factory)
 
-        if(meta instanceof ComponentExpression && meta.exec)
-            incorperateChildParameters(meta, state.context.Imports)
+        // if(meta instanceof ComponentExpression && meta.exec)
+        //     incorperateChildParameters(meta, state.context.Imports)
 
         if(meta.exec && meta.statements.length){
             const replacement = [
@@ -90,7 +90,7 @@ function asOnlyAttributes(factory: ElementReact){
     })
 }
 
-function incorperateChildParameters(
+void function incorperateChildParameters(
     Do: ComponentExpression,
     Imports: ExternalsManager
 ){
