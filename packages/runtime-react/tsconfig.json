@@ -2,7 +2,9 @@
     "compilerOptions": {
         "rootDir": "src",
         "outDir": "lib",
-        "target": "ESNext",
+        "target": "es2018",
+        "lib": ["DOM", "ESNEXT"],
+        "module": "commonjs",
         "moduleResolution": "node",
         "strict": true,
         "esModuleInterop": true
