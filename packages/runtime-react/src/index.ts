@@ -4,6 +4,8 @@ interface BunchOf<T> {
     [key: string]: T
 }
 
+const { defineProperty: define } = Object;
+
 const arrayPushMethod = Array.prototype.push;
 const valuesOf = Object.values;
 
@@ -15,7 +17,7 @@ const Controller = new class RuntimeStyleController {
     ref?: HTMLStyleElement;
 
     constructor(){
-        Object.defineProperty(this.chunks, "length", {
+        define(this.chunks, "length", {
             enumerable: false,
             writable: true
         })
@@ -112,6 +114,7 @@ const StyleSheet = () => {
     )
 }
 
-StyleSheet.include = Controller.include.bind(Controller);
+define(StyleSheet, "include", { value: Controller.include.bind(Controller) });
+define(StyleSheet, "cssText", { get: () => Controller.cssText })
 
 export default StyleSheet;
