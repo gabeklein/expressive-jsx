@@ -1,5 +1,5 @@
 /// <reference types="babel__traverse" />
-import { Path as Path, VisitNodeObject } from '@babel/traverse';
+import { NodePath as Path, VisitNodeObject } from '@babel/traverse';
 import {
     ArrowFunctionExpression,
     AssignmentExpression,

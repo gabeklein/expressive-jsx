@@ -28,11 +28,11 @@
     "prepare": "npm run build"
   },
   "dependencies": {
-    "@babel/types": "^7.0.0"
+    "@babel/types": "^7.4.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0"
+    "@babel/cli": "^7.4.0",
+    "@babel/core": "^7.4.0",
+    "@babel/preset-env": "^7.4.0"
   }
 }

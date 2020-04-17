@@ -1,4 +1,4 @@
-import { Path as Path } from '@babel/traverse';
+import { NodePath as Path } from '@babel/traverse';
 import { Program as ProgramNode } from '@babel/types';
 import { BabelState, DoExpressive, Modifier } from '@expressive/babel-plugin-core';
 import { createHash } from 'crypto';
