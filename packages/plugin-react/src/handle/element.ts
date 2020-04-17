@@ -200,6 +200,9 @@ export class ElementReact<T extends ElementInline = ElementInline>
     }
 
     Style(item: ExplicitStyle){
+        if(opts.styleMode == "inline")
+            (<any>item).invariant = false;
+            
         if(item.invariant)
             this.style_static.push(item);
         else
