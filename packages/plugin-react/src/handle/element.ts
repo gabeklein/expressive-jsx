@@ -23,6 +23,7 @@ import {
 } from '@expressive/babel-plugin-core';
 import { AttributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue } from 'internal';
 import { BunchOf, ContentLike, PropData, StackFrame } from 'types';
+import { opts } from 'internal'
 
 export class ElementReact<T extends ElementInline = ElementInline>
     extends ElementConstruct<T>{

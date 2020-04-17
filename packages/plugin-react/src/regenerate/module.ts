@@ -4,7 +4,7 @@ import { BabelState, DoExpressive, Modifier } from '@expressive/babel-plugin-cor
 import { createHash } from 'crypto';
 import { ExternalsManager, GenerateES, GenerateJSX, ImportManager, writeProvideStyleStatement } from 'internal';
 import { Visitor } from 'types';
-// import { relative } from 'path';
+import { opts } from 'internal';
 
 import { RequirementManager } from './scope';
 
@@ -14,16 +14,16 @@ export const Program = <Visitor<ProgramNode>> {
         let Importer;
 
         const { context } = state;
-        const opts = (<any>state.opts) =
-            Object.assign(
-                {
-                    runtime: "@expressive/react",
-                    pragma: "react"
-                },
-                state.opts
-            )
+        Object.assign(
+            opts,
+            {
+                runtime: "@expressive/react",
+                pragma: "react"
+            },
+            state.opts
+        )
 
-        const { output, useRequire, useImport } = opts;
+        const { output, useRequire, useImport } = opts as any;
 
         if(output == "jsx"){
             Importer = ImportManager
