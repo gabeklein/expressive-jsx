@@ -42,7 +42,9 @@ function orderSyntax(
                 targetQuery[priority] = [];
 
         const styles = 
-            block.sequence.map(style => {
+            block.sequence
+            .filter(style => style.invariant)
+            .map(style => {
                 let styleKey = style.name;
                 if(typeof styleKey == "string")
                     styleKey = styleKey.replace(/([A-Z]+)/g, "-$1").toLowerCase();

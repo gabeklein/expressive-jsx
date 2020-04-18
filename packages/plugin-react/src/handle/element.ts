@@ -21,9 +21,8 @@ import {
     Prop,
     SequenceItem,
 } from '@expressive/babel-plugin-core';
-import { AttributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue } from 'internal';
+import { AttributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue, opts } from 'internal';
 import { BunchOf, ContentLike, PropData, StackFrame } from 'types';
-import { opts } from 'internal'
 
 export class ElementReact<T extends ElementInline = ElementInline>
     extends ElementConstruct<T>{
@@ -45,49 +44,43 @@ export class ElementReact<T extends ElementInline = ElementInline>
         const { classList } = this.source.data;
         const accumulator = {} as BunchOf<Attribute>
         const existsAlready = this.source.style;
+        const inlineOnly = opts.styleMode === "inline";
         // TODO: respect priority differences!
 
+        const willCollide = (name: string) =>
+            name in existsAlready || 
+            name in accumulator && 
+            accumulator[name].overridden !== true
+        
         if(classList)
             this.classList.push(...classList);
 
         for(const mod of this.source.modifiers){
-            if(!mod.sequence.length 
-            && !mod.applicable.length)
+            if(mod.sequence.length === 0 && 
+               mod.applicable.length === 0)
                 continue
             
-            if(mod.nTargets == 1 
-            && !mod.onlyWithin
-            && !mod.applicable.length){
-                for(const style of mod.sequence){
-                    const name = style.name as string;
-                    if(name in existsAlready
-                    || name in accumulator
-                    && accumulator[name].overridden !== true)
+            const collapsable = 
+                mod.nTargets == 1 && 
+                mod.onlyWithin === undefined && 
+                mod.applicable.length === 0;
+            
+            for(const style of mod.sequence){
+                if(!(style instanceof ExplicitStyle))
+                    continue;
+
+                if(!style.invariant || inlineOnly || collapsable){
+                    const { name } = style;
+    
+                    if(!name || willCollide(name))
                         continue;
-
-                    accumulator[name as string] = style;
+    
+                    accumulator[name] = style;
                 }
             }
-            else {
-                let doesProvideAStyle = false;
-                const declared = this.context.Module.modifiersDeclared;
                 
-                for(const applicable of [mod, ...mod.applicable]){
-                    if(applicable.sequence.length)
-                        declared.add(applicable);
-
-                    if(applicable instanceof ContingentModifier)
-                        doesProvideAStyle = true;
-                    else 
-
-                    if(applicable instanceof ElementModifier)
-                        if(applicable.sequence.length)
-                            this.classList.push(applicable.uid);
-                }
-
-                if(doesProvideAStyle)
-                    declared.add(mod);
-            }
+            if(!inlineOnly)
+                this.applyModifierAsClassname(mod)
         }
 
         for(const name in accumulator)
@@ -97,6 +90,27 @@ export class ElementReact<T extends ElementInline = ElementInline>
 
         if(pre.length)
             return pre.concat(sequence);
+    }
+
+    applyModifierAsClassname(mod: ElementModifier){
+        let doesProvideAStyle = false;
+        const declared = this.context.Module.modifiersDeclared;
+        
+        for(const applicable of [mod, ...mod.applicable]){
+            if(applicable.sequence.length)
+                declared.add(applicable);
+
+            if(applicable instanceof ContingentModifier)
+                doesProvideAStyle = true;
+            else 
+
+            if(applicable instanceof ElementModifier)
+                if(applicable.sequence.length)
+                    this.classList.push(applicable.uid);
+        }
+
+        if(doesProvideAStyle)
+            declared.add(mod);
     }
 
     didParse(){
