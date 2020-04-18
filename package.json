@@ -1,6 +1,10 @@
 {
 	"name": "expressive-react",
 	"version": "0.9.0-alpha",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
 	"description": "An alternative syntax for powerful react constructs using less code",
 	"scripts": {
 		"start": "concurrently \"npm:watch-core\" \"npm:watch-react\"",
