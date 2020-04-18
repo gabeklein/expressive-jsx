@@ -2,12 +2,12 @@ import { Expression, TemplateElement, TemplateLiteral } from '@babel/types';
 
 export function dedent(quasi: TemplateLiteral){
     const { quasis } = quasi;
-    const starting_indentation = /^\n( *)/.exec(quasis[0].value.cooked);
+    const starting_indentation = /^\n( *)/.exec(quasis[0].value.cooked!);
     const INDENT = starting_indentation && new RegExp("\n" + starting_indentation[1], "g");
     let i = 0;
 
     for(const { value } of quasis){
-        let text = value.cooked;
+        let text = value.cooked!;
         if(INDENT)
             text = text.replace(INDENT, "\n");
         if(i === 0) 
@@ -26,7 +26,7 @@ export function dedent(quasi: TemplateLiteral){
 
 export function breakdown(quasi: TemplateLiteral){
     const { quasis, expressions } = quasi;
-    const starting_indentation = /^\n( *)/.exec(quasis[0].value.cooked);
+    const starting_indentation = /^\n( *)/.exec(quasis[0].value.cooked!);
     const INDENT = starting_indentation && new RegExp("\n" + starting_indentation[1], "g");
     const acc = [] as Array<string | Expression>
     let i = 0;
@@ -65,8 +65,8 @@ export function breakForString(
     i: number, 
     length: number ){
 
-    for(let x of ["raw", "cooked"]){
-        let text = quasi.value[x];
+    for(let x of ["raw", "cooked"] as const){
+        let text = quasi.value[x]!;
         if(INDENT) text = text.replace(INDENT, "\n");
         if(i == 0) text = text.replace("\n", "")
         if(i == length - 1)

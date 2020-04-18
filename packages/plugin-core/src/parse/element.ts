@@ -282,8 +282,8 @@ function unwrapExpression(
             let content: Expression = expression.quasi;
 
             if(content.expressions.length === 0 &&
-               containsLineBreak.test(content.quasis[0].value.cooked) === false){
-                const text = content.quasis[0].value.cooked;
+               containsLineBreak.test(content.quasis[0].value.cooked!) === false){
+                const text = content.quasis[0].value.cooked!;
                 content = stringLiteral(text);
             }
 
@@ -301,7 +301,7 @@ function unwrapExpression(
                 args as ListElement[],
                 target
             );
-            expression = exp.callee;
+            expression = exp.callee as any;
             break;
         }
 

@@ -51,7 +51,7 @@ function generateEntryElement(
         break;
     }
 
-    const name = containerName(containerFn || path);
+    const name = containerName(containerFn || path as any);
     
     return new ComponentExpression(name, context, path, containerFn);
 }

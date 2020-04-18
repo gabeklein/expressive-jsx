@@ -1,7 +1,7 @@
 import { NodePath as Path } from '@babel/traverse';
 import { doExpression, Expression, ExpressionStatement, Statement, isBlockStatement, blockStatement } from '@babel/types';
 import { StackFrame } from 'parse';
-import { ParseErrors } from 'shared';
+import { ParseErrors, ensureArray } from 'shared';
 import { BunchOf, DoExpressive, SequenceItem } from 'types';
 
 import { ComponentIf } from './';
@@ -57,12 +57,12 @@ export abstract class TraversableBody {
     }
 
     parse(item: Path<Statement>){
-        const content = item.isBlockStatement() ? item.get("body") : [item];
+        const content = item.isBlockStatement() ? ensureArray(item.get("body")) : [item];
         for(const item of content)
             if(item.type in this) 
                 (this as any)[item.type](item.node, item);
             else {
-                throw Error.NodeUnknown(item, item.type)
+                throw Error.NodeUnknown(item as any, item.type)
             }
     }
 

@@ -1,5 +1,5 @@
 import { NodePath as Path } from '@babel/traverse';
-import { BaseNode, Expression, File } from '@babel/types';
+import { Node, Expression, File } from '@babel/types';
 import { BunchOf, FlatValue } from 'types';
 import { createHash } from 'crypto';
 
@@ -13,8 +13,10 @@ interface Options {
     formatStyles: any;
 }
 
+export const ensureArray = <T>(a: T | T[]) => Array.isArray(a) ? a : [a];
+
 export interface BabelFile extends File {
-    buildCodeFrameError<TError extends Error>(node: BaseNode, msg: string, Error?: new (msg: string) => TError): TError;
+    buildCodeFrameError<TError extends Error>(node: Node, msg: string, Error?: new (msg: string) => TError): TError;
 }
 
 export interface SharedSingleton {
@@ -60,7 +62,7 @@ export function inParenthesis(node: Expression): boolean {
     return extra ? extra.parenthesized === true : false;
 }
 
-type ParseError = <T extends BaseNode>(node: Path<T> | T, ...args: FlatValue[]) => Error;
+type ParseError = <T extends Node>(node: Path<T> | T, ...args: FlatValue[]) => Error;
 
 export function ParseErrors<O extends BunchOf<string>> (register: O) {
 

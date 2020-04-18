@@ -1,7 +1,7 @@
 import { NodePath as Path } from '@babel/traverse';
 import { Statement } from '@babel/types';
 import { StackFrame } from 'parse';
-import { ParseErrors } from 'shared';
+import { ParseErrors, ensureArray } from 'shared';
 import { BunchOf, SelectionProvider } from 'types';
 
 import { AttributeBody, ElementInline, ExplicitStyle } from './';
@@ -34,11 +34,11 @@ export abstract class Modifier extends AttributeBody {
     priority?: number;
 
     parse(body: Path<Statement>){
-        const content = body.isBlockStatement() ? body.get("body") : [body];
+        const content = body.isBlockStatement() ? ensureArray(body.get("body")) : [body];
         for(const item of content){
             if(item.type in this) 
                 (this as any)[item.type](item.node, item);
-            else throw Error.NodeUnknown(item, item.type)
+            else throw Error.NodeUnknown(item as any, item.type)
         }
     }
 
