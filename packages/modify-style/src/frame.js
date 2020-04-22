@@ -2,7 +2,7 @@ const EXPORT = exports;
 
 import { rect, appendUnitToN, handleUnits } from "./util";
 
-const sides = {
+const CORNER_MATRIX = {
     top: [1, 1, 0, 0],
     left: [1, 0, 0, 1],
     right: [0, 1, 1, 0],
@@ -41,34 +41,47 @@ export function aspectSize(x, y, unit){
     }
 }
 
-export function radius(a, r1, r2){
-    if(a == "round")
-        a = 999;
-    else 
-    if(typeof a == "string" && r1){
-        let [x, y] = a.split('-');
-        x = sides[x];
-        if(y)
-            x = x.map((x, i) => sides[y][i] ? x : 0);
+export function radius(dir, r1, r2){
+    let value = "";
 
-        a = x.map((r, i) => {
-            if(r){
-                let val = i && r2 || r1;
-                if(isNaN(val) == false)
-                    val += Math.round(val) != val
-                        ? "em" : "px"
-                return val;
-            }
-            else 
-                return 0;
-        }).join(" ")
+    if(dir == "round")
+        value = 999;
+
+    else if(r1 === undefined)
+        value = dir;
+
+    else if(typeof dir == "string"){
+        let [d1, d2] = dir.split('-');
+        let matrix = CORNER_MATRIX[d1];
+        
+        if(d2)
+            matrix = matrix.map((dir, i) => {
+                return CORNER_MATRIX[d2][i] ? dir : 0
+            });
+
+        const radii = matrix.map(b => {
+            return (b ? r1 : r2) || 0
+        })
+        
+        value = radii.map(addUnit).join(" ");
     }
 
     return {
         attrs: {
-            borderRadius: a
+            borderRadius: addUnit(value)
         }
     }    
+}
+
+function addUnit(n){
+    if(isNaN(n))
+        return n;
+    if(n == 0) 
+        return 0;
+    if(Math.round(n) === n)
+        return n + "px";
+    else
+        return n + "em"
 }
 
 export function circle(a){
