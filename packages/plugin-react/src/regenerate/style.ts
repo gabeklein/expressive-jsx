@@ -8,18 +8,13 @@ import { Module } from './module';
 type SelectorContent = [ string, string[] ][];
 type MediaGroups = SelectorContent[];
 
-export function writeProvideStyleStatement(
-    this: Module,
-    opts: any
-){
+export function writeProvideStyleStatement(this: Module, opts: any){
     const media = orderSyntax(this.modifiersDeclared);
     const text = createSyntax(media, opts);
     writeSyntax(this, text, opts);
 }
 
-function orderSyntax(
-    modifiersDeclared: Set<Modifier>
-){
+function orderSyntax(modifiersDeclared: Set<Modifier>){
     const media: BunchOf<MediaGroups> = {
         default: [] 
     };

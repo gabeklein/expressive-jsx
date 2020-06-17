@@ -100,20 +100,22 @@ for (const kind of [
     for (const [direction, a, b] of [
         ["Vertical", "Top", "Bottom"],
         ["Horizontal", "Left", "Right"] 
-    ])
-    EXPORT[kind + direction] = // marginHorizontal
-    EXPORT[kind + direction[0]] = // marginH
-        (aIn, bIn) => ({
-            attrs: {
-                [kind + a]: aIn,
-                [kind + b]: bIn || aIn
-            }
-        })
+    ]){
+        EXPORT[kind + direction] = // marginHorizontal
+        EXPORT[kind + direction[0]] = // marginH
+            (aIn, bIn) => ({
+                attrs: {
+                    [kind + a]: aIn,
+                    [kind + b]: bIn || aIn
+                }
+            })
+    }
 
-    for(const side of ["Top", "Left", "Right", "Bottom"])
+    for(const side of ["Top", "Left", "Right", "Bottom"]){
         EXPORT[kind + side] = 
         EXPORT[kind + side[0]] = 
             handleUnits(kind + side)  
+    }
 
     EXPORT[kind] = 
         function(keyword){
