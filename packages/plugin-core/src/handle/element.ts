@@ -17,12 +17,14 @@ import {
     UnaryExpression,
     UpdateExpression,
     VariableDeclaration,
+    JSXElement,
 } from '@babel/types';
 import { AddElementsFromExpression, ApplyNameImplications, StackFrame } from 'parse';
 import { inParenthesis, ParseErrors } from 'shared';
 import { BunchOf, DoExpressive, InnerContent } from 'types';
 
 import { AttributeBody, ComponentFor, ComponentIf, ElementModifier, ExplicitStyle, Modifier, Prop } from './';
+import { addElementFromJSX } from 'parse/jsx';
 
 const Error = ParseErrors({
     PropNotIdentifier: "Assignment must be identifier name of a prop.",
@@ -34,7 +36,6 @@ const Error = ParseErrors({
 })
 
 export class ElementInline extends AttributeBody {
-    
     doBlock?: DoExpressive
     primaryName?: string;
     children = [] as InnerContent[];
@@ -54,6 +55,10 @@ export class ElementInline extends AttributeBody {
             this.adopt(node)
         else 
             AddElementsFromExpression(node, this);
+    }
+
+    JSXElement(node: JSXElement){
+        addElementFromJSX(node, this);
     }
 
     ElementModifier(mod: ElementModifier){
@@ -180,7 +185,8 @@ export class ComponentContainer extends ElementInline {
     statements = [] as Statement[];
 
     ExpressionAsStatement(node: Expression){
-        this.statements.push(expressionStatement(node));
+        const stat = expressionStatement(node);
+        this.statements.push(stat);
     }
 
     VariableDeclaration(node: VariableDeclaration){
