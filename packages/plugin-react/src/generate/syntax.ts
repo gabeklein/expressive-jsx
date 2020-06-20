@@ -26,29 +26,44 @@ export function propertyES(
     name: string, 
     value: Expression){
 
-    const key = stringLiteral(name);
-    return objectProperty(key, value)
+    return objectProperty(
+        stringLiteral(name), 
+        value
+    )
 }
 
-export const attributeES = (src: Prop | ExplicitStyle) => 
-    propertyES(src.name as string, expressionValue(src) as Expression);
+export function attributeES(
+    src: Prop | ExplicitStyle){
 
-export function expressionValue(item: Prop | ExplicitStyle): Expression {
+    return objectProperty(
+        stringLiteral(src.name as string), 
+        expressionValue(src)
+    )
+}
+
+export function expressionValue(
+    item: Prop | ExplicitStyle){
+
     let { value } = item;
 
-    return (
-        typeof value === "string" ?
-            stringLiteral(value) :
-        typeof value === "number" ?
-            numericLiteral(value) :
-        typeof value === "boolean" ?
-            booleanLiteral(value) :
-        value === undefined && item.node ?
-            item.node as unknown as Expression :
-        typeof value === "object" ?
-            value || nullLiteral() :
-            identifier("undefined")
-    )
+    switch(typeof value){
+        case "string":
+            return stringLiteral(value);
+        case "number":
+            return numericLiteral(value);
+        case "boolean":
+            return booleanLiteral(value);
+        case "object":
+            if(value === null)
+                return nullLiteral();
+            else
+                return value;
+        default:
+            if(item.node)
+                return item.node as Expression;
+            else
+                return identifier("undefined");
+    }
 }
 
 export function ensureArray(
@@ -57,11 +72,16 @@ export function ensureArray(
 
     const array = callExpression(
         memberExpression(
-            arrayExpression([]), "concat"
+            arrayExpression(), 
+            stringLiteral("concat")
         ),
         [ children ]
     )
-    return getFirst ? memberExpression(array, 0) : array;
+
+    if(getFirst)
+        return memberExpression(array, numericLiteral(0));
+    else
+        return array;
 }
 
 export function iife(stats: Statement[]){

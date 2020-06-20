@@ -1,4 +1,3 @@
-import { NodePath as Path } from '@babel/traverse';
 import {
     BinaryExpression,
     Expression,
@@ -24,7 +23,7 @@ import { DoExpressive } from 'types';
 
 type ListElement = Expression | SpreadElement;
 
-const containsLineBreak = /\n/;
+const containsLineBreak = (text: string) => /\n/.test(text);
 
 const Error = ParseErrors({
     NoParenChildren: "Children in Parenthesis are not allowed, for direct insertion used an Array literal",
@@ -51,28 +50,31 @@ export function addElementsFromExpression(
     subject: Expression, 
     parent: ElementInline ){
 
-    var baseAttributes = [] as Expression[];
+    var attrs = [] as Expression[];
 
-    if(isSequenceExpression(subject)){
-        const exps = subject.expressions;
-        [subject, ...baseAttributes] = exps;
-    }
+    if(isSequenceExpression(subject))
+        [subject, ...attrs] = subject.expressions;
 
-    const Handler = isJustAValue(subject) 
-        ? applyPassthru 
-        : collateLayers;
-
-    return Handler(subject, parent, baseAttributes);
+    if(isJustAValue(subject))
+        return applyPassthru(subject, parent, attrs);
+    else
+        return parseLayers(subject, parent, attrs);
 }
 
-function isJustAValue(subject: Expression){
+function isJustAValue(subject: any){
+    if(subject.doNotTransform)
+        return true;
+
+    if(!isExpression(subject))
+        return false;
+
     let leftOf: BinaryExpression | LogicalExpression | undefined;
     let target = subject;
-    while(isBinaryExpression(target) || 
-          isLogicalExpression(target)){
-            leftOf = target;
-            target = target.left;
-          }
+
+    while(isBinaryExpression(target) || isLogicalExpression(target)){
+        leftOf = target;
+        target = target.left;
+    }
 
     if(isUnaryExpression(target, {operator: "void"})){
         if(leftOf)
@@ -95,29 +97,27 @@ function applyPassthru(
 ){
     const identifierName = isIdentifier(subject) && subject.name;
 
-    if(baseAttributes.length == 0
-    && identifierName
-    && !parent.context.elementMod("$" + identifierName)){
-        parent.adopt(subject);
-        return subject
+    if(baseAttributes.length == 0){
+        const noModifiers = !parent.context.elementMod("$" + identifierName);
+        if(identifierName && noModifiers){
+            parent.adopt(subject);
+            return subject
+        }
+    }
+    else {
+        const hasDoArgument = baseAttributes[0].type === "DoExpression";
+        if(baseAttributes.length >= 2 || !hasDoArgument)
+            throw Error.VoidArgsOverzealous(subject)
     }
 
-    if(baseAttributes.length > 1
-    && baseAttributes[0].type !== "DoExpression")
-        throw Error.VoidArgsOverzealous(subject)
-
-    const container = new ElementInline(
-        parent.context
-    )
+    const container = new ElementInline(parent.context);
+    
     applyNameImplications(
         isStringLiteral(subject) ? "string" : "void",
         container
     );
     if(identifierName){
-        applyNameImplications(
-            "$" + identifierName, 
-            container
-        );
+        applyNameImplications("$" + identifierName, container);
         container.name = identifierName;
     }
     container.explicitTagName = "div";
@@ -126,10 +126,11 @@ function applyPassthru(
     parent.adopt(container);
 
     parseProps(baseAttributes, container);
+
     return container;
 }
 
-function collateLayers(
+function parseLayers(
     subject: Expression,
     parent: ElementInline,
     baseAttributes: Expression[],
@@ -152,18 +153,22 @@ function collateLayers(
         const rightHand = subject.right;
         const leftHand = subject.left;
 
-        if(operator == ">>>"){
-            if(inSequence)
-                throw Error.NestOperatorInEffect(subject);
+        switch(operator){
+            case ">>>":
+                if(inSequence)
+                    throw Error.NestOperatorInEffect(subject);
+    
+                restAreChildren = true
+            break;
 
-            restAreChildren = true
+            case ">>":
+                if(inParenthesis(rightHand))
+                    throw Error.NoParenChildren(rightHand);
+            break;
+
+            default:
+                throw Error.UnrecognizedBinary(subject);
         }
-        else 
-        if(operator !== ">>")
-            throw Error.UnrecognizedBinary(subject);
-        else
-        if(inParenthesis(rightHand))
-            throw Error.NoParenChildren(rightHand);
 
         chain.unshift(rightHand);
         subject = leftHand
@@ -185,7 +190,8 @@ function collateLayers(
 
     if(restAreChildren){
         for(const child of baseAttributes)
-            collateLayers(child, leftMost!, [], true);
+            parseLayers(child, leftMost!, [], true);
+
         baseAttributes = nestedExpression ? [nestedExpression] : []
     }
     else if(nestedExpression)
@@ -273,16 +279,17 @@ function parseIdentity(
 
 function unwrapExpression(
     expression: Expression,
-    target: ElementInline ): Expression {
+    target: ElementInline
+): Expression {
 
     while(!inParenthesis(expression)) 
-        switch(expression.type){
-
+    switch(expression.type){
         case "TaggedTemplateExpression": {
             let content: Expression = expression.quasi;
+            const hasExpressions = content.expressions.length > 0;
+            const hasLineBreak = containsLineBreak(content.quasis[0].value.cooked!);
 
-            if(content.expressions.length === 0 &&
-               containsLineBreak.test(content.quasis[0].value.cooked!) === false){
+            if(!hasExpressions && !hasLineBreak){
                 const text = content.quasis[0].value.cooked!;
                 content = stringLiteral(text);
             }
@@ -306,7 +313,7 @@ function unwrapExpression(
         }
 
         case "MemberExpression": {
-            const selector = expression.property as Path;
+            const selector = expression.property;
             if(expression.computed !== true && isIdentifier(selector))
                 applyNameImplications(selector.name, target);
             else 
@@ -329,9 +336,7 @@ function parseProps(
 
     if(!props) return;
     for(let node of props){
-
-        if((<any>node).doNotTransform 
-        || isJustAValue(node as Expression)){
+        if(isJustAValue(node)){
             target.add(node as Expression)
             continue;
         }
@@ -383,16 +388,14 @@ function parseProps(
             } break;
 
             case "Identifier": {
-                target.add(
-                    new Prop(node.name, node)
-                );
+                const prop = new Prop(node.name, node);
+                target.add(prop);
             } break;
 
-            case "SpreadElement": 
-                target.add(
-                    new Prop(false, node.argument)
-                );
-            break;
+            case "SpreadElement": {
+                const prop = new Prop(false, node.argument);
+                target.add(prop);
+            } break;
 
             case "ObjectExpression": {
                 for(const property of node.properties){
