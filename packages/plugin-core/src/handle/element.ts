@@ -19,7 +19,7 @@ import {
     VariableDeclaration,
     JSXElement,
 } from '@babel/types';
-import { AddElementsFromExpression, ApplyNameImplications, StackFrame } from 'parse';
+import { addElementsFromExpression, applyNameImplications, StackFrame } from 'parse';
 import { inParenthesis, ParseErrors } from 'shared';
 import { BunchOf, DoExpressive, InnerContent } from 'types';
 
@@ -54,7 +54,7 @@ export class ElementInline extends AttributeBody {
         if(inParenthesis(node))
             this.adopt(node)
         else 
-            AddElementsFromExpression(node, this);
+            addElementsFromExpression(node, this);
     }
 
     JSXElement(node: JSXElement){
@@ -94,7 +94,7 @@ export class ElementInline extends AttributeBody {
         const block = blockStatement(node.body);
         const doExp = doExpression(block) as DoExpressive;
 
-        ApplyNameImplications("block", blockElement);
+        applyNameImplications("block", blockElement);
         this.add(blockElement)
 
         blockElement.doBlock = doExp;

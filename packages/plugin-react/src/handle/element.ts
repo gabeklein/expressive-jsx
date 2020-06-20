@@ -21,7 +21,7 @@ import {
     Prop,
     SequenceItem,
 } from '@expressive/babel-plugin-core';
-import { AttributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue, opts } from 'internal';
+import { attributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue, opts } from 'internal';
 import { BunchOf, ContentLike, PropData, StackFrame } from 'types';
 
 export class ElementReact<T extends ElementInline = ElementInline>
@@ -174,7 +174,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
                 if(item instanceof ExplicitStyle)
                     chunks.push(spreadElement(expressionValue(item)))
                 else
-                    chunks.push(...item.map(AttributeES));
+                    chunks.push(...item.map(attributeES));
             
             value = objectExpression(chunks)
         }

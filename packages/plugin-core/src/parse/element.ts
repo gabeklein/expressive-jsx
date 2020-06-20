@@ -47,7 +47,7 @@ const Error = ParseErrors({
     UnrecognizedBinary: ""
 })
 
-export function AddElementsFromExpression(
+export function addElementsFromExpression(
     subject: Expression, 
     parent: ElementInline ){
 
@@ -58,14 +58,14 @@ export function AddElementsFromExpression(
         [subject, ...baseAttributes] = exps;
     }
 
-    const Handler = IsJustAValue(subject) 
-        ? ApplyPassthru 
-        : CollateLayers;
+    const Handler = isJustAValue(subject) 
+        ? applyPassthru 
+        : collateLayers;
 
     return Handler(subject, parent, baseAttributes);
 }
 
-function IsJustAValue(subject: Expression){
+function isJustAValue(subject: Expression){
     let leftOf: BinaryExpression | LogicalExpression | undefined;
     let target = subject;
     while(isBinaryExpression(target) || 
@@ -88,7 +88,7 @@ function IsJustAValue(subject: Expression){
     return false;
 }
 
-function ApplyPassthru(
+function applyPassthru(
     subject: Expression,
     parent: ElementInline,
     baseAttributes: Expression[]
@@ -109,12 +109,12 @@ function ApplyPassthru(
     const container = new ElementInline(
         parent.context
     )
-    ApplyNameImplications(
+    applyNameImplications(
         isStringLiteral(subject) ? "string" : "void",
         container
     );
     if(identifierName){
-        ApplyNameImplications(
+        applyNameImplications(
             "$" + identifierName, 
             container
         );
@@ -125,11 +125,11 @@ function ApplyPassthru(
     container.parent = parent;
     parent.adopt(container);
 
-    ParseProps(baseAttributes, container);
+    parseProps(baseAttributes, container);
     return container;
 }
 
-function CollateLayers(
+function collateLayers(
     subject: Expression,
     parent: ElementInline,
     baseAttributes: Expression[],
@@ -173,7 +173,7 @@ function CollateLayers(
     for(const segment of chain){
         const child = new ElementInline(parent.context);
 
-        ParseIdentity(segment, child);
+        parseIdentity(segment, child);
 
         if(!leftMost)
             leftMost = child;
@@ -185,17 +185,17 @@ function CollateLayers(
 
     if(restAreChildren){
         for(const child of baseAttributes)
-            CollateLayers(child, leftMost!, [], true);
+            collateLayers(child, leftMost!, [], true);
         baseAttributes = nestedExpression ? [nestedExpression] : []
     }
     else if(nestedExpression)
         baseAttributes.unshift(nestedExpression);
 
-    ParseProps(baseAttributes, parent);
+    parseProps(baseAttributes, parent);
     return parent;
 }
 
-export function ApplyNameImplications(
+export function applyNameImplications(
     name: string, 
     target: ElementInline, 
     head?: true, 
@@ -234,7 +234,7 @@ export function ApplyNameImplications(
     }
 }
 
-function ParseIdentity(
+function parseIdentity(
     tag: Expression,
     target: ElementInline ){
 
@@ -258,11 +258,11 @@ function ParseIdentity(
     tag = unwrapExpression(tag, target);
 
     if(isIdentifier(tag))
-        ApplyNameImplications(tag.name, target, true, prefix)
+        applyNameImplications(tag.name, target, true, prefix)
 
     else if(isStringLiteral(tag) || isTemplateLiteral(tag)){
-        ApplyNameImplications("string", target);
-        ApplyNameImplications(Opts.env == "native" ? Shared.stack.helpers.Text : "span", target, true)
+        applyNameImplications("string", target);
+        applyNameImplications(Opts.env == "native" ? Shared.stack.helpers.Text : "span", target, true)
 
         target.add(tag)
         // preventDefaultPolyfill(tag);
@@ -297,7 +297,7 @@ function unwrapExpression(
         case "CallExpression": {
             const exp = expression;
             const args = exp.arguments;
-            ParseProps( 
+            parseProps( 
                 args as ListElement[],
                 target
             );
@@ -308,7 +308,7 @@ function unwrapExpression(
         case "MemberExpression": {
             const selector = expression.property as Path;
             if(expression.computed !== true && isIdentifier(selector))
-                ApplyNameImplications(selector.name, target);
+                applyNameImplications(selector.name, target);
             else 
                 throw Error.SemicolonRequired(selector)
 
@@ -323,7 +323,7 @@ function unwrapExpression(
     return expression;
 }
 
-function ParseProps(
+function parseProps(
     props: ListElement[],
     target: ElementInline ){
 
@@ -331,7 +331,7 @@ function ParseProps(
     for(let node of props){
 
         if((<any>node).doNotTransform 
-        || IsJustAValue(node as Expression)){
+        || isJustAValue(node as Expression)){
             target.add(node as Expression)
             continue;
         }

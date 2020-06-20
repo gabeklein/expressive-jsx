@@ -29,7 +29,7 @@ type ModTuple = [string, ModifyAction, any[] | ModiferBody ];
 
 const { isArray } = Array;
 
-export function ApplyModifier(
+export function applyModifier(
     initial: string,
     recipient: Modifier | ElementInline, 
     input: ModiferBody){
@@ -113,7 +113,7 @@ export class ModifyDelegate {
     constructor(
         public target: AttributeBody,
         public name: string,
-        transform: ModifyAction = PropertyModifierDefault,
+        transform: ModifyAction = propertyModifierDefault,
         input: any[] | ModiferBody){
 
         if(isArray(input))
@@ -258,7 +258,7 @@ function applyToParentProps(
         )
 }
 
-function PropertyModifierDefault(
+function propertyModifierDefault(
     this: ModifyDelegate){
 
     const args = this.arguments!.map(arg => {

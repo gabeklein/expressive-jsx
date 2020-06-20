@@ -22,7 +22,7 @@ import {
 import { ExplicitStyle, Prop } from '@expressive/babel-plugin-core';
 import { BunchOf } from 'types';
 
-export function PropertyES(
+export function propertyES(
     name: string, 
     value: Expression){
 
@@ -30,8 +30,8 @@ export function PropertyES(
     return objectProperty(key, value)
 }
 
-export const AttributeES = (src: Prop | ExplicitStyle) => 
-    PropertyES(src.name as string, expressionValue(src) as Expression);
+export const attributeES = (src: Prop | ExplicitStyle) => 
+    propertyES(src.name as string, expressionValue(src) as Expression);
 
 export function expressionValue(item: Prop | ExplicitStyle): Expression {
     let { value } = item;
@@ -64,7 +64,7 @@ export function ensureArray(
     return getFirst ? memberExpression(array, 0) : array;
 }
 
-export function IIFE(stats: Statement[]){
+export function iife(stats: Statement[]){
     return callExpress(
         arrowFunctionExpression([], 
             blockStatement(stats as any)

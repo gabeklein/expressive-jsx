@@ -15,7 +15,7 @@ import { ArrayStack, ElementReact, GenerateReact } from 'internal';
 import { dedent } from 'regenerate/quasi';
 import { ContentLike, PropData } from 'types';
 
-import { PropertyES } from './syntax';
+import { propertyES } from './syntax';
 
 const IsComponentElement = /^[A-Z]\w*/;
 
@@ -102,7 +102,7 @@ export class GenerateES extends GenerateReact {
                 propStack.push(value);
             else
                 propStack.insert(
-                    PropertyES(name, value)
+                    propertyES(name, value)
                 );
     
         let properties = propStack.map(chunk => 

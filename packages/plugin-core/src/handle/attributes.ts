@@ -1,5 +1,5 @@
 import { Expression, isBlockStatement, isExpressionStatement, isLabeledStatement, LabeledStatement } from '@babel/types';
-import { ApplyModifier } from 'parse';
+import { applyModifier } from 'parse';
 import { hash, ParseErrors } from 'shared';
 import { BunchOf, FlatValue } from 'types';
 
@@ -69,7 +69,7 @@ export abstract class AttributeBody extends TraversableBody {
             isBlockStatement(body) ||
             isLabeledStatement(body)
         ))
-            ApplyModifier(
+            applyModifier(
                 name, applyTo, body
             );
 
