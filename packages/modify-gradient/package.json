@@ -1,6 +1,6 @@
 {
   "name": "@expressive/modify-gradient",
-  "version": "1.0.0-beta.35",
+  "version": "1.0.0-beta.36",
   "description": "Style Modifier for fancier css gradients",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {

@@ -1,6 +1,6 @@
 {
   "name": "@expressive/babel-plugin-react-class",
-  "version": "1.0.0-beta.35",
+  "version": "1.0.0-beta.36",
   "description": "Automatically extends React.Component for classes that include an Expressive-recognized render method.",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
