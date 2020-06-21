@@ -80,7 +80,9 @@ function recombineTemplate(args){
       else if(typeof x == "string"){
         if(/^\d+\.\d+$/.test(x))
           return `${x}fr`
-        else 
+        else if(x == "min" || x == "max")
+          return `${x}-content`
+        else
           return x;
       }
     })
