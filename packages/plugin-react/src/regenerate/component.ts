@@ -135,7 +135,7 @@ void function incorperateChildParameters(
     else if(props.isObjectPattern()){
         let propertyAs: Identifier = 
             isIdentifier(assign) ? assign : 
-                init = wrapperFunction.scope.generateUidIdentifier("children");
+                init = wrapperFunction.scope.generateUidIdentifier("children") as any;
 
         props.node.properties.push(
             objectProperty(
