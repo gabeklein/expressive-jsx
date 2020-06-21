@@ -363,16 +363,15 @@ function parseProps(
                 const {tag, quasi} = node;
     
                 if(tag.type != "Identifier") 
-                    throw Error.PropNotIdentifier(node)
+                    throw Error.PropNotIdentifier(node);
+
+                const value = quasi.expressions.length == 0 ? 
+                    stringLiteral(quasi.quasis[0].value.raw) : 
+                    quasi;
+
+                const prop = new Prop(tag.name, value);
     
-                target.add(
-                    new Prop(
-                        tag.name,
-                        quasi.expressions.length == 0
-                        ? stringLiteral(quasi.quasis[0].value.raw)
-                        : quasi
-                    )
-                )
+                target.add(prop);
                 
                 // preventDefaultPolyfill(node);
             } break;
