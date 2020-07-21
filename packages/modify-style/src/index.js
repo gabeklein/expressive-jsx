@@ -11,5 +11,5 @@ export * from "./text"
 export * from "./media"
 export * from "./macro"
 
-import * as Helpers from "./helpers"
-export { Helpers }
+import * as Color from "./colors"
+export { Color }

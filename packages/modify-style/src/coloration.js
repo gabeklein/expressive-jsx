@@ -1,5 +1,5 @@
 const { URL_IMAGES } = process.env;
-const { rgba, hsla } = require("./helpers.js")
+import { rgba, hsla } from "./colors";
 
 export function image(a){
     return {
