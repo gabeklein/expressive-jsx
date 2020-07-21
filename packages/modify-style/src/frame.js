@@ -1,6 +1,7 @@
 const EXPORT = exports;
 
-import { rect, appendUnitToN, handleUnits } from "./util";
+import { rect } from "./util";
+import { appendUnitToN, handleUnits } from "./units";
 
 const CORNER_MATRIX = {
     top: [1, 1, 0, 0],
