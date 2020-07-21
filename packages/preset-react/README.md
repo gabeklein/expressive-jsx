@@ -5,7 +5,7 @@
 # Install
 
 ```
-npm install @expressive-react/babel-preset-web
+yarn install @expressive-react/babel-preset-web
 ```
 
 **.babelrc**

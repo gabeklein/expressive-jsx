@@ -25,8 +25,8 @@
   "scripts": {
     "prebuild": "rm -rf ./lib",
     "build": "babel ./src --out-dir ./lib --presets @babel/env",
-    "watch": "npm run build -- --source-maps --watch",
-    "prepare": "npm run build"
+    "watch": "yarn build -- --source-maps --watch",
+    "prepare": "yarn build"
   },
   "dependencies": {
     "chroma-js": "^2.0.3",

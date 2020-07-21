@@ -11,7 +11,7 @@
 Choose package for your current environment, `web`, `native`, or `next` for [NEXT.js](https://github.com/zeit/next.js/).
 
 ```
-npm install @expressive-react/preset-*
+yarn install @expressive-react/preset-*
 ```
 
 **.babelrc**

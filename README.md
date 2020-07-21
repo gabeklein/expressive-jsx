@@ -33,7 +33,7 @@ The easiest way to add Expressive to your project is to use one of the plugins. 
 > Pick version for your environment.
 
 ```bash
-npm install @expressive/babel-preset-react
+yarn install @expressive/babel-preset-react
 ```
 
 **.babelrc**
@@ -78,7 +78,7 @@ const App = () => do {
 ### React Native
 
 ```bash
-npm install @expressive/babel-preset-react-native
+yarn install @expressive/babel-preset-react-native
 ```
 
 **.babelrc**
