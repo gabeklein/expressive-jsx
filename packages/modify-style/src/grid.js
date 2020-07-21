@@ -55,36 +55,43 @@ export function gridColumns(){
 
 function recombineSlash(args){
   args = [].concat(args)
-  if(args[0] == "-"){
-    let layer = args;
-    let x = "";
-    while(true){
-      x = x + " / " + layer[2];
-      if(isArray(layer[1]))
-        layer = layer[1]
-      else {
-        return layer[1] + x;
-        break;
-      }
+
+  if(args[0] !== "-")
+    return args[0];
+  
+  let layer = args;
+  let x = "";
+
+  while(true){
+    x = x + " / " + layer[2];
+
+    if(isArray(layer[1]))
+      layer = layer[1]
+    else {
+      layer = layer[1] + x;
+      break;
     }
   }
-  else 
-    return args[0];
+
+  return layer;
 }
 
 function recombineTemplate(args){
-  return args
-    .map(x => {
-      if(typeof x == "number")
-        return `${x}px`;
-      else if(typeof x == "string"){
-        if(/^\d+\.\d+$/.test(x))
-          return `${x}fr`
-        else if(x == "min" || x == "max")
-          return `${x}-content`
-        else
-          return x;
-      }
-    })
-    .join(" ")
+  return args.map(formatGridValue).join(" ")
+}
+
+function formatGridValue(value){
+  if(typeof x == "number")
+    return `${x}px`;
+
+  if(typeof x !== "string")
+    throw new Error("Unexpected value for grid")
+
+  if(/^\d+\.\d+$/.test(x))
+    return `${x}fr`
+
+  if(x == "min" || x == "max")
+    return `${x}-content`
+
+  return x;
 }
