@@ -27,6 +27,10 @@ export function rect(a, b, c, d){
     return [top, right, bottom, left]
 }
 
+export function pascalToDash(x){
+    return x.replace(/([A-Z]+)/g, "-$1").toLowerCase();
+}
+
 export function appendUnitToN(val, unit) {
     switch(typeof val){
         case "number":

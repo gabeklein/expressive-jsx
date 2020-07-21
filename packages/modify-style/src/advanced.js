@@ -1,3 +1,5 @@
+import { pascalToDash } from "./util";
+
 const EXPORT = exports;
 
 const PSEUDO = {
@@ -43,8 +45,6 @@ for(const name in PSEUDO){
     }
 }
 
-const PascalToDash = x => x.replace(/([A-Z]+)/g, "-$1").toLowerCase();
-
 export function css(){
     let body = this.body;
     if(body){
@@ -69,6 +69,6 @@ export function css(){
         list = data.classList = [];
 
     for(const className of this.arguments){
-        list.push(PascalToDash(className));
+        list.push(pascalToDash(className));
     }
 }
