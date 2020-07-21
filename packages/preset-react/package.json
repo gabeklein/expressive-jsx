@@ -22,7 +22,6 @@
   ],
   "dependencies": {
     "@expressive/babel-plugin-react": "^1.0.0-beta.36",
-    "@expressive/babel-plugin-react-class": "^1.0.0-beta.36",
     "@expressive/modify-style": "^1.0.0-beta.36",
     "babel-preset-expressive-enhancements": "^1.0.1"
   }
