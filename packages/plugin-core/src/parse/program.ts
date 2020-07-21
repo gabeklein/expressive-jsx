@@ -1,11 +1,17 @@
-import { Program as BabelProgram } from '@babel/types';
-import { ComponentIf, ElementInline, ElementModifier, TraversableBody } from 'handle';
+import { File, isExpressionStatement, isLabeledStatement, Program as BabelProgram, Statement } from '@babel/types';
+import { ComponentIf, ElementInline, ElementModifier, ComponentExpression } from 'handle';
 import { BabelFile, hash, ParseErrors, Shared } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
+import { relative } from "path"
 
 import * as builtIn from './builtin';
 
+interface Stackable {
+    context: StackFrame;
+}
+
 const { getPrototypeOf, create, assign } = Object;
+const debug = ~process.execArgv.join().indexOf("inspect-brk")
 
 const Error = ParseErrors({
     IllegalAtTopLevel: "Cannot apply element styles in top-level of program",
@@ -14,33 +20,37 @@ const Error = ParseErrors({
 })
 
 export const Program = <Visitor<BabelProgram>>{
-    enter(path, state: any){
-        const context = state.context = new StackFrame(state);
+    enter({ node }, state: any){
+        if(debug)
+            console.log(" - ", relative(process.cwd(), state.filename))
+
+        let context = state.context = new StackFrame(state).create(this);
+        context.currentFile = state.file;
 
         Shared.currentFile = state.file as BabelFile;
 
-        for(const statement of path.get("body"))
-            if(statement.isLabeledStatement()){
-                const { name } = statement.node.label;
-                const body = statement.get("body");
+        const filtered = [] as Statement[];
+
+        for(const statement of node.body)
+            if(isLabeledStatement(statement)){
+                const { name } = statement.label;
+                const { body } = statement;
 
                 if(name[0] == "_")
-                    throw Error.BadModifierName(path)
+                    throw Error.BadModifierName(node)
 
                 if(this.context.hasOwnModifier(name))
-                    throw Error.DuplicateModifier(path);
+                    throw Error.DuplicateModifier(node);
 
-                if(body.isExpressionStatement(body))
+                if(isExpressionStatement(body))
                     throw Error.IllegalAtTopLevel(statement)
 
-                const mod = new ElementModifier(context, name, body.node);
+                const mod = new ElementModifier(context, name, body);
                 context.elementMod(mod)
-                statement.remove();
             }
-    },
-    exit(path, state){
-        if(~process.execArgv.join().indexOf("inspect-brk"))
-            console.log("done")
+            else filtered.push(statement);
+
+        node.body = filtered;
     }
 }
 
@@ -49,12 +59,18 @@ export class StackFrame {
     program = {} as any;
     styleRoot = {} as any;
     current = {} as any;
+    currentComponent?: ComponentExpression;
     currentElement?: ElementInline;
     currentIf?: ComponentIf;
+    currentFile?: File;
     entryIf?: ComponentIf;
     stateSingleton: BabelState;
     options: {}
     ModifierQuery?: string;
+
+    get parent(){
+        return getPrototypeOf(this);
+    }
 
     constructor(state: BabelState){
         let Stack = this;
@@ -77,8 +93,42 @@ export class StackFrame {
         return Stack;
     }
 
-    get parent(){
-        return getPrototypeOf(this);
+    create(node: Stackable): StackFrame {
+        const frame = create(this);
+        frame.current = node;
+        if(node instanceof ElementInline)
+            frame.currentElement = node;
+        return frame;
+    }
+
+    push(){
+        this.stateSingleton.context = this;
+    }
+    
+    pop(
+        meta: ElementInline | ElementModifier, 
+        state: BabelState<StackFrame> = this.stateSingleton){
+            
+        let { context } = state;
+        let newContext: StackFrame | undefined;
+
+        while(true){
+            newContext = Object.getPrototypeOf(context);
+            if(!newContext)
+                break;
+            if(context.current === meta)
+                break;
+            context = newContext;
+        }
+
+        if(context.current)
+            state.context = newContext!;
+        else 
+            console.error("StackFrame shouldn't bottom out like this");
+    }
+
+    resolveFor(append?: string | number){
+        this.prefix = this.prefix + " " + append || "";
     }
 
     event(
@@ -100,27 +150,12 @@ export class StackFrame {
         (<Function>this[ref]).apply(null, args)
     }
 
-    resolveFor(append?: string | number){
-        this.prefix = this.prefix + " " + append || "";
+    hasOwnPropertyMod(name: string): boolean {
+        return this.hasOwnProperty("__" + name)
     }
 
-    create(node: any){
-        const frame = create(this);
-        frame.current = node;
-        if(node instanceof ElementInline)
-            frame.currentElement = node;
-        return frame;
-    }
-
-    push(node: TraversableBody){
-        this.stateSingleton.context = node.context;
-    }
-
-    pop(){
-        let up = this;
-        do { up = getPrototypeOf(up) } 
-        while(up.current === undefined)
-        this.stateSingleton.context = up;
+    hasOwnModifier(name: string): boolean {
+        return this.hasOwnProperty("_" + name)
     }
 
     propertyMod(name: string): ModifyAction;
@@ -135,14 +170,6 @@ export class StackFrame {
             this[ref] = set;
         else 
             return this[ref]
-    }
-
-    hasOwnPropertyMod(name: string): boolean {
-        return this.hasOwnProperty("__" + name)
-    }
-
-    hasOwnModifier(name: string): boolean {
-        return this.hasOwnProperty("_" + name)
     }
 
     elementMod(name: string): ElementModifier;

@@ -1,7 +1,7 @@
 import { NodePath as Path } from '@babel/traverse';
 import { doExpression, Expression, ExpressionStatement, Statement, isBlockStatement, blockStatement } from '@babel/types';
 import { StackFrame } from 'parse';
-import { ParseErrors } from 'shared';
+import { ParseErrors, ensureArray } from 'shared';
 import { BunchOf, DoExpressive, SequenceItem } from 'types';
 
 import { ComponentIf } from './';
@@ -19,25 +19,26 @@ export abstract class TraversableBody {
     parent?: TraversableBody | ComponentIf;
     sequence = [] as SequenceItem[];
 
+    constructor(context: StackFrame){
+        this.context = context.create(this);
+    }
+
     abstract ExpressionDefault(node: Expression): void;
 
     willEnter?(path?: Path): void;
     willExit?(path?: Path): void;
     wasAddedTo?<T extends TraversableBody>(element?: T): void;
 
-    constructor(
-        context: StackFrame){
-        const ctx = this.context = context.create(this);
-        ctx.push(this);
-    }
-
     didEnterOwnScope(path: Path<DoExpressive>){
+        this.context.push()
         const traversable = path.get("body").get("body")
         for(const item of traversable)
             this.parse(item);
     }
 
-    didExitOwnScope?(path: Path<DoExpressive>): void;
+    didExitOwnScope(path: Path<DoExpressive>){
+        this.context.pop(this as any);
+    }
 
     handleContentBody(content: Statement){
         if(!isBlockStatement(content))
@@ -56,12 +57,12 @@ export abstract class TraversableBody {
     }
 
     parse(item: Path<Statement>){
-        const content = item.isBlockStatement() ? item.get("body") : [item];
+        const content = item.isBlockStatement() ? ensureArray(item.get("body")) : [item];
         for(const item of content)
             if(item.type in this) 
                 (this as any)[item.type](item.node, item);
             else {
-                throw Error.NodeUnknown(item, item.type)
+                throw Error.NodeUnknown(item as any, item.type)
             }
     }
 

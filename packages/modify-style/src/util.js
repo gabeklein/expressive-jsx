@@ -27,46 +27,6 @@ export function rect(a, b, c, d){
     return [top, right, bottom, left]
 }
 
-export function appendUnitToN(val, unit) {
-    switch(typeof val){
-        case "number":
-            return val != 0 
-                ? val + (unit || "px")
-                : "0"
-
-        case "string": 
-            return val != "0"
-                ? /^\d\.\d$/.test(val)
-                    ? val + (unit || "em")
-                    : val
-                : "0"
-        
-        case "undefined":
-            return ""
-
-        default:
-            return val
-    }
-}
-
-export function handleUnits(name) {
-    return function(){
-        return {
-            style: {
-                [name]: appendUnitToN.apply(this, this.arguments)
-            }
-        }
-    }
-}
-
-export function nToNUnits(value, unit) {
-    if(value.named){
-        unit = value.named;
-        value = value.inner[0]
-    }
-    return {
-        style: {
-            [this.name]: appendUnitToN(value, unit)
-        }
-    }
+export function pascalToDash(x){
+    return x.replace(/([A-Z]+)/g, "-$1").toLowerCase();
 }

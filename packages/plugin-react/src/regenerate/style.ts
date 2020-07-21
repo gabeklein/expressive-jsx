@@ -5,23 +5,16 @@ import { BunchOf } from 'types';
 
 import { Module } from './module';
 
-const RUNTIME = "@expressive/react";
-
 type SelectorContent = [ string, string[] ][];
 type MediaGroups = SelectorContent[];
 
-export function writeProvideStyleStatement(
-    this: Module,
-    opts: any
-){
+export function writeProvideStyleStatement(this: Module, opts: any){
     const media = orderSyntax(this.modifiersDeclared);
     const text = createSyntax(media, opts);
     writeSyntax(this, text, opts);
 }
 
-function orderSyntax(
-    modifiersDeclared: Set<Modifier>
-){
+function orderSyntax(modifiersDeclared: Set<Modifier>){
     const media: BunchOf<MediaGroups> = {
         default: [] 
     };
@@ -44,7 +37,9 @@ function orderSyntax(
                 targetQuery[priority] = [];
 
         const styles = 
-            block.sequence.map(style => {
+            block.sequence
+            .filter(style => style.invariant)
+            .map(style => {
                 let styleKey = style.name;
                 if(typeof styleKey == "string")
                     styleKey = styleKey.replace(/([A-Z]+)/g, "-$1").toLowerCase();
@@ -104,7 +99,7 @@ function writeSyntax(
     } = module;
 
     const programBody = program.node.body;
-    const polyfillModule = imports.ensure(RUNTIME, "default", "StyleSheet");
+    const polyfillModule = imports.ensure("$runtime", "default", "Styles");
 
     const filenameMaybe = opts.hot !== false
         ? [ stringLiteral(relativeFileName) ] : [];
@@ -112,7 +107,7 @@ function writeSyntax(
     const provideStatement = 
         expressionStatement(
             callExpress(
-                memberExpress(polyfillModule, "shouldInclude"), 
+                memberExpress(polyfillModule, "include"), 
                 templateLiteral([
                     templateElement({raw: computedStyle, cooked: computedStyle}, true)
                 ], []),

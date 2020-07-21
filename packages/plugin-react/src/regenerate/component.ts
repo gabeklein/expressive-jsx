@@ -30,18 +30,19 @@ const Error = ParseErrors({
 
 export const DoExpression = <Visitor<DoExpressive>> {
     exit(path, state){
-        const Do = path.node.meta;
-        const context = Do.context as StackFrame;
+
+        const meta = path.node.meta;
+        const context = meta.context as StackFrame;
         const Generator = context.Generator as GenerateReact;
 
-        if(!(Do instanceof ComponentExpression))
+        if(!(meta instanceof ComponentExpression))
             return;
 
-        const factory = new ElementReact(Do);
+        const factory = new ElementReact(meta);
 
         context.Module.lastInsertedElement = path;
 
-        if(factory.children.length == 0 && Do.exec === undefined){
+        if(factory.children.length == 0 && meta.exec === undefined){
             path.replaceWith(
                 asOnlyAttributes(factory)
             )
@@ -50,12 +51,12 @@ export const DoExpression = <Visitor<DoExpressive>> {
 
         const factoryExpression = Generator.container(factory)
 
-        if(Do instanceof ComponentExpression && Do.exec)
-            incorperateChildParameters(Do, state.context.Imports)
+        // if(meta instanceof ComponentExpression && meta.exec)
+        //     incorperateChildParameters(meta, state.context.Imports)
 
-        if(Do.exec && Do.statements.length){
+        if(meta.exec && meta.statements.length){
             const replacement = [
-                ...Do.statements as Statement[],
+                ...meta.statements as Statement[],
                 returnStatement(factoryExpression)
             ];
             if(path.parentPath.isReturnStatement())
@@ -64,7 +65,11 @@ export const DoExpression = <Visitor<DoExpressive>> {
                 path.replaceWith(blockStatement(replacement))
         }
         else {
-            path.replaceWith(factoryExpression);
+            const prop = path.node.expressive_parent;
+            if(prop)
+                prop.value = factoryExpression as Expression;
+            else
+                path.replaceWith(factoryExpression);
         }
     }
 }
@@ -85,7 +90,7 @@ function asOnlyAttributes(factory: ElementReact){
     })
 }
 
-function incorperateChildParameters(
+void function incorperateChildParameters(
     Do: ComponentExpression,
     Imports: ExternalsManager
 ){
@@ -124,24 +129,27 @@ function incorperateChildParameters(
             : destructure[0] as Identifier;
     }
 
-    if(props.isObjectPattern())
+    if(props.isIdentifier())
+        init = memberExpression(props.node, identifier("children"));
+
+    else if(props.isObjectPattern()){
+        let propertyAs: Identifier = 
+            isIdentifier(assign) ? assign : 
+                init = wrapperFunction.scope.generateUidIdentifier("children") as any;
+
         props.node.properties.push(
             objectProperty(
                 identifier("children"), 
-                isIdentifier(assign) 
-                    ? assign
-                    : init = wrapperFunction.scope.generateUidIdentifier("children")
+                propertyAs
             )
         )
-        
-    else if(props.isIdentifier())
-        init = memberExpression(props.node, identifier("children"));
+    }
 
     arrowFn.params = [props.node as Identifier | ObjectPattern];
         
     if(init){
-        const inner = Imports.ensure("@expressive/react", "body");
-        let getKids = callExpress(inner, props.node as Expression) as Expression;
+        const inner = Imports.ensure("$runtime", "body");
+        let getKids: Expression = callExpress(inner, props.node);
         if(count == 1)
             getKids = memberExpression(getKids, numericLiteral(0), true)
 

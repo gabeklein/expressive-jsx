@@ -41,11 +41,11 @@ export abstract class ElementConstruct
                 this.Child(item);
                 
             else 
-            if(item instanceof Attribute) {
+            if(item instanceof Attribute){
                 if(this.Attribute && this.Attribute(item))
                     continue
 
-                if(!overridden && item.overriden === true
+                if(!overridden && item.overridden === true
                 || !invariant && item.invariant === true)
                     continue;
 

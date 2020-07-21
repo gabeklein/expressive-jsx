@@ -1,6 +1,6 @@
 {
   "name": "@expressive/modify-style",
-  "version": "1.0.0-beta.20",
+  "version": "1.0.0-1.0.0-beta.39.0",
   "description": "Style Modifiers for most CSS keywords",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
@@ -28,11 +28,11 @@
     "prepare": "npm run build"
   },
   "dependencies": {
-    "@babel/types": "^7.0.0"
+    "@babel/types": "7.9.5"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0"
+    "@babel/cli": "7.8.4",
+    "@babel/core": "7.9.0",
+    "@babel/preset-env": "7.9.5"
   }
 }

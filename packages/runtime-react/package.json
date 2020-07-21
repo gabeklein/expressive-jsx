@@ -1,6 +1,6 @@
 {
   "name": "@expressive/react",
-  "version": "1.0.0-beta.19",
+  "version": "1.0.0-beta.36",
   "description": "Expressive-react runtime",
   "main": "lib/index.js",
   "types": "index.d.ts",
@@ -28,10 +28,9 @@
     "expressive"
   ],
   "devDependencies": {
-    "typescript": "^3.3.3333"
-  },
-  "peerDependencies": {
+    "@types/react": "^16.9.34",
+    "prop-types": "^15.7.2",
     "react": "^16.8.0",
-    "react-dom": "^16.8.0"
+    "typescript": "3.8.3"
   }
 }

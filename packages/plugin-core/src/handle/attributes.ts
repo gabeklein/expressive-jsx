@@ -1,5 +1,5 @@
 import { Expression, isBlockStatement, isExpressionStatement, isLabeledStatement, LabeledStatement } from '@babel/types';
-import { ApplyModifier } from 'parse';
+import { applyModifier } from 'parse';
 import { hash, ParseErrors } from 'shared';
 import { BunchOf, FlatValue } from 'types';
 
@@ -26,7 +26,7 @@ export abstract class AttributeBody extends TraversableBody {
         if(name){
             const existing = accumulator[name];
             if(existing) 
-                existing.overriden = true;
+                existing.overridden = true;
             accumulator[name] = item;
         }
 
@@ -69,7 +69,7 @@ export abstract class AttributeBody extends TraversableBody {
             isBlockStatement(body) ||
             isLabeledStatement(body)
         ))
-            ApplyModifier(
+            applyModifier(
                 name, applyTo, body
             );
 
@@ -90,7 +90,7 @@ export abstract class AttributeBody extends TraversableBody {
 
 export abstract class Attribute<T extends Expression = Expression> {
     name?: string;
-    overriden?: boolean;
+    overridden?: boolean;
     invariant?: boolean;
     value: FlatValue | T | undefined
 
@@ -101,7 +101,7 @@ export abstract class Attribute<T extends Expression = Expression> {
         if(name) this.name = name;
         if(value !== undefined) this.value = value;
 
-        if(value === null || typeof value !== "object")
+        if(typeof value !== "object" || value === null)
             this.invariant = true
     }
 };

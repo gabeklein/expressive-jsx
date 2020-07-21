@@ -1,6 +1,6 @@
 import { NodePath as Path } from '@babel/traverse';
 import { ArrowFunctionExpression, Statement } from '@babel/types';
-import { ApplyNameImplications, StackFrame } from 'parse';
+import { applyNameImplications, StackFrame } from 'parse';
 import { DoExpressive, InnerContent, SequenceItem } from 'types';
 
 import { ComponentConsequent, ComponentContainer } from './';
@@ -19,6 +19,8 @@ export class ComponentExpression extends ComponentContainer {
 
         super(context);
 
+        this.context.currentComponent = this;
+
         if(exec){
             this.exec = exec;
         }
@@ -27,7 +29,7 @@ export class ComponentExpression extends ComponentContainer {
         this.explicitTagName = "div";
 
         if(/^[A-Z]/.test(name))
-            ApplyNameImplications(name, this);
+            applyNameImplications(name, this);
 
         path.node.meta = this;
         this.context.resolveFor(this.name);

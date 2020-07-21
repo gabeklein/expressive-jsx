@@ -1,6 +1,6 @@
 {
   "name": "@expressive/modify-gradient",
-  "version": "1.0.0-beta.20",
+  "version": "1.0.0-beta.36",
   "description": "Style Modifier for fancier css gradients",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
@@ -33,8 +33,8 @@
     "easing-coordinates": "^2.0.2"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0"
+    "@babel/cli": "7.8.4",
+    "@babel/core": "7.9.0",
+    "@babel/preset-env": "7.9.5"
   }
 }

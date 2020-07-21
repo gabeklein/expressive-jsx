@@ -1,26 +1,30 @@
 import { NodePath as Path } from '@babel/traverse';
 import {
     AssignmentExpression,
-    blockStatement,
     BlockStatement,
+    blockStatement,
     DebuggerStatement,
     doExpression,
     Expression,
     expressionStatement,
     For,
     FunctionDeclaration,
+    identifier,
     IfStatement,
+    isDoExpression,
     isIdentifier,
     Statement,
     UnaryExpression,
     UpdateExpression,
     VariableDeclaration,
+    JSXElement,
 } from '@babel/types';
-import { AddElementsFromExpression, ApplyNameImplications, StackFrame } from 'parse';
+import { addElementsFromExpression, applyNameImplications, StackFrame } from 'parse';
 import { inParenthesis, ParseErrors } from 'shared';
 import { BunchOf, DoExpressive, InnerContent } from 'types';
 
 import { AttributeBody, ComponentFor, ComponentIf, ElementModifier, ExplicitStyle, Modifier, Prop } from './';
+import { addElementFromJSX } from 'parse/jsx';
 
 const Error = ParseErrors({
     PropNotIdentifier: "Assignment must be identifier name of a prop.",
@@ -32,7 +36,6 @@ const Error = ParseErrors({
 })
 
 export class ElementInline extends AttributeBody {
-    
     doBlock?: DoExpressive
     primaryName?: string;
     children = [] as InnerContent[];
@@ -51,7 +54,11 @@ export class ElementInline extends AttributeBody {
         if(inParenthesis(node))
             this.adopt(node)
         else 
-            AddElementsFromExpression(node, this);
+            addElementsFromExpression(node, this);
+    }
+
+    JSXElement(node: JSXElement){
+        addElementFromJSX(node, this);
     }
 
     ElementModifier(mod: ElementModifier){
@@ -87,7 +94,7 @@ export class ElementInline extends AttributeBody {
         const block = blockStatement(node.body);
         const doExp = doExpression(block) as DoExpressive;
 
-        ApplyNameImplications("block", blockElement);
+        applyNameImplications("block", blockElement);
         this.add(blockElement)
 
         blockElement.doBlock = doExp;
@@ -134,21 +141,15 @@ export class ElementInline extends AttributeBody {
             case "+": 
                 if(!isIdentifier(value))
                     throw Error.BadShorthandProp(node);
-                this.add(
-                    new Prop(value.name, value)
-                );
+                this.add(new Prop(value.name, value));
             break;
 
             case "-":
-                this.add(
-                    new Prop("className", value)
-                );
+                this.add(new Prop("className", value));
             break;
 
             case "~": 
-                this.add(
-                    new ExplicitStyle(false, value)
-                );
+                this.add(new ExplicitStyle(false, value));
             break
         }
     }
@@ -161,15 +162,21 @@ export class ElementInline extends AttributeBody {
         if(node.operator !== "=") 
             throw Error.AssignmentNotEquals(node)
 
-        const left = node.left;
+        let { left, right } = node;
         
         if(!isIdentifier(left))
             throw Error.PropNotIdentifier(left)
 
         let { name } = left;
 
-        this.insert(
-            new Prop(name, node.right));
+        if(isDoExpression(right)){
+            const prop = new Prop(name, identifier("undefined"));
+            (<DoExpressive>right).expressive_parent = prop;
+            this.insert(prop);
+        }
+
+        else 
+            this.insert(new Prop(name, right));
     }
 }
 
@@ -178,7 +185,8 @@ export class ComponentContainer extends ElementInline {
     statements = [] as Statement[];
 
     ExpressionAsStatement(node: Expression){
-        this.statements.push(expressionStatement(node));
+        const stat = expressionStatement(node);
+        this.statements.push(stat);
     }
 
     VariableDeclaration(node: VariableDeclaration){

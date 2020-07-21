@@ -19,15 +19,11 @@ export const DoExpression = <Visitor<DoExpressive>> {
     enter: (path, state) => {
         let meta = path.node.meta || 
             generateEntryElement(path, state.context);
-            
-        if(meta.didEnterOwnScope)
-            meta.didEnterOwnScope(path)
+
+        meta.didEnterOwnScope(path)
     },
-    exit: (path, state) => {
-        state.context.pop();
-        const { meta } = path.node;
-        if(meta.didExitOwnScope)
-            meta.didExitOwnScope(path)
+    exit: (path) => {
+        path.node.meta.didExitOwnScope(path)
     }
 }
 
@@ -55,7 +51,7 @@ function generateEntryElement(
         break;
     }
 
-    const name = containerName(containerFn || path);
+    const name = containerName(containerFn || path as any);
     
     return new ComponentExpression(name, context, path, containerFn);
 }

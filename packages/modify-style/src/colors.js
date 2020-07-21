@@ -1,4 +1,4 @@
-function rgba(r, g, b, a = 1){
+export function rgba(r, g, b, a = 1){
     for(const x of [r,g,b])
         if(typeof x != "number") 
             throw new Error("malformed arguments in rgb statement")
@@ -9,7 +9,9 @@ function rgba(r, g, b, a = 1){
     }
 }
 
-function hsla(h, s, l, a = 1){
+export { rgba as rgb }
+
+export function hsla(h, s, l, a = 1){
     for(const x of [h,s,l])
         if(typeof x != "number") 
             throw new Error("malformed arguments in hsl statement")
@@ -20,5 +22,4 @@ function hsla(h, s, l, a = 1){
     }
 }
 
-export { rgba, rgba as rgb }
-export { hsla, hsla as hsl }
+export { hsla as hsl }

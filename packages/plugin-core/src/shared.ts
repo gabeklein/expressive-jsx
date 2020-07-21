@@ -1,6 +1,7 @@
 import { NodePath as Path } from '@babel/traverse';
-import { BaseNode, Expression } from '@babel/types';
+import { Node, Expression, File } from '@babel/types';
 import { BunchOf, FlatValue } from 'types';
+import { createHash } from 'crypto';
 
 const { isArray } = Array;
 
@@ -12,8 +13,10 @@ interface Options {
     formatStyles: any;
 }
 
-export interface BabelFile {
-    buildCodeFrameError<TError extends Error>(node: BaseNode, msg: string, Error?: new (msg: string) => TError): TError;
+export const ensureArray = <T>(a: T | T[]) => Array.isArray(a) ? a : [a];
+
+export interface BabelFile extends File {
+    buildCodeFrameError<TError extends Error>(node: Node, msg: string, Error?: new (msg: string) => TError): TError;
 }
 
 export interface SharedSingleton {
@@ -39,25 +42,11 @@ export const Opts: Options = {
     formatStyles: ""
 }
 
-const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
 export function hash(data: string, length: number = 3){
-    let hash = 0;
-    let result = '';
-    let mod: number;
-    for (var i = 0; i < data.length; i++) {
-        var char = data.charCodeAt(i);
-        hash = ((hash<<5)-hash)+char;
-        hash = hash & hash;
-    }
-    hash = Math.abs(hash)
-    do {
-        mod = hash % 62;
-        result = ALPHA[mod] + result;
-        hash = Math.floor(hash / 62);
-    } while(hash > 0);
-
-    return result.slice(0, length);
+    return createHash("md5")		
+        .update(data)		
+        .digest('hex')		     
+        .substring(0, length)
 }
 
 export function toArray<T> (value: T | T[]): T[] {
@@ -68,16 +57,12 @@ export function toArray<T> (value: T | T[]): T[] {
         : [];
 }
 
-// export function preventDefaultPolyfill(element: Path){
-//     element.replaceWith(booleanLiteral(false));
-// }
-
 export function inParenthesis(node: Expression): boolean {
     const { extra } = node as any;
     return extra ? extra.parenthesized === true : false;
 }
 
-type ParseError = <T extends BaseNode>(node: Path<T> | T, ...args: FlatValue[]) => Error;
+type ParseError = <T extends Node>(node: Path<T> | T, ...args: FlatValue[]) => Error;
 
 export function ParseErrors<O extends BunchOf<string>> (register: O) {
 

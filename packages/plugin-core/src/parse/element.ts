@@ -1,4 +1,3 @@
-import { NodePath as Path } from '@babel/traverse';
 import {
     BinaryExpression,
     Expression,
@@ -24,7 +23,7 @@ import { DoExpressive } from 'types';
 
 type ListElement = Expression | SpreadElement;
 
-const containsLineBreak = /\n/;
+const containsLineBreak = (text: string) => /\n/.test(text);
 
 const Error = ParseErrors({
     NoParenChildren: "Children in Parenthesis are not allowed, for direct insertion used an Array literal",
@@ -47,42 +46,41 @@ const Error = ParseErrors({
     UnrecognizedBinary: ""
 })
 
-export function AddElementsFromExpression(
+export function addElementsFromExpression(
     subject: Expression, 
-    current: ElementInline ){
+    parent: ElementInline ){
 
-    var baseAttributes = [] as Expression[];
+    var attrs = [] as Expression[];
 
-    if(isSequenceExpression(subject)){
-        const exps = subject.expressions;
-        [subject, ...baseAttributes] = exps;
-    }
+    if(isSequenceExpression(subject))
+        [subject, ...attrs] = subject.expressions;
 
-    const Handler = IsJustAValue(subject) 
-        ? ApplyPassthru 
-        : CollateLayers;
-
-    return Handler(subject, current, baseAttributes);
+    if(isJustAValue(subject))
+        return applyPassthru(subject, parent, attrs);
+    else
+        return parseLayers(subject, parent, attrs);
 }
 
-function IsJustAValue(subject: Expression){
+function isJustAValue(subject: any){
+    if(subject.doNotTransform)
+        return true;
+
+    if(!isExpression(subject))
+        return false;
+
     let leftOf: BinaryExpression | LogicalExpression | undefined;
     let target = subject;
-    while(isBinaryExpression(target) || 
-          isLogicalExpression(target)){
-            leftOf = target;
-            target = target.left;
-          }
+
+    while(isBinaryExpression(target) || isLogicalExpression(target)){
+        leftOf = target;
+        target = target.left;
+    }
 
     if(isUnaryExpression(target, {operator: "void"})){
         if(leftOf)
             leftOf.left = target.argument;
-        else {
+        else 
             Object.assign(target, target.argument);
-            delete target.prefix;
-            delete target.argument;
-            delete target.operator;
-        }
         return true
     }
 
@@ -92,36 +90,34 @@ function IsJustAValue(subject: Expression){
     return false;
 }
 
-function ApplyPassthru(
+function applyPassthru(
     subject: Expression,
     parent: ElementInline,
     baseAttributes: Expression[]
 ){
     const identifierName = isIdentifier(subject) && subject.name;
 
-    if(baseAttributes.length == 0
-    && identifierName
-    && !parent.context.elementMod("$" + identifierName)){
-        parent.adopt(subject);
-        return subject
+    if(baseAttributes.length == 0){
+        const noModifiers = !parent.context.elementMod("$" + identifierName);
+        if(identifierName && noModifiers){
+            parent.adopt(subject);
+            return subject
+        }
+    }
+    else {
+        const hasDoArgument = baseAttributes[0].type === "DoExpression";
+        if(baseAttributes.length >= 2 || !hasDoArgument)
+            throw Error.VoidArgsOverzealous(subject)
     }
 
-    if(baseAttributes.length > 1
-    && baseAttributes[0].type !== "DoExpression")
-        throw Error.VoidArgsOverzealous(subject)
-
-    const container = new ElementInline(
-        parent.context
-    )
-    ApplyNameImplications(
+    const container = new ElementInline(parent.context);
+    
+    applyNameImplications(
         isStringLiteral(subject) ? "string" : "void",
         container
     );
     if(identifierName){
-        ApplyNameImplications(
-            "$" + identifierName, 
-            container
-        );
+        applyNameImplications("$" + identifierName, container);
         container.name = identifierName;
     }
     container.explicitTagName = "div";
@@ -129,11 +125,12 @@ function ApplyPassthru(
     container.parent = parent;
     parent.adopt(container);
 
-    ParseProps(baseAttributes, container);
+    parseProps(baseAttributes, container);
+
     return container;
 }
 
-function CollateLayers(
+function parseLayers(
     subject: Expression,
     parent: ElementInline,
     baseAttributes: Expression[],
@@ -156,18 +153,22 @@ function CollateLayers(
         const rightHand = subject.right;
         const leftHand = subject.left;
 
-        if(operator == ">>>"){
-            if(inSequence)
-                throw Error.NestOperatorInEffect(subject);
+        switch(operator){
+            case ">>>":
+                if(inSequence)
+                    throw Error.NestOperatorInEffect(subject);
+    
+                restAreChildren = true
+            break;
 
-            restAreChildren = true
+            case ">>":
+                if(inParenthesis(rightHand))
+                    throw Error.NoParenChildren(rightHand);
+            break;
+
+            default:
+                throw Error.UnrecognizedBinary(subject);
         }
-        else 
-        if(operator !== ">>")
-            throw Error.UnrecognizedBinary(subject);
-        else
-        if(inParenthesis(rightHand))
-            throw Error.NoParenChildren(rightHand);
 
         chain.unshift(rightHand);
         subject = leftHand
@@ -175,14 +176,9 @@ function CollateLayers(
     chain.unshift(subject);
 
     for(const segment of chain){
-        for(const mod of parent.modifiers)
-        if(mod instanceof ElementModifier)
-        for(const sub of mod.provides)
-            parent.context.elementMod(sub)
-
         const child = new ElementInline(parent.context);
 
-        ParseIdentity(segment, child);
+        parseIdentity(segment, child);
 
         if(!leftMost)
             leftMost = child;
@@ -194,17 +190,18 @@ function CollateLayers(
 
     if(restAreChildren){
         for(const child of baseAttributes)
-            CollateLayers(child, leftMost!, [], true);
+            parseLayers(child, leftMost!, [], true);
+
         baseAttributes = nestedExpression ? [nestedExpression] : []
     }
     else if(nestedExpression)
         baseAttributes.unshift(nestedExpression);
 
-    ParseProps(baseAttributes, parent);
+    parseProps(baseAttributes, parent);
     return parent;
 }
 
-export function ApplyNameImplications(
+export function applyNameImplications(
     name: string, 
     target: ElementInline, 
     head?: true, 
@@ -228,6 +225,12 @@ export function ApplyNameImplications(
     while(modify){
         target.modifiers.push(modify);
         modify.nTargets += 1
+
+        // for(const mod of parent.modifiers)
+        // if(mod instanceof ElementModifier)
+        for(const sub of modify.provides)
+            target.context.elementMod(sub)
+        
         if(modify === modify.next){
             if(~process.execArgv.join().indexOf("inspect-brk"))
                 console.error(`Still haven't fixed inheritance leak apparently. \n target: ${name}`)
@@ -237,7 +240,7 @@ export function ApplyNameImplications(
     }
 }
 
-function ParseIdentity(
+function parseIdentity(
     tag: Expression,
     target: ElementInline ){
 
@@ -261,11 +264,11 @@ function ParseIdentity(
     tag = unwrapExpression(tag, target);
 
     if(isIdentifier(tag))
-        ApplyNameImplications(tag.name, target, true, prefix)
+        applyNameImplications(tag.name, target, true, prefix)
 
     else if(isStringLiteral(tag) || isTemplateLiteral(tag)){
-        ApplyNameImplications("string", target);
-        ApplyNameImplications(Opts.env == "native" ? Shared.stack.helpers.Text : "span", target, true)
+        applyNameImplications("string", target);
+        applyNameImplications(Opts.env == "native" ? Shared.stack.helpers.Text : "span", target, true)
 
         target.add(tag)
         // preventDefaultPolyfill(tag);
@@ -276,17 +279,18 @@ function ParseIdentity(
 
 function unwrapExpression(
     expression: Expression,
-    target: ElementInline ): Expression {
+    target: ElementInline
+): Expression {
 
     while(!inParenthesis(expression)) 
-        switch(expression.type){
-
+    switch(expression.type){
         case "TaggedTemplateExpression": {
             let content: Expression = expression.quasi;
+            const hasExpressions = content.expressions.length > 0;
+            const hasLineBreak = containsLineBreak(content.quasis[0].value.cooked!);
 
-            if(content.expressions.length === 0 &&
-               containsLineBreak.test(content.quasis[0].value.cooked) === false){
-                const text = content.quasis[0].value.cooked;
+            if(!hasExpressions && !hasLineBreak){
+                const text = content.quasis[0].value.cooked!;
                 content = stringLiteral(text);
             }
 
@@ -300,18 +304,18 @@ function unwrapExpression(
         case "CallExpression": {
             const exp = expression;
             const args = exp.arguments;
-            ParseProps( 
+            parseProps( 
                 args as ListElement[],
                 target
             );
-            expression = exp.callee;
+            expression = exp.callee as any;
             break;
         }
 
         case "MemberExpression": {
-            const selector = expression.property as Path;
+            const selector = expression.property;
             if(expression.computed !== true && isIdentifier(selector))
-                ApplyNameImplications(selector.name, target);
+                applyNameImplications(selector.name, target);
             else 
                 throw Error.SemicolonRequired(selector)
 
@@ -326,15 +330,13 @@ function unwrapExpression(
     return expression;
 }
 
-function ParseProps(
+function parseProps(
     props: ListElement[],
     target: ElementInline ){
 
     if(!props) return;
     for(let node of props){
-
-        if((<any>node).doNotTransform 
-        || IsJustAValue(node as Expression)){
+        if(isJustAValue(node)){
             target.add(node as Expression)
             continue;
         }
@@ -361,16 +363,15 @@ function ParseProps(
                 const {tag, quasi} = node;
     
                 if(tag.type != "Identifier") 
-                    throw Error.PropNotIdentifier(node)
+                    throw Error.PropNotIdentifier(node);
+
+                const value = quasi.expressions.length == 0 ? 
+                    stringLiteral(quasi.quasis[0].value.raw) : 
+                    quasi;
+
+                const prop = new Prop(tag.name, value);
     
-                target.add(
-                    new Prop(
-                        tag.name,
-                        quasi.expressions.length == 0
-                        ? stringLiteral(quasi.quasis[0].value.raw)
-                        : quasi
-                    )
-                )
+                target.add(prop);
                 
                 // preventDefaultPolyfill(node);
             } break;
@@ -386,16 +387,14 @@ function ParseProps(
             } break;
 
             case "Identifier": {
-                target.add(
-                    new Prop(node.name, node)
-                );
+                const prop = new Prop(node.name, node);
+                target.add(prop);
             } break;
 
-            case "SpreadElement": 
-                target.add(
-                    new Prop(false, node.argument)
-                );
-            break;
+            case "SpreadElement": {
+                const prop = new Prop(false, node.argument);
+                target.add(prop);
+            } break;
 
             case "ObjectExpression": {
                 for(const property of node.properties){

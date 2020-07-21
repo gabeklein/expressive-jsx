@@ -1,33 +1,47 @@
+import { createElement } from "react";
+
 interface BunchOf<T> {
     [key: string]: T
 }
+
+const { defineProperty: define } = Object;
 
 const arrayPushMethod = Array.prototype.push;
 const valuesOf = Object.values;
 
 // allowing subsequent calls to override previous ones. Intended to prevent duping, especially on hot reloads.
 
-const StyleSheet = new class RuntimeStyleController {
+const Controller = new class RuntimeStyleController {
     chunks = {} as BunchOf<string>;
     contentIncludes = {} as BunchOf<boolean | string>;
     ref?: HTMLStyleElement;
 
     constructor(){
-        Object.defineProperty(this.chunks, "length", {
+        define(this.chunks, "length", {
             enumerable: false,
             writable: true
         })
+        this.bootstrap();
+    }
 
-        window.addEventListener('load', () => {
+    bootstrap(){
+        try {
             const tag 
                 = this.ref 
                 = document.createElement("style");
-    
+
             tag.setAttribute("expressive", "");
             tag.innerHTML = this.cssText;
-    
+
             document.body.appendChild(tag);
-        }, false);
+        }
+        catch(err){}
+    }
+
+    
+    get cssText(){
+        let output = valuesOf(this.chunks).join("\n\n");
+        return output ? `\n${output}\n` : "";
     }
 
     /**
@@ -36,24 +50,7 @@ const StyleSheet = new class RuntimeStyleController {
      * @param cssText - plain CSS to be included
      * @param reoccuringKey - dedupe identifier (for HMR or potentially dynamic style)
      */
-    shouldInclude(cssText: string, reoccuringKey: string){
-        if(this.ref)
-            this.include(cssText, reoccuringKey)
-        else
-            this.apply(cssText, reoccuringKey)
-    }
-
-    get cssText(){
-        let output = valuesOf(this.chunks).join("\n\n");
-        return output ? `\n${output}\n` : "";
-    }
-
-    /**
-     * Inlcude cssText in rendered <style>.
-     * 
-     * Will bail if cssText already exists, and overwrite chunks which share `reoccuringKey`.
-     */
-    private include(cssText: string, reoccuringKey: string){
+    include(cssText: string, reoccuringKey: string){
         const existing = this.contentIncludes;
 
         if(cssText in existing)
@@ -66,7 +63,10 @@ const StyleSheet = new class RuntimeStyleController {
         }
 
         this.apply(cssText, reoccuringKey)
-        this.ref!.innerHTML = this.cssText;
+        try {
+            this.ref!.innerHTML = this.cssText;
+        }
+        catch(err){}
     }
 
     /**
@@ -105,5 +105,16 @@ export {
     body,
     join
 }
+
+const StyleSheet = () => {
+    return createElement(
+        "style", {
+            dangerouslySetInnerHTML: { __html: Controller.cssText }
+        }
+    )
+}
+
+define(StyleSheet, "include", { value: Controller.include.bind(Controller) });
+define(StyleSheet, "cssText", { get: () => Controller.cssText })
 
 export default StyleSheet;

@@ -13,7 +13,7 @@ import {
     Statement,
 } from '@babel/types';
 import { StackFrame } from 'parse';
-import { hash, ParseErrors } from 'shared';
+import { hash, ParseErrors, ensureArray } from 'shared';
 import { DoExpressive, InnerContent } from 'types';
 
 import { ComponentExpression, ContingentModifier, ElementInline, TraversableBody } from './';
@@ -49,14 +49,17 @@ export class ComponentIf {
 
     wasAddedTo(parent: TraversableBody){
         const { context } = this;
-        let layer: Path<Statement> = this.path;
+        let layer: Path<any> = this.path;
 
         while(true){
-            let consequent = layer.get("consequent") as Path<Statement>;
-            const test = layer.get("test") as Path<Expression>
+            let consequent = layer.get("consequent") as Path<any>;
+            let test: Expression | undefined;
+
+            if(layer.isIfStatement())
+                test = layer.node.test;
 
             if(consequent.isBlockStatement()){
-                const inner = consequent.get("body");
+                const inner = ensureArray(consequent.get("body"));
                 if(inner.length == 1)
                     consequent = inner[0]
             }
@@ -65,13 +68,13 @@ export class ComponentIf {
                 ? new ComponentIf(
                     consequent, 
                     context, 
-                    test.node
+                    test
                 )
                 : new ComponentConsequent(
                     consequent, 
                     context, 
                     this.forks.length + 1,
-                    test.node
+                    test
                 )
 
             const index = this.forks.push(fork);
@@ -118,10 +121,6 @@ export class ComponentIf {
                 )
                 
         this.doBlocks = doInsert;
-        // if(doInsert.length)
-        //     this.path.replaceWith(
-        //         blockStatement()
-        //     );
     }
 }
 

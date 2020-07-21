@@ -15,21 +15,21 @@ import { ArrayStack, ElementReact, GenerateReact } from 'internal';
 import { dedent } from 'regenerate/quasi';
 import { ContentLike, PropData } from 'types';
 
-import { PropertyES } from './syntax';
+import { propertyES } from './syntax';
 
 const IsComponentElement = /^[A-Z]\w*/;
 
 export class GenerateES extends GenerateReact {
 
     get Fragment(){
-        let id = this.external.ensure("react", "Fragment");
+        let id = this.external.ensure("$pragma", "Fragment");
         Object.defineProperty(this, "Fragment", { value: id });
         return id;
     }
 
     get Create(){
         let id = this.external.ensure(
-            "react", "createElement", "create"
+            "$pragma", "createElement", "create"
         );
 
         Object.defineProperty(this, "Create", { value: id });
@@ -102,7 +102,7 @@ export class GenerateES extends GenerateReact {
                 propStack.push(value);
             else
                 propStack.insert(
-                    PropertyES(name, value)
+                    propertyES(name, value)
                 );
     
         let properties = propStack.map(chunk => 

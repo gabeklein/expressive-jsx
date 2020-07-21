@@ -1,3 +1,5 @@
+import { pascalToDash } from "./util";
+
 const EXPORT = exports;
 
 const PSEUDO = {
@@ -15,6 +17,23 @@ const PSEUDO = {
     placeholder: "::placeholder"
 }
 
+export function nthOfType(){
+    const inner = this.body.body;
+    let i = 0;
+    let select;
+    for(const item of inner){
+        if(item.label.name !== "select"){
+            i++;
+            continue;
+        }
+        else {
+            inner.splice(i, 1);
+            select = item.body.expression.value;
+        }
+    }
+    this.setContingent(`:nth-of-type(${select})`, 6);
+}
+
 for(const name in PSEUDO){
     let priority = ~name.indexOf("Active") ? 7 : 6;
     EXPORT[name] = function(){
@@ -25,8 +44,6 @@ for(const name in PSEUDO){
             mod.addStyle("content", "\"\"")
     }
 }
-
-const PascalToDash = x => x.replace(/([A-Z]+)/g, "-$1").toLowerCase();
 
 export function css(){
     let body = this.body;
@@ -52,6 +69,6 @@ export function css(){
         list = data.classList = [];
 
     for(const className of this.arguments){
-        list.push(PascalToDash(className));
+        list.push(pascalToDash(className));
     }
 }

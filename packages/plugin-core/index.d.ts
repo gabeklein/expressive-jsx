@@ -1,5 +1,5 @@
 /// <reference types="babel__traverse" />
-import { Path as Path, VisitNodeObject } from '@babel/traverse';
+import { NodePath as Path, VisitNodeObject } from '@babel/traverse';
 import {
     ArrowFunctionExpression,
     AssignmentExpression,
@@ -26,6 +26,7 @@ interface BabelState<S extends StackFrame = StackFrame> {
 interface DoExpressive extends DoExpression {
     readonly meta: ElementInline;
     readonly expressive_visited?: true;
+    readonly expressive_parent?: Prop;
 }
 interface ModifierOutput {
     readonly attrs?: BunchOf<any>;
@@ -91,9 +92,9 @@ declare abstract class Attribute<T extends Expression = Expression> {
     protected constructor();
     readonly name: string | false;
     readonly node: T | undefined;
-    readonly value: FlatValue | T | undefined;
+    value: FlatValue | T | undefined;
     readonly invariant: boolean | undefined;
-    readonly overriden?: boolean;
+    readonly overridden?: boolean;
 }
 declare class Prop extends Attribute {
     constructor(name: string | false, node: FlatValue | Expression | undefined);
@@ -230,6 +231,7 @@ declare function ParseErrors
 export default _default;
 
 export {
+    Attribute,
     AttributeBody,
     BabelState,
     ComponentConsequent,

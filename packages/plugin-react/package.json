@@ -1,6 +1,6 @@
 {
   "name": "@expressive/babel-plugin-react",
-  "version": "1.0.0-beta.21",
+  "version": "1.0.0-beta.36",
   "description": "React output for XJS babel parser plugin.",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
@@ -28,20 +28,17 @@
     "prepare": "npm run build"
   },
   "devDependencies": {
-    "@types/babel__template": "^7.0.2",
-    "@types/babel__traverse": "^7.0.7",
+    "@types/babel__template": "7.0.2",
+    "@types/babel__traverse": "7.0.10",
     "@types/node": "^11.13.4",
     "rollup": "^1.10.0",
     "rollup-plugin-commonjs": "^9.3.4",
     "rollup-plugin-typescript2": "^0.20.1",
-    "typescript": "^3.4.3"
+    "typescript": "3.8.3"
   },
   "dependencies": {
-    "@babel/template": "^7.4.0",
-    "@babel/types": "^7.4.0",
-    "@expressive/babel-plugin-core": "^1.0.0-beta.21"
-  },
-  "peerDependencies": {
-    "react": "^16.2.0"
+    "@babel/template": "7.8.6",
+    "@babel/types": "7.9.5",
+    "@expressive/babel-plugin-core": "^1.0.0-beta.36"
   }
 }
