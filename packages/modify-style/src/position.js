@@ -1,5 +1,12 @@
 import { rect } from "./util"
 
+const INVERSE = {
+    top: "bottom",
+    left: "right",
+    right: "left",
+    bottom: "top"
+}
+
 export function zIndex(a){
     return {
         style: { zIndex: a }
@@ -8,27 +15,20 @@ export function zIndex(a){
 
 export function absolute(a){
     const out = keyedPosition(...this.arguments)
-    out.style = {position: "absolute"};
+    out.style = { position: "absolute" };
     return out;
 }
 
 export function fixed(){
     const out = keyedPosition(...this.arguments);
-    out.style = {position: "fixed"};
+    out.style = { position: "fixed" };
     return out;
 }
 
 export function relative(){
     return {
-        style: {position: "relative"}
+        style: { position: "relative" }
     };
-}
-
-const OPPOSITE = {
-    top: "bottom",
-    left: "right",
-    right: "left",
-    bottom: "top"
 }
 
 function keyedPosition(a, b = 0, c = b){
@@ -51,10 +51,10 @@ function keyedPosition(a, b = 0, c = b){
 
         if(k2){
             if(k1 == "fill")
-                delete out.attrs[OPPOSITE[k2]]
+                delete out.attrs[INVERSE[k2]]
 
             else for(const dir of keyword)
-                delete out.attrs[OPPOSITE[dir]]
+                delete out.attrs[INVERSE[dir]]
 
             return out
         }
