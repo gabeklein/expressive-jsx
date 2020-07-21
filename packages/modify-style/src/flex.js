@@ -18,9 +18,10 @@ export function flexAlign(){
         if(arg in FlexDirections)
             style.flexDirection = 
                 FlexDirections[arg] || arg;
-        else if(arg == "center")
+        else if(arg == "center"){
             style.justifyContent = "center"
             style.alignItems = "center"
+        }
         else
             style.justifyContent = arg;
     }
