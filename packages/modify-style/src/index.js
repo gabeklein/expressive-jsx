@@ -12,7 +12,8 @@ export * from "./coloration"
 export * from "./advanced"
 export * from "./text"
 export * from "./media"
-export * from "./macro"
+export * from "./macros"
+export * from "./image"
 
 import * as Color from "./colors"
 export { Color }

@@ -1,13 +1,5 @@
-const { URL_IMAGES } = process.env;
 import { rgba, hsla } from "./colors";
 
-export function image(a){
-    return {
-        style: {
-            backgroundImage: `url("${a}")`
-        }
-    }
-}
 
 export function shadow(color, radius = 10, x = 2, y = x){
     let value;
@@ -23,13 +15,8 @@ export function shadow(color, radius = 10, x = 2, y = x){
     }
 }
 
-export function outline(a, b){
-    return a == "none"     ? {style: { outline: "none" }}
-        :  b == undefined  ? {style: { outline: `1px dashed ${a || "green"}` }}
-        :  {attrs: { outline: this.arguments }}
-}
-
 export function bg(a){
+    const { URL_IMAGES } = process.env;
     let output;
 
     if(Array.isArray(a)){
@@ -66,15 +53,4 @@ export function bg(a){
     return {
         style: output
     }
-}
-
-export function backgroundImage(a){
-    if(typeof a == "object" && !a.named)
-        return { style: {
-            backgroundImage: a
-        }}
-    else 
-        return { attrs: {
-            backgroundImage: this.arguments
-        }} 
 }
