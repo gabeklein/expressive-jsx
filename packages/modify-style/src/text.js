@@ -1,5 +1,4 @@
 export function font(){
-
     const attrs = {};
 
     for(const arg of this.arguments)
@@ -14,20 +13,20 @@ export function font(){
 }
 
 export function fontFamily(){
-
-    const fam = this.arguments
-        .map((font) => {
-            if(~font.indexOf(" "))
-                return `"${font}"`
-            else return font
-        })
-        .join(", ");
+    const fonts = this.arguments.map(quoteOnWhitespace).join(", ")
 
     return {
         style: {
-            fontFamily: fam
+            fontFamily: fonts
         }
     }
+}
+
+function quoteOnWhitespace(text){
+    if(~font.indexOf(" "))
+        return `"${font}"`
+
+    return font
 }
 
 export { fontFamily as family }

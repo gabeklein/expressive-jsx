@@ -43,7 +43,8 @@ function keyedPosition(a, b = 0, c = b){
         }
     };
 
-    if(a == "fill") return out;
+    if(a == "fill")
+        return out;
 
     if(typeof a == "string"){
         let keyword;
@@ -82,7 +83,7 @@ function position(){
 }
 
 function _cover(){
-    const [top, right, bottom, left] = rect(...arguments)
+    const [ top, right, bottom, left ] = rect(...arguments)
     return {
         attrs: { top, right, bottom, left }
     }

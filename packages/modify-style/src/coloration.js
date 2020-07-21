@@ -1,6 +1,5 @@
 import { rgba, hsla } from "./colors";
 
-
 export function shadow(color, radius = 10, x = 2, y = x){
     let value;
     if(color == "intial" || color == "none")

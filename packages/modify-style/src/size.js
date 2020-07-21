@@ -6,13 +6,14 @@ for(const type of ["min", "max", ""]){
   const height = type ? `${type}Height` : "height";
 
   EXPORT[size] = (x, y, unit) => {
-      if(typeof y == "string" 
-      && typeof x == "number")
-          unit = y, y = null;
+      if(typeof y == "string" && typeof x == "number"){
+          unit = y;
+          y = null;
+      }
 
       return {
           attrs: {
-              [width]: [x,      unit], 
+              [width]: [x, unit], 
               [height]: [y || x, unit]
           }
       }
@@ -26,7 +27,7 @@ export function aspectSize(x, y, unit){
       else y = x * y2;
   return {
       attrs: {
-          width: [x,      unit], 
+          width: [x, unit], 
           height: [y || x, unit]
       }
   }

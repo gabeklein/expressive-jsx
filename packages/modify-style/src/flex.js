@@ -10,7 +10,6 @@ const FlexDirections = {
 }
 
 export function flexAlign(){
-
     const style = {
         display: "flex"
     }
@@ -19,11 +18,9 @@ export function flexAlign(){
         if(arg in FlexDirections)
             style.flexDirection = 
                 FlexDirections[arg] || arg;
-        else
-        if(arg == "center")
-            style.justifyContent = 
-            style.alignItems = 
-            "center"
+        else if(arg == "center")
+            style.justifyContent = "center"
+            style.alignItems = "center"
         else
             style.justifyContent = arg;
     }
