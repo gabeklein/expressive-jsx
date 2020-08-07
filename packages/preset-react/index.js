@@ -16,7 +16,7 @@ module.exports = (compiler, options = {}) => {
         reactEnv: "web",
         output: "js",
         modifiers: [
-          ...styleModifiers,
+          styleModifiers,
           ...modifiers
         ],
         ...opts
