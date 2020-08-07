@@ -13,25 +13,29 @@ export function zIndex(a){
     }
 }
 
-export function absolute(a){
-    const out = keyedPosition(...this.arguments)
-    out.style = { position: "absolute" };
-    return out;
+export function absolute(...args){
+    return {
+        position: "absolute",
+        ...computePosition(...args)
+    }
 }
 
-export function fixed(){
-    const out = keyedPosition(...this.arguments);
-    out.style = { position: "fixed" };
-    return out;
+export function fixed(...args){
+    return {
+        position: "fixed",
+        ...computePosition(...args)
+    }
 }
 
 export function relative(){
     return {
-        style: { position: "relative" }
+        style: {
+            position: "relative"
+        }
     };
 }
 
-function keyedPosition(a, b = 0, c = b){
+function computePosition(a, b = 0, c = b){
     let keyword;
 
     let out = {
