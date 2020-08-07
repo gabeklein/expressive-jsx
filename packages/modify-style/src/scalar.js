@@ -1,3 +1,5 @@
+import { appendUnitToN } from "./units";
+
 function nToNUnits(value, unit) {
   if(value == "fill")
       value = "100%";
