@@ -80,7 +80,7 @@ function recombineTemplate(args){
   return args.map(formatGridValue).join(" ")
 }
 
-function formatGridValue(value){
+function formatGridValue(x){
   if(typeof x == "number")
     return `${x}px`;
 
