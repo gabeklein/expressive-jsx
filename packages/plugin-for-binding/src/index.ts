@@ -49,27 +49,27 @@ function ForOfStatement(path){
 
     switch(bindings.length){
         case 3:
-            [_itemDestructure, _itemReference, _itemKey] = bindings;
+            [itemDestructure, itemReference, itemKey] = bindings;
             break;
         default:
             // console.log(bindings[0].type)
-            [_itemReference, _itemKey] = bindings
+            [itemReference, itemKey] = bindings
     }
     
-    switch(_objectIterated.type){
+    switch(objectIterated.type){
         case "StringLiteral":
-            _objectIterated = 
+            objectIterated = 
                 arrayExpression(
-                    _objectIterated.value
+                    objectIterated.value
                         .split(/, +/)
                         .map(e => stringLiteral(e))
                 )
         break;
 
         case "TemplateLiteral": 
-            _objectIterated = callExpression(
+            objectIterated = callExpression(
                 memberExpression(
-                    _objectIterated,
+                    objectIterated,
                     identifier("split")
                 ),
                 [regExpLiteral(", +")]
@@ -78,16 +78,16 @@ function ForOfStatement(path){
 
         case "UnaryExpression":
         case "NumericLiteral": {
-            const { argument, value } = _objectIterated;
+            const { argument, value } = objectIterated;
             if(argument)
-                _objectIterated = argument
+                objectIterated = argument
             else if(!Number.isInteger(value)) 
                 bind.source.buildCodeFrameError("For range must be an integer")
             
-            _objectIterated = callExpression(
+            objectIterated = callExpression(
                 memberExpression(
                     callExpression(
-                        identifier("Array"), [_objectIterated]
+                        identifier("Array"), [objectIterated]
                     ),
                     identifier("keys")
                 ), []
@@ -99,48 +99,48 @@ function ForOfStatement(path){
     let output;
     const stats = extractStatements(path.get("body"))
     
-    if(!_itemKey){
+    if(!itemKey){
         output = forOfStatement(
             variableDeclaration(kind, [
-                variableDeclarator(_itemReference)
+                variableDeclarator(itemReference)
             ]),
-            _objectIterated,
+            objectIterated,
             blockStatement(stats)
         )
     }
     else {
         const init = [
-            variableDeclarator(_itemKey, numericLiteral(0))
+            variableDeclarator(itemKey, numericLiteral(0))
         ]
-        if(_objectIterated.type != "Identifier"){
-            const _source = _objectIterated;
-            _objectIterated = path.scope.generateUidIdentifier("obj")
+        if(objectIterated.type != "Identifier"){
+            const source = objectIterated;
+            objectIterated = path.scope.generateUidIdentifier("obj")
             init.push(
-                variableDeclarator(_objectIterated, _source)
+                variableDeclarator(objectIterated, source)
             )
         }
         output = forStatement(
             variableDeclaration("let", init),
-            binaryExpression("<", _itemKey, memberExpression(_objectIterated, identifier("length"))),
-            updateExpression("++", _itemKey),
+            binaryExpression("<", itemKey, memberExpression(objectIterated, identifier("length"))),
+            updateExpression("++", itemKey),
             blockStatement(stats)
         )
 
         const bind = [
             variableDeclarator(
-                _itemReference,
+                itemReference,
                 memberExpression(
-                    _objectIterated,
-                    _itemKey,
+                    objectIterated,
+                    itemKey,
                     true
                 )
             )
         ];
-        if(_itemDestructure) 
+        if(itemDestructure) 
             bind.push(
                 variableDeclarator(
-                    _itemDestructure, 
-                    _itemReference
+                    itemDestructure, 
+                    itemReference
                 )
             )
         stats.unshift(
@@ -150,9 +150,9 @@ function ForOfStatement(path){
 
     output.expressive_binds = bindings;
     if(path.node.expressive_setKey){
-        path.node.expressive_setKey(_itemKey || 
+        path.node.expressive_setKey(itemKey || 
             callExpression(
-                memberExpression(_itemReference, identifier("toString")), []
+                memberExpression(itemReference, identifier("toString")), []
             )
         )
     }
@@ -167,63 +167,63 @@ function ForInStatement(path){
 
     const bind = parseBindings(path)
     const { 
-        source: {node: _source},
+        source: {node: source},
         bindings,
         kind = "const"
     } = bind;
 
-    if(~["StringLiteral", "TemplateLiteral"].indexOf(_source.type)){
+    if(~["StringLiteral", "TemplateLiteral"].indexOf(source.type)){
         throw path.get("right").buildCodeFrameError("A string here will cause runtime errors. Did you mean to use `for of` instead?")
     }
 
     const initial_bindings = []
 
-    let _key, _value, _struct;
+    let key, value, struct;
 
     switch(bindings.length) {
         case 3: 
-            [_struct, _value, _key] = bindings;
+            [struct, value, key] = bindings;
             break;
         case 2:
-            [_value, _key] = bindings;
+            [value, key] = bindings;
             break;
         case 1:
-            [_key] = bindings;
-            if(isObjectPattern(_key) || isArrayPattern(_key)){
-                _struct = _key;
-                _key = path.scope.generateUidIdentifier("_key");
+            [key] = bindings;
+            if(isObjectPattern(key) || isArrayPattern(key)){
+                struct = key;
+                key = path.scope.generateUidIdentifier("key");
             }
             break;
     }
     
     const stats = extractStatements(path.get("body"))
     
-    let _sourceReference = _source.type == "ObjectExpression" && _value
-        ? path.scope.generateUidIdentifier("_object")
-        : _source;
+    let sourceReference = source.type == "ObjectExpression" && value
+        ? path.scope.generateUidIdentifier("object")
+        : source;
 
-    if(_value || _struct){
+    if(value || struct){
         const initial_bindings = []
         
-        if(!_value){
+        if(!value){
             initial_bindings.push(
                 variableDeclarator(
-                    _struct,
-                    memberExpression(_sourceReference, _key, true)
+                    struct,
+                    memberExpression(sourceReference, key, true)
                 )
             )
         } else {
             initial_bindings.push(
                 variableDeclarator(
-                    _value,
-                    memberExpression(_sourceReference, _key, true)    
+                    value,
+                    memberExpression(sourceReference, key, true)    
                 )
             )
-            if(_struct) 
+            if(struct) 
                 initial_bindings.push(
                     variableDeclarator(
-                        _struct, 
-                        _value
+                        struct, 
+                        value
                     )
                 )
         }
@@ -235,21 +235,21 @@ function ForInStatement(path){
 
     const loop = forInStatement(
         variableDeclaration(kind, [
-            variableDeclarator(_key)
+            variableDeclarator(key)
         ]),
-        _sourceReference,
+        sourceReference,
         blockStatement(stats)
     )
 
     loop.expressive_binds = bind;
     if(path.node.expressive_setKey){
-        path.node.expressive_setKey(_key)
+        path.node.expressive_setKey(key)
     }
 
-    if(_source !== _sourceReference)
+    if(source !== sourceReference)
         path.replaceWithMultiple([
             variableDeclaration("const", [
-                variableDeclarator(_sourceReference, _source)
+                variableDeclarator(sourceReference, source)
             ]),
             loop
         ])
