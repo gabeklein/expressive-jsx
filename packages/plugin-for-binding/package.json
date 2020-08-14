@@ -1,0 +1,28 @@
+{
+  "name": "@expressive/plugin-for-binding",
+  "version": "1.0.0-beta.38",
+  "description": "Extends native for-loop using in binary.",
+  "repository": "https://github.com/gabeklein/expressive-dsl",
+  "author": {
+    "name": "Gabe Klein",
+    "email": "gabe@termtm.com",
+    "url": "https://github.com/gabeklein"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "lib/index.js",
+  "files": [
+    "/lib"
+  ],
+  "scripts": {
+    "prebuild": "rm -rf ./lib",
+    "build": "babel ./src --out-dir ./lib --presets @babel/env",
+    "watch": "yarn build -- --source-maps --watch",
+    "prepare": "yarn build"
+  },
+  "dependancies": {
+    "@babel/types": "7.9.5"
+  }
+}
