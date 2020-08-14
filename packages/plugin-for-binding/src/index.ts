@@ -39,13 +39,13 @@ function ForOfStatement(path){
     let {
         source,
         bindings,
-        kind = "const",
+        kind = "const"
     } = parseBindings(path);
     
-    let _objectIterated = source.node,
-        _itemReference,
-        _itemKey,
-        _itemDestructure;
+    let objectIterated = source.node
+    let itemReference;
+    let itemKey;
+    let itemDestructure;
 
     switch(bindings.length){
         case 3:
@@ -178,7 +178,9 @@ function ForInStatement(path){
 
     const initial_bindings = []
 
-    let key, value, struct;
+    let key;
+    let value;
+    let struct;
 
     switch(bindings.length) {
         case 3: 
