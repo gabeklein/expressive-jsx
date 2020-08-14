@@ -18,11 +18,15 @@
   ],
   "scripts": {
     "prebuild": "rm -rf ./lib",
-    "build": "babel ./src --out-dir ./lib --presets @babel/env",
+    "build": "babel ./src --out-dir ./lib --presets @babel/typescript",
     "watch": "yarn build -- --source-maps --watch",
     "prepare": "yarn build"
   },
-  "dependancies": {
-    "@babel/types": "7.9.5"
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.10.4",
+    "@types/babel__traverse": "^7.0.10"
+  },
+  "dependencies": {
+    "@babel/types": "^7.9.5"
   }
 }

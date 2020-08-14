@@ -1,21 +1,26 @@
+import { NodePath } from '@babel/traverse';
 import {
-  isObjectPattern,
-  isArrayPattern,
-  memberExpression,
-  callExpression,
-  variableDeclaration,
-  identifier,
-  variableDeclarator,
-  numericLiteral,
-  forOfStatement,
-  blockStatement,
-  stringLiteral,
   arrayExpression,
-  regExpLiteral,
-  forStatement,
   binaryExpression,
+  blockStatement,
+  callExpression,
+  Expression,
+  forInStatement,
+  forOfStatement,
+  forStatement,
+  identifier,
+  isArrayPattern,
+  isObjectPattern,
+  memberExpression,
+  numericLiteral,
+  regExpLiteral,
+  Statement,
+  stringLiteral,
   updateExpression,
-  forInStatement
+  variableDeclaration,
+  variableDeclarator,
+  ForOfStatement,
+  ForInStatement,
 } from '@babel/types';
 
 export default () => ({
@@ -29,7 +34,17 @@ export default () => ({
   }
 })
 
-function ForOfStatement(path){
+interface ExpressiveForOf extends ForOfStatement {
+  expressive_binds?: any;
+  expressive_setKey?: any;
+}
+
+interface ExpressiveForIn extends ForInStatement {
+  expressive_binds?: any;
+  expressive_setKey?: any;
+}
+
+function ForOfStatement(path: NodePath<ExpressiveForOf | ExpressiveForIn>){
 
   if(path.node.expressive_binds)
     return
@@ -42,7 +57,7 @@ function ForOfStatement(path){
     kind = "const"
   } = parseBindings(path);
   
-  let objectIterated = source.node
+  let objectIterated = source.node as any;
   let itemReference;
   let itemKey;
   let itemDestructure;
@@ -78,11 +93,11 @@ function ForOfStatement(path){
 
     case "UnaryExpression":
     case "NumericLiteral": {
-      const { argument, value } = objectIterated;
+      const { argument, value } = objectIterated as any;
       if(argument)
         objectIterated = argument
-      else if(!Number.isInteger(value)) 
-        bind.source.buildCodeFrameError("For range must be an integer")
+      // else if(!Number.isInteger(value)) 
+      //   bind.source.buildCodeFrameError("For range must be an integer")
       
       objectIterated = callExpression(
         memberExpression(
@@ -112,6 +127,7 @@ function ForOfStatement(path){
     const init = [
       variableDeclarator(itemKey, numericLiteral(0))
     ]
+
     if(objectIterated.type != "Identifier"){
       const source = objectIterated;
       objectIterated = path.scope.generateUidIdentifier("obj")
@@ -119,6 +135,7 @@ function ForOfStatement(path){
         variableDeclarator(objectIterated, source)
       )
     }
+
     output = forStatement(
       variableDeclaration("let", init),
       binaryExpression("<", itemKey, memberExpression(objectIterated, identifier("length"))),
@@ -136,6 +153,7 @@ function ForOfStatement(path){
         )
       )
     ];
+
     if(itemDestructure) 
       bind.push(
         variableDeclarator(
@@ -143,6 +161,7 @@ function ForOfStatement(path){
           itemReference
         )
       )
+      
     stats.unshift(
       variableDeclaration(kind, bind),
     )
@@ -161,15 +180,17 @@ function ForOfStatement(path){
 
 }
 
-function ForInStatement(path){
+function ForInStatement(path: NodePath<ExpressiveForOf | ExpressiveForIn>){
 
   if(path.node.expressive_binds) return;
 
-  const bind = parseBindings(path)
+  const bind = parseBindings(path);
   const { 
-    source: {node: source},
     bindings,
-    kind = "const"
+    kind = "const",
+    source: {
+      node: source
+    }
   } = bind;
 
   if(~["StringLiteral", "TemplateLiteral"].indexOf(source.type)){
@@ -200,9 +221,10 @@ function ForInStatement(path){
   
   const stats = extractStatements(path.get("body"))
   
-  let sourceReference = source.type == "ObjectExpression" && value
-    ? path.scope.generateUidIdentifier("object")
-    : source;
+  let sourceReference: any = 
+    source.type == "ObjectExpression" && value
+      ? path.scope.generateUidIdentifier("object")
+      : source;
 
   if(value || struct){
     const initial_bindings = []
@@ -235,13 +257,14 @@ function ForInStatement(path){
     )
   }
 
-  const loop = forInStatement(
-    variableDeclaration(kind, [
-      variableDeclarator(key)
-    ]),
-    sourceReference,
-    blockStatement(stats)
-  )
+  const loop: ExpressiveForIn = 
+    forInStatement(
+      variableDeclaration(kind, [
+        variableDeclarator(key)
+      ]),
+      sourceReference,
+      blockStatement(stats)
+    )
 
   loop.expressive_binds = bind;
   if(path.node.expressive_setKey){
@@ -261,26 +284,26 @@ function ForInStatement(path){
     )
 }
 
-function extractStatements(body) {
+function extractStatements(body: NodePath<Statement>){
   if(body.isBlockStatement())
     return body.node.body
   else
     return [ body.node ]
 }
 
-function parseBindings(path){
+function parseBindings(path: NodePath<ExpressiveForIn | ExpressiveForOf>){
 
   let bindings = [];
   let kind;
 
-  let iterable = path.get("right");
+  let iterable = path.get("right") as NodePath<Expression>;
 
   if(iterable.isBinaryExpression({operator: "in"})){
-    let extra = iterable.get("left");
-    iterable = iterable.get("right");
+    let extra = iterable.get("left") as NodePath<Expression>;
+    iterable = iterable.get("right") as NodePath<Expression>;
     while(extra.isBinaryExpression({operator: "in"})){
       bindings.push(extra.get("right"))
-      extra = extra.get("left");
+      extra = extra.get("left") as NodePath<Expression>;
     }
     bindings.push(extra);
   }
@@ -288,7 +311,7 @@ function parseBindings(path){
   let left = path.get("left")
   if(left.isVariableDeclaration()){
     kind = left.node.kind
-    left = left.get("declarations.0.id")
+    left = left.get("declarations.0.id") as NodePath<any>;
   }
 
   bindings.push(left)
@@ -308,5 +331,4 @@ function parseBindings(path){
     bindings: bindings.map(x => x.node),
     kind
   }
-
 }
