@@ -1,6 +1,5 @@
 const EXPORT = exports;
 
-import { rect } from "./util";
 import { appendUnitToN, addUnit } from "./units";
 
 const CORNER_MATRIX = {
