@@ -1,32 +1,32 @@
 export function font(){
-    const attrs = {};
+  const attrs = {};
 
-    for(const arg of this.arguments)
-        if(arg % 100 === 0)
-            attrs.fontWeight = arg;
-        else if(isNaN(arg) === false)
-            attrs.fontSize = arg;
-        else if(typeof arg === "string")
-            attrs.fontFamily = arg
+  for(const arg of this.arguments)
+    if(arg % 100 === 0)
+      attrs.fontWeight = arg;
+    else if(isNaN(arg) === false)
+      attrs.fontSize = arg;
+    else if(typeof arg === "string")
+      attrs.fontFamily = arg
 
-    return { attrs }
+  return { attrs }
 }
 
 export function fontFamily(){
-    const fonts = this.arguments.map(quoteOnWhitespace).join(", ")
+  const fonts = this.arguments.map(quoteOnWhitespace).join(", ")
 
-    return {
-        style: {
-            fontFamily: fonts
-        }
+  return {
+    style: {
+      fontFamily: fonts
     }
+  }
 }
 
 function quoteOnWhitespace(text){
-    if(~font.indexOf(" "))
-        return `"${font}"`
+  if(~font.indexOf(" "))
+    return `"${font}"`
 
-    return font
+  return font
 }
 
 export { fontFamily as family }
