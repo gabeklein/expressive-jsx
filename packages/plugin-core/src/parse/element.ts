@@ -96,10 +96,11 @@ function applyPassthru(
     baseAttributes: Expression[]
 ){
     const identifierName = isIdentifier(subject) && subject.name;
+    const styleReference = "$" + identifierName;
 
     if(baseAttributes.length == 0){
-        const noModifiers = !parent.context.elementMod("$" + identifierName);
-        if(identifierName && noModifiers){
+        const hasModifiers = parent.context.elementMod(styleReference);
+        if(identifierName && !hasModifiers){
             parent.adopt(subject);
             return subject
         }
@@ -111,15 +112,15 @@ function applyPassthru(
     }
 
     const container = new ElementInline(parent.context);
+    const elementType = isStringLiteral(subject) ? "string" : "void";
     
-    applyNameImplications(
-        isStringLiteral(subject) ? "string" : "void",
-        container
-    );
+    applyNameImplications(elementType, container);
+
     if(identifierName){
-        applyNameImplications("$" + identifierName, container);
+        applyNameImplications(styleReference, container);
         container.name = identifierName;
     }
+    
     container.explicitTagName = "div";
     container.adopt(subject);
     container.parent = parent;
@@ -201,6 +202,29 @@ function parseLayers(
     return parent;
 }
 
+const COMMON_HTML = [
+  "h1", "h2", "h3", "h4", "h5", "h6",
+  "p", "a", "ul", "li", "blockquote",
+  "i", "b", "em", "strong", "span",
+  "hr", "img", "div"
+]
+
+export function applyPrimaryName(
+    target: ElementInline, 
+    name: string, 
+    defaultTag: string,
+    force?: boolean
+){
+    const isCommonTag = COMMON_HTML.indexOf(name) >= 0;
+
+    if(isCommonTag || force)
+        applyNameImplications(name, target, true, "html");
+    else {
+        applyNameImplications(defaultTag, target, true, "html");
+        applyNameImplications(name, target);
+    }
+}
+
 export function applyNameImplications(
     name: string, 
     target: ElementInline, 
@@ -213,8 +237,9 @@ export function applyNameImplications(
 
     if(head){
         let explicit;
+
         if(prefix == "html" || /^[A-Z]/.test(name))
-            explicit = target.explicitTagName = name
+            explicit = target.explicitTagName = name;
         
         if(!explicit || !target.name)
             target.name = name;
@@ -264,11 +289,15 @@ function parseIdentity(
     tag = unwrapExpression(tag, target);
 
     if(isIdentifier(tag))
-        applyNameImplications(tag.name, target, true, prefix)
+        applyPrimaryName(target, tag.name, "div", prefix === "html");
 
     else if(isStringLiteral(tag) || isTemplateLiteral(tag)){
+        const Text = Opts.env == "native" 
+            ? Shared.stack.helpers.Text 
+            : "span";
+        
         applyNameImplications("string", target);
-        applyNameImplications(Opts.env == "native" ? Shared.stack.helpers.Text : "span", target, true)
+        applyNameImplications(Text, target, true);
 
         target.add(tag)
         // preventDefaultPolyfill(tag);

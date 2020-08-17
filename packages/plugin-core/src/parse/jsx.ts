@@ -2,19 +2,12 @@ import { Expression, isJSXIdentifier, JSXAttribute, JSXElement, JSXIdentifier, s
 import { ElementInline, Prop } from 'handle';
 import { ParseErrors } from 'shared';
 
-import { applyNameImplications } from './element';
+import { applyNameImplications, applyPrimaryName } from './element';
 
 const Error = ParseErrors({
   InvalidPropValue: "Can only consume an expression or string literal as value here.",
   UnhandledChild: "Can't parse JSX child of type {1}"
 })
-
-const commonTags = [
-  "h1", "h2", "h3", "h4", "h5", "h6",
-  "p", "a", "ul", "li", "blockquote",
-  "i", "b", "em", "strong",
-  "hr", "img", "div",
-]
 
 type enqueueFn = (
   element: JSXElement, parent: ElementInline
@@ -47,17 +40,8 @@ export function parseJSXElement(
     const { openingElement, children } = node;
     const { name, attributes } = openingElement;
 
-    if(isJSXIdentifier(name)){
-      const tag = name.name;
-      const isCommonTag = commonTags.indexOf(tag) >= 0;
-
-      if(isCommonTag)
-        applyNameImplications(tag, target, true, "html");
-      else {
-        applyNameImplications("span", target, true, "html");
-        applyNameImplications(tag, target);
-      }
-    }
+    if(isJSXIdentifier(name))
+      applyPrimaryName(target, name.name, "span");
 
     for(const attr of attributes)
       switch(attr.type){
@@ -107,8 +91,8 @@ function parseAttribute(
   const propValue = attr.value;
 
   if(propValue === null){
-    applyNameImplications(name.name, parent, true);
-    return
+    applyNameImplications(name.name, parent);
+    return;
   }
   
   let value: Expression;
