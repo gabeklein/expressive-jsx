@@ -114,10 +114,10 @@ function applyPassthru(
     const container = new ElementInline(parent.context);
     const elementType = isStringLiteral(subject) ? "string" : "void";
     
-    applyNameImplications(elementType, container);
+    applyNameImplications(container, elementType);
 
     if(identifierName){
-        applyNameImplications(styleReference, container);
+        applyNameImplications(container, styleReference);
         container.name = identifierName;
     }
     
@@ -218,24 +218,24 @@ export function applyPrimaryName(
     const isCommonTag = COMMON_HTML.indexOf(name) >= 0;
 
     if(isCommonTag || force)
-        applyNameImplications(name, target, true, "html");
+        applyNameImplications(target, name, true, "html");
     else {
-        applyNameImplications(defaultTag, target, true, "html");
-        applyNameImplications(name, target);
+        applyNameImplications(target, defaultTag, true, "html");
+        applyNameImplications(target, name);
     }
 }
 
 export function applyNameImplications(
-    name: string, 
     target: ElementInline, 
-    head?: true, 
+    name: string, 
+    isHead?: true, 
     prefix?: string){
         
     const { context } = target;
     let modify: ElementModifier | undefined =
         context.elementMod(name);
 
-    if(head){
+    if(isHead){
         let explicit;
 
         if(prefix == "html" || /^[A-Z]/.test(name))
@@ -296,8 +296,8 @@ function parseIdentity(
             ? Shared.stack.helpers.Text 
             : "span";
         
-        applyNameImplications("string", target);
-        applyNameImplications(Text, target, true);
+        applyNameImplications(target, "string");
+        applyNameImplications(target, Text, true);
 
         target.add(tag)
         // preventDefaultPolyfill(tag);
@@ -344,7 +344,7 @@ function unwrapExpression(
         case "MemberExpression": {
             const selector = expression.property;
             if(expression.computed !== true && isIdentifier(selector))
-                applyNameImplications(selector.name, target);
+                applyNameImplications(target, selector.name);
             else 
                 throw Error.SemicolonRequired(selector)
 

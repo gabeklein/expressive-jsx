@@ -29,7 +29,7 @@ export class ComponentExpression extends ComponentContainer {
         this.explicitTagName = "div";
 
         if(/^[A-Z]/.test(name))
-            applyNameImplications(name, this);
+            applyNameImplications(this, name);
 
         path.node.meta = this;
         this.context.resolveFor(this.name);

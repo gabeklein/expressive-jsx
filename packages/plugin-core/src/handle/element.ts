@@ -94,7 +94,7 @@ export class ElementInline extends AttributeBody {
         const block = blockStatement(node.body);
         const doExp = doExpression(block) as DoExpressive;
 
-        applyNameImplications("block", blockElement);
+        applyNameImplications(blockElement, "block");
         this.add(blockElement)
 
         blockElement.doBlock = doExp;

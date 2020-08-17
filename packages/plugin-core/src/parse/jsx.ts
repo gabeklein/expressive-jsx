@@ -91,7 +91,7 @@ function parseAttribute(
   const propValue = attr.value;
 
   if(propValue === null){
-    applyNameImplications(name.name, parent);
+    applyNameImplications(parent, name.name);
     return;
   }
   
