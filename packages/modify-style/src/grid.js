@@ -1,20 +1,14 @@
-const { from, isArray } = Array;
-
-export function gridArea(){
-  const args = from(arguments);
-  if(args.length == 2){
-    const r = {
+export function gridArea(...args){
+  if(args.length == 2)
+    return {
       style: {
         gridRow: recombineSlash(args[0]),
         gridColumn: recombineSlash(args[1])
       }
     }
-    return r;
-  }
 }
 
-export function gridRow(){
-  const args = from(arguments);
+export function gridRow(...args){
   return {
     style: {
       gridRow: recombineSlash(args)
@@ -22,8 +16,7 @@ export function gridRow(){
   }
 }
 
-export function gridColumn(){
-  const args = from(arguments);
+export function gridColumn(...args){
   return {
     style: {
       gridColumn: recombineSlash(args)
@@ -31,9 +24,7 @@ export function gridColumn(){
   }
 }
 
-export function gridRows(){
-  const args = from(arguments);
-
+export function gridRows(...args){
   return {
     style: {
       display: "grid",
@@ -42,9 +33,7 @@ export function gridRows(){
   }
 }
 
-export function gridColumns(){
-  const args = from(arguments);
-  
+export function gridColumns(...args){
   return {
     style: {
       display: "grid",
@@ -65,7 +54,7 @@ function recombineSlash(args){
   while(true){
     x = x + " / " + layer[2];
 
-    if(isArray(layer[1]))
+    if(Array.isArray(layer[1]))
       layer = layer[1]
     else {
       layer = layer[1] + x;
