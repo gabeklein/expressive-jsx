@@ -9,30 +9,45 @@ for(const kind of [
   "borderRight",
   "borderBottom",
 ]){
-  const handler = EXPORT[kind] = (color, width, style) => {
-    if(!width && color.indexOf(" ") > 0) 
-      return {
-        style: { [kind]: color  }
-      }
+  function handler(color, width, style){
+    const style = {};
 
-    if(color === undefined) color = "black";
-    if(width === undefined) width = 1;
-    if(style === undefined) style = "solid"
-    let value = color == "none"
-      ? "none"
-      : [ color, style, appendUnitToN(width) ].join(" ")
+    if(!width && color.indexOf(" ") > 0)
+      style[kind] = color;
+    else
+      style[kind] = border(color, width, style);
 
-    return {
-      style: { [kind]: value  }
-    }
+    return { style };
   }
+  
+  EXPORT[kind] = handler;
 
-  if(kind[6])
-    EXPORT[kind.slice(0, 7)] = handler;
+  if(kind[6]){
+    const shortName = kind.slice(0, 7);
+    EXPORT[shortName] = handler;
+  }
+}
+
+function border(
+  color = "black",
+  width = 1,
+  style = "solid"){
+
+  if(color == "none")
+    return "none";
+  else {  
+    width = appendUnitToN(width);
+    return [ color, style, width ].join(" ");
+  }
 }
 
 export function outline(a, b){
-  return a == "none"     ? {style: { outline: "none" }}
-    :  b == undefined  ? {style: { outline: `1px dashed ${a || "green"}` }}
-    :  {attrs: { outline: this.arguments }}
+  if(a == "none")
+    return { style: { outline: "none" }}
+
+  if(b == undefined )
+    return { style: { outline: `1px dashed ${a || "green"}` }}
+
+  else
+    return { attrs: { outline: this.arguments }}
 }
