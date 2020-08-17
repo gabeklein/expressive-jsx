@@ -3,24 +3,24 @@ export function addUnit(n){
     return n;
   if(n == 0) 
     return 0;
-  if(Math.round(n) === n)
+  if(parseInt(n) === n)
     return n + "px";
   else
-    return n + "em"
+    return n + "em";
 }
 
 export function appendUnitToN(val, unit) {
   if(val === 0)
-    return "0"
+    return "0";
 
   if(val === undefined)
-    return ""
+    return "";
 
-  if(typeof val == "number")
-    return val + (unit || "px")
+  if(parseInt(val) === val)
+    return val + (unit || "px");
 
-  if(/^\d\.\d$/.test(val))
-    return val + (unit || "em")
+  if(parseFloat(val) === val)
+    return val + (unit || "em");
 
   return val
 }
