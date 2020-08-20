@@ -9,13 +9,13 @@ for(const kind of [
   "borderRight",
   "borderBottom",
 ]){
-  function handler(color, width, style){
+  function handler(color, width, borderStyle){
     const style = {};
 
     if(!width && color.indexOf(" ") > 0)
       style[kind] = color;
     else
-      style[kind] = border(color, width, style);
+      style[kind] = border(color, width, borderStyle);
 
     return { style };
   }
