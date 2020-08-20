@@ -109,8 +109,10 @@ void function incorperateChildParameters(
     const first = children[0].node;
     let count = children.length;
 
-    if(props.isAssignmentPattern())
-        throw Error.PropsCantHaveDefault(props.get("right"))
+    if(props.isAssignmentPattern()){
+        const assignedValue = props.get("right");
+        throw Error.PropsCantHaveDefault(assignedValue);
+    }
 
     if(isRestElement(first)){
         assign = first.argument as typeof assign;
