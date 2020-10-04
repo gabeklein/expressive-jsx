@@ -23,10 +23,10 @@ export function fontFamily(){
 }
 
 function quoteOnWhitespace(text){
-  if(~font.indexOf(" "))
-    return `"${font}"`
+  if(~text.indexOf(" "))
+    return `"${text}"`
 
-  return font
+  return text
 }
 
 export { fontFamily as family }
