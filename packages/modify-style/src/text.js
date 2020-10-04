@@ -22,7 +22,7 @@ export function fontFamily(){
   }
 }
 
-function quoteOnWhitespace(text){
+function quoteOnWhitespace(font){
   if(~font.indexOf(" "))
     return `"${font}"`
 
