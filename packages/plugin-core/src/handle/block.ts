@@ -48,7 +48,7 @@ export abstract class TraversableBody {
     body.meta = this as any;
     return body;
   }
-  
+
   add(item: SequenceItem){
     this.sequence.push(item);
     if("wasAddedTo" in item
@@ -59,7 +59,7 @@ export abstract class TraversableBody {
   parse(item: Path<Statement>){
     const content = item.isBlockStatement() ? ensureArray(item.get("body")) : [item];
     for(const item of content)
-      if(item.type in this) 
+      if(item.type in this)
         (this as any)[item.type](item.node, item);
       else {
         throw Error.NodeUnknown(item as any, item.type)
@@ -69,7 +69,7 @@ export abstract class TraversableBody {
   parseNodes(body: Statement){
     const content = isBlockStatement(body) ? body.body : [body];
     for(const item of content){
-      if(item.type in this) 
+      if(item.type in this)
         (this as any)[item.type](item);
       else throw Error.NodeUnknown(item, item.type)
     }
@@ -85,11 +85,11 @@ export abstract class TraversableBody {
     node: Expression){
     const self = this as unknown as BunchOf<Function>
 
-    if(node.type in this) 
+    if(node.type in this)
       self[node.type](node);
-    else if(this.ExpressionDefault) 
+    else if(this.ExpressionDefault)
       this.ExpressionDefault(node);
-    else 
+    else
       throw Error.ExpressionUnknown(node, node.type);
   }
 }

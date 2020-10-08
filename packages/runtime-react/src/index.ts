@@ -26,8 +26,8 @@ const Controller = new class RuntimeStyleController {
 
   bootstrap(){
     try {
-      const tag 
-        = this.ref 
+      const tag
+        = this.ref
         = document.createElement("style");
 
       tag.setAttribute("expressive", "");
@@ -38,7 +38,6 @@ const Controller = new class RuntimeStyleController {
     catch(err){}
   }
 
-  
   get cssText(){
     let output = valuesOf(this.chunks).join("\n\n");
     return output ? `\n${output}\n` : "";
@@ -46,7 +45,7 @@ const Controller = new class RuntimeStyleController {
 
   /**
    * Apply styles from cssText to generated stylesheet.
-   * 
+   *
    * @param cssText - plain CSS to be included
    * @param reoccuringKey - dedupe identifier (for HMR or potentially dynamic style)
    */
@@ -74,21 +73,21 @@ const Controller = new class RuntimeStyleController {
    */
   private apply(cssText: string, reoccuringKey: string){
     const regularIndent = /^\n(\s*)/.exec(cssText);
-    
+
     this.contentIncludes[cssText] = reoccuringKey || true;
 
     if(regularIndent){
       const trim = new RegExp(`\n${ regularIndent[1] }`, "g");
       cssText = cssText.replace(trim, "\n\t");
     }
-  
+
     cssText = cssText
       .replace(/^\n/, "")
       .replace(/\s+$/, "");
 
     if(reoccuringKey)
       this.chunks[reoccuringKey] = cssText;
-    else 
+    else
       arrayPushMethod.call(this.chunks, cssText);
   }
 }
@@ -101,7 +100,7 @@ function join(...args: string[]){
   return args.filter(x => x).join(" ");
 }
 
-export { 
+export {
   body,
   join
 }

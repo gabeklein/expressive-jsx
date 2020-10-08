@@ -11,10 +11,10 @@ export function backgroundImage(a){
     return { style: {
       backgroundImage: a
     }}
-  else 
+  else
     return { attrs: {
       backgroundImage: this.arguments
-    }} 
+    }}
 }
 
 export function icon(mask, color){
@@ -26,7 +26,7 @@ export function icon(mask, color){
   const attrs = {
     WebkitMaskImage: `url(\"${mask}\")`
   }
-  
+
   if(color)
     attrs.bg = color;
 

@@ -10,7 +10,7 @@ export class ComponentExpression extends ComponentContainer {
   exec?: Path<ArrowFunctionExpression>;
   statements = [] as Statement[];
   forwardTo?: ComponentConsequent;
-  
+
   constructor(
     name: string,
     context: StackFrame,
@@ -45,7 +45,7 @@ export class ComponentExpression extends ComponentContainer {
   adopt(child: InnerContent){
     if(this.forwardTo){
       this.forwardTo.adopt(child)
-      return 
+      return
     }
     super.adopt(child)
   }

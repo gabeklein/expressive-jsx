@@ -31,13 +31,13 @@ const { isArray } = Array;
 
 export function applyModifier(
   initial: string,
-  recipient: Modifier | ElementInline, 
+  recipient: Modifier | ElementInline,
   input: ModiferBody){
 
   const handler = recipient.context.propertyMod(initial);
-  
-  const totalOutput = { 
-    props: {} as BunchOf<any>, 
+
+  const totalOutput = {
+    props: {} as BunchOf<any>,
     style: {} as BunchOf<any>
   };
 
@@ -50,8 +50,8 @@ export function applyModifier(
     const { output } = new ModifyDelegate(recipient, ...stack[i]);
 
     if(!output){
-      i++; 
-      continue; 
+      i++;
+      continue;
     }
 
     Object.assign(totalOutput.style, output.style);
@@ -69,7 +69,7 @@ export function applyModifier(
 
       if(named == initial){
         let found;
-        do { 
+        do {
           found = context.hasOwnPropertyMod(named);
           context = context.parent;
         }
@@ -78,11 +78,11 @@ export function applyModifier(
 
       pending.push([
         named,
-        context.propertyMod(named), 
+        context.propertyMod(named),
         [].concat(input)
       ])
     }
-    
+
     if(pending.length){
       stack = [...pending, ...stack.slice(i+1)];
       i = 0;
@@ -148,9 +148,9 @@ export class ModifyDelegate {
 
     if(!parent)
       throw new Error("No parent component found in hierarchy");
-    
+
       const { exec } = parent;
-        
+
     if(!exec)
       throw new Error("Can only apply props from a parent `() => do {}` function!");
 
@@ -176,8 +176,8 @@ export class ModifyDelegate {
   }
 
   setContingent(
-    contingent: string, 
-    priority?: number, 
+    contingent: string,
+    priority?: number,
     usingBody?: Statement){
 
     const { target } = this;
@@ -186,7 +186,7 @@ export class ModifyDelegate {
       this.target as any,
       contingent
     )
-    
+
     mod.priority = priority || this.priority;
     mod.parseNodes(usingBody || this.body!);
     if(target instanceof ElementInline)
@@ -195,10 +195,10 @@ export class ModifyDelegate {
 
     if(target instanceof ElementModifier)
       target.applicable.push(mod);
-    else 
+    else
 
-    if(target instanceof ContingentModifier 
-    && target.anchor instanceof ElementInline)      
+    if(target instanceof ContingentModifier
+    && target.anchor instanceof ElementInline)
       target.anchor.modifiers.push(mod);
 
     return mod;
@@ -216,10 +216,10 @@ function ensureUID(
   do {
     uid = name + (i > 1 ? i : "");
     i++;
-  } 
+  }
   while (
-    scope.hasBinding(uid) || 
-    scope.hasGlobal(uid) || 
+    scope.hasBinding(uid) ||
+    scope.hasGlobal(uid) ||
     scope.hasReference(uid)
   );
 
@@ -230,11 +230,11 @@ function ensureUID(
 }
 
 function applyToParentProps(
-  parent: ComponentExpression, 
+  parent: ComponentExpression,
   assignments: BunchOf<Identifier>){
 
   const { exec } = parent;
-    
+
   if(!exec)
     throw new Error("Can only apply props from a parent `() => do {}` function!");
 
@@ -269,7 +269,7 @@ function propertyModifierDefault(
 
     else if(requires)
       return callExpression(
-        identifier("require"), 
+        identifier("require"),
         [
           typeof requires == "string"
             ? stringLiteral(requires)
@@ -280,7 +280,7 @@ function propertyModifierDefault(
     else return arg;
   })
 
-  const output = 
+  const output =
     args.length == 1 || typeof args[0] == "object"
       ? args[0]
       : Array.from(args).join(" ")

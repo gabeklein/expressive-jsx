@@ -13,7 +13,7 @@ for(const type of ["min", "max", ""]){
 
     return {
       attrs: {
-        [width]: [x, unit], 
+        [width]: [x, unit],
         [height]: [y || x, unit]
       }
     }
@@ -27,7 +27,7 @@ export function aspectSize(x, y, unit){
     else y = x * y2;
   return {
     attrs: {
-      width: [x, unit], 
+      width: [x, unit],
       height: [y || x, unit]
     }
   }

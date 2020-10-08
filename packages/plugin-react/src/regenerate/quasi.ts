@@ -10,7 +10,7 @@ export function dedent(quasi: TemplateLiteral){
     let text = value.cooked!;
     if(INDENT)
       text = text.replace(INDENT, "\n");
-    if(i === 0) 
+    if(i === 0)
       text = text.replace("\n", "")
     if(i === quasis.length - 1)
       text = text.replace(/\s*\n*$/, "")
@@ -35,7 +35,7 @@ export function breakdown(quasi: TemplateLiteral){
     let text: string | Array<any> = quasis[i].value.raw as string;
     if(INDENT)
       text = text.replace(INDENT, "\n");
-    if(i === 0) 
+    if(i === 0)
       text = text.replace("\n", "")
     if(i === quasis.length - 1)
       text = text.replace(/\s*\n*$/, "")
@@ -47,7 +47,7 @@ export function breakdown(quasi: TemplateLiteral){
       acc.push("\n")
     }
     acc.pop();
-    
+
     const expression = expressions[i++];
     if(expression)
       acc.push(expression);
@@ -61,8 +61,8 @@ export function breakForString(
   quasi: TemplateElement,
   then: Expression,
   items: any[],
-  INDENT: RegExp | null, 
-  i: number, 
+  INDENT: RegExp | null,
+  i: number,
   length: number ){
 
   for(let x of ["raw", "cooked"] as const){

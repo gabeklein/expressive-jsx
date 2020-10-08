@@ -47,7 +47,7 @@ function recombineSlash(args){
 
   if(args[0] !== "-")
     return args[0];
-  
+
   let layer = args;
   let x = "";
 

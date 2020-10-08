@@ -16,7 +16,7 @@ export function writeProvideStyleStatement(this: Module, opts: any){
 
 function orderSyntax(modifiersDeclared: Set<Modifier>){
   const media: BunchOf<MediaGroups> = {
-    default: [] 
+    default: []
   };
 
   for(let block of modifiersDeclared){
@@ -30,13 +30,13 @@ function orderSyntax(modifiersDeclared: Set<Modifier>){
       query in media ?
         media[query] :
         media[query] = [];
-    
-    let targetPriority: SelectorContent = 
+
+    let targetPriority: SelectorContent =
       priority in targetQuery ?
         targetQuery[priority] :
         targetQuery[priority] = [];
 
-    const styles = 
+    const styles =
       block.sequence
       .filter(style => style.invariant)
       .map(style => {
@@ -54,7 +54,7 @@ function orderSyntax(modifiersDeclared: Set<Modifier>){
       selection = select;
     }
     while(block = block.onlyWithin!);
-    
+
     targetPriority.push([selection, styles])
   }
 
@@ -76,7 +76,7 @@ function createSyntax(
           let rules = styles.map(x => `\t${x};`);
           lines.push(name + " { ", ...rules, "}")
         }
-        else 
+        else
           lines.push(`${name} { ${styles.join("; ")} }`)
       }
   }
@@ -104,10 +104,10 @@ function writeSyntax(
   const filenameMaybe = opts.hot !== false
     ? [ stringLiteral(relativeFileName) ] : [];
 
-  const provideStatement = 
+  const provideStatement =
     expressionStatement(
       callExpress(
-        memberExpress(polyfillModule, "include"), 
+        memberExpress(polyfillModule, "include"),
         templateLiteral([
           templateElement({raw: computedStyle, cooked: computedStyle}, true)
         ], []),
@@ -117,6 +117,6 @@ function writeSyntax(
 
   const provideStatementGoesAfter = pivot!.getAncestry().reverse()[1];
   const index = programBody.indexOf(provideStatementGoesAfter.node as Statement);
-  
+
   programBody.splice(index + 1, 0, provideStatement)
 }

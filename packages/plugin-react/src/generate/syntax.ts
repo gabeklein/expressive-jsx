@@ -23,11 +23,11 @@ import { ExplicitStyle, Prop } from '@expressive/babel-plugin-core';
 import { BunchOf } from 'types';
 
 export function propertyES(
-  name: string, 
+  name: string,
   value: Expression){
 
   return objectProperty(
-    stringLiteral(name), 
+    stringLiteral(name),
     value
   )
 }
@@ -36,7 +36,7 @@ export function attributeES(
   src: Prop | ExplicitStyle){
 
   return objectProperty(
-    stringLiteral(src.name as string), 
+    stringLiteral(src.name as string),
     expressionValue(src)
   )
 }
@@ -67,12 +67,12 @@ export function expressionValue(
 }
 
 export function ensureArray(
-  children: Expression, 
+  children: Expression,
   getFirst?: boolean){
 
   const array = callExpression(
     memberExpression(
-      arrayExpression(), 
+      arrayExpression(),
       stringLiteral("concat")
     ),
     [ children ]
@@ -86,7 +86,7 @@ export function ensureArray(
 
 export function iife(stats: Statement[]){
   return callExpress(
-    arrowFunctionExpression([], 
+    arrowFunctionExpression([],
       blockStatement(stats as any)
     )
   )
@@ -107,10 +107,10 @@ export function objectExpress(obj: BunchOf<Expression | false | undefined> = {})
 }
 
 export function memberExpress(
-  object: string | Expression, 
+  object: string | Expression,
   ...path: (string | number)[] ){
 
-  if(object == "this") 
+  if(object == "this")
     object = thisExpression()
 
   if(typeof object == "string")
@@ -118,7 +118,7 @@ export function memberExpress(
 
   for(let member of path){
     let select;
-    
+
     if(typeof member == "string"){
       select = /^[A-Za-z0-9$_]+$/.test(member)
         ? identifier(member)
@@ -128,12 +128,12 @@ export function memberExpress(
       select = numericLiteral(member);
     else
       throw new Error("Bad member id, only strings and numbers are allowed")
-    
+
     object = typeof object == "object"
       ? memberExpression(object, select, select!.type !== "Identifier")
       : select;
   }
-  
+
   return object as MemberExpression;
 }
 
@@ -145,8 +145,8 @@ export function callExpress(
 }
 
 export function declare(
-  type: "const" | "let" | "var", 
-  id: LVal, 
+  type: "const" | "let" | "var",
+  id: LVal,
   init?: Expression ){
 
   return (

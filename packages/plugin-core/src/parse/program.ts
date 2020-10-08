@@ -80,16 +80,16 @@ export class StackFrame {
     this.stateSingleton = state;
     this.prefix = hash(state.filename);
     this.options = {};
-  
+
     for(const imports of [ builtIn, included ]){
       Stack = create(Stack)
-      
+
       const { Helpers, ...Modifiers } = imports as any;
 
       for(const name in Modifiers)
         Stack.propertyMod(name, Modifiers[name])
     }
-  
+
     return Stack;
   }
 
@@ -104,11 +104,11 @@ export class StackFrame {
   push(){
     this.stateSingleton.context = this;
   }
-  
+
   pop(
-    meta: ElementInline | ElementModifier, 
+    meta: ElementInline | ElementModifier,
     state: BabelState<StackFrame> = this.stateSingleton){
-      
+
     let { context } = state;
     let newContext: StackFrame | undefined;
 
@@ -123,7 +123,7 @@ export class StackFrame {
 
     if(context.current)
       state.context = newContext!;
-    else 
+    else
       console.error("StackFrame shouldn't bottom out like this");
   }
 
@@ -133,12 +133,12 @@ export class StackFrame {
 
   event(
     this: any,
-    ref: symbol, 
+    ref: symbol,
     set: Function){
 
-    if(set) 
+    if(set)
       this[ref] = set;
-    else 
+    else
       return this[ref]
   }
 
@@ -161,14 +161,14 @@ export class StackFrame {
   propertyMod(name: string): ModifyAction;
   propertyMod(name: string, set: ModifyAction): void;
   propertyMod(
-    this: BunchOf<ModifyAction>, 
-    name: string, 
+    this: BunchOf<ModifyAction>,
+    name: string,
     set?: ModifyAction){
 
     const ref = "__" + name;
-    if(set) 
+    if(set)
       this[ref] = set;
-    else 
+    else
       return this[ref]
   }
 
@@ -180,7 +180,7 @@ export class StackFrame {
 
     if(typeof mod == "string")
       return this["_" + mod];
-    
+
     const name = "_" + mod.name;
     if(this[name])
       mod.next = this[name];

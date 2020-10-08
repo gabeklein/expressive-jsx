@@ -44,11 +44,11 @@ function HEXColor(raw: string){
 
   if(raw.length == 1)
     raw = "000" + raw
-  else 
+  else
   if(raw.length == 2){
     raw = "000000" + raw
   }
-  
+
   if(raw.length % 4 == 0){
     let decimal = [] as any[];
 
@@ -56,7 +56,7 @@ function HEXColor(raw: string){
       return "#" + raw;
 
     if(raw.length == 4)
-      
+
       // (shorthand) 'F.' -> "FF..." -> 0xFF
       decimal = Array.from(raw).map(x => parseInt(x+x, 16))
 
@@ -79,7 +79,7 @@ export const Arguments = new class DelegateTypes {
   [type: string]: (...args: any[]) => any;
 
   Parse(
-    element: Expression | Statement, 
+    element: Expression | Statement,
     get?: string): any[] {
 
     if(isExpressionStatement(element))
@@ -97,12 +97,12 @@ export const Arguments = new class DelegateTypes {
   ){
     if(element.type in this)
       return this[element.type](element);
-    else 
+    else
       throw Error.UnknownArgument(element)
   }
 
   Expression<T extends Expression>(
-    element: T, 
+    element: T,
     childKey?: keyof T): any {
 
     if(childKey)
@@ -113,7 +113,7 @@ export const Arguments = new class DelegateTypes {
 
     return this.Extract(element)
   }
-  
+
   Identifier(e: Identifier){
     return e.name
   }
@@ -135,7 +135,7 @@ export const Arguments = new class DelegateTypes {
       return this.NumericLiteral(arg, -1)
     // else if(e.operator == "!")
     //     return new DelegateExpression(arg, "verbatim");
-    else throw Error.UnaryUseless(e) 
+    else throw Error.UnaryUseless(e)
   }
 
   BooleanLiteral(bool: BooleanLiteral){
@@ -151,7 +151,7 @@ export const Arguments = new class DelegateTypes {
     }
     else {
       if(sign == -1)
-        throw Error.HexNoNegative(number, rawValue) 
+        throw Error.HexNoNegative(number, rawValue)
       return HEXColor(raw);
     }
   }
@@ -162,19 +162,19 @@ export const Arguments = new class DelegateTypes {
 
   BinaryExpression(binary: BinaryExpression){
     const {left, right, operator} = binary;
-    if(operator == "-" 
-    && left.type == "Identifier"  
-    && right.type == "Identifier" 
+    if(operator == "-"
+    && left.type == "Identifier"
+    && right.type == "Identifier"
     && right.start == left.end! + 1)
       return left.name + "-" + right.name
-    else 
+    else
       return [
-        operator, 
-        this.Expression(binary, "left"), 
+        operator,
+        this.Expression(binary, "left"),
         this.Expression(binary, "right")
       ]
   }
-  
+
   SequenceExpression(sequence: SequenceExpression){
     return sequence.expressions
       .map(x => this.Expression(x))
@@ -183,14 +183,14 @@ export const Arguments = new class DelegateTypes {
   CallExpression(e: CallExpression){
     const callee = e.callee;
     const args = [] as Expression[];
-    
+
     for(const item of e.arguments){
       if(isExpression(item))
         args.push(item);
       else if(isSpreadElement(item))
-        throw Error.ArgumentSpread(item) 
-      else 
-        throw Error.UnknownArgument(item) 
+        throw Error.ArgumentSpread(item)
+      else
+        throw Error.UnknownArgument(item)
     }
 
     if(!isIdentifier(callee))
@@ -198,12 +198,12 @@ export const Arguments = new class DelegateTypes {
 
     const call = args.map(x => this.Expression(x)) as CallAbstraction;
     call.callee = callee.name;
-      
+
     return call;
   }
 
   ArrowFunctionExpression(e: ArrowFunctionExpression): never {
-    throw Error.ArrowNotImplemented(e) 
+    throw Error.ArrowNotImplemented(e)
   }
 
   IfStatement(
@@ -226,7 +226,7 @@ export const Arguments = new class DelegateTypes {
       Object.assign(data, this.Extract(body))
     }
 
-    return data; 
+    return data;
   }
 
   LabeledStatement(
@@ -245,7 +245,7 @@ export const Arguments = new class DelegateTypes {
     for(const item of statement.body){
       if(!isLabeledStatement(item))
         throw Error.ModiferCantParse(statement);
-      
+
       map[item.label.name] = this.Parse(item.body)
     }
 

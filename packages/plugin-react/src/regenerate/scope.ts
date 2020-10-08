@@ -46,10 +46,10 @@ export function ensureUID(
   do {
     uid = name + (i > 1 ? i : "");
     i++;
-  } 
+  }
   while (
-    scope.hasBinding(uid) || 
-    scope.hasGlobal(uid) || 
+    scope.hasBinding(uid) ||
+    scope.hasGlobal(uid) ||
     scope.hasReference(uid)
   );
 
@@ -63,7 +63,7 @@ export interface ExternalsManager {
   opts?: any;
 
   ensure(
-    from: string, 
+    from: string,
     name: string,
     alt?: string
   ): Identifier;
@@ -89,13 +89,13 @@ export class ImportManager
   ){}
 
   ensure(
-    from: string, 
+    from: string,
     name: string,
     alt?: string){
 
     if(from[0] == "$")
       from = this.opts[from.slice(1)]
-      
+
     let uid;
     const list = this.imports[from] || this.ensureImported(from);
 
@@ -110,19 +110,19 @@ export class ImportManager
     }
 
     for(const spec of list)
-      if("imported" in spec 
+      if("imported" in spec
       && spec.imported.name == name){
         uid = identifier(spec.local.name);
         break;
       }
-  
+
     if(!uid){
       uid = ensureUIDIdentifier(this.scope, alt || name);
       list.push(
         importSpecifier(uid, identifier(name))
       )
     }
-  
+
     return uid;
   }
 
@@ -131,7 +131,7 @@ export class ImportManager
     after?: number){
 
     for(const statement of this.body)
-      if(statement.type == "ImportDeclaration" 
+      if(statement.type == "ImportDeclaration"
       && statement.source.value == from)
         return this.imports[from] = statement.specifiers
 
@@ -159,7 +159,7 @@ export class ImportManager
   }
 }
 
-export class RequirementManager 
+export class RequirementManager
   implements ExternalsManager {
 
   imports = {} as BunchOf<ObjectProperty[]>
@@ -167,20 +167,20 @@ export class RequirementManager
   importIndices = {} as BunchOf<number>
   body = this.path.node.body;
   scope = this.path.scope;
-  
+
   constructor(
     protected path: Path<Program>,
     public opts: any
   ){}
 
   ensure(
-    from: string, 
+    from: string,
     name: string,
     alt?: string){
 
     if(from[0] == "$")
       from = this.opts[from.slice(1)]
-    
+
     const source = this.imports[from] || this.ensureImported(from);
 
     if(!alt)
@@ -191,7 +191,7 @@ export class RequirementManager
 
     const uid = ensureUID(this.scope, alt || name);
     const ref = identifier(uid);
-    
+
     source.push(
       objectProperty(
         identifier(name),
@@ -232,7 +232,7 @@ export class RequirementManager
       this.importTargets[from] =
         isIdentifier(target) && target;
     }
-    
+
     return list;
   }
 
@@ -246,15 +246,15 @@ export class RequirementManager
       const list = this.imports[name]
       if(list.length == 0)
         continue
-      
+
       const index = this.importIndices[name];
       const target = this.importTargets[name];
 
       this.body.splice(
-        index, 0, 
+        index, 0,
         variableDeclaration("const", [
           variableDeclarator(
-            objectPattern(list), 
+            objectPattern(list),
             target || callExpress(
               identifier("require"),
               stringLiteral(name)

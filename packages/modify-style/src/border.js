@@ -19,7 +19,7 @@ for(const kind of [
 
     return { style };
   }
-  
+
   EXPORT[kind] = handler;
 
   if(kind[6]){
@@ -35,7 +35,7 @@ function border(
 
   if(color == "none")
     return "none";
-  else {  
+  else {
     width = appendUnitToN(width);
     return [ color, style, width ].join(" ");
   }

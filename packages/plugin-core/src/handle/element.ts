@@ -53,7 +53,7 @@ export class ElementInline extends AttributeBody {
   ExpressionDefault(node: Expression){
     if(inParenthesis(node))
       this.adopt(node)
-    else 
+    else
       addElementsFromExpression(node, this);
   }
 
@@ -118,7 +118,7 @@ export class ElementInline extends AttributeBody {
       new Prop(false, value)
     )
   }
-  
+
   UnaryExpression(node: UnaryExpression){
     const value = node.argument;
     const op = node.operator
@@ -131,14 +131,14 @@ export class ElementInline extends AttributeBody {
       case "void":
       case "!":
         this.ExpressionDefault(node)
-        return 
+        return
     }
 
     if(node.start !== value.start! - 2)
       throw Error.UnarySpaceRequired(node, op)
 
     switch(op){
-      case "+": 
+      case "+":
         if(!isIdentifier(value))
           throw Error.BadShorthandProp(node);
         this.add(new Prop(value.name, value));
@@ -148,7 +148,7 @@ export class ElementInline extends AttributeBody {
         this.add(new Prop("className", value));
       break;
 
-      case "~": 
+      case "~":
         this.add(new ExplicitStyle(false, value));
       break
     }
@@ -159,11 +159,11 @@ export class ElementInline extends AttributeBody {
   }
 
   AssignmentExpression(node: AssignmentExpression){
-    if(node.operator !== "=") 
+    if(node.operator !== "=")
       throw Error.AssignmentNotEquals(node)
 
     let { left, right } = node;
-    
+
     if(!isIdentifier(left))
       throw Error.PropNotIdentifier(left)
 
@@ -175,7 +175,7 @@ export class ElementInline extends AttributeBody {
       this.insert(prop);
     }
 
-    else 
+    else
       this.insert(new Prop(name, right));
   }
 }

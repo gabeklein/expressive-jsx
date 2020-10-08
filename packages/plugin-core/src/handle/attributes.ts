@@ -14,10 +14,10 @@ const Error = ParseErrors({
 })
 
 export abstract class AttributeBody extends TraversableBody {
-  
+
   props = {} as BunchOf<Prop>;
   style = {} as BunchOf<ExplicitStyle>;
-  
+
   insert(item: Prop | ExplicitStyle){
     const { name } = item;
     const accumulator = item instanceof Prop
@@ -25,7 +25,7 @@ export abstract class AttributeBody extends TraversableBody {
 
     if(name){
       const existing = accumulator[name];
-      if(existing) 
+      if(existing)
         existing.overridden = true;
       accumulator[name] = item;
     }
@@ -34,7 +34,7 @@ export abstract class AttributeBody extends TraversableBody {
   }
 
   get uid(){
-    return this.uid = 
+    return this.uid =
       this.name + "_" + hash(this.context.prefix);
   }
 
@@ -47,7 +47,7 @@ export abstract class AttributeBody extends TraversableBody {
   ): void;
 
   LabeledStatement(
-    node: LabeledStatement, 
+    node: LabeledStatement,
     _path: any,
     applyTo: Modifier = this as any){
 
@@ -55,16 +55,16 @@ export abstract class AttributeBody extends TraversableBody {
     const { name } = node.label;
     const { context } = this;
     const body = node.body;
-  
+
     if(name[0] == "_")
       throw Error.BadModifierName(node)
 
     if(context.hasOwnModifier(name))
-      throw Error.DuplicateModifier(node); 
+      throw Error.DuplicateModifier(node);
 
     const handler = applyTo.context.propertyMod(name);
 
-    if(isExpressionStatement(body) 
+    if(isExpressionStatement(body)
     || handler && (
       isBlockStatement(body) ||
       isLabeledStatement(body)

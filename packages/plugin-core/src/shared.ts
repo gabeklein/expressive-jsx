@@ -45,15 +45,15 @@ export const Opts: Options = {
 export function hash(data: string, length: number = 3){
   return createHash("md5")		
     .update(data)		
-    .digest('hex')		     
+    .digest('hex')		
     .substring(0, length)
 }
 
 export function toArray<T> (value: T | T[]): T[] {
   return value !== undefined
-    ? isArray(value) 
-      ? value 
-      : [value] 
+    ? isArray(value)
+      ? value
+      : [value]
     : [];
 }
 
@@ -86,7 +86,7 @@ export function ParseErrors<O extends BunchOf<string>> (register: O) {
       let quote = "";
       for(const slice of message)
         quote += (
-          typeof slice == "string" 
+          typeof slice == "string"
             ? slice : args[slice as number - 1]
         )
 

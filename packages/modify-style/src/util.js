@@ -9,7 +9,7 @@ export function rect(a, b, c, d){
     case 1:
       top = left = right = bottom = a;
       break;
-    case 2: 
+    case 2:
       top = bottom = a
       left = right = b
       break;

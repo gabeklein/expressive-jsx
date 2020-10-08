@@ -25,22 +25,22 @@ export abstract class ElementConstruct
 
     if(this.willParse){
       const replace = this.willParse(sequence);
-      if(replace && replace !== sequence) 
+      if(replace && replace !== sequence)
         sequence = replace;
     }
 
     for(const item of sequence as SequenceItem[]){
       if(item instanceof ComponentIf)
         this.Switch(item)
-      
+
       else if(item instanceof ComponentFor)
         this.Iterate(item)
-      
-      else 
+
+      else
       if(item instanceof ElementInline)
         this.Child(item);
-        
-      else 
+
+      else
       if(item instanceof Attribute){
         if(this.Attribute && this.Attribute(item))
           continue
@@ -51,7 +51,7 @@ export abstract class ElementConstruct
 
         if(item instanceof Prop)
           this.Props(item);
-        else 
+        else
         if(item instanceof ExplicitStyle)
           this.Style(item)
       }

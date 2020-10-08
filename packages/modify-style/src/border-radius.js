@@ -21,7 +21,7 @@ export function radius(dir, r1, r2){
   else if(typeof dir == "string"){
     let [d1, d2] = dir.split('-');
     let matrix = CORNER_MATRIX[d1];
-    
+
     if(d2)
       matrix = matrix.map((dir, i) => {
         return CORNER_MATRIX[d2][i] ? dir : 0
@@ -30,7 +30,7 @@ export function radius(dir, r1, r2){
     const radii = matrix.map(b => {
       return (b ? r1 : r2) || 0
     })
-    
+
     value = radii.map(addUnit).join(" ");
   }
 

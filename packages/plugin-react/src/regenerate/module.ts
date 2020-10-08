@@ -33,7 +33,7 @@ export const Program = <Visitor<ProgramNode>> {
       Importer = RequirementManager
       Generator = GenerateES;
     }
-    else 
+    else
       throw new Error(
         `Unknown output type of ${output}.\nAcceptable ['js', 'jsx'] (default 'js')`)
 
@@ -46,7 +46,7 @@ export const Program = <Visitor<ProgramNode>> {
     const M = context.Module = new Module(path, state, I);
     const G = context.Generator = new Generator(M, I);
 
-    if(G.didEnterModule) 
+    if(G.didEnterModule)
       G.didEnterModule();
   },
   exit(path, state){
@@ -56,18 +56,18 @@ export const Program = <Visitor<ProgramNode>> {
       Module: M
     } = state.context;
 
-    if(G.willExitModule) 
+    if(G.willExitModule)
       G.willExitModule();
 
     M.EOF(state.opts);
     I.EOF();
   }
-}    
+}
 
 export function hash(data: string, length: number = 3){
   return createHash("md5")		
     .update(data)		
-    .digest('hex')		     
+    .digest('hex')		
     .substring(0, length)
 }
 

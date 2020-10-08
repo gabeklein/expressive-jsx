@@ -19,10 +19,10 @@ const and = (a: Expression, b: Expression) => logicalExpression("&&", a, b);
 
 //TODO: figure out if falsey values interfere before allowing them through
 // const anti = (a: Expression) => isUnaryExpression(a, { operator: "!" }) ? a.argument : not(a);
-const anti = not; 
+const anti = not;
 
 function reducerAlgorithm(
-  forks: Consequent[], 
+  forks: Consequent[],
   predicate: GetProduct){
 
   forks = forks.slice().reverse();
@@ -53,23 +53,23 @@ export class ElementSwitch {
 
   toExpression(Generator: GenerateReact): Expression {
     return reducerAlgorithm(
-      this.source.forks, 
+      this.source.forks,
       (cond) => {
         let product;
 
         if(cond instanceof ComponentIf)
           product = new ElementSwitch(cond).toExpression(Generator)
-        else 
+        else
         if(cond.children.length)
           product = Generator.container(
             new ElementReact(cond)
           )
-        else 
+        else
           return;
-  
+
         if(isBooleanLiteral(product, { value: false }))
           product = undefined;
-  
+
         return product
       }
     )

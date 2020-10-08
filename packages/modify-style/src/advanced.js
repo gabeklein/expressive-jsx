@@ -69,7 +69,7 @@ export function css(){
 
   const { data } = this.target;
   let list = data.classList;
-  
+
   if(!list)
     list = data.classList = [];
 

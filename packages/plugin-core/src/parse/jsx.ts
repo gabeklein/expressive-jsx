@@ -14,7 +14,7 @@ type enqueueFn = (
 ) => ElementInline
 
 export function addElementFromJSX(
-  node: JSXElement, 
+  node: JSXElement,
   parent: ElementInline){
 
   const queue: [JSXElement, ElementInline][] = [];
@@ -33,7 +33,7 @@ export function addElementFromJSX(
 }
 
 export function parseJSXElement(
-  node: JSXElement, 
+  node: JSXElement,
   target: ElementInline,
   enqueue: enqueueFn){
 
@@ -84,7 +84,7 @@ export function parseJSXElement(
 }
 
 function parseAttribute(
-  attr: JSXAttribute, 
+  attr: JSXAttribute,
   parent: ElementInline){
 
   const name = attr.name as JSXIdentifier;
@@ -94,7 +94,7 @@ function parseAttribute(
   applyNameImplications(parent, name.name);
   return;
   }
-  
+
   let value: Expression;
 
   switch(propValue.type){
@@ -109,7 +109,7 @@ function parseAttribute(
   default:
     throw Error.InvalidPropValue(propValue);
   }
-  
+
   const prop = new Prop(name.name, value);
   parent.add(prop);
 }

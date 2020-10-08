@@ -48,37 +48,37 @@ export class ElementReact<T extends ElementInline = ElementInline>
     // TODO: respect priority differences!
 
     const willCollide = (name: string) =>
-      name in existsAlready || 
-      name in accumulator && 
+      name in existsAlready ||
+      name in accumulator &&
       accumulator[name].overridden !== true
-    
+
     if(classList)
       this.classList.push(...classList);
 
     for(const mod of this.source.modifiers){
-      if(mod.sequence.length === 0 && 
+      if(mod.sequence.length === 0 &&
          mod.applicable.length === 0)
         continue
-      
-      const collapsable = 
-        mod.nTargets == 1 && 
-        mod.onlyWithin === undefined && 
+
+      const collapsable =
+        mod.nTargets == 1 &&
+        mod.onlyWithin === undefined &&
         mod.applicable.length === 0;
-      
+
       for(const style of mod.sequence){
         if(!(style instanceof ExplicitStyle))
           continue;
 
         if(!style.invariant || inlineOnly || collapsable){
           const { name } = style;
-  
+
           if(!name || willCollide(name))
             continue;
-  
+
           accumulator[name] = style;
         }
       }
-        
+
       if(!inlineOnly)
         this.applyModifierAsClassname(mod)
     }
@@ -95,14 +95,14 @@ export class ElementReact<T extends ElementInline = ElementInline>
   applyModifierAsClassname(mod: ElementModifier){
     let doesProvideAStyle = false;
     const declared = this.context.Module.modifiersDeclared;
-    
+
     for(const applicable of [mod, ...mod.applicable]){
       if(applicable.sequence.length)
         declared.add(applicable);
 
       if(applicable instanceof ContingentModifier)
         doesProvideAStyle = true;
-      else 
+      else
 
       if(applicable instanceof ElementModifier)
         if(applicable.sequence.length)
@@ -120,9 +120,9 @@ export class ElementReact<T extends ElementInline = ElementInline>
   }
 
   addProperty(
-    name: string | false | undefined, 
+    name: string | false | undefined,
     value: Expression){
-      
+
     this.props.push({ name, value });
   }
 
@@ -144,8 +144,8 @@ export class ElementReact<T extends ElementInline = ElementInline>
       const mod = new ContingentModifier(context, this.source);
       const { name, uid } = this.source;
 
-      const classMostLikelyForwarded = 
-        /^[A-Z]/.test(name!) && 
+      const classMostLikelyForwarded =
+        /^[A-Z]/.test(name!) &&
         !(this.source instanceof ComponentExpression);
 
       mod.priority = classMostLikelyForwarded ? 3 : 2;
@@ -160,7 +160,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
 
     if(!style.length)
       return;
-      
+
     let value: Expression;
     const [ head ] = style;
 
@@ -175,7 +175,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
           chunks.push(spreadElement(expressionValue(item)))
         else
           chunks.push(...item.map(attributeES));
-      
+
       value = objectExpression(chunks)
     }
 
@@ -189,7 +189,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
     if(!this.classList.length)
       return;
 
-    const selectors = [] as Expression[]; 
+    const selectors = [] as Expression[];
     let classList = "";
 
     for(const item of this.classList)
@@ -216,7 +216,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
   Style(item: ExplicitStyle){
     if(opts.styleMode == "inline")
       (<any>item).invariant = false;
-      
+
     if(item.invariant)
       this.style_static.push(item);
     else
@@ -247,7 +247,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
           this.classList.push(value.trim());
       } break;
 
-      default: 
+      default:
         this.addProperty(item.name, expressionValue(item));
     }
   }
@@ -262,7 +262,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
 
   Switch(item: ComponentIf){
     const fork = new ElementSwitch(item)
-    
+
     if(item.hasElementOutput)
       this.adopt(fork)
 

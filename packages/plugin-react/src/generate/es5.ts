@@ -44,15 +44,15 @@ export class GenerateES extends GenerateReact {
     } = src;
 
     const type = IsComponentElement.test(tag)
-      ? identifier(tag) 
+      ? identifier(tag)
       : stringLiteral(tag);
 
     return callExpression(
       this.Create, [
-      type, 
-      this.recombineProps(props), 
+      type,
+      this.recombineProps(props),
       ...this.recombineChildren(children)
-    ]) 
+    ])
   }
 
   fragment(
@@ -73,30 +73,30 @@ export class GenerateES extends GenerateReact {
         this.Fragment,
         objectExpression(properties),
         ...this.recombineChildren(children)
-      ]) 
+      ])
     )
   }
 
   private recombineChildren(input: ContentLike[]): Expression[] {
     return input.map(child => (
-      "toExpression" in child ? 
+      "toExpression" in child ?
         child.toExpression(this) :
       isExpression(child) ?
         isTemplateLiteral(child) ?
           dedent(child) :
         child :
-      child instanceof ElementReact 
+      child instanceof ElementReact
         ? this.element(child)
         : booleanLiteral(false)
     ));
   }
-  
+
   private recombineProps(props: PropData[]){
     const propStack = new ArrayStack<ObjectProperty, Expression>()
 
     if(props.length == 0)
       return objectExpression([])
-  
+
     for(const { name, value } of props)
       if(!name)
         propStack.push(value);
@@ -104,18 +104,18 @@ export class GenerateES extends GenerateReact {
         propStack.insert(
           propertyES(name, value)
         );
-  
-    let properties = propStack.map(chunk => 
+
+    let properties = propStack.map(chunk =>
       Array.isArray(chunk)
         ? objectExpression(chunk)
         : chunk
     )
-  
+
     if(properties[0].type !== "ObjectExpression")
       properties.unshift(
         objectExpression([])
       )
-  
+
     return (
       properties.length == 1
         ? properties[0]
@@ -123,7 +123,7 @@ export class GenerateES extends GenerateReact {
           memberExpression(
             identifier("Object"),
             identifier("assign")
-          ), 
+          ),
           properties
         )
     )

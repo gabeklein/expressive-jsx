@@ -21,7 +21,7 @@ import {
 import { ComponentFor, ElementInline, Prop, SequenceItem } from '@expressive/babel-plugin-core';
 import { ElementReact, ensureUIDIdentifier, GenerateReact } from 'internal';
 
-export class ElementIterate 
+export class ElementIterate
   extends ElementReact<ComponentFor> {
 
   type: "ForOfStatement" | "ForInStatement" | "ForStatement";
@@ -34,10 +34,10 @@ export class ElementIterate
     super(source);
     this.type = source.node.type as any;
   };
-  
+
   toExpression(Generator: GenerateReact): CallExpression {
     const wrapper =
-      this.type === "ForInStatement" 
+      this.type === "ForInStatement"
       && memberExpression(identifier("Object"), identifier("keys"))
 
     return this.toMapExpression(Generator, wrapper)
@@ -55,11 +55,11 @@ export class ElementIterate
     if(isVariableDeclaration(left))
       left = left.declarations[0].id;
 
-    if(isIdentifier(left) 
-    || isObjectPattern(left) 
+    if(isIdentifier(left)
+    || isObjectPattern(left)
     || isArrayPattern(left))
       void 0;
-    else 
+    else
       throw new Error("Assignment of variable left of \"of\" must be Identifier or Destruture")
 
     if(isBinaryExpression(right, {operator: "in"})){
@@ -72,7 +72,7 @@ export class ElementIterate
       else
         throw new Error("Left of ForInStatement must be an Identifier here!")
     }
-    else 
+    else
       key = ensureUIDIdentifier(this.source.path.scope, "i");
 
     this.key = key;
@@ -104,7 +104,7 @@ export class ElementIterate
       )
 
       if(!exists)
-        this.props = 
+        this.props =
         this.props.concat({
           name: "key",
           value: key
@@ -124,7 +124,7 @@ export class ElementIterate
     let { key } = this;
     let { left, right } = this;
 
-    let body: BlockStatement | Expression = 
+    let body: BlockStatement | Expression =
       this.elementOutput(Generator)
 
     if(this.source.statements.length)
@@ -136,13 +136,13 @@ export class ElementIterate
     if(extractor){
       return callExpression(
         memberExpression(
-          callExpression(extractor, [ right! ]), 
+          callExpression(extractor, [ right! ]),
           identifier("map")
         ),
         [ arrowFunctionExpression([left!], body) ]
       )
     }
-  
+
     return callExpression(
       memberExpression(right!, identifier("map")),
       [ arrowFunctionExpression([left!, key!], body) ]
@@ -160,7 +160,7 @@ export class ElementIterate
       expressionStatement(
         callExpression(
           memberExpression(
-            accumulator, 
+            accumulator,
             identifier("push")
           ),
           [ content ]

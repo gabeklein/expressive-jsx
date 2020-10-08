@@ -32,7 +32,7 @@ export class AttributeStack<Type extends ExplicitStyle | Prop>
       this.top = item
       this.push(item);
     }
-    else 
+    else
     if(item.invariant && this.length < 2){
       // this.invariant.push(item);
       return true;

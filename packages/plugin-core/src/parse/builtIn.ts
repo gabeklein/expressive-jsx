@@ -4,7 +4,7 @@ import { ElementInline, Modifier } from 'handle';
 export function use(
   this: ModifyDelegate,
   ...args: any[]){
-  
+
   const { target } = this;
   for(const item of args){
     if(typeof item !== "string")
@@ -26,7 +26,7 @@ export function use(
 export function priority(
   this: ModifyDelegate,
   priority: number){
-  
+
   const { target } = this;
   if(target instanceof Modifier)
     target.priority = priority

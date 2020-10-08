@@ -11,13 +11,13 @@ const timingFunctions = [
 ]
 
 export function easingGradient(direction, from, timing, to, stops = 13){
-  
+
   direction = direction.replace("-", " ");
-  timing = timing.replace(/([A-Z])/g, "-$1").toLowerCase(); 
+  timing = timing.replace(/([A-Z])/g, "-$1").toLowerCase();
   [from, to] = normalize(from, to);
 
   const output = [ direction ];
-  const coordinates = 
+  const coordinates =
     easingCoordinates.easingCoordinates(
       timing, stops - 1
     )
@@ -31,7 +31,7 @@ export function easingGradient(direction, from, timing, to, stops = 13){
 
     if(progress % 1)
       color += " " + (progress * 100).toFixed(2) + "%";
-    
+
     output.push(color);
   }
 
@@ -43,12 +43,12 @@ export function easingGradient(direction, from, timing, to, stops = 13){
 }
 
 function getBeforeParenthesisMaybe(str){
-  return str.indexOf('(') !== -1 
-    ? str.substring(0, str.indexOf('(')) 
+  return str.indexOf('(') !== -1
+    ? str.substring(0, str.indexOf('('))
     : str
 }
 
-function getParenthesisInsides(str){ 
+function getParenthesisInsides(str){
   return str.match(/\((.*)\)/).pop();
 }
 

@@ -17,7 +17,7 @@ import { StackFrame } from './program';
 
 export const DoExpression = <Visitor<DoExpressive>> {
   enter: (path, state) => {
-    let meta = path.node.meta || 
+    let meta = path.node.meta ||
       generateEntryElement(path, state.context);
 
     meta.didEnterOwnScope(path)
@@ -28,7 +28,7 @@ export const DoExpression = <Visitor<DoExpressive>> {
 }
 
 function generateEntryElement(
-  path: Path<DoExpressive>, 
+  path: Path<DoExpressive>,
   context: StackFrame){
 
   let parent = path.parentPath;
@@ -39,7 +39,7 @@ function generateEntryElement(
       containerFn = parent as Path<ArrowFunctionExpression>;
     break;
 
-    case "ReturnStatement": 
+    case "ReturnStatement":
       const container = parent.findParent(x => {
         const t = /.*Function.*/.test(x.type);
         return t
@@ -52,7 +52,7 @@ function generateEntryElement(
   }
 
   const name = containerName(containerFn || path as any);
-  
+
   return new ComponentExpression(name, context, path, containerFn);
 }
 
@@ -77,12 +77,12 @@ function containerName(path: Path): string {
         : "assignment"
     }
 
-    case "FunctionDeclaration": 
+    case "FunctionDeclaration":
       return (<FunctionDeclaration>path.node).id!.name;
 
     case "ExportDefaultDeclaration":
       return "defaultExport";
-    
+
     case "ArrowFunctionExpression": {
       parent = parent.parentPath;
       continue;
@@ -111,18 +111,18 @@ function containerName(path: Path): string {
 
       if(node.type == "ClassMethod"){
         if(!isIdentifier(node.key))
-          return "ClassMethod";  
+          return "ClassMethod";
         if(node.key.name == "render"){
           const owner = within.parentPath.parentPath as Path<Class>;
-          if(owner.node.id) 
+          if(owner.node.id)
             return owner.node.id.name;
           else {
             parent = owner.parentPath;
             continue
           }
         }
-        else 
-          return node.key.name; 
+        else
+          return node.key.name;
       }
 
       parent = within.parentPath;
@@ -148,12 +148,12 @@ function containerName(path: Path): string {
         throw isWithin.buildCodeFrameError(
           "Component Syntax `..., do {}` found outside expressive context! Did you forget to arrow-return a do expression?"
         )
-      else 
+      else
         return "callback";
     }
 
     default:
       return "do";
   }
-  
+
 }

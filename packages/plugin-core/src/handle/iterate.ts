@@ -16,9 +16,9 @@ export class ComponentFor extends ComponentContainer {
   node: For
 
   constructor(
-    public path: Path<For>, 
+    public path: Path<For>,
     context: StackFrame){
-      
+
     super(context);
 
     this.node = path.node
@@ -31,15 +31,15 @@ export class ComponentFor extends ComponentContainer {
     if(isForXStatement(node)){
       let { left, right } = this.node as ForXStatement;
       const name = [];
-  
+
       if(isVariableDeclaration(left))
         left = left.declarations[0].id;
-  
+
       if(isIdentifier(left))
         name.push(left.name);
-  
+
       name.push(node.type == "ForInStatement" ? "in" : "of");
-  
+
       if(isIdentifier(right))
         name.push(right.name);
 
@@ -48,7 +48,7 @@ export class ComponentFor extends ComponentContainer {
         "for"
       )
     }
-    else 
+    else
       return "for"
   }
 

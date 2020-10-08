@@ -99,9 +99,9 @@ void function incorperateChildParameters(
   let init: Identifier | MemberExpression | undefined;
 
   if(wrapperFunction === undefined) return;
-  
+
   const params = wrapperFunction.get("params") as any;
-  if(params.length < 2) return; 
+  if(params.length < 2) return;
 
   const props = params[0];
   const arrowFn = wrapperFunction.node;
@@ -123,7 +123,7 @@ void function incorperateChildParameters(
     for(const child of children){
       if(isPatternLike(child.node))
         destructure.push(child.node)
-      else 
+      else
         throw Error.ArgumentNotSupported(child, child.type)
     }
     assign = count > 1
@@ -135,20 +135,20 @@ void function incorperateChildParameters(
     init = memberExpression(props.node, identifier("children"));
 
   else if(props.isObjectPattern()){
-    let propertyAs: Identifier = 
-      isIdentifier(assign) ? assign : 
+    let propertyAs: Identifier =
+      isIdentifier(assign) ? assign :
         init = wrapperFunction.scope.generateUidIdentifier("children") as any;
 
     props.node.properties.push(
       objectProperty(
-        identifier("children"), 
+        identifier("children"),
         propertyAs
       )
     )
   }
 
   arrowFn.params = [props.node as Identifier | ObjectPattern];
-    
+
   if(init){
     const inner = Imports.ensure("$runtime", "body");
     let getKids: Expression = callExpress(inner, props.node);

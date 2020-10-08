@@ -12,7 +12,7 @@ const Error = ParseErrors({
 
 function concat(
   to: any,
-  from: any, 
+  from: any,
   ...names: string[]){
 
   to = to as BunchOf<any[]>;
@@ -36,7 +36,7 @@ export abstract class Modifier extends AttributeBody {
   parse(body: Path<Statement>){
     const content = body.isBlockStatement() ? ensureArray(body.get("body")) : [body];
     for(const item of content){
-      if(item.type in this) 
+      if(item.type in this)
         (this as any)[item.type](item.node, item);
       else throw Error.NodeUnknown(item as any, item.type)
     }
@@ -57,7 +57,7 @@ export class ElementModifier
   nTargets = 0;
   provides = [] as ElementModifier[];
   priority = 1;
-  
+
   constructor(
     context: StackFrame,
     name: string,
@@ -78,7 +78,7 @@ export class ElementModifier
   }
 }
 
-export class ContingentModifier 
+export class ContingentModifier
   extends Modifier {
 
   anchor: ElementModifier | ElementInline;
@@ -117,11 +117,11 @@ export class ContingentModifier
 
     if(anchor instanceof ElementModifier)
       anchor.provides.push(mod)
-    else 
+    else
       anchor.context.elementMod(mod)
   }
 
   didFinishParsing(){
-    
+
   }
 }

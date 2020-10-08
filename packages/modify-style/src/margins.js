@@ -4,12 +4,12 @@ import { appendUnitToN } from "./units";
 const EXPORT = exports;
 
 for (const kind of [
-  "margin", 
+  "margin",
   "padding"
 ]) {
   for (const [direction, a, b] of [
     ["Vertical", "Top", "Bottom"],
-    ["Horizontal", "Left", "Right"] 
+    ["Horizontal", "Left", "Right"]
   ]){
     EXPORT[kind + direction] = // marginHorizontal
     EXPORT[kind + direction[0]] = // marginH
@@ -22,15 +22,15 @@ for (const kind of [
   }
 
   for(const side of ["Top", "Left", "Right", "Bottom"]){
-    EXPORT[kind + side] = 
-    EXPORT[kind + side[0]] = 
-      handleUnits(kind + side)  
+    EXPORT[kind + side] =
+    EXPORT[kind + side[0]] =
+      handleUnits(kind + side)
   }
 
-  EXPORT[kind] = 
+  EXPORT[kind] =
     function(keyword){
       let value;
-      
+
       if(this.arguments.length == 1 && keyword == "auto" || keyword == "none" || / /.test(keyword))
         value = keyword
       else {

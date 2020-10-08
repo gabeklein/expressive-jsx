@@ -33,12 +33,12 @@ export class ComponentIf {
   forks = [] as Consequent[];
   context: StackFrame;
   hasElementOutput?: true;
-  hasStyleOutput?: true;  
+  hasStyleOutput?: true;
   doBlocks = [] as ExpressionStatement[];
 
   constructor(
-    protected path: Path<IfStatement>, 
-    context: StackFrame, 
+    protected path: Path<IfStatement>,
+    context: StackFrame,
     public test?: Expression){
 
     context = this.context = context.create(this);
@@ -66,13 +66,13 @@ export class ComponentIf {
 
       const fork = consequent.isIfStatement()
         ? new ComponentIf(
-          consequent, 
-          context, 
+          consequent,
+          context,
           test
         )
         : new ComponentConsequent(
-          consequent, 
-          context, 
+          consequent,
+          context,
           this.forks.length + 1,
           test
         )
@@ -82,7 +82,7 @@ export class ComponentIf {
 
       if(fork instanceof ComponentConsequent)
         fork.index = index;
-      
+
       layer = layer.get("alternate") as Path<Statement>
 
       const overrideRest = (<ComponentConsequent>fork).doesReturn || false;
@@ -94,8 +94,8 @@ export class ComponentIf {
         continue
 
       const final = new ComponentConsequent(
-        layer, 
-        this.context, 
+        layer,
+        this.context,
         this.forks.length + 1
       );
 
@@ -110,16 +110,16 @@ export class ComponentIf {
       }
       break;
     };
-    
-    const doInsert = [] as ExpressionStatement[]; 
-    
+
+    const doInsert = [] as ExpressionStatement[];
+
     for(const fork of this.forks)
-      if(fork instanceof ComponentConsequent 
-      && fork.doBlock) 
+      if(fork instanceof ComponentConsequent
+      && fork.doBlock)
         doInsert.push(
           expressionStatement(fork.doBlock)
         )
-        
+
     this.doBlocks = doInsert;
   }
 }
@@ -131,8 +131,8 @@ export class ComponentConsequent extends ElementInline {
   doesReturn?: true;
 
   constructor(
-    public path: Path<Statement> | undefined, 
-    public context: StackFrame, 
+    public path: Path<Statement> | undefined,
+    public context: StackFrame,
     public index: number,
     public test?: Expression){
 
@@ -174,7 +174,7 @@ export class ComponentConsequent extends ElementInline {
       // mod.didFinishParsing();
       if(mod.sequence.length)
         parent.modifiers.push(mod);
-      else 
+      else
         this.usesClassname = "";
 
       if(mod.applicable.length){
@@ -206,7 +206,7 @@ export class ComponentConsequent extends ElementInline {
     if(arg)
       if(isDoExpression(arg))
         (<DoExpressive>arg).meta = this;
-        
+
       else if(isExpression(arg))
         this.Expression(arg);
 
