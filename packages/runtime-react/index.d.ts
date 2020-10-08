@@ -1,7 +1,7 @@
 import { string } from "prop-types";
 
 interface BunchOf<T> {
-    [key: string]: T
+  [key: string]: T
 }
 
 /**
@@ -14,38 +14,38 @@ interface BunchOf<T> {
  */
 interface RuntimeStyleController {
 
-    /**
-     * Collection of post-processed style chunks.
-     * 
-     * Dumped to `cssText`.
-     */
-    chunks: BunchOf<string>;
+  /**
+   * Collection of post-processed style chunks.
+   * 
+   * Dumped to `cssText`.
+   */
+  chunks: BunchOf<string>;
 
-    /**
-     * Collection of keys which are already-defined styles, actively included in stylesheet.
-     * 
-     * Values are `true` where style chunk is unclaimed. 
-     * Where claimed by a reference or module, value is that unique identifier.
-     */
-    contentIncludes: BunchOf<boolean | string>;
+  /**
+   * Collection of keys which are already-defined styles, actively included in stylesheet.
+   * 
+   * Values are `true` where style chunk is unclaimed. 
+   * Where claimed by a reference or module, value is that unique identifier.
+   */
+  contentIncludes: BunchOf<boolean | string>;
 
-    /**
-     * Reference to slave <style> tag
-     */
-    ref?: HTMLStyleElement;
+  /**
+   * Reference to slave <style> tag
+   */
+  ref?: HTMLStyleElement;
 
-    /**
-     * Computed CSS body.
-     */
-    cssText: string;
+  /**
+   * Computed CSS body.
+   */
+  cssText: string;
 
-    /**
-     * Apply styles within in `cssText` to global stylesheet.
-     * 
-     * @param cssText - plain CSS to be included
-     * @param reoccuringKey - dedupe identifier (for HMR or dynamic style)
-     */
-    include(cssText: string, reoccuringKey: string): void;
+  /**
+   * Apply styles within in `cssText` to global stylesheet.
+   * 
+   * @param cssText - plain CSS to be included
+   * @param reoccuringKey - dedupe identifier (for HMR or dynamic style)
+   */
+  include(cssText: string, reoccuringKey: string): void;
 }
 
 export default RuntimeStyleController

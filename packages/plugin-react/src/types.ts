@@ -1,12 +1,12 @@
 import {
-    Expression,
-    JSXAttribute,
-    JSXElement,
-    JSXExpressionContainer,
-    JSXFragment,
-    JSXSpreadAttribute,
-    JSXSpreadChild,
-    JSXText,
+  Expression,
+  JSXAttribute,
+  JSXElement,
+  JSXExpressionContainer,
+  JSXFragment,
+  JSXSpreadAttribute,
+  JSXSpreadChild,
+  JSXText,
 } from '@babel/types';
 import { StackFrame as CoreStackFrame, Visitor as CoreVisitor } from '@expressive/babel-plugin-core';
 import { ElementReact } from 'handle/element';
@@ -26,24 +26,24 @@ export const IsLegalIdentifier = /^[a-zA-Z_]\w*$/;
 export const isIdentifierElement = /^[A-Z]\w*$/;
 
 export interface BunchOf<T> {
-    [key: string]: T
+  [key: string]: T
 }
 
 export interface StackFrame extends CoreStackFrame {
-	Generator: any;
-    Module: Module;
-    Imports: ExternalsManager;
-    prefix: string;
+  Generator: any;
+  Module: Module;
+  Imports: ExternalsManager;
+  prefix: string;
 }
 
 export interface BabelState {
-    context: StackFrame;
-    opts: any;
-    cwd: string;
-    filename: string;
+  context: StackFrame;
+  opts: any;
+  cwd: string;
+  filename: string;
 }
 
 export interface PropData {
-    name: string | false | undefined
-    value: Expression
+  name: string | false | undefined
+  value: Expression
 }

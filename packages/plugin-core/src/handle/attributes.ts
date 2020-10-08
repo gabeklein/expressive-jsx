@@ -6,104 +6,104 @@ import { BunchOf, FlatValue } from 'types';
 import { ElementModifier, Modifier, TraversableBody } from './';
 
 const Error = ParseErrors({
-    ExpressionUnknown: "Unhandled expressionary statement of type {1}",
-    NodeUnknown: "Unhandled node of type {1}",
-    BadInputModifier: "Modifier input of type {1} not supported here!",
-    BadModifierName: "Modifier name cannot start with _ symbol!",
-    DuplicateModifier: "Duplicate declaration of named modifier!"
+  ExpressionUnknown: "Unhandled expressionary statement of type {1}",
+  NodeUnknown: "Unhandled node of type {1}",
+  BadInputModifier: "Modifier input of type {1} not supported here!",
+  BadModifierName: "Modifier name cannot start with _ symbol!",
+  DuplicateModifier: "Duplicate declaration of named modifier!"
 })
 
 export abstract class AttributeBody extends TraversableBody {
-    
-    props = {} as BunchOf<Prop>;
-    style = {} as BunchOf<ExplicitStyle>;
-    
-    insert(item: Prop | ExplicitStyle){
-        const { name } = item;
-        const accumulator = item instanceof Prop
-            ? this.props : this.style;
+  
+  props = {} as BunchOf<Prop>;
+  style = {} as BunchOf<ExplicitStyle>;
+  
+  insert(item: Prop | ExplicitStyle){
+    const { name } = item;
+    const accumulator = item instanceof Prop
+      ? this.props : this.style;
 
-        if(name){
-            const existing = accumulator[name];
-            if(existing) 
-                existing.overridden = true;
-            accumulator[name] = item;
-        }
-
-        this.add(item);
+    if(name){
+      const existing = accumulator[name];
+      if(existing) 
+        existing.overridden = true;
+      accumulator[name] = item;
     }
 
-    get uid(){
-        return this.uid = 
-            this.name + "_" + hash(this.context.prefix);
-    }
+    this.add(item);
+  }
 
-    set uid(uid: string){
-        Object.defineProperty(this, "uid", { value: uid });
-    }
+  get uid(){
+    return this.uid = 
+      this.name + "_" + hash(this.context.prefix);
+  }
 
-    abstract ElementModifier(
-        mod: Modifier
-    ): void;
+  set uid(uid: string){
+    Object.defineProperty(this, "uid", { value: uid });
+  }
 
-    LabeledStatement(
-        node: LabeledStatement, 
-        _path: any,
-        applyTo: Modifier = this as any){
+  abstract ElementModifier(
+    mod: Modifier
+  ): void;
 
-        if(!node.label) debugger;
-        const { name } = node.label;
-        const { context } = this;
-        const body = node.body;
-    
-        if(name[0] == "_")
-            throw Error.BadModifierName(node)
+  LabeledStatement(
+    node: LabeledStatement, 
+    _path: any,
+    applyTo: Modifier = this as any){
 
-        if(context.hasOwnModifier(name))
-            throw Error.DuplicateModifier(node); 
+    if(!node.label) debugger;
+    const { name } = node.label;
+    const { context } = this;
+    const body = node.body;
+  
+    if(name[0] == "_")
+      throw Error.BadModifierName(node)
 
-        const handler = applyTo.context.propertyMod(name);
+    if(context.hasOwnModifier(name))
+      throw Error.DuplicateModifier(node); 
 
-        if(isExpressionStatement(body) 
-        || handler && (
-            isBlockStatement(body) ||
-            isLabeledStatement(body)
-        ))
-            applyModifier(
-                name, applyTo, body
-            );
+    const handler = applyTo.context.propertyMod(name);
 
-        else if(isBlockStatement(body)
-        || isLabeledStatement(body))
-            applyTo.ElementModifier(
-                new ElementModifier(context, name, body)
-            )
+    if(isExpressionStatement(body) 
+    || handler && (
+      isBlockStatement(body) ||
+      isLabeledStatement(body)
+    ))
+      applyModifier(
+        name, applyTo, body
+      );
 
-        else
-            throw Error.BadInputModifier(body, body.type)
-    }
+    else if(isBlockStatement(body)
+    || isLabeledStatement(body))
+      applyTo.ElementModifier(
+        new ElementModifier(context, name, body)
+      )
 
-    ExpressionDefault(e: Expression){
-        throw Error.ExpressionUnknown(e, e.type);
-    }
+    else
+      throw Error.BadInputModifier(body, body.type)
+  }
+
+  ExpressionDefault(e: Expression){
+    throw Error.ExpressionUnknown(e, e.type);
+  }
 }
 
 export abstract class Attribute<T extends Expression = Expression> {
-    name?: string;
-    overridden?: boolean;
-    invariant?: boolean;
-    value: FlatValue | T | undefined
+  name?: string;
+  overridden?: boolean;
+  invariant?: boolean;
+  value: FlatValue | T | undefined
 
-    constructor(
-        name: string | false,
-        value: FlatValue | T){
+  constructor(
+    name: string | false,
+    value: FlatValue | T){
 
-        if(name) this.name = name;
-        if(value !== undefined) this.value = value;
+    if(name) this.name = name;
+    if(value !== undefined) this.value = value;
 
-        if(typeof value !== "object" || value === null)
-            this.invariant = true
-    }
+    if(typeof value !== "object" || value === null)
+      this.invariant = true
+  }
 };
 
 export class Prop extends Attribute {}

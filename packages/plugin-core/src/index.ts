@@ -1,31 +1,31 @@
 import { DoExpression, Program } from 'parse';
 
 export {
-    ParseErrors
+  ParseErrors
 } from 'shared';
 
 export {
-    ComponentExpression,
-    ComponentIf,
-    ContingentModifier,
-    ElementInline,
-	ExplicitStyle,
-    Prop,
-    ElementModifier
+  ComponentExpression,
+  ComponentIf,
+  ContingentModifier,
+  ElementInline,
+  ExplicitStyle,
+  Prop,
+  ElementModifier
 } from "handle";
 
 export {
-    ElementConstruct
+  ElementConstruct
 } from "generate";
 
 export default (options: any) => {
-    return {
-        manipulateOptions: (options: any, parse: any) => {
-            parse.plugins.push("decorators-legacy", "doExpressions", "jsx")
-        },
-        visitor: {
-            Program,
-            DoExpression
-        }
+  return {
+    manipulateOptions: (options: any, parse: any) => {
+      parse.plugins.push("decorators-legacy", "doExpressions", "jsx")
+    },
+    visitor: {
+      Program,
+      DoExpression
     }
+  }
 }

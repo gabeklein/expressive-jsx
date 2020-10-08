@@ -1,12 +1,12 @@
 import { VisitNodeObject } from '@babel/traverse';
 import {
-    BlockStatement,
-    DoExpression,
-    Expression,
-    ExpressionStatement,
-    IfStatement,
-    LabeledStatement,
-    Statement,
+  BlockStatement,
+  DoExpression,
+  Expression,
+  ExpressionStatement,
+  IfStatement,
+  LabeledStatement,
+  Statement,
 } from '@babel/types';
 import { Attribute, ComponentFor, ComponentIf, ElementInline, Prop } from 'handle';
 import { ModifyDelegate, StackFrame } from 'parse';
@@ -28,29 +28,29 @@ export type ModiferBody = ExpressionStatement | BlockStatement | LabeledStatemen
 export type SelectionProvider = (forSelector: string[]) => void
 
 export interface BabelState<S extends StackFrame = StackFrame> {
-    filename: string;
-    cwd: string;
-    context: S;
-    opts: any;
+  filename: string;
+  cwd: string;
+  context: S;
+  opts: any;
 }
 
 export interface DoExpressive extends DoExpression {
-    meta: ElementInline;
-    expressive_visited?: true;
-    expressive_parent?: Prop;
+  meta: ElementInline;
+  expressive_visited?: true;
+  expressive_parent?: Prop;
 }
 
 export interface ModifierOutput {
-    attrs?: BunchOf<any>
-    style?: BunchOf<any>
-    props?: BunchOf<any>
+  attrs?: BunchOf<any>
+  style?: BunchOf<any>
+  props?: BunchOf<any>
 }
 
 export interface CallAbstraction extends Array<any> {
-    callee: string;
+  callee: string;
 }
 
 export interface IfAbstraction {
-    [type: string]: (...args: any[]) => any;
-    test: any;
+  [type: string]: (...args: any[]) => any;
+  test: any;
 }
