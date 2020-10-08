@@ -256,13 +256,23 @@ export function applyNameImplications(
     for(const sub of modify.provides)
       target.context.elementMod(sub)
 
-    if(modify === modify.next){
-      if(~process.execArgv.join().indexOf("inspect-brk"))
-        console.error(`Still haven't fixed inheritance leak apparently. \n target: ${name}`)
-      break
-    }
+    if(infiniteLoopDetected(modify))
+      break;
+      
     modify = modify.next;
   }
+}
+
+function infiniteLoopDetected(
+  modify: ElementModifier){
+
+  if(modify !== modify.next)
+    return false;
+  
+  if(~process.execArgv.join().indexOf("inspect-brk"))
+    console.error(`Still haven't fixed inheritance leak apparently. \n target: ${name}`)
+
+  return true;
 }
 
 function parseIdentity(
