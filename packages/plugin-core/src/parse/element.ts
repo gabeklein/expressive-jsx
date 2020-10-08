@@ -206,7 +206,7 @@ const COMMON_HTML = [
   "h1", "h2", "h3", "h4", "h5", "h6",
   "p", "a", "ul", "li", "blockquote",
   "i", "b", "em", "strong", "span",
-  "hr", "img", "div"
+  "hr", "img", "div", "br"
 ]
 
 export function applyPrimaryName(
