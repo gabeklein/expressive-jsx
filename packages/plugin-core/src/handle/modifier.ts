@@ -19,11 +19,10 @@ function concat(
   from = from as BunchOf<any[]>;
 
   for(const name of names)
-  if(name in from)
-  if(name in to)
-    to[name] = from[name].concat(to[name])
-  else
-    to[name] = from[name];
+    if(name in from)
+      to[name] = name in to
+        ? from[name].concat(to[name])
+        : from[name]
 }
 
 export abstract class Modifier extends AttributeBody {
