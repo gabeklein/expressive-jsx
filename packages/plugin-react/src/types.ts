@@ -8,7 +8,7 @@ import {
   JSXSpreadChild,
   JSXText,
 } from '@babel/types';
-import { StackFrame as CoreStackFrame, Visitor as CoreVisitor } from '@expressive/babel-plugin-core';
+import * as Core from '@expressive/babel-plugin-core';
 import { ElementReact } from 'handle/element';
 import { ElementIterate } from 'handle/iterate';
 import { ElementSwitch } from 'handle/switch';
@@ -19,7 +19,7 @@ export type JSXContent = JSXElement | JSXFragment | JSXExpressionContainer | JSX
 export type Attributes = JSXAttribute | JSXSpreadAttribute;
 export type InnerJSX = ElementReact | ElementSwitch | ElementIterate;
 export type ContentLike = ElementReact | ElementSwitch | ElementIterate | Expression;
-export type Visitor<T> = CoreVisitor<T, StackFrame>
+export type Visitor<T> = Core.Visitor<T, StackFrame>
 
 export const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;
 export const IsLegalIdentifier = /^[a-zA-Z_]\w*$/;
@@ -29,7 +29,7 @@ export interface BunchOf<T> {
   [key: string]: T
 }
 
-export interface StackFrame extends CoreStackFrame {
+export interface StackFrame extends Core.StackFrame {
   Generator: any;
   Module: Module;
   Imports: ExternalsManager;
