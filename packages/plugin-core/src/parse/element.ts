@@ -269,8 +269,11 @@ function infiniteLoopDetected(
   if(modify !== modify.next)
     return false;
   
-  if(~process.execArgv.join().indexOf("inspect-brk"))
-    console.error(`Still haven't fixed inheritance leak apparently. \n target: ${name}`)
+  try {
+    if(~process.execArgv.join().indexOf("inspect-brk"))
+      console.error(`Still haven't fixed inheritance leak apparently. \n target: ${name}`)
+  }
+  catch(err){}
 
   return true;
 }

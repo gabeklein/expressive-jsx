@@ -11,7 +11,12 @@ interface Stackable {
 }
 
 const { getPrototypeOf, create, assign } = Object;
-const debug = ~process.execArgv.join().indexOf("inspect-brk")
+let debug = false;
+
+try {
+  debug = process.execArgv.join().indexOf("inspect-brk") >= 0
+}
+catch(err){}
 
 const Error = ParseErrors({
   IllegalAtTopLevel: "Cannot apply element styles in top-level of program",
@@ -22,7 +27,10 @@ const Error = ParseErrors({
 export const Program = <Visitor<BabelProgram>>{
   enter({ node }, state: any){
     if(debug)
-      console.log(" - ", relative(process.cwd(), state.filename))
+      try {
+        console.log(" - ", relative(process.cwd(), state.filename))
+      }
+      catch(err){}
 
     let context = state.context = new StackFrame(state).create(this);
     context.currentFile = state.file;
