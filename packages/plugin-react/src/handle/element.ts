@@ -79,7 +79,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
         }
       }
 
-      if(!inlineOnly)
+      if(!inlineOnly && !collapsable)
         this.applyModifierAsClassname(mod)
     }
 
