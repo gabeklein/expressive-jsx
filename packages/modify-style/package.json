@@ -1,6 +1,6 @@
 {
   "name": "@expressive/modify-style",
-  "version": "1.0.0-beta.44",
+  "version": "1.0.0-beta.45",
   "description": "Style Modifiers for most CSS keywords",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
