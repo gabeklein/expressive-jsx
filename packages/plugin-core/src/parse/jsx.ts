@@ -41,7 +41,7 @@ export function parseJSXElement(
   const { name, attributes } = openingElement;
 
   if(isJSXIdentifier(name))
-    applyPrimaryName(target, name.name, "span");
+    applyPrimaryName(target, name.name, "div");
 
   for(const attr of attributes)
     switch(attr.type){
