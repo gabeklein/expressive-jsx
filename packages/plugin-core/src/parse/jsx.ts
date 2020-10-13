@@ -64,6 +64,8 @@ export function parseJSXElement(
       break;
 
       case "JSXText":
+        if(/^\n */.test(child.value))
+          continue;
         target.add(
           stringLiteral(
             child.value.replace(/\s+/g, " ")
