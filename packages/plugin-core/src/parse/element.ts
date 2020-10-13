@@ -216,6 +216,9 @@ export function applyPrimaryName(
   defaultTag: string,
   force?: boolean
 ){
+  if(name == "s")
+    name = "span";
+
   const isCommonTag = COMMON_HTML.indexOf(name) >= 0;
 
   if(isCommonTag || force || /^[A-Z]/.test(name))
