@@ -10,63 +10,65 @@ const Error = ParseErrors({
 })
 
 type enqueueFn = (
-  element: JSXElement, parent: ElementInline
+  parent: ElementInline,
+  element: JSXElement
 ) => ElementInline;
 
 export function addElementFromJSX(
   node: JSXElement,
   parent: ElementInline){
 
-  const queue: [JSXElement, ElementInline][] = [];
-  const push: enqueueFn = (element, parent) => {
+  const queue: [ElementInline, JSXElement][] = [];
+
+  function push(parent: ElementInline, element: JSXElement){
     const child = new ElementInline(parent.context);
-    queue.push([element, child]);
+    queue.push([child, element]);
     return child;
   }
+  
+  const child = push(parent, node);
 
-  const child = push(node, parent);
-
-  for(const [element, target] of queue)
-    parseJSXElement(element, target, push);
+  for(const [target, element] of queue)
+    parseJSXElement(target, element, push);
 
   parent.adopt(child);
 }
 
 export function parseJSXElement(
+  subject: ElementInline,
   node: JSXElement,
-  target: ElementInline,
   enqueue: enqueueFn){
 
   const { openingElement, children } = node;
   const { name, attributes } = openingElement;
 
   if(isJSXIdentifier(name))
-    applyPrimaryName(target, name.name, "div");
+    applyPrimaryName(subject, name.name, "div");
 
   for(const attr of attributes)
     switch(attr.type){
       case "JSXAttribute":
-        parseAttribute(attr, target);
+        parseAttribute(attr, subject);
       break;
 
       case "JSXSpreadAttribute": {
         const prop = new Prop(false, attr.argument);
-        target.add(prop);
+        subject.add(prop);
       } break;
     }
 
   for(const child of children)
     switch(child.type){
       case "JSXElement":
-        target.adopt(
-          enqueue(child, target)
+        subject.adopt(
+          enqueue(subject, child)
         )
       break;
 
       case "JSXText":
         if(/^\n+ *$/.test(child.value))
           continue;
-        target.add(
+        subject.add(
           stringLiteral(
             child.value.replace(/\s+/g, " ")
           )
@@ -75,7 +77,7 @@ export function parseJSXElement(
 
       case "JSXExpressionContainer":
         const { expression } = child;
-        target.add(
+        subject.add(
           expression as Expression
         );
       break;
