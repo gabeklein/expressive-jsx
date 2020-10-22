@@ -1,3 +1,4 @@
+import { isJSXMemberExpression } from '@babel/types';
 import { Expression, isJSXIdentifier, JSXAttribute, JSXElement, JSXIdentifier, stringLiteral } from '@babel/types';
 import { ElementInline, Prop } from 'handle';
 import { ParseErrors } from 'shared';
@@ -6,7 +7,9 @@ import { applyNameImplications, applyPrimaryName } from './element';
 
 const Error = ParseErrors({
   InvalidPropValue: "Can only consume an expression or string literal as value here.",
-  UnhandledChild: "Can't parse JSX child of type {1}"
+  UnhandledChild: "Can't parse JSX child of type {1}",
+  JSXMemberExpression: "Member Expression is not supported!",
+  NonJSXIdentifier: "Cannot handle non-identifier!"
 })
 
 type enqueueFn = (
@@ -21,17 +24,31 @@ export function addElementFromJSX(
   const queue: [ElementInline, JSXElement][] = [];
 
   function push(parent: ElementInline, element: JSXElement){
-    const child = new ElementInline(parent.context);
-    queue.push([child, element]);
-    return child;
+    const { name } = element.openingElement;
+    let applyTo = parent;
+
+    if(isJSXMemberExpression(name))
+      throw Error.JSXMemberExpression(name);
+
+    if(!isJSXIdentifier(name))
+      throw Error.NonJSXIdentifier(name);
+    
+    if(name.name != "this"){
+      applyTo = new ElementInline(parent.context);
+      applyPrimaryName(applyTo, name.name, "div");
+    }
+
+    queue.push([applyTo, element]);
+    return applyTo;
   }
   
   const child = push(parent, node);
 
+  if(child !== parent)
+    parent.adopt(child);
+
   for(const [target, element] of queue)
     parseJSXElement(target, element, push);
-
-  parent.adopt(child);
 }
 
 export function parseJSXElement(
@@ -40,12 +57,8 @@ export function parseJSXElement(
   enqueue: enqueueFn){
 
   const { openingElement, children } = node;
-  const { name, attributes } = openingElement;
 
-  if(isJSXIdentifier(name))
-    applyPrimaryName(subject, name.name, "div");
-
-  for(const attr of attributes)
+  for(const attr of openingElement.attributes)
     switch(attr.type){
       case "JSXAttribute":
         parseAttribute(attr, subject);
