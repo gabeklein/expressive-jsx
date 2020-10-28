@@ -1,5 +1,13 @@
-import { isJSXMemberExpression } from '@babel/types';
-import { Expression, isJSXIdentifier, JSXAttribute, JSXElement, JSXIdentifier, stringLiteral } from '@babel/types';
+import {
+  Expression,
+  isJSXIdentifier,
+  isJSXMemberExpression,
+  JSXAttribute,
+  JSXElement,
+  JSXIdentifier,
+  JSXSpreadAttribute,
+  stringLiteral,
+} from '@babel/types';
 import { ElementInline, Prop } from 'handle';
 import { ParseErrors } from 'shared';
 
@@ -12,97 +20,80 @@ const Error = ParseErrors({
   NonJSXIdentifier: "Cannot handle non-identifier!"
 })
 
-type enqueueFn = (
-  parent: ElementInline,
-  element: JSXElement
-) => ElementInline;
-
 export function addElementFromJSX(
   node: JSXElement,
   parent: ElementInline){
 
-  const queue: [ElementInline, JSXElement][] = [];
+  const shouldApplyToSelf = 
+    isJSXIdentifier(node.openingElement.name, { name: "this" })
 
-  function push(parent: ElementInline, element: JSXElement){
-    const { name } = element.openingElement;
-    let applyTo = parent;
+  if(!shouldApplyToSelf)
+    parent = createElement(node, parent);
 
-    if(isJSXMemberExpression(name))
-      throw Error.JSXMemberExpression(name);
+  const queue = [[parent, node] as const];
 
-    if(!isJSXIdentifier(name))
-      throw Error.NonJSXIdentifier(name);
+  for(const [element, node] of queue){
+    const { children } = node;
+    const { attributes } = node.openingElement;
+
+    for(const attribute of attributes)
+      applyAttribute(element, attribute);
+
+    for(const node of children){
+      switch(node.type){
+        case "JSXElement": {
+          const child = createElement(node, element);
+          queue.push([child, node]);
+        }
+        break;
+
+        case "JSXText":
+          if(/^\n+ *$/.test(node.value))
+            continue;
+
+          const text = node.value.replace(/\s+/g, " ");
+          element.add(stringLiteral(text));
+        break;
     
-    if(name.name != "this"){
-      applyTo = new ElementInline(parent.context);
-      applyPrimaryName(applyTo, name.name, "div");
+        case "JSXExpressionContainer":
+          element.add(node.expression as Expression);
+        break;
+    
+        default:
+          throw Error.UnhandledChild(node, node.type)
+      }
     }
-
-    queue.push([applyTo, element]);
-    return applyTo;
   }
-  
-  const child = push(parent, node);
-
-  if(child !== parent)
-    parent.adopt(child);
-
-  for(const [target, element] of queue)
-    parseJSXElement(target, element, push);
 }
 
-export function parseJSXElement(
-  subject: ElementInline,
-  node: JSXElement,
-  enqueue: enqueueFn){
+function createElement(
+  element: JSXElement,
+  parent: ElementInline
+){
+  let target = new ElementInline(parent.context);
+  const { name } = element.openingElement;
 
-  const { openingElement, children } = node;
+  if(isJSXMemberExpression(name))
+    throw Error.JSXMemberExpression(name);
 
-  for(const attr of openingElement.attributes)
-    switch(attr.type){
-      case "JSXAttribute":
-        parseAttribute(attr, subject);
-      break;
+  if(!isJSXIdentifier(name))
+    throw Error.NonJSXIdentifier(name);
 
-      case "JSXSpreadAttribute": {
-        const prop = new Prop(false, attr.argument);
-        subject.add(prop);
-      } break;
-    }
+  applyPrimaryName(target, name.name, "div");
+  parent.adopt(target);
 
-  for(const child of children)
-    switch(child.type){
-      case "JSXElement":
-        subject.adopt(
-          enqueue(subject, child)
-        )
-      break;
-
-      case "JSXText":
-        if(/^\n+ *$/.test(child.value))
-          continue;
-        subject.add(
-          stringLiteral(
-            child.value.replace(/\s+/g, " ")
-          )
-        );
-      break;
-
-      case "JSXExpressionContainer":
-        const { expression } = child;
-        subject.add(
-          expression as Expression
-        );
-      break;
-
-      default:
-        throw Error.UnhandledChild(child, child.type)
-    }
+  return target;
 }
 
-function parseAttribute(
-  attr: JSXAttribute,
-  parent: ElementInline){
+function applyAttribute(
+  parent: ElementInline,
+  attr: JSXAttribute | JSXSpreadAttribute){
+
+  if(attr.type == "JSXSpreadAttribute"){
+    const prop = new Prop(false, attr.argument);
+    parent.add(prop);
+    return;
+  }
 
   const name = attr.name as JSXIdentifier;
   const propValue = attr.value;
@@ -127,6 +118,7 @@ function parseAttribute(
       throw Error.InvalidPropValue(propValue);
   }
 
-  const prop = new Prop(name.name, value);
-  parent.add(prop);
+  parent.add(
+    new Prop(name.name, value)
+  );
 }

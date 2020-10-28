@@ -88,9 +88,7 @@ export class GenerateJSX extends GenerateReact {
           output.push(...this.recombineQuasi(child, acceptBr))
           continue
         }
-        if(isStringLiteral(child)
-        && child.value.indexOf("{") < 0
-        && input.length == 1)
+        if(isStringLiteral(child) && child.value.indexOf("{") < 0)
           jsx = jsxText(child.value)
         else
           jsx = jsxExpressionContainer(child);
