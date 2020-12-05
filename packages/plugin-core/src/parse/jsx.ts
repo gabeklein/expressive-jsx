@@ -79,7 +79,13 @@ function createElement(
   if(!isJSXIdentifier(name))
     throw Error.NonJSXIdentifier(name);
 
-  applyPrimaryName(target, name.name, "div");
+  if(/^html-.+/.test(name.name)){
+    const tag = name.name.slice(5);
+    applyNameImplications(target, tag, true, "html")
+  }
+  else
+    applyPrimaryName(target, name.name, "div");
+
   parent.adopt(target);
 
   return target;
