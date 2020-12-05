@@ -203,7 +203,7 @@ function parseLayers(
 }
 
 const COMMON_HTML = [
-  "article",
+  "article", "input",
   "h1", "h2", "h3", "h4", "h5", "h6",
   "p", "a", "ul", "ol", "li", "blockquote",
   "i", "b", "em", "strong", "span",
