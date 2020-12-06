@@ -2,9 +2,14 @@ import {
   booleanLiteral,
   callExpression,
   Expression,
+  Identifier,
   identifier,
   isExpression,
+  isJSXIdentifier,
   isTemplateLiteral,
+  JSXIdentifier,
+  JSXMemberExpression,
+  MemberExpression,
   memberExpression,
   objectExpression,
   ObjectProperty,
@@ -37,15 +42,13 @@ export class GenerateES extends GenerateReact {
   }
 
   element(src: ElementReact){
-    const {
-      tagName: tag,
-      props,
-      children
-    } = src;
+    const { tagName: tag, props, children } = src;
 
-    const type = IsComponentElement.test(tag)
-      ? identifier(tag)
-      : stringLiteral(tag);
+    const type = typeof tag == "string" ?
+      IsComponentElement.test(tag) ? 
+        identifier(tag) :
+        stringLiteral(tag) :
+      normalize(tag);
 
     return callExpression(
       this.Create, [
@@ -128,4 +131,17 @@ export class GenerateES extends GenerateReact {
         )
     )
   }
+}
+
+function normalize(
+  exp: JSXMemberExpression | JSXIdentifier
+): MemberExpression | Identifier {
+
+  if(isJSXIdentifier(exp))
+    return identifier(exp.name);
+
+  const a = normalize(exp.object);
+  const b = normalize(exp.property);
+
+  return memberExpression(a, b);
 }

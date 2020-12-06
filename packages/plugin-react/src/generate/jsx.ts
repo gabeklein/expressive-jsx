@@ -35,16 +35,13 @@ export class GenerateJSX extends GenerateReact {
   }
 
   element(src: ElementReact){
-    const {
-      tagName: tag,
-      props,
-      children
-    } = src;
+    const { tagName: tag, props, children } = src;
 
-    const type = jsxIdentifier(tag);
+    const type = typeof tag == "string" ? jsxIdentifier(tag) : tag;
+    const acceptBr = typeof tag == "string" && /[a-z]/.test(tag[0]);
+
     const properties = props.map(this.recombineProps)
     const empty = children.length === 0
-    const acceptBr = /[a-z]/.test(tag[0]);
 
     return jsxElement(
       jsxOpeningElement(type, properties, empty),

@@ -73,13 +73,14 @@ function createElement(
   let target = new ElementInline(parent.context);
   const { name } = element.openingElement;
 
-  if(isJSXMemberExpression(name))
-    throw Error.JSXMemberExpression(name);
-
-  if(!isJSXIdentifier(name))
+  if(isJSXMemberExpression(name)){
+    applyNameImplications(target, name.property.name, true)
+    target.explicitTagName = name;
+  }
+  else if(!isJSXIdentifier(name)){
     throw Error.NonJSXIdentifier(name);
-
-  if(/^html-.+/.test(name.name)){
+  }
+  else if(/^html-.+/.test(name.name)){
     const tag = name.name.slice(5);
     applyNameImplications(target, tag, true, "html")
   }

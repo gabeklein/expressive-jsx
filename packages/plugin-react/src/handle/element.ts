@@ -7,6 +7,7 @@ import {
   SpreadElement,
   spreadElement,
   stringLiteral,
+  JSXMemberExpression
 } from '@babel/types';
 import {
   Attribute,
@@ -126,7 +127,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
     this.props.push({ name, value });
   }
 
-  get tagName(): string {
+  get tagName(): string | JSXMemberExpression {
     const { name, explicitTagName } = this.source;
     return explicitTagName || (
       name && /^[A-Z]/.test(name) ? name : "div"

@@ -16,6 +16,7 @@ import {
   Statement,
   UnaryExpression,
   UpdateExpression,
+  JSXMemberExpression,
   VariableDeclaration,
   JSXElement,
 } from '@babel/types';
@@ -39,7 +40,7 @@ export class ElementInline extends AttributeBody {
   doBlock?: DoExpressive
   primaryName?: string;
   children = [] as InnerContent[];
-  explicitTagName?: string;
+  explicitTagName?: string | JSXMemberExpression;
   modifiers = [] as Modifier[];
   data = {} as BunchOf<any>;
 
