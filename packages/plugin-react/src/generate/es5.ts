@@ -5,7 +5,6 @@ import {
   Identifier,
   identifier,
   isExpression,
-  isJSXIdentifier,
   isTemplateLiteral,
   JSXIdentifier,
   JSXMemberExpression,
@@ -134,14 +133,21 @@ export class GenerateES extends GenerateReact {
 }
 
 function normalize(
-  exp: JSXMemberExpression | JSXIdentifier
+  exp: JSXMemberExpression | JSXIdentifier | Identifier
 ): MemberExpression | Identifier {
 
-  if(isJSXIdentifier(exp))
-    return identifier(exp.name);
+  switch(exp.type){
+    case "JSXIdentifier":
+      return identifier(exp.name);
+    case "Identifier":
+      return exp;
+    case "JSXMemberExpression": {
+      const a = normalize(exp.object);
+      const b = normalize(exp.property);
 
-  const a = normalize(exp.object);
-  const b = normalize(exp.property);
-
-  return memberExpression(a, b);
+      return memberExpression(a, b);
+    }
+    default:
+      throw new Error("Bad MemeberExpression"); 
+  }
 }
