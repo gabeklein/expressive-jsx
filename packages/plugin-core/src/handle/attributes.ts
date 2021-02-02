@@ -99,4 +99,21 @@ export abstract class Attribute<T extends Expression = Expression> {
 };
 
 export class Prop extends Attribute {}
-export class ExplicitStyle extends Attribute {}
+
+export class ExplicitStyle extends Attribute {
+  constructor(
+    name: string | false,
+    value: FlatValue | FlatValue[] | Expression){
+
+    super(name, flatten(value));
+
+    function flatten(content: typeof value){
+      if(Array.isArray(content)){
+        const [ callee, ...args ] = content;
+        return `${callee}(${args.join(" ")})`;
+      }
+
+      return content;
+    }
+  }
+}

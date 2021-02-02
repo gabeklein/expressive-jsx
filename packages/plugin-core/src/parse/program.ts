@@ -158,6 +158,21 @@ export class StackFrame {
     return this.hasOwnProperty("_" + name)
   }
 
+  findPropertyMod(named: string, ignoreOwn = false){
+    let context = this;
+
+    if(ignoreOwn){
+      let found;
+      do {
+        found = context.hasOwnPropertyMod(named);
+        context = context.parent;
+      }
+      while(!found);
+    }
+
+    return context.propertyMod(named);
+  }
+
   propertyMod(name: string): ModifyAction;
   propertyMod(name: string, set: ModifyAction): void;
   propertyMod(
