@@ -26,11 +26,13 @@ import { BunchOf, DoExpressive, InnerContent } from 'types';
 
 import { AttributeBody, ComponentFor, ComponentIf, ElementModifier, ExplicitStyle, Modifier, Prop } from './';
 import { addElementFromJSX } from 'parse/jsx';
+import { Attribute } from './attributes';
 
 const Error = ParseErrors({
   PropNotIdentifier: "Assignment must be identifier name of a prop.",
   AssignmentNotEquals: "Only `=` assignment may be used here.",
   BadShorthandProp: "\"+\" shorthand prop must be an identifier!",
+  UnrecognizedUnary: "Unary Expression {1} not recognized.",
   UnarySpaceRequired: "Unary Expression must include a space between {1} and the value.",
   StatementInElement: "Statement insertion not implemented while within elements!",
   MinusMinusNotImplemented: "-- is not implemented as an integration statement."
@@ -46,8 +48,10 @@ export class ElementInline extends AttributeBody {
 
   adopt(child: InnerContent){
     const index = this.children.push(child);
+
     if("context" in child && child.context instanceof StackFrame)
       child.context.resolveFor(index);
+
     this.add(child);
   }
 
@@ -74,20 +78,20 @@ export class ElementInline extends AttributeBody {
     )
   }
 
-  ForInStatement(_: For, stat: Path<For>){
-    this.ForStatement(_, stat)
+  ForInStatement(_: For, path: Path<For>){
+    this.ForStatement(_, path)
   }
 
-  ForOfStatement(_: For, stat: Path<For>){
-    this.ForStatement(_, stat)
+  ForOfStatement(_: For, path: Path<For>){
+    this.ForStatement(_, path)
   }
 
-  ForStatement(_: For, stat: Path<For>){
-    const element = new ComponentFor(stat, this.context);
+  ForStatement(_: For, path: Path<For>){
+    const element = new ComponentFor(path, this.context);
     this.adopt(element)
     const { doBlock } = element;
     if(doBlock)
-      stat.replaceWith(doBlock)
+      path.replaceWith(doBlock)
   }
 
   BlockStatement(node: BlockStatement, path: Path<BlockStatement>){
@@ -136,23 +140,30 @@ export class ElementInline extends AttributeBody {
     }
 
     if(node.start !== value.start! - 2)
-      throw Error.UnarySpaceRequired(node, op)
+      throw Error.UnarySpaceRequired(node, op);
+
+    let insert: Attribute;
 
     switch(op){
       case "+":
         if(!isIdentifier(value))
           throw Error.BadShorthandProp(node);
-        this.add(new Prop(value.name, value));
+        insert = new Prop(value.name, value);
       break;
 
       case "-":
-        this.add(new Prop("className", value));
+        insert = new Prop("className", value);
       break;
 
       case "~":
-        this.add(new ExplicitStyle(false, value));
-      break
+        insert = new ExplicitStyle(false, value);
+      break;
+
+      default:
+        throw Error.UnrecognizedUnary(node, op);
     }
+
+    this.add(insert);
   }
 
   ExpressionAsStatement(node: Expression){
@@ -182,7 +193,6 @@ export class ElementInline extends AttributeBody {
 }
 
 export class ComponentContainer extends ElementInline {
-
   statements = [] as Statement[];
 
   ExpressionAsStatement(node: Expression){
