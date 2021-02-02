@@ -144,6 +144,17 @@ export function callExpress(
   return callExpression(callee, args)
 }
 
+export function requireExpression(from: string){
+  const argument = 
+    typeof from == "string"
+      ? stringLiteral(from)
+      : from
+
+  return callExpression(
+    identifier("require"), [argument]
+  )
+}
+
 export function declare(
   type: "const" | "let" | "var",
   id: LVal,

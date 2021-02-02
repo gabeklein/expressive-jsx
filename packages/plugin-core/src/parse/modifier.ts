@@ -262,22 +262,14 @@ function propertyModifierDefault(
   this: ModifyDelegate){
 
   const args = this.arguments!.map(arg => {
-
     const { value, requires } = arg;
 
-    if(value) return value;
-
+    if(value)
+      return value;
     else if(requires)
-      return callExpression(
-        identifier("require"),
-        [
-          typeof requires == "string"
-            ? stringLiteral(requires)
-            : requires
-        ]
-      )
-
-    else return arg;
+      return requireExpression(requires);
+    else
+      return arg;
   })
 
   const output =
@@ -290,4 +282,15 @@ function propertyModifierDefault(
       [this.name]: output
     }
   }
+}
+
+export function requireExpression(from: string){
+  const argument = 
+    typeof from == "string"
+      ? stringLiteral(from)
+      : from
+
+  return callExpression(
+    identifier("require"), [argument]
+  )
 }

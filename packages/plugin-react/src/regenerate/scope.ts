@@ -23,7 +23,7 @@ import {
   variableDeclaration,
   variableDeclarator,
 } from '@babel/types';
-import { callExpress } from 'internal';
+import { requireExpression } from 'internal';
 import { BunchOf } from 'types';
 
 type ImportSpecific = ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier;
@@ -244,24 +244,23 @@ export class RequirementManager
 
     for(const name of requireOccuring){
       const list = this.imports[name]
+  
       if(list.length == 0)
         continue
 
       const index = this.importIndices[name];
-      const target = this.importTargets[name];
+      const target =
+        this.importTargets[name] || 
+        requireExpression(name);
 
-      this.body.splice(
-        index, 0,
+      const declareStatement =
         variableDeclaration("const", [
           variableDeclarator(
-            objectPattern(list),
-            target || callExpress(
-              identifier("require"),
-              stringLiteral(name)
-            )
+            objectPattern(list), target
           )
         ])
-      )
+
+      this.body.splice(index, 0, declareStatement)
     }
   }
 }
