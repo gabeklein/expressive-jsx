@@ -49,7 +49,7 @@ export class ElementSwitch {
 
   constructor(
     public source: ComponentIf){
-  };
+  }
 
   toExpression(Generator: GenerateReact): Expression {
     return reducerAlgorithm(

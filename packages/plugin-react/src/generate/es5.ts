@@ -26,13 +26,13 @@ const IsComponentElement = /^[A-Z]\w*/;
 export class GenerateES extends GenerateReact {
 
   get Fragment(){
-    let id = this.external.ensure("$pragma", "Fragment");
+    const id = this.external.ensure("$pragma", "Fragment");
     Object.defineProperty(this, "Fragment", { value: id });
     return id;
   }
 
   get Create(){
-    let id = this.external.ensure(
+    const id = this.external.ensure(
       "$pragma", "createElement", "create"
     );
 
@@ -43,11 +43,12 @@ export class GenerateES extends GenerateReact {
   element(src: ElementReact){
     const { tagName: tag, props, children } = src;
 
-    const type = typeof tag == "string" ?
-      IsComponentElement.test(tag) ? 
-        identifier(tag) :
-        stringLiteral(tag) :
-      normalize(tag);
+    const type =
+      typeof tag === "string" ?
+        IsComponentElement.test(tag) ?
+          identifier(tag) :
+          stringLiteral(tag) :
+        normalize(tag);
 
     return callExpression(
       this.Create, [
@@ -96,7 +97,7 @@ export class GenerateES extends GenerateReact {
   private recombineProps(props: PropData[]){
     const propStack = new ArrayStack<ObjectProperty, Expression>()
 
-    if(props.length == 0)
+    if(props.length === 0)
       return objectExpression([])
 
     for(const { name, value } of props)
@@ -107,7 +108,7 @@ export class GenerateES extends GenerateReact {
           propertyES(name, value)
         );
 
-    let properties = propStack.map(chunk =>
+    const properties = propStack.map(chunk =>
       Array.isArray(chunk)
         ? objectExpression(chunk)
         : chunk
@@ -119,7 +120,7 @@ export class GenerateES extends GenerateReact {
       )
 
     return (
-      properties.length == 1
+      properties.length === 1
         ? properties[0]
         : callExpression(
           memberExpression(
@@ -148,6 +149,6 @@ function normalize(
       return memberExpression(a, b);
     }
     default:
-      throw new Error("Bad MemeberExpression"); 
+      throw new Error("Bad MemeberExpression");
   }
 }

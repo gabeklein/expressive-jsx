@@ -96,7 +96,7 @@ export abstract class Attribute<T extends Expression = Expression> {
     if(typeof value !== "object" || value === null)
       this.invariant = true
   }
-};
+}
 
 export class Prop extends Attribute {}
 

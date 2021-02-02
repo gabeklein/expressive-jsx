@@ -109,7 +109,7 @@ export class ComponentIf {
           current.forwardTo = final
       }
       break;
-    };
+    }
 
     const doInsert = [] as ExpressionStatement[];
 
@@ -184,7 +184,7 @@ export class ComponentConsequent extends ElementInline {
         else
           this.usesClassname = uids;
       }
-    };
+    }
   }
 
   ReturnStatement(node: ReturnStatement){

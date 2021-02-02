@@ -80,7 +80,7 @@ export class Module {
     public path: Path<ProgramNode>,
     public state: BabelState,
     public imports: ExternalsManager ){
-  };
+  }
 
   get relativeFileName(){
     // return relative(this.state.cwd, this.state.filename);

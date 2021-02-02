@@ -33,7 +33,7 @@ export class ElementIterate
   constructor(source: ComponentFor){
     super(source);
     this.type = source.node.type as any;
-  };
+  }
 
   toExpression(Generator: GenerateReact): CallExpression {
     const wrapper =
