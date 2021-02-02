@@ -103,6 +103,7 @@ declare class Prop extends Attribute {
 declare class ExplicitStyle extends Attribute {
   constructor(name: string | false, node: FlatValue | Expression | undefined);
   priority: number;
+  important: boolean;
 }
 interface StackFrame {
   readonly prefix: string;

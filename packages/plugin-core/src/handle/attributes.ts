@@ -103,7 +103,8 @@ export class Prop extends Attribute {}
 export class ExplicitStyle extends Attribute {
   constructor(
     name: string | false,
-    value: FlatValue | FlatValue[] | Expression){
+    value: FlatValue | Expression | FlatValue[],
+    public important = false){
 
     super(name, flatten(value));
 

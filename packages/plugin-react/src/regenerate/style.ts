@@ -45,7 +45,12 @@ function orderSyntax(modifiersDeclared: Set<Modifier>){
       if(typeof styleKey == "string")
         styleKey = styleKey.replace(/([A-Z]+)/g, "-$1").toLowerCase();
 
-      return `${styleKey}: ${style.value}`;
+      const line = `${styleKey}: ${style.value}`;
+
+      if(style.important)
+        return `${line} !important`;
+
+      return line;
     })
 
     let selection = "";

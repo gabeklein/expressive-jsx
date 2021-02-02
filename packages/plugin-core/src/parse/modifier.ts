@@ -72,6 +72,7 @@ export class ModifyDelegate {
     transform: ModifyAction,
     input: any[] | ModiferBody){
 
+    let important = false;
     let args: any[];
 
     if(isArray(input))
@@ -79,6 +80,11 @@ export class ModifyDelegate {
     else {
       args = Arguments.Parse(input);
       this.body = input;
+    }
+
+    if(args[args.length - 1] == "!important"){
+      important = true;
+      args.pop();
     }
 
     this.arguments = args;
@@ -97,7 +103,7 @@ export class ModifyDelegate {
       for(const name in style){
         let item = style[name];
         this.styles[name] = 
-          new ExplicitStyle(name, item);
+          new ExplicitStyle(name, item, important);
       }
 
     if(attrs)
@@ -106,6 +112,10 @@ export class ModifyDelegate {
 
         if(!Array.isArray(args))
           args = [args];
+
+        if(important)
+          args.push("!important");
+          
         this.attrs[name] = args;
       }
   }

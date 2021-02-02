@@ -133,6 +133,8 @@ export const Arguments = new class DelegateTypes {
     const arg = e.argument;
     if(e.operator == "-" && isNumericLiteral(arg))
       return this.NumericLiteral(arg, -1)
+    if(e.operator == "!" && isIdentifier(arg) && arg.name == "important")
+      return "!important";
     // else if(e.operator == "!")
     //     return new DelegateExpression(arg, "verbatim");
     else throw Error.UnaryUseless(e)
