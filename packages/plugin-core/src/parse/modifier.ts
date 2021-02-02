@@ -189,16 +189,17 @@ export class ModifyDelegate {
 
     mod.priority = priority || this.priority;
     mod.parseNodes(usingBody || this.body!);
+
     if(target instanceof ElementInline)
       target.modifiers.push(mod);
-    else
 
-    if(target instanceof ElementModifier)
+    else if(target instanceof ElementModifier)
       target.applicable.push(mod);
-    else
 
-    if(target instanceof ContingentModifier
-    && target.anchor instanceof ElementInline)
+    else if(
+      target instanceof ContingentModifier && 
+      target.anchor instanceof ElementInline
+    )
       target.anchor.modifiers.push(mod);
 
     return mod;

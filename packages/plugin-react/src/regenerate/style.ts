@@ -1,5 +1,5 @@
 import { expressionStatement, Statement, stringLiteral, templateElement, templateLiteral } from '@babel/types';
-import { Modifier } from '@expressive/babel-plugin-core';
+import { ExplicitStyle, Modifier } from '@expressive/babel-plugin-core';
 import { callExpress, memberExpress } from 'internal';
 import { BunchOf } from 'types';
 
@@ -36,15 +36,17 @@ function orderSyntax(modifiersDeclared: Set<Modifier>){
         targetQuery[priority] :
         targetQuery[priority] = [];
 
-    const styles =
-      block.sequence
-      .filter(style => style.invariant)
-      .map(style => {
-        let styleKey = style.name;
-        if(typeof styleKey == "string")
-          styleKey = styleKey.replace(/([A-Z]+)/g, "-$1").toLowerCase();
-        return `${styleKey}: ${style.value}`
-      })
+    const items = block.sequence
+      .filter(style => style.invariant) as ExplicitStyle[];
+
+    const styles = items.map(style => {
+      let styleKey = style.name;
+
+      if(typeof styleKey == "string")
+        styleKey = styleKey.replace(/([A-Z]+)/g, "-$1").toLowerCase();
+
+      return `${styleKey}: ${style.value}`;
+    })
 
     let selection = "";
     do {

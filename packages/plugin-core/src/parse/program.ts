@@ -139,22 +139,14 @@ export class StackFrame {
     this.prefix = this.prefix + " " + append || "";
   }
 
-  event(
-    this: any,
-    ref: symbol,
-    set: Function){
-
+  event(this: any, ref: symbol, set: Function){
     if(set)
       this[ref] = set;
     else
       return this[ref]
   }
 
-  dispatch(
-    this: any,
-    ref: symbol,
-    ...args: any[]
-  ){
+  dispatch(this: any, ref: symbol, ...args: any[]){
     (<Function>this[ref]).apply(null, args)
   }
 

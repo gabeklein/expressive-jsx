@@ -26,7 +26,7 @@ type ListElement = Expression | SpreadElement;
 const containsLineBreak = (text: string) => /\n/.test(text);
 
 const Error = ParseErrors({
-  NoParenChildren: "Children in Parenthesis are not allowed, for direct insertion used an Array literal",
+  NoParenChildren: "Children in Parenthesis are not allowed, for direct insertion use an Array literal",
   SemicolonRequired: "Due to how parser works, a semicolon is required after the element preceeding escaped children.",
   DoExists: "Do Expression was already declared!",
   PropUnknown: "There is no property inferred from an {1}",
@@ -317,7 +317,6 @@ function parseIdentity(
     applyNameImplications(target, Text, true);
 
     target.add(tag)
-    // preventDefaultPolyfill(tag);
   }
 
   else throw Error.BadExpression(tag);
@@ -343,7 +342,6 @@ function unwrapExpression(
       target.add(content)
 
       expression = expression.tag;
-      // preventDefaultPolyfill(exp);
       break;
     }
 
@@ -418,8 +416,6 @@ function parseProps(
         const prop = new Prop(tag.name, value);
 
         target.add(prop);
-
-        // preventDefaultPolyfill(node);
       } break;
 
       case "AssignmentExpression": {
@@ -456,10 +452,8 @@ function parseProps(
             insert = new Prop(name, value)
           }
 
-          else if(isSpreadElement(property)){
+          else if(isSpreadElement(property))
             insert = new Prop(false, property.argument);
-            // preventDefaultPolyfill(property);
-          }
 
           else if(isObjectMethod(property)){
             const func = Object.assign(

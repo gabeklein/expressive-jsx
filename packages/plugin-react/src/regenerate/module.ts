@@ -8,7 +8,7 @@ import { opts } from 'internal';
 
 import { RequirementManager } from './scope';
 
-export const Program = <Visitor<ProgramNode>> {
+export const Program: Visitor<ProgramNode> = {
   enter(path, state){
     let Generator;
     let Importer;

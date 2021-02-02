@@ -184,10 +184,10 @@ export class RequirementManager
     const source = this.imports[from] || this.ensureImported(from);
 
     if(!alt)
-    for(const item of source)
-      if(isIdentifier(item.key, { name })
-      && isIdentifier(item.value))
-        return item.value;
+      for(const item of source)
+        if(isIdentifier(item.key, { name })
+        && isIdentifier(item.value))
+          return item.value;
 
     const uid = ensureUID(this.scope, alt || name);
     const ref = identifier(uid);
@@ -213,24 +213,21 @@ export class RequirementManager
     let list;
 
     for(let i = 0, stat; stat = this.body[i]; i++)
-    if(isVariableDeclaration(stat))
-    for(const { init, id } of stat.declarations)
-    if(isCallExpression(init)
-    && isIdentifier(init.callee, { name: "require" })
-    && isStringLiteral(init.arguments[0], { value: from })){
-      target = id;
-      insertableAt = i + 1;
-    }
+      if(isVariableDeclaration(stat))
+        for(const { init, id } of stat.declarations)
+          if(isCallExpression(init)
+          && isIdentifier(init.callee, { name: "require" })
+          && isStringLiteral(init.arguments[0], { value: from })){
+            target = id;
+            insertableAt = i + 1;
+          }
 
     if(isObjectPattern(target))
       list = this.imports[from] = target.properties as ObjectProperty[];
     else {
       list = this.imports[from] = [];
-
       this.importIndices[from] = insertableAt || 0;
-
-      this.importTargets[from] =
-        isIdentifier(target) && target;
+      this.importTargets[from] = isIdentifier(target) && target;
     }
 
     return list;

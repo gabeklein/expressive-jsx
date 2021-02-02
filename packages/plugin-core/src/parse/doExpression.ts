@@ -17,8 +17,10 @@ import { StackFrame } from './program';
 
 export const DoExpression = <Visitor<DoExpressive>> {
   enter: (path, state) => {
-    let meta = path.node.meta ||
-      generateEntryElement(path, state.context);
+    let { meta } = path.node;
+
+    if(!meta)
+      meta = generateEntryElement(path, state.context);
 
     meta.didEnterOwnScope(path)
   },
@@ -40,14 +42,10 @@ function generateEntryElement(
     break;
 
     case "ReturnStatement":
-      const container = parent.findParent(x => {
-        const t = /.*Function.*/.test(x.type);
-        return t
-      });
-      if(container.type == "ArrowFunctionExpression"){
+      const container = parent.findParent(x => /.*Function.*/.test(x.type));
 
+      if(container.type == "ArrowFunctionExpression")
         containerFn = container as Path<ArrowFunctionExpression>;
-      }
     break;
   }
 

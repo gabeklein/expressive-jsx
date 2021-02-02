@@ -42,19 +42,16 @@ export abstract class AttributeBody extends TraversableBody {
     Object.defineProperty(this, "uid", { value: uid });
   }
 
-  abstract ElementModifier(
-    mod: Modifier
-  ): void;
+  abstract ElementModifier(mod: Modifier): void;
 
   LabeledStatement(
     node: LabeledStatement,
     _path: any,
     applyTo: Modifier = this as any){
 
-    if(!node.label) debugger;
+    const body = node.body;
     const { name } = node.label;
     const { context } = this;
-    const body = node.body;
 
     if(name[0] == "_")
       throw Error.BadModifierName(node)
@@ -64,20 +61,15 @@ export abstract class AttributeBody extends TraversableBody {
 
     const handler = applyTo.context.propertyMod(name);
 
-    if(isExpressionStatement(body)
-    || handler && (
-      isBlockStatement(body) ||
-      isLabeledStatement(body)
+    if(isExpressionStatement(body) || handler && (
+      isBlockStatement(body) || isLabeledStatement(body)
     ))
-      applyModifier(
-        name, applyTo, body
-      );
+      applyModifier(name, applyTo, body);
 
-    else if(isBlockStatement(body)
-    || isLabeledStatement(body))
-      applyTo.ElementModifier(
-        new ElementModifier(context, name, body)
-      )
+    else if(isBlockStatement(body) || isLabeledStatement(body)){
+      const mod = new ElementModifier(context, name, body);
+      applyTo.ElementModifier(mod);
+    }
 
     else
       throw Error.BadInputModifier(body, body.type)

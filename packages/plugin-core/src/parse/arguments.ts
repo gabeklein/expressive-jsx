@@ -176,8 +176,7 @@ export const Arguments = new class DelegateTypes {
   }
 
   SequenceExpression(sequence: SequenceExpression){
-    return sequence.expressions
-      .map(x => this.Expression(x))
+    return sequence.expressions.map(x => this.Expression(x))
   }
 
   CallExpression(e: CallExpression){

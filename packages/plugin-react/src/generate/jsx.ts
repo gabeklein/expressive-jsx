@@ -112,6 +112,7 @@ export class GenerateJSX extends GenerateReact {
 
     while(true) {
       const value = quasis[i].value.cooked as string;
+
       if(value){
         let text: JSXContent | undefined;
         if(/\n/.test(value))
@@ -124,8 +125,7 @@ export class GenerateJSX extends GenerateReact {
               )
             ]
         else if(/[{}]/.test(value))
-          jsxExpressionContainer(
-            stringLiteral(value))
+          jsxExpressionContainer(stringLiteral(value))
         else
           text = jsxText(value);
 
@@ -134,9 +134,10 @@ export class GenerateJSX extends GenerateReact {
 
       if(i in expressions)
         acc.push(
-          jsxExpressionContainer(
-            expressions[i++]))
-      else break;
+          jsxExpressionContainer(expressions[i++])
+        )
+      else
+        break;
     }
 
     return acc;
