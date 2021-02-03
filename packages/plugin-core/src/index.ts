@@ -2,11 +2,12 @@ import { Program as BabelProgram } from '@babel/types';
 
 import {
   createFileContext,
-  DoExpression
+  generateEntryElement
 } from 'parse';
 
 import {
   BabelState,
+  DoExpressive,
   Visitor
 } from 'types';
 
@@ -31,6 +32,20 @@ export {
 const Program = <Visitor<BabelProgram>>{
   enter({ node }, state: BabelState){
     createFileContext(node, state);
+  }
+}
+
+export const DoExpression = <Visitor<DoExpressive>> {
+  enter: (path, state) => {
+    let { meta } = path.node;
+
+    if(!meta)
+      meta = generateEntryElement(path, state.context);
+
+    meta.didEnterOwnScope(path)
+  },
+  exit: (path) => {
+    path.node.meta.didExitOwnScope(path)
   }
 }
 

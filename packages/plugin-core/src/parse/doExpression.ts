@@ -11,22 +11,9 @@ import {
   isIdentifier,
 } from '@babel/types';
 import { ComponentExpression } from 'handle';
-import { DoExpressive, Visitor } from 'types';
+import { DoExpressive } from 'types';
 
 import { StackFrame } from './program';
-
-export const DoExpression = <Visitor<DoExpressive>> {
-  enter: (path, state) => {
-    const meta =
-      path.node.meta ||
-      generateEntryElement(path, state.context);
-
-    meta.didEnterOwnScope(path)
-  },
-  exit: (path) => {
-    path.node.meta.didExitOwnScope(path)
-  }
-}
 
 export function generateEntryElement(
   path: Path<DoExpressive>,
