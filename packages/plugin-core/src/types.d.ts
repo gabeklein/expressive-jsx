@@ -4,6 +4,7 @@ import {
   DoExpression,
   Expression,
   ExpressionStatement,
+  File,
   IfStatement,
   LabeledStatement,
   Statement,
@@ -28,6 +29,7 @@ export type ModiferBody = ExpressionStatement | BlockStatement | LabeledStatemen
 export type SelectionProvider = (forSelector: string[]) => void
 
 export interface BabelState<S extends StackFrame = StackFrame> {
+  file: File;
   filename: string;
   cwd: string;
   context: S;

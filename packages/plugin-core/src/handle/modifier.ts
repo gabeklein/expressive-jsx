@@ -48,14 +48,21 @@ export abstract class Modifier extends AttributeBody {
   }
 }
 
-export class ElementModifier
-  extends Modifier {
-
+export class ElementModifier extends Modifier {
   name?: string;
   next?: ElementModifier;
   nTargets = 0;
   provides = [] as ElementModifier[];
   priority = 1;
+
+  static insert(
+    context: StackFrame,
+    name: string,
+    body: Statement
+  ){
+    const mod = new this(context, name, body);
+    context.elementMod(mod);
+  }
 
   constructor(
     context: StackFrame,
@@ -77,9 +84,7 @@ export class ElementModifier
   }
 }
 
-export class ContingentModifier
-  extends Modifier {
-
+export class ContingentModifier extends Modifier {
   anchor: ElementModifier | ElementInline;
 
   constructor(

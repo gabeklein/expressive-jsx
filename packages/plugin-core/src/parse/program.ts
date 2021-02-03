@@ -1,4 +1,4 @@
-import { File, isExpressionStatement, isLabeledStatement, Program as BabelProgram, Statement } from '@babel/types';
+import { File, isExpressionStatement, isLabeledStatement, LabeledStatement, Program as BabelProgram } from '@babel/types';
 import { ComponentIf, ElementInline, ElementModifier, ComponentExpression } from 'handle';
 import { BabelFile, hash, ParseErrors, Shared } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
@@ -6,15 +6,12 @@ import { relative } from "path"
 
 import * as builtIn from './builtin';
 
-interface Stackable {
-  context: StackFrame;
-}
+type Stackable = { context: StackFrame };
 
-const { getPrototypeOf, create, assign } = Object;
 let debug = false;
 
 try {
-  debug = process.execArgv.join().indexOf("inspect-brk") >= 0
+  debug = /inspect-brk/.test(process.execArgv.join());
 }
 catch(err){}
 
@@ -32,33 +29,33 @@ export const Program = <Visitor<BabelProgram>>{
       }
       catch(err){}
 
-    let context = state.context = new StackFrame(state).create(this);
-    context.currentFile = state.file;
+    const stack = new StackFrame(state);
+    const context = state.context = stack.create(this);
 
     Shared.currentFile = state.file as BabelFile;
-
-    const filtered = [] as Statement[];
-
-    for(const statement of node.body)
-      if(isLabeledStatement(statement)){
-        const { name } = statement.label;
-        const { body } = statement;
-
-        if(name[0] == "_")
-          throw Error.BadModifierName(node)
-
-        if(this.context.hasOwnModifier(name))
-          throw Error.DuplicateModifier(node);
-
-        if(isExpressionStatement(body))
-          throw Error.IllegalAtTopLevel(statement)
-
-        const mod = new ElementModifier(context, name, body);
-        context.elementMod(mod)
+    node.body = node.body.filter(item => {
+      if(isLabeledStatement(item)){
+        handleModifier(item);
+        return false;
       }
-      else filtered.push(statement);
+      else
+        return true;
+    });
 
-    node.body = filtered;
+    function handleModifier(item: LabeledStatement){
+      const { body, label: { name }} = item;
+
+      if(name[0] == "_")
+        throw Error.BadModifierName(node)
+
+      if(context.hasOwnModifier(name))
+        throw Error.DuplicateModifier(node);
+
+      if(isExpressionStatement(body))
+        throw Error.IllegalAtTopLevel(item)
+
+      ElementModifier.insert(context, name, body);
+    }
   }
 }
 
@@ -77,20 +74,21 @@ export class StackFrame {
   ModifierQuery?: string;
 
   get parent(){
-    return getPrototypeOf(this);
+    return Object.getPrototypeOf(this);
   }
 
   constructor(state: BabelState){
     let Stack = this;
-    const external = [].concat(state.opts.modifiers || []);
-    const included = assign({}, ...external);
+    const external = [ ...state.opts.modifiers || [] ];
+    const included = Object.assign({}, ...external);
 
     this.stateSingleton = state;
+    this.currentFile = state.file;
     this.prefix = hash(state.filename);
     this.options = {};
 
     for(const imports of [ builtIn, included ]){
-      Stack = create(Stack)
+      Stack = Object.create(Stack)
 
       const { Helpers, ...Modifiers } = imports as any;
 
@@ -102,7 +100,7 @@ export class StackFrame {
   }
 
   create(node: Stackable): StackFrame {
-    const frame = create(this);
+    const frame = Object.create(this);
     frame.current = node;
     if(node instanceof ElementInline)
       frame.currentElement = node;
