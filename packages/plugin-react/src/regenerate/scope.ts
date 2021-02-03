@@ -26,7 +26,10 @@ import {
 import { requireExpression } from 'internal';
 import { BunchOf } from 'types';
 
-type ImportSpecific = ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier;
+type ImportSpecific =
+  | ImportSpecifier 
+  | ImportDefaultSpecifier 
+  | ImportNamespaceSpecifier;
 
 export function ensureUIDIdentifier(
   scope: Scope,
@@ -62,22 +65,13 @@ export function ensureUID(
 export interface ExternalsManager {
   opts?: any;
 
-  ensure(
-    from: string,
-    name: string,
-    alt?: string
-  ): Identifier;
-
-  ensureImported(
-    from: string,
-    after?: number): void;
+  ensure(from: string, name: string, alt?: string): Identifier;
+  ensureImported(from: string, after?: number): void;
 
   EOF(): void;
 }
 
-export class ImportManager
-  implements ExternalsManager {
-
+export class ImportManager implements ExternalsManager {
   imports = {} as BunchOf<ImportSpecific[]>
   importIndices = {} as BunchOf<number>
   body = this.path.node.body;
@@ -110,8 +104,7 @@ export class ImportManager
     }
 
     for(const spec of list)
-      if("imported" in spec
-      && spec.imported.name == name){
+      if("imported" in spec && spec.imported.name == name){
         uid = identifier(spec.local.name);
         break;
       }
@@ -159,9 +152,7 @@ export class ImportManager
   }
 }
 
-export class RequirementManager
-  implements ExternalsManager {
-
+export class RequirementManager implements ExternalsManager {
   imports = {} as BunchOf<ObjectProperty[]>
   importTargets = {} as BunchOf<Expression | false>
   importIndices = {} as BunchOf<number>
@@ -184,30 +175,22 @@ export class RequirementManager
     const source = this.imports[from] || this.ensureImported(from);
 
     if(!alt)
-      for(const item of source)
-        if(isIdentifier(item.key, { name })
-        && isIdentifier(item.value))
-          return item.value;
+      for(const { key, value } of source)
+        if(isIdentifier(key, { name }) && isIdentifier(value))
+          return value;
 
     const uid = ensureUID(this.scope, alt || name);
     const ref = identifier(uid);
+    const key = identifier(name);
+    const useShorthand = uid === name;
+    const property = objectProperty(key, ref, false, useShorthand);
 
-    source.push(
-      objectProperty(
-        identifier(name),
-        ref,
-        false,
-        uid === name
-      )
-    )
+    source.push(property)
 
     return ref;
   }
 
-  ensureImported(
-    from: string,
-    after?: number
-  ){
+  ensureImported(from: string, after?: number){
     let target;
     let insertableAt;
     let list;

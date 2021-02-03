@@ -3,7 +3,6 @@ import { ElementReact, ExternalsManager, Module } from 'internal';
 import { ContentLike } from 'types';
 
 export abstract class GenerateReact {
-
   constructor(
     protected module: Module,
     protected external: ExternalsManager

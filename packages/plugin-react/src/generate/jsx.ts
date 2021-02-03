@@ -21,14 +21,6 @@ import { ContentLike, IsLegalAttribute, JSXContent, PropData } from 'types';
 
 export class GenerateJSX extends GenerateReact {
 
-  get Fragment(){
-    const Fragment = jsxIdentifier(
-      this.external.ensure("$pragma", "Fragment").name
-    );
-    Object.defineProperty(this, "Fragment", { configurable: true, value: Fragment })
-    return Fragment;
-  }
-
   willExitModule(){
     if(this.module.lastInsertedElement)
       this.external.ensure("$pragma", "default", "React")
@@ -55,6 +47,10 @@ export class GenerateJSX extends GenerateReact {
     children = [] as ContentLike[],
     key?: Expression | false
   ){
+    const Fragment = jsxIdentifier(
+      this.external.ensure("$pragma", "Fragment").name
+    );
+
     const attributes = !key ? [] : [
       jsxAttribute(
         jsxIdentifier("key"),
@@ -63,11 +59,32 @@ export class GenerateJSX extends GenerateReact {
     ]
 
     return jsxElement(
-      jsxOpeningElement(this.Fragment, attributes),
-      jsxClosingElement(this.Fragment),
+      jsxOpeningElement(Fragment, attributes),
+      jsxClosingElement(Fragment),
       this.recombineChildren(children, true),
       false
     )
+  }
+
+  private recombineProps({ name, value }: PropData){
+    if(typeof name !== "string")
+      return jsxSpreadAttribute(value);
+    else {
+      if(IsLegalAttribute.test(name) == false)
+        throw new Error(`Illegal characters in prop named ${name}`)
+
+      const insertedValue =
+        isStringLiteral(value)
+          ? value.value == "true"
+            ? null
+            : value
+          : jsxExpressionContainer(value)
+
+      return jsxAttribute(
+        jsxIdentifier(name),
+        insertedValue
+      )
+    }
   }
 
   private recombineChildren(
@@ -163,26 +180,5 @@ export class GenerateJSX extends GenerateReact {
       else
         return jsxExpressionContainer(chunk)
     })
-  }
-
-  private recombineProps({ name, value }: PropData){
-    if(typeof name !== "string")
-      return jsxSpreadAttribute(value);
-    else {
-      if(IsLegalAttribute.test(name) == false)
-        throw new Error(`Illegal characters in prop named ${name}`)
-
-      const insertedValue =
-        isStringLiteral(value)
-          ? value.value == "true"
-            ? null
-            : value
-          : jsxExpressionContainer(value)
-
-      return jsxAttribute(
-        jsxIdentifier(name),
-        insertedValue
-      )
-    }
   }
 }

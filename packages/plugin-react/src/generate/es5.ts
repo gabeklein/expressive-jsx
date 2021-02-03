@@ -13,6 +13,7 @@ import {
   objectExpression,
   ObjectProperty,
   objectProperty,
+  StringLiteral,
   stringLiteral,
 } from '@babel/types';
 import { ArrayStack, ElementReact, GenerateReact } from 'internal';
@@ -25,21 +26,6 @@ const IsComponentElement = /^[A-Z]\w*/;
 
 export class GenerateES extends GenerateReact {
 
-  get Fragment(){
-    const id = this.external.ensure("$pragma", "Fragment");
-    Object.defineProperty(this, "Fragment", { value: id });
-    return id;
-  }
-
-  get Create(){
-    const id = this.external.ensure(
-      "$pragma", "createElement", "create"
-    );
-
-    Object.defineProperty(this, "Create", { value: id });
-    return id;
-  }
-
   element(src: ElementReact){
     const { tagName: tag, props, children } = src;
 
@@ -50,34 +36,39 @@ export class GenerateES extends GenerateReact {
           stringLiteral(tag) :
         normalize(tag);
 
-    return callExpression(
-      this.Create, [
-      type,
+    return this.createElement(type,
       this.recombineProps(props),
-      ...this.recombineChildren(children)
-    ])
+      this.recombineChildren(children)
+    );
   }
 
   fragment(
     children = [] as ContentLike[],
     key?: Expression | false
   ){
-    const properties = [] as ObjectProperty[];
-    if(key)
-      properties.push(
-        objectProperty(
-          identifier("key"), key
-        )
-      )
+    const Fragment =
+      this.external.ensure("$pragma", "Fragment");
 
-    return (
-      callExpression(
-        this.Create, [
-        this.Fragment,
-        objectExpression(properties),
-        ...this.recombineChildren(children)
-      ])
+    let props: ObjectProperty[] = !key ? [] : [
+      objectProperty(identifier("key"), key)
+    ];
+
+    return this.createElement(
+      Fragment,
+      objectExpression(props),
+      this.recombineChildren(children)
     )
+  }
+
+  private createElement(
+    type: Identifier | StringLiteral | MemberExpression,
+    props: Expression,
+    children: Expression[]
+  ){
+    const create =
+      this.external.ensure("$pragma", "createElement", "create");
+
+    return callExpression(create, [type, props, ...children]);
   }
 
   private recombineChildren(input: ContentLike[]): Expression[] {
