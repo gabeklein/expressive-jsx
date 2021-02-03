@@ -1,4 +1,14 @@
-import { DoExpression, Program } from 'parse';
+import { Program as BabelProgram } from '@babel/types';
+
+import {
+  createFileContext,
+  DoExpression
+} from 'parse';
+
+import {
+  BabelState,
+  Visitor
+} from 'types';
 
 export {
   ParseErrors
@@ -17,6 +27,12 @@ export {
 export {
   ElementConstruct
 } from "generate";
+
+const Program = <Visitor<BabelProgram>>{
+  enter({ node }, state: BabelState){
+    createFileContext(node, state);
+  }
+}
 
 export default (options: any) => {
   return {

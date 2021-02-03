@@ -33,7 +33,15 @@ export interface BabelState<S extends StackFrame = StackFrame> {
   filename: string;
   cwd: string;
   context: S;
-  opts: any;
+  opts: Options;
+}
+
+export interface Options {
+  hot: boolean;
+  output: "js" | "jsx";
+  printStyle?: "pretty";
+  useImport: boolean;
+  modifiers: BunchOf<{}>[];
 }
 
 export interface DoExpressive extends DoExpression {

@@ -1,19 +1,11 @@
 import { File, isExpressionStatement, isLabeledStatement, LabeledStatement, Program as BabelProgram } from '@babel/types';
-import { ComponentIf, ElementInline, ElementModifier, ComponentExpression } from 'handle';
+import { ComponentExpression, ComponentIf, ElementInline, ElementModifier } from 'handle';
 import { BabelFile, hash, ParseErrors, Shared } from 'shared';
-import { BabelState, BunchOf, ModifyAction, Visitor } from 'types';
-import { relative } from "path"
+import { BabelState, BunchOf, ModifyAction } from 'types';
 
 import * as builtIn from './builtin';
 
 type Stackable = { context: StackFrame };
-
-let debug = false;
-
-try {
-  debug = /inspect-brk/.test(process.execArgv.join());
-}
-catch(err){}
 
 const Error = ParseErrors({
   IllegalAtTopLevel: "Cannot apply element styles in top-level of program",
@@ -21,42 +13,40 @@ const Error = ParseErrors({
   DuplicateModifier: "Duplicate declaration of named modifier!"
 })
 
-export const Program = <Visitor<BabelProgram>>{
-  enter({ node }, state: any){
-    if(debug)
-      try {
-        console.log(" - ", relative(process.cwd(), state.filename))
-      }
-      catch(err){}
+export function createFileContext(
+  node: BabelProgram,
+  state: BabelState){
 
-    const stack = new StackFrame(state);
-    const context = state.context = stack.create(this);
+  const context = new StackFrame(state);
 
-    Shared.currentFile = state.file as BabelFile;
-    node.body = node.body.filter(item => {
-      if(isLabeledStatement(item)){
-        handleModifier(item);
-        return false;
-      }
-      else
-        return true;
-    });
+  Shared.currentFile = state.file as BabelFile;
 
-    function handleModifier(item: LabeledStatement){
-      const { body, label: { name }} = item;
-
-      if(name[0] == "_")
-        throw Error.BadModifierName(node)
-
-      if(context.hasOwnModifier(name))
-        throw Error.DuplicateModifier(node);
-
-      if(isExpressionStatement(body))
-        throw Error.IllegalAtTopLevel(item)
-
-      ElementModifier.insert(context, name, body);
+  node.body = node.body.filter((item) => {
+    if(!isLabeledStatement(item))
+      return true;
+    else {
+      handleTopLevelModifier(item, context);
+      return false;
     }
-  }
+  });
+}
+
+function handleTopLevelModifier(
+  node: LabeledStatement,
+  context: StackFrame){
+
+  const { body, label: { name }} = node;
+
+  if(name[0] == "_")
+    throw Error.BadModifierName(node)
+
+  if(context.hasOwnModifier(name))
+    throw Error.DuplicateModifier(node);
+
+  if(isExpressionStatement(body))
+    throw Error.IllegalAtTopLevel(node)
+
+  ElementModifier.insert(context, name, body);
 }
 
 export class StackFrame {
@@ -77,15 +67,25 @@ export class StackFrame {
     return Object.getPrototypeOf(this);
   }
 
-  constructor(state: BabelState){
-    let Stack = this;
-    const external = [ ...state.opts.modifiers || [] ];
+  constructor(pluginPass: BabelState){
+    const {
+      file,
+      filename,
+      opts: {
+        modifiers = []
+      }
+    } = pluginPass;
+
+    const external = [ ...modifiers ];
     const included = Object.assign({}, ...external);
 
-    this.stateSingleton = state;
-    this.currentFile = state.file;
-    this.prefix = hash(state.filename);
+    let Stack = pluginPass.context = this;
+
+    this.stateSingleton = pluginPass;
+    this.currentFile = file;
+    this.prefix = hash(filename);
     this.options = {};
+    this.current = pluginPass;
 
     for(const imports of [ builtIn, included ]){
       Stack = Object.create(Stack)
