@@ -22,7 +22,7 @@ module.exports = {
       output: TARGET,
       useImport: true, 
       printStyle: "pretty",
-      styleMode: "inline",
+      // styleMode: "inline",
       modifiers: [
         webstyleModifiers,
         gradientModifiers
