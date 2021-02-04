@@ -18,8 +18,9 @@ import {
   PatternLike,
   returnStatement,
 } from '@babel/types';
-import { ComponentFor, ElementInline, Prop, SequenceItem } from '@expressive/babel-plugin-core';
+import { ComponentFor, ElementInline, Prop } from 'handle';
 import { ElementReact, ensureUIDIdentifier, GenerateReact } from 'internal';
+import { SequenceItem } from 'types';
 
 export class ElementIterate
   extends ElementReact<ComponentFor> {

@@ -1,4 +1,4 @@
-import { ExplicitStyle, Prop } from '@expressive/babel-plugin-core';
+import { ExplicitStyle, Prop } from "handle";
 
 export class ArrayStack<Type = any, Interrupt = Type>
   extends Array<Type[] | Interrupt> {

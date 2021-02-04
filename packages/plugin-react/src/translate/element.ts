@@ -2,28 +2,28 @@ import {
   callExpression,
   Expression,
   isStringLiteral,
+  JSXMemberExpression,
   objectExpression,
   ObjectProperty,
   SpreadElement,
   spreadElement,
   stringLiteral,
-  JSXMemberExpression
 } from '@babel/types';
+import { ElementConstruct } from 'generate/core';
 import {
   Attribute,
   ComponentExpression,
   ComponentFor,
   ComponentIf,
   ContingentModifier,
-  ElementConstruct,
   ElementInline,
   ElementModifier,
   ExplicitStyle,
   Prop,
-  SequenceItem,
-} from '@expressive/babel-plugin-core';
+} from 'handle';
 import { attributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue, opts } from 'internal';
-import { BunchOf, ContentLike, PropData, StackFrame } from 'types';
+import { StackFrame } from 'parse';
+import { BunchOf, ContentLike, PropData, SequenceItem } from 'types';
 
 export class ElementReact<T extends ElementInline = ElementInline>
   extends ElementConstruct<T>{
@@ -57,12 +57,13 @@ export class ElementReact<T extends ElementInline = ElementInline>
       this.classList.push(...classList);
 
     for(const mod of this.source.modifiers){
-      if(mod.sequence.length === 0 &&
-         mod.applicable.length === 0)
+      if(mod.sequence.length === 0 && mod.applicable.length === 0)
         continue
 
+      const maybeMod = mod as ElementModifier;
+
       const collapsable =
-        mod.nTargets == 1 &&
+        maybeMod.nTargets == 1 &&
         mod.onlyWithin === undefined &&
         mod.applicable.length === 0;
 
@@ -81,7 +82,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
       }
 
       if(!inlineOnly && !collapsable)
-        this.applyModifierAsClassname(mod)
+        this.applyModifierAsClassname(maybeMod)
     }
 
     for(const name in accumulator)
@@ -232,9 +233,6 @@ export class ElementReact<T extends ElementInline = ElementInline>
 
       case "className": {
         let { value } = item;
-
-        if(!value && item.node)
-          value = item.node;
 
         if(value && typeof value == "object")
           if(isStringLiteral(value))

@@ -19,10 +19,12 @@ import {
   Statement,
   stringLiteral,
 } from '@babel/types';
-import { ComponentExpression, DoExpressive, ParseErrors } from '@expressive/babel-plugin-core';
 import { callExpress, declare, objectExpress } from 'generate/syntax';
+import { ComponentExpression } from 'handle';
 import { ElementReact, ExternalsManager } from 'internal';
-import { StackFrame } from 'types';
+import { StackFrame } from 'parse';
+import { ParseErrors } from 'shared';
+import { DoExpressive } from 'types';
 
 const Error = ParseErrors({
   PropsCantHaveDefault: "This argument will always resolve to component props",

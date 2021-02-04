@@ -1,5 +1,5 @@
 import { expressionStatement, Statement, stringLiteral, templateElement, templateLiteral } from '@babel/types';
-import { ExplicitStyle, Modifier } from '@expressive/babel-plugin-core';
+import { ExplicitStyle, Modifier } from 'handle';
 import { callExpress, memberExpress } from 'internal';
 import { BunchOf } from 'types';
 
@@ -36,8 +36,7 @@ function organizeStyle(modifiersDeclared: Set<Modifier>){
         targetQuery[priority] :
         targetQuery[priority] = [];
 
-    const items = block.sequence
-      .filter(style => style.invariant) as ExplicitStyle[];
+    const items = block.sequence.filter(style => "invariant" in style) as ExplicitStyle[];
 
     const styles = items.map(style => {
       let styleKey = style.name;

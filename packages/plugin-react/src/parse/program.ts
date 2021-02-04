@@ -1,5 +1,8 @@
 import { isExpressionStatement, isLabeledStatement, LabeledStatement, Program as BabelProgram } from '@babel/types';
+import { GenerateReact } from 'generate/element';
 import { ComponentExpression, ComponentIf, ElementInline, ElementModifier } from 'handle';
+import { Module } from 'regenerate/module';
+import { ExternalsManager } from 'regenerate/scope';
 import { BabelFile, hash, ParseErrors, Shared } from 'shared';
 import { BabelState, BunchOf, ModifyAction } from 'types';
 
@@ -47,6 +50,12 @@ function handleTopLevelModifier(
     throw Error.IllegalAtTopLevel(node)
 
   ElementModifier.insert(context, name, body);
+}
+
+export interface StackFrame {
+  Module: Module;
+  Generator: GenerateReact;
+  Imports: ExternalsManager;
 }
 
 export class StackFrame {

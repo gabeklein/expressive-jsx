@@ -1,9 +1,10 @@
 import { NodePath as Path } from '@babel/traverse';
 import { Program as ProgramNode } from '@babel/types';
-import { BabelState, DoExpressive, Modifier } from '@expressive/babel-plugin-core';
 import { createHash } from 'crypto';
+import { Modifier } from 'handle';
 import { ExternalsManager, GenerateES, GenerateJSX, ImportManager, opts, writeProvideStyleStatement } from 'internal';
-import { StackFrame } from 'types';
+import { StackFrame } from 'parse';
+import { BabelState, DoExpressive } from 'types';
 
 import { RequirementManager } from './scope';
 

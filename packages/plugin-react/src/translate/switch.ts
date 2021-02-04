@@ -7,7 +7,7 @@ import {
   stringLiteral,
   unaryExpression,
 } from '@babel/types';
-import { ComponentConsequent, ComponentIf } from '@expressive/babel-plugin-core';
+import { ComponentConsequent, ComponentIf } from 'handle';
 import { ElementReact, GenerateReact } from 'internal';
 
 type Consequent = ComponentIf | ComponentConsequent;

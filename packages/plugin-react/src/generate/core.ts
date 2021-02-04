@@ -20,7 +20,7 @@ export abstract class ElementConstruct
   willParse?(sequence: SequenceItem[]): SequenceItem[] | undefined;
   didParse?(): void;
 
-  parse(invariant: true, overridden: true){
+  parse(invariant?: boolean, overridden?: boolean){
     let { sequence } = this.source;
 
     if(this.willParse){

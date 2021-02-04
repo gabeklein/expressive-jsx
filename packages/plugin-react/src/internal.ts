@@ -10,6 +10,7 @@ export * from "translate/switch";
 export * from "translate/iterate";
 export * from "generate/syntax";
 export * from "generate/element";
+export * from "generate/core";
 export * from "generate/es5";
 export * from "generate/jsx";
 export * from "regenerate/component";

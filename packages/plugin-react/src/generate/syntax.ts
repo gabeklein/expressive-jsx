@@ -16,7 +16,8 @@ import {
   variableDeclaration,
   variableDeclarator,
 } from '@babel/types';
-import { ExplicitStyle, Prop } from '@expressive/babel-plugin-core';
+
+import { ExplicitStyle, Prop } from 'handle';
 import { BunchOf } from 'types';
 
 export function propertyES(
@@ -56,10 +57,7 @@ export function expressionValue(
       else
         return value;
     default:
-      if(item.node)
-        return item.node as Expression;
-      else
-        return identifier("undefined");
+      return identifier("undefined");
   }
 }
 
