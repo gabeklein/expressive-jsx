@@ -1,7 +1,7 @@
 import {
   arrowFunctionExpression,
-  blockStatement,
   BlockStatement,
+  blockStatement,
   CallExpression,
   callExpression,
   Expression,
@@ -18,13 +18,13 @@ import {
   PatternLike,
   returnStatement,
 } from '@babel/types';
+import { GenerateReact } from 'generate';
 import { ComponentFor, ElementInline, Prop } from 'handle';
-import { ElementReact, ensureUIDIdentifier, GenerateReact } from 'internal';
+import { ensureUIDIdentifier } from 'regenerate';
+import { ElementReact } from 'translate';
 import { SequenceItem } from 'types';
 
-export class ElementIterate
-  extends ElementReact<ComponentFor> {
-
+export class ElementIterate extends ElementReact<ComponentFor> {
   type: "ForOfStatement" | "ForInStatement" | "ForStatement";
   mayCollapseContent?: boolean;
   key?: Identifier;

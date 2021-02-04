@@ -21,13 +21,11 @@ import {
   VariableDeclaration,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
+import { Attribute, AttributeBody, ComponentFor, ComponentIf, ElementModifier, ExplicitStyle, Modifier, Prop } from 'handle';
 import { addElementsFromExpression, applyNameImplications, StackFrame } from 'parse';
 import { addElementFromJSX } from 'parse/jsx';
 import { inParenthesis } from 'shared';
 import { BunchOf, DoExpressive, InnerContent } from 'types';
-
-import { AttributeBody, ComponentFor, ComponentIf, ElementModifier, ExplicitStyle, Modifier, Prop } from './';
-import { Attribute } from './attributes';
 
 const Error = ParseErrors({
   PropNotIdentifier: "Assignment must be identifier name of a prop.",

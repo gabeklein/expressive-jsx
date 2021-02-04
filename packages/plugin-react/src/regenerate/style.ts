@@ -1,9 +1,8 @@
 import { expressionStatement, Statement, stringLiteral, templateElement, templateLiteral } from '@babel/types';
+import { callExpress, memberExpress } from 'generate';
 import { ExplicitStyle, Modifier } from 'handle';
-import { callExpress, memberExpress } from 'internal';
+import { Module } from 'regenerate';
 import { BunchOf } from 'types';
-
-import { Module } from './module';
 
 type SelectorContent = [ string, string[] ][];
 type MediaGroups = SelectorContent[];

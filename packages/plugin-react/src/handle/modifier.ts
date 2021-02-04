@@ -1,11 +1,10 @@
 import { NodePath as Path } from '@babel/traverse';
 import { Statement } from '@babel/types';
 import { ParseErrors } from 'errors';
+import { AttributeBody, ElementInline, ExplicitStyle } from 'handle';
 import { StackFrame } from 'parse';
 import { ensureArray } from 'shared';
 import { BunchOf, SelectionProvider } from 'types';
-
-import { AttributeBody, ElementInline, ExplicitStyle } from './';
 
 const Error = ParseErrors({
   NodeUnknown: "Unhandled node of type {1}",

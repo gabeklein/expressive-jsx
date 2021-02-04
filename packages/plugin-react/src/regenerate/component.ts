@@ -22,8 +22,9 @@ import {
 import { ParseErrors } from 'errors';
 import { callExpress, declare, objectExpress } from 'generate/syntax';
 import { ComponentExpression } from 'handle';
-import { ElementReact, ExternalsManager } from 'internal';
 import { StackFrame } from 'parse';
+import { ExternalsManager } from 'regenerate';
+import { ElementReact } from 'translate';
 import { DoExpressive } from 'types';
 
 const Error = ParseErrors({

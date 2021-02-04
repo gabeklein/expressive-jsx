@@ -16,11 +16,10 @@ import {
   StringLiteral,
   stringLiteral,
 } from '@babel/types';
-import { ArrayStack, ElementReact, GenerateReact } from 'internal';
-import { dedent } from 'regenerate/quasi';
+import { GenerateReact, propertyES } from 'generate';
+import { dedent } from 'regenerate';
+import { ArrayStack, ElementReact } from 'translate';
 import { ContentLike, PropData } from 'types';
-
-import { propertyES } from './syntax';
 
 const IsComponentElement = /^[A-Z]\w*/;
 

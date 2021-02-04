@@ -10,8 +10,7 @@ import {
 } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ElementInline, Prop } from 'handle';
-
-import { applyNameImplications, applyPrimaryName } from './element';
+import { applyNameImplications, applyPrimaryName } from 'parse';
 
 const Error = ParseErrors({
   InvalidPropValue: "Can only consume an expression or string literal as value here.",

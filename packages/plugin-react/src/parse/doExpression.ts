@@ -4,16 +4,15 @@ import {
   AssignmentExpression,
   Class,
   Function,
+  FunctionDeclaration,
+  isIdentifier,
   ObjectProperty,
   VariableDeclaration,
   VariableDeclarator,
-  FunctionDeclaration,
-  isIdentifier,
 } from '@babel/types';
 import { ComponentExpression } from 'handle';
+import { StackFrame } from 'parse';
 import { DoExpressive } from 'types';
-
-import { StackFrame } from './program';
 
 export function generateEntryElement(
   path: Path<DoExpressive>,

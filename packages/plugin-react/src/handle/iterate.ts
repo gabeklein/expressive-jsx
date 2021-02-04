@@ -7,9 +7,8 @@ import {
   isIdentifier,
   isVariableDeclaration,
 } from '@babel/types';
+import { ComponentContainer } from 'handle';
 import { StackFrame } from 'parse';
-
-import { ComponentContainer } from './';
 
 export class ComponentFor extends ComponentContainer {
 

@@ -1,8 +1,7 @@
 import { Program as ProgramNode } from '@babel/types';
 import { createFileContext, generateEntryElement } from 'parse';
 
-import { replaceDoExpression } from 'regenerate/component';
-import { closeModuleContext, createModuleContext } from 'regenerate/module';
+import { closeModuleContext, createModuleContext, replaceDoExpression } from 'regenerate';
 import { DoExpressive, Visitor } from 'types';
 
 const DoExpression: Visitor<DoExpressive> = {

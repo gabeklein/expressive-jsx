@@ -1,12 +1,11 @@
 import { NodePath as Path } from '@babel/traverse';
 import { Program as ProgramNode } from '@babel/types';
+import { GenerateES, GenerateJSX } from 'generate';
 import { Modifier } from 'handle';
-import { ExternalsManager, GenerateES, GenerateJSX, ImportManager, writeProvideStyleStatement } from 'internal';
 import { StackFrame } from 'parse';
+import { ExternalsManager, ImportManager, RequirementManager, writeProvideStyleStatement } from 'regenerate';
 import { hash, Shared } from 'shared';
 import { BabelState, DoExpressive } from 'types';
-
-import { RequirementManager } from './scope';
 
 export function createModuleContext(
   path: Path<ProgramNode>,
@@ -85,7 +84,7 @@ export class Module {
   constructor(
     public path: Path<ProgramNode>,
     public state: BabelState,
-    public imports: ExternalsManager ){
+    public imports: ExternalsManager){
   }
 
   get relativeFileName(){

@@ -1,10 +1,9 @@
 import { Expression, isBlockStatement, isExpressionStatement, isLabeledStatement, LabeledStatement } from '@babel/types';
 import { ParseErrors } from 'errors';
+import { ElementModifier, Modifier, TraversableBody } from 'handle';
 import { applyModifier } from 'parse';
 import { hash } from 'shared';
 import { BunchOf, FlatValue } from 'types';
-
-import { ElementModifier, Modifier, TraversableBody } from './';
 
 const Error = ParseErrors({
   ExpressionUnknown: "Unhandled expressionary statement of type {1}",

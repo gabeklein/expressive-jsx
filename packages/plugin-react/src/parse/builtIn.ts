@@ -9,11 +9,9 @@ import {
   variableDeclaration,
   variableDeclarator,
 } from '@babel/types';
-
 import { ComponentExpression, ElementInline, Modifier, Prop } from 'handle';
+import { ModifyDelegate } from 'parse';
 import { BunchOf } from 'types';
-
-import { ModifyDelegate } from './modifier';
 
 export function use(
   this: ModifyDelegate,

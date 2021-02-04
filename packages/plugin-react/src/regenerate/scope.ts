@@ -23,7 +23,7 @@ import {
   variableDeclaration,
   variableDeclarator,
 } from '@babel/types';
-import { requireExpression } from 'internal';
+import { requireExpression } from 'generate';
 import { BunchOf } from 'types';
 
 type ImportSpecific =

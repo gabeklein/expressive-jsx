@@ -7,8 +7,9 @@ import {
   stringLiteral,
   unaryExpression,
 } from '@babel/types';
+import { GenerateReact } from 'generate';
 import { ComponentConsequent, ComponentIf } from 'handle';
-import { ElementReact, GenerateReact } from 'internal';
+import { ElementReact } from 'translate';
 
 type Consequent = ComponentIf | ComponentConsequent;
 type GetProduct = (fork: Consequent) => Expression | undefined;
