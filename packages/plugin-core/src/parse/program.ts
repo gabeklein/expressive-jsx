@@ -17,7 +17,7 @@ export function createFileContext(
   node: BabelProgram,
   state: BabelState){
 
-  const context = new StackFrame(state);
+  const context = StackFrame.init(state);
 
   Shared.currentFile = state.file as BabelFile;
 
@@ -68,35 +68,32 @@ export class StackFrame {
   }
 
   constructor(pluginPass: BabelState){
-    const {
-      file,
-      filename,
-      opts: {
-        modifiers = []
-      }
-    } = pluginPass;
-
-    const external = [ ...modifiers ];
-    const included = Object.assign({}, ...external);
-
-    let Stack = pluginPass.context = this;
+    const { file, filename } = pluginPass;
 
     this.stateSingleton = pluginPass;
     this.currentFile = file;
     this.prefix = hash(filename);
     this.options = {};
     this.current = pluginPass;
+  }
 
+  static init(pluginPass: BabelState){
+    const { opts } = pluginPass;
+
+    let Stack = new this(pluginPass)
+
+    const external = [ ...opts.modifiers || [] ];
+    const included = Object.assign({}, ...external);
     for(const imports of [ builtIn, included ]){
-      Stack = Object.create(Stack)
-
       const { Helpers, ...Modifiers } = imports as any;
+
+      Stack = Object.create(Stack)
 
       for(const name in Modifiers)
         Stack.propertyMod(name, Modifiers[name])
     }
 
-    return Stack;
+    return pluginPass.context = Stack;
   }
 
   create(node: Stackable): StackFrame {
