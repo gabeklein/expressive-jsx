@@ -2,15 +2,11 @@
 import { NodePath as Path, VisitNodeObject } from '@babel/traverse';
 import {
   ArrowFunctionExpression,
-  AssignmentExpression,
   DoExpression,
   Expression,
-  ExpressionStatement,
   For,
-  LabeledStatement,
   Program,
   Statement,
-  TemplateLiteral,
   Node,
 } from '@babel/types';
 
