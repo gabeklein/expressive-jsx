@@ -2,8 +2,6 @@
 // control load order to prevent skullduggery, also cleaner
 // https://medium.com/visual-development/how-to-fix-nasty-circular-dependency-issues-once-and-for-all-in-javascript-typescript-a04c987cf0de
 
-export const opts = {} as any;
-
 export * from "translate/attributes";
 export * from "translate/element";
 export * from "translate/switch";

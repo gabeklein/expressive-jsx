@@ -20,10 +20,11 @@ export function ParseErrors<O extends BunchOf<string>> (register: O) {
     }
 
     Errors[error] = (node, ...args) => {
+      let quote = "";
+
       if("node" in node)
         node = node.node;
 
-      let quote = "";
       for(const slice of message)
         quote += (
           typeof slice == "string"

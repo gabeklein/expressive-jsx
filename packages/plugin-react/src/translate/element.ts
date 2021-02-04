@@ -21,8 +21,9 @@ import {
   ExplicitStyle,
   Prop,
 } from 'handle';
-import { attributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue, opts } from 'internal';
+import { attributeES, AttributeStack, ElementIterate, ElementSwitch, expressionValue } from 'internal';
 import { StackFrame } from 'parse';
+import { Shared } from 'shared';
 import { BunchOf, ContentLike, PropData, SequenceItem } from 'types';
 
 export class ElementReact<T extends ElementInline = ElementInline>
@@ -45,7 +46,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
     const { classList } = this.source.data;
     const accumulator = {} as BunchOf<Attribute>
     const existsAlready = this.source.style;
-    const inlineOnly = opts.styleMode === "inline";
+    const inlineOnly = Shared.opts.styleMode === "inline";
     // TODO: respect priority differences!
 
     const willCollide = (name: string) =>
@@ -216,7 +217,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
   }
 
   Style(item: ExplicitStyle){
-    if(opts.styleMode == "inline")
+    if(Shared.opts.styleMode == "inline")
       (<any>item).invariant = false;
 
     if(item.invariant)
