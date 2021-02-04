@@ -52,7 +52,7 @@ export const DoExpression = <Visitor<DoExpressive>> {
 export default (options: any) => {
   return {
     manipulateOptions: (options: any, parse: any) => {
-      parse.plugins.push("decorators-legacy", "doExpressions", "jsx")
+      parse.plugins.push("doExpressions", "jsx")
     },
     visitor: {
       Program,

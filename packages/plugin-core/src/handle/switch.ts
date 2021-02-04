@@ -44,7 +44,7 @@ export class ComponentIf {
     context = this.context = context.create(this);
     context.currentIf = this;
     if(!test)
-      context.entryIf = this;
+      context.parentIf = this;
   }
 
   wasAddedTo(parent: TraversableBody){
@@ -142,6 +142,7 @@ export class ComponentConsequent extends ElementInline {
       return;
 
     this.doBlock = this.handleContentBody(path.node);
+
     if(!this.doBlock){
       this.didExitOwnScope();
       const child = this.children[0];
@@ -197,7 +198,7 @@ export class ComponentConsequent extends ElementInline {
     if(this.index !== 1)
       throw Error.CanOnlyReturnFromLeadingIf(node)
 
-    if(context.currentIf !== context.entryIf)
+    if(context.currentIf !== context.parentIf)
       throw Error.CantReturnInNestedIf(node);
 
     if(!(context.currentElement instanceof ComponentExpression))

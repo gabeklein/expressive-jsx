@@ -1,4 +1,4 @@
-import { File, isExpressionStatement, isLabeledStatement, LabeledStatement, Program as BabelProgram } from '@babel/types';
+import { isExpressionStatement, isLabeledStatement, LabeledStatement, Program as BabelProgram } from '@babel/types';
 import { ComponentExpression, ComponentIf, ElementInline, ElementModifier } from 'handle';
 import { BabelFile, hash, ParseErrors, Shared } from 'shared';
 import { BabelState, BunchOf, ModifyAction } from 'types';
@@ -51,29 +51,25 @@ function handleTopLevelModifier(
 
 export class StackFrame {
   prefix: string;
-  program = {} as any;
   styleRoot = {} as any;
+  stateSingleton: BabelState;
+  ModifierQuery?: string;
+  
   current = {} as any;
   currentComponent?: ComponentExpression;
   currentElement?: ElementInline;
+  parentIf?: ComponentIf;
   currentIf?: ComponentIf;
-  currentFile?: File;
-  entryIf?: ComponentIf;
-  stateSingleton: BabelState;
-  options: {}
-  ModifierQuery?: string;
 
   get parent(){
     return Object.getPrototypeOf(this);
   }
 
   constructor(pluginPass: BabelState){
-    const { file, filename } = pluginPass;
+    const { filename } = pluginPass;
 
     this.stateSingleton = pluginPass;
-    this.currentFile = file;
     this.prefix = hash(filename);
-    this.options = {};
     this.current = pluginPass;
   }
 
@@ -108,10 +104,8 @@ export class StackFrame {
     this.stateSingleton.context = this;
   }
 
-  pop(
-    meta: ElementInline | ElementModifier,
-    state: BabelState<StackFrame> = this.stateSingleton){
-
+  pop(meta: ElementInline){
+    const state = this.stateSingleton;
     let { context } = state;
     let newContext: StackFrame | undefined;
 
@@ -131,7 +125,7 @@ export class StackFrame {
   }
 
   resolveFor(append?: string | number){
-    this.prefix = this.prefix + " " + append || "";
+    this.prefix = `${this.prefix} ${append || ""}`;
   }
 
   event(this: any, ref: symbol, set: Function){
