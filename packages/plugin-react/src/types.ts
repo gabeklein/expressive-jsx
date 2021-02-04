@@ -14,6 +14,7 @@ import {
   JSXSpreadChild,
   JSXText,
   LabeledStatement,
+  Node,
   Statement,
 } from '@babel/types';
 import { Attribute, ComponentFor, ComponentIf, ElementInline, Prop } from 'handle';
@@ -37,12 +38,27 @@ export interface BunchOf<T> {
   [key: string]: T
 }
 
+export interface BabelFile extends File {
+  buildCodeFrameError<TError extends Error>(node: Node, msg: string, Error?: new (msg: string) => TError): TError;
+}
+
+export interface SharedSingleton {
+  opts: Options;
+  stack: StackFrame;
+  currentFile: BabelFile;
+}
+
 export interface Options {
-  hot: boolean;
-  output: "js" | "jsx";
+  hot?: boolean;
+  env?: "native" | "web";
+  output?: "js" | "jsx";
+  pragma?: "react";
+  runtime?: string;
+  styleMode?: "compile" | "inline";
   printStyle?: "pretty";
-  useImport: boolean;
-  modifiers: BunchOf<{}>[];
+  useRequire?: boolean;
+  useImport?: boolean;
+  modifiers?: BunchOf<{}>[];
 }
 
 export interface BabelState<S extends StackFrame = StackFrame> {
@@ -59,15 +75,10 @@ export interface PropData {
 }
 
 export type FlatValue = string | number | boolean | null;
-
 export type SequenceItem = Attribute | InnerContent | Statement;
-
 export type InnerContent = Expression | ElementInline | ComponentIf | ComponentFor;
-
 export type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | void;
-
 export type ModiferBody = ExpressionStatement | BlockStatement | LabeledStatement | IfStatement;
-
 export type SelectionProvider = (forSelector: string[]) => void;
 
 export interface DoExpressive extends DoExpression {

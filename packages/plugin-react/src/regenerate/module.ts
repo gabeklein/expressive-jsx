@@ -1,23 +1,19 @@
 import { NodePath as Path } from '@babel/traverse';
 import { Program as ProgramNode } from '@babel/types';
-import { createHash } from 'crypto';
 import { Modifier } from 'handle';
-import { ExternalsManager, GenerateES, GenerateJSX, ImportManager, opts, writeProvideStyleStatement } from 'internal';
+import { ExternalsManager, GenerateES, GenerateJSX, ImportManager, writeProvideStyleStatement } from 'internal';
 import { StackFrame } from 'parse';
+import { hash, Shared } from 'shared';
 import { BabelState, DoExpressive } from 'types';
 
 import { RequirementManager } from './scope';
-
-const DEFAULTS = {
-  runtime: "@expressive/react",
-  pragma: "react"
-}
 
 export function createModuleContext(
   path: Path<ProgramNode>,
   state: BabelState<StackFrame>
 ){
-  Object.assign(opts, DEFAULTS, state.opts);
+  const { opts } = Shared;
+  Object.assign(opts, state.opts);
 
   const { Importer, Generator } = selectContext(opts);
 
@@ -52,7 +48,7 @@ export function closeModuleContext(
 }
 
 function selectContext(opts: any){
-  const { output, useRequire, useImport } = opts as any;
+  const { output, useRequire, useImport } = Shared.opts;
   let Generator: typeof GenerateES | typeof GenerateJSX;
   let Importer: typeof ImportManager | typeof RequirementManager;
 
@@ -80,13 +76,6 @@ function selectContext(opts: any){
     Importer = ImportManager;
 
   return { Generator, Importer };
-}
-
-export function hash(data: string, length: number = 3){
-  return createHash("md5")		
-    .update(data)		
-    .digest('hex')		
-    .substring(0, length)
 }
 
 export class Module {

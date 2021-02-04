@@ -24,7 +24,7 @@ import {
   UnaryExpression,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { inParenthesis, Opts } from 'shared';
+import { inParenthesis } from 'shared';
 import { BunchOf, CallAbstraction, IfAbstraction } from 'types';
 
 const Error = ParseErrors({
@@ -45,16 +45,11 @@ function HEXColor(raw: string){
 
   if(raw.length == 1)
     raw = "000" + raw
-  else
-  if(raw.length == 2){
+  else if(raw.length == 2)
     raw = "000000" + raw
-  }
 
   if(raw.length % 4 == 0){
     let decimal = [] as any[];
-
-    if(Opts.env == "native")
-      return "#" + raw;
 
     if(raw.length == 4)
 

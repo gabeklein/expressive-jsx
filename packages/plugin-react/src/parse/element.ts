@@ -19,7 +19,7 @@ import {
 } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ElementInline, ElementModifier, ExplicitStyle, Prop } from 'handle';
-import { inParenthesis, Opts, Shared  } from 'shared';
+import { inParenthesis } from 'shared';
 import { DoExpressive } from 'types';
 
 type ListElement = Expression | SpreadElement;
@@ -310,12 +310,8 @@ function parseIdentity(
     applyPrimaryName(target, tag.name, "div", prefix === "html");
 
   else if(isStringLiteral(tag) || isTemplateLiteral(tag)){
-    const Text = Opts.env == "native"
-      ? Shared.stack.helpers.Text
-      : "span";
-
+    applyNameImplications(target, "span", true);
     applyNameImplications(target, "string");
-    applyNameImplications(target, Text, true);
 
     target.add(tag)
   }

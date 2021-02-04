@@ -1,4 +1,4 @@
-import { ExplicitStyle, Prop } from "handle";
+import { Attribute } from "handle";
 
 export class ArrayStack<Type = any, Interrupt = Type>
   extends Array<Type[] | Interrupt> {
@@ -20,7 +20,7 @@ export class ArrayStack<Type = any, Interrupt = Type>
   }
 }
 
-export class AttributeStack<Type extends ExplicitStyle | Prop>
+export class AttributeStack<Type extends Attribute>
   extends ArrayStack<Type> {
 
   invariant = [] as Type[];

@@ -4,8 +4,8 @@ import { GenerateReact } from 'generate/element';
 import { ComponentExpression, ComponentIf, ElementInline, ElementModifier } from 'handle';
 import { Module } from 'regenerate/module';
 import { ExternalsManager } from 'regenerate/scope';
-import { BabelFile, hash, Shared } from 'shared';
-import { BabelState, BunchOf, ModifyAction } from 'types';
+import { hash, Shared } from 'shared';
+import { BabelFile, BabelState, BunchOf, ModifyAction } from 'types';
 
 import * as builtIn from './builtin';
 
