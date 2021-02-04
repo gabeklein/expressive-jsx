@@ -10,9 +10,9 @@ import {
 } from '@babel/types';
 import * as Core from '@expressive/babel-plugin-core';
 import { GenerateReact } from 'generate/element';
-import { ElementReact } from 'handle/element';
-import { ElementIterate } from 'handle/iterate';
-import { ElementSwitch } from 'handle/switch';
+import { ElementReact } from 'translate/element';
+import { ElementIterate } from 'translate/iterate';
+import { ElementSwitch } from 'translate/switch';
 import { Module } from 'regenerate/module';
 import { ExternalsManager } from 'regenerate/scope';
 

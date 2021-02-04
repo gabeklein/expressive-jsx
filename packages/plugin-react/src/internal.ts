@@ -4,10 +4,10 @@
 
 export const opts = {} as any;
 
-export * from "handle/attributes";
-export * from "handle/element";
-export * from "handle/switch";
-export * from "handle/iterate";
+export * from "translate/attributes";
+export * from "translate/element";
+export * from "translate/switch";
+export * from "translate/iterate";
 export * from "generate/syntax";
 export * from "generate/element";
 export * from "generate/es5";
