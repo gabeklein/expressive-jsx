@@ -3,7 +3,7 @@ import { Program as ProgramNode } from '@babel/types';
 import { BabelState, DoExpressive, Modifier } from '@expressive/babel-plugin-core';
 import { createHash } from 'crypto';
 import { ExternalsManager, GenerateES, GenerateJSX, ImportManager, opts, writeProvideStyleStatement } from 'internal';
-import { Visitor } from 'types';
+import { StackFrame } from 'types';
 
 import { RequirementManager } from './scope';
 
@@ -12,53 +12,73 @@ const DEFAULTS = {
   pragma: "react"
 }
 
-export const Program: Visitor<ProgramNode> = {
-  enter(path, state){
-    let Generator;
-    let Importer;
+export function createModuleContext(
+  path: Path<ProgramNode>,
+  state: BabelState<StackFrame>
+){
+  Object.assign(opts, DEFAULTS, state.opts);
 
-    const { context } = state;
-    Object.assign(opts, DEFAULTS, state.opts)
+  const { Importer, Generator } = selectContext(opts);
 
-    const { output, useRequire, useImport } = opts as any;
+  const I = new Importer(path, opts);
+  const M = new Module(path, state, I);
+  const G = new Generator(M, I);
 
-    if(output == "jsx"){
+  Object.assign(state.context, {
+    Generator: G,
+    Imports: I,
+    Module: M
+  })
+
+  if(G.didEnterModule)
+    G.didEnterModule();
+}
+
+export function closeModuleContext(
+  state: BabelState<StackFrame>){
+
+  const {
+    Generator: G,
+    Imports: I,
+    Module: M
+  } = state.context;
+
+  if(G.willExitModule)
+    G.willExitModule();
+
+  M.EOF(state.opts);
+  I.EOF();
+}
+
+function selectContext(opts: any){
+  const { output, useRequire, useImport } = opts as any;
+  let Generator: typeof GenerateES | typeof GenerateJSX;
+  let Importer: typeof ImportManager | typeof RequirementManager;
+
+  switch(output){
+    case "jsx":
       Importer = ImportManager
       Generator = GenerateJSX;
-    }
-    else if(output == "js" || !output){
+    break;
+
+    case "js":
+    case undefined:
       Importer = RequirementManager
       Generator = GenerateES;
-    }
-    else
+    break;
+
+    default:
       throw new Error(
-        `Unknown output type of ${output}.\nAcceptable ['js', 'jsx'] (default 'js')`)
-
-    if(useRequire)
-      Importer = RequirementManager
-    if(useImport)
-      Importer = ImportManager
-
-    const I = context.Imports = new Importer(path, opts);
-    const M = context.Module = new Module(path, state, I);
-    const G = context.Generator = new Generator(M, I);
-
-    if(G.didEnterModule)
-      G.didEnterModule();
-  },
-  exit(path, state){
-    const {
-      Generator: G,
-      Imports: I,
-      Module: M
-    } = state.context;
-
-    if(G.willExitModule)
-      G.willExitModule();
-
-    M.EOF(state.opts);
-    I.EOF();
+        `Unknown output type of ${output}.\nAcceptable ['js', 'jsx'] (default 'js')`
+      )
   }
+
+  if(useRequire)
+    Importer = RequirementManager;
+  if(useImport)
+    Importer = ImportManager;
+
+  return { Generator, Importer };
 }
 
 export function hash(data: string, length: number = 3){

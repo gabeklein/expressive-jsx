@@ -33,7 +33,7 @@ export class GenerateJSX extends GenerateReact {
     const acceptBr = typeof tag == "string" && /[a-z]/.test(tag[0]);
     const isEmpty = children.length === 0
 
-    const properties = props.map(this.recombineProps);
+    const properties = props.map(recombineProps);
     const content = this.recombineChildren(children, acceptBr);
 
     return jsxElement(
@@ -70,119 +70,119 @@ export class GenerateJSX extends GenerateReact {
     )
   }
 
-  private recombineProps({ name, value }: PropData){
-    if(typeof name !== "string")
-      return jsxSpreadAttribute(value);
-    else {
-      if(IsLegalAttribute.test(name) == false)
-        throw new Error(`Illegal characters in prop named ${name}`)
-
-      const insertedValue =
-        isStringLiteral(value)
-          ? value.value == "true"
-            ? null
-            : value
-          : jsxExpressionContainer(value)
-
-      return jsxAttribute(
-        jsxIdentifier(name),
-        insertedValue
-      )
-    }
-  }
-
   private recombineChildren(
     input: ContentLike[],
     acceptBr: boolean){
 
     const output = [] as JSXContent[];
-    for(const child of input){
-      let jsx;
 
-      if(isJSXElement(child))
-        jsx = child
-      else if(isExpression(child)){
-        if(isTemplateLiteral(child)){
-          output.push(...this.recombineQuasi(child, acceptBr))
-          continue
-        }
-        if(isStringLiteral(child) && child.value.indexOf("{") < 0)
-          jsx = jsxText(child.value)
-        else
-          jsx = jsxExpressionContainer(child);
+    for(const child of input){
+      if(isTemplateLiteral(child)){
+        const jsx = templateToMarkup(child, acceptBr);
+        output.push(...jsx);
       }
       else {
-        jsx = "toExpression" in child
-          ? jsxExpressionContainer(child.toExpression(this))
-          : this.element(child)
-      }
+        let jsx: JSXContent;
 
-      output.push(jsx);
+        if(isJSXElement(child))
+          jsx = child;
+  
+        else if(isStringLiteral(child) && /\{/.test(child.value))
+          jsx = jsxText(child.value);
+  
+        else if(isExpression(child))
+          jsx = jsxExpressionContainer(child);
+  
+        else if("toExpression" in child)
+          jsx = jsxExpressionContainer(child.toExpression(this));
+  
+        else
+          jsx = this.element(child);
+
+        output.push(jsx);
+      }
     }
 
     return output;
   }
+}
 
-  private recombineQuasi(
-    node: TemplateLiteral,
-    acceptBr: boolean){
+function recombineProps({ name, value }: PropData){
+  if(typeof name !== "string")
+    return jsxSpreadAttribute(value);
+  else {
+    if(IsLegalAttribute.test(name) == false)
+      throw new Error(`Illegal characters in prop named ${name}`)
 
-    const { expressions, quasis } = node;
-    let acc = [] as JSXContent[];
-    let i = 0;
+    const insertedValue =
+      isStringLiteral(value)
+        ? value.value == "true"
+          ? null
+          : value
+        : jsxExpressionContainer(value)
 
-    while(true) {
-      const value = quasis[i].value.cooked as string;
+    return jsxAttribute(
+      jsxIdentifier(name),
+      insertedValue
+    )
+  }
+}
 
-      if(value){
-        let text: JSXContent | undefined;
-        if(/\n/.test(value))
-          if(acceptBr)
-            return this.recombineMultilineJSX(node);
-          else
-            return [
-              jsxExpressionContainer(
-                dedent(node)
-              )
-            ]
-        else if(/[{}]/.test(value))
-          jsxExpressionContainer(stringLiteral(value))
+function templateToMarkup(
+  node: TemplateLiteral,
+  acceptBr: boolean){
+
+  const { expressions, quasis } = node;
+  let acc = [] as JSXContent[];
+  let i = 0;
+
+  while(true) {
+    const value = quasis[i].value.cooked as string;
+
+    if(value){
+      let text: JSXContent | undefined;
+      if(/\n/.test(value))
+        if(acceptBr)
+          return recombineMultilineJSX(node);
         else
-          text = jsxText(value);
-
-        acc.push(text!)
-      }
-
-      if(i in expressions)
-        acc.push(
-          jsxExpressionContainer(expressions[i++])
-        )
+          return [
+            jsxExpressionContainer(dedent(node))
+          ]
+      else if(/[{}]/.test(value))
+        jsxExpressionContainer(stringLiteral(value))
       else
-        break;
+        text = jsxText(value);
+
+      acc.push(text!)
     }
 
-    return acc;
+    if(i in expressions)
+      acc.push(
+        jsxExpressionContainer(expressions[i++])
+      )
+    else
+      break;
   }
 
-  private recombineMultilineJSX(
-    node: TemplateLiteral
-  ): JSXContent[] {
-    return breakdown(node).map(chunk => {
-      if(chunk === "\n")
-        return jsxElement(
-          jsxOpeningElement(jsxIdentifier("br"), [], true),
-          undefined, [], true
-        )
-      if(typeof chunk === "string")
-        return chunk.indexOf("{") < 0
+  return acc;
+}
+
+function recombineMultilineJSX(node: TemplateLiteral): JSXContent[] {
+  return breakdown(node).map(chunk => {
+    if(chunk === "\n")
+      return jsxElement(
+        jsxOpeningElement(jsxIdentifier("br"), [], true),
+        undefined, [], true
+      )
+    if(typeof chunk === "string")
+      return chunk.indexOf("{") < 0
         ? jsxText(chunk)
         : jsxExpressionContainer(stringLiteral(chunk))
 
-      else if(isJSXElement(chunk))
-        return chunk
+    else if(isJSXElement(chunk))
+      return chunk
 
-      else
-        return jsxExpressionContainer(chunk)
-    })
-  }
+    else
+      return jsxExpressionContainer(chunk)
+  })
 }

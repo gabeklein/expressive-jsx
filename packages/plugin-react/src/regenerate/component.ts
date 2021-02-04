@@ -1,3 +1,4 @@
+import { NodePath } from '@babel/traverse';
 import {
   ArrayPattern,
   arrayPattern,
@@ -20,58 +21,54 @@ import {
 } from '@babel/types';
 import { ComponentExpression, DoExpressive, ParseErrors } from '@expressive/babel-plugin-core';
 import { callExpress, declare, objectExpress } from 'generate/syntax';
-import { ElementReact, ExternalsManager, GenerateReact } from 'internal';
-import { StackFrame, Visitor } from 'types';
+import { ElementReact, ExternalsManager } from 'internal';
+import { StackFrame } from 'types';
 
 const Error = ParseErrors({
   PropsCantHaveDefault: "This argument will always resolve to component props",
   ArgumentNotSupported: "Argument of type {1} not supported here!"
 })
 
-export const DoExpression = <Visitor<DoExpressive>> {
-  exit(path, state){
+export function replaceDoExpression(path: NodePath<DoExpressive>){
+  const element = path.node.meta;
 
-    const meta = path.node.meta;
-    const context = meta.context as StackFrame;
-    const Generator = context.Generator as GenerateReact;
+  if(!(element instanceof ComponentExpression))
+    return;
 
-    if(!(meta instanceof ComponentExpression))
-      return;
+  const factory = new ElementReact(element);
 
-    const factory = new ElementReact(meta);
-
-    context.Module.lastInsertedElement = path;
-
-    if(factory.children.length == 0 && meta.exec === undefined){
-      path.replaceWith(
-        asOnlyAttributes(factory)
-      )
-      return;
-    }
-
-    const factoryExpression = Generator.container(factory)
-
-    // if(meta instanceof ComponentExpression && meta.exec)
-    //     incorperateChildParameters(meta, state.context.Imports)
-
-    if(meta.exec && meta.statements.length){
-      const replacement = [
-        ...meta.statements as Statement[],
-        returnStatement(factoryExpression)
-      ];
-      if(path.parentPath.isReturnStatement())
-        path.parentPath.replaceWithMultiple(replacement)
-      else
-        path.replaceWith(blockStatement(replacement))
-    }
-    else {
-      const prop = path.node.expressive_parent;
-      if(prop)
-        prop.value = factoryExpression as Expression;
-      else
-        path.replaceWith(factoryExpression);
-    }
+  if(factory.children.length == 0 && element.exec === undefined){
+    path.replaceWith(asOnlyAttributes(factory))
+    return;
   }
+
+  const context = element.context as StackFrame;
+  const factoryExpression = context.Generator.container(factory);
+
+  // if(meta instanceof ComponentExpression && meta.exec)
+  //     incorperateChildParameters(meta, state.context.Imports)
+
+  if(element.exec && element.statements.length){
+    const replacement = [
+      ...element.statements as Statement[],
+      returnStatement(factoryExpression)
+    ];
+
+    if(path.parentPath.isReturnStatement())
+      path.parentPath.replaceWithMultiple(replacement)
+    else
+      path.replaceWith(blockStatement(replacement))
+  }
+  else {
+    const prop = path.node.expressive_parent;
+
+    if(prop)
+      prop.value = factoryExpression as Expression;
+    else
+      path.replaceWith(factoryExpression);
+  }
+
+  context.Module.lastInsertedElement = path;
 }
 
 function asOnlyAttributes(factory: ElementReact){

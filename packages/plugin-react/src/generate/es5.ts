@@ -37,7 +37,7 @@ export class GenerateES extends GenerateReact {
         normalize(tag);
 
     return this.createElement(type,
-      this.recombineProps(props),
+      recombineProps(props),
       this.recombineChildren(children)
     );
   }
@@ -84,44 +84,44 @@ export class GenerateES extends GenerateReact {
         : booleanLiteral(false)
     ));
   }
+}
 
-  private recombineProps(props: PropData[]){
-    const propStack = new ArrayStack<ObjectProperty, Expression>()
+function recombineProps(props: PropData[]){
+  const propStack = new ArrayStack<ObjectProperty, Expression>()
 
-    if(props.length === 0)
-      return objectExpression([])
+  if(props.length === 0)
+    return objectExpression([])
 
-    for(const { name, value } of props)
-      if(!name)
-        propStack.push(value);
-      else
-        propStack.insert(
-          propertyES(name, value)
-        );
+  for(const { name, value } of props)
+    if(!name)
+      propStack.push(value);
+    else
+      propStack.insert(
+        propertyES(name, value)
+      );
 
-    const properties = propStack.map(chunk =>
-      Array.isArray(chunk)
-        ? objectExpression(chunk)
-        : chunk
+  const properties = propStack.map(chunk =>
+    Array.isArray(chunk)
+      ? objectExpression(chunk)
+      : chunk
+  )
+
+  if(properties[0].type !== "ObjectExpression")
+    properties.unshift(
+      objectExpression([])
     )
 
-    if(properties[0].type !== "ObjectExpression")
-      properties.unshift(
-        objectExpression([])
+  return (
+    properties.length === 1
+      ? properties[0]
+      : callExpression(
+        memberExpression(
+          identifier("Object"),
+          identifier("assign")
+        ),
+        properties
       )
-
-    return (
-      properties.length === 1
-        ? properties[0]
-        : callExpression(
-          memberExpression(
-            identifier("Object"),
-            identifier("assign")
-          ),
-          properties
-        )
-    )
-  }
+  )
 }
 
 function normalize(
