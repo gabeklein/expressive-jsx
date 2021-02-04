@@ -1,6 +1,7 @@
 import { Expression, isBlockStatement, isExpressionStatement, isLabeledStatement, LabeledStatement } from '@babel/types';
+import { ParseErrors } from 'errors';
 import { applyModifier } from 'parse';
-import { hash, ParseErrors } from 'shared';
+import { hash } from 'shared';
 import { BunchOf, FlatValue } from 'types';
 
 import { ElementModifier, Modifier, TraversableBody } from './';

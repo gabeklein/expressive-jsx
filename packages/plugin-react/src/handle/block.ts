@@ -1,7 +1,8 @@
 import { NodePath as Path } from '@babel/traverse';
-import { doExpression, Expression, ExpressionStatement, Statement, isBlockStatement, blockStatement } from '@babel/types';
+import { blockStatement, doExpression, Expression, ExpressionStatement, isBlockStatement, Statement } from '@babel/types';
+import { ParseErrors } from 'errors';
 import { StackFrame } from 'parse';
-import { ParseErrors, ensureArray } from 'shared';
+import { ensureArray } from 'shared';
 import { BunchOf, DoExpressive, SequenceItem } from 'types';
 
 import { ComponentIf } from './';

@@ -8,8 +8,8 @@ import {
   JSXSpreadAttribute,
   stringLiteral,
 } from '@babel/types';
+import { ParseErrors } from 'errors';
 import { ElementInline, Prop } from 'handle';
-import { ParseErrors } from 'shared';
 
 import { applyNameImplications, applyPrimaryName } from './element';
 

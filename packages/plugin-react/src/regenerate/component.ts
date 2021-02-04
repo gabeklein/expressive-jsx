@@ -19,11 +19,11 @@ import {
   Statement,
   stringLiteral,
 } from '@babel/types';
+import { ParseErrors } from 'errors';
 import { callExpress, declare, objectExpress } from 'generate/syntax';
 import { ComponentExpression } from 'handle';
 import { ElementReact, ExternalsManager } from 'internal';
 import { StackFrame } from 'parse';
-import { ParseErrors } from 'shared';
 import { DoExpressive } from 'types';
 
 const Error = ParseErrors({

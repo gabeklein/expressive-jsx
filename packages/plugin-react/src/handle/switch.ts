@@ -1,8 +1,8 @@
 import { NodePath as Path } from '@babel/traverse';
 import {
   Expression,
-  expressionStatement,
   ExpressionStatement,
+  expressionStatement,
   IfStatement,
   isDoExpression,
   isExpression,
@@ -12,8 +12,9 @@ import {
   ReturnStatement,
   Statement,
 } from '@babel/types';
+import { ParseErrors } from 'errors';
 import { StackFrame } from 'parse';
-import { hash, ParseErrors, ensureArray } from 'shared';
+import { ensureArray, hash } from 'shared';
 import { DoExpressive, InnerContent } from 'types';
 
 import { ComponentExpression, ContingentModifier, ElementInline, TraversableBody } from './';

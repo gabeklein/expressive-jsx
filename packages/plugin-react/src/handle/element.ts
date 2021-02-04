@@ -13,19 +13,20 @@ import {
   IfStatement,
   isDoExpression,
   isIdentifier,
+  JSXElement,
+  JSXMemberExpression,
   Statement,
   UnaryExpression,
   UpdateExpression,
-  JSXMemberExpression,
   VariableDeclaration,
-  JSXElement,
 } from '@babel/types';
+import { ParseErrors } from 'errors';
 import { addElementsFromExpression, applyNameImplications, StackFrame } from 'parse';
-import { inParenthesis, ParseErrors } from 'shared';
+import { addElementFromJSX } from 'parse/jsx';
+import { inParenthesis } from 'shared';
 import { BunchOf, DoExpressive, InnerContent } from 'types';
 
 import { AttributeBody, ComponentFor, ComponentIf, ElementModifier, ExplicitStyle, Modifier, Prop } from './';
-import { addElementFromJSX } from 'parse/jsx';
 import { Attribute } from './attributes';
 
 const Error = ParseErrors({

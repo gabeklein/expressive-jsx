@@ -1,7 +1,8 @@
 import { NodePath as Path } from '@babel/traverse';
 import { Statement } from '@babel/types';
+import { ParseErrors } from 'errors';
 import { StackFrame } from 'parse';
-import { ParseErrors, ensureArray } from 'shared';
+import { ensureArray } from 'shared';
 import { BunchOf, SelectionProvider } from 'types';
 
 import { AttributeBody, ElementInline, ExplicitStyle } from './';

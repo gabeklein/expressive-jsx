@@ -17,8 +17,9 @@ import {
   SpreadElement,
   stringLiteral,
 } from '@babel/types';
+import { ParseErrors } from 'errors';
 import { ElementInline, ElementModifier, ExplicitStyle, Prop } from 'handle';
-import { inParenthesis, Opts, ParseErrors, Shared } from 'shared';
+import { inParenthesis, Opts, Shared  } from 'shared';
 import { DoExpressive } from 'types';
 
 type ListElement = Expression | SpreadElement;

@@ -1,10 +1,20 @@
 import {
   ArrowFunctionExpression,
   BinaryExpression,
+  BlockStatement,
   BooleanLiteral,
   CallExpression,
   Expression,
   Identifier,
+  IfStatement,
+  isBlockStatement,
+  isExpression,
+  isExpressionStatement,
+  isIdentifier,
+  isLabeledStatement,
+  isNumericLiteral,
+  isSpreadElement,
+  LabeledStatement,
   NullLiteral,
   NumericLiteral,
   SequenceExpression,
@@ -12,19 +22,10 @@ import {
   StringLiteral,
   TemplateLiteral,
   UnaryExpression,
-  LabeledStatement,
-  BlockStatement,
-  IfStatement,
-  isNumericLiteral,
-  isExpression,
-  isSpreadElement,
-  isLabeledStatement,
-  isBlockStatement,
-  isExpressionStatement,
-  isIdentifier,
 } from '@babel/types';
-import { inParenthesis, Opts, ParseErrors } from 'shared';
-import { BunchOf, CallAbstraction , IfAbstraction } from 'types'
+import { ParseErrors } from 'errors';
+import { inParenthesis, Opts } from 'shared';
+import { BunchOf, CallAbstraction, IfAbstraction } from 'types';
 
 const Error = ParseErrors({
   StatementAsArgument: "Cannot parse statement as a modifier argument!",
