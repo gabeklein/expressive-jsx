@@ -2,11 +2,15 @@ import { NodePath as Path } from '@babel/traverse';
 import { Program as ProgramNode } from '@babel/types';
 import { BabelState, DoExpressive, Modifier } from '@expressive/babel-plugin-core';
 import { createHash } from 'crypto';
-import { ExternalsManager, GenerateES, GenerateJSX, ImportManager, writeProvideStyleStatement } from 'internal';
+import { ExternalsManager, GenerateES, GenerateJSX, ImportManager, opts, writeProvideStyleStatement } from 'internal';
 import { Visitor } from 'types';
-import { opts } from 'internal';
 
 import { RequirementManager } from './scope';
+
+const DEFAULTS = {
+  runtime: "@expressive/react",
+  pragma: "react"
+}
 
 export const Program: Visitor<ProgramNode> = {
   enter(path, state){
@@ -14,14 +18,7 @@ export const Program: Visitor<ProgramNode> = {
     let Importer;
 
     const { context } = state;
-    Object.assign(
-      opts,
-      {
-        runtime: "@expressive/react",
-        pragma: "react"
-      },
-      state.opts
-    )
+    Object.assign(opts, DEFAULTS, state.opts)
 
     const { output, useRequire, useImport } = opts as any;
 
@@ -72,8 +69,7 @@ export function hash(data: string, length: number = 3){
 }
 
 export class Module {
-
-  modifiersDeclared = new Set<Modifier>()
+  modifiersDeclared = new Set<Modifier>();
   lastInsertedElement?: Path<DoExpressive>;
 
   constructor(
@@ -91,6 +87,6 @@ export class Module {
     const { modifiersDeclared } = this;
 
     if(modifiersDeclared.size)
-      writeProvideStyleStatement.call(this, opts);
+      writeProvideStyleStatement(this, opts);
   }
 }

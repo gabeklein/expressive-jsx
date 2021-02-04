@@ -31,15 +31,16 @@ export class GenerateJSX extends GenerateReact {
 
     const type = typeof tag == "string" ? jsxIdentifier(tag) : tag;
     const acceptBr = typeof tag == "string" && /[a-z]/.test(tag[0]);
+    const isEmpty = children.length === 0
 
-    const properties = props.map(this.recombineProps)
-    const empty = children.length === 0
+    const properties = props.map(this.recombineProps);
+    const content = this.recombineChildren(children, acceptBr);
 
     return jsxElement(
-      jsxOpeningElement(type, properties, empty),
+      jsxOpeningElement(type, properties, isEmpty),
       jsxClosingElement(type),
-      this.recombineChildren(children, acceptBr),
-      empty
+      content,
+      isEmpty
     )
   }
 
@@ -51,7 +52,10 @@ export class GenerateJSX extends GenerateReact {
       this.external.ensure("$pragma", "Fragment").name
     );
 
-    const attributes = !key ? [] : [
+    const content =
+      this.recombineChildren(children, true);
+
+    const properties = key && [
       jsxAttribute(
         jsxIdentifier("key"),
         jsxExpressionContainer(key)
@@ -59,9 +63,9 @@ export class GenerateJSX extends GenerateReact {
     ]
 
     return jsxElement(
-      jsxOpeningElement(Fragment, attributes),
+      jsxOpeningElement(Fragment, properties || []),
       jsxClosingElement(Fragment),
-      this.recombineChildren(children, true),
+      content,
       false
     )
   }

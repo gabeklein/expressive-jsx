@@ -49,13 +49,13 @@ export class GenerateES extends GenerateReact {
     const Fragment =
       this.external.ensure("$pragma", "Fragment");
 
-    let props: ObjectProperty[] = !key ? [] : [
+    let props = key && [
       objectProperty(identifier("key"), key)
     ];
 
     return this.createElement(
       Fragment,
-      objectExpression(props),
+      objectExpression(props || []),
       this.recombineChildren(children)
     )
   }

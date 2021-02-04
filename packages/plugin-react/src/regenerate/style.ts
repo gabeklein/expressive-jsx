@@ -8,13 +8,13 @@ import { Module } from './module';
 type SelectorContent = [ string, string[] ][];
 type MediaGroups = SelectorContent[];
 
-export function writeProvideStyleStatement(this: Module, opts: any){
-  const media = orderSyntax(this.modifiersDeclared);
+export function writeProvideStyleStatement(module: Module, opts: any){
+  const media = organizeStyle(module.modifiersDeclared);
   const text = createSyntax(media, opts);
-  writeSyntax(this, text, opts);
+  insertStyleSyntax(module, text, opts);
 }
 
-function orderSyntax(modifiersDeclared: Set<Modifier>){
+function organizeStyle(modifiersDeclared: Set<Modifier>){
   const media: BunchOf<MediaGroups> = {
     default: []
   };
@@ -83,8 +83,10 @@ function createSyntax(
           let rules = styles.map(x => `\t${x};`);
           lines.push(name + " { ", ...rules, "}")
         }
-        else
-          lines.push(`${name} { ${styles.join("; ")} }`)
+        else {
+          const block = styles.join("; ");
+          lines.push(`${name} { ${block} }`)
+        }
       }
   }
 
@@ -93,7 +95,7 @@ function createSyntax(
   return `\n${content}\n`
 }
 
-function writeSyntax(
+function insertStyleSyntax(
   module: Module,
   computedStyle: string,
   opts: any

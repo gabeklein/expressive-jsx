@@ -9,6 +9,7 @@ import {
   JSXText,
 } from '@babel/types';
 import * as Core from '@expressive/babel-plugin-core';
+import { GenerateReact } from 'generate/element';
 import { ElementReact } from 'handle/element';
 import { ElementIterate } from 'handle/iterate';
 import { ElementSwitch } from 'handle/switch';
@@ -30,7 +31,7 @@ export interface BunchOf<T> {
 }
 
 export interface StackFrame extends Core.StackFrame {
-  Generator: any;
+  Generator: GenerateReact;
   Module: Module;
   Imports: ExternalsManager;
   prefix: string;

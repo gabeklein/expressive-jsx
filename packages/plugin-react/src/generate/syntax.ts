@@ -1,23 +1,20 @@
 import {
   arrayExpression,
-  arrowFunctionExpression,
-  blockStatement,
   booleanLiteral,
+  callExpression,
   Expression,
   identifier,
   LVal,
   MemberExpression,
+  memberExpression,
   nullLiteral,
   numericLiteral,
+  objectExpression,
   objectProperty,
-  Statement,
   stringLiteral,
   thisExpression,
   variableDeclaration,
   variableDeclarator,
-  objectExpression,
-  memberExpression,
-  callExpression,
 } from '@babel/types';
 import { ExplicitStyle, Prop } from '@expressive/babel-plugin-core';
 import { BunchOf } from 'types';
@@ -82,14 +79,6 @@ export function ensureArray(
     return memberExpression(array, numericLiteral(0));
   else
     return array;
-}
-
-export function iife(stats: Statement[]){
-  return callExpress(
-    arrowFunctionExpression([],
-      blockStatement(stats as any)
-    )
-  )
 }
 
 export function objectExpress(obj: BunchOf<Expression | false | undefined> = {}){
