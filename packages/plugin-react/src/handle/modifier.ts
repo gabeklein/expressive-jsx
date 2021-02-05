@@ -6,7 +6,7 @@ import { StackFrame } from 'parse';
 import { ensureArray } from 'shared';
 import { BunchOf, SelectionProvider } from 'types';
 
-const Error = ParseErrors({
+const Oops = ParseErrors({
   NodeUnknown: "Unhandled node of type {1}",
 })
 
@@ -37,7 +37,7 @@ export abstract class Modifier extends AttributeBody {
     for(const item of content){
       if(item.type in this)
         (this as any)[item.type](item.node, item);
-      else throw Error.NodeUnknown(item as any, item.type)
+      else throw Oops.NodeUnknown(item as any, item.type)
     }
   }
 

@@ -12,7 +12,7 @@ import { ParseErrors } from 'errors';
 import { ElementInline, Prop } from 'handle';
 import { applyNameImplications, applyPrimaryName } from 'parse';
 
-const Error = ParseErrors({
+const Oops = ParseErrors({
   InvalidPropValue: "Can only consume an expression or string literal as value here.",
   UnhandledChild: "Can't parse JSX child of type {1}",
   JSXMemberExpression: "Member Expression is not supported!",
@@ -59,7 +59,7 @@ export function addElementFromJSX(
         break;
     
         default:
-          throw Error.UnhandledChild(node, node.type)
+          throw Oops.UnhandledChild(node, node.type)
       }
     }
   }
@@ -77,7 +77,7 @@ function createElement(
     target.explicitTagName = name;
   }
   else if(!isJSXIdentifier(name)){
-    throw Error.NonJSXIdentifier(name);
+    throw Oops.NonJSXIdentifier(name);
   }
   else if(/^html-.+/.test(name.name)){
     const tag = name.name.slice(5);
@@ -121,7 +121,7 @@ function applyAttribute(
     break;
 
     default:
-      throw Error.InvalidPropValue(propValue);
+      throw Oops.InvalidPropValue(propValue);
   }
 
   parent.add(

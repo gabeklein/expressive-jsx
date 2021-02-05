@@ -27,7 +27,7 @@ import { ExternalsManager } from 'regenerate';
 import { ElementReact } from 'translate';
 import { DoExpressive } from 'types';
 
-const Error = ParseErrors({
+const Oops = ParseErrors({
   PropsCantHaveDefault: "This argument will always resolve to component props",
   ArgumentNotSupported: "Argument of type {1} not supported here!"
 })
@@ -111,7 +111,7 @@ void function incorperateChildParameters(
 
   if(props.isAssignmentPattern()){
     const assignedValue = props.get("right");
-    throw Error.PropsCantHaveDefault(assignedValue);
+    throw Oops.PropsCantHaveDefault(assignedValue);
   }
 
   if(isRestElement(first)){
@@ -124,7 +124,7 @@ void function incorperateChildParameters(
       if(isPatternLike(child.node))
         destructure.push(child.node)
       else
-        throw Error.ArgumentNotSupported(child, child.type)
+        throw Oops.ArgumentNotSupported(child, child.type)
     }
     assign = count > 1
       ? arrayPattern(destructure)

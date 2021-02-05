@@ -27,7 +27,7 @@ import { ParseErrors } from 'errors';
 import { inParenthesis } from 'shared';
 import { BunchOf, CallAbstraction, IfAbstraction } from 'types';
 
-const Error = ParseErrors({
+const Oops = ParseErrors({
   StatementAsArgument: "Cannot parse statement as a modifier argument!",
   UnaryUseless: "Unary operator here doesn't do anything",
   HexNoNegative: "Hexadecimal numbers are converted into colors (#FFF) so negative sign doesn't mean anything here.\nParenthesize the number if you really need \"-{1}\" for some reason...",
@@ -94,7 +94,7 @@ export const Arguments = new class DelegateTypes {
     if(element.type in this)
       return this[element.type](element);
     else
-      throw Error.UnknownArgument(element)
+      throw Oops.UnknownArgument(element)
   }
 
   Expression<T extends Expression>(
@@ -133,7 +133,7 @@ export const Arguments = new class DelegateTypes {
       return "!important";
     // else if(e.operator == "!")
     //     return new DelegateExpression(arg, "verbatim");
-    else throw Error.UnaryUseless(e)
+    else throw Oops.UnaryUseless(e)
   }
 
   BooleanLiteral(bool: BooleanLiteral){
@@ -149,7 +149,7 @@ export const Arguments = new class DelegateTypes {
     }
     else {
       if(sign == -1)
-        throw Error.HexNoNegative(number, rawValue)
+        throw Oops.HexNoNegative(number, rawValue)
       return HEXColor(raw);
     }
   }
@@ -185,13 +185,13 @@ export const Arguments = new class DelegateTypes {
       if(isExpression(item))
         args.push(item);
       else if(isSpreadElement(item))
-        throw Error.ArgumentSpread(item)
+        throw Oops.ArgumentSpread(item)
       else
-        throw Error.UnknownArgument(item)
+        throw Oops.UnknownArgument(item)
     }
 
     if(!isIdentifier(callee))
-      throw Error.MustBeIdentifier(callee)
+      throw Oops.MustBeIdentifier(callee)
 
     const call = args.map(x => this.Expression(x)) as CallAbstraction;
     call.callee = callee.name;
@@ -200,7 +200,7 @@ export const Arguments = new class DelegateTypes {
   }
 
   ArrowFunctionExpression(e: ArrowFunctionExpression): never {
-    throw Error.ArrowNotImplemented(e)
+    throw Oops.ArrowNotImplemented(e)
   }
 
   IfStatement(
@@ -215,7 +215,7 @@ export const Arguments = new class DelegateTypes {
     } as IfAbstraction
 
     if(alt)
-      throw Error.ElseNotSupported(test);
+      throw Oops.ElseNotSupported(test);
 
     if(isBlockStatement(body)
     || isLabeledStatement(body)
@@ -241,7 +241,7 @@ export const Arguments = new class DelegateTypes {
 
     for(const item of statement.body){
       if(!isLabeledStatement(item))
-        throw Error.ModiferCantParse(statement);
+        throw Oops.ModiferCantParse(statement);
 
       map[item.label.name] = this.Parse(item.body)
     }

@@ -10,7 +10,7 @@ import * as builtIn from './builtin';
 
 type Stackable = { context: StackFrame };
 
-const Error = ParseErrors({
+const Oops = ParseErrors({
   IllegalAtTopLevel: "Cannot apply element styles in top-level of program",
   BadModifierName: "Modifier name cannot start with _ symbol!",
   DuplicateModifier: "Duplicate declaration of named modifier!"
@@ -41,13 +41,13 @@ function handleTopLevelModifier(
   const { body, label: { name }} = node;
 
   if(name[0] == "_")
-    throw Error.BadModifierName(node)
+    throw Oops.BadModifierName(node)
 
   if(context.hasOwnModifier(name))
-    throw Error.DuplicateModifier(node);
+    throw Oops.DuplicateModifier(node);
 
   if(isExpressionStatement(body))
-    throw Error.IllegalAtTopLevel(node)
+    throw Oops.IllegalAtTopLevel(node)
 
   ElementModifier.insert(context, name, body);
 }

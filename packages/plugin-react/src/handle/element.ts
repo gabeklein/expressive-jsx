@@ -27,7 +27,7 @@ import { addElementFromJSX } from 'parse/jsx';
 import { inParenthesis } from 'shared';
 import { BunchOf, DoExpressive, InnerContent } from 'types';
 
-const Error = ParseErrors({
+const Oops = ParseErrors({
   PropNotIdentifier: "Assignment must be identifier name of a prop.",
   AssignmentNotEquals: "Only `=` assignment may be used here.",
   BadShorthandProp: "\"+\" shorthand prop must be an identifier!",
@@ -117,10 +117,10 @@ export class ElementInline extends AttributeBody {
     const op = node.operator;
 
     if(node.start !== value.start! - 3)
-      throw Error.UnarySpaceRequired(node, op)
+      throw Oops.UnarySpaceRequired(node, op)
 
     if(op !== "++")
-      throw Error.MinusMinusNotImplemented(node)
+      throw Oops.MinusMinusNotImplemented(node)
 
     this.add(
       new Prop(false, value)
@@ -143,14 +143,14 @@ export class ElementInline extends AttributeBody {
     }
 
     if(node.start !== value.start! - 2)
-      throw Error.UnarySpaceRequired(node, op);
+      throw Oops.UnarySpaceRequired(node, op);
 
     let insert: Attribute;
 
     switch(op){
       case "+":
         if(!isIdentifier(value))
-          throw Error.BadShorthandProp(node);
+          throw Oops.BadShorthandProp(node);
         insert = new Prop(value.name, value);
       break;
 
@@ -163,24 +163,24 @@ export class ElementInline extends AttributeBody {
       break;
 
       default:
-        throw Error.UnrecognizedUnary(node, op);
+        throw Oops.UnrecognizedUnary(node, op);
     }
 
     this.add(insert);
   }
 
   ExpressionAsStatement(node: Expression){
-    throw Error.StatementInElement(node)
+    throw Oops.StatementInElement(node)
   }
 
   AssignmentExpression(node: AssignmentExpression){
     if(node.operator !== "=")
-      throw Error.AssignmentNotEquals(node)
+      throw Oops.AssignmentNotEquals(node)
 
     let { left, right } = node;
 
     if(!isIdentifier(left))
-      throw Error.PropNotIdentifier(left)
+      throw Oops.PropNotIdentifier(left)
 
     let { name } = left;
 

@@ -5,7 +5,7 @@ import { applyModifier } from 'parse';
 import { hash } from 'shared';
 import { BunchOf, FlatValue } from 'types';
 
-const Error = ParseErrors({
+const Oops = ParseErrors({
   ExpressionUnknown: "Unhandled expressionary statement of type {1}",
   NodeUnknown: "Unhandled node of type {1}",
   BadInputModifier: "Modifier input of type {1} not supported here!",
@@ -54,10 +54,10 @@ export abstract class AttributeBody extends TraversableBody {
     const { context } = this;
 
     if(name[0] == "_")
-      throw Error.BadModifierName(node)
+      throw Oops.BadModifierName(node)
 
     if(context.hasOwnModifier(name))
-      throw Error.DuplicateModifier(node);
+      throw Oops.DuplicateModifier(node);
 
     const handler = applyTo.context.propertyMod(name);
 
@@ -72,11 +72,11 @@ export abstract class AttributeBody extends TraversableBody {
     }
 
     else
-      throw Error.BadInputModifier(body, body.type)
+      throw Oops.BadInputModifier(body, body.type)
   }
 
   ExpressionDefault(e: Expression){
-    throw Error.ExpressionUnknown(e, e.type);
+    throw Oops.ExpressionUnknown(e, e.type);
   }
 }
 

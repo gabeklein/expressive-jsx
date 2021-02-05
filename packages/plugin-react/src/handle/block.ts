@@ -6,7 +6,7 @@ import { StackFrame } from 'parse';
 import { ensureArray } from 'shared';
 import { BunchOf, DoExpressive, SequenceItem } from 'types';
 
-const Error = ParseErrors({
+const Oops = ParseErrors({
   ExpressionUnknown: "Unhandled expressionary statement of type {1}",
   NodeUnknown: "Unhandled node of type {1}",
   BadInputModifier: "Modifier input of type {1} not supported here!"
@@ -58,7 +58,7 @@ export abstract class TraversableBody {
       if(item.type in this)
         (this as any)[item.type](item.node, item);
       else {
-        throw Error.NodeUnknown(item as any, item.type)
+        throw Oops.NodeUnknown(item as any, item.type)
       }
   }
 
@@ -67,7 +67,7 @@ export abstract class TraversableBody {
     for(const item of content){
       if(item.type in this)
         (this as any)[item.type](item);
-      else throw Error.NodeUnknown(item, item.type)
+      else throw Oops.NodeUnknown(item, item.type)
     }
   }
 
@@ -86,6 +86,6 @@ export abstract class TraversableBody {
     else if(this.ExpressionDefault)
       this.ExpressionDefault(node);
     else
-      throw Error.ExpressionUnknown(node, node.type);
+      throw Oops.ExpressionUnknown(node, node.type);
   }
 }

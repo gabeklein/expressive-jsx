@@ -26,7 +26,7 @@ type ListElement = Expression | SpreadElement;
 
 const containsLineBreak = (text: string) => /\n/.test(text);
 
-const Error = ParseErrors({
+const Oops = ParseErrors({
   NoParenChildren: "Children in Parenthesis are not allowed, for direct insertion use an Array literal",
   SemicolonRequired: "Due to how parser works, a semicolon is required after the element preceeding escaped children.",
   DoExists: "Do Expression was already declared!",
@@ -109,7 +109,7 @@ function applyPassthru(
   else {
     const hasDoArgument = baseAttributes[0].type === "DoExpression";
     if(baseAttributes.length >= 2 || !hasDoArgument)
-      throw Error.VoidArgsOverzealous(subject)
+      throw Oops.VoidArgsOverzealous(subject)
   }
 
   const container = new ElementInline(parent.context);
@@ -158,18 +158,18 @@ function parseLayers(
     switch(operator){
       case ">>>":
         if(inSequence)
-          throw Error.NestOperatorInEffect(subject);
+          throw Oops.NestOperatorInEffect(subject);
 
         restAreChildren = true
       break;
 
       case ">>":
         if(inParenthesis(rightHand))
-          throw Error.NoParenChildren(rightHand);
+          throw Oops.NoParenChildren(rightHand);
       break;
 
       default:
-        throw Error.UnrecognizedBinary(subject);
+        throw Oops.UnrecognizedBinary(subject);
     }
 
     chain.unshift(rightHand);
@@ -295,7 +295,7 @@ function parseIdentity(
     if(isIdentifier(left))
       prefix = left.name;
     else
-      throw Error.BadPrefix(left);
+      throw Oops.BadPrefix(left);
     tag = tag.right as any;
   }
 
@@ -316,7 +316,7 @@ function parseIdentity(
     target.add(tag)
   }
 
-  else throw Error.BadExpression(tag);
+  else throw Oops.BadExpression(tag);
 }
 
 function unwrapExpression(
@@ -358,7 +358,7 @@ function unwrapExpression(
       if(expression.computed !== true && isIdentifier(selector))
         applyNameImplications(target, selector.name);
       else
-        throw Error.SemicolonRequired(selector)
+        throw Oops.SemicolonRequired(selector)
 
       return expression.object;
       break;
@@ -404,7 +404,7 @@ function parseProps(
         const {tag, quasi} = node;
 
         if(tag.type != "Identifier")
-          throw Error.PropNotIdentifier(node);
+          throw Oops.PropNotIdentifier(node);
 
         const value = quasi.expressions.length == 0 ?
           stringLiteral(quasi.quasis[0].value.raw) :
@@ -420,7 +420,7 @@ function parseProps(
         const value = node.right;
 
         if(!isIdentifier(name))
-          throw Error.AssignOnlyIdent(name);
+          throw Oops.AssignOnlyIdent(name);
 
         target.add(new Prop(name.name, value));
       } break;
@@ -444,7 +444,7 @@ function parseProps(
             const name: string = key.value || key.name;
 
             if(!isExpression(value))
-              throw Error.BadObjectKeyValue(value, value.type);
+              throw Oops.BadObjectKeyValue(value, value.type);
 
             insert = new Prop(name, value)
           }
@@ -473,7 +473,7 @@ function parseProps(
                 new Prop(value.name, value)
               );
             else
-              throw Error.BadShorthandProp(node);
+              throw Oops.BadShorthandProp(node);
           break;
 
           case "-":
@@ -491,7 +491,7 @@ function parseProps(
       } break;
 
       default: {
-        throw Error.PropUnknown(node, node.type);
+        throw Oops.PropUnknown(node, node.type);
       }
     }
   }

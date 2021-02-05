@@ -18,7 +18,7 @@ import { StackFrame } from 'parse';
 import { ensureArray, hash } from 'shared';
 import { DoExpressive, InnerContent } from 'types';
 
-const Error = ParseErrors({
+const Oops = ParseErrors({
   ReturnElseNotImplemented: "This is an else condition, returning from here is not implemented.",
   IfStatementCannotContinue: "Previous consequent already returned, cannot integrate another clause.",
   CantReturnInNestedIf: "Cant return because this if-statement is nested!",
@@ -88,7 +88,7 @@ export class ComponentIf {
       const overrideRest = (<ComponentConsequent>fork).doesReturn || false;
 
       if(overrideRest && layer.node)
-        throw Error.IfStatementCannotContinue(layer)
+        throw Oops.IfStatementCannotContinue(layer)
 
       if(layer.type === "IfStatement")
         continue
@@ -193,16 +193,16 @@ export class ComponentConsequent extends ElementInline {
     const { context } = this;
 
     if(!this.test)
-      throw Error.ReturnElseNotImplemented(node)
+      throw Oops.ReturnElseNotImplemented(node)
 
     if(this.index !== 1)
-      throw Error.CanOnlyReturnFromLeadingIf(node)
+      throw Oops.CanOnlyReturnFromLeadingIf(node)
 
     if(context.currentIf !== context.parentIf)
-      throw Error.CantReturnInNestedIf(node);
+      throw Oops.CantReturnInNestedIf(node);
 
     if(!(context.currentElement instanceof ComponentExpression))
-      throw Error.CanOnlyReturnTopLevel(node);
+      throw Oops.CanOnlyReturnTopLevel(node);
 
     if(arg)
       if(isDoExpression(arg))
