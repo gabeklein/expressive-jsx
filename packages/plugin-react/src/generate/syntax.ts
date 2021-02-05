@@ -79,7 +79,7 @@ export function ensureArray(
     return array;
 }
 
-export function objectExpress(obj: BunchOf<Expression | false | undefined> = {}){
+export function _objectExpression(obj: BunchOf<Expression | false | undefined> = {}){
   const properties = [];
   for(const x in obj){
     if(obj[x])
@@ -93,7 +93,7 @@ export function objectExpress(obj: BunchOf<Expression | false | undefined> = {})
   return objectExpression(properties);
 }
 
-export function memberExpress(
+export function _memberExpression(
   object: string | Expression,
   ...path: (string | number)[] ){
 
@@ -124,7 +124,7 @@ export function memberExpress(
   return object as MemberExpression;
 }
 
-export function callExpress(
+export function _callExpression(
   callee: Expression,
   ...args: Expression[]
 ){
@@ -142,7 +142,7 @@ export function requireExpression(from: string){
   )
 }
 
-export function declare(
+export function _declareStatement(
   type: "const" | "let" | "var",
   id: LVal,
   init?: Expression ){
