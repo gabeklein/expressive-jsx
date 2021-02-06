@@ -3,7 +3,7 @@ import { Program as ProgramNode } from '@babel/types';
 import { GenerateES, GenerateJSX } from 'generate';
 import { Modifier } from 'handle';
 import { StackFrame } from 'parse';
-import { ExternalsManager, ImportManager, RequirementManager, writeProvideStyleStatement } from 'regenerate';
+import { ExternalsManager, ImportManager, RequireManager, writeProvideStyleStatement } from 'regenerate';
 import { hash, Shared } from 'shared';
 import { BabelState, DoExpressive } from 'types';
 
@@ -11,8 +11,7 @@ export function createModuleContext(
   path: Path<ProgramNode>,
   state: BabelState<StackFrame>
 ){
-  const { opts } = Shared;
-  Object.assign(opts, state.opts);
+  Object.assign(Shared.opts, state.opts);
 
   const { Importer, Generator } = selectContext();
 
@@ -42,14 +41,14 @@ export function closeModuleContext(
   if(G.willExitModule)
     G.willExitModule();
 
-  M.EOF(state.opts);
+  M.EOF();
   I.EOF();
 }
 
 function selectContext(){
   const { output, useRequire, useImport } = Shared.opts;
   let Generator: typeof GenerateES | typeof GenerateJSX;
-  let Importer: typeof ImportManager | typeof RequirementManager;
+  let Importer: typeof ImportManager | typeof RequireManager;
 
   switch(output){
     case "jsx":
@@ -59,7 +58,7 @@ function selectContext(){
 
     case "js":
     case undefined:
-      Importer = RequirementManager
+      Importer = RequireManager
       Generator = GenerateES;
     break;
 
@@ -70,7 +69,7 @@ function selectContext(){
   }
 
   if(useRequire)
-    Importer = RequirementManager;
+    Importer = RequireManager;
   if(useImport)
     Importer = ImportManager;
 
@@ -92,10 +91,8 @@ export class Module {
     return hash(this.state.filename, 10)
   }
 
-  EOF(opts: any){
-    const { modifiersDeclared } = this;
-
-    if(modifiersDeclared.size)
-      writeProvideStyleStatement(this, opts);
+  EOF(){
+    if(this.modifiersDeclared.size)
+      writeProvideStyleStatement(this, Shared.opts);
   }
 }

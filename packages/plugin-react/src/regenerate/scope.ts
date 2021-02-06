@@ -1,4 +1,5 @@
 import { NodePath as Path, Scope } from '@babel/traverse';
+import { Statement } from '@babel/types';
 import {
   Expression,
   Identifier,
@@ -152,7 +153,7 @@ export class ImportManager implements ExternalsManager {
   }
 }
 
-export class RequirementManager implements ExternalsManager {
+export class RequireManager implements ExternalsManager {
   imports = {} as BunchOf<ObjectProperty[]>
   importTargets = {} as BunchOf<Expression | false>
   importIndices = {} as BunchOf<number>

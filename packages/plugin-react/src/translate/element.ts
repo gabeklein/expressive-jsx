@@ -228,9 +228,11 @@ export class ElementReact<T extends ElementInline = ElementInline>
 
   Props(item: Prop){
     switch(item.name){
-      case "style":
-        this.style.push(new ExplicitStyle(false, expressionValue(item)));
+      case "style": {
+        const spread = new ExplicitStyle(false, expressionValue(item));
+        this.style.push(spread);
         break;
+      }
 
       case "className": {
         let { value } = item;
@@ -252,7 +254,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
     }
   }
 
-  Child(item: ElementInline ){
+  Child(item: ElementInline){
     this.adopt(new ElementReact(item));
   }
 

@@ -18,6 +18,15 @@ export abstract class AttributeBody extends TraversableBody {
   props = {} as BunchOf<Prop>;
   style = {} as BunchOf<ExplicitStyle>;
 
+  get uid(){
+    return this.uid =
+      this.name + "_" + hash(this.context.prefix);
+  }
+
+  set uid(uid: string){
+    Object.defineProperty(this, "uid", { value: uid });
+  }
+
   insert(item: Prop | ExplicitStyle){
     const { name } = item;
     const accumulator = item instanceof Prop
@@ -31,15 +40,6 @@ export abstract class AttributeBody extends TraversableBody {
     }
 
     this.add(item);
-  }
-
-  get uid(){
-    return this.uid =
-      this.name + "_" + hash(this.context.prefix);
-  }
-
-  set uid(uid: string){
-    Object.defineProperty(this, "uid", { value: uid });
   }
 
   abstract ElementModifier(mod: Modifier): void;
@@ -90,10 +90,11 @@ export abstract class Attribute<T extends Expression = Expression> {
     name: string | false,
     value: FlatValue | T){
 
-    if(name) this.name = name;
-    if(value !== undefined) this.value = value;
-
-    if(typeof value !== "object" || value === null)
+    if(name)
+      this.name = name;
+    if(value !== undefined)
+      this.value = value;
+    if(value === null || typeof value !== "object")
       this.invariant = true
   }
 }

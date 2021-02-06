@@ -75,6 +75,7 @@ export class ElementInline extends AttributeBody {
 
   IfStatement(_: IfStatement, path: Path<IfStatement>){
     const mod = new ComponentIf(path, this.context);
+
     this.adopt(mod)
     path.replaceWith(
       blockStatement(mod.doBlocks!)
@@ -91,8 +92,9 @@ export class ElementInline extends AttributeBody {
 
   ForStatement(_: For, path: Path<For>){
     const element = new ComponentFor(path, this.context);
-    this.adopt(element)
     const { doBlock } = element;
+
+    this.adopt(element)
     if(doBlock)
       path.replaceWith(doBlock)
   }

@@ -79,7 +79,9 @@ export function ensureArray(
     return array;
 }
 
-export function _objectExpression(obj: BunchOf<Expression | false | undefined> = {}){
+export function _objectExpression(
+  obj: BunchOf<Expression | false | undefined> = {}){
+
   const properties = [];
   for(const x in obj){
     if(obj[x])

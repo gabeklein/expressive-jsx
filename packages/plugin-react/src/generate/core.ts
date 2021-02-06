@@ -36,12 +36,10 @@ export abstract class ElementConstruct
       else if(item instanceof ComponentFor)
         this.Iterate(item)
 
-      else
-      if(item instanceof ElementInline)
+      else if(item instanceof ElementInline)
         this.Child(item);
 
-      else
-      if(item instanceof Attribute){
+      else if(item instanceof Attribute){
         if(this.Attribute && this.Attribute(item))
           continue
 
@@ -49,19 +47,18 @@ export abstract class ElementConstruct
         || !invariant && item.invariant === true)
           continue;
 
-        if(item instanceof Prop)
-          this.Props(item);
-        else
         if(item instanceof ExplicitStyle)
           this.Style(item)
+        else
+        if(item instanceof Prop)
+          this.Props(item);
       }
 
-      else {
-        if(isExpression(item))
-          this.Content(item);
-        else
-          this.Statement(item)
-      }
+      else if(isExpression(item))
+        this.Content(item);
+
+      else
+        this.Statement(item);
     }
 
     if(this.didParse)

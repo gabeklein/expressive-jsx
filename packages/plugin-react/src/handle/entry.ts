@@ -20,9 +20,8 @@ export class ComponentExpression extends ComponentContainer {
 
     this.context.currentComponent = this;
 
-    if(exec){
+    if(exec)
       this.exec = exec;
-    }
 
     this.name = name;
     this.explicitTagName = "div";

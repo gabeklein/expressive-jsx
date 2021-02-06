@@ -56,9 +56,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     if(isVariableDeclaration(left))
       left = left.declarations[0].id;
 
-    if(isIdentifier(left)
-    || isObjectPattern(left)
-    || isArrayPattern(left))
+    if(isIdentifier(left) || isObjectPattern(left) || isArrayPattern(left))
       void 0;
     else
       throw new Error("Assignment of variable left of \"of\" must be Identifier or Destruture")
@@ -86,8 +84,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     if(inner.length === 1
     && element instanceof ElementInline
     && element.props.key === undefined){
-      element.insert(
-        new Prop("key", this.key));
+      element.insert(new Prop("key", this.key));
       this.mayCollapseContent = true;
     }
 
@@ -137,7 +134,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     if(extractor){
       return callExpression(
         memberExpression(
-          callExpression(extractor, [ right! ]),
+          callExpression(extractor, [right!]),
           identifier("map")
         ),
         [ arrowFunctionExpression([left!], body) ]
