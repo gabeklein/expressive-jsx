@@ -1,6 +1,7 @@
 import { Expression } from '@babel/types';
 import { createHash } from 'crypto';
-import { Options, SharedSingleton } from 'types';
+import { StackFrame } from 'parse';
+import { Options, BabelFile } from 'types';
 
 const DEFAULTS: Options = {
   env: "web",
@@ -10,11 +11,19 @@ const DEFAULTS: Options = {
   output: "js"
 };
 
-export const Shared: SharedSingleton = {
-  stack: null as any,
-  currentFile: null as any,
-  opts: DEFAULTS
-};
+export const Shared = new class {
+  stack: StackFrame = null as any;
+  currentFile: BabelFile = null as any
+  opts = DEFAULTS;
+
+  replaceAlias(value: string){
+    if(value[0] !== "$")
+      return value;
+
+    const name = value.slice(1);
+    return (this.opts as any)[name];
+  }
+}
 
 export function hash(data: string, length: number = 3){
   return createHash("md5")		

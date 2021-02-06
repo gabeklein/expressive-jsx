@@ -14,9 +14,9 @@ export function createModuleContext(
   const { opts } = Shared;
   Object.assign(opts, state.opts);
 
-  const { Importer, Generator } = selectContext(opts);
+  const { Importer, Generator } = selectContext();
 
-  const I = new Importer(path, opts);
+  const I = new Importer(path);
   const M = new Module(path, state, I);
   const G = new Generator(M, I);
 
@@ -46,7 +46,7 @@ export function closeModuleContext(
   I.EOF();
 }
 
-function selectContext(opts: any){
+function selectContext(){
   const { output, useRequire, useImport } = Shared.opts;
   let Generator: typeof GenerateES | typeof GenerateJSX;
   let Importer: typeof ImportManager | typeof RequirementManager;

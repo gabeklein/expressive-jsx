@@ -42,12 +42,6 @@ export interface BabelFile extends File {
   buildCodeFrameError<TError extends Error>(node: Node, msg: string, Error?: new (msg: string) => TError): TError;
 }
 
-export interface SharedSingleton {
-  opts: Options;
-  stack: StackFrame;
-  currentFile: BabelFile;
-}
-
 export interface Options {
   hot?: boolean;
   env?: "native" | "web";

@@ -24,6 +24,7 @@ import {
   variableDeclarator,
 } from '@babel/types';
 import { requireExpression } from 'generate';
+import { Shared } from 'shared';
 import { BunchOf } from 'types';
 
 type ImportSpecific =
@@ -74,21 +75,20 @@ export interface ExternalsManager {
 export class ImportManager implements ExternalsManager {
   imports = {} as BunchOf<ImportSpecific[]>
   importIndices = {} as BunchOf<number>
-  body = this.path.node.body;
-  scope = this.path.scope;
+  body: Statement[];
+  scope: Scope;
 
-  constructor(
-    protected path: Path<Program>,
-    public opts: any
-  ){}
+  constructor(path: Path<Program>){
+    this.body = path.node.body;
+    this.scope = path.scope;
+  }
 
   ensure(
     from: string,
     name: string,
     alt?: string){
 
-    if(from[0] == "$")
-      from = this.opts[from.slice(1)]
+    from = Shared.replaceAlias(from);
 
     let uid;
     const list = this.imports[from] || this.ensureImported(from);
@@ -156,21 +156,20 @@ export class RequirementManager implements ExternalsManager {
   imports = {} as BunchOf<ObjectProperty[]>
   importTargets = {} as BunchOf<Expression | false>
   importIndices = {} as BunchOf<number>
-  body = this.path.node.body;
-  scope = this.path.scope;
+  body: Statement[];
+  scope: Scope;
 
-  constructor(
-    protected path: Path<Program>,
-    public opts: any
-  ){}
+  constructor(path: Path<Program>){
+    this.body = path.node.body;
+    this.scope = path.scope;
+  }
 
   ensure(
     from: string,
     name: string,
     alt?: string){
 
-    if(from[0] == "$")
-      from = this.opts[from.slice(1)]
+    from = Shared.replaceAlias(from);
 
     const source = this.imports[from] || this.ensureImported(from);
 
