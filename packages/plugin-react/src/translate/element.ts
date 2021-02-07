@@ -4,12 +4,12 @@ import {
   isStringLiteral,
   JSXMemberExpression,
   objectExpression,
+  objectProperty,
   ObjectProperty,
   SpreadElement,
   spreadElement,
   stringLiteral,
 } from '@babel/types';
-import { attributeES, expressionValue } from 'generate';
 import {
   Attribute,
   ComponentExpression,
@@ -169,16 +169,21 @@ export class ElementReact<T extends ElementInline = ElementInline>
     const [ head ] = style;
 
     if(style.length == 1 && head instanceof ExplicitStyle)
-      value = expressionValue(head);
+      value = head.toExpression();
 
     else {
       const chunks = [] as (ObjectProperty | SpreadElement)[];
 
       for(const item of style)
         if(item instanceof ExplicitStyle)
-          chunks.push(spreadElement(expressionValue(item)))
+          chunks.push(spreadElement(item.toExpression()))
         else
-          chunks.push(...item.map(attributeES));
+          chunks.push(...item.map(style => {
+            return objectProperty(
+              stringLiteral(style.name!),
+              style.toExpression()
+            )
+          }));
 
       value = objectExpression(chunks)
     }
@@ -230,7 +235,8 @@ export class ElementReact<T extends ElementInline = ElementInline>
   Props(item: Prop){
     switch(item.name){
       case "style": {
-        const spread = new ExplicitStyle(false, expressionValue(item));
+        const styleProp = item.toExpression();
+        const spread = new ExplicitStyle(false, styleProp);
         this.style.push(spread);
         break;
       }
@@ -251,7 +257,7 @@ export class ElementReact<T extends ElementInline = ElementInline>
       } break;
 
       default:
-        this.addProperty(item.name, expressionValue(item));
+        this.addProperty(item.name, item.toExpression());
     }
   }
 

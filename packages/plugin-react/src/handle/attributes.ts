@@ -1,4 +1,15 @@
-import { Expression, isBlockStatement, isExpressionStatement, isLabeledStatement, LabeledStatement } from '@babel/types';
+import {
+  booleanLiteral,
+  Expression,
+  identifier,
+  isBlockStatement,
+  isExpressionStatement,
+  isLabeledStatement,
+  LabeledStatement,
+  nullLiteral,
+  numericLiteral,
+  stringLiteral,
+} from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ElementModifier, Modifier, TraversableBody } from 'handle';
 import { applyModifier } from 'parse';
@@ -96,6 +107,26 @@ export abstract class Attribute<T extends Expression = Expression> {
       this.value = value;
     if(value === null || typeof value !== "object")
       this.invariant = true
+  }
+
+  toExpression(){
+    let { value } = this;
+  
+    switch(typeof value){
+      case "string":
+        return stringLiteral(value);
+      case "number":
+        return numericLiteral(value);
+      case "boolean":
+        return booleanLiteral(value);
+      case "object":
+        if(value === null)
+          return nullLiteral();
+        else
+          return value;
+      default:
+        return identifier("undefined");
+    }
   }
 }
 

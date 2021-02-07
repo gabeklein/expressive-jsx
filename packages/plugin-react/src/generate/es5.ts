@@ -16,7 +16,7 @@ import {
   StringLiteral,
   stringLiteral,
 } from '@babel/types';
-import { GenerateReact, propertyES } from 'generate';
+import { GenerateReact } from 'generate';
 import { dedent } from 'regenerate';
 import { ArrayStack, ElementReact } from 'translate';
 import { ContentLike, PropData } from 'types';
@@ -96,7 +96,10 @@ function recombineProps(props: PropData[]){
       propStack.push(value);
     else
       propStack.insert(
-        propertyES(name, value)
+        objectProperty(
+          stringLiteral(name),
+          value
+        )
       );
 
   const properties = propStack.map(chunk =>

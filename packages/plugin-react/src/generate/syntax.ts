@@ -1,13 +1,11 @@
 import {
   arrayExpression,
-  booleanLiteral,
   callExpression,
   Expression,
   identifier,
   LVal,
   MemberExpression,
   memberExpression,
-  nullLiteral,
   numericLiteral,
   objectExpression,
   objectProperty,
@@ -16,50 +14,7 @@ import {
   variableDeclaration,
   variableDeclarator,
 } from '@babel/types';
-
-import { ExplicitStyle, Prop } from 'handle';
 import { BunchOf } from 'types';
-
-export function propertyES(
-  name: string,
-  value: Expression){
-
-  return objectProperty(
-    stringLiteral(name),
-    value
-  )
-}
-
-export function attributeES(
-  src: Prop | ExplicitStyle){
-
-  return objectProperty(
-    stringLiteral(src.name as string),
-    expressionValue(src)
-  )
-}
-
-export function expressionValue(
-  item: Prop | ExplicitStyle){
-
-  let { value } = item;
-
-  switch(typeof value){
-    case "string":
-      return stringLiteral(value);
-    case "number":
-      return numericLiteral(value);
-    case "boolean":
-      return booleanLiteral(value);
-    case "object":
-      if(value === null)
-        return nullLiteral();
-      else
-        return value;
-    default:
-      return identifier("undefined");
-  }
-}
 
 export function ensureArray(
   children: Expression,
