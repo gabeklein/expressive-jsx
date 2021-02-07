@@ -1,5 +1,5 @@
 import { expressionStatement, Statement, stringLiteral, templateElement, templateLiteral } from '@babel/types';
-import { _callExpression, _memberExpression } from 'generate';
+import { _call, _get } from 'generate';
 import { ExplicitStyle, Modifier } from 'handle';
 import { Module } from 'regenerate';
 import { BunchOf } from 'types';
@@ -113,8 +113,8 @@ function insertStyleSyntax(
 
   const provideStatement =
     expressionStatement(
-      _callExpression(
-        _memberExpression(polyfillModule, "include"),
+      _call(
+        _get(polyfillModule, "include"),
         templateLiteral([
           templateElement({raw: computedStyle, cooked: computedStyle}, true)
         ], []),

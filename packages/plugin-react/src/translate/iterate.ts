@@ -3,10 +3,8 @@ import {
   BlockStatement,
   blockStatement,
   CallExpression,
-  callExpression,
   Expression,
   Identifier,
-  identifier,
   isArrayPattern,
   isBinaryExpression,
   isForInStatement,
@@ -14,11 +12,10 @@ import {
   isIdentifier,
   isObjectPattern,
   isVariableDeclaration,
-  memberExpression,
   PatternLike,
   returnStatement,
 } from '@babel/types';
-import { GenerateReact } from 'generate';
+import { GenerateReact, _call, _get } from 'generate';
 import { ComponentFor, ElementInline, Prop } from 'handle';
 import { ensureUIDIdentifier } from 'regenerate';
 import { ElementReact } from 'translate';
@@ -37,11 +34,35 @@ export class ElementIterate extends ElementReact<ComponentFor> {
   }
 
   toExpression(Generator: GenerateReact): CallExpression {
-    const wrapper =
-      this.type === "ForInStatement"
-      && memberExpression(identifier("Object"), identifier("keys"))
+    let { key, left, right, source: { statements }, type } = this;
 
-    return this.toMapExpression(Generator, wrapper)
+    let body: BlockStatement | Expression =
+      this.elementOutput(Generator)
+
+    if(statements.length)
+      body = blockStatement([
+        ...statements,
+        returnStatement(body)
+      ])
+
+    if(type === "ForInStatement")
+      return (
+        _call(
+          _get(
+            _call(
+              _get("Object.keys"),
+              right!
+            ),
+            "member"
+          ),
+          arrowFunctionExpression([left!], body)
+        )
+      )
+    else
+      return _call(
+        _get(right!, "map"),
+        arrowFunctionExpression([left!, key!], body)
+      )
   }
 
   willParse(sequence: SequenceItem[]){
@@ -110,40 +131,6 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     }
 
     return Generator.container(this, !mayCollapseContent && key);
-
-  }
-
-  private toMapExpression(
-    Generator: GenerateReact,
-    extractor?: Expression | false
-  ): CallExpression {
-
-    let { key } = this;
-    let { left, right } = this;
-
-    let body: BlockStatement | Expression =
-      this.elementOutput(Generator)
-
-    if(this.source.statements.length)
-      body = blockStatement([
-        ...this.source.statements,
-        returnStatement(body)
-      ])
-
-    if(extractor){
-      return callExpression(
-        memberExpression(
-          callExpression(extractor, [right!]),
-          identifier("map")
-        ),
-        [ arrowFunctionExpression([left!], body) ]
-      )
-    }
-
-    return callExpression(
-      memberExpression(right!, identifier("map")),
-      [ arrowFunctionExpression([left!, key!], body) ]
-    )
   }
 
   /*

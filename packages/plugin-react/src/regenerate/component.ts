@@ -20,7 +20,7 @@ import {
   stringLiteral,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { _callExpression, _declareStatement, _objectExpression } from 'generate';
+import { _call, _declare, _object } from 'generate';
 import { ComponentExpression } from 'handle';
 import { StackFrame } from 'parse';
 import { ExternalsManager } from 'regenerate';
@@ -80,9 +80,9 @@ function asOnlyAttributes(factory: ElementReact){
 
   for(const prop of factory.props)
     if(prop.name == "style")
-      style = prop.value || _objectExpression()
+      style = prop.value || _object();
 
-  return _objectExpression({
+  return _object({
     className: stringLiteral(
       classNames.join(" ")
     ),
@@ -151,11 +151,13 @@ void function incorperateChildParameters(
 
   if(init){
     const inner = Imports.ensure("$runtime", "body");
-    let getKids: Expression = _callExpression(inner, props.node);
-    if(count == 1)
-      getKids = memberExpression(getKids, numericLiteral(0), true)
+    let getKids: Expression = _call(inner, props.node);
 
-    const declarator = _declareStatement("var", assign, getKids);
-    Do.statements.unshift(declarator)
+    if(count == 1)
+      getKids = memberExpression(getKids, numericLiteral(0), true);
+
+    Do.statements.unshift(
+      _declare("var", assign, getKids)
+    )
   }
 }

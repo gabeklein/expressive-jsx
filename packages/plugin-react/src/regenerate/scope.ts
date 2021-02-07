@@ -20,11 +20,9 @@ import {
   ObjectProperty,
   objectProperty,
   Program,
-  stringLiteral,
-  variableDeclaration,
-  variableDeclarator,
+  stringLiteral
 } from '@babel/types';
-import { requireExpression } from 'generate';
+import { _declare, _require } from 'generate';
 import { Shared } from 'shared';
 import { BunchOf } from 'types';
 
@@ -226,21 +224,14 @@ export class RequireManager implements ExternalsManager {
       const list = this.imports[name]
   
       if(list.length == 0)
-        continue
+        continue;
 
       const index = this.importIndices[name];
-      const target =
-        this.importTargets[name] || 
-        requireExpression(name);
+      const target = this.importTargets[name] || _require(name);
 
-      const declareStatement =
-        variableDeclaration("const", [
-          variableDeclarator(
-            objectPattern(list), target
-          )
-        ])
-
-      this.body.splice(index, 0, declareStatement)
+      this.body.splice(index, 0, 
+        _declare("const", objectPattern(list), target)
+      )
     }
   }
 }

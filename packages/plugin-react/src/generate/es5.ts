@@ -16,7 +16,7 @@ import {
   StringLiteral,
   stringLiteral,
 } from '@babel/types';
-import { GenerateReact } from 'generate';
+import { GenerateReact, _objectAssign, _object } from 'generate';
 import { dedent } from 'regenerate';
 import { ArrayStack, ElementReact } from 'translate';
 import { ContentLike, PropData } from 'types';
@@ -89,7 +89,7 @@ function recombineProps(props: PropData[]){
   const propStack = new ArrayStack<ObjectProperty, Expression>()
 
   if(props.length === 0)
-    return objectExpression([])
+    return _object();
 
   for(const { name, value } of props)
     if(!name)
@@ -109,21 +109,11 @@ function recombineProps(props: PropData[]){
   )
 
   if(properties[0].type !== "ObjectExpression")
-    properties.unshift(
-      objectExpression([])
-    )
+    properties.unshift(_object())
 
-  return (
-    properties.length === 1
-      ? properties[0]
-      : callExpression(
-        memberExpression(
-          identifier("Object"),
-          identifier("assign")
-        ),
-        properties
-      )
-  )
+  return properties.length > 1
+    ? _objectAssign(...properties)
+    : properties[0];
 }
 
 function normalize(

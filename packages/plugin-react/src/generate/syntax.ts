@@ -34,7 +34,7 @@ export function ensureArray(
     return array;
 }
 
-export function _objectExpression(
+export function _object(
   obj: BunchOf<Expression | false | undefined> = {}){
 
   const properties = [];
@@ -50,7 +50,7 @@ export function _objectExpression(
   return objectExpression(properties);
 }
 
-export function _memberExpression(
+export function _get(
   object: string | Expression,
   ...path: (string | number)[] ){
 
@@ -81,14 +81,14 @@ export function _memberExpression(
   return object as MemberExpression;
 }
 
-export function _callExpression(
+export function _call(
   callee: Expression,
   ...args: Expression[]
 ){
   return callExpression(callee, args)
 }
 
-export function requireExpression(from: string){
+export function _require(from: string){
   const argument = 
     typeof from == "string"
       ? stringLiteral(from)
@@ -99,7 +99,7 @@ export function requireExpression(from: string){
   )
 }
 
-export function _declareStatement(
+export function _declare(
   type: "const" | "let" | "var",
   id: LVal,
   init?: Expression ){
@@ -108,5 +108,14 @@ export function _declareStatement(
     variableDeclaration(type, [
       variableDeclarator(id, init)
     ])
+  )
+}
+
+export function _objectAssign(
+  ...objects: Expression[]){
+
+  return callExpression(
+    _get("Object.assign"),
+    objects
   )
 }
