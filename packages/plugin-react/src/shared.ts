@@ -8,7 +8,8 @@ const DEFAULTS: Options = {
   styleMode: "compile",
   runtime: "@expressive/react",
   pragma: "react",
-  output: "js"
+  output: "js",
+  modifiers: []
 };
 
 class SharedSingleton {

@@ -43,16 +43,17 @@ export interface BabelFile extends File {
 }
 
 export interface Options {
+  env: "native" | "web";
+  output: "js" | "jsx";
+  pragma: "react";
+  runtime: string;
+  styleMode: "compile" | "inline";
+  modifiers: BunchOf<{}>[];
+
   hot?: boolean;
-  env?: "native" | "web";
-  output?: "js" | "jsx";
-  pragma?: "react";
-  runtime?: string;
-  styleMode?: "compile" | "inline";
   printStyle?: "pretty";
   useRequire?: boolean;
   useImport?: boolean;
-  modifiers?: BunchOf<{}>[];
 }
 
 export interface BabelState<S extends StackFrame = StackFrame> {

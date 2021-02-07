@@ -83,11 +83,11 @@ export class StackFrame {
   }
 
   static init(pluginPass: BabelState){
-    const { opts } = pluginPass;
+    const { opts } = Shared;
 
-    let Stack = new this(pluginPass)
+    let Stack = new this(pluginPass);
 
-    const external = [ ...opts.modifiers || [] ];
+    const external = [ ...opts.modifiers ];
     const included = Object.assign({}, ...external);
     for(const imports of [ builtIn, included ]){
       const { Helpers, ...Modifiers } = imports as any;

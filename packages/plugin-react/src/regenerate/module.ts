@@ -54,7 +54,6 @@ function selectContext(){
     break;
 
     case "js":
-    case undefined:
       Importer = RequireManager
       Generator = GenerateES;
     break;
