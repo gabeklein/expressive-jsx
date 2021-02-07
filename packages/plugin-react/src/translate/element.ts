@@ -97,16 +97,16 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   }
 
   willParse(sequence: SequenceItem[]){
-    const { classList } = this.source.data;
-    const accumulator = {} as BunchOf<Attribute>
-    const existsAlready = this.source.style;
+    const {
+      style: elementStyle,
+      modifiers
+    } = this.source;
+
+    const accumulator = {} as BunchOf<Attribute>;
     const inlineOnly = Shared.opts.styleMode === "inline";
     // TODO: respect priority differences!
 
-    if(classList)
-      this.classList.push(...classList);
-
-    for(const mod of this.source.modifiers){
+    for(const mod of modifiers){
       if(mod.sequence.length === 0 && mod.applicable.length === 0)
         continue;
 
@@ -124,7 +124,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
           || !name
           || inlineOnly
           || collapsable
-          || name in existsAlready
+          || name in elementStyle
           || name in accumulator &&
              !accumulator[name].overridden)
             continue;
@@ -139,7 +139,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     }
 
     for(const name in accumulator)
-      existsAlready[name] = accumulator[name] as ExplicitStyle;
+      elementStyle[name] = accumulator[name] as ExplicitStyle;
 
     const pre: SequenceItem[] = Object.values(accumulator);
 

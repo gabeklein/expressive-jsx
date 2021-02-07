@@ -25,7 +25,7 @@ import { Attribute, AttributeBody, ComponentFor, ComponentIf, ElementModifier, E
 import { addElementsFromExpression, applyNameImplications, StackFrame } from 'parse';
 import { addElementFromJSX } from 'parse/jsx';
 import { inParenthesis } from 'shared';
-import { BunchOf, DoExpressive, InnerContent } from 'types';
+import { DoExpressive, InnerContent } from 'types';
 
 const Oops = ParseErrors({
   PropNotIdentifier: "Assignment must be identifier name of a prop.",
@@ -43,7 +43,6 @@ export class ElementInline extends AttributeBody {
   children = [] as InnerContent[];
   explicitTagName?: string | JSXMemberExpression;
   modifiers = [] as Modifier[];
-  data = {} as BunchOf<any>;
 
   adopt(child: InnerContent){
     const index = this.children.push(child);
