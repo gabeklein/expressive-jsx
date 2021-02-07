@@ -171,21 +171,23 @@ export class ComponentConsequent extends ElementInline {
     const mod = this.slaveModifier;
     const parent = this.context.currentElement!;
 
-    if(mod){
-      // mod.didFinishParsing();
-      if(mod.sequence.length)
-        parent.modifiers.push(mod);
-      else
-        this.usesClassname = "";
+    if(!mod)
+      return;
 
-      if(mod.applicable.length){
-        const uids = mod.applicable.map(x => x.uid).join(" ");
-        if(this.usesClassname)
-          this.usesClassname += " " + uids;
-        else
-          this.usesClassname = uids;
-      }
-    }
+    const include =
+      mod.alsoApplies.map(x => x.uid).join(" ");
+
+    // mod.didFinishParsing();
+    if(mod.sequence.length)
+      parent.modifiers.push(mod);
+    else
+      this.usesClassname = "";
+
+    if(include)
+      if(this.usesClassname)
+        this.usesClassname += " " + include;
+      else
+        this.usesClassname = include;
   }
 
   ReturnStatement(node: ReturnStatement){

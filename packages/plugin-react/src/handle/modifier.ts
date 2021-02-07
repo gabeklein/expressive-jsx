@@ -28,9 +28,10 @@ function concat(
 export abstract class Modifier extends AttributeBody {
   forSelector?: string[];
   onlyWithin?: ContingentModifier;
-  applicable = [] as Modifier[];
   onGlobalStatus?: string[];
   priority?: number;
+
+  alsoApplies = [] as Modifier[];
 
   parse(body: Path<Statement>){
     const content = body.isBlockStatement() ? ensureArray(body.get("body")) : [body];

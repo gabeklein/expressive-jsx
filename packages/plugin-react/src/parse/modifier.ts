@@ -139,7 +139,7 @@ export class ModifyDelegate {
       target.modifiers.push(mod);
 
     else if(target instanceof ElementModifier)
-      target.applicable.push(mod);
+      target.alsoApplies.push(mod);
 
     else if(
       target instanceof ContingentModifier && 

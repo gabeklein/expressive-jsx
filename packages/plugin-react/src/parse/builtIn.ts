@@ -29,9 +29,8 @@ export function use(
     if(target instanceof ElementInline)
       target.modifiers.push(mod);
     else
-    if(target instanceof Modifier){
-      target.applicable.push(mod);
-    }
+    if(target instanceof Modifier)
+      target.alsoApplies.push(mod);
   }
 }
 

@@ -107,14 +107,14 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     // TODO: respect priority differences!
 
     for(const mod of modifiers){
-      if(mod.sequence.length === 0 && mod.applicable.length === 0)
+      if(mod.sequence.length === 0 && mod.alsoApplies.length === 0)
         continue;
 
       const collapsable =
         mod instanceof ElementModifier &&
         mod.nTargets == 1 &&
         mod.onlyWithin === undefined &&
-        mod.applicable.length === 0;
+        mod.alsoApplies.length === 0;
 
       for(const style of mod.sequence)
         if(style instanceof ExplicitStyle){
@@ -151,7 +151,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     let doesProvideAStyle = false;
     const declared = this.context.Module.modifiersDeclared;
 
-    for(const applicable of [mod, ...mod.applicable]){
+    for(const applicable of [mod, ...mod.alsoApplies]){
       if(applicable.sequence.length)
         declared.add(applicable);
 
