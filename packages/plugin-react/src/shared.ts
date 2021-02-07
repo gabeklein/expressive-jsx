@@ -11,7 +11,7 @@ const DEFAULTS: Options = {
   output: "js"
 };
 
-export const Shared = new class {
+class SharedSingleton {
   stack: StackFrame = null as any;
   currentFile: BabelFile = null as any
   opts = DEFAULTS;
@@ -24,6 +24,8 @@ export const Shared = new class {
     return (this.opts as any)[name];
   }
 }
+
+export const Shared = new SharedSingleton();
 
 export function hash(data: string, length: number = 3){
   return createHash("md5")		
