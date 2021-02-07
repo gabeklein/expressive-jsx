@@ -9,7 +9,6 @@ export abstract class GenerateReact {
     protected external: ExternalsManager
   ){}
 
-  didEnterModule?(): void;
   willExitModule?(): void;
 
   abstract fragment(

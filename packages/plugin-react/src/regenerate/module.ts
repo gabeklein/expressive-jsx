@@ -24,9 +24,6 @@ export function createModuleContext(
     Imports: I,
     Module: M
   })
-
-  if(G.didEnterModule)
-    G.didEnterModule();
 }
 
 export function closeModuleContext(
