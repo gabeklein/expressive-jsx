@@ -21,8 +21,6 @@ import { dedent } from 'regenerate';
 import { ArrayStack, ElementReact } from 'translate';
 import { ContentLike, PropData } from 'types';
 
-const IsComponentElement = /^[A-Z]\w*/;
-
 export class GenerateES extends GenerateReact {
 
   element(src: ElementReact){
@@ -30,10 +28,10 @@ export class GenerateES extends GenerateReact {
 
     const type =
       typeof tag === "string" ?
-        IsComponentElement.test(tag) ?
+        /^[A-Z]/.test(tag) ?
           identifier(tag) :
           stringLiteral(tag) :
-        normalize(tag);
+        stripJSX(tag);
 
     return this.createElement(
       type,
@@ -47,7 +45,7 @@ export class GenerateES extends GenerateReact {
     key?: Expression | false
   ){
     const Fragment =
-      this.external.ensure("$pragma", "Fragment");
+      this.Imports.ensure("$pragma", "Fragment");
 
     let props = key && [
       objectProperty(identifier("key"), key)
@@ -66,7 +64,7 @@ export class GenerateES extends GenerateReact {
     children: ContentLike[]
   ){
     const create =
-      this.external.ensure("$pragma", "createElement", "create");
+      this.Imports.ensure("$pragma", "createElement", "create");
 
     const inner = this.recombineChildren(children);
 
@@ -119,19 +117,19 @@ function recombineProps(props: PropData[]){
     : properties[0];
 }
 
-function normalize(
+function stripJSX(
   exp: JSXMemberExpression | JSXIdentifier | Identifier
 ): MemberExpression | Identifier {
 
   switch(exp.type){
-    case "JSXIdentifier":
-      return identifier(exp.name);
     case "Identifier":
       return exp;
+    case "JSXIdentifier":
+      return identifier(exp.name);
     case "JSXMemberExpression":
       return memberExpression(
-        normalize(exp.object),
-        normalize(exp.property)
+        stripJSX(exp.object),
+        stripJSX(exp.property)
       );
     default:
       throw new Error("Bad MemeberExpression");

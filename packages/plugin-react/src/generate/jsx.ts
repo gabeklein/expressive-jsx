@@ -23,8 +23,8 @@ import { ContentLike, IsLegalAttribute, JSXContent, PropData } from 'types';
 export class GenerateJSX extends GenerateReact {
 
   willExitModule(){
-    if(this.module.lastInsertedElement)
-      this.external.ensure("$pragma", "default", "React")
+    if(this.Module.lastInsertedElement)
+      this.Imports.ensure("$pragma", "default", "React")
   }
 
   element(src: ElementReact){
@@ -50,7 +50,7 @@ export class GenerateJSX extends GenerateReact {
     key?: Expression | false
   ){
     const Fragment = jsxIdentifier(
-      this.external.ensure("$pragma", "Fragment").name
+      this.Imports.ensure("$pragma", "Fragment").name
     );
 
     const content =

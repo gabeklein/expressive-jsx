@@ -5,8 +5,8 @@ import { ContentLike } from 'types';
 
 export abstract class GenerateReact {
   constructor(
-    protected module: Module,
-    protected external: ExternalsManager
+    protected Module: Module,
+    protected Imports: ExternalsManager
   ){}
 
   willExitModule?(): void;
