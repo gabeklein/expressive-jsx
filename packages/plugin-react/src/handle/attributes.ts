@@ -30,12 +30,9 @@ export abstract class AttributeBody extends TraversableBody {
   style = {} as BunchOf<ExplicitStyle>;
 
   get uid(){
-    return this.uid =
-      this.name + "_" + hash(this.context.prefix);
-  }
-
-  set uid(uid: string){
-    Object.defineProperty(this, "uid", { value: uid });
+    const value = this.name + "_" + hash(this.context.prefix);
+    Object.defineProperty(this, "uid", { value });
+    return value
   }
 
   insert(item: Prop | ExplicitStyle){
