@@ -11,18 +11,18 @@ export abstract class GenerateReact {
 
   willExitModule?(): void;
 
-  abstract fragment(
-    children?: ContentLike[],
-    key?: Expression | false
-  ): CallExpression | JSXElement
-
   abstract element(
     src: ElementReact
   ): CallExpression | JSXElement;
 
+  abstract fragment(
+    children?: ContentLike[],
+    key?: Expression | false
+  ): CallExpression | JSXElement;
+
   public container(
     src: ElementReact,
-    fragmentKey?: Identifier | false
+    key?: Identifier | false
   ): Expression {
 
     let output: ContentLike | undefined;
@@ -34,7 +34,7 @@ export abstract class GenerateReact {
         return booleanLiteral(false);
 
       if(children.length > 1)
-        return this.fragment(children, fragmentKey);
+        return this.fragment(children, key);
 
       output = children[0];
     }
@@ -48,8 +48,8 @@ export abstract class GenerateReact {
     else if(output instanceof ElementReact)
       output = this.element(output)
 
-    if(fragmentKey)
-      return this.fragment([ output ], fragmentKey)
+    if(key)
+      return this.fragment([ output ], key)
     else
       return output
   }

@@ -37,6 +37,13 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   style = new AttributeStack<ExplicitStyle>();
   style_static = [] as ExplicitStyle[];
 
+  get tagName(): string | JSXMemberExpression {
+    const { name, explicitTagName } = this.source;
+    return explicitTagName || (
+      name && /^[A-Z]/.test(name) ? name : "div"
+    );
+  }
+
   constructor(source: E){
     this.source = source;
     this.context = source.context;
@@ -80,8 +87,13 @@ export class ElementReact<E extends ElementInline = ElementInline> {
         this.Statement(item);
     }
 
-    if(this.didParse)
-      this.didParse();
+    this.didParse();
+  }
+
+  didParse(){
+    this.applyHoistedStyle();
+    this.applyInlineStyle();
+    this.applyClassname();
   }
 
   willParse(sequence: SequenceItem[]){
@@ -155,12 +167,6 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       declared.add(mod);
   }
 
-  didParse(){
-    this.applyHoistedStyle();
-    this.applyInlineStyle();
-    this.applyClassname();
-  }
-
   addProperty(
     name: string | false | undefined,
     value: Expression){
@@ -168,27 +174,20 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     this.props.push({ name, value });
   }
 
-  get tagName(): string | JSXMemberExpression {
-    const { name, explicitTagName } = this.source;
-    return explicitTagName || (
-      name && /^[A-Z]/.test(name) ? name : "div"
-    );
-  }
-
   protected adopt(item: ContentLike){
     this.children.push(item)
   }
 
   private applyHoistedStyle(){
-    const { style_static, context } = this;
+    const { style_static, context, source } = this;
 
     if(style_static.length > 0){
-      const mod = new ContingentModifier(context, this.source);
-      const { name, uid } = this.source;
+      const mod = new ContingentModifier(context, source);
+      const { name, uid } = source;
 
       const classMostLikelyForwarded =
         /^[A-Z]/.test(name!) &&
-        !(this.source instanceof ComponentExpression);
+        !(source instanceof ComponentExpression);
 
       mod.priority = classMostLikelyForwarded ? 3 : 2;
       mod.sequence.push(...style_static);
@@ -230,16 +229,22 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   }
 
   private applyClassname(){
-    if(this.source.hasOwnProperty("uid"))
-      this.classList.push(this.source.uid);
+    const {
+      classList: list,
+      context: { Imports },
+      source
+    } = this;
 
-    if(!this.classList.length)
+    if(source.hasOwnProperty("uid"))
+      list.push(source.uid);
+
+    if(!list.length)
       return;
 
     const selectors = [] as Expression[];
     let classList = "";
 
-    for(const item of this.classList)
+    for(const item of list)
       if(typeof item == "string")
         classList += " " + item;
       else
@@ -253,7 +258,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     let computeClassname = selectors[0];
 
     if(selectors.length > 1){
-      const join = this.context.Imports.ensure("$runtime", "join");
+      const join = Imports.ensure("$runtime", "join");
       computeClassname = callExpression(join, selectors)
     }
 
@@ -314,9 +319,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       this.adopt(fork)
 
     if(item.hasStyleOutput){
-      this.classList.push(
-        fork.toClassName()
-      );
+      this.classList.push(fork.toClassName());
     }
   }
 

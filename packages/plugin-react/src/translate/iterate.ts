@@ -77,7 +77,9 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     if(isVariableDeclaration(left))
       left = left.declarations[0].id;
 
-    if(isIdentifier(left) || isObjectPattern(left) || isArrayPattern(left))
+    if(isIdentifier(left)
+    || isObjectPattern(left)
+    || isArrayPattern(left))
       void 0;
     else
       throw new Error("Assignment of variable left of \"of\" must be Identifier or Destruture")
@@ -116,18 +118,13 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     let { key, mayCollapseContent } = this;
 
     if(this.props.length){
-      let exists = this.props.find(
-        x => x.name === "key"
-      )
+      let exists =
+        this.props.find(x => x.name === "key");
 
       if(!exists)
-        this.props =
-        this.props.concat({
-          name: "key",
-          value: key
-        } as any)
+        this.props.push({ name: "key", value: key! });
 
-      mayCollapseContent = true
+      mayCollapseContent = true;
     }
 
     return Generator.container(this, !mayCollapseContent && key);

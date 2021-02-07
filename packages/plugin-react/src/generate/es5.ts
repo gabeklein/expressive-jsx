@@ -35,9 +35,10 @@ export class GenerateES extends GenerateReact {
           stringLiteral(tag) :
         normalize(tag);
 
-    return this.createElement(type,
+    return this.createElement(
+      type,
       recombineProps(props),
-      this.recombineChildren(children)
+      children
     );
   }
 
@@ -55,19 +56,21 @@ export class GenerateES extends GenerateReact {
     return this.createElement(
       Fragment,
       objectExpression(props || []),
-      this.recombineChildren(children)
+      children
     )
   }
 
   private createElement(
     type: Identifier | StringLiteral | MemberExpression,
     props: Expression,
-    children: Expression[]
+    children: ContentLike[]
   ){
     const create =
       this.external.ensure("$pragma", "createElement", "create");
 
-    return callExpression(create, [type, props, ...children]);
+    const inner = this.recombineChildren(children);
+
+    return callExpression(create, [type, props, ...inner]);
   }
 
   private recombineChildren(input: ContentLike[]): Expression[] {
@@ -125,12 +128,11 @@ function normalize(
       return identifier(exp.name);
     case "Identifier":
       return exp;
-    case "JSXMemberExpression": {
-      const a = normalize(exp.object);
-      const b = normalize(exp.property);
-
-      return memberExpression(a, b);
-    }
+    case "JSXMemberExpression":
+      return memberExpression(
+        normalize(exp.object),
+        normalize(exp.property)
+      );
     default:
       throw new Error("Bad MemeberExpression");
   }

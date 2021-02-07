@@ -38,15 +38,16 @@ export function _object(
   obj: BunchOf<Expression | false | undefined> = {}){
 
   const properties = [];
-  for(const x in obj){
+
+  for(const x in obj)
     if(obj[x])
-    properties.push(
-      objectProperty(
-        identifier(x),
-        obj[x] as Expression
+      properties.push(
+        objectProperty(
+          identifier(x),
+          obj[x] as Expression
+        )
       )
-    )
-  }
+
   return objectExpression(properties);
 }
 
