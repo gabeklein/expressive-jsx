@@ -26,6 +26,8 @@ const Oops = ParseErrors({
 
 export abstract class AttributeBody extends TraversableBody {
 
+  abstract ElementModifier(mod: Modifier): void;
+
   props = {} as BunchOf<Prop>;
   style = {} as BunchOf<ExplicitStyle>;
 
@@ -49,8 +51,6 @@ export abstract class AttributeBody extends TraversableBody {
 
     this.add(item);
   }
-
-  abstract ElementModifier(mod: Modifier): void;
 
   LabeledStatement(
     node: LabeledStatement,

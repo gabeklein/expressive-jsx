@@ -1,6 +1,7 @@
 import {
   callExpression,
   Expression,
+  isExpression,
   isStringLiteral,
   JSXMemberExpression,
   objectExpression,
@@ -90,41 +91,39 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     const inlineOnly = Shared.opts.styleMode === "inline";
     // TODO: respect priority differences!
 
-    const willCollide = (name: string) =>
-      name in existsAlready ||
-      name in accumulator &&
-      accumulator[name].overridden !== true
-
     if(classList)
       this.classList.push(...classList);
 
     for(const mod of this.source.modifiers){
       if(mod.sequence.length === 0 && mod.applicable.length === 0)
-        continue
-
-      const maybeMod = mod as ElementModifier;
+        continue;
 
       const collapsable =
-        maybeMod.nTargets == 1 &&
+        mod instanceof ElementModifier &&
+        mod.nTargets == 1 &&
         mod.onlyWithin === undefined &&
         mod.applicable.length === 0;
 
-      for(const style of mod.sequence){
-        if(!(style instanceof ExplicitStyle))
-          continue;
-
-        if(!style.invariant || inlineOnly || collapsable){
-          const { name } = style;
-
-          if(!name || willCollide(name))
+      for(const style of mod.sequence)
+        if(style instanceof ExplicitStyle){
+          const { name, invariant } = style;
+  
+          if(!invariant
+          || !name
+          || inlineOnly
+          || collapsable
+          || name in existsAlready
+          || name in accumulator &&
+             !accumulator[name].overridden)
             continue;
-
+  
           accumulator[name] = style;
         }
-      }
 
-      if(!inlineOnly && !collapsable)
-        this.applyModifierAsClassname(maybeMod)
+      if(!inlineOnly
+      && !collapsable
+      && mod instanceof ElementModifier)
+        this.applyModifierAsClassname(mod);
     }
 
     for(const name in accumulator)

@@ -91,9 +91,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     return undefined
   }
 
-  private elementOutput(
-    Generator: GenerateReact
-  ){
+  private elementOutput(Generator: GenerateReact){
     let { key, mayCollapseContent } = this;
 
     if(this.props.length){
@@ -119,6 +117,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     Generator: GenerateReact,
     extractor?: Expression | false
   ): CallExpression {
+
     let { key } = this;
     let { left, right } = this;
 
