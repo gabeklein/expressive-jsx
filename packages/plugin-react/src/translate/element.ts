@@ -25,22 +25,62 @@ import { StackFrame } from 'parse';
 import { Shared } from 'shared';
 import { AttributeStack, ElementIterate, ElementSwitch } from 'translate';
 import { BunchOf, ContentLike, PropData, SequenceItem } from 'types';
-import { ElementConstruct } from './core';
 
-export class ElementReact<T extends ElementInline = ElementInline>
-  extends ElementConstruct<T>{
+export class ElementReact<E extends ElementInline = ElementInline> {
 
-  context: StackFrame
+  source: E;
+  context: StackFrame;
   children = [] as ContentLike[];
   props = [] as PropData[];
   classList = [] as Array<string | Expression>
   style = new AttributeStack<ExplicitStyle>();
   style_static = [] as ExplicitStyle[];
 
-  constructor(public source: T){
-    super();
-    this.context = source.context as StackFrame;
+  constructor(source: E){
+    this.source = source;
+    this.context = source.context;
     this.parse(true);
+  }
+
+  parse(invariant?: boolean, overridden?: boolean){
+    let { sequence } = this.source;
+
+    const replace = this.willParse(sequence);
+    
+    if(replace)
+      sequence = replace;
+
+    for(const item of sequence as SequenceItem[]){
+      if(item instanceof ComponentIf)
+        this.Switch(item)
+
+      else if(item instanceof ComponentFor)
+        this.Iterate(item)
+
+      else if(item instanceof ElementInline)
+        this.Child(item);
+
+      else if(item instanceof Attribute){
+        if(!overridden && item.overridden
+        || !invariant && item.invariant)
+          continue;
+
+        if(item instanceof ExplicitStyle)
+          this.Style(item);
+        else
+        if(item instanceof Prop)
+          this.Props(item);
+      }
+
+      else if(isExpression(item))
+        this.Content(item);
+
+      else
+        this.Statement(item);
+    }
+
+    if(this.didParse)
+      this.didParse();
   }
 
   willParse(sequence: SequenceItem[]){
@@ -107,7 +147,6 @@ export class ElementReact<T extends ElementInline = ElementInline>
       if(applicable instanceof ContingentModifier)
         doesProvideAStyle = true;
       else
-
       if(applicable instanceof ElementModifier)
         if(applicable.sequence.length)
           this.classList.push(applicable.uid);
