@@ -316,7 +316,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
 
     if(item.hasStyleOutput){
       this.classList.push(
-        fork.classLogic()
+        fork.toClassName()
       );
     }
   }
