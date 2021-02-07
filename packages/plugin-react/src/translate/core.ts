@@ -2,8 +2,7 @@ import { Expression, isExpression, Statement } from '@babel/types';
 import { Attribute, ComponentFor, ComponentIf, ElementInline, ExplicitStyle, Prop } from 'handle';
 import { SequenceItem } from 'types';
 
-export abstract class ElementConstruct
-  <From extends ElementInline = ElementInline> {
+export abstract class ElementConstruct<From extends ElementInline> {
 
   abstract source: From;
 
@@ -15,7 +14,13 @@ export abstract class ElementConstruct
   abstract Switch(item: ComponentIf): void;
   abstract Iterate(item: ComponentFor): void;
 
-  Attribute?(item: Attribute): boolean | undefined | Statement;
+  Attribute(item: Attribute){
+    if(item instanceof ExplicitStyle)
+      this.Style(item);
+    else
+    if(item instanceof Prop)
+      this.Props(item);
+  };
 
   willParse?(sequence: SequenceItem[]): SequenceItem[] | undefined;
   didParse?(): void;
@@ -40,18 +45,11 @@ export abstract class ElementConstruct
         this.Child(item);
 
       else if(item instanceof Attribute){
-        if(this.Attribute && this.Attribute(item))
-          continue
-
-        if(!overridden && item.overridden === true
-        || !invariant && item.invariant === true)
+        if(!overridden && item.overridden
+        || !invariant && item.invariant)
           continue;
 
-        if(item instanceof ExplicitStyle)
-          this.Style(item)
-        else
-        if(item instanceof Prop)
-          this.Props(item);
+        this.Attribute(item);
       }
 
       else if(isExpression(item))

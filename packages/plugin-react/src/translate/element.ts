@@ -9,7 +9,7 @@ import {
   spreadElement,
   stringLiteral,
 } from '@babel/types';
-import { attributeES, ElementConstruct, expressionValue } from 'generate';
+import { attributeES, expressionValue } from 'generate';
 import {
   Attribute,
   ComponentExpression,
@@ -25,6 +25,7 @@ import { StackFrame } from 'parse';
 import { Shared } from 'shared';
 import { AttributeStack, ElementIterate, ElementSwitch } from 'translate';
 import { BunchOf, ContentLike, PropData, SequenceItem } from 'types';
+import { ElementConstruct } from './core';
 
 export class ElementReact<T extends ElementInline = ElementInline>
   extends ElementConstruct<T>{
