@@ -20,7 +20,7 @@ import {
   stringLiteral,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { _callExpression, _declareStatement, _objectExpression } from 'generate/syntax';
+import { _callExpression, _declareStatement, _objectExpression } from 'generate';
 import { ComponentExpression } from 'handle';
 import { StackFrame } from 'parse';
 import { ExternalsManager } from 'regenerate';
