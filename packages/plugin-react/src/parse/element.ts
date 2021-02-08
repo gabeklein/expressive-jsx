@@ -1,7 +1,6 @@
 import {
   BinaryExpression,
   Expression,
-  FunctionExpression,
   isBinaryExpression,
   isExpression,
   isIdentifier,
@@ -43,6 +42,7 @@ const Oops = ParseErrors({
   NotImplemented: "{1} Not Implemented",
   VoidArgsOverzealous: "Pass-Thru (void) elements can only receive styles through `do { }` statement.",
   BadShorthandProp: "\"+\" shorthand prop must be an identifier!",
+  MethodPropNotAllowed: "Cannot transfer a method property; implement as normal property using an arrow function instead.",
   NestOperatorInEffect: "",
   UnrecognizedBinary: ""
 })
@@ -74,7 +74,7 @@ function isJustAValue(subject: any){
 
   while(isBinaryExpression(target) || isLogicalExpression(target)){
     leftOf = target;
-    target = target.left;
+    target = target.left as Expression;;
   }
 
   if(isUnaryExpression(target, {operator: "void"})){
@@ -147,7 +147,7 @@ function parseLayers(
     const { left, right } = subject;
     (<any>right).doNotTransform = true;
     nestedExpression = right;
-    subject = left;
+    subject = left as Expression;
   }
 
   while(isBinaryExpression(subject)){
@@ -173,7 +173,7 @@ function parseLayers(
     }
 
     chain.unshift(rightHand);
-    subject = leftHand
+    subject = leftHand as Expression;
   }
   chain.unshift(subject);
 
@@ -441,7 +441,10 @@ function parseProps(
 
           if(isObjectProperty(property)){
             const { key, value } = property;
-            const name: string = key.value || key.name;
+            const name = String(
+              "value" in key && key.value || 
+              "name" in key && key.name
+            );
 
             if(!isExpression(value))
               throw Oops.BadObjectKeyValue(value, value.type);
@@ -452,13 +455,8 @@ function parseProps(
           else if(isSpreadElement(property))
             insert = new Prop(false, property.argument);
 
-          else if(isObjectMethod(property)){
-            const func = Object.assign(
-              { id: null, type: "FunctionExpression" },
-              property as any
-            );
-            insert = new Prop(property.key, func as FunctionExpression)
-          }
+          else if(isObjectMethod(property))
+            Oops.MethodPropNotAllowed(property);
 
           target.add(insert!)
         }

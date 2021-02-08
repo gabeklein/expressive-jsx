@@ -37,7 +37,7 @@
     "typescript": "3.8.3"
   },
   "dependencies": {
-    "@babel/template": "7.8.6",
-    "@babel/types": "7.9.5"
+    "@babel/template": "^7.9.5",
+    "@babel/types": "^7.9.5"
   }
 }
