@@ -47,47 +47,46 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   constructor(source: E){
     this.source = source;
     this.context = source.context;
-    this.parse(true);
-  }
 
-  parse(invariant?: boolean, overridden?: boolean){
-    let { sequence } = this.source;
+    this.willParse();
 
-    const replace = this.willParse(sequence);
-    
-    if(replace)
-      sequence = replace;
-
-    for(const item of sequence as SequenceItem[]){
-      if(item instanceof ComponentIf)
-        this.Switch(item)
-
-      else if(item instanceof ComponentFor)
-        this.Iterate(item)
-
-      else if(item instanceof ElementInline)
-        this.Child(item);
-
-      else if(item instanceof Attribute){
-        if(!overridden && item.overridden
-        || !invariant && item.invariant)
-          continue;
-
-        if(item instanceof ExplicitStyle)
-          this.Style(item);
-        else
-        if(item instanceof Prop)
-          this.Props(item);
-      }
-
-      else if(isExpression(item))
-        this.Content(item);
-
-      else
-        this.Statement(item);
-    }
+    for(const item of this.source.sequence)
+      this.handle(item, true);
 
     this.didParse();
+  }
+
+  handle(
+    item: SequenceItem,
+    invariant?: boolean,
+    overridden?: boolean){
+
+    if(item instanceof ComponentIf)
+      this.Switch(item)
+
+    else if(item instanceof ComponentFor)
+      this.Iterate(item)
+
+    else if(item instanceof ElementInline)
+      this.Child(item);
+
+    else if(item instanceof Attribute){
+      if(!overridden && item.overridden
+      || !invariant && item.invariant)
+        return;
+
+      if(item instanceof ExplicitStyle)
+        this.Style(item);
+      else
+      if(item instanceof Prop)
+        this.Props(item);
+    }
+
+    else if(isExpression(item))
+      this.Content(item);
+
+    else
+      this.Statement(item);
   }
 
   didParse(){
@@ -96,55 +95,47 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     this.applyClassname();
   }
 
-  willParse(sequence: SequenceItem[]){
-    const {
-      style: elementStyle,
-      modifiers
-    } = this.source;
-
-    const accumulator = {} as BunchOf<Attribute>;
-    const inlineOnly = Shared.opts.styleMode === "inline";
+  willParse(){
+    const elementStyle = this.source.style;
+    const accumulator = {} as BunchOf<ExplicitStyle>;
     // TODO: respect priority differences!
 
-    for(const mod of modifiers){
-      if(mod.sequence.length === 0 && mod.alsoApplies.length === 0)
+    if(Shared.opts.styleMode === "inline")
+      return;
+
+    for(const mod of this.source.modifiers){
+      if(mod.sequence.length === 0
+      && mod.alsoApplies.length === 0)
         continue;
 
-      const collapsable =
-        mod instanceof ElementModifier &&
-        mod.hasTargets == 1 &&
-        mod.onlyWithin === undefined &&
-        mod.alsoApplies.length === 0;
+      if(mod instanceof ElementModifier
+      && mod.hasTargets == 1
+      && mod.onlyWithin === undefined)
+        continue;
 
       for(const style of mod.sequence)
         if(style instanceof ExplicitStyle){
-          const { name, invariant } = style;
+          const { name, invariant, overridden } = style;
   
           if(!invariant
-          || !name
-          || inlineOnly
-          || collapsable
+          || overridden
+          || name === undefined
           || name in elementStyle
-          || name in accumulator &&
-             !accumulator[name].overridden)
+          || name in accumulator)
             continue;
   
           accumulator[name] = style;
         }
 
-      if(!inlineOnly
-      && !collapsable
-      && mod instanceof ElementModifier)
+      if(mod instanceof ElementModifier)
         this.applyModifierAsClassname(mod);
     }
 
-    for(const name in accumulator)
-      elementStyle[name] = accumulator[name] as ExplicitStyle;
-
-    const pre: SequenceItem[] = Object.values(accumulator);
-
-    if(pre.length)
-      return pre.concat(sequence);
+    for(const name in accumulator){
+      const style = accumulator[name];
+      elementStyle[name] = style;
+      this.Style(style);
+    }
   }
 
   applyModifierAsClassname(mod: ElementModifier){

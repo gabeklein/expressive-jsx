@@ -19,7 +19,6 @@ import { GenerateReact, _call, _get, _objectKeys } from 'generate';
 import { ComponentFor, ElementInline, Prop } from 'handle';
 import { ensureUIDIdentifier } from 'regenerate';
 import { ElementReact } from 'translate';
-import { SequenceItem } from 'types';
 
 export class ElementIterate extends ElementReact<ComponentFor> {
   type: "ForOfStatement" | "ForInStatement" | "ForStatement";
@@ -59,7 +58,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
       )
   }
 
-  willParse(sequence: SequenceItem[]){
+  willParse(){
     const { node } = this.source;
 
     if(!isForXStatement(node))
