@@ -11,5 +11,5 @@ const Component = () => create(\\"div\\", {}, \\"Hello World\\");"
 exports[`basic component 2`] = `
 "import React from \\"react\\";
 
-const Component = () => <div>{\\"Hello World\\"}</div>;"
+const Component = () => <div>Hello World</div>;"
 `;

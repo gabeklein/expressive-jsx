@@ -88,7 +88,7 @@ export class GenerateJSX extends GenerateReact {
         if(isJSXElement(child))
           jsx = child;
   
-        else if(isStringLiteral(child) && /\{/.test(child.value))
+        else if(isStringLiteral(child) && !/\{/.test(child.value))
           jsx = jsxText(child.value);
   
         else if(isExpression(child))

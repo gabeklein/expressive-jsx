@@ -24,7 +24,7 @@ exports[`basic style 2`] = `
 "import Styles from \\"@expressive/react\\";
 import React from \\"react\\";
 
-const Component = () => <div className=\\"Component_3cs\\">{\\"Hello World\\"}</div>;
+const Component = () => <div className=\\"Component_3cs\\">Hello World</div>;
 
 Styles.include(\`
 	.Component_3cs { 
