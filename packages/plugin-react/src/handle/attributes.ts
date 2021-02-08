@@ -39,14 +39,16 @@ export abstract class AttributeBody extends TraversableBody {
 
   insert(item: Prop | ExplicitStyle){
     const { name } = item;
-    const accumulator = item instanceof Prop
+    const register = item instanceof Prop
       ? this.props : this.style;
 
     if(name){
-      const existing = accumulator[name];
+      const existing = register[name];
+
       if(existing)
         existing.overridden = true;
-      accumulator[name] = item;
+
+      register[name] = item;
     }
 
     this.add(item);
@@ -90,9 +92,13 @@ export abstract class AttributeBody extends TraversableBody {
 
 export abstract class Attribute<T extends Expression = Expression> {
   name?: string;
-  overridden?: boolean;
-  invariant?: boolean;
   value: FlatValue | T | undefined
+
+  /** May be ignored; another style took its place. */
+  overridden?: boolean;
+
+  /** Is a static value. May be hoisted and/or baked. */
+  invariant?: boolean;
 
   constructor(
     name: string | false,

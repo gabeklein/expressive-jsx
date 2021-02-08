@@ -101,11 +101,11 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     if(inner.length === 1
     && element instanceof ElementInline
     && element.props.key === undefined){
-      element.insert(new Prop("key", this.key));
       this.mayCollapseContent = true;
-    }
-
-    return undefined
+      element.insert(
+        new Prop("key", this.key)
+      );
+    };
   }
 
   private elementOutput(Generator: GenerateReact){

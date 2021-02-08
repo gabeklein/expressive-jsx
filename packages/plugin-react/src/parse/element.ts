@@ -254,7 +254,7 @@ export function applyNameImplications(
 
   while(modify){
     target.modifiers.push(modify);
-    modify.nTargets += 1
+    modify.hasTargets += 1
 
     // for(const mod of parent.modifiers)
     // if(mod instanceof ElementModifier)

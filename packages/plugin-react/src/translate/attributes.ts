@@ -25,9 +25,7 @@ export class AttributeStack<Type extends Attribute>
 
   invariant = [] as Type[];
 
-  insert(
-    item: Type): boolean {
-
+  insert(item: Type): boolean {
     if(item.name === undefined){
       this.top = item
       this.push(item);

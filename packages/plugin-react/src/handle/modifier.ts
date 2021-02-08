@@ -52,7 +52,7 @@ export abstract class Modifier extends AttributeBody {
 export class ElementModifier extends Modifier {
   name?: string;
   next?: ElementModifier;
-  nTargets = 0;
+  hasTargets = 0;
   provides = [] as ElementModifier[];
   priority = 1;
 

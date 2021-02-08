@@ -112,7 +112,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
 
       const collapsable =
         mod instanceof ElementModifier &&
-        mod.nTargets == 1 &&
+        mod.hasTargets == 1 &&
         mod.onlyWithin === undefined &&
         mod.alsoApplies.length === 0;
 
