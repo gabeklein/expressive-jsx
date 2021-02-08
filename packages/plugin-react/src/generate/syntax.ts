@@ -120,3 +120,12 @@ export function _objectAssign(
     objects
   )
 }
+
+export function _objectKeys(
+  ...objects: Expression[]){
+
+  return callExpression(
+    _get("Object.keys"),
+    objects
+  )
+}

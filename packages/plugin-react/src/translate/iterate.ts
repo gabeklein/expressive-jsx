@@ -15,7 +15,7 @@ import {
   PatternLike,
   returnStatement,
 } from '@babel/types';
-import { GenerateReact, _call, _get } from 'generate';
+import { GenerateReact, _call, _get, _objectKeys } from 'generate';
 import { ComponentFor, ElementInline, Prop } from 'handle';
 import { ensureUIDIdentifier } from 'regenerate';
 import { ElementReact } from 'translate';
@@ -48,13 +48,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     if(type === "ForInStatement")
       return (
         _call(
-          _get(
-            _call(
-              _get("Object.keys"),
-              right!
-            ),
-            "member"
-          ),
+          _get(_objectKeys(right!), "member"),
           arrowFunctionExpression([left!], body)
         )
       )
