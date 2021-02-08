@@ -7,6 +7,16 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Jest Tests",
+      "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
+      "cwd": "${workspaceFolder}/packages/plugin-react",
+      "args": ["--watchAll", "--runInBand", "--config=jest.config.js", "${input:testName}"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "XJS -> JSX",
       "program": "${workspaceFolder}/tests/bin/debug.js",
       "cwd": "${workspaceRoot}/tests",
@@ -38,5 +48,12 @@
         "source-map-support/register"
       ]
     },
+  ],
+  "inputs": [
+    {
+      "id": "testName",
+      "type": "promptString",
+      "description": "Test you wish to run a debug session for."
+    }
   ]
 }

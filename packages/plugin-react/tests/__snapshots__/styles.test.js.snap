@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`basic style 1`] = `
+"const {
+  default: Styles
+} = require(\\"@expressive/react\\");
+
+const {
+  createElement: create
+} = require(\\"react\\");
+
+const Component = () => create(\\"div\\", {
+  \\"className\\": \\"Component_3cs\\"
+}, \\"Hello World\\");
+
+Styles.include(\`
+	.Component_3cs { 
+		color: green;
+	}
+\`);"
+`;
+
+exports[`basic style 2`] = `
+"import Styles from \\"@expressive/react\\";
+import React from \\"react\\";
+
+const Component = () => <div className=\\"Component_3cs\\">{\\"Hello World\\"}</div>;
+
+Styles.include(\`
+	.Component_3cs { 
+		color: green;
+	}
+\`);"
+`;

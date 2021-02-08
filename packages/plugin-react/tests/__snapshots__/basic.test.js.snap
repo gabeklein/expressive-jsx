@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`basic component 1`] = `
+"const {
+  createElement: create
+} = require(\\"react\\");
+
+const Component = () => create(\\"div\\", {}, \\"Hello World\\");"
+`;
+
+exports[`basic component 2`] = `
+"import React from \\"react\\";
+
+const Component = () => <div>{\\"Hello World\\"}</div>;"
+`;
