@@ -15,9 +15,10 @@ import {
   PatternLike,
   returnStatement,
 } from '@babel/types';
-import { GenerateReact, _call, _get, _objectKeys } from 'generate';
+import { GenerateReact } from 'generate';
 import { ComponentFor, ElementInline, Prop } from 'handle';
 import { ensureUIDIdentifier } from 'regenerate';
+import { _call, _get, _objectKeys } from 'syntax';
 import { ElementReact } from 'translate';
 
 export class ElementIterate extends ElementReact<ComponentFor> {

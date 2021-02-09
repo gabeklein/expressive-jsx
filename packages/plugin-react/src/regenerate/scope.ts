@@ -1,5 +1,4 @@
 import { NodePath as Path, Scope } from '@babel/traverse';
-import { Statement } from '@babel/types';
 import {
   Expression,
   Identifier,
@@ -20,10 +19,11 @@ import {
   ObjectProperty,
   objectProperty,
   Program,
-  stringLiteral
+  Statement,
+  stringLiteral,
 } from '@babel/types';
-import { _declare, _require } from 'generate';
 import { Shared } from 'shared';
+import { _declare, _require } from 'syntax';
 import { BunchOf } from 'types';
 
 type ImportSpecific =

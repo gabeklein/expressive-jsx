@@ -19,10 +19,10 @@ import {
   stringLiteral,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { _call, _declare, _object } from 'generate';
 import { ComponentExpression } from 'handle';
 import { StackFrame } from 'parse';
 import { ExternalsManager } from 'regenerate';
+import { _call, _declare, _object } from 'syntax';
 import { ElementReact } from 'translate';
 import { DoExpressive } from 'types';
 

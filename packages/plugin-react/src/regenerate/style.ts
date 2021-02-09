@@ -1,7 +1,7 @@
 import { expressionStatement, Statement, stringLiteral, templateElement, templateLiteral } from '@babel/types';
-import { _call, _get } from 'generate';
 import { ExplicitStyle, Modifier } from 'handle';
 import { Module } from 'regenerate';
+import { _call, _get } from 'syntax';
 import { BunchOf } from 'types';
 
 type SelectorContent = [ string, string[] ][];
