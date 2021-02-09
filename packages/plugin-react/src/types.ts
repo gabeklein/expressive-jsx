@@ -28,7 +28,7 @@ export type JSXContent = JSXElement | JSXFragment | JSXExpressionContainer | JSX
 export type Attributes = JSXAttribute | JSXSpreadAttribute;
 export type InnerJSX = ElementReact | ElementSwitch | ElementIterate;
 export type ContentLike = ElementReact | ElementSwitch | ElementIterate | Expression;
-export type Visitor<T, S extends StackFrame = StackFrame> = VisitNodeObject<BabelState<S>, T>;
+export type Visitor<T extends Node, S extends StackFrame = StackFrame> = VisitNodeObject<BabelState<S>, T>;
 
 export const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;
 export const IsLegalIdentifier = /^[a-zA-Z_]\w*$/;

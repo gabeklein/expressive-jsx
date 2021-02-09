@@ -27,7 +27,7 @@ export function generateEntryElement(
     break;
 
     case "ReturnStatement":
-      const container = parent.findParent(x => /.*Function.*/.test(x.type));
+      const container = parent.findParent(x => /.*Function.*/.test(x.type))!;
 
       if(container.type == "ArrowFunctionExpression")
         containerFn = container as Path<ArrowFunctionExpression>;

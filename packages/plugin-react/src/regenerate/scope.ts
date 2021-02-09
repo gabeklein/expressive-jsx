@@ -103,7 +103,7 @@ export class ImportManager implements ExternalsManager {
     }
 
     for(const spec of list)
-      if("imported" in spec && spec.imported.name == name){
+      if("imported" in spec && isIdentifier(spec.imported, { name })){
         uid = identifier(spec.local.name);
         break;
       }

@@ -16,7 +16,6 @@ import {
   objectProperty,
   PatternLike,
   returnStatement,
-  Statement,
   stringLiteral,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
@@ -53,7 +52,7 @@ export function replaceDoExpression(path: NodePath<DoExpressive>){
 
   if(element.exec && element.statements.length){
     const replacement = [
-      ...element.statements as Statement[],
+      ...element.statements,
       returnStatement(factoryExpression)
     ];
 
