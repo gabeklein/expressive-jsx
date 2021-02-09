@@ -21,7 +21,7 @@
     "/index.js"
   ],
   "dependencies": {
-    "@expressive/babel-plugin-react": "^1.0.0-beta.50",
-    "@expressive/modify-style": "^1.0.0-beta.45"
+    "@expressive/babel-plugin-react": "1.0.0-beta.50",
+    "@expressive/modify-style": "1.0.0-beta.45"
   }
 }

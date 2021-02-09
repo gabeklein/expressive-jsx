@@ -29,11 +29,10 @@
     "prepare": "yarn build"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.5",
+    "@babel/core": "^7.10.3",
     "@expressive/modify-style": "1.0.0-beta.45",
     "@jest/globals": "^26.4.2",
-    "@types/babel__template": "7.0.2",
-    "@types/babel__traverse": "7.0.10",
+    "@types/babel__traverse": "^7.11.0",
     "@types/jest": "^26.0.10",
     "@types/node": "^11.13.4",
     "jest": "^26.4.2",
@@ -44,7 +43,7 @@
     "typescript": "3.8.3"
   },
   "dependencies": {
-    "@babel/template": "^7.9.5",
-    "@babel/types": "^7.9.5"
+    "@babel/template": "^7.10.3",
+    "@babel/types": "7.10.3"
   }
 }
