@@ -2,28 +2,36 @@ import { NodePath as Path } from '@babel/traverse';
 import { Program as ProgramNode } from '@babel/types';
 import { GenerateES, GenerateJSX } from 'generate';
 import { Modifier } from 'handle';
-import { StackFrame } from 'parse';
+import { StackFrame, handleTopLevelModifier } from 'parse';
 import { ExternalsManager, ImportManager, RequireManager, writeProvideStyleStatement } from 'regenerate';
 import { hash, Shared } from 'shared';
-import { BabelState, DoExpressive } from 'types';
+import { BabelFile, BabelState, DoExpressive } from 'types';
 
 export function createModuleContext(
   path: Path<ProgramNode>,
   state: BabelState<StackFrame>
 ){
-  Object.assign(Shared.opts, state.opts);
-
+  const context = state.context = StackFrame.init(state);
   const { Importer, Generator } = selectContext();
+
+  Object.assign(Shared.opts, state.opts);
+  Shared.currentFile = state.file as BabelFile;
 
   const I = new Importer(path);
   const M = new Module(path, state, I);
   const G = new Generator(M, I);
 
-  Object.assign(state.context, {
+  Object.assign(context, {
     Generator: G,
     Imports: I,
     Module: M
-  })
+  });
+
+  for(const item of path.get("body"))
+    if(item.isLabeledStatement()){
+      handleTopLevelModifier(item.node, context);
+      item.remove();
+    }
 }
 
 export function closeModuleContext(
@@ -35,9 +43,7 @@ export function closeModuleContext(
     Module: M
   } = state.context;
 
-  if(G.willExitModule)
-    G.willExitModule();
-
+  G.EOF();
   M.EOF();
   I.EOF();
 }

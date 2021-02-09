@@ -1,10 +1,10 @@
-import { isExpressionStatement, isLabeledStatement, LabeledStatement, Program as BabelProgram } from '@babel/types';
+import { isExpressionStatement, LabeledStatement } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { GenerateReact } from 'generate';
 import { ComponentExpression, ComponentIf, ElementInline, ElementModifier } from 'handle';
 import { ExternalsManager, Module } from 'regenerate';
 import { hash, Shared } from 'shared';
-import { BabelFile, BabelState, BunchOf, ModifyAction } from 'types';
+import { BabelState, BunchOf, ModifyAction } from 'types';
 
 import * as builtIn from './builtin';
 
@@ -16,25 +16,8 @@ const Oops = ParseErrors({
   DuplicateModifier: "Duplicate declaration of named modifier!"
 })
 
-export function createFileContext(
-  node: BabelProgram,
-  state: BabelState){
 
-  const context = StackFrame.init(state);
-
-  Shared.currentFile = state.file as BabelFile;
-
-  node.body = node.body.filter((item) => {
-    if(!isLabeledStatement(item))
-      return true;
-    else {
-      handleTopLevelModifier(item, context);
-      return false;
-    }
-  });
-}
-
-function handleTopLevelModifier(
+export function handleTopLevelModifier(
   node: LabeledStatement,
   context: StackFrame){
 

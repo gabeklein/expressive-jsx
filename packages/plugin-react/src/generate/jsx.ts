@@ -22,7 +22,7 @@ import { ContentLike, IsLegalAttribute, JSXContent, PropData } from 'types';
 
 export class GenerateJSX extends GenerateReact {
 
-  willExitModule(){
+  EOF(){
     if(this.Module.lastInsertedElement)
       this.Imports.ensure("$pragma", "default", "React")
   }

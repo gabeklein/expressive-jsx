@@ -9,7 +9,7 @@ export abstract class GenerateReact {
     protected Imports: ExternalsManager
   ){}
 
-  willExitModule?(): void;
+  EOF(){};
 
   abstract element(
     src: ElementReact

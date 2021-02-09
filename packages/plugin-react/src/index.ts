@@ -1,5 +1,5 @@
 import { Program as ProgramNode } from '@babel/types';
-import { createFileContext, generateEntryElement } from 'parse';
+import { generateEntryElement } from 'parse';
 
 import { closeModuleContext, createModuleContext, replaceDoExpression } from 'regenerate';
 import { DoExpressive, Visitor } from 'types';
@@ -21,7 +21,6 @@ const DoExpression: Visitor<DoExpressive> = {
 
 const Program: Visitor<ProgramNode> = {
   enter(path, state){
-    createFileContext(path.node, state);
     createModuleContext(path, state);
   },
   exit(path, state){
