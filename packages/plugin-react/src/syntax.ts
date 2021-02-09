@@ -10,6 +10,8 @@ import {
   objectExpression,
   objectProperty,
   stringLiteral,
+  templateElement,
+  templateLiteral,
   thisExpression,
   variableDeclaration,
   variableDeclarator,
@@ -127,5 +129,13 @@ export function _objectKeys(
   return callExpression(
     _get("Object.keys"),
     objects
+  )
+}
+
+export function _template(text: string){
+  return (
+    templateLiteral([
+      templateElement({ raw: text, cooked: text }, true)
+    ], [])
   )
 }

@@ -1,11 +1,10 @@
 import { booleanLiteral, CallExpression, Expression, Identifier, JSXElement } from '@babel/types';
-import { ExternalsManager, Module } from 'regenerate';
+import { ExternalsManager } from 'regenerate';
 import { ElementReact } from 'translate';
 import { ContentLike } from 'types';
 
 export abstract class GenerateReact {
   constructor(
-    protected Module: Module,
     protected Imports: ExternalsManager
   ){}
 

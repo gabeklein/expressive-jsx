@@ -70,7 +70,7 @@ export function replaceDoExpression(path: NodePath<DoExpressive>){
       path.replaceWith(factoryExpression);
   }
 
-  context.Module.lastInsertedElement = path;
+  context.lastInsertedElement = path;
 }
 
 function asOnlyAttributes(factory: ElementReact){

@@ -4,6 +4,11 @@ import { generateEntryElement } from 'parse';
 import { closeModuleContext, createModuleContext, replaceDoExpression } from 'regenerate';
 import { DoExpressive, Visitor } from 'types';
 
+const Program: Visitor<ProgramNode> = {
+  enter: createModuleContext,
+  exit: closeModuleContext
+}
+
 const DoExpression: Visitor<DoExpressive> = {
   enter(path, state){
     let { meta } = path.node;
@@ -16,15 +21,6 @@ const DoExpression: Visitor<DoExpressive> = {
   exit(path){
     path.node.meta.didExitOwnScope(path);
     replaceDoExpression(path)
-  }
-}
-
-const Program: Visitor<ProgramNode> = {
-  enter(path, state){
-    createModuleContext(path, state);
-  },
-  exit(path, state){
-    closeModuleContext(state);
   }
 }
 

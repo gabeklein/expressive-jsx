@@ -1,20 +1,13 @@
 import { NodePath as Path } from '@babel/traverse';
-import { Program as ProgramNode } from '@babel/types';
-import { Modifier } from 'handle';
+import { callExpression, Expression, expressionStatement, Program, stringLiteral } from '@babel/types';
 import { handleTopLevelModifier, StackFrame } from 'parse';
-import {
-  ExternalsManager,
-  GenerateES,
-  GenerateJSX,
-  ImportManager,
-  RequireManager,
-  writeProvideStyleStatement,
-} from 'regenerate';
+import { GenerateES, GenerateJSX, generateStyleBlock, ImportManager, RequireManager } from 'regenerate';
 import { hash, Shared } from 'shared';
-import { BabelFile, BabelState, DoExpressive } from 'types';
+import { _get, _template } from 'syntax';
+import { BabelFile, BabelState } from 'types';
 
 export function createModuleContext(
-  path: Path<ProgramNode>,
+  path: Path<Program>,
   state: BabelState<StackFrame>
 ){
   const context = state.context = StackFrame.init(state);
@@ -24,13 +17,11 @@ export function createModuleContext(
   Shared.currentFile = state.file as BabelFile;
 
   const I = new Importer(path);
-  const M = new Module(path, state, I);
-  const G = new Generator(M, I);
+  const G = new Generator(I);
 
   Object.assign(context, {
     Generator: G,
-    Imports: I,
-    Module: M
+    Imports: I
   });
 
   for(const item of path.get("body"))
@@ -41,16 +32,35 @@ export function createModuleContext(
 }
 
 export function closeModuleContext(
+  path: Path<Program>,
   state: BabelState<StackFrame>){
 
   const {
     Generator: G,
     Imports: I,
-    Module: M
+    modifiersDeclared: modifiers
   } = state.context;
 
+  const styles = generateStyleBlock(modifiers, true);
+
+  if(styles){
+    const fileId = state.opts.hot !== false && hash(state.filename, 10);
+    const _runtime = I.ensure("$runtime", "default", "Styles");
+    const args: Expression[] = [ _template(styles) ];
+  
+    if(fileId)
+      args.push(stringLiteral(fileId));
+
+    path.pushContainer("body", [
+      expressionStatement(
+        callExpression(
+          _get(_runtime, "include"), args
+        )
+      )
+    ]);
+  }
+
   G.EOF();
-  M.EOF();
   I.EOF();
 }
 
@@ -82,25 +92,4 @@ function selectContext(){
     Importer = ImportManager;
 
   return { Generator, Importer };
-}
-
-export class Module {
-  modifiersDeclared = new Set<Modifier>();
-  lastInsertedElement?: Path<DoExpressive>;
-
-  constructor(
-    public path: Path<ProgramNode>,
-    public state: BabelState,
-    public imports: ExternalsManager){
-  }
-
-  get relativeFileName(){
-    // return relative(this.state.cwd, this.state.filename);
-    return hash(this.state.filename, 10)
-  }
-
-  EOF(){
-    if(this.modifiersDeclared.size)
-      writeProvideStyleStatement(this, Shared.opts);
-  }
 }

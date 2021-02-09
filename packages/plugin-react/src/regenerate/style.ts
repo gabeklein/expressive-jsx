@@ -1,19 +1,23 @@
-import { expressionStatement, Statement, stringLiteral, templateElement, templateLiteral } from '@babel/types';
 import { ExplicitStyle, Modifier } from 'handle';
-import { Module } from 'regenerate';
-import { _call, _get } from 'syntax';
 import { BunchOf } from 'types';
 
 type SelectorContent = [ string, string[] ][];
 type MediaGroups = SelectorContent[];
 
-export function writeProvideStyleStatement(module: Module, opts: any){
-  const media = organizeStyle(module.modifiersDeclared);
-  const text = createSyntax(media, opts);
-  insertStyleSyntax(module, text, opts);
+export function generateStyleBlock(
+  from: Set<Modifier>,
+  pretty: boolean){
+
+  if(!from.size)
+    return;
+  
+  const media = organizeStyle(from);
+  return createSyntax(media, pretty);
 }
 
-function organizeStyle(modifiersDeclared: Set<Modifier>){
+function organizeStyle(
+  modifiersDeclared: Set<Modifier>){
+
   const media: BunchOf<MediaGroups> = {
     default: []
   };
@@ -35,7 +39,11 @@ function organizeStyle(modifiersDeclared: Set<Modifier>){
         targetQuery[priority] :
         targetQuery[priority] = [];
 
-    const items = block.sequence.filter(style => "invariant" in style) as ExplicitStyle[];
+    const items = [] as ExplicitStyle[];
+
+    for(const item of block.sequence)
+      if(item instanceof ExplicitStyle && item.invariant)
+        items.push(item);
 
     const styles = items.map(style => {
       let styleKey = style.name;
@@ -68,7 +76,7 @@ function organizeStyle(modifiersDeclared: Set<Modifier>){
 
 function createSyntax(
   media: BunchOf<MediaGroups>,
-  opts: any
+  pretty: boolean
 ){
   const lines = [];
 
@@ -77,7 +85,7 @@ function createSyntax(
 
     for(const bunch of priorityBunches)
       for(const [ name, styles ] of bunch){
-        if(opts.printStyle == "pretty"){
+        if(pretty){
           let rules = styles.map(x => `\t${x};`);
           lines.push(name + " { ", ...rules, "}")
         }
@@ -91,39 +99,4 @@ function createSyntax(
   const content = lines.map(x => "\t" + x).join("\n")
 
   return `\n${content}\n`
-}
-
-function insertStyleSyntax(
-  module: Module,
-  computedStyle: string,
-  opts: any
-){
-  const {
-    path: program,
-    lastInsertedElement: pivot,
-    imports,
-    relativeFileName
-  } = module;
-
-  const programBody = program.node.body;
-  const polyfillModule = imports.ensure("$runtime", "default", "Styles");
-
-  const filenameMaybe = opts.hot !== false
-    ? [ stringLiteral(relativeFileName) ] : [];
-
-  const provideStatement =
-    expressionStatement(
-      _call(
-        _get(polyfillModule, "include"),
-        templateLiteral([
-          templateElement({raw: computedStyle, cooked: computedStyle}, true)
-        ], []),
-        ...filenameMaybe
-      )
-    )
-
-  const provideStatementGoesAfter = pivot!.getAncestry().reverse()[1];
-  const index = programBody.indexOf(provideStatementGoesAfter.node as Statement);
-
-  programBody.splice(index + 1, 0, provideStatement)
 }

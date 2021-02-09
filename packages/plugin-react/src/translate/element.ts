@@ -140,7 +140,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
 
   applyModifierAsClassname(mod: ElementModifier){
     let doesProvideAStyle = false;
-    const declared = this.context.Module.modifiersDeclared;
+    const declared = this.context.modifiersDeclared;
 
     for(const applicable of [mod, ...mod.alsoApplies]){
       if(applicable.sequence.length)
@@ -183,7 +183,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       mod.priority = classMostLikelyForwarded ? 3 : 2;
       mod.sequence.push(...style_static);
       mod.forSelector = [ `.${uid}` ];
-      context.Module.modifiersDeclared.add(mod);
+      context.modifiersDeclared.add(mod);
     }
   }
 

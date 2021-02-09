@@ -1,9 +1,10 @@
+import { NodePath as Path } from '@babel/traverse';
 import { isExpressionStatement, LabeledStatement } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { ComponentExpression, ComponentIf, ElementInline, ElementModifier } from 'handle';
-import { ExternalsManager, GenerateReact, Module } from 'regenerate';
+import { ComponentExpression, ComponentIf, ElementInline, ElementModifier, Modifier } from 'handle';
+import { ExternalsManager, GenerateReact } from 'regenerate';
 import { hash, Shared } from 'shared';
-import { BabelState, BunchOf, ModifyAction } from 'types';
+import { BabelState, BunchOf, DoExpressive, ModifyAction } from 'types';
 
 import * as builtIn from './builtin';
 
@@ -14,7 +15,6 @@ const Oops = ParseErrors({
   BadModifierName: "Modifier name cannot start with _ symbol!",
   DuplicateModifier: "Duplicate declaration of named modifier!"
 })
-
 
 export function handleTopLevelModifier(
   node: LabeledStatement,
@@ -35,12 +35,14 @@ export function handleTopLevelModifier(
 }
 
 export interface StackFrame {
-  Module: Module;
   Generator: GenerateReact;
   Imports: ExternalsManager;
 }
 
 export class StackFrame {
+  modifiersDeclared = new Set<Modifier>();
+  lastInsertedElement?: Path<DoExpressive>;
+
   prefix: string;
   styleRoot = {} as any;
   stateSingleton: BabelState;
