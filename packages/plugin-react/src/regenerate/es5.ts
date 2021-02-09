@@ -16,8 +16,7 @@ import {
   StringLiteral,
   stringLiteral,
 } from '@babel/types';
-import { GenerateReact } from 'generate';
-import { dedent } from 'regenerate';
+import { dedent, GenerateReact } from 'regenerate';
 import { _object, _objectAssign } from 'syntax';
 import { ArrayStack, ElementReact } from 'translate';
 import { ContentLike, PropData } from 'types';

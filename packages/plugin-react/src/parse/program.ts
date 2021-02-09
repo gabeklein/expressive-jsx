@@ -1,8 +1,7 @@
 import { isExpressionStatement, LabeledStatement } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { GenerateReact } from 'generate';
 import { ComponentExpression, ComponentIf, ElementInline, ElementModifier } from 'handle';
-import { ExternalsManager, Module } from 'regenerate';
+import { ExternalsManager, GenerateReact, Module } from 'regenerate';
 import { hash, Shared } from 'shared';
 import { BabelState, BunchOf, ModifyAction } from 'types';
 

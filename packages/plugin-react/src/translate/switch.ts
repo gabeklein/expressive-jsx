@@ -7,8 +7,8 @@ import {
   stringLiteral,
   unaryExpression,
 } from '@babel/types';
-import { GenerateReact } from 'generate';
 import { ComponentConsequent, ComponentIf } from 'handle';
+import { GenerateReact } from 'regenerate';
 import { ElementReact } from 'translate';
 
 type Consequent = ComponentIf | ComponentConsequent;

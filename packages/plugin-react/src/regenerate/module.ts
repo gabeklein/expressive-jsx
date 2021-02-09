@@ -1,9 +1,15 @@
 import { NodePath as Path } from '@babel/traverse';
 import { Program as ProgramNode } from '@babel/types';
-import { GenerateES, GenerateJSX } from 'generate';
 import { Modifier } from 'handle';
-import { StackFrame, handleTopLevelModifier } from 'parse';
-import { ExternalsManager, ImportManager, RequireManager, writeProvideStyleStatement } from 'regenerate';
+import { handleTopLevelModifier, StackFrame } from 'parse';
+import {
+  ExternalsManager,
+  GenerateES,
+  GenerateJSX,
+  ImportManager,
+  RequireManager,
+  writeProvideStyleStatement,
+} from 'regenerate';
 import { hash, Shared } from 'shared';
 import { BabelFile, BabelState, DoExpressive } from 'types';
 

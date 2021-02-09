@@ -15,8 +15,7 @@ import {
   stringLiteral,
   TemplateLiteral,
 } from '@babel/types';
-import { GenerateReact } from 'generate';
-import { breakdown, dedent } from 'regenerate';
+import { breakdown, dedent, GenerateReact } from 'regenerate';
 import { ElementReact } from 'translate';
 import { ContentLike, IsLegalAttribute, JSXContent, PropData } from 'types';
 
