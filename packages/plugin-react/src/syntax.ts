@@ -1,5 +1,4 @@
 import {
-  arrayExpression,
   callExpression,
   Expression,
   identifier,
@@ -17,24 +16,6 @@ import {
   variableDeclarator,
 } from '@babel/types';
 import { BunchOf } from 'types';
-
-export function ensureArray(
-  children: Expression,
-  getFirst?: boolean){
-
-  const array = callExpression(
-    memberExpression(
-      arrayExpression(),
-      stringLiteral("concat")
-    ),
-    [ children ]
-  )
-
-  if(getFirst)
-    return memberExpression(array, numericLiteral(0));
-  else
-    return array;
-}
 
 export function _object(
   obj: BunchOf<Expression | false | undefined> = {}){
