@@ -33,42 +33,35 @@ export class GenerateES extends GenerateReact {
           stringLiteral(tag) :
         stripJSX(tag);
 
-    return this.createElement(
-      type,
-      recombineProps(props),
-      children
-    );
+    return this.createElement(type, props, children);
   }
 
   fragment(
     children = [] as ContentLike[],
-    key?: Expression | false
+    key?: Expression
   ){
-    const Fragment =
-      this.Imports.ensure("$pragma", "Fragment");
-
-    let props = key && [
-      objectProperty(identifier("key"), key)
-    ];
-
-    return this.createElement(
-      Fragment,
-      objectExpression(props || []),
-      children
-    )
+    let props = key && [{ name: "key", value: key }];
+    return this.createElement(null, props, children)
   }
 
   private createElement(
-    type: Identifier | StringLiteral | MemberExpression,
-    props: Expression,
-    children: ContentLike[]
+    type: null | Identifier | StringLiteral | MemberExpression,
+    props: PropData[] = [],
+    children: ContentLike[] = []
   ){
+    const { Imports } = this;
+
     const create =
-      this.Imports.ensure("$pragma", "createElement", "create");
+      Imports.ensure("$pragma", "createElement", "create");
+
+    if(type === null)
+      type = Imports.ensure("$pragma", "Fragment");
 
     const inner = this.recombineChildren(children);
 
-    return callExpression(create, [type, props, ...inner]);
+    return callExpression(create, [
+      type, recombineProps(props), ...inner
+    ]);
   }
 
   private recombineChildren(input: ContentLike[]): Expression[] {

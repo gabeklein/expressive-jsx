@@ -8,7 +8,9 @@ import {
   jsxClosingElement,
   jsxElement,
   jsxExpressionContainer,
+  JSXIdentifier,
   jsxIdentifier,
+  JSXMemberExpression,
   jsxOpeningElement,
   jsxSpreadAttribute,
   jsxText,
@@ -20,53 +22,50 @@ import { ElementReact } from 'translate';
 import { ContentLike, IsLegalAttribute, JSXContent, PropData } from 'types';
 
 export class GenerateJSX extends GenerateReact {
-
-  EOF(){
-    if(this.Module.lastInsertedElement)
-      this.Imports.ensure("$pragma", "default", "React")
-  }
-
   element(src: ElementReact){
-    const { tagName: tag, props, children } = src;
-
-    const type = typeof tag == "string" ? jsxIdentifier(tag) : tag;
-    const acceptBr = typeof tag == "string" && /[a-z]/.test(tag[0]);
-    const isEmpty = children.length === 0
-
-    const properties = props.map(recombineProps);
-    const content = this.recombineChildren(children, acceptBr);
-
-    return jsxElement(
-      jsxOpeningElement(type, properties, isEmpty),
-      jsxClosingElement(type),
-      content,
-      isEmpty
-    )
+    const { tagName, props, children } = src;
+    return this.createElement(tagName, props, children);
   }
 
   fragment(
-    children = [] as ContentLike[],
-    key?: Expression | false
+    children?: ContentLike[],
+    key?: Expression
   ){
-    const Fragment = jsxIdentifier(
-      this.Imports.ensure("$pragma", "Fragment").name
-    );
+    const props = key && [{ name: "key", value: key }];
+    return this.createElement(null, props, children);
+  }
 
-    const content =
-      this.recombineChildren(children, true);
+  private createElement(
+    tag: string | null | JSXMemberExpression | JSXIdentifier,
+    properties: PropData[] = [],
+    content: ContentLike[] = [],
+    acceptBr?: boolean
+  ){
+    const { Imports } = this;
+    let type: JSXMemberExpression | JSXIdentifier;
 
-    const properties = key && [
-      jsxAttribute(
-        jsxIdentifier("key"),
-        jsxExpressionContainer(key)
+    if(typeof tag == "string")
+      type = jsxIdentifier(tag);
+    else if(tag)
+      type = tag;
+    else
+      type = jsxIdentifier(
+        Imports.ensure("$pragma", "Fragment").name
       )
-    ]
+
+    if(acceptBr === undefined)
+      acceptBr = typeof tag == "string" && /^[a-z]/.test(tag);
+
+    const props = properties.map(createAttribute);
+    const children = this.recombineChildren(content, acceptBr);
+
+    Imports.ensure("$pragma", "default", "React");
 
     return jsxElement(
-      jsxOpeningElement(Fragment, properties || []),
-      jsxClosingElement(Fragment),
-      content,
-      false
+      jsxOpeningElement(type, props),
+      jsxClosingElement(type),
+      children,
+      children.length > 0
     )
   }
 
@@ -107,7 +106,7 @@ export class GenerateJSX extends GenerateReact {
   }
 }
 
-function recombineProps({ name, value }: PropData){
+function createAttribute({ name, value }: PropData){
   if(typeof name !== "string")
     return jsxSpreadAttribute(value);
   else {

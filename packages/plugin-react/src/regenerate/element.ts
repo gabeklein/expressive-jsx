@@ -17,12 +17,12 @@ export abstract class GenerateReact {
 
   abstract fragment(
     children?: ContentLike[],
-    key?: Expression | false
+    key?: Expression
   ): CallExpression | JSXElement;
 
   public container(
     src: ElementReact,
-    key?: Identifier | false
+    key?: Identifier
   ): Expression {
 
     let output: ContentLike | undefined;

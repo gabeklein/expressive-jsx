@@ -120,7 +120,10 @@ export class ElementIterate extends ElementReact<ComponentFor> {
       mayCollapseContent = true;
     }
 
-    return Generator.container(this, !mayCollapseContent && key);
+    if(mayCollapseContent)
+      key = undefined;
+
+    return Generator.container(this, key);
   }
 
   /*
