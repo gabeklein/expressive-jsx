@@ -172,10 +172,9 @@ export class RequireManager implements ExternalsManager {
 
     const source = this.imports[from] || this.ensureImported(from);
 
-    if(!alt)
-      for(const { key, value } of source)
-        if(isIdentifier(key, { name }) && isIdentifier(value))
-          return value;
+    for(const { key, value } of source)
+      if(isIdentifier(key, { name }) && isIdentifier(value))
+        return value;
 
     const uid = ensureUID(this.scope, alt || name);
     const ref = identifier(uid);
