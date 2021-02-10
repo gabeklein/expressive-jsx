@@ -15,7 +15,8 @@ import {
   jsxSpreadAttribute,
   jsxText,
 } from '@babel/types';
-import { GenerateReact, templateToMarkup } from 'regenerate';
+import { templateToMarkup } from 'deprecate';
+import { GenerateReact } from 'regenerate';
 import { ElementReact } from 'translate';
 import { ContentLike, IsLegalAttribute, JSXContent, PropData } from 'types';
 
