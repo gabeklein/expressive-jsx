@@ -36,13 +36,6 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   style = new AttributeStack<ExplicitStyle>();
   style_static = [] as ExplicitStyle[];
 
-  get tagName(): string | JSXMemberExpression {
-    const { name, explicitTagName } = this.source;
-    return explicitTagName || (
-      name && /^[A-Z]/.test(name) ? name : "div"
-    );
-  }
-
   constructor(source: E){
     this.source = source;
     this.context = source.context;
@@ -53,6 +46,13 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       this.handle(item, true);
 
     this.didParse();
+  }
+
+  get tagName(): string | JSXMemberExpression {
+    const { name, explicitTagName } = this.source;
+    return explicitTagName || (
+      name && /^[A-Z]/.test(name) ? name : "div"
+    );
   }
 
   handle(

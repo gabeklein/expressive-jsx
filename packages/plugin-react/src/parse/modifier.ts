@@ -5,8 +5,6 @@ import { BunchOf, ModiferBody, ModifyAction } from 'types';
 
 type ModTuple = [string, ModifyAction, any[] | ModiferBody ];
 
-const { isArray } = Array;
-
 export function applyModifier(
   initial: string,
   recipient: Modifier | ElementInline,
@@ -17,9 +15,7 @@ export function applyModifier(
   // const props = {} as BunchOf<Attribute>;
 
   let i = 0;
-  let stack: ModTuple[] = [
-    [ initial, handler, input ]
-  ];
+  let stack: ModTuple[] = [[ initial, handler, input ]];
 
   do {
     const next = stack[i];
@@ -75,7 +71,7 @@ export class ModifyDelegate {
     let important = false;
     let args: any[];
 
-    if(isArray(input))
+    if(Array.isArray(input))
       args = input;
     else {
       args = Arguments.Parse(input);

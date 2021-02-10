@@ -1,9 +1,9 @@
 import { ElementInline, ElementModifier } from "handle";
 
 const COMMON_HTML = [
-  "article", "input",
+  "article", "blockquote", "input",
   "h1", "h2", "h3", "h4", "h5", "h6",
-  "p", "a", "ul", "ol", "li", "blockquote",
+  "p", "a", "ul", "ol", "li",
   "i", "b", "em", "strong", "span",
   "hr", "img", "div", "br"
 ];
