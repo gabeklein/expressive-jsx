@@ -70,14 +70,10 @@ function HEXColor(raw: string){
   else return "#" + raw;
 }
 
-export const Arguments = new class DelegateTypes {
-
+export class DelegateTypes {
   [type: string]: (...args: any[]) => any;
 
-  Parse(
-    element: Expression | Statement,
-    get?: string): any[] {
-
+  parse(element: Expression | Statement): any[] {
     if(isExpressionStatement(element))
       element = element.expression
 
@@ -86,15 +82,6 @@ export const Arguments = new class DelegateTypes {
         ? this.Expression(element)
         : this.Extract(element)
     )
-  }
-
-  Extract(
-    element: Expression | Statement
-  ){
-    if(element.type in this)
-      return this[element.type](element);
-    else
-      throw Oops.UnknownArgument(element)
   }
 
   Expression<T extends Expression>(
@@ -108,6 +95,13 @@ export const Arguments = new class DelegateTypes {
       return element;
 
     return this.Extract(element)
+  }
+
+  Extract(element: Expression | Statement){
+    if(element.type in this)
+      return this[element.type](element);
+    else
+      throw Oops.UnknownArgument(element)
   }
 
   Identifier(e: Identifier){
@@ -203,9 +197,7 @@ export const Arguments = new class DelegateTypes {
     throw Oops.ArrowNotImplemented(e)
   }
 
-  IfStatement(
-    statement: IfStatement
-  ){
+  IfStatement(statement: IfStatement){
     const alt = statement.alternate;
     const test = statement.test;
     const body = statement.consequent;
@@ -226,24 +218,20 @@ export const Arguments = new class DelegateTypes {
     return data;
   }
 
-  LabeledStatement(
-    statement: LabeledStatement
-  ){
+  LabeledStatement(statement: LabeledStatement){
     return {
-      [statement.label.name]: this.Parse(statement.body)
+      [statement.label.name]: this.parse(statement.body)
     }
   }
 
-  BlockStatement(
-    statement: BlockStatement
-  ){
+  BlockStatement(statement: BlockStatement){
     const map = {} as BunchOf<any>
 
     for(const item of statement.body){
       if(!isLabeledStatement(item))
         throw Oops.ModiferCantParse(statement);
 
-      map[item.label.name] = this.Parse(item.body)
+      map[item.label.name] = this.parse(item.body)
     }
 
     return map;

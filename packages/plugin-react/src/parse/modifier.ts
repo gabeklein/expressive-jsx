@@ -1,6 +1,6 @@
 import { callExpression, identifier, Statement, stringLiteral } from '@babel/types';
 import { AttributeBody, ContingentModifier, ElementInline, ElementModifier, ExplicitStyle, Modifier, Prop } from 'handle';
-import { Arguments } from 'parse';
+import { DelegateTypes } from 'parse';
 import { BunchOf, ModiferBody, ModifyAction } from 'types';
 
 type ModTuple = [string, ModifyAction, any[] | ModiferBody ];
@@ -74,7 +74,7 @@ export class ModifyDelegate {
     if(Array.isArray(input))
       args = input;
     else {
-      args = Arguments.Parse(input);
+      args = new DelegateTypes().parse(input);
       this.body = input;
     }
 
