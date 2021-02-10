@@ -100,18 +100,17 @@ export class GenerateJSX extends GenerateReact {
 function createAttribute({ name, value }: PropData){
   if(typeof name !== "string")
     return jsxSpreadAttribute(value);
-  else {
-    if(IsLegalAttribute.test(name) == false)
-      throw new Error(`Illegal characters in prop named ${name}`)
 
-    const insertedValue =
-      isStringLiteral(value)
-        ? value.value === "true" ? null : value
-        : jsxExpressionContainer(value)
+  if(IsLegalAttribute.test(name) == false)
+    throw new Error(`Illegal characters in prop named ${name}`)
 
-    return jsxAttribute(
-      jsxIdentifier(name),
-      insertedValue
-    )
-  }
+  const insertedValue =
+    isStringLiteral(value)
+      ? value.value === "true" ? null : value
+      : jsxExpressionContainer(value)
+
+  return jsxAttribute(
+    jsxIdentifier(name),
+    insertedValue
+  )
 }
