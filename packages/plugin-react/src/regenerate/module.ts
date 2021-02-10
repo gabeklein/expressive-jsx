@@ -16,13 +16,10 @@ export function createModuleContext(
   Object.assign(Shared.opts, state.opts);
   Shared.currentFile = state.file as BabelFile;
 
-  const I = new Importer(path);
-  const G = new Generator(I);
+  const I =
+    context.Imports = new Importer(path);
 
-  Object.assign(context, {
-    Generator: G,
-    Imports: I
-  });
+  context.Generator = new Generator(I);
 
   for(const item of path.get("body"))
     if(item.isLabeledStatement()){
@@ -36,16 +33,16 @@ export function closeModuleContext(
   state: BabelState<StackFrame>){
 
   const {
-    Generator: G,
-    Imports: I,
-    modifiersDeclared: modifiers
+    Generator,
+    Imports,
+    modifiersDeclared
   } = state.context;
 
-  const styles = generateStyleBlock(modifiers, true);
+  const styles = generateStyleBlock(modifiersDeclared, true);
 
   if(styles){
     const fileId = state.opts.hot !== false && hash(state.filename, 10);
-    const _runtime = I.ensure("$runtime", "default", "Styles");
+    const runtime = Imports.ensure("$runtime", "default", "Styles");
     const args: Expression[] = [ _template(styles) ];
   
     if(fileId)
@@ -54,14 +51,14 @@ export function closeModuleContext(
     path.pushContainer("body", [
       expressionStatement(
         callExpression(
-          _get(_runtime, "include"), args
+          _get(runtime, "include"), args
         )
       )
     ]);
   }
 
-  G.EOF();
-  I.EOF();
+  Generator.EOF();
+  Imports.EOF();
 }
 
 function selectContext(){
