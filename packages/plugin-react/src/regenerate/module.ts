@@ -1,7 +1,8 @@
 import { NodePath as Path } from '@babel/traverse';
 import { callExpression, Expression, expressionStatement, Program, stringLiteral } from '@babel/types';
 import { Status } from 'errors';
-import { handleTopLevelModifier, StackFrame } from 'parse';
+import { handleTopLevelModifier } from 'modifier';
+import { StackFrame } from 'parse';
 import { GenerateES, GenerateJSX, generateStyleBlock, ImportManager, RequireManager } from 'regenerate';
 import { hash } from 'shared';
 import { _get, _template } from 'syntax';

@@ -1,5 +1,3 @@
-import { isExpressionStatement, LabeledStatement } from '@babel/types';
-import { ParseErrors } from 'errors';
 import { ComponentExpression, ComponentIf, ElementInline, ElementModifier, Modifier } from 'handle';
 import { ExternalsManager, GenerateReact } from 'regenerate';
 import { DEFAULTS, hash } from 'shared';
@@ -8,30 +6,6 @@ import { BabelState, BunchOf, ModifyAction, Options } from 'types';
 import * as builtIn from './builtin';
 
 type Stackable = { context: StackFrame };
-
-const Oops = ParseErrors({
-  IllegalAtTopLevel: "Cannot apply element styles in top-level of program",
-  BadModifierName: "Modifier name cannot start with _ symbol!",
-  DuplicateModifier: "Duplicate declaration of named modifier!"
-})
-
-export function handleTopLevelModifier(
-  node: LabeledStatement,
-  context: StackFrame){
-
-  const { body, label: { name }} = node;
-
-  if(name[0] == "_")
-    throw Oops.BadModifierName(node)
-
-  if(context.hasOwnModifier(name))
-    throw Oops.DuplicateModifier(node);
-
-  if(isExpressionStatement(body))
-    throw Oops.IllegalAtTopLevel(node)
-
-  ElementModifier.insert(context, name, body);
-}
 
 export interface StackFrame {
   Generator: GenerateReact;

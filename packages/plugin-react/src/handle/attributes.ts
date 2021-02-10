@@ -12,7 +12,7 @@ import {
 } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ElementModifier, Modifier, TraversableBody } from 'handle';
-import { applyModifier } from 'parse';
+import { applyModifier } from 'modifier';
 import { hash } from 'shared';
 import { BunchOf, FlatValue } from 'types';
 

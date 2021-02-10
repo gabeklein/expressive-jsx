@@ -1,0 +1,78 @@
+import { isExpressionStatement, LabeledStatement } from '@babel/types';
+import { ParseErrors } from 'errors';
+import { ElementInline, ElementModifier, ExplicitStyle, Modifier } from 'handle';
+import { StackFrame, ModifyDelegate } from 'parse';
+import { BunchOf, ModiferBody, ModifyAction } from 'types';
+
+const Oops = ParseErrors({
+  IllegalAtTopLevel: "Cannot apply element styles in top-level of program",
+  BadModifierName: "Modifier name cannot start with _ symbol!",
+  DuplicateModifier: "Duplicate declaration of named modifier!"
+})
+
+type ModTuple = [string, ModifyAction, any[] | ModiferBody ];
+
+export function applyModifier(
+  initial: string,
+  recipient: Modifier | ElementInline,
+  input: ModiferBody){
+
+  const handler = recipient.context.propertyMod(initial);
+  const styles = {} as BunchOf<ExplicitStyle>;
+  // const props = {} as BunchOf<Attribute>;
+
+  let i = 0;
+  let stack: ModTuple[] = [[ initial, handler, input ]];
+
+  do {
+    const next = stack[i];
+    const output = new ModifyDelegate(recipient, ...next);
+
+    Object.assign(styles, output.styles);
+    // Object.assign(props, output.props);
+
+    const recycle = output.attrs;
+    const pending = [] as ModTuple[];
+
+    if(recycle)
+      for(const named in recycle){
+        let input = recycle[named];
+
+        if(input == null)
+          continue;
+
+        const useSuper = named === initial;
+        const handler = recipient.context.findPropertyMod(named, useSuper);
+
+        pending.push([named, handler, input]);
+      }
+
+    if(pending.length){
+      stack = [...pending, ...stack.slice(i+1)];
+      i = 0;
+    }
+    else i++
+  }
+  while(i in stack)
+
+  for(const name in styles)
+    recipient.insert(styles[name]);
+}
+
+export function handleTopLevelModifier(
+  node: LabeledStatement,
+  context: StackFrame){
+
+  const { body, label: { name }} = node;
+
+  if(name[0] == "_")
+    throw Oops.BadModifierName(node)
+
+  if(context.hasOwnModifier(name))
+    throw Oops.DuplicateModifier(node);
+
+  if(isExpressionStatement(body))
+    throw Oops.IllegalAtTopLevel(node)
+
+  ElementModifier.insert(context, name, body);
+}

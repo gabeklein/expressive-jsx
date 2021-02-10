@@ -1,57 +1,8 @@
 import { Statement } from '@babel/types';
-import { AttributeBody, ContingentModifier, ElementInline, ElementModifier, ExplicitStyle, Modifier, Prop } from 'handle';
+import { AttributeBody, ContingentModifier, ElementInline, ElementModifier, ExplicitStyle, Prop } from 'handle';
 import { DelegateTypes } from 'parse';
 import { _require } from 'syntax';
 import { BunchOf, ModiferBody, ModifyAction } from 'types';
-
-type ModTuple = [string, ModifyAction, any[] | ModiferBody ];
-
-export function applyModifier(
-  initial: string,
-  recipient: Modifier | ElementInline,
-  input: ModiferBody){
-
-  const handler = recipient.context.propertyMod(initial);
-  const styles = {} as BunchOf<ExplicitStyle>;
-  // const props = {} as BunchOf<Attribute>;
-
-  let i = 0;
-  let stack: ModTuple[] = [[ initial, handler, input ]];
-
-  do {
-    const next = stack[i];
-    const output = new ModifyDelegate(recipient, ...next);
-
-    Object.assign(styles, output.styles);
-    // Object.assign(props, output.props);
-
-    const recycle = output.attrs;
-    const pending = [] as ModTuple[];
-
-    if(recycle)
-      for(const named in recycle){
-        let input = recycle[named];
-
-        if(input == null)
-          continue;
-
-        const useSuper = named === initial;
-        const handler = recipient.context.findPropertyMod(named, useSuper);
-
-        pending.push([named, handler, input]);
-      }
-
-    if(pending.length){
-      stack = [...pending, ...stack.slice(i+1)];
-      i = 0;
-    }
-    else i++
-  }
-  while(i in stack)
-
-  for(const name in styles)
-    recipient.insert(styles[name]);
-}
 
 export class ModifyDelegate {
   arguments?: Array<any>
