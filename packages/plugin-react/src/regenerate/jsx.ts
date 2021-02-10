@@ -138,22 +138,17 @@ function templateToMarkup(
   while(true) {
     const value = quasis[i].value.cooked as string;
 
-    if(value){
-      let text: JSXContent | undefined;
+    if(value)
       if(/\n/.test(value))
-        if(acceptBr)
-          return recombineMultilineJSX(node);
-        else
-          return [
-            jsxExpressionContainer(dedent(node))
-          ]
-      else if(/[{}]/.test(value))
-        jsxExpressionContainer(stringLiteral(value))
-      else
-        text = jsxText(value);
-
-      acc.push(text!)
-    }
+        return acceptBr
+          ? recombineMultilineJSX(node)
+          : [ jsxExpressionContainer(dedent(node)) ]
+      else 
+        acc.push(
+          /[{}]/.test(value)
+            ? jsxExpressionContainer(stringLiteral(value))
+            : jsxText(value)
+        )
 
     if(i in expressions)
       acc.push(
@@ -173,15 +168,15 @@ function recombineMultilineJSX(node: TemplateLiteral): JSXContent[] {
         jsxOpeningElement(jsxIdentifier("br"), [], true),
         undefined, [], true
       )
+
     if(typeof chunk === "string")
       return chunk.indexOf("{") < 0
         ? jsxText(chunk)
         : jsxExpressionContainer(stringLiteral(chunk))
 
-    else if(isJSXElement(chunk))
-      return chunk
+    if(isJSXElement(chunk))
+      return chunk;
 
-    else
-      return jsxExpressionContainer(chunk)
+    return jsxExpressionContainer(chunk)
   })
 }
