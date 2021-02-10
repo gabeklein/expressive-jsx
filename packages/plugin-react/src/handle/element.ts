@@ -20,10 +20,11 @@ import {
   UpdateExpression,
   VariableDeclaration,
 } from '@babel/types';
+import { addElementsFromExpression } from 'deprecate';
 import { ParseErrors } from 'errors';
 import { Attribute, AttributeBody, ComponentFor, ComponentIf, ElementModifier, ExplicitStyle, Modifier, Prop } from 'handle';
-import { addElementsFromExpression, applyNameImplications, StackFrame } from 'parse';
-import { addElementFromJSX } from 'parse/jsx';
+import { applyNameImplications, StackFrame } from 'parse';
+import { addElementFromJSX } from 'parse';
 import { inParenthesis } from 'shared';
 import { DoExpressive, InnerContent } from 'types';
 
