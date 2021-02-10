@@ -1,4 +1,70 @@
-import { Expression, TemplateElement, TemplateLiteral } from '@babel/types';
+import {
+  Expression,
+  jsxElement,
+  jsxExpressionContainer,
+  jsxIdentifier,
+  isJSXElement,
+  jsxOpeningElement,
+  jsxText,
+  stringLiteral,
+  TemplateElement,
+  TemplateLiteral,
+} from '@babel/types';
+import { JSXContent } from 'types';
+
+export function templateToMarkup(
+  node: TemplateLiteral,
+  acceptBr: boolean){
+
+  const { expressions, quasis } = node;
+  let acc = [] as JSXContent[];
+  let i = 0;
+
+  while(true) {
+    const value = quasis[i].value.cooked as string;
+
+    if(value)
+      if(/\n/.test(value))
+        return acceptBr
+          ? recombineMultilineJSX(node)
+          : [ jsxExpressionContainer(dedent(node)) ]
+      else 
+        acc.push(
+          /[{}]/.test(value)
+            ? jsxExpressionContainer(stringLiteral(value))
+            : jsxText(value)
+        )
+
+    if(i in expressions)
+      acc.push(
+        jsxExpressionContainer(expressions[i++])
+      )
+    else
+      break;
+  }
+
+  return acc;
+}
+
+function recombineMultilineJSX(node: TemplateLiteral): JSXContent[] {
+  return breakdown(node).map(chunk => {
+    if(chunk === "\n")
+      return jsxElement(
+        jsxOpeningElement(jsxIdentifier("br"), [], true),
+        undefined, [], true
+      )
+
+    if(typeof chunk === "string")
+      return chunk.indexOf("{") < 0
+        ? jsxText(chunk)
+        : jsxExpressionContainer(stringLiteral(chunk))
+
+    if(isJSXElement(chunk))
+      return chunk;
+
+    return jsxExpressionContainer(chunk)
+  })
+}
 
 export function dedent(quasi: TemplateLiteral){
   const { quasis } = quasi;

@@ -14,10 +14,8 @@ import {
   jsxOpeningElement,
   jsxSpreadAttribute,
   jsxText,
-  stringLiteral,
-  TemplateLiteral,
 } from '@babel/types';
-import { breakdown, dedent, GenerateReact } from 'regenerate';
+import { GenerateReact, templateToMarkup } from 'regenerate';
 import { ElementReact } from 'translate';
 import { ContentLike, IsLegalAttribute, JSXContent, PropData } from 'types';
 
@@ -125,58 +123,4 @@ function createAttribute({ name, value }: PropData){
       insertedValue
     )
   }
-}
-
-function templateToMarkup(
-  node: TemplateLiteral,
-  acceptBr: boolean){
-
-  const { expressions, quasis } = node;
-  let acc = [] as JSXContent[];
-  let i = 0;
-
-  while(true) {
-    const value = quasis[i].value.cooked as string;
-
-    if(value)
-      if(/\n/.test(value))
-        return acceptBr
-          ? recombineMultilineJSX(node)
-          : [ jsxExpressionContainer(dedent(node)) ]
-      else 
-        acc.push(
-          /[{}]/.test(value)
-            ? jsxExpressionContainer(stringLiteral(value))
-            : jsxText(value)
-        )
-
-    if(i in expressions)
-      acc.push(
-        jsxExpressionContainer(expressions[i++])
-      )
-    else
-      break;
-  }
-
-  return acc;
-}
-
-function recombineMultilineJSX(node: TemplateLiteral): JSXContent[] {
-  return breakdown(node).map(chunk => {
-    if(chunk === "\n")
-      return jsxElement(
-        jsxOpeningElement(jsxIdentifier("br"), [], true),
-        undefined, [], true
-      )
-
-    if(typeof chunk === "string")
-      return chunk.indexOf("{") < 0
-        ? jsxText(chunk)
-        : jsxExpressionContainer(stringLiteral(chunk))
-
-    if(isJSXElement(chunk))
-      return chunk;
-
-    return jsxExpressionContainer(chunk)
-  })
 }
