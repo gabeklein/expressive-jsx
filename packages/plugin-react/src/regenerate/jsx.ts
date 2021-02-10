@@ -21,8 +21,7 @@ import { ContentLike, IsLegalAttribute, JSXContent, PropData } from 'types';
 
 export class GenerateJSX extends GenerateReact {
   element(src: ElementReact){
-    const { tagName, props, children } = src;
-    return this.createElement(tagName, props, children);
+    return this.createElement(src.tagName, src.props, src.children);
   }
 
   fragment(
@@ -39,25 +38,19 @@ export class GenerateJSX extends GenerateReact {
     content: ContentLike[] = [],
     acceptBr?: boolean
   ){
-    const { Imports } = this;
-    let type: JSXMemberExpression | JSXIdentifier;
-
-    if(typeof tag == "string")
-      type = jsxIdentifier(tag);
-    else if(tag)
-      type = tag;
-    else
-      type = jsxIdentifier(
-        Imports.ensure("$pragma", "Fragment").name
-      )
+    const scope = this.Imports;
 
     if(acceptBr === undefined)
-      acceptBr = typeof tag == "string" && /^[a-z]/.test(tag);
+      acceptBr = !tag || typeof tag == "string" && /^[a-z]/.test(tag);
 
+    if(!tag)
+      tag = scope.ensure("$pragma", "Fragment").name;
+
+    const type = typeof tag == "string" ? jsxIdentifier(tag) : tag;
     const props = properties.map(createAttribute);
     const children = this.recombineChildren(content, acceptBr);
 
-    Imports.ensure("$pragma", "default", "React");
+    scope.ensure("$pragma", "default", "React");
 
     return jsxElement(
       jsxOpeningElement(type, props),
