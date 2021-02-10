@@ -23,7 +23,6 @@ import { ArrayStack, ElementReact } from 'translate';
 import { ContentLike, PropData } from 'types';
 
 export class GenerateES extends GenerateReact {
-
   element(src: ElementReact){
     const { tagName: tag, props, children } = src;
 
@@ -58,25 +57,25 @@ export class GenerateES extends GenerateReact {
     if(type === null)
       type = Imports.ensure("$pragma", "Fragment");
 
-    const inner = this.recombineChildren(children);
-
     return callExpression(create, [
-      type, recombineProps(props), ...inner
+      type,
+      recombineProps(props),
+      ...children.map(child => this.normalize(child))
     ]);
   }
 
-  private recombineChildren(input: ContentLike[]): Expression[] {
-    return input.map(child => (
-      "toExpression" in child ?
+  private normalize(child: ContentLike): Expression {
+    return (
+      ("toExpression" in child) ?
         child.toExpression(this) :
+      child instanceof ElementReact ?
+        this.element(child) :
+      isTemplateLiteral(child) ? 
+        dedent(child) :
       isExpression(child) ?
-        isTemplateLiteral(child) ?
-          dedent(child) :
         child :
-      child instanceof ElementReact
-        ? this.element(child)
-        : booleanLiteral(false)
-    ));
+      booleanLiteral(false)
+    )
   }
 }
 

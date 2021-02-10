@@ -49,7 +49,14 @@ export class GenerateJSX extends GenerateReact {
 
     const type = typeof tag == "string" ? jsxIdentifier(tag) : tag;
     const props = properties.map(createAttribute);
-    const children = this.recombineChildren(content, acceptBr);
+    
+    const children = [] as JSXContent[];
+
+    for(const child of content)
+      if(isTemplateLiteral(child))
+        children.push(...templateToMarkup(child, acceptBr));
+      else 
+        children.push(this.normalize(child));
 
     scope.ensure("$pragma", "default", "React");
 
@@ -61,21 +68,6 @@ export class GenerateJSX extends GenerateReact {
     )
   }
 
-  private recombineChildren(
-    input: ContentLike[],
-    acceptBr: boolean){
-
-    const output = [] as JSXContent[];
-
-    for(const child of input)
-      if(isTemplateLiteral(child))
-        output.push(...templateToMarkup(child, acceptBr));
-      else 
-        output.push(this.normalize(child));
-
-    return output;
-  }
-
   private normalize(child: ContentLike){
     return (
       isJSXElement(child) ?
@@ -84,7 +76,7 @@ export class GenerateJSX extends GenerateReact {
         jsxText(child.value) :
       isExpression(child) ?
         jsxExpressionContainer(child) :
-      "toExpression" in child ?
+      ("toExpression" in child) ?
         jsxExpressionContainer(child.toExpression(this)) :
       this.element(child)
     )

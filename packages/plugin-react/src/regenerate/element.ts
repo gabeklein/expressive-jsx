@@ -8,8 +8,6 @@ export abstract class GenerateReact {
     protected Imports: ExternalsManager
   ){}
 
-  EOF(){};
-
   abstract element(
     src: ElementReact
   ): CallExpression | JSXElement;

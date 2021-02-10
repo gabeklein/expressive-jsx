@@ -33,7 +33,6 @@ export function closeModuleContext(
   state: BabelState<StackFrame>){
 
   const {
-    Generator,
     Imports,
     modifiersDeclared
   } = state.context;
@@ -57,7 +56,6 @@ export function closeModuleContext(
     ]);
   }
 
-  Generator.EOF();
   Imports.EOF();
 }
 
