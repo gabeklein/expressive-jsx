@@ -1,6 +1,7 @@
-import { callExpression, identifier, Statement, stringLiteral } from '@babel/types';
+import { Statement } from '@babel/types';
 import { AttributeBody, ContingentModifier, ElementInline, ElementModifier, ExplicitStyle, Modifier, Prop } from 'handle';
 import { DelegateTypes } from 'parse';
+import { _require } from 'syntax';
 import { BunchOf, ModiferBody, ModifyAction } from 'types';
 
 type ModTuple = [string, ModifyAction, any[] | ModiferBody ];
@@ -156,7 +157,7 @@ function propertyModifierDefault(
     if(value)
       return value;
     else if(requires)
-      return requireExpression(requires);
+      return _require(requires);
     else
       return arg;
   })
@@ -171,15 +172,4 @@ function propertyModifierDefault(
       [this.name]: output
     }
   }
-}
-
-export function requireExpression(from: string){
-  const argument = 
-    typeof from == "string"
-      ? stringLiteral(from)
-      : from
-
-  return callExpression(
-    identifier("require"), [argument]
-  )
 }
