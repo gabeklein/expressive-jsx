@@ -11,12 +11,9 @@ const Oops = ParseErrors({
 })
 
 function concat(
-  to: any,
-  from: any,
+  to: BunchOf<any[]>, 
+  from: BunchOf<any[]>,
   ...names: string[]){
-
-  to = to as BunchOf<any[]>;
-  from = from as BunchOf<any[]>;
 
   for(const name of names)
     if(name in from)
@@ -81,7 +78,7 @@ export class ElementModifier extends Modifier {
     mod.priority = this.priority;
     this.provides.push(mod);
     this.onlyWithin = mod.onlyWithin;
-    concat(mod, this, "onGlobalStatus")
+    concat(mod as any, this as any, "onGlobalStatus");
   }
 }
 
