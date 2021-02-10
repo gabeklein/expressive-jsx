@@ -22,9 +22,8 @@ import {
   Statement,
   stringLiteral,
 } from '@babel/types';
-import { Shared } from 'shared';
 import { _declare, _require } from 'syntax';
-import { BunchOf } from 'types';
+import { BunchOf, Options } from 'types';
 
 type ImportSpecific =
   | ImportSpecifier 
@@ -62,32 +61,42 @@ export function ensureUID(
   return uid;
 }
 
-export interface ExternalsManager {
-  opts?: any;
-
-  ensure(from: string, name: string, alt?: string): Identifier;
-  ensureImported(from: string, after?: number): void;
-
-  EOF(): void;
-}
-
-export class ImportManager implements ExternalsManager {
-  imports = {} as BunchOf<ImportSpecific[]>
-  importIndices = {} as BunchOf<number>
+export abstract class ExternalsManager {
   body: Statement[];
   scope: Scope;
 
-  constructor(path: Path<Program>){
+  constructor(
+    path: Path<Program>,
+    private opts: Options){
+
     this.body = path.node.body;
     this.scope = path.scope;
   }
+
+  abstract ensure(from: string, name: string, alt?: string): Identifier;
+  abstract ensureImported(from: string, after?: number): void;
+
+  abstract EOF(): void;
+
+  replaceAlias(value: string){
+    if(value[0] !== "$")
+      return value;
+
+    const name = value.slice(1) as keyof Options;
+    return this.opts[name] as string;
+  }
+}
+
+export class ImportManager extends ExternalsManager {
+  imports = {} as BunchOf<ImportSpecific[]>
+  importIndices = {} as BunchOf<number>
 
   ensure(
     from: string,
     name: string,
     alt?: string){
 
-    from = Shared.replaceAlias(from);
+    from = this.replaceAlias(from);
 
     let uid;
     const list = this.imports[from] || this.ensureImported(from);
@@ -151,24 +160,17 @@ export class ImportManager implements ExternalsManager {
   }
 }
 
-export class RequireManager implements ExternalsManager {
+export class RequireManager extends ExternalsManager {
   imports = {} as BunchOf<ObjectProperty[]>
   importTargets = {} as BunchOf<Expression | false>
   importIndices = {} as BunchOf<number>
-  body: Statement[];
-  scope: Scope;
-
-  constructor(path: Path<Program>){
-    this.body = path.node.body;
-    this.scope = path.scope;
-  }
 
   ensure(
     from: string,
     name: string,
     alt?: string){
 
-    from = Shared.replaceAlias(from);
+    from = this.replaceAlias(from);
 
     const source = this.imports[from] || this.ensureImported(from);
 

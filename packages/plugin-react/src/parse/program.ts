@@ -1,10 +1,9 @@
-import { NodePath as Path } from '@babel/traverse';
 import { isExpressionStatement, LabeledStatement } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ComponentExpression, ComponentIf, ElementInline, ElementModifier, Modifier } from 'handle';
 import { ExternalsManager, GenerateReact } from 'regenerate';
-import { hash, Shared } from 'shared';
-import { BabelState, BunchOf, DoExpressive, ModifyAction } from 'types';
+import { DEFAULTS, hash } from 'shared';
+import { BabelState, BunchOf, ModifyAction, Options } from 'types';
 
 import * as builtIn from './builtin';
 
@@ -41,7 +40,7 @@ export interface StackFrame {
 
 export class StackFrame {
   modifiersDeclared = new Set<Modifier>();
-  lastInsertedElement?: Path<DoExpressive>;
+  opts: Options;
 
   prefix: string;
   styleRoot = {} as any;
@@ -64,14 +63,16 @@ export class StackFrame {
     this.stateSingleton = pluginPass;
     this.prefix = hash(filename);
     this.current = pluginPass;
+    this.opts = {
+      ...DEFAULTS,
+      ...pluginPass.opts
+    }
   }
 
   static init(pluginPass: BabelState){
-    const { opts } = Shared;
-
     let Stack = new this(pluginPass);
 
-    const external = [ ...opts.modifiers ];
+    const external = [ ...Stack.opts.modifiers ];
     const included = Object.assign({}, ...external);
     for(const imports of [ builtIn, included ]){
       const { Helpers, ...Modifiers } = imports as any;

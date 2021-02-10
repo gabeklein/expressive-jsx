@@ -65,12 +65,10 @@ export function replaceDoExpression(path: NodePath<DoExpressive>){
     const prop = path.node.expressive_parent;
 
     if(prop)
-      prop.value = factoryExpression as Expression;
+      prop.value = factoryExpression;
     else
       path.replaceWith(factoryExpression);
   }
-
-  context.lastInsertedElement = path;
 }
 
 function asOnlyAttributes(factory: ElementReact){

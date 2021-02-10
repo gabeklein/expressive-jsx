@@ -1,9 +1,12 @@
 import { NodePath } from '@babel/traverse';
 import { Node } from '@babel/types';
-import { Shared } from 'shared';
-import { BunchOf, FlatValue } from 'types';
+import { BabelFile, BunchOf, FlatValue } from 'types';
 
 type ParseError = <T extends Node>(node: NodePath<T> | T, ...args: FlatValue[]) => Error;
+
+export const Status = {
+  currentFile: undefined as unknown as BabelFile
+}
 
 export function ParseErrors<O extends BunchOf<string>> (register: O) {
   const Errors = {} as BunchOf<ParseError>
@@ -31,7 +34,7 @@ export function ParseErrors<O extends BunchOf<string>> (register: O) {
             ? slice : args[slice as number - 1]
         )
 
-      return Shared.currentFile.buildCodeFrameError(node, quote);
+      return Status.currentFile.buildCodeFrameError(node, quote);
     }
   }
 

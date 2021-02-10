@@ -1,23 +1,23 @@
 import { NodePath as Path } from '@babel/traverse';
 import { callExpression, Expression, expressionStatement, Program, stringLiteral } from '@babel/types';
+import { Status } from 'errors';
 import { handleTopLevelModifier, StackFrame } from 'parse';
 import { GenerateES, GenerateJSX, generateStyleBlock, ImportManager, RequireManager } from 'regenerate';
-import { hash, Shared } from 'shared';
+import { hash } from 'shared';
 import { _get, _template } from 'syntax';
-import { BabelFile, BabelState } from 'types';
+import { BabelFile, BabelState, Options } from 'types';
 
 export function createModuleContext(
   path: Path<Program>,
   state: BabelState<StackFrame>
 ){
   const context = state.context = StackFrame.init(state);
-  const { Importer, Generator } = selectContext();
+  const { Importer, Generator } = selectContext(context.opts);
 
-  Object.assign(Shared.opts, state.opts);
-  Shared.currentFile = state.file as BabelFile;
+  Status.currentFile = state.file as BabelFile;
 
   const I =
-    context.Imports = new Importer(path);
+    context.Imports = new Importer(path, context.opts);
 
   context.Generator = new Generator(I);
 
@@ -61,8 +61,8 @@ export function closeModuleContext(
   Imports.EOF();
 }
 
-function selectContext(){
-  const { output, useRequire, useImport } = Shared.opts;
+function selectContext(opts: Options){
+  const { output, useRequire, useImport } = opts;
   let Generator: typeof GenerateES | typeof GenerateJSX;
   let Importer: typeof ImportManager | typeof RequireManager;
 

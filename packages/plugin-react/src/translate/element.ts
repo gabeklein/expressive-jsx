@@ -23,7 +23,6 @@ import {
   Prop,
 } from 'handle';
 import { StackFrame } from 'parse';
-import { Shared } from 'shared';
 import { AttributeStack, ElementIterate, ElementSwitch } from 'translate';
 import { BunchOf, ContentLike, PropData, SequenceItem } from 'types';
 
@@ -100,7 +99,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     const accumulator = {} as BunchOf<ExplicitStyle>;
     // TODO: respect priority differences!
 
-    if(Shared.opts.styleMode === "inline")
+    if(this.context.opts.styleMode === "inline")
       return;
 
     for(const mod of this.source.modifiers){
@@ -257,7 +256,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   }
 
   Style(item: ExplicitStyle){
-    if(Shared.opts.styleMode == "inline")
+    if(this.context.opts.styleMode == "inline")
       (<any>item).invariant = false;
 
     if(item.invariant)

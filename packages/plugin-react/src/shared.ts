@@ -1,8 +1,7 @@
 import { Expression } from '@babel/types';
-import { StackFrame } from 'parse';
-import { Options, BabelFile } from 'types';
+import { Options } from 'types';
 
-const DEFAULTS: Options = {
+export const DEFAULTS: Options = {
   env: "web",
   styleMode: "compile",
   runtime: "@expressive/react",
@@ -10,22 +9,6 @@ const DEFAULTS: Options = {
   output: "js",
   modifiers: []
 };
-
-class SharedSingleton {
-  stack: StackFrame = null as any;
-  currentFile: BabelFile = null as any
-  opts = DEFAULTS;
-
-  replaceAlias(value: string){
-    if(value[0] !== "$")
-      return value;
-
-    const name = value.slice(1);
-    return (this.opts as any)[name];
-  }
-}
-
-export const Shared = new SharedSingleton();
 
 /**
  * "cyrb53" hashing function, lifted from stack-overflow.
