@@ -4,7 +4,6 @@ import {
   BlockStatement,
   blockStatement,
   DebuggerStatement,
-  doExpression,
   Expression,
   expressionStatement,
   For,
@@ -20,10 +19,10 @@ import {
   UpdateExpression,
   VariableDeclaration,
 } from '@babel/types';
-import { addElementsFromExpression, handleUnaryExpression, handleUpdateExpression } from 'deprecate';
+import { addElementsFromExpression, handleBlockStatement, handleUnaryExpression, handleUpdateExpression } from 'deprecate';
 import { ParseErrors } from 'errors';
 import { AttributeBody, ComponentFor, ComponentIf, ElementModifier, Modifier, Prop } from 'handle';
-import { addElementFromJSX, applyNameImplications, StackFrame } from 'parse';
+import { addElementFromJSX } from 'parse';
 import { inParenthesis } from 'shared';
 import { DoExpressive, InnerContent } from 'types';
 
@@ -43,7 +42,7 @@ export class ElementInline extends AttributeBody {
   adopt(child: InnerContent){
     const index = this.children.push(child);
 
-    if("context" in child && child.context instanceof StackFrame)
+    if("context" in child)
       child.context.resolveFor(index);
 
     this.add(child);
@@ -94,18 +93,7 @@ export class ElementInline extends AttributeBody {
   }
 
   BlockStatement(node: BlockStatement, path: Path<BlockStatement>){
-    const blockElement = new ElementInline(this.context);
-    const block = blockStatement(node.body);
-    const doExp = doExpression(block) as DoExpressive;
-
-    applyNameImplications(blockElement, "block");
-    this.add(blockElement)
-
-    blockElement.doBlock = doExp;
-    doExp.meta = blockElement;
-    path.replaceWith(
-      expressionStatement(doExp)
-    )
+    handleBlockStatement.call(this, node, path)
   }
 
   UpdateExpression(node: UpdateExpression){
