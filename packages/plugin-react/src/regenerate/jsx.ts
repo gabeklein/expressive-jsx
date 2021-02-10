@@ -73,34 +73,27 @@ export class GenerateJSX extends GenerateReact {
 
     const output = [] as JSXContent[];
 
-    for(const child of input){
-      if(isTemplateLiteral(child)){
-        const jsx = templateToMarkup(child, acceptBr);
-        output.push(...jsx);
-      }
-      else {
-        let jsx: JSXContent;
-
-        if(isJSXElement(child))
-          jsx = child;
-  
-        else if(isStringLiteral(child) && !/\{/.test(child.value))
-          jsx = jsxText(child.value);
-  
-        else if(isExpression(child))
-          jsx = jsxExpressionContainer(child);
-  
-        else if("toExpression" in child)
-          jsx = jsxExpressionContainer(child.toExpression(this));
-  
-        else
-          jsx = this.element(child);
-
-        output.push(jsx);
-      }
-    }
+    for(const child of input)
+      if(isTemplateLiteral(child))
+        output.push(...templateToMarkup(child, acceptBr));
+      else 
+        output.push(this.normalize(child));
 
     return output;
+  }
+
+  private normalize(child: ContentLike){
+    return (
+      isJSXElement(child) ?
+        child :
+      isStringLiteral(child) && !/\{/.test(child.value) ?
+        jsxText(child.value) :
+      isExpression(child) ?
+        jsxExpressionContainer(child) :
+      "toExpression" in child ?
+        jsxExpressionContainer(child.toExpression(this)) :
+      this.element(child)
+    )
   }
 }
 
@@ -113,9 +106,7 @@ function createAttribute({ name, value }: PropData){
 
     const insertedValue =
       isStringLiteral(value)
-        ? value.value == "true"
-          ? null
-          : value
+        ? value.value === "true" ? null : value
         : jsxExpressionContainer(value)
 
     return jsxAttribute(
