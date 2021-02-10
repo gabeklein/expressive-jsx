@@ -1,4 +1,3 @@
-import { Scope } from '@babel/traverse';
 import {
   Identifier,
   identifier,
@@ -11,6 +10,7 @@ import {
 } from '@babel/types';
 import { ComponentExpression, ElementInline, Modifier, Prop } from 'handle';
 import { ModifyDelegate } from 'parse';
+import { ensureUIDIdentifier } from 'regenerate';
 import { BunchOf } from 'types';
 
 export function use(
@@ -62,7 +62,8 @@ export function forward(this: ModifyDelegate, ...args: any[]){
   if(!exec)
     throw new Error("Can only apply props from a parent `() => do {}` function!");
 
-  const uid = (name: string) => identifier(ensureUID(exec.context.scope, name));
+  const uid = (name: string) =>
+    ensureUIDIdentifier(exec.context.scope, name);
 
   let all = args.indexOf("all") + 1;
   const reference = {} as BunchOf<Identifier>;
@@ -81,35 +82,6 @@ export function forward(this: ModifyDelegate, ...args: any[]){
     }
 
   applyToParentProps(parent, reference);
-}
-
-function ensureUID(
-  scope: Scope,
-  name: string = "temp"){
-
-  let uid;
-  let i = 0;
-
-  name = name
-    .replace(/^_+/, "")
-    .replace(/[0-9]+$/g, "");
-
-  do {
-    uid = name;
-    if(i > 1)
-      name = name + i;
-    i++;
-  }
-  while (
-    scope.hasBinding(uid) ||
-    scope.hasGlobal(uid) ||
-    scope.hasReference(uid)
-  );
-
-  const program = scope.getProgramParent() as any;
-  program.references[uid] = true;
-  program.uids[uid] = true;
-  return uid;
 }
 
 function applyToParentProps(
