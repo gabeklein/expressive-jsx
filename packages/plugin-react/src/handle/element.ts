@@ -20,22 +20,17 @@ import {
   UpdateExpression,
   VariableDeclaration,
 } from '@babel/types';
-import { addElementsFromExpression } from 'deprecate';
+import { addElementsFromExpression, handleUnaryExpression, handleUpdateExpression } from 'deprecate';
 import { ParseErrors } from 'errors';
-import { Attribute, AttributeBody, ComponentFor, ComponentIf, ElementModifier, ExplicitStyle, Modifier, Prop } from 'handle';
-import { applyNameImplications, StackFrame } from 'parse';
-import { addElementFromJSX } from 'parse';
+import { AttributeBody, ComponentFor, ComponentIf, ElementModifier, Modifier, Prop } from 'handle';
+import { addElementFromJSX, applyNameImplications, StackFrame } from 'parse';
 import { inParenthesis } from 'shared';
 import { DoExpressive, InnerContent } from 'types';
 
 const Oops = ParseErrors({
   PropNotIdentifier: "Assignment must be identifier name of a prop.",
   AssignmentNotEquals: "Only `=` assignment may be used here.",
-  BadShorthandProp: "\"+\" shorthand prop must be an identifier!",
-  UnrecognizedUnary: "Unary Expression {1} not recognized.",
-  UnarySpaceRequired: "Unary Expression must include a space between {1} and the value.",
   StatementInElement: "Statement insertion not implemented while within elements!",
-  MinusMinusNotImplemented: "-- is not implemented as an integration statement."
 })
 
 export class ElementInline extends AttributeBody {
@@ -92,11 +87,10 @@ export class ElementInline extends AttributeBody {
 
   ForStatement(_: For, path: Path<For>){
     const element = new ComponentFor(path, this.context);
-    const { doBlock } = element;
 
     this.adopt(element)
-    if(doBlock)
-      path.replaceWith(doBlock)
+    if(element.doBlock)
+      path.replaceWith(element.doBlock)
   }
 
   BlockStatement(node: BlockStatement, path: Path<BlockStatement>){
@@ -115,60 +109,11 @@ export class ElementInline extends AttributeBody {
   }
 
   UpdateExpression(node: UpdateExpression){
-    const value = node.argument;
-    const op = node.operator;
-
-    if(node.start !== value.start! - 3)
-      throw Oops.UnarySpaceRequired(node, op)
-
-    if(op !== "++")
-      throw Oops.MinusMinusNotImplemented(node)
-
-    this.add(
-      new Prop(false, value)
-    )
+    handleUpdateExpression.call(this, node);
   }
 
   UnaryExpression(node: UnaryExpression){
-    const value = node.argument;
-    const op = node.operator
-
-    switch(op){
-      case "delete":
-        this.ExpressionAsStatement(value);
-        return
-
-      case "void":
-      case "!":
-        this.ExpressionDefault(node)
-        return
-    }
-
-    if(node.start !== value.start! - 2)
-      throw Oops.UnarySpaceRequired(node, op);
-
-    let insert: Attribute;
-
-    switch(op){
-      case "+":
-        if(!isIdentifier(value))
-          throw Oops.BadShorthandProp(node);
-        insert = new Prop(value.name, value);
-      break;
-
-      case "-":
-        insert = new Prop("className", value);
-      break;
-
-      case "~":
-        insert = new ExplicitStyle(false, value);
-      break;
-
-      default:
-        throw Oops.UnrecognizedUnary(node, op);
-    }
-
-    this.add(insert);
+    handleUnaryExpression.call(this, node);
   }
 
   ExpressionAsStatement(node: Expression){
