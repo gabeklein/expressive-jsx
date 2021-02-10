@@ -11,6 +11,7 @@ import {
   importSpecifier,
   isCallExpression,
   isIdentifier,
+  isImportDeclaration,
   isImportDefaultSpecifier,
   isObjectPattern,
   isStringLiteral,
@@ -41,29 +42,30 @@ export function ensureUID(
   scope: Scope,
   name: string = "temp"){
 
-  name = name.replace(/^_+/, "").replace(/[0-9]+$/g, "");
-  let uid;
-  let i = 0;
+  name = name
+    .replace(/^_+/, "")
+    .replace(/[0-9]+$/g, "");
 
-  do {
-    uid = name + (i > 1 ? i : "");
-    i++;
-  }
-  while (
+  let uid = name;
+  let i = 2;
+
+  while(
     scope.hasBinding(uid) ||
     scope.hasGlobal(uid) ||
-    scope.hasReference(uid)
-  );
+    scope.hasReference(uid))
+    uid = name + i++;
 
   const program = scope.getProgramParent() as any;
-  program.references[uid] = true;
-  program.uids[uid] = true;
+  program.references[uid] = program.uids[uid] = true;
   return uid;
 }
 
 export abstract class ExternalsManager {
   body: Statement[];
   scope: Scope;
+
+  imports = {} as BunchOf<(ObjectProperty | ImportSpecific)[]>
+  importIndices = {} as BunchOf<number>;
 
   constructor(
     path: Path<Program>,
@@ -75,8 +77,7 @@ export abstract class ExternalsManager {
 
   abstract ensure(from: string, name: string, alt?: string): Identifier;
   abstract ensureImported(from: string, after?: number): void;
-
-  abstract EOF(): void;
+  abstract createImport(name: string): Statement | undefined;
 
   replaceAlias(value: string){
     if(value[0] !== "$")
@@ -85,17 +86,27 @@ export abstract class ExternalsManager {
     const name = value.slice(1) as keyof Options;
     return this.opts[name] as string;
   }
+
+  EOF(){
+    const requireOccuring = Object
+      .entries(this.importIndices)
+      .sort((a, b) => a[1] - b[1])
+
+    for(const [ name ] of requireOccuring){
+      const importStatement = this.createImport(name);
+
+      if(importStatement){
+        const index = this.importIndices[name];
+        this.body.splice(index, 0, importStatement);
+      }
+    }
+  }
 }
 
 export class ImportManager extends ExternalsManager {
   imports = {} as BunchOf<ImportSpecific[]>
-  importIndices = {} as BunchOf<number>
 
-  ensure(
-    from: string,
-    name: string,
-    alt?: string){
-
+  ensure(from: string, name: string, alt?: string){
     from = this.replaceAlias(from);
 
     let uid;
@@ -127,61 +138,40 @@ export class ImportManager extends ExternalsManager {
     return uid;
   }
 
-  ensureImported(
-    from: string,
-    after?: number){
+  ensureImported(from: string, after = 0){
+    const { imports, importIndices, body } = this;
 
-    for(const statement of this.body)
-      if(statement.type == "ImportDeclaration"
-      && statement.source.value == from)
-        return this.imports[from] = statement.specifiers
+    for(const stat of body)
+      if(isImportDeclaration(stat)
+      && stat.source.value == from)
+        return imports[from] = stat.specifiers
 
-    this.importIndices[from] = after || 0;
-    return this.imports[from] = [];
+    importIndices[from] = after;
+    return imports[from] = [];
   }
 
-  EOF(){
-    const requireOccuring = Object
-      .entries(this.importIndices)
-      .sort((a,b) => a[1] - b[1])
-      .map(x => x[0]);
+  createImport(name: string){
+    const list = this.imports[name];
 
-    for(const name of requireOccuring){
-      const list = this.imports[name];
-      const index = this.importIndices[name];
-
-      if(list.length == 0)
-        continue
-
-      this.body.splice(index, 0,
-        importDeclaration(list, stringLiteral(name))
-      )
-    }
+    if(list.length)
+      return importDeclaration(list, stringLiteral(name));
   }
 }
 
 export class RequireManager extends ExternalsManager {
   imports = {} as BunchOf<ObjectProperty[]>
   importTargets = {} as BunchOf<Expression | false>
-  importIndices = {} as BunchOf<number>
 
-  ensure(
-    from: string,
-    name: string,
-    alt?: string){
-
-    from = this.replaceAlias(from);
-
-    const source = this.imports[from] || this.ensureImported(from);
+  ensure(from: string, name: string, alt = name){
+    const source = this.ensureImported(from);
 
     for(const { key, value } of source)
       if(isIdentifier(key, { name }) && isIdentifier(value))
         return value;
 
-    const uid = ensureUID(this.scope, alt || name);
-    const ref = identifier(uid);
+    const ref = ensureUIDIdentifier(this.scope, alt);
     const key = identifier(name);
-    const useShorthand = uid === name;
+    const useShorthand = ref.name === name;
     const property = objectProperty(key, ref, false, useShorthand);
 
     source.push(property)
@@ -189,7 +179,12 @@ export class RequireManager extends ExternalsManager {
     return ref;
   }
 
-  ensureImported(from: string, after?: number){
+  ensureImported(from: string){
+    from = this.replaceAlias(from);
+
+    if(from in this.imports)
+      return this.imports[from];
+
     let target;
     let insertableAt;
     let list;
@@ -215,24 +210,12 @@ export class RequireManager extends ExternalsManager {
     return list;
   }
 
-  EOF(){
-    const requireOccuring = Object
-      .entries(this.importIndices)
-      .sort((a,b) => a[1] - b[1])
-      .map(x => x[0]);
+  createImport(name: string){
+    const list = this.imports[name]
 
-    for(const name of requireOccuring){
-      const list = this.imports[name]
-  
-      if(list.length == 0)
-        continue;
-
-      const index = this.importIndices[name];
+    if(list.length){
       const target = this.importTargets[name] || _require(name);
-
-      this.body.splice(index, 0, 
-        _declare("const", objectPattern(list), target)
-      )
+      return _declare("const", objectPattern(list), target);
     }
   }
 }
