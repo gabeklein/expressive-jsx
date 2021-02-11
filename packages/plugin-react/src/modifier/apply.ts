@@ -1,8 +1,10 @@
 import { isExpressionStatement, LabeledStatement } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ElementInline, ElementModifier, ExplicitStyle, Modifier } from 'handle';
-import { StackFrame, ModifyDelegate } from 'parse';
+import { StackFrame } from 'parse';
 import { BunchOf, ModiferBody, ModifyAction } from 'types';
+
+import { ModifyDelegate } from './delegate';
 
 const Oops = ParseErrors({
   IllegalAtTopLevel: "Cannot apply element styles in top-level of program",

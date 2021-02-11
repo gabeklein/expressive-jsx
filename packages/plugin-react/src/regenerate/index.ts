@@ -4,4 +4,3 @@ export * from './jsx';
 export * from './component';
 export * from './module';
 export * from './scope';
-export * from './style';

@@ -1,11 +1,10 @@
 import { NodePath as Path } from '@babel/traverse';
-import { callExpression, Expression, expressionStatement, Program, stringLiteral } from '@babel/types';
+import { Program } from '@babel/types';
 import { Status } from 'errors';
 import { handleTopLevelModifier } from 'modifier';
+import { printStyles } from 'modifier';
 import { StackFrame } from 'parse';
-import { GenerateES, GenerateJSX, generateStyleBlock, ImportManager, RequireManager } from 'regenerate';
-import { hash } from 'shared';
-import { _get, _template } from 'syntax';
+import { GenerateES, GenerateJSX, ImportManager, RequireManager } from 'regenerate';
 import { BabelFile, BabelState, Options } from 'types';
 
 export function createModuleContext(
@@ -33,29 +32,11 @@ export function closeModuleContext(
   path: Path<Program>,
   state: BabelState<StackFrame>){
 
-  const {
-    Imports,
-    modifiersDeclared
-  } = state.context;
+  const { Imports } = state.context;
+  const styleBlock = printStyles(state);
 
-  const styles = generateStyleBlock(modifiersDeclared, true);
-
-  if(styles){
-    const fileId = state.opts.hot !== false && hash(state.filename, 10);
-    const runtime = Imports.ensure("$runtime", "default", "Styles");
-    const args: Expression[] = [ _template(styles) ];
-  
-    if(fileId)
-      args.push(stringLiteral(fileId));
-
-    path.pushContainer("body", [
-      expressionStatement(
-        callExpression(
-          _get(runtime, "include"), args
-        )
-      )
-    ]);
-  }
+  if(styleBlock)
+    path.pushContainer("body", [ styleBlock ]);
 
   Imports.EOF();
 }

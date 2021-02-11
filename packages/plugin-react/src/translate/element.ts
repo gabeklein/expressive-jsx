@@ -257,7 +257,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
 
   Style(item: ExplicitStyle){
     if(this.context.opts.styleMode == "inline")
-      (<any>item).invariant = false;
+      item.invariant = false;
 
     if(item.invariant)
       this.style_static.push(item);

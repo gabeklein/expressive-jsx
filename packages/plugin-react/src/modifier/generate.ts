@@ -1,19 +1,35 @@
+import { callExpression, Expression, expressionStatement, stringLiteral } from '@babel/types';
 import { ExplicitStyle, Modifier } from 'handle';
-import { BunchOf } from 'types';
+import { StackFrame } from 'parse';
+import { hash } from 'shared';
+import { _get, _template } from 'syntax';
+import { BabelState, BunchOf } from 'types';
+
+export function printStyles(state: BabelState<StackFrame>){
+  const { modifiersDeclared, Imports } = state.context;
+
+  if(!modifiersDeclared.size)
+    return;
+  
+  const media = organizeStyle(modifiersDeclared);
+  const styles = createSyntax(media, true);
+
+  const args: Expression[] = [ _template(styles) ];
+  const fileId = state.opts.hot !== false && hash(state.filename, 10);
+  const runtime = Imports.ensure("$runtime", "default", "Styles");
+
+  if(fileId)
+    args.push(stringLiteral(fileId));
+
+  return expressionStatement(
+    callExpression(
+      _get(runtime, "include"), args
+    )
+  );
+}
 
 type SelectorContent = [ string, string[] ][];
 type MediaGroups = SelectorContent[];
-
-export function generateStyleBlock(
-  from: Set<Modifier>,
-  pretty: boolean){
-
-  if(!from.size)
-    return;
-  
-  const media = organizeStyle(from);
-  return createSyntax(media, pretty);
-}
 
 function organizeStyle(
   modifiersDeclared: Set<Modifier>){

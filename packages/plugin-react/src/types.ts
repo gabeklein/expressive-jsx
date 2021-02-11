@@ -18,7 +18,7 @@ import {
   Statement,
 } from '@babel/types';
 import { Attribute, ComponentFor, ComponentIf, ElementInline, Prop } from 'handle';
-import { ModifyDelegate } from 'parse/modifier';
+import { ModifyDelegate } from 'modifier/delegate';
 import { StackFrame } from 'parse/program';
 import { ElementReact } from 'translate/element';
 import { ElementIterate } from 'translate/iterate';
