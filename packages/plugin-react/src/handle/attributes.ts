@@ -69,12 +69,12 @@ export abstract class AttributeBody extends TraversableBody {
     if(context.hasOwnModifier(name))
       throw Oops.DuplicateModifier(node);
 
-    const handler = applyTo.context.propertyMod(name);
-
-    if(isExpressionStatement(body) || handler && (
-      isBlockStatement(body) || isLabeledStatement(body)
-    ))
+    if(isExpressionStatement(body))
       applyModifier(name, applyTo, body);
+      
+    // const handler = applyTo.context.propertyMod(name);
+    // if(handler && (isBlockStatement(body) || isLabeledStatement(body)))
+    //   applyModifier(name, applyTo, body);
 
     else if(isBlockStatement(body) || isLabeledStatement(body))
       applyTo.ElementModifier(
