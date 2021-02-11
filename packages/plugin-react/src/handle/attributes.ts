@@ -26,10 +26,10 @@ const Oops = ParseErrors({
 
 export abstract class AttributeBody extends TraversableBody {
 
-  abstract ElementModifier(mod: Modifier): void;
-
   props = {} as BunchOf<Prop>;
   style = {} as BunchOf<ExplicitStyle>;
+
+  abstract ElementModifier(mod: Modifier): void;
 
   get uid(){
     const value = this.name + "_" + hash(this.context.prefix);
@@ -76,10 +76,10 @@ export abstract class AttributeBody extends TraversableBody {
     ))
       applyModifier(name, applyTo, body);
 
-    else if(isBlockStatement(body) || isLabeledStatement(body)){
-      const mod = new ElementModifier(context, name, body);
-      applyTo.ElementModifier(mod);
-    }
+    else if(isBlockStatement(body) || isLabeledStatement(body))
+      applyTo.ElementModifier(
+        new ElementModifier(context, name, body)
+      );
 
     else
       throw Oops.BadInputModifier(body, body.type)

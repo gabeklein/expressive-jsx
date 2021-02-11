@@ -49,7 +49,6 @@ export class GenerateJSX extends GenerateReact {
 
     const type = typeof tag == "string" ? jsxIdentifier(tag) : tag;
     const props = properties.map(createAttribute);
-    
     const children = [] as JSXContent[];
 
     for(const child of content)

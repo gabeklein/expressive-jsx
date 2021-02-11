@@ -13,7 +13,6 @@ const Oops = ParseErrors({
 })
 
 export abstract class TraversableBody {
-
   context: StackFrame
   name?: string;
   parent?: TraversableBody | ComponentIf;
@@ -55,7 +54,9 @@ export abstract class TraversableBody {
   }
 
   parse(item: Path<Statement>){
-    const content = item.isBlockStatement() ? ensureArray(item.get("body")) : [item];
+    const content = item.isBlockStatement()
+      ? ensureArray(item.get("body"))
+      : [item];
    
     for(const item of content)
       if(item.type in this)
