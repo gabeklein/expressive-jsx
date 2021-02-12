@@ -55,9 +55,7 @@ function containerName(path: Path): string {
     case "AssignmentExpression":
     case "AssignmentPattern": {
       const { left } = parent.node as AssignmentExpression;
-      return isIdentifier(left)
-        ? left.name
-        : "assignment"
+      return isIdentifier(left) ? left.name : "assignment"
     }
 
     case "FunctionDeclaration":
@@ -114,11 +112,10 @@ function containerName(path: Path): string {
 
     case "ObjectProperty": {
       const { key } = parent.node as ObjectProperty;
-      return isIdentifier(key)
-        ? key.name
-        : "property"
+      return isIdentifier(key) ? key.name : "property"
     }
 
+    // mark for deletion
     case "SequenceExpression": {
       const isWithin = path.findParent(
         x => ["ArrowFunctionExpression", "ClassMethod"].includes(x.type)
@@ -138,5 +135,4 @@ function containerName(path: Path): string {
     default:
       return "do";
   }
-
 }

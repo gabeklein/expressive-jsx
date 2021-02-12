@@ -27,7 +27,6 @@ import { AttributeStack, ElementIterate, ElementSwitch } from 'translate';
 import { BunchOf, ContentLike, PropData, SequenceItem } from 'types';
 
 export class ElementReact<E extends ElementInline = ElementInline> {
-
   source: E;
   context: StackFrame;
   children = [] as ContentLike[];

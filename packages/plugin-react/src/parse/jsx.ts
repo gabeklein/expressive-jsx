@@ -17,7 +17,7 @@ const Oops = ParseErrors({
   UnhandledChild: "Can't parse JSX child of type {1}",
   JSXMemberExpression: "Member Expression is not supported!",
   NonJSXIdentifier: "Cannot handle non-identifier!"
-})
+});
 
 export function addElementFromJSX(
   node: JSXElement,
