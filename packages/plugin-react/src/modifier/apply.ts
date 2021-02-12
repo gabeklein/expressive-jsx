@@ -19,7 +19,8 @@ export function applyModifier(
   recipient: Modifier | ElementInline,
   input: ModiferBody){
 
-  const handler = recipient.context.propertyMod(initial);
+  const handler = recipient.context.getHandler(initial);
+  
   const styles = {} as BunchOf<ExplicitStyle>;
   // const props = {} as BunchOf<Attribute>;
 
@@ -43,8 +44,8 @@ export function applyModifier(
         if(input == null)
           continue;
 
-        const useSuper = named === initial;
-        const handler = recipient.context.findPropertyMod(named, useSuper);
+        const useNext = named === initial;
+        const handler = recipient.context.getHandler(named, useNext);
 
         pending.push([named, handler, input]);
       }
@@ -70,7 +71,7 @@ export function handleTopLevelModifier(
   if(name[0] == "_")
     throw Oops.BadModifierName(node)
 
-  if(context.hasOwnModifier(name))
+  if(context.modifiers.has(name))
     throw Oops.DuplicateModifier(node);
 
   if(isExpressionStatement(body))

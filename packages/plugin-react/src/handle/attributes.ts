@@ -66,7 +66,7 @@ export abstract class AttributeBody extends TraversableBody {
     if(name[0] == "_")
       throw Oops.BadModifierName(node)
 
-    if(context.hasOwnModifier(name))
+    if(context.modifiers.has(name))
       throw Oops.DuplicateModifier(node);
 
     if(isExpressionStatement(body))

@@ -1,7 +1,7 @@
 import { ComponentExpression, ComponentIf, ElementInline, ElementModifier, Modifier } from 'handle';
 import { ExternalsManager, GenerateReact } from 'regenerate';
-import { DEFAULTS, hash } from 'shared';
-import { BabelState, BunchOf, ModifyAction, Options } from 'types';
+import { DEFAULTS, hash, Stack } from 'shared';
+import { BabelState, ModifyAction, Options } from 'types';
 
 import { builtIn } from './modifier';
 
@@ -27,20 +27,20 @@ export class StackFrame {
   parentIf?: ComponentIf;
   currentIf?: ComponentIf;
 
+  modifiers = new Stack<ElementModifier>();
+  handlers = new Stack<ModifyAction>();
+
   get parent(){
     return Object.getPrototypeOf(this);
   }
 
   constructor(pluginPass: BabelState){
-    const { filename } = pluginPass;
+    const { filename, opts } = pluginPass;
 
     this.stateSingleton = pluginPass;
     this.prefix = hash(filename);
     this.current = pluginPass;
-    this.opts = {
-      ...DEFAULTS,
-      ...pluginPass.opts
-    }
+    this.opts = { ...DEFAULTS, ...opts };
   }
 
   static init(pluginPass: BabelState){
@@ -54,17 +54,22 @@ export class StackFrame {
       Stack = Object.create(Stack)
 
       for(const name in Modifiers)
-        Stack.propertyMod(name, Modifiers[name])
+        Stack.handlers.set(name, Modifiers[name]);
     }
 
     return pluginPass.context = Stack;
   }
 
   create(node: Stackable): StackFrame {
-    const frame = Object.create(this);
+    const frame: StackFrame = Object.create(this);
+
     frame.current = node;
     if(node instanceof ElementInline)
       frame.currentElement = node;
+
+    frame.handlers = frame.handlers.stack();
+    frame.modifiers = frame.modifiers.stack();
+
     return frame;
   }
 
@@ -96,66 +101,32 @@ export class StackFrame {
     this.prefix = `${this.prefix} ${append || ""}`;
   }
 
-  event(this: any, ref: symbol, set: Function){
-    if(set)
-      this[ref] = set;
-    else
-      return this[ref]
-  }
-
-  dispatch(this: any, ref: symbol, ...args: any[]){
-    (<Function>this[ref]).apply(null, args)
-  }
-
-  hasOwnPropertyMod(name: string): boolean {
-    return this.hasOwnProperty("__" + name)
-  }
-
-  hasOwnModifier(name: string): boolean {
-    return this.hasOwnProperty("_" + name)
-  }
-
-  findPropertyMod(named: string, ignoreOwn = false){
+  getHandler(named: string, ignoreOwn = false){
     let context = this;
 
-    if(ignoreOwn){
-      let found;
-      do {
-        found = context.hasOwnPropertyMod(named);
+    if(ignoreOwn)
+      for(let found; !found;){
+        found = context.handlers.has(named);
         context = context.parent;
       }
-      while(!found);
-    }
 
-    return context.propertyMod(named);
-  }
-
-  propertyMod(name: string): ModifyAction;
-  propertyMod(name: string, set: ModifyAction): void;
-  propertyMod(
-    this: BunchOf<ModifyAction>,
-    name: string,
-    set?: ModifyAction){
-
-    const ref = "__" + name;
-    if(set)
-      this[ref] = set;
-    else
-      return this[ref]
+    return this.handlers.get(named);
   }
 
   elementMod(name: string): ElementModifier;
   elementMod(set: ElementModifier): void;
-  elementMod(
-    this: BunchOf<ElementModifier>,
-    mod: string | ElementModifier){
+  elementMod(mod: string | ElementModifier){
+    const stack = this.modifiers;
 
     if(typeof mod == "string")
-      return this["_" + mod];
+      return stack.get(mod);
+    else {
+      const name = mod.name!;
 
-    const name = "_" + mod.name;
-    if(this[name])
-      mod.next = this[name];
-    this[name] = mod;
+      if(stack.get(name))
+        mod.next = stack.get(name);
+
+      stack.set(name, mod);
+    }
   }
 }

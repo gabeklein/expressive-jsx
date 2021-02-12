@@ -1,5 +1,5 @@
 import { Expression } from '@babel/types';
-import { Options } from 'types';
+import { BunchOf, Options } from 'types';
 
 export const DEFAULTS: Options = {
   env: "web",
@@ -42,4 +42,26 @@ export function ensureArray<T>(a: T | T[]){
 export function inParenthesis(node: Expression): boolean {
   const { extra } = node as any;
   return extra ? extra.parenthesized === true : false;
+}
+
+export class Stack<T> {
+  layer = {} as BunchOf<T>;
+
+  stack(){
+    return Object.assign(Object.create(this), {
+      layer: Object.create(this.layer)
+    })
+  }
+
+  set(key: string, value: T){
+    this.layer[key] = value;
+  }
+
+  get(key: string){
+    return this.layer[key];
+  }
+
+  has(key: string){
+    return this.layer.hasOwnProperty(key);
+  }
 }
