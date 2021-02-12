@@ -10,22 +10,28 @@ export const DEFAULTS: Options = {
   modifiers: []
 };
 
+const m32 = Math.imul;
+
 /**
  * "cyrb53" hashing function, lifted from stack-overflow.
  * Avoids needing to use "crypto" module.
  * 
  * https://stackoverflow.com/a/52171480/877165
  * */
-export function hash(str = "", length = 3, seed = 0){
-  let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
-  for (let i = 0, ch; i < str.length; i++) {
-      ch = str.charCodeAt(i);
-      h1 = Math.imul(h1 ^ ch, 2654435761);
-      h2 = Math.imul(h2 ^ ch, 1597334677);
+export function hash(str = "", length = 3){
+  const x = 0x85ebca6b, y = 0xc2b2ae35;
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+
+  for(let i = 0, ch; i < str.length; i++){
+    ch = str.charCodeAt(i);
+    h1 = m32(h1 ^ ch, 0x9e3779b1);
+    h2 = m32(h2 ^ ch, 0x5f356495);
   }
-  h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909);
-  const out = 4294967296 * (2097151 & h2) + (h1>>>0);
+
+  h1 = m32(h1 ^ (h1>>>16), x) ^ m32(h2 ^ (h2>>>13), y);
+  h2 = m32(h2 ^ (h2>>>16), x) ^ m32(h1 ^ (h1>>>13), y);
+
+  const out = 0x100000000 * (0x1fffff & h2) + (h1>>>0);
   return out.toString(32).substring(0, length);
 };
 
