@@ -4,22 +4,26 @@ import { Status } from 'errors';
 import { handleTopLevelModifier } from 'modifier';
 import { printStyles } from 'modifier';
 import { StackFrame } from 'context';
-import { GenerateES, GenerateJSX, ImportManager, RequireManager } from 'regenerate';
-import { BabelFile, BabelState, Options } from 'types';
+import { ImportManager, RequireManager } from 'regenerate';
+import { BabelFile, BabelState } from 'types';
+import { GenerateReact } from './element';
 
 export function createModuleContext(
   path: Path<Program>,
   state: BabelState<StackFrame>
 ){
   const context = state.context = StackFrame.init(state);
-  const { Importer, Generator } = selectContext(context.opts);
+  const { opts } = context;
+
+  const Importer =
+    opts.useRequire || opts.output == "js"
+      ? RequireManager
+      : ImportManager;
 
   Status.currentFile = state.file as BabelFile;
 
-  const I =
-    context.Imports = new Importer(path, context.opts);
-
-  context.Generator = new Generator(I);
+  context.Imports = new Importer(path, opts);
+  context.Generator = new GenerateReact(context);
 
   for(const item of path.get("body"))
     if(item.isLabeledStatement()){
@@ -39,34 +43,4 @@ export function closeModuleContext(
     path.pushContainer("body", [ styleBlock ]);
 
   Imports.EOF();
-}
-
-function selectContext(opts: Options){
-  const { output, useRequire, useImport } = opts;
-  let Generator: typeof GenerateES | typeof GenerateJSX;
-  let Importer: typeof ImportManager | typeof RequireManager;
-
-  switch(output){
-    case "jsx":
-      Importer = ImportManager
-      Generator = GenerateJSX;
-    break;
-
-    case "js":
-      Importer = RequireManager
-      Generator = GenerateES;
-    break;
-
-    default:
-      throw new Error(
-        `Unknown output type of ${output}.\nAcceptable ['js', 'jsx'] (default 'js')`
-      )
-  }
-
-  if(useRequire)
-    Importer = RequireManager;
-  if(useImport)
-    Importer = ImportManager;
-
-  return { Generator, Importer };
 }

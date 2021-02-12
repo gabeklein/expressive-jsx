@@ -1,18 +1,23 @@
 import { booleanLiteral, CallExpression, Expression, Identifier, JSXElement, JSXMemberExpression } from '@babel/types';
-import { ExternalsManager } from 'regenerate';
+import { StackFrame } from 'context';
 import { ElementReact } from 'translate';
 import { ContentLike, PropData } from 'types';
+import { createElement as createJS } from './es5';
+import { createElement as createJSX } from './jsx';
 
-export abstract class GenerateReact {
+export class GenerateReact {
   constructor(
-    protected Imports: ExternalsManager
-  ){}
+    private context: StackFrame){
 
-  protected abstract createElement(
+    const create = context.opts.output === "js" ? createJS : createJSX;
+    this.createElement = create.bind(context);
+  }
+
+  private createElement: (
     tag: null | string | JSXMemberExpression,
     properties?: PropData[],
     content?: ContentLike[]
-  ): CallExpression | JSXElement;
+  ) => CallExpression | JSXElement;
 
   element(src: ElementReact){
     return this.createElement(src.tagName, src.props, src.children);
@@ -49,7 +54,7 @@ export abstract class GenerateReact {
       output = this.element(src)
 
     else if("toExpression" in output)
-      output = output.toExpression(this)
+      output = output.toExpression(this.context)
 
     else if(output instanceof ElementReact)
       output = this.element(output)

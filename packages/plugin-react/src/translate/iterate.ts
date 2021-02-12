@@ -15,6 +15,7 @@ import {
   PatternLike,
   returnStatement,
 } from '@babel/types';
+import { StackFrame } from 'context';
 import { ComponentFor, ElementInline, Prop } from 'handle';
 import { ensureUIDIdentifier, GenerateReact } from 'regenerate';
 import { _call, _get, _objectKeys } from 'syntax';
@@ -32,7 +33,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     this.type = source.node.type as any;
   }
 
-  toExpression(Generator: GenerateReact): CallExpression {
+  toExpression({ Generator }: StackFrame): CallExpression {
     let { key, left, right, source: { statements }, type } = this;
 
     let body: BlockStatement | Expression =

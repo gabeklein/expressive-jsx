@@ -7,8 +7,8 @@ import {
   stringLiteral,
   unaryExpression,
 } from '@babel/types';
+import { StackFrame } from 'context';
 import { ComponentConsequent, ComponentIf } from 'handle';
-import { GenerateReact } from 'regenerate';
 import { ElementReact } from 'translate';
 
 type Consequent = ComponentIf | ComponentConsequent;
@@ -50,15 +50,15 @@ export class ElementSwitch {
     return sum || booleanLiteral(false)
   }
 
-  toExpression(Generator: GenerateReact): Expression {
+  toExpression(context: StackFrame): Expression {
     return this.reduceUsing((cond) => {
       let product;
 
       if(cond instanceof ComponentIf)
-        product = new ElementSwitch(cond).toExpression(Generator)
+        product = new ElementSwitch(cond).toExpression(context)
       else
       if(cond.children.length)
-        product = Generator.container(new ElementReact(cond))
+        product = context.Generator.container(new ElementReact(cond))
       else
         return;
 

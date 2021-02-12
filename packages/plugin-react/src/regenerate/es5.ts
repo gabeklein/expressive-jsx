@@ -1,5 +1,6 @@
 import {
   booleanLiteral,
+  CallExpression,
   callExpression,
   Expression,
   Identifier,
@@ -15,55 +16,57 @@ import {
   objectProperty,
   stringLiteral,
 } from '@babel/types';
+import { StackFrame } from 'context';
 import { dedent } from 'deprecate';
-import { GenerateReact } from 'regenerate';
 import { _object, _objectAssign } from 'syntax';
 import { ArrayStack, ElementReact } from 'translate';
 import { ContentLike, PropData } from 'types';
 
-export class GenerateES extends GenerateReact {
-  protected createElement(
-    tag: null | string | JSXMemberExpression,
-    properties: PropData[] = [],
-    content: ContentLike[] = []
-  ){
-    const { Imports } = this;
+export function createElement(
+  this: StackFrame,
+  tag: null | string | JSXMemberExpression,
+  properties: PropData[] = [],
+  content: ContentLike[] = []
+): CallExpression {
+  const { Imports } = this;
 
-    const create =
-      Imports.ensure("$pragma", "createElement", "create");
+  const create =
+    Imports.ensure("$pragma", "createElement", "create");
 
-    if(!tag)
-      tag = Imports.ensure("$pragma", "Fragment").name;
+  if(!tag)
+    tag = Imports.ensure("$pragma", "Fragment").name;
 
-    const type =
-      typeof tag === "string" ?
-        /^[A-Z]/.test(tag) ?
-          identifier(tag) :
-          stringLiteral(tag) :
-        stripJSX(tag);
+  const type =
+    typeof tag === "string" ?
+      /^[A-Z]/.test(tag) ?
+        identifier(tag) :
+        stringLiteral(tag) :
+      stripJSX(tag);
 
-    const props = recombineProps(properties);
-    const children = [] as Expression[];
+  const props = recombineProps(properties);
+  const children = [] as Expression[];
 
-    for(let child of content)
-      children.push(this.normalize(child));
+  for(let child of content){
 
-    return callExpression(create, [type, props, ...children]);
-  }
-
-  private normalize(child: ContentLike): Expression {
     if("toExpression" in child)
       child = child.toExpression(this);
 
     if(child instanceof ElementReact)
-      return this.createElement(child.tagName, child.props, child.children);
+      return createElement.call(
+        this,
+        child.tagName, 
+        child.props, 
+        child.children
+      );
 
-    return (
+      children.push(
       isTemplateLiteral(child) ? dedent(child) :
       isExpression(child) ? child :
       booleanLiteral(false)
     )
   }
+
+  return callExpression(create, [type, props, ...children]);
 }
 
 function recombineProps(props: PropData[]){
