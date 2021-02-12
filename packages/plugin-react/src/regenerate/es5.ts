@@ -13,7 +13,6 @@ import {
   objectExpression,
   ObjectProperty,
   objectProperty,
-  StringLiteral,
   stringLiteral,
 } from '@babel/types';
 import { dedent } from 'deprecate';
@@ -23,8 +22,18 @@ import { ArrayStack, ElementReact } from 'translate';
 import { ContentLike, PropData } from 'types';
 
 export class GenerateES extends GenerateReact {
-  element(src: ElementReact){
-    const { tagName: tag, props, children } = src;
+  protected createElement(
+    tag: null | string | JSXMemberExpression,
+    properties: PropData[] = [],
+    content: ContentLike[] = []
+  ){
+    const { Imports } = this;
+
+    const create =
+      Imports.ensure("$pragma", "createElement", "create");
+
+    if(!tag)
+      tag = Imports.ensure("$pragma", "Fragment").name;
 
     const type =
       typeof tag === "string" ?
@@ -33,47 +42,25 @@ export class GenerateES extends GenerateReact {
           stringLiteral(tag) :
         stripJSX(tag);
 
-    return this.createElement(type, props, children);
-  }
+    const props = recombineProps(properties);
+    const children = [] as Expression[];
 
-  fragment(
-    children = [] as ContentLike[],
-    key?: Expression
-  ){
-    let props = key && [{ name: "key", value: key }];
-    return this.createElement(null, props, children)
-  }
+    for(let child of content)
+      children.push(this.normalize(child));
 
-  private createElement(
-    type: null | Identifier | StringLiteral | MemberExpression,
-    props: PropData[] = [],
-    children: ContentLike[] = []
-  ){
-    const { Imports } = this;
-
-    const create =
-      Imports.ensure("$pragma", "createElement", "create");
-
-    if(type === null)
-      type = Imports.ensure("$pragma", "Fragment");
-
-    return callExpression(create, [
-      type,
-      recombineProps(props),
-      ...children.map(child => this.normalize(child))
-    ]);
+    return callExpression(create, [type, props, ...children]);
   }
 
   private normalize(child: ContentLike): Expression {
+    if("toExpression" in child)
+      child = child.toExpression(this);
+
+    if(child instanceof ElementReact)
+      return this.createElement(child.tagName, child.props, child.children);
+
     return (
-      ("toExpression" in child) ?
-        child.toExpression(this) :
-      child instanceof ElementReact ?
-        this.element(child) :
-      isTemplateLiteral(child) ? 
-        dedent(child) :
-      isExpression(child) ?
-        child :
+      isTemplateLiteral(child) ? dedent(child) :
+      isExpression(child) ? child :
       booleanLiteral(false)
     )
   }

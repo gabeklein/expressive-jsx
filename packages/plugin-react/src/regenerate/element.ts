@@ -1,23 +1,32 @@
-import { booleanLiteral, CallExpression, Expression, Identifier, JSXElement } from '@babel/types';
+import { booleanLiteral, CallExpression, Expression, Identifier, JSXElement, JSXMemberExpression } from '@babel/types';
 import { ExternalsManager } from 'regenerate';
 import { ElementReact } from 'translate';
-import { ContentLike } from 'types';
+import { ContentLike, PropData } from 'types';
 
 export abstract class GenerateReact {
   constructor(
     protected Imports: ExternalsManager
   ){}
 
-  abstract element(
-    src: ElementReact
+  protected abstract createElement(
+    tag: null | string | JSXMemberExpression,
+    properties?: PropData[],
+    content?: ContentLike[]
   ): CallExpression | JSXElement;
 
-  abstract fragment(
-    children?: ContentLike[],
+  element(src: ElementReact){
+    return this.createElement(src.tagName, src.props, src.children);
+  }
+
+  fragment(
+    children = [] as ContentLike[],
     key?: Expression
-  ): CallExpression | JSXElement;
+  ){
+    let props = key && [{ name: "key", value: key }];
+    return this.createElement(null, props, children)
+  }
 
-  public container(
+  container(
     src: ElementReact,
     key?: Identifier
   ): Expression {

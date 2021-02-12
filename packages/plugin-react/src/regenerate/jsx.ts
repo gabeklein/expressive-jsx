@@ -1,5 +1,4 @@
 import {
-  Expression,
   isExpression,
   isJSXElement,
   isStringLiteral,
@@ -8,7 +7,6 @@ import {
   jsxClosingElement,
   jsxElement,
   jsxExpressionContainer,
-  JSXIdentifier,
   jsxIdentifier,
   JSXMemberExpression,
   jsxOpeningElement,
@@ -21,20 +19,8 @@ import { ElementReact } from 'translate';
 import { ContentLike, IsLegalAttribute, JSXContent, PropData } from 'types';
 
 export class GenerateJSX extends GenerateReact {
-  element(src: ElementReact){
-    return this.createElement(src.tagName, src.props, src.children);
-  }
-
-  fragment(
-    children?: ContentLike[],
-    key?: Expression
-  ){
-    const props = key && [{ name: "key", value: key }];
-    return this.createElement(null, props, children);
-  }
-
-  private createElement(
-    tag: string | null | JSXMemberExpression | JSXIdentifier,
+  protected createElement(
+    tag: null | string | JSXMemberExpression,
     properties: PropData[] = [],
     content: ContentLike[] = [],
     acceptBr?: boolean
@@ -51,11 +37,12 @@ export class GenerateJSX extends GenerateReact {
     const props = properties.map(createAttribute);
     const children = [] as JSXContent[];
 
-    for(const child of content)
+    for(let child of content){
       if(isTemplateLiteral(child))
         children.push(...templateToMarkup(child, acceptBr));
       else 
         children.push(this.normalize(child));
+    }
 
     scope.ensure("$pragma", "default", "React");
 
@@ -68,6 +55,14 @@ export class GenerateJSX extends GenerateReact {
   }
 
   private normalize(child: ContentLike){
+    if("toExpression" in child)
+      child = child.toExpression(this);
+
+    if(child instanceof ElementReact)
+      return this.createElement(
+        child.tagName, child.props, child.children
+      )
+
     return (
       isJSXElement(child) ?
         child :
@@ -75,9 +70,7 @@ export class GenerateJSX extends GenerateReact {
         jsxText(child.value) :
       isExpression(child) ?
         jsxExpressionContainer(child) :
-      ("toExpression" in child) ?
-        jsxExpressionContainer(child.toExpression(this)) :
-      this.element(child)
+      child
     )
   }
 }
