@@ -19,7 +19,7 @@ import {
 } from '@babel/types';
 import { Attribute, ComponentFor, ComponentIf, ElementInline, Prop } from 'handle';
 import { ModifyDelegate } from 'modifier/delegate';
-import { StackFrame } from 'parse/program';
+import { StackFrame } from 'context';
 import { ElementReact } from 'translate/element';
 import { ElementIterate } from 'translate/iterate';
 import { ElementSwitch } from 'translate/switch';

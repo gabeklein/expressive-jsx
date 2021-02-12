@@ -2,7 +2,7 @@ import { NodePath as Path } from '@babel/traverse';
 import { Statement } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { AttributeBody, ElementInline, ExplicitStyle } from 'handle';
-import { StackFrame } from 'parse';
+import { StackFrame } from 'context';
 import { ensureArray } from 'shared';
 import { BunchOf, SelectionProvider } from 'types';
 

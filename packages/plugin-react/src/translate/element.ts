@@ -22,7 +22,7 @@ import {
   ExplicitStyle,
   Prop,
 } from 'handle';
-import { StackFrame } from 'parse';
+import { StackFrame } from 'context';
 import { AttributeStack, ElementIterate, ElementSwitch } from 'translate';
 import { BunchOf, ContentLike, PropData, SequenceItem } from 'types';
 

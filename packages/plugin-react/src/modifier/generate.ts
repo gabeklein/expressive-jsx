@@ -1,6 +1,6 @@
 import { callExpression, Expression, expressionStatement, stringLiteral } from '@babel/types';
 import { ExplicitStyle, Modifier } from 'handle';
-import { StackFrame } from 'parse';
+import { StackFrame } from 'context';
 import { hash } from 'shared';
 import { _get, _template } from 'syntax';
 import { BabelState, BunchOf } from 'types';

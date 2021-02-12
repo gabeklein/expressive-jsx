@@ -1,7 +1,7 @@
 import { isExpressionStatement, LabeledStatement } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ElementInline, ElementModifier, ExplicitStyle, Modifier } from 'handle';
-import { StackFrame } from 'parse';
+import { StackFrame } from 'context';
 import { BunchOf, ModiferBody, ModifyAction } from 'types';
 
 import { ModifyDelegate } from './delegate';

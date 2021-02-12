@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/traverse';
 import { blockStatement, Expression, returnStatement, stringLiteral } from '@babel/types';
 import { ComponentExpression } from 'handle';
-import { StackFrame } from 'parse';
+import { StackFrame } from 'context';
 import { _object } from 'syntax';
 import { ElementReact } from 'translate';
 import { DoExpressive } from 'types';

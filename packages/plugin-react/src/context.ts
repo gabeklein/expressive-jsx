@@ -3,7 +3,7 @@ import { ExternalsManager, GenerateReact } from 'regenerate';
 import { DEFAULTS, hash } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Options } from 'types';
 
-import { builtIn } from '../modifier';
+import { builtIn } from './modifier';
 
 type Stackable = { context: StackFrame };
 

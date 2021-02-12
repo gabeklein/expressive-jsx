@@ -3,7 +3,7 @@ import { Program } from '@babel/types';
 import { Status } from 'errors';
 import { handleTopLevelModifier } from 'modifier';
 import { printStyles } from 'modifier';
-import { StackFrame } from 'parse';
+import { StackFrame } from 'context';
 import { GenerateES, GenerateJSX, ImportManager, RequireManager } from 'regenerate';
 import { BabelFile, BabelState, Options } from 'types';
 

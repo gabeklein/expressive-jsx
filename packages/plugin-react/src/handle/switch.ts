@@ -14,7 +14,7 @@ import {
 } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ComponentExpression, ContingentModifier, ElementInline, TraversableBody } from 'handle';
-import { StackFrame } from 'parse';
+import { StackFrame } from 'context';
 import { ensureArray, hash } from 'shared';
 import { DoExpressive, InnerContent } from 'types';
 

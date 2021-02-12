@@ -11,7 +11,7 @@ import {
   VariableDeclarator,
 } from '@babel/types';
 import { ComponentExpression } from 'handle';
-import { StackFrame } from 'parse';
+import { StackFrame } from 'context';
 import { DoExpressive } from 'types';
 
 export function generateEntryElement(
