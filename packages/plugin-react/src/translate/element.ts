@@ -107,26 +107,27 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       && mod.alsoApplies.length === 0)
         continue;
 
-      if(mod instanceof ElementModifier
-      && mod.hasTargets == 1
-      && mod.onlyWithin === undefined)
-        continue;
+      const collapsable = 
+        mod instanceof ElementModifier &&
+        mod.hasTargets == 1 &&
+        mod.onlyWithin === undefined;
 
-      for(const style of mod.sequence)
-        if(style instanceof ExplicitStyle){
-          const { name, invariant, overridden } = style;
-  
-          if(!invariant
-          || overridden
-          || name === undefined
-          || name in elementStyle
-          || name in accumulator)
-            continue;
-  
-          accumulator[name] = style;
-        }
+      if(collapsable)
+        for(const style of mod.sequence)
+          if(style instanceof ExplicitStyle){
+            const { name, invariant, overridden } = style;
+    
+            if(!invariant
+            || overridden
+            || name === undefined
+            || name in elementStyle
+            || name in accumulator)
+              continue;
+    
+            accumulator[name] = style;
+          }
 
-      if(mod instanceof ElementModifier)
+      if(mod instanceof ElementModifier && !collapsable)
         this.applyModifierAsClassname(mod);
     }
 
