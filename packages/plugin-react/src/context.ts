@@ -1,18 +1,11 @@
 import { NodePath as Path } from '@babel/traverse';
 import { Program } from '@babel/types';
 import { ComponentExpression, ComponentIf, ElementInline, ElementModifier, Modifier } from 'handle';
-import { ExternalsManager, GenerateReact } from 'regenerate';
+import { ExternalsManager, GenerateReact, ImportManager, RequireManager } from 'regenerate';
 import { DEFAULTS, hash, Stack } from 'shared';
-import { BabelState, ModifyAction, Options } from 'types';
-import { ImportManager, RequireManager } from 'regenerate';
-import { builtIn } from './modifier';
+import { BabelState, BunchOf, ModifyAction, Options } from 'types';
 
 type Stackable = { context: StackFrame };
-
-export interface StackFrame {
-  Generator: GenerateReact;
-  Imports: ExternalsManager;
-}
 
 export class StackFrame {
   modifiersDeclared = new Set<Modifier>();
@@ -32,35 +25,35 @@ export class StackFrame {
   modifiers = new Stack<ElementModifier>();
   handlers = new Stack<ModifyAction>();
 
+  Generator: GenerateReact;
+  Imports: ExternalsManager;
+
   get parent(){
     return Object.getPrototypeOf(this);
   }
 
-  constructor(pluginPass: BabelState){
-    const { filename, opts } = pluginPass;
+  constructor(path: Path<Program>, state: BabelState){
+    const opts = { ...DEFAULTS, ...state.opts };
 
-    this.stateSingleton = pluginPass;
-    this.prefix = hash(filename);
-    this.current = pluginPass;
-    this.opts = { ...DEFAULTS, ...opts };
-  }
-
-  static init(path: Path<Program>, pluginPass: BabelState){
-    let context = new this(pluginPass);
-    const { opts } = context;
-
-    const external = [ ...opts.modifiers ];
-    const included = Object.assign({}, ...external);
+    this.current = state;
+    this.stateSingleton = state;
+    this.prefix = hash(state.filename);
+    this.scope = path.scope;
+    this.opts = opts;
 
     const Importer =
       opts.useRequire || opts.output == "js"
         ? RequireManager
         : ImportManager;
 
-    context.Imports = new Importer(path, opts);
-    context.Generator = new GenerateReact(context);
+    this.Imports = new Importer(path, this);
+    this.Generator = new GenerateReact(this);
+  }
 
-    for(const imports of [ builtIn, included ]){
+  including(modifiers: BunchOf<any>[]): this {
+    let context = this;
+
+    for(const imports of modifiers){
       const { Helpers, ...Modifiers } = imports as any;
 
       context = Object.create(context)
@@ -69,7 +62,7 @@ export class StackFrame {
         context.handlers.set(name, Modifiers[name]);
     }
 
-    return pluginPass.context = context;
+    return context;
   }
 
   create(node: Stackable): StackFrame {

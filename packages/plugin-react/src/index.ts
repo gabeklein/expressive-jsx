@@ -5,10 +5,17 @@ import { handleTopLevelModifier, printStyles } from 'modifier';
 import { generateEntryElement } from 'parse';
 import { replaceDoExpression } from 'regenerate';
 import { BabelFile, DoExpressive, Visitor } from 'types';
+import { builtIn } from './modifier';
 
 const Program: Visitor<ProgramNode> = {
   enter(path, state){
-    const context = state.context = StackFrame.init(path, state);
+
+    const external =
+      Object.assign({}, ...state.opts.modifiers);
+
+    const context = state.context = 
+      new StackFrame(path, state)
+        .including([ builtIn, external ]);
   
     Status.currentFile = state.file as BabelFile;
   
