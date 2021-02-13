@@ -205,12 +205,12 @@ export class ElementReact<E extends ElementInline = ElementInline> {
         if(item instanceof ExplicitStyle)
           chunks.push(spreadElement(item.toExpression()))
         else
-          chunks.push(...item.map(style => {
-            return objectProperty(
+          chunks.push(...item.map(style =>
+            objectProperty(
               stringLiteral(style.name!),
               style.toExpression()
             )
-          }));
+          ));
 
       value = objectExpression(chunks)
     }

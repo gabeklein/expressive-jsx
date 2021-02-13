@@ -180,16 +180,18 @@ export class RequireManager extends ExternalsManager {
   }
 
   ensureImported(from: string){
+    const { body, imports, importIndices, importTargets } = this;
+    
     from = this.replaceAlias(from);
 
-    if(from in this.imports)
-      return this.imports[from];
+    if(from in imports)
+      return imports[from];
 
     let target;
     let insertableAt;
     let list;
 
-    for(let i = 0, stat; stat = this.body[i]; i++)
+    for(let i = 0, stat; stat = body[i]; i++)
       if(isVariableDeclaration(stat))
         for(const { init, id } of stat.declarations)
           if(isCallExpression(init)
@@ -200,11 +202,11 @@ export class RequireManager extends ExternalsManager {
           }
 
     if(isObjectPattern(target))
-      list = this.imports[from] = target.properties as ObjectProperty[];
+      list = imports[from] = target.properties as ObjectProperty[];
     else {
-      list = this.imports[from] = [];
-      this.importIndices[from] = insertableAt || 0;
-      this.importTargets[from] = isIdentifier(target) && target;
+      list = imports[from] = [];
+      importIndices[from] = insertableAt || 0;
+      importTargets[from] = isIdentifier(target) && target;
     }
 
     return list;
