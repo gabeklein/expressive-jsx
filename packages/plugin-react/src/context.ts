@@ -1,7 +1,7 @@
 import { NodePath as Path } from '@babel/traverse';
 import { Program } from '@babel/types';
 import { ComponentExpression, ComponentIf, ElementInline, ElementModifier, Modifier } from 'handle';
-import { ExternalsManager, GenerateReact, ImportManager, RequireManager } from 'regenerate';
+import { ExternalsManager, ImportManager, RequireManager } from 'regenerate';
 import { DEFAULTS, hash, Stack } from 'shared';
 import { BabelState, BunchOf, ModifyAction, Options } from 'types';
 
@@ -25,7 +25,6 @@ export class StackFrame {
   modifiers = new Stack<ElementModifier>();
   handlers = new Stack<ModifyAction>();
 
-  Generator: GenerateReact;
   Imports: ExternalsManager;
 
   get parent(){
@@ -45,8 +44,7 @@ export class StackFrame {
         ? RequireManager
         : ImportManager;
 
-    this.Imports = new Importer(path, opts);
-    this.Generator = new GenerateReact(this);
+    this.Imports = new Importer(path, this);
   }
 
   including(modifiers: BunchOf<any>[]): this {

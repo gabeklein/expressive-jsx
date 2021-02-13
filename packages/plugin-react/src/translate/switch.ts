@@ -58,7 +58,7 @@ export class ElementSwitch {
         product = new ElementSwitch(cond).toExpression(context)
       else
       if(cond.children.length)
-        product = context.Generator.container(new ElementReact(cond))
+        product = context.Imports.container(new ElementReact(cond))
       else
         return;
 

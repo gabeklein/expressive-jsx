@@ -17,7 +17,7 @@ import {
 } from '@babel/types';
 import { StackFrame } from 'context';
 import { ComponentFor, ElementInline, Prop } from 'handle';
-import { GenerateReact } from 'regenerate';
+import { ExternalsManager } from 'regenerate';
 import { _call, _get, _objectKeys } from 'syntax';
 import { ElementReact } from 'translate';
 
@@ -33,11 +33,11 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     this.type = source.node.type as any;
   }
 
-  toExpression({ Generator }: StackFrame): CallExpression {
+  toExpression({ Imports }: StackFrame): CallExpression {
     let { key, left, right, source: { statements }, type } = this;
 
     let body: BlockStatement | Expression =
-      this.elementOutput(Generator)
+      this.elementOutput(Imports)
 
     if(statements.length)
       body = blockStatement([
@@ -108,7 +108,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     };
   }
 
-  private elementOutput(Generator: GenerateReact){
+  private elementOutput(generate: ExternalsManager){
     let { key, mayCollapseContent } = this;
 
     if(this.props.length){
@@ -124,7 +124,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     if(mayCollapseContent)
       key = undefined;
 
-    return Generator.container(this, key);
+    return generate.container(this, key);
   }
 
   /*

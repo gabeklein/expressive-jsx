@@ -1,5 +1,7 @@
 import { NodePath as Path } from '@babel/traverse';
 import {
+  booleanLiteral,
+  CallExpression,
   Expression,
   Identifier,
   identifier,
@@ -16,8 +18,10 @@ import {
   isObjectPattern,
   isStringLiteral,
   isVariableDeclaration,
+  JSXElement,
   JSXIdentifier,
   jsxIdentifier,
+  JSXMemberExpression,
   objectPattern,
   ObjectProperty,
   objectProperty,
@@ -25,8 +29,13 @@ import {
   Statement,
   stringLiteral,
 } from '@babel/types';
+import { StackFrame } from 'context';
 import { _declare, _require } from 'syntax';
-import { BunchOf, Options } from 'types';
+import { ElementReact } from 'translate';
+import { BunchOf, ContentLike, Options, PropData } from 'types';
+
+import { createElement as createJS } from './es5';
+import { createElement as createJSX } from './jsx';
 
 type ImportSpecific =
   | ImportSpecifier 
@@ -41,8 +50,11 @@ export abstract class ExternalsManager {
 
   constructor(
     private path: Path<Program>,
-    protected opts: Options){
+    protected context: StackFrame){
 
+    const create = context.opts.output === "js" ? createJS : createJSX;
+
+    this.createElement = create.bind(context);
     this.body = path.node.body;
   }
 
@@ -50,12 +62,64 @@ export abstract class ExternalsManager {
   abstract ensureImported(from: string, after?: number): void;
   abstract createImport(name: string): Statement | undefined;
 
+  private createElement: (
+    tag: null | string | JSXMemberExpression,
+    properties?: PropData[],
+    content?: ContentLike[]
+  ) => CallExpression | JSXElement;
+
+  element(src: ElementReact){
+    return this.createElement(src.tagName, src.props, src.children);
+  }
+
+  fragment(
+    children = [] as ContentLike[],
+    key?: Expression){
+
+    let props = key && [{ name: "key", value: key }];
+    return this.createElement(null, props, children)
+  }
+
+  container(
+    src: ElementReact,
+    key?: Identifier
+  ): Expression {
+
+    let output: ContentLike | undefined;
+
+    if(src.props.length == 0){
+      const { children } = src;
+
+      if(children.length == 0)
+        return booleanLiteral(false);
+
+      if(children.length > 1)
+        return this.fragment(children, key);
+
+      output = children[0];
+    }
+
+    if(!output)
+      output = this.element(src)
+
+    else if("toExpression" in output)
+      output = output.toExpression(this.context)
+
+    else if(output instanceof ElementReact)
+      output = this.element(output)
+
+    if(key)
+      return this.fragment([ output ], key)
+    else
+      return output
+  }
+
   replaceAlias(value: string){
     if(value[0] !== "$")
       return value;
 
     const name = value.slice(1) as keyof Options;
-    return this.opts[name] as string;
+    return this.context.opts[name] as string;
   }
 
   ensureUID(name = "temp"){

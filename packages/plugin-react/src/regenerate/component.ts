@@ -20,7 +20,7 @@ export function replaceDoExpression(path: NodePath<DoExpressive>){
   }
 
   const context = element.context as StackFrame;
-  const factoryExpression = context.Generator.container(factory);
+  const factoryExpression = context.Imports.container(factory);
 
   // if(meta instanceof ComponentExpression && meta.exec)
   //     incorperateChildParameters(meta, state.context.Imports)
