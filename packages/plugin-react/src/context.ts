@@ -1,8 +1,10 @@
+import { NodePath as Path } from '@babel/traverse';
+import { Program } from '@babel/types';
 import { ComponentExpression, ComponentIf, ElementInline, ElementModifier, Modifier } from 'handle';
 import { ExternalsManager, GenerateReact } from 'regenerate';
 import { DEFAULTS, hash, Stack } from 'shared';
 import { BabelState, ModifyAction, Options } from 'types';
-
+import { ImportManager, RequireManager } from 'regenerate';
 import { builtIn } from './modifier';
 
 type Stackable = { context: StackFrame };
@@ -43,21 +45,31 @@ export class StackFrame {
     this.opts = { ...DEFAULTS, ...opts };
   }
 
-  static init(pluginPass: BabelState){
-    let Stack = new this(pluginPass);
+  static init(path: Path<Program>, pluginPass: BabelState){
+    let context = new this(pluginPass);
+    const { opts } = context;
 
-    const external = [ ...Stack.opts.modifiers ];
+    const external = [ ...opts.modifiers ];
     const included = Object.assign({}, ...external);
+
+    const Importer =
+      opts.useRequire || opts.output == "js"
+        ? RequireManager
+        : ImportManager;
+
+    context.Imports = new Importer(path, opts);
+    context.Generator = new GenerateReact(context);
+
     for(const imports of [ builtIn, included ]){
       const { Helpers, ...Modifiers } = imports as any;
 
-      Stack = Object.create(Stack)
+      context = Object.create(context)
 
       for(const name in Modifiers)
-        Stack.handlers.set(name, Modifiers[name]);
+        context.handlers.set(name, Modifiers[name]);
     }
 
-    return pluginPass.context = Stack;
+    return pluginPass.context = context;
   }
 
   create(node: Stackable): StackFrame {

@@ -1,12 +1,33 @@
 import { Program as ProgramNode } from '@babel/types';
+import { StackFrame } from 'context';
+import { Status } from 'errors';
+import { handleTopLevelModifier, printStyles } from 'modifier';
 import { generateEntryElement } from 'parse';
-
-import { closeModuleContext, createModuleContext, replaceDoExpression } from 'regenerate';
-import { DoExpressive, Visitor } from 'types';
+import { replaceDoExpression } from 'regenerate';
+import { BabelFile, DoExpressive, Visitor } from 'types';
 
 const Program: Visitor<ProgramNode> = {
-  enter: createModuleContext,
-  exit: closeModuleContext
+  enter(path, state){
+    const context = state.context = StackFrame.init(path, state);
+  
+    Status.currentFile = state.file as BabelFile;
+  
+    for(const item of path.get("body"))
+      if(item.isLabeledStatement()){
+        handleTopLevelModifier(item.node, context);
+        item.remove();
+      }
+  },
+  exit(path, state){
+    const { Imports } = state.context;
+    const styleBlock = printStyles(state);
+  
+    if(styleBlock)
+      path.pushContainer("body", [ styleBlock ]);
+  
+    Imports.EOF();
+    
+  }
 }
 
 const DoExpression: Visitor<DoExpressive> = {
