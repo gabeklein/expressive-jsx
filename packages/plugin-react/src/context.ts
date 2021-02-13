@@ -102,6 +102,10 @@ export class StackFrame {
       console.error("StackFrame shouldn't bottom out like this");
   }
 
+  unique(name: string){
+    return name + "_" + hash(this.prefix);
+  }
+
   resolveFor(append?: string | number){
     this.prefix = `${this.prefix} ${append || ""}`;
   }

@@ -13,7 +13,6 @@ import {
 import { ParseErrors } from 'errors';
 import { ElementModifier, Modifier, TraversableBody } from 'handle';
 import { applyModifier } from 'modifier';
-import { hash } from 'shared';
 import { BunchOf, FlatValue } from 'types';
 
 const Oops = ParseErrors({
@@ -32,7 +31,7 @@ export abstract class AttributeBody extends TraversableBody {
   abstract ElementModifier(mod: Modifier): void;
 
   get uid(){
-    const value = this.name + "_" + hash(this.context.prefix);
+    const value = this.context.unique(this.name!)
     Object.defineProperty(this, "uid", { value });
     return value
   }
