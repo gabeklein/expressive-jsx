@@ -46,10 +46,7 @@ const DoExpression: Visitor<DoExpressive> = {
 
     meta.didEnterOwnScope(path)
   },
-  exit(path){
-    path.node.meta.didExitOwnScope(path);
-    replaceDoExpression(path)
-  }
+  exit: replaceDoExpression
 }
 
 export default (options: any) => {
