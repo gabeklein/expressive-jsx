@@ -58,9 +58,7 @@ export function forward(this: ModifyDelegate, ...args: any[]){
   if(!parent)
     throw new Error("No parent component found in hierarchy");
 
-  const { exec } = parent;
-
-  if(!exec)
+  if(!parent.exec)
     throw new Error("Can only apply props from a parent `() => do {}` function!");
 
   const uid = (name: string) =>
@@ -89,21 +87,19 @@ function applyToParentProps(
   parent: ComponentExpression,
   assignments: BunchOf<Identifier>){
 
-  const { exec } = parent;
-
-  if(!exec)
+  if(!parent.exec)
     throw new Error("Can only apply props from a parent `() => do {}` function!");
 
-  const { node } = exec;
+  const { params } = parent.exec.node;
 
   const properties = Object.entries(assignments).map(
     (e) => objectProperty(identifier(e[0]), e[1], false, e[1].name == e[0])
   )
 
-  let props = node.params[0];
+  let props = params[0];
 
   if(!props)
-    props = node.params[0] = objectPattern(properties);
+    props = params[0] = objectPattern(properties);
 
   else if(isObjectPattern(props))
     props.properties.push(...properties)
