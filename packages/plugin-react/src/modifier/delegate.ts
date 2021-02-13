@@ -69,6 +69,10 @@ export class ModifyDelegate {
       }
   }
 
+  identifier(name: string){
+    return this.target.context.Imports.ensureUIDIdentifier(name);
+  }
+
   setContingent(
     contingent: string,
     priority?: number,

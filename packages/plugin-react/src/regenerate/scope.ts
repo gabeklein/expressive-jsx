@@ -1,4 +1,4 @@
-import { NodePath as Path, Scope } from '@babel/traverse';
+import { NodePath as Path } from '@babel/traverse';
 import {
   Expression,
   Identifier,
@@ -16,6 +16,8 @@ import {
   isObjectPattern,
   isStringLiteral,
   isVariableDeclaration,
+  JSXIdentifier,
+  jsxIdentifier,
   objectPattern,
   ObjectProperty,
   objectProperty,
@@ -31,48 +33,17 @@ type ImportSpecific =
   | ImportDefaultSpecifier 
   | ImportNamespaceSpecifier;
 
-export function ensureUIDIdentifier(
-  scope: Scope,
-  name: string = "temp"){
-
-  return identifier(ensureUID(scope, name))
-}
-
-export function ensureUID(
-  scope: Scope,
-  name: string = "temp"){
-
-  name = name
-    .replace(/^_+/, "")
-    .replace(/[0-9]+$/g, "");
-
-  let uid = name;
-  let i = 2;
-
-  while(
-    scope.hasBinding(uid) ||
-    scope.hasGlobal(uid) ||
-    scope.hasReference(uid))
-    uid = name + i++;
-
-  const program = scope.getProgramParent() as any;
-  program.references[uid] = program.uids[uid] = true;
-  return uid;
-}
-
 export abstract class ExternalsManager {
-  body: Statement[];
-  scope: Scope;
+  protected body: Statement[];
 
-  imports = {} as BunchOf<(ObjectProperty | ImportSpecific)[]>
-  importIndices = {} as BunchOf<number>;
+  protected imports = {} as BunchOf<(ObjectProperty | ImportSpecific)[]>
+  protected importIndices = {} as BunchOf<number>;
 
   constructor(
-    path: Path<Program>,
-    private opts: Options){
+    private path: Path<Program>,
+    protected opts: Options){
 
     this.body = path.node.body;
-    this.scope = path.scope;
   }
 
   abstract ensure(from: string, name: string, alt?: string): Identifier;
@@ -85,6 +56,34 @@ export abstract class ExternalsManager {
 
     const name = value.slice(1) as keyof Options;
     return this.opts[name] as string;
+  }
+
+  ensureUID(name = "temp"){
+    const { scope } = this.path;
+
+    let uid = name = name
+      .replace(/^_+/, "")
+      .replace(/[0-9]+$/g, "");
+
+    for(let i = 2;
+      scope.hasBinding(uid) ||
+      scope.hasGlobal(uid) ||
+      scope.hasReference(uid);
+      i++
+    ){
+      uid = name + i;
+    }
+
+    const program = scope.getProgramParent() as any;
+    program.references[uid] = program.uids[uid] = true;
+    return uid;
+  }
+
+  ensureUIDIdentifier(name: string, jsx?: false): Identifier;
+  ensureUIDIdentifier(name: string, jsx: true): JSXIdentifier;
+  ensureUIDIdentifier(name: string, jsx = false){
+    const ref = this.ensureUID(name);
+    return jsx ? jsxIdentifier(ref) :  identifier(ref);
   }
 
   EOF(){
@@ -115,7 +114,7 @@ export class ImportManager extends ExternalsManager {
       if(isImportDefaultSpecifier(list[0]))
         return list[0].local;
       else {
-        uid = ensureUIDIdentifier(this.scope, alt || from);
+        uid = this.ensureUIDIdentifier(alt || from);
         list.unshift(importDefaultSpecifier(uid));
         return uid
       }
@@ -128,7 +127,7 @@ export class ImportManager extends ExternalsManager {
       }
 
     if(!uid){
-      uid = ensureUIDIdentifier(this.scope, alt || name);
+      uid = this.ensureUIDIdentifier(alt || name);
       list.push(
         importSpecifier(uid, identifier(name))
       )
@@ -168,7 +167,7 @@ export class RequireManager extends ExternalsManager {
       if(isIdentifier(key, { name }) && isIdentifier(value))
         return value;
 
-    const ref = ensureUIDIdentifier(this.scope, alt);
+    const ref = this.ensureUIDIdentifier(alt);
     const key = identifier(name);
     const useShorthand = ref.name === name;
     const property = objectProperty(key, ref, false, useShorthand);

@@ -17,7 +17,7 @@ import {
 } from '@babel/types';
 import { StackFrame } from 'context';
 import { ComponentFor, ElementInline, Prop } from 'handle';
-import { ensureUIDIdentifier, GenerateReact } from 'regenerate';
+import { GenerateReact } from 'regenerate';
 import { _call, _get, _objectKeys } from 'syntax';
 import { ElementReact } from 'translate';
 
@@ -89,7 +89,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
         throw new Error("Left of ForInStatement must be an Identifier here!")
     }
     else
-      key = ensureUIDIdentifier(this.source.path.scope, "i");
+      key = this.context.Imports.ensureUIDIdentifier("i");
 
     this.key = key;
     this.left = left;

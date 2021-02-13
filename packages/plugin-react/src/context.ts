@@ -38,7 +38,6 @@ export class StackFrame {
     this.current = state;
     this.stateSingleton = state;
     this.prefix = hash(state.filename);
-    this.scope = path.scope;
     this.opts = opts;
 
     const Importer =
@@ -46,7 +45,7 @@ export class StackFrame {
         ? RequireManager
         : ImportManager;
 
-    this.Imports = new Importer(path, this);
+    this.Imports = new Importer(path, opts);
     this.Generator = new GenerateReact(this);
   }
 

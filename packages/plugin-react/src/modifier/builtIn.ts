@@ -9,7 +9,6 @@ import {
   variableDeclarator,
 } from '@babel/types';
 import { ComponentExpression, ElementInline, Modifier, Prop } from 'handle';
-import { ensureUIDIdentifier } from 'regenerate';
 import { BunchOf } from 'types';
 
 import { ModifyDelegate } from './delegate';
@@ -61,20 +60,17 @@ export function forward(this: ModifyDelegate, ...args: any[]){
   if(!parent.exec)
     throw new Error("Can only apply props from a parent `() => do {}` function!");
 
-  const uid = (name: string) =>
-    ensureUIDIdentifier(exec.context.scope, name);
-
   let all = args.indexOf("all") + 1;
   const reference = {} as BunchOf<Identifier>;
 
   if(all || ~args.indexOf("children")){
-    const id = reference["children"] = uid("children");
+    const id = reference["children"] = this.identifier("children");
     target.adopt(id);
   }
 
   for(const prop of ["className", "style"])
     if(all || ~args.indexOf(prop)){
-      const id = reference[prop] = uid(prop);
+      const id = reference[prop] = this.identifier(prop);
       target.insert(
         new Prop(prop, id)
       )
