@@ -88,18 +88,17 @@ export abstract class ExternalsManager {
   }
 
   EOF(){
-    const requireOccuring = Object
+    Object
       .entries(this.importIndices)
       .sort((a, b) => a[1] - b[1])
-
-    for(const [ name ] of requireOccuring){
-      const importStatement = this.createImport(name);
-
-      if(importStatement){
-        const index = this.importIndices[name];
-        this.body.splice(index, 0, importStatement);
-      }
-    }
+      .forEach(([ name ]) => {
+        const importStatement = this.createImport(name);
+  
+        if(importStatement){
+          const index = this.importIndices[name];
+          this.body.splice(index, 0, importStatement);
+        }
+      })
   }
 }
 
