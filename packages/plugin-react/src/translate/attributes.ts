@@ -1,11 +1,11 @@
 import { Attribute } from 'handle';
 
-export class ArrayStack<Type = any, Interrupt = Type>
-  extends Array<Type[] | Interrupt> {
+export class ArrayStack<T = any, I = T>
+  extends Array<T[] | I> {
 
-  top?: Type[] | Interrupt;
+  top?: T[] | I;
 
-  insert(x: Type){
+  insert(x: T){
      if(Array.isArray(this.top))
       this.top.push(x)
     else {
@@ -14,7 +14,7 @@ export class ArrayStack<Type = any, Interrupt = Type>
     }
   }
 
-  push(x: Interrupt): number {
+  push(x: I): number {
     this.top = x;
     return super.push(x);
   }
