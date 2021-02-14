@@ -272,15 +272,17 @@ export class ElementReact<E extends ElementInline = ElementInline> {
 
         if(value && typeof value == "object")
           if(isStringLiteral(value))
-            value = value.value;
-          else {
-            this.classList.push(value as Expression);
+            ({ value } = value);
+          else if(isExpression(value)){
+            this.classList.push(value);
             break;
           }
 
         if(typeof value == "string")
           this.classList.push(value.trim());
-      } break;
+
+        break;
+      }
 
       default:
         this.addProperty(item.name, item.toExpression());
@@ -293,8 +295,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     if(item.hasElementOutput)
       this.adopt(fork)
 
-    if(item.hasStyleOutput){
+    if(item.hasStyleOutput)
       this.classList.push(fork.toClassName());
-    }
   }
 }
