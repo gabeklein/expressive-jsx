@@ -44,7 +44,9 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     for(const item of this.source.sequence)
       this.handle(item, true);
 
-    this.didParse();
+    this.applyHoistedStyle();
+    this.applyInlineStyle();
+    this.applyClassname();
   }
 
   get tagName(): string | JSXMemberExpression {
@@ -63,10 +65,10 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       this.Switch(item)
 
     else if(item instanceof ComponentFor)
-      this.Iterate(item)
+      this.adopt(new ElementIterate(item))
 
     else if(item instanceof ElementInline)
-      this.Child(item);
+      this.adopt(new ElementReact(item));
 
     else if(item instanceof Attribute){
       if(!overridden && item.overridden
@@ -81,16 +83,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     }
 
     else if(isExpression(item))
-      this.Content(item);
-
-    else
-      this.Statement(item);
-  }
-
-  didParse(){
-    this.applyHoistedStyle();
-    this.applyInlineStyle();
-    this.applyClassname();
+      this.adopt(item);
   }
 
   willParse(){
@@ -294,14 +287,6 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     }
   }
 
-  Child(item: ElementInline){
-    this.adopt(new ElementReact(item));
-  }
-
-  Content(item: Expression){
-    this.adopt(item);
-  }
-
   Switch(item: ComponentIf){
     const fork = new ElementSwitch(item)
 
@@ -311,13 +296,5 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     if(item.hasStyleOutput){
       this.classList.push(fork.toClassName());
     }
-  }
-
-  Iterate(item: ComponentFor){
-    this.adopt(new ElementIterate(item))
-  }
-
-  Statement(item: any){
-    void item;
   }
 }
