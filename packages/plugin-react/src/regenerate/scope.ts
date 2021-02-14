@@ -28,6 +28,7 @@ import {
   Program,
   Statement,
   stringLiteral,
+  VariableDeclaration,
 } from '@babel/types';
 import { StackFrame } from 'context';
 import { _declare, _require } from 'syntax';
@@ -59,7 +60,7 @@ export abstract class ExternalsManager {
   }
 
   abstract ensure(from: string, name: string, alt?: string): Identifier;
-  abstract ensureImported(from: string, after?: number): void;
+  abstract ensureImported(from: string): void;
   abstract createImport(name: string): Statement | undefined;
 
   private createElement: (
@@ -168,7 +169,7 @@ export abstract class ExternalsManager {
 export class ImportManager extends ExternalsManager {
   imports = {} as BunchOf<ImportSpecific[]>
 
-  ensure(from: string, name: string, alt?: string){
+  ensure(from: string, name: string, alt = name){
     from = this.replaceAlias(from);
 
     let uid;
@@ -178,7 +179,7 @@ export class ImportManager extends ExternalsManager {
       if(isImportDefaultSpecifier(list[0]))
         return list[0].local;
       else {
-        uid = this.ensureUIDIdentifier(alt || from);
+        uid = this.ensureUIDIdentifier(alt);
         list.unshift(importDefaultSpecifier(uid));
         return uid
       }
@@ -200,16 +201,16 @@ export class ImportManager extends ExternalsManager {
     return uid;
   }
 
-  ensureImported(from: string, after = 0){
-    const { imports, importIndices, body } = this;
+  ensureImported(name: string){
+    const { imports, body } = this;
+
+    name = this.replaceAlias(name);
 
     for(const stat of body)
-      if(isImportDeclaration(stat)
-      && stat.source.value == from)
-        return imports[from] = stat.specifiers
+      if(isImportDeclaration(stat) && stat.source.value == name)
+        return imports[name] = stat.specifiers;
 
-    importIndices[from] = after;
-    return imports[from] = [];
+    return imports[name] = [];
   }
 
   createImport(name: string){
@@ -241,34 +242,28 @@ export class RequireManager extends ExternalsManager {
     return ref;
   }
 
-  ensureImported(from: string){
-    const { body, imports, importIndices, importTargets } = this;
+  ensureImported(name: string){
+    const { body, imports, importTargets } = this;
     
-    from = this.replaceAlias(from);
+    name = this.replaceAlias(name);
 
-    if(from in imports)
-      return imports[from];
+    if(name in imports)
+      return imports[name];
 
     let target;
-    let insertableAt;
     let list;
 
     for(let i = 0, stat; stat = body[i]; i++)
       if(isVariableDeclaration(stat))
-        for(const { init, id } of stat.declarations)
-          if(isCallExpression(init)
-          && isIdentifier(init.callee, { name: "require" })
-          && isStringLiteral(init.arguments[0], { value: from })){
-            target = id;
-            insertableAt = i + 1;
-          }
+        target = requireResultFrom(name, stat);
 
-    if(isObjectPattern(target))
-      list = imports[from] = target.properties as ObjectProperty[];
+    if(target && isObjectPattern(target))
+      list = imports[name] = target.properties as ObjectProperty[];
     else {
-      list = imports[from] = [];
-      importIndices[from] = insertableAt || 0;
-      importTargets[from] = isIdentifier(target) && target;
+      list = imports[name] = [];
+
+      if(isIdentifier(target))
+        importTargets[name] = target;
     }
 
     return list;
@@ -282,4 +277,15 @@ export class RequireManager extends ExternalsManager {
       return _declare("const", objectPattern(list), target);
     }
   }
+}
+
+function requireResultFrom(
+  name: string,
+  statement: VariableDeclaration){
+
+  for(const { init, id } of statement.declarations)
+    if(isCallExpression(init)
+    && isIdentifier(init.callee, { name: "require" })
+    && isStringLiteral(init.arguments[0], { value: name }))
+      return id;
 }
