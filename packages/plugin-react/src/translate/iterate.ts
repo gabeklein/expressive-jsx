@@ -71,23 +71,19 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     if(isVariableDeclaration(left))
       left = left.declarations[0].id;
 
-    if(isIdentifier(left)
-    || isObjectPattern(left)
-    || isArrayPattern(left))
+    if(isIdentifier(left) || isObjectPattern(left) || isArrayPattern(left))
       void 0;
     else
       throw new Error("Assignment of variable left of \"of\" must be Identifier or Destruture")
 
     if(isBinaryExpression(right, {operator: "in"})){
       key = right.left as Identifier
-      right = right.right as any;
+      right = right.right;
     }
-    else if(isForInStatement(node) && isIdentifier(left)){
-      if(isIdentifier(left))
-        key = left
-      else
-        throw new Error("Left of ForInStatement must be an Identifier here!")
-    }
+    if(isIdentifier(left))
+      key = left
+    else if(isForInStatement(node))
+      throw new Error("Left of ForInStatement must be an Identifier here!")
     else
       key = this.context.Imports.ensureUIDIdentifier("i");
 
