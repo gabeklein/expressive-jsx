@@ -12,7 +12,6 @@ import {
   stringLiteral,
 } from '@babel/types';
 import {
-  Attribute,
   ComponentExpression,
   ComponentFor,
   ComponentIf,
@@ -42,7 +41,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     this.willParse();
 
     for(const item of this.source.sequence)
-      this.handle(item, true);
+      this.integrate(item);
 
     this.applyHoistedStyle();
     this.applyInlineStyle();
@@ -56,11 +55,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     );
   }
 
-  handle(
-    item: SequenceItem,
-    invariant?: boolean,
-    overridden?: boolean){
-
+  integrate(item: SequenceItem){
     if(item instanceof ComponentIf)
       this.Switch(item)
 
@@ -70,17 +65,11 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     else if(item instanceof ElementInline)
       this.adopt(new ElementReact(item));
 
-    else if(item instanceof Attribute){
-      if(!overridden && item.overridden
-      || !invariant && item.invariant)
-        return;
+    else if(item instanceof ExplicitStyle)
+      this.Style(item);
 
-      if(item instanceof ExplicitStyle)
-        this.Style(item);
-      else
-      if(item instanceof Prop)
-        this.Props(item);
-    }
+    else if(item instanceof Prop)
+      this.Props(item);
 
     else if(isExpression(item))
       this.adopt(item);
@@ -95,32 +84,32 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       return;
 
     for(const mod of this.source.modifiers){
+      if(!(mod instanceof ElementModifier))
+        continue
+
       if(mod.sequence.length === 0
       && mod.alsoApplies.length === 0)
         continue;
 
-      const collapsable = 
-        mod instanceof ElementModifier &&
-        mod.hasTargets == 1 &&
-        mod.onlyWithin === undefined;
-
-      if(collapsable)
-        for(const style of mod.sequence)
-          if(style instanceof ExplicitStyle){
-            const { name, invariant, overridden } = style;
-    
-            if(!invariant
-            || overridden
-            || name === undefined
-            || name in elementStyle
-            || name in accumulator)
-              continue;
-    
-            accumulator[name] = style;
-          }
-
-      if(mod instanceof ElementModifier && !collapsable)
+      if(mod.hasTargets > 1
+      || mod.onlyWithin){
         this.applyModifierAsClassname(mod);
+        continue;
+      }
+
+      for(const style of mod.sequence)
+        if(style instanceof ExplicitStyle){
+          const { name, invariant, overridden } = style;
+  
+          if(!invariant
+          || overridden
+          || name === undefined
+          || name in elementStyle
+          || name in accumulator)
+            continue;
+  
+          accumulator[name] = style;
+        }
     }
 
     for(const name in accumulator){
