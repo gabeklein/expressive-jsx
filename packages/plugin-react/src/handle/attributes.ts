@@ -36,6 +36,12 @@ export abstract class AttributeBody extends TraversableBody {
     return value
   }
 
+  addStyle(name: string, value: any){
+    this.insert(
+      new ExplicitStyle(name, value)
+    )
+  }
+
   insert(item: Prop | ExplicitStyle){
     const { name } = item;
     const register = item instanceof Prop

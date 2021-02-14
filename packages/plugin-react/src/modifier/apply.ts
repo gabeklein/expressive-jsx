@@ -77,5 +77,7 @@ export function handleTopLevelModifier(
   if(isExpressionStatement(body))
     throw Oops.IllegalAtTopLevel(node)
 
-  ElementModifier.insert(context, name, body);
+  context.elementMod(
+    new ElementModifier(context, name, body)
+  );
 }

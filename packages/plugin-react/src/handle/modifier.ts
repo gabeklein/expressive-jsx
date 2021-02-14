@@ -1,14 +1,7 @@
-import { NodePath as Path } from '@babel/traverse';
 import { Statement } from '@babel/types';
-import { ParseErrors } from 'errors';
-import { AttributeBody, ElementInline, ExplicitStyle } from 'handle';
 import { StackFrame } from 'context';
-import { ensureArray } from 'shared';
+import { AttributeBody, ElementInline } from 'handle';
 import { BunchOf, SelectionProvider } from 'types';
-
-const Oops = ParseErrors({
-  NodeUnknown: "Unhandled node of type {1}",
-})
 
 function concat(
   to: BunchOf<any[]>, 
@@ -29,38 +22,15 @@ export abstract class Modifier extends AttributeBody {
   priority?: number;
 
   alsoApplies = [] as Modifier[];
-
-  parse(body: Path<Statement>){
-    const content = body.isBlockStatement() ? ensureArray(body.get("body")) : [body];
-    for(const item of content){
-      if(item.type in this)
-        (this as any)[item.type](item.node, item);
-      else throw Oops.NodeUnknown(item as any, item.type)
-    }
-  }
-
-  addStyle(name: string, value: any){
-    this.insert(
-      new ExplicitStyle(name, value)
-    )
-  }
 }
 
 export class ElementModifier extends Modifier {
   name?: string;
   next?: ElementModifier;
   hasTargets = 0;
+
   provides = [] as ElementModifier[];
   priority = 1;
-
-  static insert(
-    context: StackFrame,
-    name: string,
-    body: Statement
-  ){
-    const mod = new this(context, name, body);
-    context.elementMod(mod);
-  }
 
   constructor(
     context: StackFrame,
