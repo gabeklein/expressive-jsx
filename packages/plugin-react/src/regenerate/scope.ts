@@ -19,8 +19,6 @@ import {
   isStringLiteral,
   isVariableDeclaration,
   JSXElement,
-  JSXIdentifier,
-  jsxIdentifier,
   JSXMemberExpression,
   objectPattern,
   ObjectProperty,
@@ -144,11 +142,8 @@ export abstract class ExternalsManager {
     return uid;
   }
 
-  ensureUIDIdentifier(name: string, jsx?: false): Identifier;
-  ensureUIDIdentifier(name: string, jsx: true): JSXIdentifier;
-  ensureUIDIdentifier(name: string, jsx = false){
-    const ref = this.ensureUID(name);
-    return jsx ? jsxIdentifier(ref) :  identifier(ref);
+  ensureUIDIdentifier(name: string){
+    return identifier(this.ensureUID(name));
   }
 
   EOF(){

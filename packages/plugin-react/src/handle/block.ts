@@ -22,8 +22,6 @@ export abstract class TraversableBody {
     this.context = context.create(this);
   }
 
-  abstract ExpressionDefault(node: Expression): void;
-
   willEnter?(path?: Path): void;
   willExit?(path?: Path): void;
   wasAddedTo?<T extends TraversableBody>(element?: T): void;
@@ -44,10 +42,10 @@ export abstract class TraversableBody {
       item.wasAddedTo(this);
   }
 
-  parse(item: Path<Statement>){
-    const content = item.isBlockStatement()
-      ? ensureArray(item.get("body"))
-      : [item];
+  parse(body: Path<Statement>){
+    const content = body.isBlockStatement()
+      ? ensureArray(body.get("body"))
+      : [body];
    
     for(const item of content)
       if(item.type in this)
@@ -57,7 +55,9 @@ export abstract class TraversableBody {
   }
 
   parseNodes(body: Statement){
-    const content = isBlockStatement(body) ? body.body : [body];
+    const content = isBlockStatement(body)
+      ? body.body
+      : [body];
 
     for(const item of content)
       if(item.type in this)
@@ -65,6 +65,8 @@ export abstract class TraversableBody {
       else
         throw Oops.NodeUnknown(item, item.type);
   }
+
+  abstract ExpressionDefault(node: Expression): void;
 
   ExpressionStatement(node: ExpressionStatement){
     return this.Expression(node.expression)

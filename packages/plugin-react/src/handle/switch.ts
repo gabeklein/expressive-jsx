@@ -255,10 +255,12 @@ function specifyOption(test?: Expression){
     return "else"
 
   let ref = "if_";
+
   if(isUnaryExpression(test, { operator: "!" })){
     test = test.argument;
     ref = "not_"
   }
+
   if(isIdentifier(test)){
     const { name } = test;
     return ref + name;

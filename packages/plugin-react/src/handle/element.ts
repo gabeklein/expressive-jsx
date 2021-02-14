@@ -5,7 +5,6 @@ import {
   blockStatement,
   DebuggerStatement,
   Expression,
-  expressionStatement,
   For,
   FunctionDeclaration,
   identifier,
@@ -28,8 +27,7 @@ import { DoExpressive, InnerContent } from 'types';
 
 const Oops = ParseErrors({
   PropNotIdentifier: "Assignment must be identifier name of a prop.",
-  AssignmentNotEquals: "Only `=` assignment may be used here.",
-  StatementInElement: "Statement insertion not implemented while within elements!",
+  AssignmentNotEquals: "Only `=` assignment may be used here."
 })
 
 export class ElementInline extends AttributeBody {
@@ -114,15 +112,17 @@ export class ElementInline extends AttributeBody {
       throw Oops.PropNotIdentifier(left)
 
     let { name } = left;
+    let prop: Prop;
 
-    if(isDoExpression(right)){
-      const prop = new Prop(name, identifier("undefined"));
-      (<DoExpressive>right).expressive_parent = prop;
-      this.insert(prop);
-    }
-
+    if(isDoExpression(right))
+      prop = 
+        (<DoExpressive>right).expressive_parent =
+        new Prop(name, identifier("undefined"));
     else
-      this.insert(new Prop(name, right));
+      prop =
+        new Prop(name, right)
+
+    this.insert(prop);
   }
 }
 

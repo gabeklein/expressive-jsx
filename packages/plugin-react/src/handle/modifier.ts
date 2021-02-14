@@ -92,8 +92,4 @@ export class ContingentModifier extends Modifier {
     else
       anchor.context.elementMod(mod)
   }
-
-  didFinishParsing(){
-
-  }
 }
