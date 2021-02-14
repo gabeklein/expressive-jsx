@@ -55,7 +55,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     );
   }
 
-  integrate(item: SequenceItem){
+  private integrate(item: SequenceItem){
     if(item instanceof ComponentIf)
       this.Switch(item)
 
@@ -75,7 +75,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       this.adopt(item);
   }
 
-  willParse(){
+  protected willParse(){
     const elementStyle = this.source.style;
     const accumulator = {} as BunchOf<ExplicitStyle>;
     // TODO: respect priority differences!
@@ -119,7 +119,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     }
   }
 
-  applyModifierAsClassname(mod: ElementModifier){
+  private applyModifierAsClassname(mod: ElementModifier){
     let doesProvideAStyle = false;
     const declared = this.context.modifiersDeclared;
 
@@ -139,7 +139,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       declared.add(mod);
   }
 
-  addProperty(
+  private addProperty(
     name: string | false | undefined,
     value: Expression){
 
