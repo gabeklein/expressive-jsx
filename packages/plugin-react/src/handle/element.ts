@@ -104,10 +104,6 @@ export class ElementInline extends AttributeBody {
     handleUnaryExpression.call(this, node);
   }
 
-  ExpressionAsStatement(node: Expression){
-    throw Oops.StatementInElement(node)
-  }
-
   AssignmentExpression(node: AssignmentExpression){
     if(node.operator !== "=")
       throw Oops.AssignmentNotEquals(node)
@@ -132,11 +128,6 @@ export class ElementInline extends AttributeBody {
 
 export class ComponentContainer extends ElementInline {
   statements = [] as Statement[];
-
-  ExpressionAsStatement(node: Expression){
-    const stat = expressionStatement(node);
-    this.statements.push(stat);
-  }
 
   VariableDeclaration(node: VariableDeclaration){
     this.statements.push(node);

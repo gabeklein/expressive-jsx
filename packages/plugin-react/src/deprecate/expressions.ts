@@ -57,10 +57,6 @@ export function handleUnaryExpression(
   const op = node.operator
 
   switch(op){
-    case "delete":
-      this.ExpressionAsStatement(value);
-      return
-
     case "void":
     case "!":
       this.ExpressionDefault(node)
