@@ -28,15 +28,6 @@ export abstract class TraversableBody {
   willExit?(path?: Path): void;
   wasAddedTo?<T extends TraversableBody>(element?: T): void;
 
-  didEnterOwnScope(path: Path<DoExpressive>){
-    const traversable = path.get("body").get("body");
-
-    this.context.push();
-
-    for(const item of traversable)
-      this.parse(item);
-  }
-
   handleContentBody(content: Statement){
     if(!isBlockStatement(content))
       content = blockStatement([content])

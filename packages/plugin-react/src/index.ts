@@ -44,7 +44,12 @@ const DoExpression: Visitor<DoExpressive> = {
     if(!meta)
       meta = generateEntryElement(path, state.context);
 
-    meta.didEnterOwnScope(path)
+    const traversable = path.get("body").get("body");
+
+    this.context.push();
+
+    for(const item of traversable)
+      meta.parse(item);
   },
   exit: replaceDoExpression
 }
