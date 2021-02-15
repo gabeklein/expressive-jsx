@@ -37,12 +37,11 @@ export class GenerateJSX extends GenerateReact {
     const props = properties.map(createAttribute);
     const children = [] as JSXContent[];
 
-    for(let child of content){
+    for(let child of content)
       if(isTemplateLiteral(child))
         children.push(...templateToMarkup(child, acceptBr));
       else 
         children.push(this.normalize(child));
-    }
 
     scope.ensure("$pragma", "default", "React");
 
