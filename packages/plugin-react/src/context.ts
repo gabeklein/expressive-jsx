@@ -13,7 +13,6 @@ export class StackFrame {
 
   prefix: string;
   styleRoot = {} as any;
-  stateSingleton: BabelState;
   ModifierQuery?: string;
   
   current = {} as any;
@@ -35,7 +34,6 @@ export class StackFrame {
     const opts = { ...DEFAULTS, ...state.opts };
 
     this.current = state;
-    this.stateSingleton = state;
     this.prefix = hash(state.filename);
     this.opts = opts;
 
@@ -73,30 +71,6 @@ export class StackFrame {
     frame.modifiers = frame.modifiers.stack();
 
     return frame;
-  }
-
-  push(){
-    this.stateSingleton.context = this;
-  }
-
-  pop(meta: ElementInline){
-    const state = this.stateSingleton;
-    let { context } = state;
-    let newContext: StackFrame | undefined;
-
-    while(true){
-      newContext = Object.getPrototypeOf(context);
-      if(!newContext)
-        break;
-      if(context.current === meta)
-        break;
-      context = newContext;
-    }
-
-    if(context.current)
-      state.context = newContext!;
-    else
-      console.error("StackFrame shouldn't bottom out like this");
   }
 
   unique(name: string){

@@ -46,8 +46,6 @@ const DoExpression: Visitor<DoExpressive> = {
 
     const traversable = path.get("body").get("body");
 
-    this.context.push();
-
     for(const item of traversable)
       meta.parse(item);
   },

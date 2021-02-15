@@ -177,7 +177,6 @@ export class ComponentConsequent extends ElementInline {
     const include =
       mod.alsoApplies.map(x => x.uid).join(" ");
 
-    // mod.didFinishParsing();
     if(mod.sequence.length)
       parent.modifiers.push(mod);
     else
