@@ -1,22 +1,20 @@
-import { NodePath as Path } from '@babel/traverse';
-import {
+import { expressionStatement, isDoExpression, isExpression, isIdentifier, isUnaryExpression } from '@babel/types';
+import { ParseErrors } from 'errors';
+import { ComponentExpression, ContingentModifier, ElementInline } from 'handle';
+import { ensureArray, hash } from 'shared';
+
+import type { NodePath as Path } from '@babel/traverse';
+import type {
   Expression,
   ExpressionStatement,
-  expressionStatement,
   IfStatement,
-  isDoExpression,
-  isExpression,
-  isIdentifier,
-  isUnaryExpression,
   LabeledStatement,
   ReturnStatement,
-  Statement,
+  Statement
 } from '@babel/types';
-import { ParseErrors } from 'errors';
-import { ComponentExpression, ContingentModifier, ElementInline, TraversableBody } from 'handle';
-import { StackFrame } from 'context';
-import { ensureArray, hash } from 'shared';
-import { DoExpressive, InnerContent } from 'types';
+import type { TraversableBody } from 'handle';
+import type { StackFrame } from 'context';
+import type { DoExpressive, InnerContent } from 'types';
 
 const Oops = ParseErrors({
   ReturnElseNotImplemented: "This is an else condition, returning from here is not implemented.",

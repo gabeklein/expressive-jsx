@@ -1,16 +1,15 @@
 import {
-  Expression,
+  isJSXElement,
   jsxElement,
   jsxExpressionContainer,
   jsxIdentifier,
-  isJSXElement,
   jsxOpeningElement,
   jsxText,
   stringLiteral,
-  TemplateElement,
-  TemplateLiteral,
 } from '@babel/types';
-import { JSXContent } from 'types';
+
+import type { Expression, TemplateElement, TemplateLiteral } from '@babel/types';
+import type { JSXContent } from 'types';
 
 export function templateToMarkup(
   node: TemplateLiteral,

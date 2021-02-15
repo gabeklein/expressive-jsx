@@ -1,10 +1,6 @@
 import {
   arrowFunctionExpression,
-  BlockStatement,
   blockStatement,
-  CallExpression,
-  Expression,
-  Identifier,
   isArrayPattern,
   isBinaryExpression,
   isForInStatement,
@@ -12,14 +8,22 @@ import {
   isIdentifier,
   isObjectPattern,
   isVariableDeclaration,
-  PatternLike,
   returnStatement,
 } from '@babel/types';
-import { StackFrame } from 'context';
-import { ComponentFor, ElementInline, Prop } from 'handle';
-import { ExternalsManager } from 'regenerate';
+import { ElementInline, Prop } from 'handle';
 import { _call, _get, _objectKeys } from 'syntax';
 import { ElementReact } from 'translate';
+
+import type {
+  BlockStatement,
+  CallExpression,
+  Expression,
+  Identifier,
+  PatternLike
+} from '@babel/types';
+import type { StackFrame } from 'context';
+import type { ComponentFor } from 'handle';
+import type { ExternalsManager } from 'regenerate';
 
 export class ElementIterate extends ElementReact<ComponentFor> {
   type: "ForOfStatement" | "ForInStatement" | "ForStatement";

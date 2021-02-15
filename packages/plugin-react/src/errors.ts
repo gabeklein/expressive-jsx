@@ -1,6 +1,6 @@
-import { NodePath } from '@babel/traverse';
-import { Node } from '@babel/types';
-import { BabelFile, BunchOf, FlatValue } from 'types';
+import type { NodePath } from '@babel/traverse';
+import type { Node } from '@babel/types';
+import type { BabelFile, BunchOf, FlatValue } from 'types';
 
 type ParseError = <T extends Node>(node: NodePath<T> | T, ...args: FlatValue[]) => Error;
 

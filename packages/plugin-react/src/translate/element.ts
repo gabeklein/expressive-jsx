@@ -1,13 +1,9 @@
 import {
   callExpression,
-  Expression,
   isExpression,
   isStringLiteral,
-  JSXMemberExpression,
   objectExpression,
   objectProperty,
-  ObjectProperty,
-  SpreadElement,
   spreadElement,
   stringLiteral,
 } from '@babel/types';
@@ -21,9 +17,16 @@ import {
   ExplicitStyle,
   Prop,
 } from 'handle';
-import { StackFrame } from 'context';
 import { AttributeStack, ElementIterate, ElementSwitch } from 'translate';
-import { BunchOf, ContentLike, PropData, SequenceItem } from 'types';
+
+import type {
+  Expression,
+  JSXMemberExpression,
+  ObjectProperty,
+  SpreadElement
+} from '@babel/types';
+import type { StackFrame } from 'context';
+import type { BunchOf, ContentLike, PropData, SequenceItem } from 'types';
 
 export class ElementReact<E extends ElementInline = ElementInline> {
   source: E;

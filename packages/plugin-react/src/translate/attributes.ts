@@ -1,4 +1,4 @@
-import { Attribute } from 'handle';
+import type { Attribute } from 'handle';
 
 export class ArrayStack<T = any, I = T>
   extends Array<T[] | I> {

@@ -1,5 +1,5 @@
-import { VisitNodeObject } from '@babel/traverse';
-import {
+import type { VisitNodeObject } from '@babel/traverse';
+import type {
   BlockStatement,
   DoExpression,
   Expression,
@@ -17,12 +17,13 @@ import {
   Node,
   Statement,
 } from '@babel/types';
-import { Attribute, ComponentFor, ComponentIf, ElementInline, Prop } from 'handle';
-import { ModifyDelegate } from 'modifier/delegate';
-import { StackFrame } from 'context';
-import { ElementReact } from 'translate/element';
-import { ElementIterate } from 'translate/iterate';
-import { ElementSwitch } from 'translate/switch';
+
+import type { Attribute, ComponentFor, ComponentIf, ElementInline, Prop } from 'handle';
+import type { ModifyDelegate } from 'modifier/delegate';
+import type { StackFrame } from 'context';
+import type { ElementReact } from 'translate/element';
+import type { ElementIterate } from 'translate/iterate';
+import type { ElementSwitch } from 'translate/switch';
 
 export type JSXContent = JSXElement | JSXFragment | JSXExpressionContainer | JSXText | JSXSpreadChild;
 export type Attributes = JSXAttribute | JSXSpreadAttribute;

@@ -1,5 +1,4 @@
 import {
-  Identifier,
   identifier,
   isIdentifier,
   isObjectPattern,
@@ -8,10 +7,13 @@ import {
   variableDeclaration,
   variableDeclarator,
 } from '@babel/types';
-import { ComponentExpression, ElementInline, Modifier, Prop } from 'handle';
-import { BunchOf } from 'types';
+import { ElementInline, Modifier, Prop } from 'handle';
 
-import { ModifyDelegate } from './delegate';
+import type { Identifier } from '@babel/types';
+import type { ComponentExpression } from 'handle';
+import type { BunchOf } from 'types';
+
+import type { ModifyDelegate } from './delegate';
 
 export function use(
   this: ModifyDelegate,

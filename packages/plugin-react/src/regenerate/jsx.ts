@@ -5,19 +5,20 @@ import {
   isTemplateLiteral,
   jsxAttribute,
   jsxClosingElement,
-  JSXElement,
   jsxElement,
   jsxExpressionContainer,
   jsxIdentifier,
-  JSXMemberExpression,
   jsxOpeningElement,
   jsxSpreadAttribute,
   jsxText,
 } from '@babel/types';
-import { StackFrame } from 'context';
 import { templateToMarkup } from 'deprecate';
 import { ElementReact } from 'translate';
-import { ContentLike, IsLegalAttribute, JSXContent, PropData } from 'types';
+import { IsLegalAttribute } from 'types';
+
+import type { JSXElement, JSXMemberExpression } from '@babel/types';
+import type { StackFrame } from 'context';
+import type { ContentLike, JSXContent, PropData } from 'types';
 
 export function createElement(
   this: StackFrame,

@@ -1,9 +1,12 @@
-import { callExpression, Expression, expressionStatement, stringLiteral } from '@babel/types';
-import { ExplicitStyle, Modifier } from 'handle';
-import { StackFrame } from 'context';
+import { callExpression, expressionStatement, stringLiteral } from '@babel/types';
+import { ExplicitStyle } from 'handle';
 import { hash } from 'shared';
 import { _get, _template } from 'syntax';
-import { BabelState, BunchOf } from 'types';
+
+import type { Expression } from '@babel/types';
+import type { Modifier } from 'handle';
+import type { StackFrame } from 'context';
+import type { BabelState, BunchOf } from 'types';
 
 export function printStyles(state: BabelState<StackFrame>){
   const { modifiersDeclared, Imports } = state.context;

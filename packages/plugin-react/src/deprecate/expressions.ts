@@ -1,9 +1,12 @@
-import { NodePath as Path } from '@babel/traverse';
-import { blockStatement, BlockStatement, doExpression, expressionStatement, isIdentifier, UnaryExpression, UpdateExpression } from '@babel/types';
+import { blockStatement, doExpression, expressionStatement, isIdentifier } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { Attribute, ElementInline, ExplicitStyle, Prop } from 'handle';
+import { ElementInline, ExplicitStyle, Prop } from 'handle';
 import { applyNameImplications } from 'parse';
-import { DoExpressive } from 'types';
+
+import type { NodePath as Path } from '@babel/traverse';
+import type { BlockStatement, UnaryExpression, UpdateExpression } from '@babel/types';
+import type { Attribute } from 'handle';
+import type { DoExpressive } from 'types';
 
 const Oops = ParseErrors({
   BadShorthandProp: "\"+\" shorthand prop must be an identifier!",

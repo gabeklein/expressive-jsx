@@ -1,9 +1,12 @@
-import { NodePath as Path } from '@babel/traverse';
-import { Program } from '@babel/types';
-import { ComponentExpression, ComponentIf, ElementInline, ElementModifier, Modifier } from 'handle';
-import { ExternalsManager, ImportManager, RequireManager } from 'regenerate';
-import { DEFAULTS, hash, Stack } from 'shared';
-import { BabelState, BunchOf, ModifyAction, Options } from 'types';
+import { ElementInline } from 'handle';
+import { ImportManager, RequireManager } from 'regenerate';
+import { DEFAULTS, Stack, hash } from 'shared';
+
+import type { NodePath as Path } from '@babel/traverse';
+import type { Program } from '@babel/types';
+import type { ComponentExpression, ComponentIf, ElementModifier, Modifier } from 'handle';
+import type { ExternalsManager } from 'regenerate';
+import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
 
 type Stackable = { context: StackFrame };
 

@@ -1,29 +1,28 @@
-import { NodePath as Path } from '@babel/traverse';
-import {
+import { blockStatement, identifier, isDoExpression, isIdentifier } from '@babel/types';
+import { addElementsFromExpression, handleBlockStatement, handleUnaryExpression, handleUpdateExpression } from 'deprecate';
+import { ParseErrors } from 'errors';
+import { AttributeBody, ComponentFor, ComponentIf, Prop } from 'handle';
+import { addElementFromJSX } from 'parse';
+import { inParenthesis } from 'shared';
+
+import type { NodePath as Path } from '@babel/traverse';
+import type {
   AssignmentExpression,
   BlockStatement,
-  blockStatement,
   DebuggerStatement,
   Expression,
   For,
   FunctionDeclaration,
-  identifier,
   IfStatement,
-  isDoExpression,
-  isIdentifier,
   JSXElement,
   JSXMemberExpression,
   Statement,
   UnaryExpression,
   UpdateExpression,
-  VariableDeclaration,
+  VariableDeclaration
 } from '@babel/types';
-import { addElementsFromExpression, handleBlockStatement, handleUnaryExpression, handleUpdateExpression } from 'deprecate';
-import { ParseErrors } from 'errors';
-import { AttributeBody, ComponentFor, ComponentIf, ElementModifier, Modifier, Prop } from 'handle';
-import { addElementFromJSX } from 'parse';
-import { inParenthesis } from 'shared';
-import { DoExpressive, InnerContent } from 'types';
+import type { ElementModifier, Modifier } from 'handle';
+import type { DoExpressive, InnerContent } from 'types';
 
 const Oops = ParseErrors({
   PropNotIdentifier: "Assignment must be identifier name of a prop.",

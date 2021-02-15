@@ -1,6 +1,4 @@
 import {
-  BinaryExpression,
-  Expression,
   isBinaryExpression,
   isExpression,
   isIdentifier,
@@ -12,15 +10,20 @@ import {
   isStringLiteral,
   isTemplateLiteral,
   isUnaryExpression,
-  LogicalExpression,
-  SpreadElement,
   stringLiteral,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ElementInline, ExplicitStyle, Prop } from 'handle';
 import { applyNameImplications, applyPrimaryName } from 'parse';
 import { inParenthesis } from 'shared';
-import { DoExpressive } from 'types';
+
+import type {
+  BinaryExpression,
+  Expression,
+  LogicalExpression,
+  SpreadElement
+} from '@babel/types';
+import type { DoExpressive } from 'types';
 
 type ListElement = Expression | SpreadElement;
 

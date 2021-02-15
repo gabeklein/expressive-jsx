@@ -1,15 +1,17 @@
 import {
   booleanLiteral,
   conditionalExpression,
-  Expression,
   isBooleanLiteral,
   logicalExpression,
   stringLiteral,
   unaryExpression,
 } from '@babel/types';
-import { StackFrame } from 'context';
-import { ComponentConsequent, ComponentIf } from 'handle';
+import { ComponentIf } from 'handle';
 import { ElementReact } from 'translate';
+
+import type { Expression } from '@babel/types';
+import type { StackFrame } from 'context';
+import type { ComponentConsequent } from 'handle';
 
 type Consequent = ComponentIf | ComponentConsequent;
 type GetProduct = (fork: Consequent) => Expression | undefined;

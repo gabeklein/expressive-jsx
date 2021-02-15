@@ -1,10 +1,12 @@
-import { NodePath as Path } from '@babel/traverse';
-import { blockStatement, doExpression, Expression, ExpressionStatement, isBlockStatement, Statement } from '@babel/types';
+import { blockStatement, doExpression, isBlockStatement } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { ComponentIf } from 'handle';
-import { StackFrame } from 'context';
 import { ensureArray } from 'shared';
-import { BunchOf, DoExpressive, SequenceItem } from 'types';
+
+import type { NodePath as Path } from '@babel/traverse';
+import type { Expression, ExpressionStatement, Statement } from '@babel/types';
+import type { ComponentIf } from 'handle';
+import type { StackFrame } from 'context';
+import type { BunchOf, DoExpressive, SequenceItem } from 'types';
 
 const Oops = ParseErrors({
   ExpressionUnknown: "Unhandled expressionary statement of type {1}",

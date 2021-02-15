@@ -1,7 +1,8 @@
-import { Statement } from '@babel/types';
-import { StackFrame } from 'context';
 import { AttributeBody, ElementInline } from 'handle';
-import { BunchOf, SelectionProvider } from 'types';
+
+import type { Statement } from '@babel/types';
+import type { StackFrame } from 'context';
+import type { BunchOf, SelectionProvider } from 'types';
 
 function concat(
   to: BunchOf<any[]>, 

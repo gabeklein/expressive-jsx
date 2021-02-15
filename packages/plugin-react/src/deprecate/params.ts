@@ -1,23 +1,26 @@
 import {
-  ArrayPattern,
   arrayPattern,
-  Expression,
-  Identifier,
   identifier,
   isIdentifier,
   isPatternLike,
   isRestElement,
-  MemberExpression,
   memberExpression,
   numericLiteral,
-  ObjectPattern,
   objectProperty,
-  PatternLike,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { ComponentExpression } from 'handle';
-import { ExternalsManager } from 'regenerate';
 import { _call, _declare } from 'syntax';
+
+import type {
+  ArrayPattern,
+  Expression,
+  Identifier,
+  MemberExpression,
+  ObjectPattern,
+  PatternLike
+} from '@babel/types';
+import type { ComponentExpression } from 'handle';
+import type { ExternalsManager } from 'regenerate';
 
 const Oops = ParseErrors({
   PropsCantHaveDefault: "This argument will always resolve to component props",

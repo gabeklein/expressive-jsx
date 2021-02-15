@@ -1,16 +1,15 @@
-import {
-  Expression,
-  isJSXIdentifier,
-  isJSXMemberExpression,
-  JSXAttribute,
-  JSXElement,
-  JSXIdentifier,
-  JSXSpreadAttribute,
-  stringLiteral,
-} from '@babel/types';
+import { isJSXIdentifier, isJSXMemberExpression, stringLiteral } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ElementInline, Prop } from 'handle';
 import { applyNameImplications, applyPrimaryName } from 'parse';
+
+import type {
+  Expression,
+  JSXAttribute,
+  JSXElement,
+  JSXIdentifier,
+  JSXSpreadAttribute
+} from '@babel/types';
 
 const Oops = ParseErrors({
   InvalidPropValue: "Can only consume an expression or string literal as value here.",

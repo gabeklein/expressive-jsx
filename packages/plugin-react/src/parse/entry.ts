@@ -1,18 +1,19 @@
-import { NodePath as Path } from '@babel/traverse';
-import {
+import { isIdentifier } from '@babel/types';
+import { ComponentExpression } from 'handle';
+
+import type { NodePath as Path } from '@babel/traverse';
+import type {
   ArrowFunctionExpression,
   AssignmentExpression,
   Class,
   Function,
   FunctionDeclaration,
-  isIdentifier,
   ObjectProperty,
   VariableDeclaration,
-  VariableDeclarator,
+  VariableDeclarator
 } from '@babel/types';
-import { ComponentExpression } from 'handle';
-import { StackFrame } from 'context';
-import { DoExpressive } from 'types';
+import type { StackFrame } from 'context';
+import type { DoExpressive } from 'types';
 
 export function generateEntryElement(
   path: Path<DoExpressive>,

@@ -1,26 +1,29 @@
 import {
   booleanLiteral,
-  CallExpression,
   callExpression,
-  Expression,
-  Identifier,
   identifier,
   isExpression,
   isTemplateLiteral,
-  JSXIdentifier,
-  JSXMemberExpression,
-  MemberExpression,
   memberExpression,
   objectExpression,
-  ObjectProperty,
   objectProperty,
   stringLiteral,
 } from '@babel/types';
-import { StackFrame } from 'context';
 import { dedent } from 'deprecate';
 import { _object, _objectAssign } from 'syntax';
 import { ArrayStack, ElementReact } from 'translate';
-import { ContentLike, PropData } from 'types';
+
+import type {
+  CallExpression,
+  Expression,
+  Identifier,
+  JSXIdentifier,
+  JSXMemberExpression,
+  MemberExpression,
+  ObjectProperty
+} from '@babel/types';
+import type { StackFrame } from 'context';
+import type { ContentLike, PropData } from 'types';
 
 export function createElement(
   this: StackFrame,

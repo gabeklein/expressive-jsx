@@ -1,11 +1,13 @@
-import { Program as ProgramNode } from '@babel/types';
 import { StackFrame } from 'context';
 import { Status } from 'errors';
 import { handleTopLevelModifier, printStyles } from 'modifier';
 import { generateEntryElement } from 'parse';
 import { replaceDoExpression } from 'regenerate';
-import { BabelFile, DoExpressive, Visitor } from 'types';
+
 import { builtIn } from './modifier';
+
+import type { Program as ProgramNode } from '@babel/types';
+import type { BabelFile, DoExpressive, Visitor } from 'types';
 
 const Program: Visitor<ProgramNode> = {
   enter(path, state){

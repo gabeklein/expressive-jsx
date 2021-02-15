@@ -1,9 +1,11 @@
-import { Statement } from '@babel/types';
-import { AttributeBody, ContingentModifier, ElementInline, ElementModifier, ExplicitStyle, Prop } from 'handle';
+import { ContingentModifier, ElementInline, ElementModifier, ExplicitStyle } from 'handle';
 import { _require } from 'syntax';
-import { BunchOf, ModiferBody, ModifyAction } from 'types';
 
 import { DelegateTypes } from './arguments';
+
+import type { Statement } from '@babel/types';
+import type { AttributeBody, Prop } from 'handle';
+import type { BunchOf, ModiferBody, ModifyAction } from 'types';
 
 export class ModifyDelegate {
   arguments?: Array<any>

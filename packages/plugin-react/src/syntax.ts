@@ -1,9 +1,6 @@
 import {
   callExpression,
-  Expression,
   identifier,
-  LVal,
-  MemberExpression,
   memberExpression,
   numericLiteral,
   objectExpression,
@@ -15,7 +12,13 @@ import {
   variableDeclaration,
   variableDeclarator,
 } from '@babel/types';
-import { BunchOf } from 'types';
+
+import type {
+  Expression,
+  LVal,
+  MemberExpression
+} from '@babel/types';
+import type { BunchOf } from 'types';
 
 export function _object(
   obj: BunchOf<Expression | false | undefined> = {}){

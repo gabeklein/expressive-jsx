@@ -1,5 +1,5 @@
-import { Expression } from '@babel/types';
-import { BunchOf, Options } from 'types';
+import type { Expression } from '@babel/types';
+import type { BunchOf, Options } from 'types';
 
 export const DEFAULTS: Options = {
   env: "web",

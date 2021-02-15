@@ -1,19 +1,20 @@
 import {
   booleanLiteral,
-  Expression,
   identifier,
   isBlockStatement,
   isExpressionStatement,
   isLabeledStatement,
-  LabeledStatement,
   nullLiteral,
   numericLiteral,
   stringLiteral,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { ElementModifier, Modifier, TraversableBody } from 'handle';
+import { ElementModifier, TraversableBody } from 'handle';
 import { applyModifier } from 'modifier';
-import { BunchOf, FlatValue } from 'types';
+
+import type { Expression, LabeledStatement } from '@babel/types';
+import type { Modifier } from 'handle';
+import type { BunchOf, FlatValue } from 'types';
 
 const Oops = ParseErrors({
   ExpressionUnknown: "Unhandled expressionary statement of type {1}",

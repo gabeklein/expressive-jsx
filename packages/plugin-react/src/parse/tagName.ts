@@ -1,4 +1,4 @@
-import { ElementInline, ElementModifier } from "handle";
+import type { ElementInline, ElementModifier } from "handle";
 
 const COMMON_HTML = [
   "article", "blockquote", "input",

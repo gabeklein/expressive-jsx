@@ -1,9 +1,11 @@
-import { NodePath as Path } from '@babel/traverse';
-import { ArrowFunctionExpression, Statement } from '@babel/types';
-import { StackFrame } from 'context';
-import { ComponentConsequent, ComponentContainer } from 'handle';
+import { ComponentContainer } from 'handle';
 import { applyNameImplications } from 'parse';
-import { DoExpressive, InnerContent, SequenceItem } from 'types';
+
+import type { NodePath as Path } from '@babel/traverse';
+import type { ArrowFunctionExpression, Statement } from '@babel/types';
+import type { StackFrame } from 'context';
+import type { ComponentConsequent } from 'handle';
+import type { DoExpressive, InnerContent, SequenceItem } from 'types';
 
 export class ComponentExpression extends ComponentContainer {
 

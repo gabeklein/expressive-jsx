@@ -1,15 +1,8 @@
-import { NodePath as Path } from '@babel/traverse';
 import {
   booleanLiteral,
-  CallExpression,
-  Expression,
-  Identifier,
   identifier,
   importDeclaration,
-  ImportDefaultSpecifier,
   importDefaultSpecifier,
-  ImportNamespaceSpecifier,
-  ImportSpecifier,
   importSpecifier,
   isCallExpression,
   isIdentifier,
@@ -18,23 +11,33 @@ import {
   isObjectPattern,
   isStringLiteral,
   isVariableDeclaration,
-  JSXElement,
-  JSXMemberExpression,
   objectPattern,
-  ObjectProperty,
   objectProperty,
-  Program,
-  Statement,
   stringLiteral,
-  VariableDeclaration,
 } from '@babel/types';
-import { StackFrame } from 'context';
 import { _declare, _require } from 'syntax';
 import { ElementReact } from 'translate';
-import { BunchOf, ContentLike, Options, PropData } from 'types';
 
 import { createElement as createJS } from './es5';
 import { createElement as createJSX } from './jsx';
+
+import type { NodePath as Path } from '@babel/traverse';
+import type {
+  CallExpression,
+  Expression,
+  Identifier,
+  ImportDefaultSpecifier,
+  ImportNamespaceSpecifier,
+  ImportSpecifier,
+  JSXElement,
+  JSXMemberExpression,
+  ObjectProperty,
+  Program,
+  Statement,
+  VariableDeclaration
+} from '@babel/types';
+import type { StackFrame } from 'context';
+import type { BunchOf, ContentLike, Options, PropData } from 'types';
 
 type ImportSpecific =
   | ImportSpecifier 

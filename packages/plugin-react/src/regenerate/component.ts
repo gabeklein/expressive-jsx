@@ -1,10 +1,12 @@
-import { NodePath } from '@babel/traverse';
-import { blockStatement, Expression, returnStatement, stringLiteral } from '@babel/types';
+import { blockStatement, returnStatement, stringLiteral } from '@babel/types';
 import { ComponentExpression } from 'handle';
-import { StackFrame } from 'context';
 import { _object } from 'syntax';
 import { ElementReact } from 'translate';
-import { DoExpressive } from 'types';
+
+import type { NodePath } from '@babel/traverse';
+import type { Expression } from '@babel/types';
+import type { StackFrame } from 'context';
+import type { DoExpressive } from 'types';
 
 export function replaceDoExpression(path: NodePath<DoExpressive>){
   const element = path.node.meta;
