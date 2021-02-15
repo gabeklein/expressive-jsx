@@ -72,7 +72,7 @@ export function incorperateChildParameters(
     init = memberExpression(props.node, identifier("children"));
 
   else if(props.isObjectPattern()){
-    let propertyAs: Identifier =
+    const propertyAs: Identifier =
       isIdentifier(assign) ? assign :
         init = wrapperFunction.scope.generateUidIdentifier("children") as any;
 

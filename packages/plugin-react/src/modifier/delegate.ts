@@ -52,7 +52,7 @@ export class ModifyDelegate {
 
     if(style)
       for(const name in style){
-        let item = style[name];
+        const item = style[name];
         this.styles[name] = 
           new ExplicitStyle(name, item, important);
       }

@@ -68,7 +68,7 @@ function createElement(
   element: JSXElement,
   parent: ElementInline
 ){
-  let target = new ElementInline(parent.context);
+  const target = new ElementInline(parent.context);
   const { name } = element.openingElement;
 
   if(isJSXMemberExpression(name)){

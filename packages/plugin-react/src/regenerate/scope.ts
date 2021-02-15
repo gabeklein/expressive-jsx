@@ -78,7 +78,7 @@ export abstract class ExternalsManager {
     children = [] as ContentLike[],
     key?: Expression){
 
-    let props = key && [{ name: "key", value: key }];
+    const props = key && [{ name: "key", value: key }];
     return this.createElement(null, props, children)
   }
 

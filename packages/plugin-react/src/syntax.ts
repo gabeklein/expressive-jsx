@@ -47,7 +47,7 @@ export function _get(
   if(typeof object == "string")
     path = [...object.split("."), ...path]
 
-  for(let member of path){
+  for(const member of path){
     let select;
 
     if(typeof member == "string"){

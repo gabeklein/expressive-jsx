@@ -12,7 +12,7 @@ export function ParseErrors<O extends BunchOf<string>> (register: O) {
   const Errors = {} as BunchOf<ParseError>
 
   for(const error in register){
-    let message = [] as FlatValue[];
+    const message = [] as FlatValue[];
 
     for(const segment of register[error].split(/\{(?=\d+\})/)){
       const ammend = /(\d+)\}(.*)/.exec(segment);

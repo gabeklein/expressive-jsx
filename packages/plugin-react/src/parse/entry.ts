@@ -19,7 +19,7 @@ export function generateEntryElement(
   path: Path<DoExpressive>,
   context: StackFrame){
 
-  let parent = path.parentPath;
+  const parent = path.parentPath;
   let containerFn: Path<ArrowFunctionExpression> | undefined;
 
   switch(parent.type){
@@ -77,7 +77,7 @@ function containerName(path: Path): string {
       encounteredReturn = path;
       const ancestry = path.getAncestry();
 
-      let within = ancestry.find((x)=> x.isFunction()) as Path<Function> | undefined;
+      const within = ancestry.find((x)=> x.isFunction()) as Path<Function> | undefined;
 
       if(!within)
         throw new Error("wat");

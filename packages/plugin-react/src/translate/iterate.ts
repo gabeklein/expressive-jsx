@@ -38,7 +38,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
   }
 
   toExpression({ Imports }: StackFrame): CallExpression {
-    let { key, left, right, source: { statements }, type } = this;
+    const { key, left, right, source: { statements }, type } = this;
 
     let body: BlockStatement | Expression =
       this.elementOutput(Imports)
@@ -105,14 +105,14 @@ export class ElementIterate extends ElementReact<ComponentFor> {
       element.insert(
         new Prop("key", this.key)
       );
-    };
+    }
   }
 
   private elementOutput(generate: ExternalsManager){
     let { key, mayCollapseContent } = this;
 
     if(this.props.length){
-      let exists =
+      const exists =
         this.props.find(x => x.name === "key");
 
       if(!exists)

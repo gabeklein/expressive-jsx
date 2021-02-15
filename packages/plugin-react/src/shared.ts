@@ -33,7 +33,7 @@ export function hash(str = "", length = 3){
 
   const out = 0x100000000 * (0x1fffff & h2) + (h1>>>0);
   return out.toString(32).substring(0, length);
-};
+}
 
 export function ensureArray<T>(a: T | T[]){
   return Array.isArray(a) ? a : [a];

@@ -16,7 +16,7 @@ export function templateToMarkup(
   acceptBr: boolean){
 
   const { expressions, quasis } = node;
-  let acc = [] as JSXContent[];
+  const acc = [] as JSXContent[];
   let i = 0;
 
   while(true) {
@@ -105,7 +105,7 @@ export function breakdown(quasi: TemplateLiteral){
     if(i === quasis.length - 1)
       text = text.replace(/\s*\n*$/, "")
 
-    let chunks: any[] = text.split("\n");
+    const chunks: any[] = text.split("\n");
     for(const chunk of chunks){
       if(chunk !== "")
         acc.push(chunk)
@@ -130,7 +130,7 @@ export function breakForString(
   i: number,
   length: number ){
 
-  for(let x of ["raw", "cooked"] as const){
+  for(const x of ["raw", "cooked"] as const){
     let text = quasi.value[x]!;
     if(INDENT) text = text.replace(INDENT, "\n");
     if(i == 0) text = text.replace("\n", "")

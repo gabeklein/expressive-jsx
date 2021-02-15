@@ -119,7 +119,7 @@ export abstract class Attribute<T extends Expression = Expression> {
   }
 
   toExpression(){
-    let { value } = this;
+    const { value } = this;
   
     switch(typeof value){
       case "string":

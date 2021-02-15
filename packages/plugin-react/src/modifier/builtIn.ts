@@ -50,8 +50,8 @@ export function css(this: ModifyDelegate){
 }
 
 export function forward(this: ModifyDelegate, ...args: any[]){
-  let target = this.target;
-  let parent = target.context.currentComponent;
+  const target = this.target;
+  const parent = target.context.currentComponent;
 
   if(!(target instanceof ElementInline))
     throw new Error("Can only forward props to another element");
@@ -62,7 +62,7 @@ export function forward(this: ModifyDelegate, ...args: any[]){
   if(!parent.exec)
     throw new Error("Can only apply props from a parent `() => do {}` function!");
 
-  let all = args.indexOf("all") + 1;
+  const all = args.indexOf("all") + 1;
   const reference = {} as BunchOf<Identifier>;
 
   if(all || ~args.indexOf("children")){

@@ -55,7 +55,7 @@ export function addElementsFromExpression(
   subject: Expression,
   parent: ElementInline ){
 
-  var attrs = [] as Expression[];
+  let attrs = [] as Expression[];
 
   if(isSequenceExpression(subject))
     [subject, ...attrs] = subject.expressions;
@@ -78,7 +78,7 @@ function isJustAValue(subject: any){
 
   while(isBinaryExpression(target) || isLogicalExpression(target)){
     leftOf = target;
-    target = target.left as Expression;;
+    target = target.left as Expression;
   }
 
   if(isUnaryExpression(target, {operator: "void"})){
@@ -300,7 +300,7 @@ function parseProps(
   target: ElementInline ){
 
   if(!props) return;
-  for(let node of props){
+  for(const node of props){
     if(isJustAValue(node)){
       target.add(node as Expression)
       continue;

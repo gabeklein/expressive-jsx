@@ -42,7 +42,7 @@ export function applyModifier(
 
     if(recycle)
       for(const named in recycle){
-        let input = recycle[named];
+        const input = recycle[named];
 
         if(input == null)
           continue;

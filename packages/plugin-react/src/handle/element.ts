@@ -103,12 +103,12 @@ export class ElementInline extends AttributeBody {
     if(node.operator !== "=")
       throw Oops.AssignmentNotEquals(node)
 
-    let { left, right } = node;
+    const { left, right } = node;
 
     if(!isIdentifier(left))
       throw Oops.PropNotIdentifier(left)
 
-    let { name } = left;
+    const { name } = left;
     let prop: Prop;
 
     if(isDoExpression(right))

@@ -44,16 +44,16 @@ function organizeStyle(
   for(let block of modifiersDeclared){
     const { priority = 0 } = block;
 
-    let query = undefined;
+    const query = undefined;
 
-    let targetQuery: MediaGroups =
+    const targetQuery: MediaGroups =
       query === undefined ?
         media.default :
       query in media ?
         media[query] :
         media[query] = [];
 
-    let targetPriority: SelectorContent =
+    const targetPriority: SelectorContent =
       priority in targetQuery ?
         targetQuery[priority] :
         targetQuery[priority] = [];
@@ -105,7 +105,7 @@ function createSyntax(
     for(const bunch of priorityBunches)
       for(const [ name, styles ] of bunch){
         if(pretty){
-          let rules = styles.map(x => `\t${x};`);
+          const rules = styles.map(x => `\t${x};`);
           lines.push(name + " { ", ...rules, "}")
         }
         else {
