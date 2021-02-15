@@ -51,17 +51,13 @@ export function createElement(
     if("toExpression" in child)
       child = child.toExpression(this);
 
-    if(child instanceof ElementReact)
-      return createElement.call(
-        this,
-        child.tagName, 
-        child.props, 
-        child.children
-      );
-
-      children.push(
-      isTemplateLiteral(child) ? dedent(child) :
-      isExpression(child) ? child :
+    children.push(
+      child instanceof ElementReact ?
+        createElement.call(this, child.tagName, child.props, child.children) :
+      isTemplateLiteral(child) ?
+        dedent(child) :
+      isExpression(child) ?
+        child :
       booleanLiteral(false)
     )
   }

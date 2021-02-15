@@ -45,15 +45,9 @@ export function createElement(
       if("toExpression" in child)
         child = child.toExpression(this);
 
-      if(child instanceof ElementReact)
-        return createElement.call(
-          this,
-          child.tagName,
-          child.props,
-          child.children
-        )
-
       children.push(
+        child instanceof ElementReact ?
+          createElement.call(this, child.tagName, child.props, child.children) :
         isJSXElement(child) ?
           child :
         isStringLiteral(child) && !/\{/.test(child.value) ?
