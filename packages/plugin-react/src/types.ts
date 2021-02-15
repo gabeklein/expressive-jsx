@@ -49,7 +49,7 @@ export interface Options {
   pragma: "react";
   runtime: string;
   styleMode: "compile" | "inline";
-  modifiers: BunchOf<{}>[];
+  modifiers: BunchOf<(...args: any[]) => any>[];
 
   hot?: boolean;
   printStyle?: "pretty";

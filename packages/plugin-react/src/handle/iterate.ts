@@ -2,7 +2,7 @@ import { isForXStatement, isIdentifier, isVariableDeclaration } from '@babel/typ
 import { ComponentContainer } from 'handle';
 
 import type { NodePath as Path } from '@babel/traverse';
-import type { AssignmentExpression, For, ForXStatement } from '@babel/types';
+import type { For } from '@babel/types';
 import type { StackFrame } from 'context';
 
 export class ComponentFor extends ComponentContainer {
@@ -23,7 +23,8 @@ export class ComponentFor extends ComponentContainer {
   private generateName(){
     const { node } = this;
     if(isForXStatement(node)){
-      let { left, right } = this.node as ForXStatement;
+      let { left } = node;
+      const { right } = node;
       const name = [];
 
       if(isVariableDeclaration(left))
@@ -46,7 +47,7 @@ export class ComponentFor extends ComponentContainer {
       return "for"
   }
 
-  AssignmentExpression(path: AssignmentExpression){
+  AssignmentExpression(){
     throw new Error("For block cannot accept Assignments");
   }
 

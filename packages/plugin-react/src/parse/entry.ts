@@ -6,8 +6,10 @@ import type {
   ArrowFunctionExpression,
   AssignmentExpression,
   Class,
-  Function,
+  ClassMethod,
   FunctionDeclaration,
+  FunctionExpression,
+  ObjectMethod,
   ObjectProperty,
   VariableDeclaration,
   VariableDeclarator
@@ -39,6 +41,12 @@ export function generateEntryElement(
 
   return new ComponentExpression(name, context, path, containerFn);
 }
+
+type AnyFunction =
+  | ClassMethod
+  | ObjectMethod
+  | FunctionDeclaration
+  | FunctionExpression
 
 function containerName(path: Path): string {
   let parent = path.parentPath;
@@ -76,8 +84,7 @@ function containerName(path: Path): string {
 
       encounteredReturn = path;
       const ancestry = path.getAncestry();
-
-      const within = ancestry.find((x)=> x.isFunction()) as Path<Function> | undefined;
+      const within = ancestry.find((x)=> x.isFunction()) as Path<AnyFunction> | undefined;
 
       if(!within)
         throw new Error("wat");

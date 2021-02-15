@@ -12,7 +12,6 @@ import type {
   ReturnStatement,
   Statement
 } from '@babel/types';
-import type { TraversableBody } from 'handle';
 import type { StackFrame } from 'context';
 import type { DoExpressive, InnerContent } from 'types';
 
@@ -45,7 +44,7 @@ export class ComponentIf {
       context.parentIf = this;
   }
 
-  wasAddedTo(parent: TraversableBody){
+  wasAddedTo(){
     const { context } = this;
     let layer: Path<any> = this.path;
 

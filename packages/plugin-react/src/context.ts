@@ -49,15 +49,13 @@ export class StackFrame {
   }
 
   including(modifiers: BunchOf<any>[]): this {
-    let context = this;
+    let context = this as any;
 
     for(const imports of modifiers){
-      const { Helpers, ...Modifiers } = imports as any;
-
       context = Object.create(context)
 
-      for(const name in Modifiers)
-        context.handlers.set(name, Modifiers[name]);
+      for(const name in imports)
+        context.handlers.set(name, imports[name]);
     }
 
     return context;
@@ -85,7 +83,7 @@ export class StackFrame {
   }
 
   getHandler(named: string, ignoreOwn = false){
-    let context = this;
+    let context = this as any;
 
     if(ignoreOwn)
       for(let found; !found;){

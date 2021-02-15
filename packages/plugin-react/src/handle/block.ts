@@ -75,7 +75,7 @@ export abstract class TraversableBody {
   }
 
   Expression(node: Expression){
-    const self = this as unknown as BunchOf<Function>
+    const self = this as unknown as BunchOf<(node: Expression) => void>
 
     if(node.type in this)
       self[node.type](node);

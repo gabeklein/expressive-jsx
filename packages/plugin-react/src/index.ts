@@ -54,7 +54,7 @@ const DoExpression: Visitor<DoExpressive> = {
   exit: replaceDoExpression
 }
 
-export default (options: any) => {
+export default () => {
   return {
     manipulateOptions: (options: any, parse: any) => {
       parse.plugins.push("doExpressions", "jsx")

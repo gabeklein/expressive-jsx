@@ -45,7 +45,9 @@ export class ElementInline extends AttributeBody {
     this.add(child);
   }
 
-  didExitOwnScope(path: Path<DoExpressive>){}
+  didExitOwnScope(){
+    void 0;
+  }
 
   ExpressionDefault(node: Expression){
     if(inParenthesis(node))

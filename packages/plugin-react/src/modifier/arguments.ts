@@ -20,7 +20,6 @@ import type {
   Identifier,
   IfStatement,
   LabeledStatement,
-  NullLiteral,
   NumericLiteral,
   SequenceExpression,
   Statement,
@@ -121,7 +120,7 @@ export class DelegateTypes {
     }
   }
 
-  NullLiteral(_e: NullLiteral){
+  NullLiteral(){
     return null;
   }
 
