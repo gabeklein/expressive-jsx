@@ -3,15 +3,16 @@ import { _require } from 'syntax';
 
 import { DelegateTypes } from './arguments';
 
+import type { NodePath as Path } from '@babel/traverse';
 import type { Statement } from '@babel/types';
 import type { AttributeBody, Prop } from 'handle/attributes';
-import type { BunchOf, ModiferBody, ModifyAction } from 'types';
+import type { BunchOf, ModifyBodyPath, ModifyAction } from 'types';
 
 export class ModifyDelegate {
   arguments?: Array<any>
   priority?: number;
   done?: true;
-  body?: ModiferBody;
+  body?: Path<Statement>;
 
   attrs = {} as BunchOf<any[]>;
   styles = {} as BunchOf<ExplicitStyle>;
@@ -21,7 +22,7 @@ export class ModifyDelegate {
     public target: AttributeBody,
     public name: string,
     transform: ModifyAction,
-    input: any[] | ModiferBody){
+    input: any[] | ModifyBodyPath){
 
     let important = false;
     let args: any[];
@@ -29,8 +30,8 @@ export class ModifyDelegate {
     if(Array.isArray(input))
       args = input;
     else {
-      args = new DelegateTypes().parse(input);
-      this.body = input;
+      args = new DelegateTypes().parse(input.node);
+      this.body = input as Path<Statement>;
     }
 
     if(args[args.length - 1] == "!important"){
@@ -76,7 +77,7 @@ export class ModifyDelegate {
   setContingent(
     contingent: string,
     priority?: number,
-    usingBody?: Statement){
+    usingBody?: Path<Statement>){
 
     const { target } = this;
     const mod = new ContingentModifier(
@@ -86,7 +87,7 @@ export class ModifyDelegate {
     )
 
     mod.priority = priority || this.priority;
-    mod.parseNodes(usingBody || this.body!);
+    mod.parse(usingBody || this.body!);
 
     if(target instanceof ElementInline)
       target.modifiers.push(mod);

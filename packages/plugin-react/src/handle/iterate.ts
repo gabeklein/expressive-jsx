@@ -6,7 +6,6 @@ import type { For } from '@babel/types';
 import type { StackFrame } from 'context';
 
 export class ComponentFor extends ComponentContainer {
-
   node: For
 
   constructor(
@@ -22,6 +21,7 @@ export class ComponentFor extends ComponentContainer {
 
   private generateName(){
     const { node } = this;
+
     if(isForXStatement(node)){
       let { left } = node;
       const { right } = node;

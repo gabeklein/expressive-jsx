@@ -1,15 +1,15 @@
-import { isExpressionStatement } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ElementModifier } from 'handle';
 
 import { ModifyDelegate } from './delegate';
 
+import type { NodePath as Path } from '@babel/traverse';
 import type { LabeledStatement } from '@babel/types';
 import type { ExplicitStyle } from 'handle/attributes';
 import type { ElementInline } from 'handle/element';
 import type { Modifier } from 'handle/modifier';
 import type { StackFrame } from 'context';
-import type { BunchOf, ModiferBody, ModifyAction } from 'types';
+import type { BunchOf, ModifyAction, ModifyBodyPath } from 'types';
 
 const Oops = ParseErrors({
   IllegalAtTopLevel: "Cannot apply element styles in top-level of program",
@@ -17,12 +17,16 @@ const Oops = ParseErrors({
   DuplicateModifier: "Duplicate declaration of named modifier!"
 })
 
-type ModTuple = [string, ModifyAction, any[] | ModiferBody ];
+type ModTuple = [
+  string,
+  ModifyAction,
+  any[] | ModifyBodyPath
+];
 
 export function applyModifier(
   initial: string,
   recipient: Modifier | ElementInline,
-  input: ModiferBody){
+  input: ModifyBodyPath){
 
   const handler = recipient.context.getHandler(initial);
   
@@ -68,10 +72,11 @@ export function applyModifier(
 }
 
 export function handleTopLevelModifier(
-  node: LabeledStatement,
+  node: Path<LabeledStatement>,
   context: StackFrame){
 
-  const { body, label: { name }} = node;
+  const { name } = node.get("label").node;
+  const body = node.get("body");
 
   if(name[0] == "_")
     throw Oops.BadModifierName(node)
@@ -79,7 +84,7 @@ export function handleTopLevelModifier(
   if(context.modifiers.has(name))
     throw Oops.DuplicateModifier(node);
 
-  if(isExpressionStatement(body))
+  if(body.isExpressionStatement())
     throw Oops.IllegalAtTopLevel(node)
 
   context.elementMod(

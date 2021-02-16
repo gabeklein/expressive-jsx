@@ -212,9 +212,9 @@ export class ComponentConsequent extends ElementInline {
     this.doesReturn = true;
   }
 
-  LabeledStatement(node: LabeledStatement){
+  LabeledStatement(node: LabeledStatement, path: Path<LabeledStatement>){
     const mod = this.slaveModifier || this.slaveNewModifier()
-    super.LabeledStatement(node, null, mod);
+    super.LabeledStatement(node, path, mod);
   }
 
   private slaveNewModifier(){
@@ -225,11 +225,9 @@ export class ComponentConsequent extends ElementInline {
     //TODO: Discover helpfulness of customized className.
     let selector = specifyOption(this.test) || `opt${this.index}`;
     selector += `_${uid}`;
-    const parent = context.currentElement!;
 
-    const mod = new ContingentModifier(
-      context, parent, `.${selector}`
-    );
+    const parent = context.currentElement!;
+    const mod = new ContingentModifier(context, parent, `.${selector}`);
 
     mod.priority = 5
 

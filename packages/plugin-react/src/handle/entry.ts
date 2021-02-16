@@ -8,7 +8,6 @@ import type { ComponentConsequent } from 'handle/switch';
 import type { DoExpressive, InnerContent, SequenceItem } from 'types';
 
 export class ComponentExpression extends ComponentContainer {
-
   exec?: Path<ArrowFunctionExpression>;
   statements = [] as Statement[];
   forwardTo?: ComponentConsequent;

@@ -1,17 +1,9 @@
-import {
-  booleanLiteral,
-  identifier,
-  isBlockStatement,
-  isExpressionStatement,
-  isLabeledStatement,
-  nullLiteral,
-  numericLiteral,
-  stringLiteral,
-} from '@babel/types';
+import { booleanLiteral, identifier, nullLiteral, numericLiteral, stringLiteral } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ElementModifier, TraversableBody } from 'handle';
 import { applyModifier } from 'modifier';
 
+import type { NodePath as Path } from '@babel/traverse';
 import type { Expression, LabeledStatement } from '@babel/types';
 import type { Modifier } from 'handle/modifier';
 import type { BunchOf, FlatValue } from 'types';
@@ -62,27 +54,23 @@ export abstract class AttributeBody extends TraversableBody {
 
   LabeledStatement(
     node: LabeledStatement,
-    _path: any,
+    path: Path<LabeledStatement>,
     applyTo: Modifier = this as any){
 
-    const body = node.body;
+    const body = path.get('body');
     const { name } = node.label;
     const { context } = this;
 
     if(name[0] == "_")
-      throw Oops.BadModifierName(node)
+      throw Oops.BadModifierName(path)
 
     if(context.modifiers.has(name))
-      throw Oops.DuplicateModifier(node);
+      throw Oops.DuplicateModifier(path);
 
-    if(isExpressionStatement(body))
+    if(body.isExpressionStatement())
       applyModifier(name, applyTo, body);
-      
-    // const handler = applyTo.context.propertyMod(name);
-    // if(handler && (isBlockStatement(body) || isLabeledStatement(body)))
-    //   applyModifier(name, applyTo, body);
 
-    else if(isBlockStatement(body) || isLabeledStatement(body))
+    else if(body.isBlockStatement() || body.isLabeledStatement())
       applyTo.ElementModifier(
         new ElementModifier(context, name, body)
       );

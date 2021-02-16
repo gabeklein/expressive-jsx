@@ -23,7 +23,7 @@ const Program: Visitor<ProgramNode> = {
   
     for(const item of path.get("body"))
       if(item.isLabeledStatement()){
-        handleTopLevelModifier(item.node, context);
+        handleTopLevelModifier(item, context);
         item.remove();
       }
   },

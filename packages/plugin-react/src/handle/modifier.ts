@@ -1,5 +1,6 @@
 import { AttributeBody, ElementInline } from 'handle';
 
+import type { NodePath as Path } from '@babel/traverse';
 import type { Statement } from '@babel/types';
 import type { StackFrame } from 'context';
 import type { BunchOf, SelectionProvider } from 'types';
@@ -36,13 +37,13 @@ export class ElementModifier extends Modifier {
   constructor(
     context: StackFrame,
     name: string,
-    body: Statement){
+    body: Path<Statement>){
 
     super(context);
     this.name = name;
     this.context.resolveFor(name);
     this.forSelector = [ `.${this.uid}` ];
-    this.parseNodes(body);
+    this.parse(body);
   }
 
   ElementModifier(mod: ElementModifier){

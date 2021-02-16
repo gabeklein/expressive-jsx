@@ -54,16 +54,6 @@ export abstract class TraversableBody {
         throw Oops.NodeUnknown(item as any, item.type);
   }
 
-  parseNodes(body: Statement){
-    const content = isBlockStatement(body) ? body.body : [body];
-
-    for(const item of content)
-      if(item.type in this)
-        (this as any)[item.type](item);
-      else
-        throw Oops.NodeUnknown(item, item.type);
-  }
-
   ExpressionStatement(node: ExpressionStatement){
     return this.Expression(node.expression)
   }

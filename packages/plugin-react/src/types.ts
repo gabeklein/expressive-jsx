@@ -1,4 +1,4 @@
-import type { VisitNodeObject } from '@babel/traverse';
+import type { VisitNodeObject, NodePath as Path } from '@babel/traverse';
 import type {
   BlockStatement,
   DoExpression,
@@ -81,8 +81,19 @@ export type FlatValue = string | number | boolean | null;
 export type SequenceItem = Attribute | InnerContent | Statement;
 export type InnerContent = Expression | ElementInline | ComponentIf | ComponentFor;
 export type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | void;
-export type ModiferBody = ExpressionStatement | BlockStatement | LabeledStatement | IfStatement;
 export type SelectionProvider = (forSelector: string[]) => void;
+
+export type ModiferBody = 
+  | ExpressionStatement 
+  | BlockStatement 
+  | LabeledStatement 
+  | IfStatement;
+
+export type ModifyBodyPath =
+  | Path<ExpressionStatement>
+  | Path<BlockStatement>
+  | Path<LabeledStatement>
+  | Path<IfStatement>;
 
 export interface DoExpressive extends DoExpression {
   meta: ElementInline;
