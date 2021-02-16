@@ -86,7 +86,6 @@ export type SelectionProvider = (forSelector: string[]) => void;
 
 export interface DoExpressive extends DoExpression {
   meta: ElementInline;
-  expressive_visited?: true;
   expressive_parent?: Prop;
 }
 

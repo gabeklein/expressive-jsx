@@ -68,8 +68,6 @@ export abstract class TraversableBody {
         throw Oops.NodeUnknown(item, item.type);
   }
 
-  abstract ExpressionDefault(node: Expression): void;
-
   ExpressionStatement(node: ExpressionStatement){
     return this.Expression(node.expression)
   }
@@ -79,8 +77,6 @@ export abstract class TraversableBody {
 
     if(node.type in this)
       self[node.type](node);
-    else if(this.ExpressionDefault)
-      this.ExpressionDefault(node);
     else
       throw Oops.ExpressionUnknown(node, node.type);
   }

@@ -3,13 +3,11 @@ import {
   callExpression,
   identifier,
   isExpression,
-  isTemplateLiteral,
   memberExpression,
   objectExpression,
   objectProperty,
   stringLiteral,
 } from '@babel/types';
-import { dedent } from 'deprecate';
 import { _object, _objectAssign } from 'syntax';
 import { ArrayStack, ElementReact } from 'translate';
 
@@ -57,8 +55,6 @@ export function createElement(
     children.push(
       child instanceof ElementReact ?
         createElement.call(this, child.tagName, child.props, child.children) :
-      isTemplateLiteral(child) ?
-        dedent(child) :
       isExpression(child) ?
         child :
       booleanLiteral(false)

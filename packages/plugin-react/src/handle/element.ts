@@ -1,24 +1,18 @@
 import { blockStatement, identifier, isDoExpression, isIdentifier } from '@babel/types';
-import { addElementsFromExpression, handleBlockStatement, handleUnaryExpression, handleUpdateExpression } from 'deprecate';
 import { ParseErrors } from 'errors';
 import { AttributeBody, ComponentFor, ComponentIf, Prop } from 'handle';
 import { addElementFromJSX } from 'parse';
-import { inParenthesis } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {
   AssignmentExpression,
-  BlockStatement,
   DebuggerStatement,
-  Expression,
   For,
   FunctionDeclaration,
   IfStatement,
   JSXElement,
   JSXMemberExpression,
   Statement,
-  UnaryExpression,
-  UpdateExpression,
   VariableDeclaration
 } from '@babel/types';
 import type { ElementModifier, Modifier } from 'handle/modifier';
@@ -47,13 +41,6 @@ export class ElementInline extends AttributeBody {
 
   didExitOwnScope(){
     void 0;
-  }
-
-  ExpressionDefault(node: Expression){
-    if(inParenthesis(node))
-      this.adopt(node)
-    else
-      addElementsFromExpression(node, this);
   }
 
   JSXElement(node: JSXElement){
@@ -87,18 +74,6 @@ export class ElementInline extends AttributeBody {
     this.adopt(element)
     if(element.doBlock)
       path.replaceWith(element.doBlock)
-  }
-
-  BlockStatement(node: BlockStatement, path: Path<BlockStatement>){
-    handleBlockStatement.call(this, node, path)
-  }
-
-  UpdateExpression(node: UpdateExpression){
-    handleUpdateExpression.call(this, node);
-  }
-
-  UnaryExpression(node: UnaryExpression){
-    handleUnaryExpression.call(this, node);
   }
 
   AssignmentExpression(node: AssignmentExpression){

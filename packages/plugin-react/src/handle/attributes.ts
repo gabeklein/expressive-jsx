@@ -90,10 +90,6 @@ export abstract class AttributeBody extends TraversableBody {
     else
       throw Oops.BadInputModifier(body, body.type)
   }
-
-  ExpressionDefault(e: Expression){
-    throw Oops.ExpressionUnknown(e, e.type);
-  }
 }
 
 export abstract class Attribute<T extends Expression = Expression> {

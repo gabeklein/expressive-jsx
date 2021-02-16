@@ -2,7 +2,6 @@ import {
   isExpression,
   isJSXElement,
   isStringLiteral,
-  isTemplateLiteral,
   jsxAttribute,
   jsxClosingElement,
   jsxElement,
@@ -12,7 +11,6 @@ import {
   jsxSpreadAttribute,
   jsxText,
 } from '@babel/types';
-import { templateToMarkup } from 'deprecate';
 import { ElementReact } from 'translate';
 import { IsLegalAttribute } from 'types';
 
@@ -40,24 +38,20 @@ export function createElement(
   const children = [] as JSXContent[];
 
   for(let child of content){
-    if(isTemplateLiteral(child))
-      children.push(...templateToMarkup(child, acceptBr));
-    else {
-      if("toExpression" in child)
-        child = child.toExpression(this);
+    if("toExpression" in child)
+      child = child.toExpression(this);
 
-      children.push(
-        child instanceof ElementReact ?
-          createElement.call(this, child.tagName, child.props, child.children) :
-        isJSXElement(child) ?
-          child :
-        isStringLiteral(child) && !/\{/.test(child.value) ?
-          jsxText(child.value) :
-        isExpression(child) ?
-          jsxExpressionContainer(child) :
-        child
-      )
-    }
+    children.push(
+      child instanceof ElementReact ?
+        createElement.call(this, child.tagName, child.props, child.children) :
+      isJSXElement(child) ?
+        child :
+      isStringLiteral(child) && !/\{/.test(child.value) ?
+        jsxText(child.value) :
+      isExpression(child) ?
+        jsxExpressionContainer(child) :
+      child
+    )
   }
 
   Imports.ensure("$pragma", "default", "React");
