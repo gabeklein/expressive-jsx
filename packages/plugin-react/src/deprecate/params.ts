@@ -19,8 +19,8 @@ import type {
   ObjectPattern,
   PatternLike
 } from '@babel/types';
-import type { ComponentExpression } from 'handle';
-import type { ExternalsManager } from 'regenerate';
+import type { ComponentExpression } from 'handle/entry';
+import type { ExternalsManager } from 'regenerate/scope';
 
 const Oops = ParseErrors({
   PropsCantHaveDefault: "This argument will always resolve to component props",

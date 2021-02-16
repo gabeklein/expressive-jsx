@@ -4,7 +4,7 @@ import { applyNameImplications } from 'parse';
 import type { NodePath as Path } from '@babel/traverse';
 import type { ArrowFunctionExpression, Statement } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { ComponentConsequent } from 'handle';
+import type { ComponentConsequent } from 'handle/switch';
 import type { DoExpressive, InnerContent, SequenceItem } from 'types';
 
 export class ComponentExpression extends ComponentContainer {

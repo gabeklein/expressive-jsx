@@ -21,7 +21,7 @@ import type {
   UpdateExpression,
   VariableDeclaration
 } from '@babel/types';
-import type { ElementModifier, Modifier } from 'handle';
+import type { ElementModifier, Modifier } from 'handle/modifier';
 import type { DoExpressive, InnerContent } from 'types';
 
 const Oops = ParseErrors({

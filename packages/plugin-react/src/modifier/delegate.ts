@@ -4,7 +4,7 @@ import { _require } from 'syntax';
 import { DelegateTypes } from './arguments';
 
 import type { Statement } from '@babel/types';
-import type { AttributeBody, Prop } from 'handle';
+import type { AttributeBody, Prop } from 'handle/attributes';
 import type { BunchOf, ModiferBody, ModifyAction } from 'types';
 
 export class ModifyDelegate {

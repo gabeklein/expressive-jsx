@@ -13,8 +13,9 @@ import {
   stringLiteral,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { ElementInline, ExplicitStyle, Prop } from 'handle';
-import { applyNameImplications, applyPrimaryName } from 'parse';
+import { ExplicitStyle, Prop } from 'handle/attributes';
+import { ElementInline } from 'handle/element';
+import { applyNameImplications, applyPrimaryName } from 'parse/tagName';
 import { inParenthesis } from 'shared';
 
 import type {

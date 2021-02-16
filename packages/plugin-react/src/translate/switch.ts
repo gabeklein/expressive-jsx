@@ -11,7 +11,7 @@ import { ElementReact } from 'translate';
 
 import type { Expression } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { ComponentConsequent } from 'handle';
+import type { ComponentConsequent } from 'handle/switch';
 
 type Consequent = ComponentIf | ComponentConsequent;
 type GetProduct = (fork: Consequent) => Expression | undefined;

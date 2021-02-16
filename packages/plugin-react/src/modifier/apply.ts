@@ -5,7 +5,9 @@ import { ElementModifier } from 'handle';
 import { ModifyDelegate } from './delegate';
 
 import type { LabeledStatement } from '@babel/types';
-import type { ElementInline, ExplicitStyle, Modifier } from 'handle';
+import type { ExplicitStyle } from 'handle/attributes';
+import type { ElementInline } from 'handle/element';
+import type { Modifier } from 'handle/modifier';
 import type { StackFrame } from 'context';
 import type { BunchOf, ModiferBody, ModifyAction } from 'types';
 

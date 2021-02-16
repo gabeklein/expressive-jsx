@@ -10,7 +10,7 @@ import {
 import { ElementInline, Modifier, Prop } from 'handle';
 
 import type { Identifier } from '@babel/types';
-import type { ComponentExpression } from 'handle';
+import type { ComponentExpression } from 'handle/entry';
 import type { BunchOf } from 'types';
 
 import type { ModifyDelegate } from './delegate';

@@ -5,7 +5,7 @@ import { applyNameImplications } from 'parse';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { BlockStatement, UnaryExpression, UpdateExpression } from '@babel/types';
-import type { Attribute } from 'handle';
+import type { Attribute } from 'handle/attributes';
 import type { DoExpressive } from 'types';
 
 const Oops = ParseErrors({

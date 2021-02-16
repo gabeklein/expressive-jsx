@@ -13,7 +13,7 @@ import { ElementModifier, TraversableBody } from 'handle';
 import { applyModifier } from 'modifier';
 
 import type { Expression, LabeledStatement } from '@babel/types';
-import type { Modifier } from 'handle';
+import type { Modifier } from 'handle/modifier';
 import type { BunchOf, FlatValue } from 'types';
 
 const Oops = ParseErrors({

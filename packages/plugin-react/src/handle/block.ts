@@ -4,7 +4,7 @@ import { ensureArray } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { Expression, ExpressionStatement, Statement } from '@babel/types';
-import type { ComponentIf } from 'handle';
+import type { ComponentIf } from 'handle/switch';
 import type { StackFrame } from 'context';
 import type { BunchOf, DoExpressive, SequenceItem } from 'types';
 

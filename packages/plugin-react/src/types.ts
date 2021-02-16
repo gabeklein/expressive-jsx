@@ -18,9 +18,12 @@ import type {
   Statement,
 } from '@babel/types';
 
-import type { Attribute, ComponentFor, ComponentIf, ElementInline, Prop } from 'handle';
-import type { ModifyDelegate } from 'modifier/delegate';
 import type { StackFrame } from 'context';
+import type { Attribute, Prop } from 'handle/attributes';
+import type { ModifyDelegate } from 'modifier/delegate';
+import type { ElementInline } from 'handle/element';
+import type { ComponentFor } from 'handle/iterate';
+import type { ComponentIf } from 'handle/switch';
 import type { ElementReact } from 'translate/element';
 import type { ElementIterate } from 'translate/iterate';
 import type { ElementSwitch } from 'translate/switch';

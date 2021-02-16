@@ -11,7 +11,7 @@ import type { DoExpressive } from 'types';
 export function replaceDoExpression(path: NodePath<DoExpressive>){
   const element = path.node.meta;
 
-  element.didExitOwnScope(path);
+  element.didExitOwnScope();
 
   if(!(element instanceof ComponentExpression))
     return;

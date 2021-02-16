@@ -22,8 +22,8 @@ import type {
   PatternLike
 } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { ComponentFor } from 'handle';
-import type { ExternalsManager } from 'regenerate';
+import type { ComponentFor } from 'handle/iterate';
+import type { ExternalsManager } from 'regenerate/scope';
 
 export class ElementIterate extends ElementReact<ComponentFor> {
   type: "ForOfStatement" | "ForInStatement" | "ForStatement";
