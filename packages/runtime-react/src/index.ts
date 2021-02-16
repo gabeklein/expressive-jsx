@@ -1,4 +1,4 @@
-import { createElement } from "react";
+import { createElement } from 'react';
 
 interface BunchOf<T> {
   [key: string]: T
@@ -39,7 +39,7 @@ const Controller = new class RuntimeStyleController {
   }
 
   get cssText(){
-    let output = valuesOf(this.chunks).join("\n\n");
+    const output = valuesOf(this.chunks).join("\n\n");
     return output ? `\n${output}\n` : "";
   }
 
