@@ -62,6 +62,6 @@ function asOnlyAttributes(factory: ElementReact){
     className: stringLiteral(
       classNames.join(" ")
     ),
-    style: style
+    style
   })
 }

@@ -43,7 +43,11 @@ export interface BunchOf<T> {
 }
 
 export interface BabelFile extends File {
-  buildCodeFrameError<TError extends Error>(node: Node, msg: string, Error?: new (msg: string) => TError): TError;
+  buildCodeFrameError<TError extends Error>(
+    node: Node,
+    msg: string,
+    Error?: new (msg: string) => TError
+  ): TError;
 }
 
 export interface Options {
