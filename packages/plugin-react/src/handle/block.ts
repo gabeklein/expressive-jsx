@@ -24,8 +24,6 @@ export abstract class TraversableBody {
     this.context = context.create(this);
   }
 
-  willEnter?(path?: Path): void;
-  willExit?(path?: Path): void;
   wasAddedTo?<T extends TraversableBody>(element?: T): void;
 
   handleContentBody(content: Statement){
@@ -57,9 +55,7 @@ export abstract class TraversableBody {
   }
 
   parseNodes(body: Statement){
-    const content = isBlockStatement(body)
-      ? body.body
-      : [body];
+    const content = isBlockStatement(body) ? body.body : [body];
 
     for(const item of content)
       if(item.type in this)

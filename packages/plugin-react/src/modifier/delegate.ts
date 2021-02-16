@@ -51,11 +51,9 @@ export class ModifyDelegate {
     const { attrs, style } = output;
 
     if(style)
-      for(const name in style){
-        const item = style[name];
+      for(const name in style)
         this.styles[name] = 
-          new ExplicitStyle(name, item, important);
-      }
+          new ExplicitStyle(name, style[name], important);
 
     if(attrs)
       for(const name in attrs){
