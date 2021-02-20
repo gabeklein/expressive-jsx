@@ -1,8 +1,7 @@
 import { ParseErrors } from 'errors';
 import { ensureArray } from 'shared';
 import type { NodePath } from '@babel/traverse';
-import type { Node, Statement } from '@babel/types';
-import type { TraversableBody } from 'handle/block';
+import type { Node } from '@babel/types';
 
 const Oops = ParseErrors({
   NodeUnknown: "Unhandled node of type {1}",
@@ -10,13 +9,14 @@ const Oops = ParseErrors({
 })
 
 type PathFor<T extends Node['type']> = NodePath<Extract<Node, { type: T }>>;
+type Apply<K extends Node['type'], T> = (path: PathFor<K>, recipient: T) => void;
 
-export type ParserFor<T extends TraversableBody = TraversableBody> = {
-  [K in Node['type']]?: (this: T, path: PathFor<K>) => void;
+export type ParserFor<T> = {
+  [K in Node['type']]?: Apply<K, T>;
 };
 
-export function parse<T extends TraversableBody>(
-  ast: NodePath<Statement>,
+export function parse<T>(
+  ast: NodePath<Node>,
   using: ParserFor<T>,
   target: T){
 
