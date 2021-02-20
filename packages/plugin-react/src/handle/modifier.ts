@@ -3,24 +3,11 @@ import { AttributeBody, ElementInline } from 'handle';
 import type { NodePath as Path } from '@babel/traverse';
 import type { Statement } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { BunchOf, SelectionProvider } from 'types';
-
-function concat(
-  to: BunchOf<any[]>, 
-  from: BunchOf<any[]>,
-  ...names: string[]){
-
-  for(const name of names)
-    if(name in from)
-      to[name] = name in to
-        ? from[name].concat(to[name])
-        : from[name]
-}
+import type { SelectionProvider } from 'types';
 
 export abstract class Modifier extends AttributeBody {
   forSelector?: string[];
   onlyWithin?: ContingentModifier;
-  onGlobalStatus?: string[];
   priority?: number;
 
   alsoApplies = [] as Modifier[];
@@ -50,7 +37,6 @@ export class ElementModifier extends Modifier {
     mod.priority = this.priority;
     this.provides.push(mod);
     this.onlyWithin = mod.onlyWithin;
-    concat(mod as any, this as any, "onGlobalStatus");
   }
 }
 
