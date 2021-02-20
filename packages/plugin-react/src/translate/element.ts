@@ -37,6 +37,13 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   style = new AttributeStack<ExplicitStyle>();
   style_static = [] as ExplicitStyle[];
 
+  get tagName(): string | JSXMemberExpression {
+    const { name, explicitTagName } = this.source;
+    return explicitTagName || (
+      name && /^[A-Z]/.test(name) ? name : "div"
+    );
+  }
+
   constructor(source: E){
     this.source = source;
     this.context = source.context;
@@ -51,11 +58,9 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     this.applyClassname();
   }
 
-  get tagName(): string | JSXMemberExpression {
-    const { name, explicitTagName } = this.source;
-    return explicitTagName || (
-      name && /^[A-Z]/.test(name) ? name : "div"
-    );
+  protected willParse(){
+    if(this.context.opts.styleMode !== "inline")
+      this.applyModifiers();
   }
 
   private integrate(item: SequenceItem){
@@ -81,11 +86,6 @@ export class ElementReact<E extends ElementInline = ElementInline> {
 
     else if(isExpression(item))
       this.adopt(item);
-  }
-
-  protected willParse(){
-    if(this.context.opts.styleMode !== "inline")
-      this.applyModifiers();
   }
 
   protected applyModifiers(){
