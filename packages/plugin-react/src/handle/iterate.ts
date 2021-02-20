@@ -1,9 +1,16 @@
-import { isForXStatement, isIdentifier, isVariableDeclaration } from '@babel/types';
+import {
+  blockStatement,
+  doExpression,
+  isBlockStatement,
+  isForXStatement,
+  isIdentifier,
+  isVariableDeclaration,
+} from '@babel/types';
 import { ComponentContainer } from 'handle';
 
-import type { For } from '@babel/types';
+import type { For, Statement } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { ForPath } from 'types';
+import type { DoExpressive, ForPath } from 'types';
 
 export class ComponentFor extends ComponentContainer {
   node: For
@@ -17,6 +24,15 @@ export class ComponentFor extends ComponentContainer {
     this.node = path.node
     this.name = this.generateName();
     this.doBlock = this.handleContentBody(path.node.body);
+  }
+
+  handleContentBody(content: Statement){
+    if(!isBlockStatement(content))
+      content = blockStatement([content])
+
+    const body = doExpression(content) as DoExpressive;
+    body.meta = this as any;
+    return body;
   }
 
   private generateName(){

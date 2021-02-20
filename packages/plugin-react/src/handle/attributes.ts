@@ -1,9 +1,6 @@
 import {
-  blockStatement,
   booleanLiteral,
-  doExpression,
   identifier,
-  isBlockStatement,
   nullLiteral,
   numericLiteral,
   stringLiteral,
@@ -17,7 +14,7 @@ import type { NodePath as Path } from '@babel/traverse';
 import type { Expression, LabeledStatement, ExpressionStatement, Statement } from '@babel/types';
 import type { ComponentIf } from 'handle/switch';
 import type { StackFrame } from 'context';
-import type { BunchOf, DoExpressive, FlatValue , SequenceItem } from 'types';
+import type { BunchOf, FlatValue , SequenceItem } from 'types';
 import type { Modifier } from 'handle/modifier';
 
 const Oops = ParseErrors({
@@ -29,7 +26,6 @@ const Oops = ParseErrors({
 })
 
 export abstract class AttributeBody {
-
   context: StackFrame
   name?: string;
   parent?: AttributeBody | ComponentIf;
@@ -45,15 +41,6 @@ export abstract class AttributeBody {
   }
 
   wasAddedTo?<T extends AttributeBody>(element?: T): void;
-
-  handleContentBody(content: Statement){
-    if(!isBlockStatement(content))
-      content = blockStatement([content])
-
-    const body = doExpression(content) as DoExpressive;
-    body.meta = this as any;
-    return body;
-  }
 
   add(item: SequenceItem){
     this.sequence.push(item);

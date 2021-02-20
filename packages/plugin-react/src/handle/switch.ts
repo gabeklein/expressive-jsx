@@ -1,7 +1,10 @@
 import {
+  blockStatement,
   booleanLiteral,
   conditionalExpression,
+  doExpression,
   expressionStatement,
+  isBlockStatement,
   isBooleanLiteral,
   isDoExpression,
   isExpression,
@@ -222,6 +225,15 @@ export class ComponentConsequent extends ElementInline {
       if(child instanceof ElementInline)
         this.doBlock = child.doBlock
     }
+  }
+
+  handleContentBody(content: Statement){
+    if(!isBlockStatement(content))
+      content = blockStatement([content])
+
+    const body = doExpression(content) as DoExpressive;
+    body.meta = this as any;
+    return body;
   }
 
   adopt(child: InnerContent){
