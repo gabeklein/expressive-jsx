@@ -33,12 +33,11 @@ import type { ComponentFor } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';
 import type { ElementReact } from 'translate/element';
 import type { ElementIterate } from 'translate/iterate';
-import type { ElementSwitch } from 'translate/switch';
 
 export type JSXContent = JSXElement | JSXFragment | JSXExpressionContainer | JSXText | JSXSpreadChild;
 export type Attributes = JSXAttribute | JSXSpreadAttribute;
-export type InnerJSX = ElementReact | ElementSwitch | ElementIterate;
-export type ContentLike = ElementReact | ElementSwitch | ElementIterate | Expression;
+export type InnerJSX = ElementReact | ComponentIf | ElementIterate;
+export type ContentLike = ElementReact | ComponentIf | ElementIterate | Expression;
 export type Visitor<T extends Node, S extends StackFrame = StackFrame> = VisitNodeObject<BabelState<S>, T>;
 
 export const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;

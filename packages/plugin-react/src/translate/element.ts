@@ -17,7 +17,7 @@ import {
   ExplicitStyle,
   Prop,
 } from 'handle';
-import { AttributeStack, ElementIterate, ElementSwitch } from 'translate';
+import { AttributeStack, ElementIterate } from 'translate';
 
 import type {
   Expression,
@@ -59,8 +59,13 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   }
 
   private integrate(item: SequenceItem){
-    if(item instanceof ComponentIf)
-      this.Switch(item)
+    if(item instanceof ComponentIf){
+      if(item.hasElementOutput)
+        this.adopt(item)
+
+      if(item.hasStyleOutput)
+        this.classList.push(item.toClassName());
+    }
 
     else if(item instanceof ComponentFor)
       this.adopt(new ElementIterate(item))
@@ -82,7 +87,6 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     if(this.context.opts.styleMode !== "inline")
       this.applyModifiers();
   }
-
 
   protected applyModifiers(){
     const elementStyle = this.source.style;
@@ -282,15 +286,5 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       default:
         this.addProperty(item.name, item.toExpression());
     }
-  }
-
-  Switch(item: ComponentIf){
-    const fork = new ElementSwitch(item)
-
-    if(item.hasElementOutput)
-      this.adopt(fork)
-
-    if(item.hasStyleOutput)
-      this.classList.push(fork.toClassName());
   }
 }

@@ -1,7 +1,20 @@
-import { expressionStatement, isDoExpression, isExpression, isIdentifier, isUnaryExpression } from '@babel/types';
+import {
+  booleanLiteral,
+  conditionalExpression,
+  expressionStatement,
+  isBooleanLiteral,
+  isDoExpression,
+  isExpression,
+  isIdentifier,
+  isUnaryExpression,
+  logicalExpression,
+  stringLiteral,
+  unaryExpression,
+} from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ComponentExpression, ContingentModifier, ElementInline } from 'handle';
 import { ensureArray, hash } from 'shared';
+import { ElementReact } from 'translate';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {
@@ -24,9 +37,17 @@ const Oops = ParseErrors({
 })
 
 type Consequent = ComponentIf | ComponentConsequent;
+type GetProduct = (fork: Consequent) => Expression | undefined;
+
+const opt = conditionalExpression;
+const not = (a: Expression) => unaryExpression("!", a);
+const and = (a: Expression, b: Expression) => logicalExpression("&&", a, b);
+
+//TODO: figure out if falsey values interfere before allowing them through
+// const anti = (a: Expression) => isUnaryExpression(a, { operator: "!" }) ? a.argument : not(a);
+const anti = not;
 
 export class ComponentIf {
-
   forks = [] as Consequent[];
   context: StackFrame;
   hasElementOutput?: true;
@@ -42,6 +63,58 @@ export class ComponentIf {
     context.currentIf = this;
     if(!test)
       context.parentIf = this;
+  }
+
+  private reduceUsing(predicate: GetProduct){
+    let { forks } = this;
+
+    forks = forks.slice().reverse();
+    let sum: Expression | undefined;
+  
+    for(const cond of forks){
+      const test = cond.test;
+      const product = predicate(cond);
+  
+      if(sum && test)
+        sum = product
+          ? opt(test, product, sum)
+          : and(anti(test), sum)
+      else if(product)
+        sum = test
+          ? and(test, product)
+          : product
+    }
+  
+    return sum || booleanLiteral(false)
+  }
+
+  toExpression(context: StackFrame): Expression {
+    return this.reduceUsing((cond) => {
+      let product;
+
+      if(cond instanceof ComponentIf)
+        product = cond.toExpression(context)
+      else
+      if(cond.children.length)
+        product = context.Imports.container(new ElementReact(cond))
+      else
+        return;
+
+      if(isBooleanLiteral(product, { value: false }))
+        product = undefined;
+
+      return product
+    })
+  }
+
+  toClassName(): Expression {
+    return this.reduceUsing((cond) => {
+      if("usesClassname" in cond && cond.usesClassname)
+        return stringLiteral(cond.usesClassname);
+      else
+      if("hasStyleOutput" in cond && cond.hasStyleOutput)
+        return cond.toClassName();
+    })
   }
 
   wasAddedTo(){
@@ -122,10 +195,13 @@ export class ComponentIf {
 }
 
 export class ComponentConsequent extends ElementInline {
-
   slaveModifier?: ContingentModifier;
   usesClassname?: string;
   doesReturn?: true;
+
+  get parentElement(){
+    return this.context.currentElement;
+  }
 
   constructor(
     public path: Path<Statement> | undefined,
@@ -146,10 +222,6 @@ export class ComponentConsequent extends ElementInline {
       if(child instanceof ElementInline)
         this.doBlock = child.doBlock
     }
-  }
-
-  get parentElement(){
-    return this.context.currentElement;
   }
 
   adopt(child: InnerContent){
