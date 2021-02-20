@@ -1,4 +1,3 @@
-export * from './block';
 export * from './attributes';
 export * from './element'
 export * from './entry';

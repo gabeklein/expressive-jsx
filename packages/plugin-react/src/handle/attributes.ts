@@ -1,12 +1,24 @@
-import { booleanLiteral, identifier, nullLiteral, numericLiteral, stringLiteral } from '@babel/types';
+import {
+  blockStatement,
+  booleanLiteral,
+  doExpression,
+  identifier,
+  isBlockStatement,
+  nullLiteral,
+  numericLiteral,
+  stringLiteral,
+} from '@babel/types';
 import { ParseErrors } from 'errors';
-import { ElementModifier, TraversableBody } from 'handle';
 import { applyModifier } from 'modifier';
+import { ElementModifier } from 'handle';
+import { ensureArray } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
-import type { Expression, LabeledStatement } from '@babel/types';
+import type { Expression, LabeledStatement, ExpressionStatement, Statement } from '@babel/types';
+import type { ComponentIf } from 'handle/switch';
+import type { StackFrame } from 'context';
+import type { BunchOf, DoExpressive, FlatValue , SequenceItem } from 'types';
 import type { Modifier } from 'handle/modifier';
-import type { BunchOf, FlatValue } from 'types';
 
 const Oops = ParseErrors({
   ExpressionUnknown: "Unhandled expressionary statement of type {1}",
@@ -16,12 +28,64 @@ const Oops = ParseErrors({
   DuplicateModifier: "Duplicate declaration of named modifier!"
 })
 
-export abstract class AttributeBody extends TraversableBody {
+export abstract class AttributeBody {
 
+  context: StackFrame
+  name?: string;
+  parent?: AttributeBody | ComponentIf;
+
+  sequence = [] as SequenceItem[];
   props = {} as BunchOf<Prop>;
   style = {} as BunchOf<ExplicitStyle>;
 
   abstract ElementModifier(mod: Modifier): void;
+
+  constructor(context: StackFrame){
+    this.context = context.create(this);
+  }
+
+  wasAddedTo?<T extends AttributeBody>(element?: T): void;
+
+  handleContentBody(content: Statement){
+    if(!isBlockStatement(content))
+      content = blockStatement([content])
+
+    const body = doExpression(content) as DoExpressive;
+    body.meta = this as any;
+    return body;
+  }
+
+  add(item: SequenceItem){
+    this.sequence.push(item);
+
+    if("wasAddedTo" in item && item.wasAddedTo)
+      item.wasAddedTo(this);
+  }
+
+  parse(body: Path<Statement>){
+    const content = body.isBlockStatement()
+      ? ensureArray(body.get("body"))
+      : [body];
+   
+    for(const item of content)
+      if(item.type in this)
+        (this as any)[item.type](item.node, item);
+      else
+        throw Oops.NodeUnknown(item as any, item.type);
+  }
+
+  ExpressionStatement(node: ExpressionStatement){
+    return this.Expression(node.expression)
+  }
+
+  Expression(node: Expression){
+    const self = this as unknown as BunchOf<(node: Expression) => void>
+
+    if(node.type in this)
+      self[node.type](node);
+    else
+      throw Oops.ExpressionUnknown(node, node.type);
+  }
 
   get uid(){
     const value = this.context.unique(this.name!)
