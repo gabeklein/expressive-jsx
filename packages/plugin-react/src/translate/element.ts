@@ -79,12 +79,15 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   }
 
   protected willParse(){
+    if(this.context.opts.styleMode !== "inline")
+      this.applyModifiers();
+  }
+
+
+  protected applyModifiers(){
     const elementStyle = this.source.style;
     const accumulator = {} as BunchOf<ExplicitStyle>;
     // TODO: respect priority differences!
-
-    if(this.context.opts.styleMode === "inline")
-      return;
 
     for(const mod of this.source.modifiers){
       if(!(mod instanceof ElementModifier))
