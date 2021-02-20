@@ -5,6 +5,9 @@ import type {
   Expression,
   ExpressionStatement,
   File,
+  ForInStatement,
+  ForOfStatement,
+  ForStatement,
   IfStatement,
   JSXAttribute,
   JSXElement,
@@ -88,6 +91,11 @@ export type ModiferBody =
   | BlockStatement 
   | LabeledStatement 
   | IfStatement;
+
+export type ForPath =
+  | Path<ForInStatement>
+  | Path<ForOfStatement>
+  | Path<ForStatement>;
 
 export type ModifyBodyPath =
   | Path<ExpressionStatement>

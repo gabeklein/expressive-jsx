@@ -1,15 +1,15 @@
 import { isForXStatement, isIdentifier, isVariableDeclaration } from '@babel/types';
 import { ComponentContainer } from 'handle';
 
-import type { NodePath as Path } from '@babel/traverse';
 import type { For } from '@babel/types';
 import type { StackFrame } from 'context';
+import type { ForPath } from 'types';
 
 export class ComponentFor extends ComponentContainer {
   node: For
 
   constructor(
-    public path: Path<For>,
+    public path: ForPath,
     context: StackFrame){
 
     super(context);

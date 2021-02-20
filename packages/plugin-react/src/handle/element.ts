@@ -16,7 +16,7 @@ import type {
   VariableDeclaration
 } from '@babel/types';
 import type { ElementModifier, Modifier } from 'handle/modifier';
-import type { DoExpressive, InnerContent } from 'types';
+import type { DoExpressive, ForPath, InnerContent } from 'types';
 
 const Oops = ParseErrors({
   PropNotIdentifier: "Assignment must be identifier name of a prop.",
@@ -60,16 +60,16 @@ export class ElementInline extends AttributeBody {
     )
   }
 
-  ForInStatement(_: For, path: Path<For>){
+  ForInStatement(_: For, path: ForPath){
     this.ForStatement(_, path)
   }
 
-  ForOfStatement(_: For, path: Path<For>){
+  ForOfStatement(_: For, path: ForPath){
     this.ForStatement(_, path)
   }
 
-  ForStatement(_: For, path: Path<For>){
-    const element = new ComponentFor(path, this.context);
+  ForStatement(_: For, path: ForPath){
+    const element = new ComponentFor(path as any, this.context);
 
     this.adopt(element)
     if(element.doBlock)
