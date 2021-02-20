@@ -1,6 +1,7 @@
 import type { VisitNodeObject, NodePath as Path } from '@babel/traverse';
 import type {
   BlockStatement,
+  ClassMethod,
   DoExpression,
   Expression,
   ExpressionStatement,
@@ -8,7 +9,10 @@ import type {
   ForInStatement,
   ForOfStatement,
   ForStatement,
+  FunctionDeclaration,
+  FunctionExpression,
   IfStatement,
+  ObjectMethod,
   JSXAttribute,
   JSXElement,
   JSXExpressionContainer,
@@ -91,6 +95,12 @@ export type ModiferBody =
   | BlockStatement 
   | LabeledStatement 
   | IfStatement;
+
+export type FunctionPath =
+  | Path<ClassMethod>
+  | Path<ObjectMethod>
+  | Path<FunctionDeclaration>
+  | Path<FunctionExpression>
 
 export type ForPath =
   | Path<ForInStatement>

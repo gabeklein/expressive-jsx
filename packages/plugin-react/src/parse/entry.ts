@@ -6,16 +6,13 @@ import type {
   ArrowFunctionExpression,
   AssignmentExpression,
   Class,
-  ClassMethod,
   FunctionDeclaration,
-  FunctionExpression,
-  ObjectMethod,
   ObjectProperty,
   VariableDeclaration,
   VariableDeclarator
 } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { DoExpressive } from 'types';
+import type { DoExpressive, FunctionPath } from 'types';
 
 export function generateEntryElement(
   path: Path<DoExpressive>,
@@ -41,12 +38,6 @@ export function generateEntryElement(
 
   return new ComponentExpression(name, context, path, containerFn);
 }
-
-type AnyFunction =
-  | ClassMethod
-  | ObjectMethod
-  | FunctionDeclaration
-  | FunctionExpression
 
 function containerName(path: Path): string {
   let parent = path.parentPath;
@@ -84,7 +75,7 @@ function containerName(path: Path): string {
 
       encounteredReturn = path;
       const ancestry = path.getAncestry();
-      const within = ancestry.find((x)=> x.isFunction()) as Path<AnyFunction> | undefined;
+      const within = ancestry.find((x)=> x.isFunction()) as FunctionPath | undefined;
 
       if(!within)
         throw new Error("wat");
