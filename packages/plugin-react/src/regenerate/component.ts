@@ -1,15 +1,15 @@
 import { blockStatement, returnStatement, stringLiteral } from '@babel/types';
 import { ComponentExpression } from 'handle';
+import { meta } from 'shared';
 import { _object } from 'syntax';
 import { ElementReact } from 'translate';
 
-import type { NodePath } from '@babel/traverse';
-import type { Expression } from '@babel/types';
+import type { NodePath as Path } from '@babel/traverse';
+import type { DoExpression ,Expression } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { DoExpressive } from 'types';
 
-export function replaceDoExpression(path: NodePath<DoExpressive>){
-  const element = path.node.meta;
+export function replaceDoExpression(path: Path<DoExpression>){
+  const element = meta(path.node).meta;
 
   element.didExitOwnScope();
 
@@ -41,7 +41,7 @@ export function replaceDoExpression(path: NodePath<DoExpressive>){
       path.replaceWith(blockStatement(replacement))
   }
   else {
-    const prop = path.node.expressive_parent;
+    const prop = meta(path.node).expressive_parent;
 
     if(prop)
       prop.value = factoryExpression;

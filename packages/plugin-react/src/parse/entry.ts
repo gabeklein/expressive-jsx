@@ -6,16 +6,17 @@ import type {
   ArrowFunctionExpression,
   AssignmentExpression,
   Class,
+  DoExpression,
   FunctionDeclaration,
   ObjectProperty,
   VariableDeclaration,
   VariableDeclarator
 } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { DoExpressive, FunctionPath } from 'types';
+import type { FunctionPath } from 'types';
 
 export function generateEntryElement(
-  path: Path<DoExpressive>,
+  path: Path<DoExpression>,
   context: StackFrame){
 
   const parent = path.parentPath;

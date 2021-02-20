@@ -7,10 +7,11 @@ import {
   isVariableDeclaration,
 } from '@babel/types';
 import { ComponentContainer } from 'handle';
+import { meta } from 'shared';
 
 import type { For, Statement } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { DoExpressive, ForPath } from 'types';
+import type { ForPath } from 'types';
 
 export class ComponentFor extends ComponentContainer {
   node: For
@@ -30,8 +31,9 @@ export class ComponentFor extends ComponentContainer {
     if(!isBlockStatement(content))
       content = blockStatement([content])
 
-    const body = doExpression(content) as DoExpressive;
-    body.meta = this as any;
+    const body = doExpression(content);
+    meta(body, this);
+
     return body;
   }
 

@@ -16,7 +16,7 @@ import {
 } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ComponentExpression, ContingentModifier, ElementInline } from 'handle';
-import { ensureArray, hash } from 'shared';
+import { ensureArray, hash, meta } from 'shared';
 import { ElementReact } from 'translate';
 
 import type { NodePath as Path } from '@babel/traverse';
@@ -29,7 +29,7 @@ import type {
   Statement
 } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { DoExpressive, InnerContent } from 'types';
+import type { InnerContent } from 'types';
 
 const Oops = ParseErrors({
   ReturnElseNotImplemented: "This is an else condition, returning from here is not implemented.",
@@ -231,8 +231,8 @@ export class ComponentConsequent extends ElementInline {
     if(!isBlockStatement(content))
       content = blockStatement([content])
 
-    const body = doExpression(content) as DoExpressive;
-    body.meta = this as any;
+    const body = doExpression(content);
+    meta(body, this);
     return body;
   }
 
@@ -288,7 +288,7 @@ export class ComponentConsequent extends ElementInline {
 
     if(arg)
       if(isDoExpression(arg))
-        (<DoExpressive>arg).meta = this;
+        meta(arg, this);
 
       else if(isExpression(arg))
         this.Expression(arg);

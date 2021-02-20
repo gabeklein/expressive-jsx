@@ -1,4 +1,5 @@
-import type { Expression } from '@babel/types';
+import type { DoExpression, Expression } from '@babel/types';
+import type { ElementInline, Prop } from 'handle';
 import type { BunchOf, Options } from 'types';
 
 export const DEFAULTS: Options = {
@@ -9,6 +10,20 @@ export const DEFAULTS: Options = {
   output: "js",
   modifiers: []
 };
+
+interface DoExpressive extends DoExpression {
+  meta: ElementInline;
+  expressive_parent?: Prop;
+}
+
+export function meta(exp: DoExpression, meta: ElementInline): void;
+export function meta(exp: DoExpression): DoExpressive;
+export function meta(exp: DoExpression, meta?: ElementInline){
+  if(meta)
+    (exp as DoExpressive).meta = meta;
+  else
+    return (exp as DoExpressive);
+}
 
 const m32 = Math.imul;
 

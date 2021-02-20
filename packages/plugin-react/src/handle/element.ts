@@ -2,11 +2,13 @@ import { blockStatement, identifier, isDoExpression, isIdentifier } from '@babel
 import { ParseErrors } from 'errors';
 import { AttributeBody, ComponentFor, ComponentIf, Prop } from 'handle';
 import { addElementFromJSX } from 'parse';
+import { meta } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {
   AssignmentExpression,
   DebuggerStatement,
+  DoExpression,
   For,
   FunctionDeclaration,
   IfStatement,
@@ -16,7 +18,7 @@ import type {
   VariableDeclaration
 } from '@babel/types';
 import type { ElementModifier, Modifier } from 'handle/modifier';
-import type { DoExpressive, ForPath, InnerContent } from 'types';
+import type { ForPath, InnerContent } from 'types';
 
 const Oops = ParseErrors({
   PropNotIdentifier: "Assignment must be identifier name of a prop.",
@@ -24,7 +26,7 @@ const Oops = ParseErrors({
 })
 
 export class ElementInline extends AttributeBody {
-  doBlock?: DoExpressive
+  doBlock?: DoExpression
   primaryName?: string;
   children = [] as InnerContent[];
   explicitTagName?: string | JSXMemberExpression;
@@ -90,7 +92,7 @@ export class ElementInline extends AttributeBody {
 
     if(isDoExpression(right))
       prop = 
-        (<DoExpressive>right).expressive_parent =
+        meta(right).expressive_parent =
         new Prop(name, identifier("undefined"));
     else
       prop =

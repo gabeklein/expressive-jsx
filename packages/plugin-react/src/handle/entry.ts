@@ -2,10 +2,11 @@ import { ComponentContainer } from 'handle';
 import { applyNameImplications } from 'parse';
 
 import type { NodePath as Path } from '@babel/traverse';
-import type { ArrowFunctionExpression, Statement } from '@babel/types';
+import type { ArrowFunctionExpression, DoExpression, Statement } from '@babel/types';
 import type { StackFrame } from 'context';
 import type { ComponentConsequent } from 'handle/switch';
-import type { DoExpressive, InnerContent, SequenceItem } from 'types';
+import type { InnerContent, SequenceItem } from 'types';
+import { meta } from 'shared';
 
 export class ComponentExpression extends ComponentContainer {
   exec?: Path<ArrowFunctionExpression>;
@@ -15,7 +16,7 @@ export class ComponentExpression extends ComponentContainer {
   constructor(
     name: string,
     context: StackFrame,
-    path: Path<DoExpressive>,
+    path: Path<DoExpression>,
     exec?: Path<ArrowFunctionExpression>){
 
     super(context);
@@ -31,7 +32,7 @@ export class ComponentExpression extends ComponentContainer {
     if(/^[A-Z]/.test(name))
       applyNameImplications(this, name);
 
-    path.node.meta = this;
+    meta(path.node, this);
     this.context.resolveFor(this.name);
   }
 

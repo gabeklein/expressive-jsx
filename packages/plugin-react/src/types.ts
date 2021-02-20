@@ -2,7 +2,6 @@ import type { VisitNodeObject, NodePath as Path } from '@babel/traverse';
 import type {
   BlockStatement,
   ClassMethod,
-  DoExpression,
   Expression,
   ExpressionStatement,
   File,
@@ -26,7 +25,7 @@ import type {
 } from '@babel/types';
 
 import type { StackFrame } from 'context';
-import type { Attribute, Prop } from 'handle/attributes';
+import type { Attribute } from 'handle/attributes';
 import type { ModifyDelegate } from 'modifier/delegate';
 import type { ElementInline } from 'handle/element';
 import type { ComponentFor } from 'handle/iterate';
@@ -111,11 +110,6 @@ export type ModifyBodyPath =
   | Path<BlockStatement>
   | Path<LabeledStatement>
   | Path<IfStatement>;
-
-export interface DoExpressive extends DoExpression {
-  meta: ElementInline;
-  expressive_parent?: Prop;
-}
 
 export interface ModifierOutput {
   attrs?: BunchOf<any>
