@@ -38,7 +38,7 @@ export abstract class AttributeBody {
   props = {} as BunchOf<Prop>;
   style = {} as BunchOf<ExplicitStyle>;
 
-  abstract ElementModifier(mod: Modifier): void;
+  abstract applyModifier(mod: Modifier): void;
 
   constructor(context: StackFrame){
     this.context = context.create(this);
@@ -135,7 +135,7 @@ export abstract class AttributeBody {
       applyModifier(name, applyTo, body);
 
     else if(body.isBlockStatement() || body.isLabeledStatement())
-      applyTo.ElementModifier(
+      applyTo.applyModifier(
         new ElementModifier(context, name, body)
       );
 

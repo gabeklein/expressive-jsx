@@ -47,7 +47,7 @@ export class ElementInline extends AttributeBody {
     addElementFromJSX(node, this);
   }
 
-  ElementModifier(mod: ElementModifier){
+  applyModifier(mod: ElementModifier){
     this.context.elementMod(mod);
   }
 

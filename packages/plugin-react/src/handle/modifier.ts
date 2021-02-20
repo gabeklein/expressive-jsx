@@ -33,7 +33,7 @@ export class ElementModifier extends Modifier {
     this.parse(body);
   }
 
-  ElementModifier(mod: ElementModifier){
+  applyModifier(mod: ElementModifier){
     mod.priority = this.priority;
     this.provides.push(mod);
     this.onlyWithin = mod.onlyWithin;
@@ -69,7 +69,7 @@ export class ContingentModifier extends Modifier {
     this.forSelector = select;
   }
 
-  ElementModifier(mod: ElementModifier){
+  applyModifier(mod: ElementModifier){
     const { anchor } = this;
 
     mod.onlyWithin = this;
