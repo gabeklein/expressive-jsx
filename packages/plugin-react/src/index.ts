@@ -3,11 +3,15 @@ import { Status } from 'errors';
 import { handleTopLevelModifier, printStyles } from 'modifier';
 import { generateEntryElement } from 'parse';
 import { replaceDoExpression } from 'regenerate';
+import { meta } from 'shared';
 
 import { builtIn } from './modifier';
 
-import type { Program as ProgramNode } from '@babel/types';
-import type { BabelFile, DoExpressive, Visitor } from 'types';
+import type {
+  DoExpression as DoExpressionNode,
+  Program as ProgramNode
+} from '@babel/types';
+import type { BabelFile, Visitor } from 'types';
 
 const Program: Visitor<ProgramNode> = {
   enter(path, state){
@@ -39,17 +43,17 @@ const Program: Visitor<ProgramNode> = {
   }
 }
 
-const DoExpression: Visitor<DoExpressive> = {
+const DoExpression: Visitor<DoExpressionNode> = {
   enter(path, state){
-    let { meta } = path.node;
+    let { meta: element } = meta(path.node);
 
-    if(!meta)
-      meta = generateEntryElement(path, state.context);
+    if(!element)
+      element = generateEntryElement(path, state.context);
 
     const traversable = path.get("body").get("body");
 
     for(const item of traversable)
-      meta.parse(item);
+      element.parse(item);
   },
   exit: replaceDoExpression
 }
