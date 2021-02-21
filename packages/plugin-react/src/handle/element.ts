@@ -23,6 +23,8 @@ export class ElementInline extends AttributeBody {
   explicitTagName?: string | JSXMemberExpression;
   modifiers = [] as Modifier[];
 
+  didExitOwnScope?(): void;
+
   adopt(child: InnerContent){
     const index = this.children.push(child);
 
@@ -30,10 +32,6 @@ export class ElementInline extends AttributeBody {
       child.context.resolveFor(index);
 
     this.add(child);
-  }
-
-  didExitOwnScope(){
-    void 0;
   }
 
   applyModifier(mod: ElementModifier){

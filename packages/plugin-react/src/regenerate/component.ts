@@ -11,7 +11,8 @@ import type { StackFrame } from 'context';
 export function replaceDoExpression(path: Path<DoExpression>){
   const element = meta(path.node).meta;
 
-  element.didExitOwnScope();
+  if(element.didExitOwnScope)
+    element.didExitOwnScope();
 
   if(!(element instanceof ComponentExpression))
     return;
