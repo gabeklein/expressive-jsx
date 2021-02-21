@@ -27,7 +27,7 @@ export abstract class AttributeBody {
   abstract applyModifier(mod: Modifier): void;
 
   constructor(context: StackFrame){
-    this.context = context.create(this);
+    this.context = context.push(this);
   }
 
   wasAddedTo?<T extends AttributeBody>(element?: T): void;
@@ -37,12 +37,6 @@ export abstract class AttributeBody {
 
     if("wasAddedTo" in item && item.wasAddedTo)
       item.wasAddedTo(this);
-  }
-
-  addStyle(name: string, value: any){
-    this.insert(
-      new ExplicitStyle(name, value)
-    )
   }
 
   insert(item: Prop | ExplicitStyle){
@@ -60,6 +54,12 @@ export abstract class AttributeBody {
     }
 
     this.add(item);
+  }
+
+  addStyle(name: string, value: any){
+    this.insert(
+      new ExplicitStyle(name, value)
+    )
   }
 }
 

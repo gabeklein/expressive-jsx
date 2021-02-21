@@ -71,7 +71,7 @@ export class ComponentIf {
     context: StackFrame,
     public test?: Expression){
 
-    context = this.context = context.create(this);
+    context = this.context = context.push(this);
     context.currentIf = this;
 
     if(!test)

@@ -63,7 +63,7 @@ export class StackFrame {
     return context;
   }
 
-  create(node: Stackable): StackFrame {
+  push(node: Stackable): StackFrame {
     const frame: StackFrame = Object.create(this);
 
     frame.current = node;
