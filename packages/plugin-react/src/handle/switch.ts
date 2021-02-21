@@ -14,10 +14,9 @@ import {
 } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ComponentExpression, ContingentModifier, ElementInline } from 'handle';
+import { ParseConsequent, parser } from 'parse';
 import { ensureArray, hash, meta } from 'shared';
 import { ElementReact } from 'translate';
-
-import { ParseConsequent, parser } from './';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {

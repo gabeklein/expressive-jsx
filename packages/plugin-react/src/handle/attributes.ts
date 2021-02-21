@@ -1,6 +1,5 @@
 import { booleanLiteral, identifier, nullLiteral, numericLiteral, stringLiteral } from '@babel/types';
-
-import { ParseAttributes, parser } from './';
+import { ParseAttributes, parser } from 'parse';
 
 import type { Expression } from '@babel/types';
 import type { StackFrame } from 'context';

@@ -6,9 +6,10 @@ import {
   isIdentifier,
   isVariableDeclaration,
 } from '@babel/types';
+import { ParseForLoop, parser } from 'parse';
 import { meta } from 'shared';
 
-import { ComponentContainer, ParseForLoop, parser } from './';
+import { ComponentContainer } from './';
 
 import type { For, Statement } from '@babel/types';
 import type { StackFrame } from 'context';

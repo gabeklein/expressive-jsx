@@ -1,6 +1,5 @@
 import { AttributeBody } from 'handle';
-
-import { ParseContainer, ParseContent, parser } from './';
+import { ParseContainer, ParseContent, parser } from 'parse';
 
 import type {
   DoExpression,

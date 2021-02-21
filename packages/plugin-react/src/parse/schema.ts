@@ -1,18 +1,18 @@
 import { identifier, isDoExpression, isIdentifier } from '@babel/types';
 import { ParseErrors } from 'errors';
+import { ComponentExpression, ComponentFor, ComponentIf, ElementModifier, Prop } from 'handle';
 import { applyModifier } from 'modifier';
 import { addElementFromJSX } from 'parse';
 import { meta } from 'shared';
 
-import { ComponentExpression, ComponentFor, ComponentIf, ElementModifier, Prop } from './';
-import { parse } from './parse';
+import { parse } from './helper';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { LabeledStatement, Statement , IfStatement} from '@babel/types';
-import type { AttributeBody} from './attributes';
-import type { ElementInline, ComponentContainer } from './element';
-import type { ComponentConsequent} from './switch';
-import type { ParserFor } from './parse';
+import type { AttributeBody} from 'handle/attributes';
+import type { ElementInline, ComponentContainer } from 'handle/element';
+import type { ComponentConsequent} from 'handle/switch';
+import type { ParserFor } from './helper';
 
 const Oops = ParseErrors({
   ReturnElseNotImplemented: "This is an else condition, returning from here is not implemented.",
@@ -30,7 +30,7 @@ const Oops = ParseErrors({
   PropsNotAllowed: "For block cannot accept prop assignments"
 })
 
-export { parser } from './parse'
+export { parser } from './helper'
 
 export const ParseAttributes: ParserFor<AttributeBody> = {
   LabeledStatement(path){
