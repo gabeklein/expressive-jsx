@@ -50,11 +50,9 @@ export class ElementIterate extends ElementReact<ComponentFor> {
       ])
 
     if(type === "ForInStatement")
-      return (
-        _call(
-          _get(_objectKeys(right!), "member"),
-          arrowFunctionExpression([left!], body)
-        )
+      return _call(
+        _get(_objectKeys(right!), "member"),
+        arrowFunctionExpression([left!], body)
       )
     else
       return _call(

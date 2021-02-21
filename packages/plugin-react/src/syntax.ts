@@ -108,11 +108,11 @@ export function _objectAssign(
 }
 
 export function _objectKeys(
-  ...objects: Expression[]){
+  object: Expression){
 
-  return callExpression(
+  return _call(
     _get("Object.keys"),
-    objects
+    object
   )
 }
 
