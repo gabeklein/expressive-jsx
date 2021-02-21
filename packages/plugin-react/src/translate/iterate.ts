@@ -46,7 +46,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
 
     if(isForInStatement(node))
       return _call(
-        _get(_objectKeys(right!), "member"),
+        _get(_objectKeys(right!), "map"),
         arrowFunctionExpression([left!], body)
       )
     else
