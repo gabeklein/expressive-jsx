@@ -82,3 +82,11 @@ export class ComponentFor extends ComponentContainer {
       return "for"
   }
 }
+
+export class ComponentForOf extends ComponentFor {
+
+}
+
+export class ComponentForIn extends ComponentFor {
+
+}

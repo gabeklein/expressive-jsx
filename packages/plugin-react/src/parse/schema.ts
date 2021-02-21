@@ -1,6 +1,14 @@
 import { identifier, isDoExpression, isIdentifier } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { ComponentExpression, ComponentFor, ComponentIf, ElementModifier, Prop } from 'handle';
+import {
+  ComponentExpression,
+  ComponentFor,
+  ComponentForIn,
+  ComponentForOf,
+  ComponentIf,
+  ElementModifier,
+  Prop,
+} from 'handle';
 import { applyModifier } from 'modifier';
 import { addElementFromJSX } from 'parse';
 import { meta } from 'shared';
@@ -92,11 +100,11 @@ export const ParseContent: ParserFor<ElementInline> = {
   },
 
   ForInStatement(path){
-    ComponentFor.insert(path, this);
+    ComponentForIn.insert(path, this);
   },
 
   ForOfStatement(path){
-    ComponentFor.insert(path, this);
+    ComponentForOf.insert(path, this);
   },
 
   ForStatement(path){
