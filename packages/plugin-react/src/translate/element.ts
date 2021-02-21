@@ -79,10 +79,10 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       this.adopt(new ElementReact(item));
 
     else if(item instanceof ExplicitStyle)
-      this.Style(item);
+      this.applyStyle(item);
 
     else if(item instanceof Prop)
-      this.Props(item);
+      this.applyProp(item);
 
     else if(isExpression(item))
       this.adopt(item);
@@ -125,7 +125,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     for(const name in accumulator){
       const style = accumulator[name];
       elementStyle[name] = style;
-      this.Style(style);
+      this.applyStyle(style);
     }
   }
 
@@ -247,7 +247,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     this.addProperty("className", computeClassname)
   }
 
-  Style(item: ExplicitStyle){
+  private applyStyle(item: ExplicitStyle){
     if(this.context.opts.styleMode == "inline")
       item.invariant = false;
 
@@ -257,7 +257,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       this.style.insert(item)
   }
 
-  Props(item: Prop){
+  private applyProp(item: Prop){
     switch(item.name){
       case "style": {
         const styleProp = item.toExpression();
