@@ -6,8 +6,6 @@ import {
   expressionStatement,
   isBlockStatement,
   isBooleanLiteral,
-  isDoExpression,
-  isExpression,
   isIdentifier,
   isUnaryExpression,
   logicalExpression,
@@ -15,9 +13,12 @@ import {
   unaryExpression,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { ComponentExpression, ContingentModifier, ElementInline } from 'handle';
+import { ComponentExpression, ContingentModifier, ElementInline, ParseAttributes } from 'handle';
 import { ensureArray, hash, meta } from 'shared';
 import { ElementReact } from 'translate';
+
+import { ParseContent } from './element';
+import { parse, parser } from './parse';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {
@@ -25,11 +26,11 @@ import type {
   ExpressionStatement,
   IfStatement,
   LabeledStatement,
-  ReturnStatement,
   Statement
 } from '@babel/types';
 import type { StackFrame } from 'context';
 import type { InnerContent } from 'types';
+import type { ParserFor } from './parse';
 
 const Oops = ParseErrors({
   ReturnElseNotImplemented: "This is an else condition, returning from here is not implemented.",
@@ -211,6 +212,8 @@ export class ComponentIf {
 }
 
 export class ComponentConsequent extends ElementInline {
+  parse = parser(ParseConsequent);
+
   slaveModifier?: ContingentModifier;
   usesClassname?: string;
   doesReturn?: true;
@@ -283,38 +286,7 @@ export class ComponentConsequent extends ElementInline {
         this.usesClassname = include;
   }
 
-  ReturnStatement(node: ReturnStatement){
-    const arg = node.argument;
-    const { context } = this;
-
-    if(!this.test)
-      throw Oops.ReturnElseNotImplemented(node)
-
-    if(this.index !== 1)
-      throw Oops.CanOnlyReturnFromLeadingIf(node)
-
-    if(context.currentIf !== context.parentIf)
-      throw Oops.CantReturnInNestedIf(node);
-
-    if(!(context.currentElement instanceof ComponentExpression))
-      throw Oops.CanOnlyReturnTopLevel(node);
-
-    if(arg)
-      if(isDoExpression(arg))
-        meta(arg, this);
-
-      else if(isExpression(arg))
-        this.Expression(arg);
-
-    this.doesReturn = true;
-  }
-
-  LabeledStatement(node: LabeledStatement, path: Path<LabeledStatement>){
-    const mod = this.slaveModifier || this.slaveNewModifier()
-    super.LabeledStatement(node, path, mod);
-  }
-
-  private slaveNewModifier(){
+  slaveNewModifier(){
     let { context } = this;
 
     const uid = hash(this.context.prefix)
@@ -340,6 +312,41 @@ export class ComponentConsequent extends ElementInline {
     return this.slaveModifier = mod;
   }
 }
+
+const ParseConsequent: ParserFor<ComponentConsequent> = {
+  ...ParseContent,
+
+  ReturnStatement(path){
+    const arg = path.get("argument");
+    const { context } = this;
+
+    if(!this.test)
+      throw Oops.ReturnElseNotImplemented(path)
+
+    if(this.index !== 1)
+      throw Oops.CanOnlyReturnFromLeadingIf(path)
+
+    if(context.currentIf !== context.parentIf)
+      throw Oops.CantReturnInNestedIf(path);
+
+    if(!(context.currentElement instanceof ComponentExpression))
+      throw Oops.CanOnlyReturnTopLevel(path);
+
+    if(arg)
+      if(arg.isDoExpression())
+        meta(arg.node, this);
+
+      else if(arg.isExpression())
+        parse(arg, ParseContent, this);
+
+    this.doesReturn = true;
+  },
+
+  LabeledStatement(path: Path<LabeledStatement>){
+    const mod = this.slaveModifier || this.slaveNewModifier();
+    parse(path as Path<Statement>, ParseAttributes, mod);
+  }
+};
 
 function specifyOption(test?: Expression){
   if(!test)

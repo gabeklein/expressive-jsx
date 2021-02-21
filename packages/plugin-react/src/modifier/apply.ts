@@ -5,9 +5,7 @@ import { ModifyDelegate } from './delegate';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { LabeledStatement } from '@babel/types';
-import type { ExplicitStyle } from 'handle/attributes';
-import type { ElementInline } from 'handle/element';
-import type { Modifier } from 'handle/modifier';
+import type { AttributeBody, ExplicitStyle } from 'handle/attributes';
 import type { StackFrame } from 'context';
 import type { BunchOf, ModifyAction, ModifyBodyPath } from 'types';
 
@@ -25,7 +23,7 @@ type ModTuple = [
 
 export function applyModifier(
   initial: string,
-  recipient: Modifier | ElementInline,
+  recipient: AttributeBody,
   input: ModifyBodyPath){
 
   const handler = recipient.context.getHandler(initial);

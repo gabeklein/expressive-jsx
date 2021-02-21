@@ -1,22 +1,22 @@
-import { AttributeBody, ComponentFor, ComponentIf } from 'handle';
+import { AttributeBody, ComponentFor, ComponentIf, ParseAttributes } from 'handle';
 import { addElementFromJSX } from 'parse';
+
+import { parser } from './parse';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {
-  DebuggerStatement,
   DoExpression,
-  For,
-  FunctionDeclaration,
   IfStatement,
-  JSXElement,
   JSXMemberExpression,
   Statement,
-  VariableDeclaration
 } from '@babel/types';
 import type { ElementModifier, Modifier } from 'handle/modifier';
-import type { ForPath, InnerContent } from 'types';
+import type { ParserFor } from './parse';
+import type { InnerContent } from 'types';
 
 export class ElementInline extends AttributeBody {
+  parse = parser(ParseContent);
+
   doBlock?: DoExpression
   primaryName?: string;
   children = [] as InnerContent[];
@@ -39,40 +39,50 @@ export class ElementInline extends AttributeBody {
   applyModifier(mod: ElementModifier){
     this.context.elementMod(mod);
   }
+}
 
-  JSXElement(node: JSXElement){
+export const ParseContent: ParserFor<ElementInline> = {
+  ...ParseAttributes,
+
+  JSXElement({ node }){
     addElementFromJSX(node, this);
-  }
+  },
 
-  IfStatement(_: IfStatement, path: Path<IfStatement>){
+  IfStatement(path: Path<IfStatement>){
     ComponentIf.insert(path, this);
-  }
+  },
 
-  ForInStatement(_: For, path: ForPath){
-    this.ForStatement(_, path)
-  }
+  ForInStatement(path){
+    ComponentFor.insert(path, this);
+  },
 
-  ForOfStatement(_: For, path: ForPath){
-    this.ForStatement(_, path)
-  }
+  ForOfStatement(path){
+    ComponentFor.insert(path, this);
+  },
 
-  ForStatement(_: For, path: ForPath){
+  ForStatement(path){
     ComponentFor.insert(path, this);
   }
 }
 
 export class ComponentContainer extends ElementInline {
+  parse = parser(ParseContainer);
+
   statements = [] as Statement[];
+}
 
-  VariableDeclaration(node: VariableDeclaration){
+export const ParseContainer: ParserFor<ComponentContainer> = {
+  ...ParseContent,
+
+  VariableDeclaration({ node }){
     this.statements.push(node);
-  }
+  },
 
-  DebuggerStatement(node: DebuggerStatement){
+  DebuggerStatement({ node }){
     this.statements.push(node);
-  }
+  },
 
-  FunctionDeclaration(node: FunctionDeclaration){
+  FunctionDeclaration({ node }){
     this.statements.push(node);
   }
 }

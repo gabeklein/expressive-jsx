@@ -10,14 +10,16 @@ import {
 import { ParseErrors } from 'errors';
 import { ElementModifier } from 'handle';
 import { applyModifier } from 'modifier';
-import { ensureArray, meta } from 'shared';
+import { meta } from 'shared';
 
-import type { NodePath as Path } from '@babel/traverse';
-import type { Expression, LabeledStatement, ExpressionStatement, AssignmentExpression, Statement } from '@babel/types';
-import type { ComponentIf } from 'handle/switch';
+import { parser } from './parse';
+
+import type { Expression } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { BunchOf, FlatValue , SequenceItem } from 'types';
 import type { Modifier } from 'handle/modifier';
+import type { ComponentIf } from 'handle/switch';
+import type { BunchOf, FlatValue , SequenceItem } from 'types';
+import type { ParserFor } from './parse';
 
 const Oops = ParseErrors({
   AssignmentNotEquals: "Only `=` assignment may be used here.",
@@ -30,6 +32,8 @@ const Oops = ParseErrors({
 })
 
 export abstract class AttributeBody {
+  parse = parser(ParseAttributes);
+
   context: StackFrame
   name?: string;
   parent?: AttributeBody | ComponentIf;
@@ -59,18 +63,6 @@ export abstract class AttributeBody {
       item.wasAddedTo(this);
   }
 
-  parse(body: Path<Statement>){
-    const content = body.isBlockStatement()
-      ? ensureArray(body.get("body"))
-      : [body];
-   
-    for(const item of content)
-      if(item.type in this)
-        (this as any)[item.type](item.node, item);
-      else
-        throw Oops.NodeUnknown(item as any, item.type);
-  }
-
   addStyle(name: string, value: any){
     this.insert(
       new ExplicitStyle(name, value)
@@ -93,27 +85,12 @@ export abstract class AttributeBody {
 
     this.add(item);
   }
+}
 
-  ExpressionStatement(node: ExpressionStatement){
-    return this.Expression(node.expression)
-  }
-
-  Expression(node: Expression){
-    const self = this as unknown as BunchOf<(node: Expression) => void>
-
-    if(node.type in this)
-      self[node.type](node);
-    else
-      throw Oops.ExpressionUnknown(node, node.type);
-  }
-
-  LabeledStatement(
-    node: LabeledStatement,
-    path: Path<LabeledStatement>,
-    applyTo: Modifier = this as any){
-
+export const ParseAttributes: ParserFor<AttributeBody> = {
+  LabeledStatement(path){
     const body = path.get('body');
-    const { name } = node.label;
+    const { name } = path.node.label;
     const { context } = this;
 
     if(name[0] == "_")
@@ -123,18 +100,18 @@ export abstract class AttributeBody {
       throw Oops.DuplicateModifier(path);
 
     if(body.isExpressionStatement())
-      applyModifier(name, applyTo, body);
+      applyModifier(name, this, body);
 
     else if(body.isBlockStatement() || body.isLabeledStatement())
-      applyTo.applyModifier(
+      this.applyModifier(
         new ElementModifier(context, name, body)
       );
 
     else
       throw Oops.BadInputModifier(body, body.type)
-  }
+  },
 
-  AssignmentExpression(node: AssignmentExpression){
+  AssignmentExpression({ node }){
     if(node.operator !== "=")
       throw Oops.AssignmentNotEquals(node)
 
