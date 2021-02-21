@@ -1,12 +1,9 @@
-import { blockStatement, identifier, isDoExpression, isIdentifier } from '@babel/types';
-import { ParseErrors } from 'errors';
-import { AttributeBody, ComponentFor, ComponentIf, Prop } from 'handle';
+import { blockStatement } from '@babel/types';
+import { AttributeBody, ComponentFor, ComponentIf } from 'handle';
 import { addElementFromJSX } from 'parse';
-import { meta } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {
-  AssignmentExpression,
   DebuggerStatement,
   DoExpression,
   For,
@@ -19,11 +16,6 @@ import type {
 } from '@babel/types';
 import type { ElementModifier, Modifier } from 'handle/modifier';
 import type { ForPath, InnerContent } from 'types';
-
-const Oops = ParseErrors({
-  PropNotIdentifier: "Assignment must be identifier name of a prop.",
-  AssignmentNotEquals: "Only `=` assignment may be used here."
-})
 
 export class ElementInline extends AttributeBody {
   doBlock?: DoExpression
@@ -45,12 +37,12 @@ export class ElementInline extends AttributeBody {
     void 0;
   }
 
-  JSXElement(node: JSXElement){
-    addElementFromJSX(node, this);
-  }
-
   applyModifier(mod: ElementModifier){
     this.context.elementMod(mod);
+  }
+
+  JSXElement(node: JSXElement){
+    addElementFromJSX(node, this);
   }
 
   IfStatement(_: IfStatement, path: Path<IfStatement>){
@@ -76,29 +68,6 @@ export class ElementInline extends AttributeBody {
     this.adopt(element)
     if(element.doBlock)
       path.replaceWith(element.doBlock)
-  }
-
-  AssignmentExpression(node: AssignmentExpression){
-    if(node.operator !== "=")
-      throw Oops.AssignmentNotEquals(node)
-
-    const { left, right } = node;
-
-    if(!isIdentifier(left))
-      throw Oops.PropNotIdentifier(left)
-
-    const { name } = left;
-    let prop: Prop;
-
-    if(isDoExpression(right))
-      prop = 
-        meta(right).expressive_parent =
-        new Prop(name, identifier("undefined"));
-    else
-      prop =
-        new Prop(name, right)
-
-    this.insert(prop);
   }
 }
 

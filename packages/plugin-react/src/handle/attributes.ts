@@ -1,28 +1,32 @@
 import {
   booleanLiteral,
   identifier,
+  isDoExpression,
+  isIdentifier,
   nullLiteral,
   numericLiteral,
   stringLiteral,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { applyModifier } from 'modifier';
 import { ElementModifier } from 'handle';
-import { ensureArray } from 'shared';
+import { applyModifier } from 'modifier';
+import { ensureArray, meta } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
-import type { Expression, LabeledStatement, ExpressionStatement, Statement } from '@babel/types';
+import type { Expression, LabeledStatement, ExpressionStatement, AssignmentExpression, Statement } from '@babel/types';
 import type { ComponentIf } from 'handle/switch';
 import type { StackFrame } from 'context';
 import type { BunchOf, FlatValue , SequenceItem } from 'types';
 import type { Modifier } from 'handle/modifier';
 
 const Oops = ParseErrors({
-  ExpressionUnknown: "Unhandled expressionary statement of type {1}",
-  NodeUnknown: "Unhandled node of type {1}",
+  AssignmentNotEquals: "Only `=` assignment may be used here.",
   BadInputModifier: "Modifier input of type {1} not supported here!",
   BadModifierName: "Modifier name cannot start with _ symbol!",
-  DuplicateModifier: "Duplicate declaration of named modifier!"
+  DuplicateModifier: "Duplicate declaration of named modifier!",
+  ExpressionUnknown: "Unhandled expressionary statement of type {1}",
+  NodeUnknown: "Unhandled node of type {1}",
+  PropNotIdentifier: "Assignment must be identifier name of a prop."
 })
 
 export abstract class AttributeBody {
@@ -30,9 +34,15 @@ export abstract class AttributeBody {
   name?: string;
   parent?: AttributeBody | ComponentIf;
 
-  sequence = [] as SequenceItem[];
   props = {} as BunchOf<Prop>;
   style = {} as BunchOf<ExplicitStyle>;
+  sequence = [] as SequenceItem[];
+
+  get uid(){
+    const value = this.context.unique(this.name!)
+    Object.defineProperty(this, "uid", { value });
+    return value
+  }
 
   abstract applyModifier(mod: Modifier): void;
 
@@ -61,25 +71,6 @@ export abstract class AttributeBody {
         throw Oops.NodeUnknown(item as any, item.type);
   }
 
-  ExpressionStatement(node: ExpressionStatement){
-    return this.Expression(node.expression)
-  }
-
-  Expression(node: Expression){
-    const self = this as unknown as BunchOf<(node: Expression) => void>
-
-    if(node.type in this)
-      self[node.type](node);
-    else
-      throw Oops.ExpressionUnknown(node, node.type);
-  }
-
-  get uid(){
-    const value = this.context.unique(this.name!)
-    Object.defineProperty(this, "uid", { value });
-    return value
-  }
-
   addStyle(name: string, value: any){
     this.insert(
       new ExplicitStyle(name, value)
@@ -101,6 +92,19 @@ export abstract class AttributeBody {
     }
 
     this.add(item);
+  }
+
+  ExpressionStatement(node: ExpressionStatement){
+    return this.Expression(node.expression)
+  }
+
+  Expression(node: Expression){
+    const self = this as unknown as BunchOf<(node: Expression) => void>
+
+    if(node.type in this)
+      self[node.type](node);
+    else
+      throw Oops.ExpressionUnknown(node, node.type);
   }
 
   LabeledStatement(
@@ -128,6 +132,29 @@ export abstract class AttributeBody {
 
     else
       throw Oops.BadInputModifier(body, body.type)
+  }
+
+  AssignmentExpression(node: AssignmentExpression){
+    if(node.operator !== "=")
+      throw Oops.AssignmentNotEquals(node)
+
+    const { left, right } = node;
+
+    if(!isIdentifier(left))
+      throw Oops.PropNotIdentifier(left)
+
+    const { name } = left;
+    let prop: Prop;
+
+    if(isDoExpression(right))
+      prop = 
+        meta(right).expressive_parent =
+        new Prop(name, identifier("undefined"));
+    else
+      prop =
+        new Prop(name, right)
+
+    this.insert(prop);
   }
 }
 
