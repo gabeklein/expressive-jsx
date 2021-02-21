@@ -1,35 +1,12 @@
-import {
-  booleanLiteral,
-  identifier,
-  isDoExpression,
-  isIdentifier,
-  nullLiteral,
-  numericLiteral,
-  stringLiteral,
-} from '@babel/types';
-import { ParseErrors } from 'errors';
-import { ElementModifier } from 'handle';
-import { applyModifier } from 'modifier';
-import { meta } from 'shared';
+import { booleanLiteral, identifier, nullLiteral, numericLiteral, stringLiteral } from '@babel/types';
 
-import { parser } from './parse';
+import { ParseAttributes, parser } from './';
 
 import type { Expression } from '@babel/types';
 import type { StackFrame } from 'context';
 import type { Modifier } from 'handle/modifier';
 import type { ComponentIf } from 'handle/switch';
 import type { BunchOf, FlatValue , SequenceItem } from 'types';
-import type { ParserFor } from './parse';
-
-const Oops = ParseErrors({
-  AssignmentNotEquals: "Only `=` assignment may be used here.",
-  BadInputModifier: "Modifier input of type {1} not supported here!",
-  BadModifierName: "Modifier name cannot start with _ symbol!",
-  DuplicateModifier: "Duplicate declaration of named modifier!",
-  ExpressionUnknown: "Unhandled expressionary statement of type {1}",
-  NodeUnknown: "Unhandled node of type {1}",
-  PropNotIdentifier: "Assignment must be identifier name of a prop."
-})
 
 export abstract class AttributeBody {
   parse = parser(ParseAttributes);
@@ -84,54 +61,6 @@ export abstract class AttributeBody {
     }
 
     this.add(item);
-  }
-}
-
-export const ParseAttributes: ParserFor<AttributeBody> = {
-  LabeledStatement(path){
-    const body = path.get('body');
-    const { name } = path.node.label;
-    const { context } = this;
-
-    if(name[0] == "_")
-      throw Oops.BadModifierName(path)
-
-    if(context.modifiers.has(name))
-      throw Oops.DuplicateModifier(path);
-
-    if(body.isExpressionStatement())
-      applyModifier(name, this, body);
-
-    else if(body.isBlockStatement() || body.isLabeledStatement())
-      this.applyModifier(
-        new ElementModifier(context, name, body)
-      );
-
-    else
-      throw Oops.BadInputModifier(body, body.type)
-  },
-
-  AssignmentExpression({ node }){
-    if(node.operator !== "=")
-      throw Oops.AssignmentNotEquals(node)
-
-    const { left, right } = node;
-
-    if(!isIdentifier(left))
-      throw Oops.PropNotIdentifier(left)
-
-    const { name } = left;
-    let prop: Prop;
-
-    if(isDoExpression(right))
-      prop = 
-        meta(right).expressive_parent =
-        new Prop(name, identifier("undefined"));
-    else
-      prop =
-        new Prop(name, right)
-
-    this.insert(prop);
   }
 }
 

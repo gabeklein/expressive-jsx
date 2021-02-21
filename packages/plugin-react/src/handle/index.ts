@@ -4,3 +4,4 @@ export * from './entry';
 export * from './switch';
 export * from './iterate';
 export * from './modifier';
+export * from './parsers';

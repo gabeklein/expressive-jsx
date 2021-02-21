@@ -6,30 +6,14 @@ import {
   isIdentifier,
   isVariableDeclaration,
 } from '@babel/types';
-import { ParseErrors } from 'errors';
-import { ComponentContainer } from 'handle';
 import { meta } from 'shared';
 
-import { ParseContainer } from './element';
-import { parser } from './parse';
+import { ComponentContainer, ParseForLoop, parser } from './';
 
 import type { For, Statement } from '@babel/types';
 import type { StackFrame } from 'context';
 import type { ElementInline } from 'handle';
 import type { ForPath } from 'types';
-import type { ParserFor } from './parse';
-
-const Oops = ParseErrors({
-  PropsNotAllowed: "For block cannot accept prop assignments"
-});
-
-const ParseForLoop: ParserFor<ComponentFor> = {
-  ...ParseContainer,
-
-  AssignmentExpression(assign){
-    Oops.PropsNotAllowed(assign);
-  }
-}
 
 export class ComponentFor extends ComponentContainer {
   parse = parser(ParseForLoop);
