@@ -11,10 +11,23 @@ import { meta } from 'shared';
 
 import type { For, Statement } from '@babel/types';
 import type { StackFrame } from 'context';
+import type { ElementInline } from 'handle';
 import type { ForPath } from 'types';
 
 export class ComponentFor extends ComponentContainer {
   node: For
+
+  static insert(
+    path: ForPath,
+    element: ElementInline){
+    
+    const item = new this(path, element.context);
+
+    element.adopt(item);
+
+    if(item.doBlock)
+      path.replaceWith(item.doBlock);
+  }
 
   constructor(
     public path: ForPath,

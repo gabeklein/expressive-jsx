@@ -57,6 +57,18 @@ export class ComponentIf {
   hasStyleOutput?: true;
   doBlocks = [] as ExpressionStatement[];
 
+  static insert(
+    path: Path<IfStatement>,
+    parent: ElementInline
+  ){
+    const item = new this(path, parent.context);
+
+    parent.adopt(item);
+    path.replaceWith(
+      blockStatement(item.doBlocks!)
+    )
+  }
+
   constructor(
     protected path: Path<IfStatement>,
     context: StackFrame,
@@ -64,6 +76,7 @@ export class ComponentIf {
 
     context = this.context = context.create(this);
     context.currentIf = this;
+
     if(!test)
       context.parentIf = this;
   }

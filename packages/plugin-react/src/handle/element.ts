@@ -1,4 +1,3 @@
-import { blockStatement } from '@babel/types';
 import { AttributeBody, ComponentFor, ComponentIf } from 'handle';
 import { addElementFromJSX } from 'parse';
 
@@ -46,12 +45,7 @@ export class ElementInline extends AttributeBody {
   }
 
   IfStatement(_: IfStatement, path: Path<IfStatement>){
-    const mod = new ComponentIf(path, this.context);
-
-    this.adopt(mod)
-    path.replaceWith(
-      blockStatement(mod.doBlocks!)
-    )
+    ComponentIf.insert(path, this);
   }
 
   ForInStatement(_: For, path: ForPath){
@@ -63,11 +57,7 @@ export class ElementInline extends AttributeBody {
   }
 
   ForStatement(_: For, path: ForPath){
-    const element = new ComponentFor(path as any, this.context);
-
-    this.adopt(element)
-    if(element.doBlock)
-      path.replaceWith(element.doBlock)
+    ComponentFor.insert(path, this);
   }
 }
 
