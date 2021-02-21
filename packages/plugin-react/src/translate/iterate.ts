@@ -26,19 +26,14 @@ import type { ComponentFor } from 'handle/iterate';
 import type { ExternalsManager } from 'regenerate/scope';
 
 export class ElementIterate extends ElementReact<ComponentFor> {
-  type: "ForOfStatement" | "ForInStatement" | "ForStatement";
-  mayCollapseContent?: boolean;
-  key?: Identifier;
-  left?: PatternLike;
-  right?: Expression;
-
-  constructor(source: ComponentFor){
-    super(source);
-    this.type = source.node.type as any;
-  }
+  private mayCollapseContent?: boolean;
+  private key?: Identifier;
+  private left?: PatternLike;
+  private right?: Expression;
 
   toExpression({ Imports }: StackFrame): CallExpression {
-    const { key, left, right, source: { statements }, type } = this;
+    const { key, left, right } = this;
+    const { statements, node } = this.source;
 
     let body: BlockStatement | Expression =
       this.elementOutput(Imports)
@@ -49,7 +44,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
         returnStatement(body)
       ])
 
-    if(type === "ForInStatement")
+    if(isForInStatement(node))
       return _call(
         _get(_objectKeys(right!), "member"),
         arrowFunctionExpression([left!], body)
@@ -82,6 +77,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
       key = right.left as Identifier
       right = right.right;
     }
+
     if(isIdentifier(left))
       key = left
     else if(isForInStatement(node))
