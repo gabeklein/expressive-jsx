@@ -83,7 +83,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     else if(isForInStatement(node))
       throw new Error("Left of ForInStatement must be an Identifier here!")
     else
-      key = this.context.Imports.ensureUIDIdentifier("i");
+      key = this.source.context.Imports.ensureUIDIdentifier("i");
 
     this.key = key;
     this.left = left;

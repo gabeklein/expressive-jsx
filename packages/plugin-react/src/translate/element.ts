@@ -25,12 +25,9 @@ import type {
   ObjectProperty,
   SpreadElement
 } from '@babel/types';
-import type { StackFrame } from 'context';
 import type { BunchOf, ContentLike, PropData, SequenceItem } from 'types';
 
 export class ElementReact<E extends ElementInline = ElementInline> {
-  source: E;
-  context: StackFrame;
   children = [] as ContentLike[];
   props = [] as PropData[];
   classList = [] as Array<string | Expression>
@@ -44,14 +41,13 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     );
   }
 
-  constructor(source: E){
-    this.source = source;
-    this.context = source.context;
+  constructor(
+    protected source: E){
 
     this.willParse();
 
     for(const item of this.source.sequence)
-      this.integrate(item);
+      this.apply(item);
 
     this.applyHoistedStyle();
     this.applyInlineStyle();
@@ -59,11 +55,22 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   }
 
   protected willParse(){
-    if(this.context.opts.styleMode !== "inline")
+    if(this.source.context.opts.styleMode !== "inline")
       this.applyModifiers();
   }
 
-  private integrate(item: SequenceItem){
+  protected adopt(item: ContentLike){
+    this.children.push(item)
+  }
+
+  private addProperty(
+    name: string | false | undefined,
+    value: Expression){
+
+    this.props.push({ name, value });
+  }
+
+  private apply(item: SequenceItem){
     if(item instanceof ComponentIf){
       if(item.hasElementOutput)
         this.adopt(item)
@@ -88,6 +95,47 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       this.adopt(item);
   }
 
+  private applyProp(item: Prop){
+    switch(item.name){
+      case "style": {
+        const styleProp = item.toExpression();
+        const spread = new ExplicitStyle(false, styleProp);
+        this.style.push(spread);
+        break;
+      }
+
+      case "className": {
+        let { value } = item;
+
+        if(value && typeof value == "object")
+          if(isStringLiteral(value))
+            ({ value } = value);
+          else if(isExpression(value)){
+            this.classList.push(value);
+            break;
+          }
+
+        if(typeof value == "string")
+          this.classList.push(value.trim());
+
+        break;
+      }
+
+      default:
+        this.addProperty(item.name, item.toExpression());
+    }
+  }
+
+  private applyStyle(item: ExplicitStyle){
+    if(this.source.context.opts.styleMode == "inline")
+      item.invariant = false;
+
+    if(item.invariant)
+      this.style_static.push(item);
+    else
+      this.style.insert(item)
+  }
+
   protected applyModifiers(){
     const elementStyle = this.source.style;
     const accumulator = {} as BunchOf<ExplicitStyle>;
@@ -97,12 +145,10 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       if(!(mod instanceof ElementModifier))
         continue
 
-      if(mod.sequence.length === 0
-      && mod.alsoApplies.length === 0)
+      if(mod.sequence.length === 0 && mod.alsoApplies.length === 0)
         continue;
 
-      if(mod.hasTargets > 1
-      || mod.onlyWithin){
+      if(mod.hasTargets > 1 || mod.onlyWithin){
         this.applyModifierAsClassname(mod);
         continue;
       }
@@ -131,7 +177,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
 
   private applyModifierAsClassname(mod: ElementModifier){
     let doesProvideAStyle = false;
-    const declared = this.context.modifiersDeclared;
+    const declared = this.source.context.modifiersDeclared;
 
     for(const applicable of [mod, ...mod.alsoApplies]){
       if(applicable.sequence.length)
@@ -149,22 +195,11 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       declared.add(mod);
   }
 
-  private addProperty(
-    name: string | false | undefined,
-    value: Expression){
-
-    this.props.push({ name, value });
-  }
-
-  protected adopt(item: ContentLike){
-    this.children.push(item)
-  }
-
   private applyHoistedStyle(){
-    const { style_static, context, source } = this;
+    const { style_static, source } = this;
 
     if(style_static.length > 0){
-      const mod = new ContingentModifier(context, source);
+      const mod = new ContingentModifier(source.context, source);
       const { name, uid } = source;
 
       const classMostLikelyForwarded =
@@ -174,7 +209,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       mod.priority = classMostLikelyForwarded ? 3 : 2;
       mod.sequence.push(...style_static);
       mod.forSelector = [ `.${uid}` ];
-      context.modifiersDeclared.add(mod);
+      source.context.modifiersDeclared.add(mod);
     }
   }
 
@@ -213,7 +248,6 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   private applyClassname(){
     const {
       classList: list,
-      context: { Imports },
       source
     } = this;
 
@@ -240,51 +274,10 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     let computeClassname = selectors[0];
 
     if(selectors.length > 1){
-      const join = Imports.ensure("$runtime", "join");
+      const join = source.context.Imports.ensure("$runtime", "join");
       computeClassname = callExpression(join, selectors)
     }
 
     this.addProperty("className", computeClassname)
-  }
-
-  private applyStyle(item: ExplicitStyle){
-    if(this.context.opts.styleMode == "inline")
-      item.invariant = false;
-
-    if(item.invariant)
-      this.style_static.push(item);
-    else
-      this.style.insert(item)
-  }
-
-  private applyProp(item: Prop){
-    switch(item.name){
-      case "style": {
-        const styleProp = item.toExpression();
-        const spread = new ExplicitStyle(false, styleProp);
-        this.style.push(spread);
-        break;
-      }
-
-      case "className": {
-        let { value } = item;
-
-        if(value && typeof value == "object")
-          if(isStringLiteral(value))
-            ({ value } = value);
-          else if(isExpression(value)){
-            this.classList.push(value);
-            break;
-          }
-
-        if(typeof value == "string")
-          this.classList.push(value.trim());
-
-        break;
-      }
-
-      default:
-        this.addProperty(item.name, item.toExpression());
-    }
   }
 }
