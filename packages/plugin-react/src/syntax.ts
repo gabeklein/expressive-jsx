@@ -1,4 +1,6 @@
 import {
+  arrowFunctionExpression,
+  blockStatement,
   callExpression,
   identifier,
   memberExpression,
@@ -16,7 +18,8 @@ import {
 import type {
   Expression,
   LVal,
-  MemberExpression
+  MemberExpression,
+  Statement
 } from '@babel/types';
 import type { BunchOf } from 'types';
 
@@ -121,5 +124,13 @@ export function _template(text: string){
     templateLiteral([
       templateElement({ raw: text, cooked: text }, true)
     ], [])
+  )
+}
+
+export function _iife(stats: Statement[]){
+  return _call(
+    arrowFunctionExpression([],
+      blockStatement(stats as any)
+    )
   )
 }

@@ -1,6 +1,8 @@
 import {
+  arrayExpression,
   arrowFunctionExpression,
   blockStatement,
+  expressionStatement,
   isArrayPattern,
   isBinaryExpression,
   isForInStatement,
@@ -10,8 +12,9 @@ import {
   isVariableDeclaration,
   returnStatement,
 } from '@babel/types';
-import { ElementInline, Prop } from 'handle';
-import { _call, _get, _objectKeys } from 'syntax';
+import { ParseErrors } from 'errors';
+import { Prop } from 'handle';
+import { _call, _declare, _get, _iife, _objectKeys } from 'syntax';
 import { ElementReact } from 'translate';
 
 import type {
@@ -19,30 +22,89 @@ import type {
   CallExpression,
   Expression,
   Identifier,
-  PatternLike
+  ForXStatement,
+  BooleanLiteral,
+  ForStatement
 } from '@babel/types';
-import type { StackFrame } from 'context';
 import type { ComponentFor } from 'handle/iterate';
-import type { ExternalsManager } from 'regenerate/scope';
+
+const Oops = ParseErrors({
+  BadForOfAssignment: "Assignment of variable left of \"of\" must be Identifier or Destruture",
+  BadForInAssignment: "Left of ForInStatement must be an Identifier here!"
+})
 
 export class ElementIterate extends ElementReact<ComponentFor> {
-  private mayCollapseContent?: boolean;
-  private key?: Identifier;
-  private left?: PatternLike;
-  private right?: Expression;
+  toExpression(): CallExpression | BooleanLiteral {
+    const { node } = this.source;
 
-  toExpression({ Imports }: StackFrame): CallExpression {
-    const { key, left, right } = this;
-    const { statements, node } = this.source;
+    if(isForXStatement(node))
+      return this.toMapExpression(node);
+    else
+      return this.toInvokedForLoop(node);
+  }
 
-    let body: BlockStatement | Expression =
-      this.elementOutput(Imports)
+  private getReferences(node: ForXStatement){
+    let { left, right } = node;
+    let key: Identifier;
+
+    if(isVariableDeclaration(left))
+      left = left.declarations[0].id;
+
+    if(isIdentifier(left) || isObjectPattern(left) || isArrayPattern(left))
+      void 0;
+    else
+      throw Oops.BadForOfAssignment(left);
+
+    if(isBinaryExpression(right, {operator: "in"})){
+      key = right.left as Identifier
+      right = right.right;
+    }
+
+    if(isForInStatement(node)){
+      if(isIdentifier(left))
+        key = left
+      else 
+        throw Oops.BadForInAssignment(left);
+    }
+    else
+      key = this.source.context.Imports.ensureUIDIdentifier("i");
+
+    return { left, right, key }
+  }
+
+  private toMapExpression(node: ForXStatement){
+    const { Imports } = this.source.context;
+    const { statements } = this.source;
+    const { children } = this;
+
+    const [ element ] = children;
+    const info = this.getReferences(node);
+
+    let key: Identifier | undefined = info.key;
+
+    if(children.length === 1
+    && element instanceof ElementReact
+    && element.source.props.key === undefined)
+      element.applyProp(new Prop("key", key));
+
+    else if(this.props.length){
+      const doesExist =
+        this.props.find(x => x.name === "key");
+
+      if(!doesExist)
+        this.props.push({ name: "key", value: key! });
+    }
+
+    let body: BlockStatement | Expression = 
+      Imports.container(this);
 
     if(statements.length)
       body = blockStatement([
         ...statements,
         returnStatement(body)
       ])
+
+    let { left, right } = info;
 
     if(isForInStatement(node))
       return _call(
@@ -56,95 +118,25 @@ export class ElementIterate extends ElementReact<ComponentFor> {
       )
   }
 
-  willParse(){
-    const { node } = this.source;
+  private toInvokedForLoop(node: ForStatement){
+    const { Imports } = this.source.context;
+    const accumulator = Imports.ensureUIDIdentifier("acc");
+    const content = Imports.container(this);
 
-    if(!isForXStatement(node))
-      return
-
-    let key: Identifier;
-    let { left, right } = node;
-
-    if(isVariableDeclaration(left))
-      left = left.declarations[0].id;
-
-    if(isIdentifier(left) || isObjectPattern(left) || isArrayPattern(left))
-      void 0;
-    else
-      throw new Error("Assignment of variable left of \"of\" must be Identifier or Destruture")
-
-    if(isBinaryExpression(right, {operator: "in"})){
-      key = right.left as Identifier
-      right = right.right;
-    }
-
-    if(isIdentifier(left))
-      key = left
-    else if(isForInStatement(node))
-      throw new Error("Left of ForInStatement must be an Identifier here!")
-    else
-      key = this.source.context.Imports.ensureUIDIdentifier("i");
-
-    this.key = key;
-    this.left = left;
-    this.right = right;
-
-    const inner = this.source.children;
-    const [ element ] = inner;
-
-    if(inner.length === 1
-    && element instanceof ElementInline
-    && element.props.key === undefined){
-      this.mayCollapseContent = true;
-      element.insert(
-        new Prop("key", this.key)
-      );
-    }
-  }
-
-  private elementOutput(generate: ExternalsManager){
-    let { key, mayCollapseContent } = this;
-
-    if(this.props.length){
-      const exists =
-        this.props.find(x => x.name === "key");
-
-      if(!exists)
-        this.props.push({ name: "key", value: key! });
-
-      mayCollapseContent = true;
-    }
-
-    if(mayCollapseContent)
-      key = undefined;
-
-    return generate.container(this, key);
-  }
-
-  /*
-  private toInvokedForLoop(Generator: GenerateReact){
-    const accumulator = ensureUIDIdentifier(this.source.path.scope, "acc");
-    const sourceLoop = this.source.node;
-    const content = this.elementOutput(Generator);
-
-    sourceLoop.body = blockStatement([
+    node.body = blockStatement([
       ...this.source.statements,
       expressionStatement(
-        callExpression(
-          memberExpression(
-            accumulator,
-            identifier("push")
-          ),
-          [ content ]
+        _call(
+          _get(accumulator, "push"),
+          content
         )
       )
     ])
 
-    return IIFE([
-      declare("const", accumulator, arrayExpression()),
-      sourceLoop,
+    return _iife([
+      _declare("const", accumulator, arrayExpression()),
+      node,
       returnStatement(accumulator)
     ])
   }
-  */
 }

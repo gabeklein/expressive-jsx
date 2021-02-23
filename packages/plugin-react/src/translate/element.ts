@@ -42,7 +42,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   }
 
   constructor(
-    protected source: E){
+    public source: E){
 
     this.willParse();
 
@@ -95,7 +95,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       this.adopt(item);
   }
 
-  private applyProp(item: Prop){
+  public applyProp(item: Prop){
     switch(item.name){
       case "style": {
         const styleProp = item.toExpression();
