@@ -1,10 +1,7 @@
 import {
   blockStatement,
   doExpression,
-  isBlockStatement,
-  isForXStatement,
-  isIdentifier,
-  isVariableDeclaration,
+  isBlockStatement
 } from '@babel/types';
 import { ParseForLoop, parser } from 'parse';
 import { meta } from 'shared';
@@ -17,7 +14,8 @@ import type { ForPath } from 'types';
 
 export class ComponentFor extends ComponentContainer {
   parse = parser(ParseForLoop);
-  
+  name = "forLoop";
+
   node: For
 
   constructor(
@@ -27,7 +25,6 @@ export class ComponentFor extends ComponentContainer {
     super(element.context);
 
     this.node = path.node;
-    this.name = this.generateName();
     this.doBlock = this.handleContentBody(path.node.body);
 
     element.adopt(this);
@@ -45,40 +42,14 @@ export class ComponentFor extends ComponentContainer {
 
     return body;
   }
-
-  private generateName(){
-    const { node } = this;
-
-    if(isForXStatement(node)){
-      let { left } = node;
-      const { right } = node;
-      const name = [];
-
-      if(isVariableDeclaration(left))
-        left = left.declarations[0].id;
-
-      if(isIdentifier(left))
-        name.push(left.name);
-
-      name.push(node.type == "ForInStatement" ? "in" : "of");
-
-      if(isIdentifier(right))
-        name.push(right.name);
-
-      return name.reduce(
-        (acc, w) => acc + w[0].toUpperCase() + w.slice(1),
-        "for"
-      )
-    }
-    else
-      return "for"
-  }
 }
 
 export class ComponentForOf extends ComponentFor {
+  name = "forOfLoop";
 
 }
 
 export class ComponentForIn extends ComponentFor {
+  name = "forInLoop";
 
 }
