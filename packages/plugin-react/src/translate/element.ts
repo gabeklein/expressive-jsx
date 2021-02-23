@@ -21,7 +21,6 @@ import { AttributeStack, ElementIterate } from 'translate';
 
 import type {
   Expression,
-  JSXMemberExpression,
   ObjectProperty,
   SpreadElement
 } from '@babel/types';
@@ -41,7 +40,8 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   constructor(
     public source: E){
 
-    this.willParse();
+    if(this.source.context.opts.styleMode !== "inline")
+      this.applyModifiers();
 
     for(const item of this.source.sequence)
       this.apply(item);
@@ -51,36 +51,20 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     this.applyClassname();
   }
 
-  protected willParse(){
-    if(this.source.context.opts.styleMode !== "inline")
-      this.applyModifiers();
-  }
-
-  protected adopt(item: ContentLike){
-    this.children.push(item)
-  }
-
-  private addProperty(
-    name: string | false | undefined,
-    value: Expression){
-
-    this.props.push({ name, value });
-  }
-
   private apply(item: SequenceItem){
     if(item instanceof ComponentIf){
       if(item.hasElementOutput)
-        this.adopt(item)
+        this.children.push(item)
 
       if(item.hasStyleOutput)
         this.classList.push(item.toClassName());
     }
 
     else if(item instanceof ComponentFor)
-      this.adopt(new ElementIterate(item))
+      this.children.push(new ElementIterate(item))
 
     else if(item instanceof ElementInline)
-      this.adopt(new ElementReact(item));
+      this.children.push(new ElementReact(item));
 
     else if(item instanceof ExplicitStyle)
       this.applyStyle(item);
@@ -89,7 +73,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       this.applyProp(item);
 
     else if(isExpression(item))
-      this.adopt(item);
+      this.children.push(item);
   }
 
   public applyProp(item: Prop){
@@ -119,7 +103,10 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       }
 
       default:
-        this.addProperty(item.name, item.toExpression());
+        this.props.push({
+          name: item.name,
+          value: item.toExpression()
+        });
     }
   }
 
@@ -239,7 +226,10 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       value = objectExpression(chunks)
     }
 
-    this.addProperty("style", value)
+    this.props.push({
+      name: "style",
+      value
+    });
   }
 
   private applyClassname(){
@@ -275,6 +265,9 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       computeClassname = callExpression(join, selectors)
     }
 
-    this.addProperty("className", computeClassname)
+    this.props.push({
+      name: "className",
+      value: computeClassname
+    });
   }
 }
