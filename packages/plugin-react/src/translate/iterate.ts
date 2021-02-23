@@ -72,15 +72,9 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     return { left, right, key }
   }
 
-  private toMapExpression(node: ForXStatement){
-    const { Imports } = this.source.context;
-    const { statements } = this.source;
+  private ensureKeyProp(key: Identifier){
     const { children } = this;
-
     const [ element ] = children;
-    const info = this.getReferences(node);
-
-    let key: Identifier | undefined = info.key;
 
     if(children.length === 1
     && element instanceof ElementReact
@@ -94,6 +88,12 @@ export class ElementIterate extends ElementReact<ComponentFor> {
       if(!doesExist)
         this.props.push({ name: "key", value: key! });
     }
+  }
+
+  private toMapExpression(node: ForXStatement){
+    const { left, right, key } = this.getReferences(node);
+    const { Imports } = this.source.context;
+    const { statements } = this.source;
 
     let body: BlockStatement | Expression = 
       Imports.container(this);
@@ -104,7 +104,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
         returnStatement(body)
       ])
 
-    let { left, right } = info;
+    this.ensureKeyProp(key);
 
     if(isForInStatement(node))
       return _call(
