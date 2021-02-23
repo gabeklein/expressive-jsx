@@ -100,15 +100,15 @@ export const ParseContent: ParserFor<ElementInline> = {
   },
 
   ForInStatement(path){
-    ComponentForIn.insert(path, this);
+    new ComponentForIn(path, this);
   },
 
   ForOfStatement(path){
-    ComponentForOf.insert(path, this);
+    new ComponentForOf(path, this);
   },
 
   ForStatement(path){
-    ComponentFor.insert(path, this);
+    new ComponentFor(path, this);
   }
 }
 

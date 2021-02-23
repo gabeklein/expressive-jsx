@@ -11,8 +11,7 @@ import { meta } from 'shared';
 
 import { ComponentContainer } from './';
 
-import type { For, Statement } from '@babel/types';
-import type { StackFrame } from 'context';
+import type { Statement, For } from '@babel/types';
 import type { ElementInline } from 'handle';
 import type { ForPath } from 'types';
 
@@ -21,27 +20,20 @@ export class ComponentFor extends ComponentContainer {
   
   node: For
 
-  static insert(
-    path: ForPath,
-    element: ElementInline){
-    
-    const item = new this(path, element.context);
-
-    element.adopt(item);
-
-    if(item.doBlock)
-      path.replaceWith(item.doBlock);
-  }
-
   constructor(
     public path: ForPath,
-    context: StackFrame){
+    element: ElementInline){
 
-    super(context);
+    super(element.context);
 
-    this.node = path.node
+    this.node = path.node;
     this.name = this.generateName();
     this.doBlock = this.handleContentBody(path.node.body);
+
+    element.adopt(this);
+
+    if(this.doBlock)
+      path.replaceWith(this.doBlock);
   }
 
   handleContentBody(content: Statement){
