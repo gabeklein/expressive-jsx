@@ -18,6 +18,13 @@ export class ElementInline extends AttributeBody {
   explicitTagName?: string | JSXMemberExpression;
   modifiers = [] as Modifier[];
 
+  get tagName(): string | JSXMemberExpression {
+    const { name, explicitTagName } = this;
+    return explicitTagName || (
+      name && /^[A-Z]/.test(name) ? name : "div"
+    );
+  }
+
   didExitOwnScope?(): void;
 
   adopt(child: InnerContent){
