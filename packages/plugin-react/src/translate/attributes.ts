@@ -49,19 +49,19 @@ export class AttributeStack
       return;
 
     if(this.length == 1 && this[0] instanceof ExplicitStyle)
-      return this[0].toExpression();
+      return this[0].expression;
 
     else {
       const chunks = [] as (ObjectProperty | SpreadElement)[];
 
       for(const item of this)
         if(item instanceof ExplicitStyle)
-          chunks.push(spreadElement(item.toExpression()))
+          chunks.push(spreadElement(item.expression))
         else
           chunks.push(...item.map(style =>
             objectProperty(
               stringLiteral(style.name!),
-              style.toExpression()
+              style.expression
             )
           ));
 

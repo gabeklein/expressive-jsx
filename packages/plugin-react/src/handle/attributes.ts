@@ -85,7 +85,7 @@ export abstract class Attribute<T extends Expression = Expression> {
       this.invariant = true
   }
 
-  toExpression(){
+  get expression(){
     const { value } = this;
   
     switch(typeof value){

@@ -69,7 +69,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
 
     switch(item.name){
       case "style": {
-        const styleProp = item.toExpression();
+        const styleProp = item.expression;
         const spread = new ExplicitStyle(false, styleProp);
         style.push(spread);
         break;
@@ -95,7 +95,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       default:
         props.push({
           name: item.name,
-          value: item.toExpression()
+          value: item.expression
         });
     }
   }
