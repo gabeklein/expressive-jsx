@@ -66,38 +66,33 @@ export class ElementReact<E extends ElementInline = ElementInline> {
 
   public applyProp(item: Prop){
     const { style, props, classList } = this;
+    const { name } = item;
 
-    switch(item.name){
-      case "style": {
-        const styleProp = item.expression;
-        const spread = new ExplicitStyle(false, styleProp);
-        style.push(spread);
-        break;
-      }
-
-      case "className": {
-        let { value } = item;
-
-        if(value && typeof value == "object")
-          if(isStringLiteral(value))
-            ({ value } = value);
-          else if(isExpression(value)){
-            classList.push(value);
-            break;
-          }
-
-        if(typeof value == "string")
-          classList.push(value.trim());
-
-        break;
-      }
-
-      default:
-        props.push({
-          name: item.name,
-          value: item.expression
-        });
+    if(name === "style"){
+      const styleProp = item.expression;
+      const spread = new ExplicitStyle(false, styleProp);
+      style.push(spread);
+      return;
     }
+
+    if(name === "className"){
+      let { value } = item;
+
+      if(value && typeof value == "object")
+        if(isStringLiteral(value))
+          ({ value } = value);
+        else if(isExpression(value)){
+          classList.push(value);
+          return;
+        }
+
+      if(typeof value == "string")
+        classList.push(value.trim());
+
+      return;
+    }
+
+    props.push({ name, value: item.expression });
   }
 
   private applyStyle(item: ExplicitStyle){
