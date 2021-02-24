@@ -77,11 +77,13 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   }
 
   public applyProp(item: Prop){
+    const { style, props, classList } = this;
+
     switch(item.name){
       case "style": {
         const styleProp = item.toExpression();
         const spread = new ExplicitStyle(false, styleProp);
-        this.style.push(spread);
+        style.push(spread);
         break;
       }
 
@@ -92,18 +94,18 @@ export class ElementReact<E extends ElementInline = ElementInline> {
           if(isStringLiteral(value))
             ({ value } = value);
           else if(isExpression(value)){
-            this.classList.push(value);
+            classList.push(value);
             break;
           }
 
         if(typeof value == "string")
-          this.classList.push(value.trim());
+          classList.push(value.trim());
 
         break;
       }
 
       default:
-        this.props.push({
+        props.push({
           name: item.name,
           value: item.toExpression()
         });
@@ -111,21 +113,25 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   }
 
   private applyStyle(item: ExplicitStyle){
-    if(this.source.context.opts.styleMode == "inline")
+    const { source, style, style_static } = this;
+
+    if(source.context.opts.styleMode == "inline")
       item.invariant = false;
 
     if(item.invariant)
-      this.style_static.push(item);
+      style_static.push(item);
     else
-      this.style.insert(item)
+      style.insert(item)
   }
 
   protected applyModifiers(){
-    const elementStyle = this.source.style;
+    const { source, classList } = this;
+
+    const elementStyle = source.style;
     const accumulator = {} as BunchOf<ExplicitStyle>;
     // TODO: respect priority differences!
 
-    for(const mod of this.source.modifiers){
+    for(const mod of source.modifiers){
       if(!(mod instanceof ElementModifier))
         continue
 
@@ -133,7 +139,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
         continue;
 
       if(mod.hasTargets > 1 || mod.onlyWithin){
-        this.applyModifierAsClassname(mod);
+        classList.push(...mod.classList)
         continue;
       }
 
@@ -159,26 +165,6 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     }
   }
 
-  private applyModifierAsClassname(mod: ElementModifier){
-    let doesProvideAStyle = false;
-    const declared = this.source.context.modifiersDeclared;
-
-    for(const applicable of [mod, ...mod.alsoApplies]){
-      if(applicable.sequence.length)
-        declared.add(applicable);
-
-      if(applicable instanceof ContingentModifier)
-        doesProvideAStyle = true;
-      else
-      if(applicable instanceof ElementModifier)
-        if(applicable.sequence.length)
-          this.classList.push(applicable.uid);
-    }
-
-    if(doesProvideAStyle)
-      declared.add(mod);
-  }
-
   private applyHoistedStyle(){
     const { style_static, source } = this;
 
@@ -198,7 +184,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   }
 
   private applyInlineStyle(){
-    const { style } = this;
+    const { style, props } = this;
 
     if(!style.length)
       return;
@@ -226,7 +212,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       value = objectExpression(chunks)
     }
 
-    this.props.push({
+    props.push({
       name: "style",
       value
     });
@@ -235,6 +221,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   private applyClassname(){
     const {
       classList: list,
+      props,
       source
     } = this;
 
@@ -265,7 +252,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       computeClassname = callExpression(join, selectors)
     }
 
-    this.props.push({
+    props.push({
       name: "className",
       value: computeClassname
     });

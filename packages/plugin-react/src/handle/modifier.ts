@@ -11,6 +11,10 @@ export abstract class Modifier extends AttributeBody {
   priority?: number;
 
   alsoApplies = [] as Modifier[];
+  
+  include(){
+    this.context.modifiersDeclared.add(this);
+  }
 }
 
 export class ElementModifier extends Modifier {
@@ -31,6 +35,26 @@ export class ElementModifier extends Modifier {
     this.context.resolveFor(name);
     this.forSelector = [ `.${this.uid}` ];
     this.parse(body);
+  }
+
+  get classList(){
+    const names: string[] = []
+ 
+    for(const applicable of [this, ...this.alsoApplies]){
+      if(applicable.sequence.length)
+        applicable.include();
+
+      if(applicable instanceof ContingentModifier){
+        this.include();
+        continue;
+      }
+        
+      if(applicable instanceof ElementModifier)
+        if(applicable.sequence.length)
+        names.push(applicable.uid);
+    }
+
+    return names;
   }
 
   applyModifier(mod: ElementModifier){
