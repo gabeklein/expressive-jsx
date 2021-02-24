@@ -1,12 +1,4 @@
-import {
-  callExpression,
-  isExpression,
-  isStringLiteral,
-  objectExpression,
-  objectProperty,
-  spreadElement,
-  stringLiteral,
-} from '@babel/types';
+import { callExpression, isExpression, isStringLiteral, stringLiteral } from '@babel/types';
 import {
   ComponentExpression,
   ComponentFor,
@@ -19,19 +11,17 @@ import {
 } from 'handle';
 import { AttributeStack, ElementIterate } from 'translate';
 
-import type {
-  Expression,
-  ObjectProperty,
-  SpreadElement
-} from '@babel/types';
+import type { Expression } from '@babel/types';
 import type { BunchOf, ContentLike, PropData, SequenceItem } from 'types';
+import type { ExternalsManager } from 'regenerate';
 
 export class ElementReact<E extends ElementInline = ElementInline> {
+  classList = [] as Array<string | Expression>;
   children = [] as ContentLike[];
   props = [] as PropData[];
-  classList = [] as Array<string | Expression>
-  style = new AttributeStack<ExplicitStyle>();
-  style_static = [] as ExplicitStyle[];
+
+  private style = new AttributeStack();
+  private style_static = [] as ExplicitStyle[];
 
   get tagName(){
     return this.source.tagName;
@@ -46,9 +36,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     for(const item of this.source.sequence)
       this.apply(item);
 
-    this.applyHoistedStyle();
-    this.applyInlineStyle();
-    this.applyClassname();
+    this.applyStyles();
   }
 
   private apply(item: SequenceItem){
@@ -165,12 +153,18 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     }
   }
 
+  private applyStyles(){
+    this.applyHoistedStyle();
+    this.applyInlineStyle();
+    this.applyClassname();
+  }
+
   private applyHoistedStyle(){
     const { style_static, source } = this;
 
     if(style_static.length > 0){
-      const mod = new ContingentModifier(source.context, source);
-      const { name, uid } = source;
+      const { context, name, uid } = source;
+      const mod = new ContingentModifier(context, source);
 
       const classMostLikelyForwarded =
         /^[A-Z]/.test(name!) &&
@@ -179,82 +173,59 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       mod.priority = classMostLikelyForwarded ? 3 : 2;
       mod.sequence.push(...style_static);
       mod.forSelector = [ `.${uid}` ];
-      source.context.modifiersDeclared.add(mod);
+      mod.include();
     }
   }
 
   private applyInlineStyle(){
-    const { style, props } = this;
+    const value = this.style.flatten();
 
-    if(!style.length)
-      return;
-
-    let value: Expression;
-    const [ head ] = style;
-
-    if(style.length == 1 && head instanceof ExplicitStyle)
-      value = head.toExpression();
-
-    else {
-      const chunks = [] as (ObjectProperty | SpreadElement)[];
-
-      for(const item of style)
-        if(item instanceof ExplicitStyle)
-          chunks.push(spreadElement(item.toExpression()))
-        else
-          chunks.push(...item.map(style =>
-            objectProperty(
-              stringLiteral(style.name!),
-              style.toExpression()
-            )
-          ));
-
-      value = objectExpression(chunks)
-    }
-
-    props.push({
-      name: "style",
-      value
-    });
+    if(value)
+      this.props.push({ name: "style", value });
   }
 
   private applyClassname(){
-    const {
-      classList: list,
-      props,
-      source
-    } = this;
+    const { classList, props, source } = this;
 
     if(source.hasOwnProperty("uid"))
-      list.push(source.uid);
+      classList.push(source.uid);
 
-    if(!list.length)
-      return;
+    const computeClassname =
+      classValue(classList, source.context.Imports);
 
-    const selectors = [] as Expression[];
-    let classList = "";
-
-    for(const item of list)
-      if(typeof item == "string")
-        classList += " " + item;
-      else
-        selectors.push(item);
-
-    if(classList)
-      selectors.unshift(
-        stringLiteral(classList.slice(1))
-      )
-
-    let computeClassname = selectors[0];
-
-    if(selectors.length > 1){
-      const join = source.context.Imports.ensure("$runtime", "join");
-      computeClassname = callExpression(join, selectors)
-    }
-
-    props.push({
-      name: "className",
-      value: computeClassname
-    });
+    if(computeClassname)
+      props.push({
+        name: "className",
+        value: computeClassname
+      });
   }
+}
+
+function classValue(
+  list: (Expression | string)[],
+  Imports: ExternalsManager){
+
+  if(!list.length)
+    return;
+
+  const selectors = [] as Expression[];
+  let className = "";
+
+  for(const item of list)
+    if(typeof item == "string")
+      className += " " + item;
+    else
+      selectors.push(item);
+
+  if(className)
+    selectors.unshift(
+      stringLiteral(className.slice(1))
+    )
+
+  if(selectors.length > 1){
+    const join = Imports.ensure("$runtime", "join");
+    return callExpression(join, selectors)
+  }
+  
+  return selectors[0];
 }

@@ -1,4 +1,7 @@
-import type { Attribute } from 'handle/attributes';
+import { objectExpression, objectProperty, spreadElement, stringLiteral } from '@babel/types';
+import { ExplicitStyle } from 'handle/attributes';
+
+import type { ObjectProperty, SpreadElement} from '@babel/types';
 
 export class ArrayStack<T = any, I = T>
   extends Array<T[] | I> {
@@ -20,12 +23,12 @@ export class ArrayStack<T = any, I = T>
   }
 }
 
-export class AttributeStack<Type extends Attribute>
-  extends ArrayStack<Type> {
+export class AttributeStack
+  extends ArrayStack<ExplicitStyle> {
 
-  invariant = [] as Type[];
+  invariant = [] as ExplicitStyle[];
 
-  insert(item: Type): boolean {
+  insert(item: ExplicitStyle): boolean {
     if(item.name === undefined){
       this.top = item
       this.push(item);
@@ -39,5 +42,30 @@ export class AttributeStack<Type extends Attribute>
       super.insert(item);
 
     return false;
+  }
+
+  flatten(){
+    if(!this.length)
+      return;
+
+    if(this.length == 1 && this[0] instanceof ExplicitStyle)
+      return this[0].toExpression();
+
+    else {
+      const chunks = [] as (ObjectProperty | SpreadElement)[];
+
+      for(const item of this)
+        if(item instanceof ExplicitStyle)
+          chunks.push(spreadElement(item.toExpression()))
+        else
+          chunks.push(...item.map(style =>
+            objectProperty(
+              stringLiteral(style.name!),
+              style.toExpression()
+            )
+          ));
+
+      return objectExpression(chunks)
+    }
   }
 }
