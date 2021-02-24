@@ -39,10 +39,26 @@ export abstract class AttributeBody {
       item.wasAddedTo(this);
   }
 
-  insert(item: Prop | ExplicitStyle){
+  insertProp(item: Prop){
     const { name } = item;
-    const register = item instanceof Prop
-      ? this.props : this.style;
+    const register = this.props
+
+    if(name){
+      const existing = register[name];
+
+      if(existing)
+        existing.overridden = true;
+
+      register[name] = item;
+    }
+
+    this.add(item);
+
+  }
+
+  insertStyle(item: ExplicitStyle){
+    const { name } = item;
+    const register = this.style
 
     if(name){
       const existing = register[name];
@@ -57,7 +73,7 @@ export abstract class AttributeBody {
   }
 
   addStyle(name: string, value: any){
-    this.insert(
+    this.insertStyle(
       new ExplicitStyle(name, value)
     )
   }

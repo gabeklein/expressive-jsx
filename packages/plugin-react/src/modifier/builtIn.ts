@@ -73,7 +73,7 @@ export function forward(this: ModifyDelegate, ...args: any[]){
   for(const prop of ["className", "style"])
     if(all || ~args.indexOf(prop)){
       const id = reference[prop] = this.identifier(prop);
-      target.insert(
+      target.insertProp(
         new Prop(prop, id)
       )
     }
