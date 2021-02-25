@@ -64,7 +64,7 @@ export function createElement(
   return callExpression(create, [type, props, ...children]);
 }
 
-function recombineProps(props: PropData[]){
+export function recombineProps(props: PropData[]){
   const propStack = new ArrayStack<ObjectProperty, Expression>()
 
   if(props.length === 0)

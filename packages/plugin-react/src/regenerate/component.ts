@@ -1,12 +1,12 @@
-import { blockStatement, returnStatement, stringLiteral } from '@babel/types';
+import { blockStatement, returnStatement } from '@babel/types';
 import { ComponentExpression } from 'handle';
 import { meta } from 'shared';
-import { _object } from 'syntax';
 import { ElementReact } from 'translate';
 
 import type { NodePath as Path } from '@babel/traverse';
-import type { DoExpression ,Expression } from '@babel/types';
+import type { DoExpression } from '@babel/types';
 import type { StackFrame } from 'context';
+import { recombineProps } from './es5';
 
 export function replaceDoExpression(path: Path<DoExpression>){
   const element = meta(path.node).meta;
@@ -20,7 +20,7 @@ export function replaceDoExpression(path: Path<DoExpression>){
   const factory = new ElementReact(element);
 
   if(factory.children.length == 0 && element.exec === undefined){
-    path.replaceWith(asOnlyAttributes(factory))
+    path.replaceWith(recombineProps(factory.props))
     return;
   }
 
@@ -49,20 +49,4 @@ export function replaceDoExpression(path: Path<DoExpression>){
     else
       path.replaceWith(factoryExpression);
   }
-}
-
-function asOnlyAttributes(factory: ElementReact){
-  const classNames = factory.classList as string[];
-  let style: Expression | undefined;
-
-  for(const prop of factory.props)
-    if(prop.name == "style")
-      style = prop.value || _object();
-
-  return _object({
-    className: stringLiteral(
-      classNames.join(" ")
-    ),
-    style
-  })
 }
