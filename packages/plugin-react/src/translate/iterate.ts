@@ -73,7 +73,7 @@ export class ElementIterate extends ElementReact<ComponentFor> {
   }
 
   private ensureKeyProp(key: Identifier){
-    const { children } = this;
+    const { children, props } = this;
     const [ element ] = children;
 
     if(children.length === 1
@@ -81,12 +81,12 @@ export class ElementIterate extends ElementReact<ComponentFor> {
     && element.source.props.key === undefined)
       element.applyProp(new Prop("key", key));
 
-    else if(this.props.length){
+    else if(props.length){
       const doesExist =
-        this.props.find(x => x.name === "key");
+        props.find(x => x.name === "key");
 
       if(!doesExist)
-        this.props.push({ name: "key", value: key! });
+        props.push({ name: "key", value: key! });
     }
   }
 

@@ -16,12 +16,12 @@ import type { BunchOf, ContentLike, PropData, SequenceItem } from 'types';
 import type { ExternalsManager } from 'regenerate';
 
 export class ElementReact<E extends ElementInline = ElementInline> {
-  classList = [] as Array<string | Expression>;
   children = [] as ContentLike[];
   props = [] as PropData[];
 
   private style = new AttributeStack();
   private style_static = [] as ExplicitStyle[];
+  private classList = [] as Array<string | Expression>;
 
   get tagName(){
     return this.source.tagName;
@@ -36,7 +36,9 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     for(const item of this.source.sequence)
       this.apply(item);
 
-    this.applyStyles();
+    this.applyHoistedStyle();
+    this.applyInlineStyle();
+    this.applyClassname();
   }
 
   private apply(item: SequenceItem){
@@ -110,7 +112,6 @@ export class ElementReact<E extends ElementInline = ElementInline> {
   protected applyModifiers(){
     const { source, classList } = this;
 
-    const elementStyle = source.style;
     const accumulator = {} as BunchOf<ExplicitStyle>;
     // TODO: respect priority differences!
 
@@ -133,7 +134,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
           if(!invariant
           || overridden
           || name === undefined
-          || name in elementStyle
+          || name in source.style
           || name in accumulator)
             continue;
   
@@ -143,15 +144,9 @@ export class ElementReact<E extends ElementInline = ElementInline> {
 
     for(const name in accumulator){
       const style = accumulator[name];
-      elementStyle[name] = style;
+      source.style[name] = style;
       this.applyStyle(style);
     }
-  }
-
-  private applyStyles(){
-    this.applyHoistedStyle();
-    this.applyInlineStyle();
-    this.applyClassname();
   }
 
   private applyHoistedStyle(){
