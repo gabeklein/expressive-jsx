@@ -1,7 +1,7 @@
 import { blockStatement, returnStatement } from '@babel/types';
+import { generateElement } from 'generate';
 import { ComponentExpression } from 'handle';
 import { meta } from 'shared';
-import { generateElement } from 'translate';
 
 import { recombineProps } from './es5';
 

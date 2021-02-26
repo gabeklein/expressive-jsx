@@ -2,7 +2,7 @@ import { StackFrame } from 'context';
 import { Status } from 'errors';
 import { handleTopLevelModifier, printStyles } from 'modifier';
 import { generateEntryElement } from 'parse';
-import { replaceDoExpression } from 'regenerate';
+import { replaceDoExpression } from 'generate';
 import { meta } from 'shared';
 
 import { builtIn } from './modifier';

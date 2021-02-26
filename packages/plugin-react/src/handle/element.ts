@@ -1,6 +1,6 @@
 import { AttributeBody } from 'handle';
 import { ParseContainer, ParseContent, parser } from 'parse';
-import { generateElement } from 'translate';
+import { generateElement } from 'generate';
 
 import type {
   DoExpression,

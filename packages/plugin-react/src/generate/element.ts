@@ -1,11 +1,11 @@
 import { callExpression, isExpression, isStringLiteral, stringLiteral } from '@babel/types';
+import { AttributeStack } from 'generate';
 import { ComponentExpression, ComponentIf, ContingentModifier, ElementModifier, ExplicitStyle, Prop } from 'handle';
-import { AttributeStack } from 'translate';
 
 import type { ElementInline } from 'handle';
 import type { Expression } from '@babel/types';
 import type { BunchOf, PropData, SequenceItem } from 'types';
-import type { ExternalsManager } from 'regenerate';
+import type { ExternalsManager } from 'generate';
 
 export function generateElement(element: ElementInline){
   const { tagName, context } = element;

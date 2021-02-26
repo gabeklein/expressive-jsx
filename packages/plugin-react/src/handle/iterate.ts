@@ -7,9 +7,9 @@ import {
   returnStatement,
 } from '@babel/types';
 import { ParseForLoop, parser } from 'parse';
+import { generateElement } from 'generate';
 import { meta } from 'shared';
 import { _call, _declare, _get, _iife } from 'syntax';
-import { generateElement } from 'translate';
 
 import { ComponentContainer } from './';
 

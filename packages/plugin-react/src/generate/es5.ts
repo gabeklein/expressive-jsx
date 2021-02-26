@@ -8,8 +8,8 @@ import {
   objectProperty,
   stringLiteral,
 } from '@babel/types';
+import { ArrayStack } from 'generate';
 import { _object, _objectAssign } from 'syntax';
-import { ArrayStack } from 'translate';
 
 import type {
   CallExpression,

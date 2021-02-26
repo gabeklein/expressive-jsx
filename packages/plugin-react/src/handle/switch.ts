@@ -15,8 +15,8 @@ import {
 import { ParseErrors } from 'errors';
 import { ComponentExpression, ContingentModifier, ElementInline } from 'handle';
 import { ParseConsequent, parser } from 'parse';
+import { generateElement } from 'generate';
 import { ensureArray, hash, meta } from 'shared';
-import { generateElement } from 'translate';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {

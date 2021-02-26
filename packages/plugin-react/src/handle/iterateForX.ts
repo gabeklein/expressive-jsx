@@ -14,9 +14,9 @@ import {
 import { ParseErrors } from 'errors';
 import { ElementInline } from 'handle';
 import { ParseForLoop, parser } from 'parse';
+import { generateElement } from 'generate';
 import { meta } from 'shared';
 import { _call, _get, _objectKeys } from 'syntax';
-import { generateElement } from 'translate';
 
 import { ComponentContainer } from './';
 import { Prop } from './attributes';
