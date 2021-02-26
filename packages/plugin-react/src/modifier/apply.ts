@@ -5,7 +5,8 @@ import { ModifyDelegate } from './delegate';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { LabeledStatement } from '@babel/types';
-import type { AttributeBody, ExplicitStyle } from 'handle/attributes';
+import type { ExplicitStyle } from 'handle/attributes';
+import type { AttributeBody } from 'handle/object';
 import type { StackFrame } from 'context';
 import type { BunchOf, ModifyAction, ModifyBodyPath } from 'types';
 

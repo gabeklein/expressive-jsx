@@ -17,8 +17,8 @@ import { parse } from './helper';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { LabeledStatement, Statement , IfStatement} from '@babel/types';
-import type { AttributeBody} from 'handle/attributes';
 import type { ElementInline, ComponentContainer } from 'handle/element';
+import type { AttributeBody } from 'handle/object';
 import type { ComponentConsequent} from 'handle/switch';
 import type { ParserFor } from './helper';
 

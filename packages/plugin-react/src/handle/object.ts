@@ -1,0 +1,81 @@
+import { ParseAttributes, parser } from 'parse';
+
+import { ExplicitStyle } from './attributes';
+
+import type { StackFrame } from 'context';
+import type { Modifier } from 'handle/modifier';
+import type { ComponentIf } from 'handle/switch';
+import type { BunchOf, SequenceItem } from 'types';
+import type { Prop } from './attributes';
+
+export abstract class AttributeBody {
+  parse = parser(ParseAttributes);
+
+  context: StackFrame
+  name?: string;
+  parent?: AttributeBody | ComponentIf;
+
+  props = {} as BunchOf<Prop>;
+  style = {} as BunchOf<ExplicitStyle>;
+  sequence = [] as SequenceItem[];
+
+  get uid(){
+    const value = this.context.unique(this.name!)
+    Object.defineProperty(this, "uid", { value });
+    return value
+  }
+
+  abstract applyModifier(mod: Modifier): void;
+
+  constructor(context: StackFrame){
+    this.context = context.push(this);
+  }
+
+  wasAddedTo?<T extends AttributeBody>(element?: T): void;
+
+  add(item: SequenceItem){
+    this.sequence.push(item);
+
+    if("wasAddedTo" in item && item.wasAddedTo)
+      item.wasAddedTo(this);
+  }
+
+  insertProp(item: Prop){
+    const { name } = item;
+    const register = this.props
+
+    if(name){
+      const existing = register[name];
+
+      if(existing)
+        existing.overridden = true;
+
+      register[name] = item;
+    }
+
+    this.add(item);
+
+  }
+
+  insertStyle(item: ExplicitStyle){
+    const { name } = item;
+    const register = this.style
+
+    if(name){
+      const existing = register[name];
+
+      if(existing)
+        existing.overridden = true;
+
+      register[name] = item;
+    }
+
+    this.add(item);
+  }
+
+  addStyle(name: string, value: any){
+    this.insertStyle(
+      new ExplicitStyle(name, value)
+    )
+  }
+}
