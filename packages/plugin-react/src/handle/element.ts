@@ -1,8 +1,10 @@
 import { AttributeBody } from 'handle';
 import { ParseContainer, ParseContent, parser } from 'parse';
+import { generateElement } from 'translate';
 
 import type {
   DoExpression,
+  Expression,
   JSXMemberExpression,
   Statement,
 } from '@babel/types';
@@ -23,6 +25,11 @@ export class ElementInline extends AttributeBody {
     return explicitTagName || (
       name && /^[A-Z]/.test(name) ? name : "div"
     );
+  }
+
+  toExpression(): Expression {
+    const info = generateElement(this);
+    return this.context.Imports.element(info);
   }
 
   didExitOwnScope?(): void;

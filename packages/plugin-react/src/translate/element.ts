@@ -1,73 +1,60 @@
 import { callExpression, isExpression, isStringLiteral, stringLiteral } from '@babel/types';
-import {
-  ComponentExpression,
-  ComponentFor,
-  ComponentIf,
-  ContingentModifier,
-  ElementInline,
-  ElementModifier,
-  ExplicitStyle,
-  Prop,
-} from 'handle';
-import { AttributeStack, ElementIterate } from 'translate';
+import { ComponentExpression, ComponentIf, ContingentModifier, ElementModifier, ExplicitStyle, Prop } from 'handle';
+import { AttributeStack } from 'translate';
 
+import type { ElementInline } from 'handle';
 import type { Expression } from '@babel/types';
-import type { BunchOf, ContentLike, PropData, SequenceItem } from 'types';
+import type { BunchOf, PropData, SequenceItem } from 'types';
 import type { ExternalsManager } from 'regenerate';
 
-export class ElementReact<E extends ElementInline = ElementInline> {
-  children = [] as ContentLike[];
-  props = [] as PropData[];
+export function generateElement(element: ElementInline){
+  const { tagName, context } = element;
+  const children = [] as Expression[];
+  const props = [] as PropData[];
 
-  private style = new AttributeStack();
-  private style_static = [] as ExplicitStyle[];
-  private classList = [] as Array<string | Expression>;
+  const style = new AttributeStack();
+  const style_static = [] as ExplicitStyle[];
+  const classList = [] as Array<string | Expression>;
 
-  get tagName(){
-    return this.source.tagName;
-  }
+  if(context.opts.styleMode !== "inline")
+      applyModifiers();
 
-  constructor(
-    public source: E){
+  for(const item of element.sequence)
+    apply(item);
 
-    if(this.source.context.opts.styleMode !== "inline")
-      this.applyModifiers();
+  applyHoistedStyle();
+  applyClassname();
+  
+  const value = style.flatten();
 
-    for(const item of this.source.sequence)
-      this.apply(item);
+  if(value)
+    props.push({ name: "style", value });
 
-    this.applyHoistedStyle();
-    this.applyInlineStyle();
-    this.applyClassname();
-  }
+  return { tagName, props, children };
 
-  private apply(item: SequenceItem){
+  function apply(item: SequenceItem){
     if(item instanceof ComponentIf){
       if(item.hasElementOutput)
-        this.children.push(item)
+        children.push(item.toExpression(context))
 
       if(item.hasStyleOutput)
-        this.classList.push(item.toClassName());
+        classList.push(item.toClassName());
     }
 
-    else if(item instanceof ComponentFor)
-      this.children.push(new ElementIterate(item))
-
-    else if(item instanceof ElementInline)
-      this.children.push(new ElementReact(item));
-
     else if(item instanceof ExplicitStyle)
-      this.applyStyle(item);
+      applyStyle(item);
 
     else if(item instanceof Prop)
-      this.applyProp(item);
+      applyProp(item);
+
+    else if("toExpression" in item)
+      children.push(item.toExpression())
 
     else if(isExpression(item))
-      this.children.push(item);
+      children.push(item);
   }
 
-  public applyProp(item: Prop){
-    const { style, props, classList } = this;
+  function applyProp(item: Prop){
     const { name } = item;
 
     if(name === "style"){
@@ -97,10 +84,8 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     props.push({ name, value: item.expression });
   }
 
-  private applyStyle(item: ExplicitStyle){
-    const { source, style, style_static } = this;
-
-    if(source.context.opts.styleMode == "inline")
+  function applyStyle(item: ExplicitStyle){
+    if(context.opts.styleMode == "inline")
       item.invariant = false;
 
     if(item.invariant)
@@ -109,13 +94,11 @@ export class ElementReact<E extends ElementInline = ElementInline> {
       style.insert(item)
   }
 
-  protected applyModifiers(){
-    const { source, classList } = this;
-
+  function applyModifiers(){
     const accumulator = {} as BunchOf<ExplicitStyle>;
     // TODO: respect priority differences!
 
-    for(const mod of source.modifiers){
+    for(const mod of element.modifiers){
       if(!(mod instanceof ElementModifier))
         continue
 
@@ -134,7 +117,7 @@ export class ElementReact<E extends ElementInline = ElementInline> {
           if(!invariant
           || overridden
           || name === undefined
-          || name in source.style
+          || name in element.style
           || name in accumulator)
             continue;
   
@@ -144,21 +127,19 @@ export class ElementReact<E extends ElementInline = ElementInline> {
 
     for(const name in accumulator){
       const style = accumulator[name];
-      source.style[name] = style;
-      this.applyStyle(style);
+      element.style[name] = style;
+      applyStyle(style);
     }
   }
 
-  private applyHoistedStyle(){
-    const { style_static, source } = this;
-
+  function applyHoistedStyle(){
     if(style_static.length > 0){
-      const { context, name, uid } = source;
-      const mod = new ContingentModifier(context, source);
+      const { name, uid } = element;
+      const mod = new ContingentModifier(context, element);
 
       const classMostLikelyForwarded =
         /^[A-Z]/.test(name!) &&
-        !(source instanceof ComponentExpression);
+        !(element instanceof ComponentExpression);
 
       mod.priority = classMostLikelyForwarded ? 3 : 2;
       mod.sequence.push(...style_static);
@@ -167,21 +148,12 @@ export class ElementReact<E extends ElementInline = ElementInline> {
     }
   }
 
-  private applyInlineStyle(){
-    const value = this.style.flatten();
-
-    if(value)
-      this.props.push({ name: "style", value });
-  }
-
-  private applyClassname(){
-    const { classList, props, source } = this;
-
-    if(source.hasOwnProperty("uid"))
-      classList.push(source.uid);
+  function applyClassname(){
+    if(element.hasOwnProperty("uid"))
+      classList.push(element.uid);
 
     const computeClassname =
-      classValue(classList, source.context.Imports);
+      classValue(classList, context.Imports);
 
     if(computeClassname)
       props.push({

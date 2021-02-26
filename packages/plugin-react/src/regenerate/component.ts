@@ -1,12 +1,13 @@
 import { blockStatement, returnStatement } from '@babel/types';
 import { ComponentExpression } from 'handle';
 import { meta } from 'shared';
-import { ElementReact } from 'translate';
+import { generateElement } from 'translate';
+
+import { recombineProps } from './es5';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { DoExpression } from '@babel/types';
 import type { StackFrame } from 'context';
-import { recombineProps } from './es5';
 
 export function replaceDoExpression(path: Path<DoExpression>){
   const element = meta(path.node).meta;
@@ -17,7 +18,7 @@ export function replaceDoExpression(path: Path<DoExpression>){
   if(!(element instanceof ComponentExpression))
     return;
 
-  const factory = new ElementReact(element);
+  const factory = generateElement(element);
 
   if(factory.children.length == 0 && element.exec === undefined){
     path.replaceWith(recombineProps(factory.props))

@@ -11,18 +11,17 @@ import {
   jsxSpreadAttribute,
   jsxText,
 } from '@babel/types';
-import { ElementReact } from 'translate';
 import { IsLegalAttribute } from 'types';
 
-import type { JSXElement, JSXMemberExpression } from '@babel/types';
+import type { JSXElement, JSXMemberExpression, Expression } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { ContentLike, JSXContent, PropData } from 'types';
+import type { JSXContent, PropData } from 'types';
 
 export function createElement(
   this: StackFrame,
   tag: null | string | JSXMemberExpression,
   properties: PropData[] = [],
-  content: ContentLike[] = [],
+  content: Expression[] = [],
   acceptBr?: boolean
 ): JSXElement {
   const { Imports } = this;
@@ -37,13 +36,8 @@ export function createElement(
   const props = properties.map(createAttribute);
   const children = [] as JSXContent[];
 
-  for(let child of content){
-    if("toExpression" in child)
-      child = child.toExpression(this);
-
+  for(let child of content)
     children.push(
-      child instanceof ElementReact ?
-        createElement.call(this, child.tagName, child.props, child.children) :
       isJSXElement(child) ?
         child :
       isStringLiteral(child) && !/\{/.test(child.value) ?
@@ -52,7 +46,6 @@ export function createElement(
         jsxExpressionContainer(child) :
       child
     )
-  }
 
   Imports.ensure("$pragma", "default", "React");
 

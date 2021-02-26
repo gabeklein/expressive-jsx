@@ -16,7 +16,7 @@ import { ParseErrors } from 'errors';
 import { ComponentExpression, ContingentModifier, ElementInline } from 'handle';
 import { ParseConsequent, parser } from 'parse';
 import { ensureArray, hash, meta } from 'shared';
-import { ElementReact } from 'translate';
+import { generateElement } from 'translate';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {
@@ -106,10 +106,10 @@ export class ComponentIf {
       let product;
 
       if(cond instanceof ComponentIf)
-        product = cond.toExpression(context)
+        product = cond.toExpression(context);
       else
       if(cond.children.length)
-        product = context.Imports.container(new ElementReact(cond))
+        product = cond.toExpression();
       else
         return;
 
@@ -239,6 +239,11 @@ export class ComponentConsequent extends ElementInline {
     }
   }
 
+  toExpression(){
+    const info = generateElement(this);
+    return this.context.Imports.container(info);
+  }
+
   handleContentBody(content: Statement){
     if(!isBlockStatement(content))
       content = blockStatement([content])
@@ -250,13 +255,15 @@ export class ComponentConsequent extends ElementInline {
 
   adopt(child: InnerContent){
     let { context } = this;
+
     if(!context.currentIf!.hasElementOutput)
       do {
         if(context.current instanceof ComponentIf)
           context.current.hasElementOutput = true;
         else break;
       }
-      while(context = context.parent)
+      while(context = context.parent);
+
     super.adopt(child)
   }
 

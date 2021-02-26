@@ -9,7 +9,7 @@ import {
   stringLiteral,
 } from '@babel/types';
 import { _object, _objectAssign } from 'syntax';
-import { ArrayStack, ElementReact } from 'translate';
+import { ArrayStack } from 'translate';
 
 import type {
   CallExpression,
@@ -21,13 +21,13 @@ import type {
   ObjectProperty
 } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { ContentLike, PropData } from 'types';
+import type { PropData } from 'types';
 
 export function createElement(
   this: StackFrame,
   tag: null | string | JSXMemberExpression,
   properties: PropData[] = [],
-  content: ContentLike[] = []
+  content: Expression[] = []
 ): CallExpression {
   const { Imports } = this;
 
@@ -47,19 +47,12 @@ export function createElement(
   const props = recombineProps(properties);
   const children = [] as Expression[];
 
-  for(let child of content){
-
-    if("toExpression" in child)
-      child = child.toExpression(this);
-
+  for(let child of content)
     children.push(
-      child instanceof ElementReact ?
-        createElement.call(this, child.tagName, child.props, child.children) :
       isExpression(child) ?
         child :
       booleanLiteral(false)
     )
-  }
 
   return callExpression(create, [type, props, ...children]);
 }

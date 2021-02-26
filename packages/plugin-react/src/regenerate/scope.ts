@@ -16,7 +16,6 @@ import {
   stringLiteral,
 } from '@babel/types';
 import { _declare, _require } from 'syntax';
-import { ElementReact } from 'translate';
 
 import { createElement as createJS } from './es5';
 import { createElement as createJSX } from './jsx';
@@ -37,12 +36,18 @@ import type {
   VariableDeclaration
 } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { BunchOf, ContentLike, Options, PropData } from 'types';
+import type { BunchOf, Options, PropData } from 'types';
 
 type ImportSpecific =
   | ImportSpecifier 
   | ImportDefaultSpecifier 
   | ImportNamespaceSpecifier;
+
+interface ElementReact {
+  tagName: null | string | JSXMemberExpression;
+  props: PropData[];
+  children: Expression[];
+}
 
 export abstract class ExternalsManager {
   protected body: Statement[];
@@ -67,7 +72,7 @@ export abstract class ExternalsManager {
   private createElement: (
     tag: null | string | JSXMemberExpression,
     properties?: PropData[],
-    content?: ContentLike[]
+    content?: Expression[]
   ) => CallExpression | JSXElement;
 
   element(src: ElementReact){
@@ -75,7 +80,7 @@ export abstract class ExternalsManager {
   }
 
   fragment(
-    children = [] as ContentLike[],
+    children = [] as Expression[],
     key?: Expression){
 
     const props = key && [{ name: "key", value: key }];
@@ -87,7 +92,7 @@ export abstract class ExternalsManager {
     key?: Identifier
   ): Expression {
 
-    let output: ContentLike | undefined;
+    let output: Expression | undefined;
 
     if(src.props.length == 0){
       const { children } = src;
@@ -103,12 +108,6 @@ export abstract class ExternalsManager {
 
     if(!output)
       output = this.element(src)
-
-    else if("toExpression" in output)
-      output = output.toExpression(this.context)
-
-    else if(output instanceof ElementReact)
-      output = this.element(output)
 
     if(key)
       return this.fragment([ output ], key)
