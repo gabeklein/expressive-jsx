@@ -1,15 +1,8 @@
-import {
-  arrayExpression,
-  blockStatement,
-  doExpression,
-  expressionStatement,
-  isBlockStatement,
-  returnStatement,
-} from '@babel/types';
-import { ParseForLoop, parser } from 'parse';
+import { arrowFunctionExpression, blockStatement, doExpression, expressionStatement, isBlockStatement } from '@babel/types';
 import { generateElement } from 'generate';
+import { ParseForLoop, parser } from 'parse';
 import { meta } from 'shared';
-import { _call, _declare, _get, _iife } from 'syntax';
+import { _call, _get } from 'syntax';
 
 import { ComponentContainer } from './';
 
@@ -39,26 +32,24 @@ export class ComponentFor extends ComponentContainer {
   }
 
   toExpression(){
-    const { node } = this;
+    const { node, statements } = this;
     const { Imports } = this.context;
-    const accumulator = Imports.ensureUIDIdentifier("acc");
+    const accumulator = Imports.ensureUIDIdentifier("e");
     const content = Imports.container(generateElement(this));
+    const collect = Imports.ensure("$runtime", "collect");
+    const collector = expressionStatement(
+      _call(_get(accumulator, "push"), content)
+    );
 
-    node.body = blockStatement([
-      ...this.statements,
-      expressionStatement(
-        _call(
-          _get(accumulator, "push"),
-          content
-        )
-      )
-    ])
+    node.body = statements.length
+      ? blockStatement([ ...statements, collector ])
+      : node.body = collector;
 
-    return _iife([
-      _declare("const", accumulator, arrayExpression()),
-      node,
-      returnStatement(accumulator)
-    ])
+    return _call(collect, 
+      arrowFunctionExpression(
+        [accumulator], blockStatement([ node ])
+      )  
+    )
   }
 
   handleContentBody(content: Statement){

@@ -100,8 +100,17 @@ function join(...args: string[]){
   return args.filter(x => x).join(" ");
 }
 
+type Accumulator = (acc: any[]) => void;
+
+function collect(fn: Accumulator){
+  const acc: any[] = [];
+  fn(acc);
+  return acc;
+}
+
 export {
   body,
+  collect,
   join
 }
 
