@@ -1,17 +1,20 @@
-import { ComponentContainer } from 'handle';
-import { applyNameImplications } from 'parse';
+import { applyNameImplications, ParseContainer, parser } from 'parse';
+import { meta } from 'shared';
+
+import { ElementInline } from 'handle';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { ArrowFunctionExpression, DoExpression, Statement } from '@babel/types';
 import type { StackFrame } from 'context';
 import type { ComponentConsequent } from 'handle/switch';
 import type { InnerContent, SequenceItem } from 'types';
-import { meta } from 'shared';
 
-export class ComponentExpression extends ComponentContainer {
+export class ComponentExpression extends ElementInline {
   exec?: Path<ArrowFunctionExpression>;
-  statements = [] as Statement[];
   forwardTo?: ComponentConsequent;
+
+  statements = [] as Statement[];
+  parse = parser(ParseContainer);
 
   constructor(
     name: string,

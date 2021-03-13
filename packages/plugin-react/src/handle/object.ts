@@ -25,11 +25,11 @@ export abstract class AttributeBody {
     return value
   }
 
-  abstract applyModifier(mod: Modifier): void;
-
   constructor(context: StackFrame){
     this.context = context.push(this);
   }
+
+  abstract applyModifier(mod: Modifier): void;
 
   wasAddedTo?<T extends AttributeBody>(element?: T): void;
 

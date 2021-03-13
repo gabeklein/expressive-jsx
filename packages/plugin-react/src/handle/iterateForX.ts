@@ -18,7 +18,6 @@ import { generateElement } from 'generate';
 import { meta } from 'shared';
 import { _call, _get, _objectKeys } from 'syntax';
 
-import { ComponentContainer } from './';
 import { Prop } from './attributes';
 
 import type { Statement, Identifier, BlockStatement, Expression, ForXStatement } from '@babel/types';
@@ -29,8 +28,9 @@ const Oops = ParseErrors({
   BadForInAssignment: "Left of ForInStatement must be an Identifier here!"
 })
 
-class ComponentForX extends ComponentContainer {
+class ComponentForX extends ElementInline {
   node: ForXStatement;
+  statements = [] as Statement[];
   parse = parser(ParseForLoop);
 
   constructor(

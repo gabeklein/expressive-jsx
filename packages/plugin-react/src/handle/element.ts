@@ -1,12 +1,11 @@
 import { AttributeBody } from 'handle';
-import { ParseContainer, ParseContent, parser } from 'parse';
+import { ParseContent, parser } from 'parse';
 import { generateElement } from 'generate';
 
 import type {
   DoExpression,
   Expression,
   JSXMemberExpression,
-  Statement,
 } from '@babel/types';
 import type { ElementModifier, Modifier } from 'handle/modifier';
 import type { InnerContent } from 'types';
@@ -46,10 +45,4 @@ export class ElementInline extends AttributeBody {
   applyModifier(mod: ElementModifier){
     this.context.elementMod(mod);
   }
-}
-
-export class ComponentContainer extends ElementInline {
-  parse = parser(ParseContainer);
-
-  statements = [] as Statement[];
 }

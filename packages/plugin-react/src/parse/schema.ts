@@ -17,7 +17,7 @@ import { parse } from './helper';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { LabeledStatement, Statement , IfStatement} from '@babel/types';
-import type { ElementInline, ComponentContainer } from 'handle/element';
+import type { ElementInline } from 'handle/element';
 import type { AttributeBody } from 'handle/object';
 import type { ComponentConsequent} from 'handle/switch';
 import type { ParserFor } from './helper';
@@ -110,6 +110,10 @@ export const ParseContent: ParserFor<ElementInline> = {
   ForStatement(path){
     new ComponentFor(path, this);
   }
+}
+
+interface ComponentContainer extends ElementInline {
+  statements: Statement[];
 }
 
 export const ParseContainer: ParserFor<ComponentContainer> = {

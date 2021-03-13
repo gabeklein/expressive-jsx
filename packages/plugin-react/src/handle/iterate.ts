@@ -1,16 +1,15 @@
 import { arrowFunctionExpression, blockStatement, doExpression, expressionStatement, isBlockStatement } from '@babel/types';
 import { generateElement } from 'generate';
+import { ElementInline } from 'handle';
 import { ParseForLoop, parser } from 'parse';
 import { meta } from 'shared';
 import { _call, _get } from 'syntax';
 
-import { ComponentContainer } from './';
-
-import type { ElementInline } from 'handle';
 import type { Statement, For } from '@babel/types';
 import type { ForPath } from 'types';
 
-export class ComponentFor extends ComponentContainer {
+export class ComponentFor extends ElementInline {
+  statements = [] as Statement[];
   parse = parser(ParseForLoop);
   name = "forLoop";
 
