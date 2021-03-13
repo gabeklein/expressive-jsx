@@ -1,5 +1,3 @@
-import { ParseAttributes, parser } from 'parse';
-
 import { ExplicitStyle } from './attributes';
 
 import type { StackFrame } from 'context';
@@ -9,8 +7,6 @@ import type { BunchOf, SequenceItem } from 'types';
 import type { Prop } from './attributes';
 
 export abstract class AttributeBody {
-  parse = parser(ParseAttributes);
-
   context: StackFrame
   name?: string;
   parent?: AttributeBody | ComponentIf;

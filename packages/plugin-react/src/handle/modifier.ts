@@ -1,4 +1,5 @@
 import { AttributeBody, ElementInline } from 'handle';
+import { ParseContent, parser } from 'parse';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { Statement } from '@babel/types';
@@ -6,6 +7,8 @@ import type { StackFrame } from 'context';
 import type { SelectionProvider } from 'types';
 
 export abstract class Modifier extends AttributeBody {
+  parse = parser(ParseContent);
+
   forSelector?: string[];
   onlyWithin?: ContingentModifier;
   priority?: number;

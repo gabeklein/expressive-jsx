@@ -1,4 +1,4 @@
-import { AttributeBody } from 'handle';
+import { AttributeBody } from './object';
 import { ParseContent, parser } from 'parse';
 import { generateElement } from 'generate';
 
