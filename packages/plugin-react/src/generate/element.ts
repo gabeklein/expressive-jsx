@@ -9,6 +9,8 @@ import type { ExternalsManager } from 'generate';
 
 export function generateElement(element: ElementInline){
   const { tagName, context } = element;
+  const inline_only = context.opts.styleMode === "inline";
+
   const children = [] as Expression[];
   const props = [] as PropData[];
 
@@ -16,8 +18,7 @@ export function generateElement(element: ElementInline){
   const style_static = [] as ExplicitStyle[];
   const classList = [] as Array<string | Expression>;
 
-  if(context.opts.styleMode !== "inline")
-      applyModifiers();
+  applyModifiers();
 
   for(const item of element.sequence)
     apply(item);
@@ -105,7 +106,7 @@ export function generateElement(element: ElementInline){
       if(mod.sequence.length === 0 && mod.alsoApplies.length === 0)
         continue;
 
-      if(mod.hasTargets > 1 || mod.onlyWithin){
+      if(mod.hasTargets > 1 || mod.onlyWithin && !inline_only){
         classList.push(...mod.classList)
         continue;
       }
