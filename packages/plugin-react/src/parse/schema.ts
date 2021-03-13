@@ -84,7 +84,7 @@ export const ParseAttributes: ParserFor<AttributeBody> = {
       prop =
         new Prop(name, right)
 
-    this.insertProp(prop);
+    this.insert(prop);
   }
 }
 

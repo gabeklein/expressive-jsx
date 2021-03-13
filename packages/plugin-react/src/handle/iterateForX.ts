@@ -68,11 +68,11 @@ class ComponentForX extends ComponentContainer {
     if(children.length == 1 && Object.keys(props).length == 0)
       if(element instanceof ElementInline){
         if(element.props.key === undefined)
-          element.insertProp(new Prop("key", key));
+          element.insert(new Prop("key", key));
         return;
       }
 
-    this.insertProp(new Prop("key", key));
+    this.insert(new Prop("key", key));
   }
 
   getReferences(){
