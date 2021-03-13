@@ -40,7 +40,7 @@ class ComponentForX extends ComponentContainer {
     super(element.context);
 
     this.node = path.node as ForXStatement;
-    this.doBlock = this.handleContentBody(path.node.body);
+    this.handleContentBody(path.node.body);
 
     element.adopt(this);
 
@@ -48,14 +48,13 @@ class ComponentForX extends ComponentContainer {
       path.replaceWith(this.doBlock);
   }
 
-  handleContentBody(content: Statement){
+  private handleContentBody(content: Statement){
     if(!isBlockStatement(content))
       content = blockStatement([content])
 
     const body = doExpression(content);
     meta(body, this);
-
-    return body;
+    this.doBlock = body;
   }
 
   ensureKeyProp(key: Identifier){

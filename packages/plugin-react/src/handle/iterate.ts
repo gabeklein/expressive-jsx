@@ -23,7 +23,7 @@ export class ComponentFor extends ComponentContainer {
     super(element.context);
 
     this.node = path.node;
-    this.doBlock = this.handleContentBody(path.node.body);
+    this.handleContentBody(path.node.body);
 
     element.adopt(this);
 
@@ -52,13 +52,12 @@ export class ComponentFor extends ComponentContainer {
     )
   }
 
-  handleContentBody(content: Statement){
+  private handleContentBody(content: Statement){
     if(!isBlockStatement(content))
       content = blockStatement([content])
 
     const body = doExpression(content);
     meta(body, this);
-
-    return body;
+    this.doBlock = body;
   }
 }

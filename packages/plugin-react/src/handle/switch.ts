@@ -229,14 +229,7 @@ export class ComponentConsequent extends ElementInline {
     if(!path || !path.node)
       return;
 
-    this.doBlock = this.handleContentBody(path.node);
-
-    if(!this.doBlock){
-      this.didExitOwnScope();
-      const child = this.children[0];
-      if(child instanceof ElementInline)
-        this.doBlock = child.doBlock
-    }
+    this.handleContentBody(path.node);
   }
 
   toExpression(){
@@ -244,13 +237,22 @@ export class ComponentConsequent extends ElementInline {
     return this.context.Imports.container(info);
   }
 
-  handleContentBody(content: Statement){
+  private handleContentBody(content: Statement){
     if(!isBlockStatement(content))
       content = blockStatement([content])
 
     const body = doExpression(content);
     meta(body, this);
-    return body;
+
+    if(!body){
+      this.didExitOwnScope();
+      const child = this.children[0];
+
+      if(child instanceof ElementInline)
+        this.doBlock = child.doBlock
+    }
+    
+    this.doBlock = body;
   }
 
   adopt(child: InnerContent){
