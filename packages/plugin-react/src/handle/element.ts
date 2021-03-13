@@ -31,8 +31,6 @@ export class ElementInline extends AttributeBody {
     return this.context.Imports.element(info);
   }
 
-  didExitOwnScope?(): void;
-
   adopt(child: InnerContent){
     const index = this.children.push(child);
 

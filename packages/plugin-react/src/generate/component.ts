@@ -8,11 +8,12 @@ import { recombineProps } from './es5';
 import type { NodePath as Path } from '@babel/traverse';
 import type { DoExpression } from '@babel/types';
 import type { StackFrame } from 'context';
+import type { ComponentConsequent, ElementInline } from 'handle';
 
 export function replaceDoExpression(path: Path<DoExpression>){
-  const element = meta(path.node).meta;
+  const element = meta(path.node).meta as ElementInline | ComponentConsequent;
 
-  if(element.didExitOwnScope)
+  if("didExitOwnScope" in element)
     element.didExitOwnScope();
 
   if(!(element instanceof ComponentExpression))
