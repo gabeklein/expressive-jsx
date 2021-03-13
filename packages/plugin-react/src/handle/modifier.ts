@@ -4,7 +4,6 @@ import { ParseContent, parser } from 'parse';
 import type { NodePath as Path } from '@babel/traverse';
 import type { Statement } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { SelectionProvider } from 'types';
 
 export abstract class Define extends AttributeBody {
   parse = parser(ParseContent);
@@ -73,7 +72,7 @@ export class DefineContingent extends Define {
   constructor(
     context: StackFrame,
     parent: DefineElement | DefineContingent | ElementInline,
-    contingent?: string | SelectionProvider
+    contingent?: string
   ){
     super(context);
 
@@ -87,9 +86,7 @@ export class DefineContingent extends Define {
         parent = parent.anchor;
     }
 
-    if(typeof contingent == "function")
-      contingent(select)
-    else if(contingent)
+    if(contingent)
       select.push(contingent);
 
     this.anchor = parent;
