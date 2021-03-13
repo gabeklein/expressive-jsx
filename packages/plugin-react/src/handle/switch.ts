@@ -48,11 +48,12 @@ const and = (a: Expression, b: Expression) => logicalExpression("&&", a, b);
 const anti = not;
 
 export class ComponentIf {
-  forks = [] as Consequent[];
   context: StackFrame;
   hasElementOutput?: true;
   hasStyleOutput?: true;
-  doBlocks = [] as ExpressionStatement[];
+
+  private doBlocks = [] as ExpressionStatement[];
+  private forks = [] as Consequent[];
 
   static insert(
     path: Path<IfStatement>,
@@ -101,17 +102,17 @@ export class ComponentIf {
     return sum || booleanLiteral(false)
   }
 
-  toExpression(context: StackFrame): Expression {
+  toExpression(context: StackFrame): Expression | undefined {
+    if(!this.hasElementOutput)
+      return;
+
     return this.reduceUsing((cond) => {
       let product;
 
       if(cond instanceof ComponentIf)
         product = cond.toExpression(context);
-      else
-      if(cond.children.length)
+      else if(cond.children.length)
         product = cond.toExpression();
-      else
-        return;
 
       if(isBooleanLiteral(product, { value: false }))
         product = undefined;
@@ -120,12 +121,15 @@ export class ComponentIf {
     })
   }
 
-  toClassName(): Expression {
+  toClassName(): Expression | undefined {
+    if(!this.hasStyleOutput)
+      return;
+    
     return this.reduceUsing((cond) => {
-      if("usesClassname" in cond && cond.usesClassname)
-        return stringLiteral(cond.usesClassname);
-      else
-      if("hasStyleOutput" in cond && cond.hasStyleOutput)
+      if("usesClassname" in cond)
+        return stringLiteral(cond.usesClassname!);
+
+      if("hasStyleOutput" in cond)
         return cond.toClassName();
     })
   }

@@ -35,11 +35,14 @@ export function generateElement(element: ElementInline){
 
   function apply(item: SequenceItem){
     if(item instanceof ComponentIf){
-      if(item.hasElementOutput)
-        children.push(item.toExpression(context))
+      const expression = item.toExpression(context);
+      const className = item.toClassName();
 
-      if(item.hasStyleOutput)
-        classList.push(item.toClassName());
+      if(expression)
+        children.push(expression)
+
+      if(className)
+        classList.push(className);
     }
 
     else if(item instanceof ExplicitStyle)
