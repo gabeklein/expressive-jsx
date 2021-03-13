@@ -135,8 +135,12 @@ export const ParseContainer: ParserFor<ComponentContainer> = {
 export const ParseConsequent: ParserFor<ComponentConsequent> = {
   ...ParseContent,
 
+  LabeledStatement(path: Path<LabeledStatement>){
+    const mod = this.slaveModifier || this.slaveNewModifier();
+    parse(path as Path<Statement>, ParseAttributes, mod);
+  },
+
   ReturnStatement(path){
-    const arg = path.get("argument");
     const { context } = this;
 
     if(!this.test)
@@ -151,6 +155,8 @@ export const ParseConsequent: ParserFor<ComponentConsequent> = {
     if(!(context.currentElement instanceof ComponentExpression))
       throw Oops.CanOnlyReturnTopLevel(path);
 
+    const arg = path.get("argument");
+
     if(arg)
       if(arg.isDoExpression())
         meta(arg.node, this);
@@ -159,11 +165,6 @@ export const ParseConsequent: ParserFor<ComponentConsequent> = {
         parse(arg, ParseContent, this);
 
     this.doesReturn = true;
-  },
-
-  LabeledStatement(path: Path<LabeledStatement>){
-    const mod = this.slaveModifier || this.slaveNewModifier();
-    parse(path as Path<Statement>, ParseAttributes, mod);
   }
 };
 

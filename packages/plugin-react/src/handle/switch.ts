@@ -168,7 +168,7 @@ export class ComponentIf {
 
       layer = layer.get("alternate") as Path<Statement>
 
-      const overrideRest = (<ComponentConsequent>fork).doesReturn || false;
+      const overrideRest = "doesReturn" in fork;
 
       if(overrideRest && layer.node)
         throw Oops.IfStatementCannotContinue(layer)
