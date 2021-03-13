@@ -3,7 +3,7 @@ import { generateElement } from 'generate';
 import { ElementInline } from 'handle';
 import { ParseForLoop, parser } from 'parse';
 import { meta } from 'shared';
-import { _call, _get } from 'syntax';
+import { _call } from 'syntax';
 
 import type { Statement, For } from '@babel/types';
 import type { ForPath } from 'types';
@@ -33,11 +33,11 @@ export class ComponentFor extends ElementInline {
   toExpression(){
     const { node, statements } = this;
     const { Imports } = this.context;
-    const accumulator = Imports.ensureUIDIdentifier("e");
+    const accumulator = Imports.ensureUIDIdentifier("add");
     const content = Imports.container(generateElement(this));
     const collect = Imports.ensure("$runtime", "collect");
     const collector = expressionStatement(
-      _call(_get(accumulator, "push"), content)
+      _call(accumulator, content)
     );
 
     node.body = statements.length

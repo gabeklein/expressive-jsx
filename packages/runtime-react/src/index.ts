@@ -100,11 +100,11 @@ function join(...args: string[]){
   return args.filter(x => x).join(" ");
 }
 
-type Accumulator = (acc: any[]) => void;
+type Accumulator = (add: (item: any) => void) => void;
 
 function collect(fn: Accumulator){
   const acc: any[] = [];
-  fn(acc);
+  fn(x => acc.push(x));
   return acc;
 }
 
