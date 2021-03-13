@@ -28,9 +28,6 @@ export function replaceDoExpression(path: Path<DoExpression>){
   const context = element.context as StackFrame;
   const factoryExpression = context.Imports.container(factory);
 
-  // if(meta instanceof ComponentExpression && meta.exec)
-  //     incorperateChildParameters(meta, state.context.Imports)
-
   if(element.exec && element.statements.length){
     const replacement = [
       ...element.statements,
