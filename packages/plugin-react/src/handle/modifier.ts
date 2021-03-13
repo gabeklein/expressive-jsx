@@ -6,26 +6,26 @@ import type { Statement } from '@babel/types';
 import type { StackFrame } from 'context';
 import type { SelectionProvider } from 'types';
 
-export abstract class Modifier extends AttributeBody {
+export abstract class Define extends AttributeBody {
   parse = parser(ParseContent);
 
   forSelector?: string[];
-  onlyWithin?: ContingentModifier;
+  onlyWithin?: DefineContingent;
   priority?: number;
 
-  alsoApplies = [] as Modifier[];
+  alsoApplies = [] as Define[];
   
   include(){
     this.context.modifiersDeclared.add(this);
   }
 }
 
-export class ElementModifier extends Modifier {
+export class DefineElement extends Define {
   name?: string;
-  next?: ElementModifier;
+  next?: DefineElement;
   hasTargets = 0;
 
-  provides = [] as ElementModifier[];
+  provides = [] as DefineElement[];
   priority = 1;
 
   constructor(
@@ -47,12 +47,12 @@ export class ElementModifier extends Modifier {
       if(applicable.sequence.length)
         applicable.include();
 
-      if(applicable instanceof ContingentModifier){
+      if(applicable instanceof DefineContingent){
         this.include();
         continue;
       }
         
-      if(applicable instanceof ElementModifier)
+      if(applicable instanceof DefineElement)
         if(applicable.sequence.length)
         names.push(applicable.uid);
     }
@@ -60,19 +60,19 @@ export class ElementModifier extends Modifier {
     return names;
   }
 
-  applyModifier(mod: ElementModifier){
+  applyModifier(mod: DefineElement){
     mod.priority = this.priority;
     this.provides.push(mod);
     this.onlyWithin = mod.onlyWithin;
   }
 }
 
-export class ContingentModifier extends Modifier {
-  anchor: ElementModifier | ElementInline;
+export class DefineContingent extends Define {
+  anchor: DefineElement | ElementInline;
 
   constructor(
     context: StackFrame,
-    parent: ContingentModifier | ElementModifier | ElementInline,
+    parent: DefineElement | DefineContingent | ElementInline,
     contingent?: string | SelectionProvider
   ){
     super(context);
@@ -83,7 +83,7 @@ export class ContingentModifier extends Modifier {
       select = [ `.${parent.uid}` ];
     else {
       select = Object.create(parent.forSelector!);
-      if(parent instanceof ContingentModifier)
+      if(parent instanceof DefineContingent)
         parent = parent.anchor;
     }
 
@@ -96,13 +96,13 @@ export class ContingentModifier extends Modifier {
     this.forSelector = select;
   }
 
-  applyModifier(mod: ElementModifier){
+  applyModifier(mod: DefineElement){
     const { anchor } = this;
 
     mod.onlyWithin = this;
     mod.priority = 4;
 
-    if(anchor instanceof ElementModifier)
+    if(anchor instanceof DefineElement)
       anchor.provides.push(mod)
     else
       anchor.context.elementMod(mod)

@@ -1,5 +1,5 @@
 import type { ElementInline } from 'handle/element';
-import type { ElementModifier } from 'handle/modifier';
+import type { DefineElement } from 'handle/modifier';
 
 const COMMON_HTML = [
   "article", "blockquote", "input",
@@ -35,7 +35,7 @@ export function applyNameImplications(
   prefix?: string){
 
   const { context } = target;
-  let modify: ElementModifier | undefined =
+  let modify: DefineElement | undefined =
     context.elementMod(name);
 
   if(isHead){
@@ -67,7 +67,7 @@ export function applyNameImplications(
 }
 
 function infiniteLoopDetected(
-  modify: ElementModifier){
+  modify: DefineElement){
 
   if(modify !== modify.next)
     return false;

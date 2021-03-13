@@ -7,7 +7,7 @@ import type {
   Expression,
   JSXMemberExpression,
 } from '@babel/types';
-import type { ElementModifier, Modifier } from 'handle/modifier';
+import type { DefineElement, Define } from 'handle/modifier';
 import type { InnerContent } from 'types';
 
 export class ElementInline extends AttributeBody {
@@ -17,7 +17,7 @@ export class ElementInline extends AttributeBody {
   primaryName?: string;
   children = [] as InnerContent[];
   explicitTagName?: string | JSXMemberExpression;
-  modifiers = [] as Modifier[];
+  modifiers = [] as Define[];
 
   get tagName(): string | JSXMemberExpression {
     const { name, explicitTagName } = this;
@@ -40,7 +40,7 @@ export class ElementInline extends AttributeBody {
     this.add(child);
   }
 
-  applyModifier(mod: ElementModifier){
+  applyModifier(mod: DefineElement){
     this.context.elementMod(mod);
   }
 }

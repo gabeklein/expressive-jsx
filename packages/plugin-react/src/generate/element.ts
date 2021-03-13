@@ -1,6 +1,6 @@
 import { callExpression, isExpression, isStringLiteral, stringLiteral } from '@babel/types';
 import { AttributeStack } from 'generate';
-import { ComponentExpression, ComponentIf, ContingentModifier, ElementModifier, ExplicitStyle, Prop } from 'handle';
+import { ComponentExpression, ComponentIf, DefineContingent, DefineElement, ExplicitStyle, Prop } from 'handle';
 
 import type { ElementInline } from 'handle';
 import type { Expression } from '@babel/types';
@@ -100,7 +100,7 @@ export function generateElement(element: ElementInline){
     // TODO: respect priority differences!
 
     for(const mod of element.modifiers){
-      if(!(mod instanceof ElementModifier))
+      if(!(mod instanceof DefineElement))
         continue
 
       if(mod.sequence.length === 0 && mod.alsoApplies.length === 0)
@@ -136,7 +136,7 @@ export function generateElement(element: ElementInline){
   function applyHoistedStyle(){
     if(style_static.length > 0){
       const { name, uid } = element;
-      const mod = new ContingentModifier(context, element);
+      const mod = new DefineContingent(context, element);
 
       const classMostLikelyForwarded =
         /^[A-Z]/.test(name!) &&

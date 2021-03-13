@@ -5,7 +5,7 @@ import { DEFAULTS, hash, Stack } from 'shared';
 import type { NodePath as Path } from '@babel/traverse';
 import type { Program } from '@babel/types';
 import type { ComponentExpression } from 'handle/entry';
-import type { ElementModifier, Modifier } from 'handle/modifier';
+import type { DefineElement, Define } from 'handle/modifier';
 import type { ComponentIf } from 'handle/switch';
 import type { ExternalsManager } from 'generate/scope';
 import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
@@ -13,7 +13,7 @@ import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
 type Stackable = { context: StackFrame };
 
 export class StackFrame {
-  modifiersDeclared = new Set<Modifier>();
+  modifiersDeclared = new Set<Define>();
   opts: Options;
 
   prefix: string;
@@ -26,7 +26,7 @@ export class StackFrame {
   parentIf?: ComponentIf;
   currentIf?: ComponentIf;
 
-  modifiers = new Stack<ElementModifier>();
+  modifiers = new Stack<DefineElement>();
   handlers = new Stack<ModifyAction>();
 
   Imports: ExternalsManager;
@@ -96,9 +96,9 @@ export class StackFrame {
     return this.handlers.get(named);
   }
 
-  elementMod(name: string): ElementModifier;
-  elementMod(set: ElementModifier): void;
-  elementMod(mod: string | ElementModifier){
+  elementMod(name: string): DefineElement;
+  elementMod(set: DefineElement): void;
+  elementMod(mod: string | DefineElement){
     const stack = this.modifiers;
 
     if(typeof mod == "string")

@@ -6,7 +6,7 @@ import {
   ComponentForIn,
   ComponentForOf,
   ComponentIf,
-  ElementModifier,
+  DefineElement,
   Prop,
 } from 'handle';
 import { applyModifier } from 'modifier';
@@ -57,7 +57,7 @@ export const ParseAttributes: ParserFor<AttributeBody> = {
 
     else if(body.isBlockStatement() || body.isLabeledStatement())
       this.applyModifier(
-        new ElementModifier(context, name, body)
+        new DefineElement(context, name, body)
       );
 
     else

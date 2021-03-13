@@ -13,7 +13,7 @@ import {
   unaryExpression,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { ComponentExpression, ContingentModifier, ElementInline } from 'handle';
+import { ComponentExpression, DefineContingent, ElementInline } from 'handle';
 import { ParseConsequent, parser } from 'parse';
 import { generateElement } from 'generate';
 import { ensureArray, hash, meta } from 'shared';
@@ -210,7 +210,7 @@ export class ComponentIf {
 export class ComponentConsequent extends ElementInline {
   parse = parser(ParseConsequent);
 
-  slaveModifier?: ContingentModifier;
+  slaveModifier?: DefineContingent;
   usesClassname?: string;
   doesReturn?: true;
 
@@ -301,7 +301,7 @@ export class ComponentConsequent extends ElementInline {
     selector += `_${uid}`;
 
     const parent = context.currentElement!;
-    const mod = new ContingentModifier(context, parent, `.${selector}`);
+    const mod = new DefineContingent(context, parent, `.${selector}`);
 
     mod.priority = 5
 

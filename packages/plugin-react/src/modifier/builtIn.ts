@@ -7,7 +7,7 @@ import {
   variableDeclaration,
   variableDeclarator,
 } from '@babel/types';
-import { ElementInline, Modifier, Prop } from 'handle';
+import { ElementInline, Define, Prop } from 'handle';
 
 import type { Identifier } from '@babel/types';
 import type { ComponentExpression } from 'handle/entry';
@@ -31,7 +31,7 @@ export function use(
     if(target instanceof ElementInline)
       target.modifiers.push(mod);
     else
-    if(target instanceof Modifier)
+    if(target instanceof Define)
       target.alsoApplies.push(mod);
   }
 }
@@ -41,7 +41,7 @@ export function priority(
   priority: number){
 
   const { target } = this;
-  if(target instanceof Modifier)
+  if(target instanceof Define)
     target.priority = priority
 }
 

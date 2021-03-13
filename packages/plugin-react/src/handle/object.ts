@@ -1,7 +1,7 @@
 import { ExplicitStyle } from './attributes';
 
 import type { StackFrame } from 'context';
-import type { Modifier } from 'handle/modifier';
+import type { Define } from 'handle/modifier';
 import type { ComponentIf } from 'handle/switch';
 import type { BunchOf, SequenceItem } from 'types';
 import type { Prop } from './attributes';
@@ -25,7 +25,7 @@ export abstract class AttributeBody {
     this.context = context.push(this);
   }
 
-  abstract applyModifier(mod: Modifier): void;
+  abstract applyModifier(mod: Define): void;
 
   wasAddedTo?<T extends AttributeBody>(element?: T): void;
 

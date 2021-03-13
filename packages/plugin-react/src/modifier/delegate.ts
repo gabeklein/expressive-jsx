@@ -1,4 +1,4 @@
-import { ContingentModifier, ElementInline, ElementModifier, ExplicitStyle } from 'handle';
+import { DefineContingent, ElementInline, DefineElement, ExplicitStyle } from 'handle';
 import { _require } from 'syntax';
 
 import { DelegateTypes } from './arguments';
@@ -81,7 +81,7 @@ export class ModifyDelegate {
     usingBody?: Path<Statement>){
 
     const { target } = this;
-    const mod = new ContingentModifier(
+    const mod = new DefineContingent(
       this.target.context,
       this.target as any,
       contingent
@@ -93,11 +93,11 @@ export class ModifyDelegate {
     if(target instanceof ElementInline)
       target.modifiers.push(mod);
 
-    else if(target instanceof ElementModifier)
+    else if(target instanceof DefineElement)
       target.alsoApplies.push(mod);
 
     else if(
-      target instanceof ContingentModifier && 
+      target instanceof DefineContingent && 
       target.anchor instanceof ElementInline
     )
       target.anchor.modifiers.push(mod);
