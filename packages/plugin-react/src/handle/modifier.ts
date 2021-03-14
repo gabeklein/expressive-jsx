@@ -53,7 +53,7 @@ export class DefineElement extends Define {
         
       if(applicable instanceof DefineElement)
         if(applicable.sequence.length)
-        names.push(applicable.uid);
+          names.push(applicable.uid);
     }
 
     return names;
@@ -68,6 +68,7 @@ export class DefineElement extends Define {
 
 export class DefineContingent extends Define {
   anchor: DefineElement | ElementInline;
+  forSelector: string[];
 
   constructor(
     context: StackFrame,
@@ -81,13 +82,14 @@ export class DefineContingent extends Define {
     if(parent instanceof ElementInline)
       select = [ `.${parent.uid}` ];
     else {
-      select = Object.create(parent.forSelector!);
+      select = [ ...parent.forSelector || [] ];
+
       if(parent instanceof DefineContingent)
         parent = parent.anchor;
     }
 
     if(contingent)
-      select.push(contingent);
+      select.push(`.${contingent}`);
 
     this.anchor = parent;
     this.forSelector = select;

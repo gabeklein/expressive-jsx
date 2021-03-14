@@ -301,11 +301,11 @@ export class ComponentConsequent extends ElementInline {
     const uid = hash(this.context.prefix)
 
     //TODO: Discover helpfulness of customized className.
-    let selector = specifyOption(this.test) || `opt${this.index}`;
-    selector += `_${uid}`;
+    const name = specifyOption(this.test) || `opt${this.index}`;
+    const selector = `${name}_${uid}`;
 
     const parent = context.currentElement!;
-    const mod = new DefineContingent(context, parent, `.${selector}`);
+    const mod = new DefineContingent(context, parent, selector);
 
     mod.priority = 5
 
@@ -333,8 +333,6 @@ function specifyOption(test?: Expression){
     ref = "not_"
   }
 
-  if(isIdentifier(test)){
-    const { name } = test;
-    return ref + name;
-  }
+  if(isIdentifier(test))
+    return ref + test.name;
 }
