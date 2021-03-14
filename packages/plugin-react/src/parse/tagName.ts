@@ -52,11 +52,11 @@ export function applyNameImplications(
 
   while(modify){
     target.modifiers.push(modify);
-    modify.hasTargets += 1
+    modify.targets.add(target)
 
     // for(const mod of parent.modifiers)
     // if(mod instanceof ElementModifier)
-    for(const sub of modify.provides)
+    for(const sub of modify.includes)
       target.context.elementMod(sub)
 
     if(infiniteLoopDetected(modify))

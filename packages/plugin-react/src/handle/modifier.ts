@@ -20,11 +20,10 @@ export abstract class Define extends AttributeBody {
 }
 
 export class DefineElement extends Define {
-  name?: string;
   next?: DefineElement;
-  hasTargets = 0;
+  includes = new Set<DefineElement>();
+  targets = new Set<ElementInline>();
 
-  provides = [] as DefineElement[];
   priority = 1;
 
   constructor(
@@ -37,6 +36,9 @@ export class DefineElement extends Define {
     this.context.resolveFor(name);
     this.forSelector = [ `.${this.uid}` ];
     this.parse(body);
+
+    // if(/^[A-Z]/.test(name))
+    //   this.priority = 3;
   }
 
   get classList(){
@@ -61,7 +63,7 @@ export class DefineElement extends Define {
 
   applyModifier(mod: DefineElement){
     mod.priority = this.priority;
-    this.provides.push(mod);
+    this.includes.add(mod);
     this.onlyWithin = mod.onlyWithin;
   }
 }
@@ -115,7 +117,7 @@ export class DefineContingent extends Define {
     mod.priority = 4;
 
     if(anchor instanceof DefineElement)
-      anchor.provides.push(mod)
+      anchor.includes.add(mod)
     else
       anchor.context.elementMod(mod)
   }

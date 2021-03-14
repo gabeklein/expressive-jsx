@@ -7,8 +7,8 @@ import type { BunchOf, SequenceItem } from 'types';
 import type { Prop } from './attributes';
 
 export abstract class AttributeBody {
-  context: StackFrame
   name?: string;
+  context: StackFrame
   parent?: AttributeBody | ComponentIf;
 
   props = {} as BunchOf<Prop>;

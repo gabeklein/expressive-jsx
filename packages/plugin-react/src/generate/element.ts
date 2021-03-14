@@ -1,6 +1,6 @@
 import { callExpression, isExpression, isStringLiteral, stringLiteral } from '@babel/types';
 import { AttributeStack } from 'generate';
-import { ComponentExpression, ComponentIf, DefineContingent, DefineElement, ExplicitStyle, Prop } from 'handle';
+import { ComponentIf, DefineContingent, DefineElement, ExplicitStyle, Prop } from 'handle';
 
 import type { ElementInline } from 'handle';
 import type { Expression } from '@babel/types';
@@ -109,7 +109,7 @@ export function generateElement(element: ElementInline){
       if(mod.sequence.length === 0 && mod.alsoApplies.length === 0)
         continue;
 
-      if(mod.hasTargets > 1 || mod.onlyWithin && !inline_only){
+      if(mod.targets.size > 1 || mod.onlyWithin && !inline_only){
         classList.push(...mod.classList)
         continue;
       }
@@ -137,19 +137,15 @@ export function generateElement(element: ElementInline){
   }
 
   function applyHoistedStyle(){
-    if(style_static.length > 0){
-      const { name, uid } = element;
-      const mod = new DefineContingent(context, element);
+    if(style_static.length === 0)
+      return;
 
-      const classMostLikelyForwarded =
-        /^[A-Z]/.test(name!) &&
-        !(element instanceof ComponentExpression);
+    const mod = new DefineContingent(context, element);
 
-      mod.priority = classMostLikelyForwarded ? 3 : 2;
-      mod.sequence.push(...style_static);
-      mod.forSelector = [ `.${uid}` ];
-      mod.setActive();
-    }
+    mod.priority = 2;
+    mod.sequence.push(...style_static);
+    mod.forSelector = [ `.${element.uid}` ];
+    mod.setActive();
   }
 
   function applyClassname(){
