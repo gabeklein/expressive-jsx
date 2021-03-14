@@ -14,7 +14,7 @@ export abstract class Define extends AttributeBody {
 
   alsoApplies = [] as Define[];
   
-  include(){
+  setActive(){
     this.context.modifiersDeclared.add(this);
   }
 }
@@ -44,10 +44,10 @@ export class DefineElement extends Define {
  
     for(const applicable of [this, ...this.alsoApplies]){
       if(applicable.sequence.length)
-        applicable.include();
+        applicable.setActive();
 
       if(applicable instanceof DefineContingent){
-        this.include();
+        this.setActive();
         continue;
       }
         
@@ -98,7 +98,7 @@ export class DefineContingent extends Define {
   }
 
   toClassName(){
-    this.include();
+    this.setActive();
 
     const include = this.alsoApplies.map(x => x.uid);
 

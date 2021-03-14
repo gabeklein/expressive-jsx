@@ -148,7 +148,7 @@ export function generateElement(element: ElementInline){
       mod.priority = classMostLikelyForwarded ? 3 : 2;
       mod.sequence.push(...style_static);
       mod.forSelector = [ `.${uid}` ];
-      mod.include();
+      mod.setActive();
     }
   }
 
