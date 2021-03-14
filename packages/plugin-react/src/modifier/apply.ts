@@ -27,21 +27,18 @@ export function applyModifier(
   recipient: AttributeBody,
   input: ModifyBodyPath){
 
-  const handler = recipient.context.getHandler(initial);
-  
+  const { context } = recipient;
   const styles = {} as BunchOf<ExplicitStyle>;
-  // const props = {} as BunchOf<Attribute>;
 
   let i = 0;
-  let stack: ModTuple[] = [[ initial, handler, input ]];
+  let stack: ModTuple[] = [
+    [ initial, context.getHandler(initial), input ]
+  ];
 
   do {
-    const next = stack[i];
-    const output = new ModifyDelegate(recipient, ...next);
+    const output = new ModifyDelegate(recipient, ...stack[i]);
 
     Object.assign(styles, output.styles);
-    // Object.assign(props, output.props);
-
     const recycle = output.attrs;
     const pending = [] as ModTuple[];
 
@@ -49,17 +46,17 @@ export function applyModifier(
       for(const named in recycle){
         const input = recycle[named];
 
-        if(input == null)
-          continue;
+        if(input){
+          const useNext = named === initial;
+          const handler = context.getHandler(named, useNext);
 
-        const useNext = named === initial;
-        const handler = recipient.context.getHandler(named, useNext);
-
-        pending.push([named, handler, input]);
+          pending.push([named, handler, input]);
+        }
       }
 
     if(pending.length){
-      stack = [...pending, ...stack.slice(i+1)];
+      const remaining = stack.slice(i+1);
+      stack = [...pending, ...remaining];
       i = 0;
     }
     else i++

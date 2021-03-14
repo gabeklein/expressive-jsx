@@ -15,9 +15,10 @@ export class ElementInline extends AttributeBody {
 
   doBlock?: DoExpression
   primaryName?: string;
-  children = [] as InnerContent[];
   explicitTagName?: string | JSXMemberExpression;
-  modifiers = [] as Define[];
+
+  children: InnerContent[] = [];
+  modifiers: Define[] = [];
 
   get tagName(): string | JSXMemberExpression {
     const { name, explicitTagName } = this;
