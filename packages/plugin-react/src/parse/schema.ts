@@ -56,7 +56,7 @@ export const ParseAttributes: ParserFor<AttributeBody> = {
       applyModifier(name, this, body);
 
     else if(body.isBlockStatement() || body.isLabeledStatement())
-      this.applyModifier(
+      this.use(
         new DefineElement(context, name, body)
       );
 

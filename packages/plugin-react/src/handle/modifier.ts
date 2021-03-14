@@ -61,10 +61,10 @@ export class DefineElement extends Define {
     return names;
   }
 
-  applyModifier(mod: DefineElement){
-    mod.priority = this.priority;
-    this.includes.add(mod);
-    this.onlyWithin = mod.onlyWithin;
+  use(define: DefineElement){
+    define.priority = this.priority;
+    this.includes.add(define);
+    this.onlyWithin = define.onlyWithin;
   }
 }
 
@@ -110,15 +110,15 @@ export class DefineContingent extends Define {
     return include.join(" ");
   }
 
-  applyModifier(mod: DefineElement){
+  use(define: DefineElement){
     const { anchor } = this;
 
-    mod.onlyWithin = this;
-    mod.priority = 4;
+    define.onlyWithin = this;
+    define.priority = 4;
 
     if(anchor instanceof DefineElement)
-      anchor.includes.add(mod)
+      anchor.includes.add(define)
     else
-      anchor.context.elementMod(mod)
+      anchor.context.elementMod(define)
   }
 }

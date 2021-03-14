@@ -40,7 +40,7 @@ export class ElementInline extends AttributeBody {
     this.add(child);
   }
 
-  applyModifier(mod: DefineElement){
-    this.context.elementMod(mod);
+  use(define: DefineElement){
+    this.context.elementMod(define);
   }
 }

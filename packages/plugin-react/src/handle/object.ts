@@ -25,7 +25,7 @@ export abstract class AttributeBody {
     this.context = context.push(this);
   }
 
-  abstract applyModifier(mod: Define): void;
+  abstract use(define: Define): void;
 
   wasAddedTo?<T extends AttributeBody>(element?: T): void;
 
