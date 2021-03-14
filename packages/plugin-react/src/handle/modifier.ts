@@ -69,6 +69,7 @@ export class DefineElement extends Define {
 export class DefineContingent extends Define {
   anchor: DefineElement | ElementInline;
   forSelector: string[];
+  ownSelector?: string;
 
   constructor(
     context: StackFrame,
@@ -92,7 +93,19 @@ export class DefineContingent extends Define {
       select.push(`.${contingent}`);
 
     this.anchor = parent;
+    this.ownSelector = contingent;
     this.forSelector = select;
+  }
+
+  toClassName(){
+    this.include();
+
+    const include = this.alsoApplies.map(x => x.uid);
+
+    if(this.sequence.length)
+      include.unshift(this.ownSelector!);
+
+    return include.join(" ");
   }
 
   applyModifier(mod: DefineElement){

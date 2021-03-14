@@ -126,11 +126,14 @@ export class ComponentIf {
       return;
     
     return this.reduceUsing((cond) => {
-      if("usesClassname" in cond)
-        return stringLiteral(cond.usesClassname!);
-
-      if("hasStyleOutput" in cond)
+      if(cond instanceof ComponentIf)
         return cond.toClassName();
+
+      const mod = cond.slaveModifier;
+      const className = mod && mod.toClassName();
+        
+      if(className)
+        return stringLiteral(className);
     })
   }
 
@@ -215,7 +218,6 @@ export class ComponentConsequent extends ElementInline {
   parse = parser(ParseConsequent);
 
   slaveModifier?: DefineContingent;
-  usesClassname?: string;
   doesReturn?: true;
 
   get parentElement(){
@@ -249,7 +251,6 @@ export class ComponentConsequent extends ElementInline {
     meta(body, this);
 
     if(!body){
-      this.didExitOwnScope();
       const child = this.children[0];
 
       if(child instanceof ElementInline)
@@ -271,28 +272,6 @@ export class ComponentConsequent extends ElementInline {
       while(context = context.parent);
 
     super.adopt(child)
-  }
-
-  didExitOwnScope(){
-    const mod = this.slaveModifier;
-    const parent = this.context.currentElement!;
-
-    if(!mod)
-      return;
-
-    const include =
-      mod.alsoApplies.map(x => x.uid).join(" ");
-
-    if(mod.sequence.length)
-      parent.modifiers.push(mod);
-    else
-      this.usesClassname = "";
-
-    if(include)
-      if(this.usesClassname)
-        this.usesClassname += " " + include;
-      else
-        this.usesClassname = include;
   }
 
   slaveNewModifier(){
@@ -317,7 +296,6 @@ export class ComponentConsequent extends ElementInline {
       }
       while(context = context.parent)
 
-    this.usesClassname = selector;
     return this.slaveModifier = mod;
   }
 }
