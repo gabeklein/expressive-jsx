@@ -11,7 +11,7 @@ import type { StackFrame } from 'context';
 import type { ElementInline } from 'handle';
 
 export function replaceDoExpression(path: Path<DoExpression>){
-  const element = meta(path.node).meta as ElementInline;
+  const element = meta(path.node).expressive_target as ElementInline;
 
   if(!(element instanceof ComponentExpression))
     return;

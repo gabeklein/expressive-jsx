@@ -12,15 +12,15 @@ export const DEFAULTS: Options = {
 };
 
 interface DoExpressive extends DoExpression {
-  meta: ElementInline;
+  expressive_target: ElementInline;
   expressive_parent?: Prop;
 }
 
-export function meta(exp: DoExpression, meta: ElementInline): void;
 export function meta(exp: DoExpression): DoExpressive;
+export function meta(exp: DoExpression, meta: ElementInline): void;
 export function meta(exp: DoExpression, meta?: ElementInline){
   if(meta)
-    (exp as DoExpressive).meta = meta;
+    (exp as DoExpressive).expressive_target = meta;
   else
     return (exp as DoExpressive);
 }

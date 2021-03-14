@@ -45,15 +45,13 @@ const Program: Visitor<ProgramNode> = {
 
 const DoExpression: Visitor<DoExpressionNode> = {
   enter(path, state){
-    let { meta: element } = meta(path.node);
+    let { expressive_target: element } = meta(path.node);
 
     if(!element)
       element = generateEntryElement(path, state.context);
 
-    const traversable = path.get("body").get("body");
-
-    for(const item of traversable)
-      element.parse(item);
+    const body = path.get("body").get("body");
+    body.forEach(item => element.parse(item));
   },
   exit: replaceDoExpression
 }
