@@ -31,7 +31,6 @@ const Oops = ParseErrors({
   AssignmentNotEquals: "Only `=` assignment may be used here.",
   BadInputModifier: "Modifier input of type {1} not supported here!",
   BadModifierName: "Modifier name cannot start with _ symbol!",
-  DuplicateModifier: "Duplicate declaration of named modifier!",
   ExpressionUnknown: "Unhandled expressionary statement of type {1}",
   NodeUnknown: "Unhandled node of type {1}",
   PropNotIdentifier: "Assignment must be identifier name of a prop.",
@@ -47,10 +46,7 @@ export const ParseAttributes: ParserFor<AttributeBody> = {
     const { context } = this;
 
     if(name[0] == "_")
-      throw Oops.BadModifierName(path)
-
-    if(context.modifiers.has(name))
-      throw Oops.DuplicateModifier(path);
+      throw Oops.BadModifierName(path);
 
     if(body.isExpressionStatement())
       applyModifier(name, this, body);
