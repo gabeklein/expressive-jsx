@@ -11,7 +11,6 @@ import type { BunchOf, ModifyBodyPath, ModifyAction } from 'types';
 
 export class ModifyDelegate {
   arguments?: Array<any>
-  priority?: number;
   done?: true;
   body?: Path<Statement>;
 
@@ -77,7 +76,7 @@ export class ModifyDelegate {
 
   setContingent(
     contingent: string,
-    priority?: number,
+    priority: number,
     usingBody?: Path<Statement>){
 
     const { target } = this;
@@ -87,7 +86,7 @@ export class ModifyDelegate {
       contingent
     )
 
-    mod.priority = priority || this.priority;
+    mod.priority = priority;
     mod.parse(usingBody || this.body!);
 
     if(target instanceof ElementInline)

@@ -10,8 +10,8 @@ export abstract class Define extends AttributeBody {
 
   forSelector?: string[];
   onlyWithin?: DefineContingent;
-  priority?: number;
 
+  priority = 1;
   alsoApplies = [] as Define[];
   
   setActive(){
@@ -23,8 +23,6 @@ export class DefineElement extends Define {
   next?: DefineElement;
   includes = new Set<DefineElement>();
   targets = new Set<ElementInline>();
-
-  priority = 1;
 
   constructor(
     context: StackFrame,
