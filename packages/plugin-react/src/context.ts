@@ -96,7 +96,7 @@ export class StackFrame {
     return this.handlers.get(named);
   }
 
-  elementMod(name: string): DefineElement;
+  elementMod(name: string): DefineElement | undefined;
   elementMod(set: DefineElement): void;
   elementMod(mod: string | DefineElement){
     const stack = this.modifiers;

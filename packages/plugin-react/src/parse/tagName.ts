@@ -34,9 +34,7 @@ export function applyNameImplications(
   isHead?: true,
   prefix?: string){
 
-  const { context } = target;
-  let modify: DefineElement | undefined =
-    context.elementMod(name);
+  let modify = target.context.elementMod(name);
 
   if(isHead){
     let explicit;
