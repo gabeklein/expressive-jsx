@@ -58,20 +58,29 @@ class ComponentForX extends ElementInline {
   }
 
   ensureKeyProp(key: Identifier){
-    const { children, props } = this;
+    const { children, sequence } = this;
     const [ element ] = children;
-  
-    if(props.key)
+
+    const props = sequence.filter(x => x instanceof Prop) as Prop[];
+
+    if(props.find(x => x.name === "key"))
       return;
 
-    if(children.length == 1 && Object.keys(props).length == 0)
+    const keyProp = new Prop("key", key);
+
+    if(children.length == 1 && props.length == 0)
       if(element instanceof ElementInline){
-        if(element.props.key === undefined)
-          element.insert(new Prop("key", key));
+        const exists = element.sequence.find(x =>
+          x instanceof Prop && x.name === "key"
+        );
+
+        if(!exists)
+          element.insert(keyProp);
+
         return;
       }
 
-    this.insert(new Prop("key", key));
+    this.insert(keyProp);
   }
 
   getReferences(){
