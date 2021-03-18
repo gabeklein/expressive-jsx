@@ -62,6 +62,7 @@ export class ComponentIf {
     const item = new this(path, parent.context);
 
     parent.adopt(item);
+    item.setup();
     path.replaceWith(
       blockStatement(item.doBlocks!)
     )
@@ -137,7 +138,7 @@ export class ComponentIf {
     })
   }
 
-  wasAddedTo(){
+  setup(){
     const { context } = this;
     let layer: Path<any> = this.path;
 
@@ -204,8 +205,7 @@ export class ComponentIf {
     const doInsert = [] as ExpressionStatement[];
 
     for(const fork of this.forks)
-      if(fork instanceof ComponentConsequent
-      && fork.doBlock)
+      if(fork instanceof ComponentConsequent && fork.doBlock)
         doInsert.push(
           expressionStatement(fork.doBlock)
         )
