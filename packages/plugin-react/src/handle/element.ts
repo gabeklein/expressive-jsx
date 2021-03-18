@@ -20,13 +20,6 @@ export class ElementInline extends AttributeBody {
   children: InnerContent[] = [];
   modifiers: Define[] = [];
 
-  get tagName(): string | JSXMemberExpression {
-    const { name, explicitTagName } = this;
-    return explicitTagName || (
-      name && /^[A-Z]/.test(name) ? name : "div"
-    );
-  }
-
   toExpression(): Expression {
     const info = generateElement(this);
     return this.context.Imports.element(info);
