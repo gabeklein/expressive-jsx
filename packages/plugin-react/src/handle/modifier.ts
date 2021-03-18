@@ -4,6 +4,7 @@ import { ParseContent, parser } from 'parse';
 import type { NodePath as Path } from '@babel/traverse';
 import type { Statement } from '@babel/types';
 import type { StackFrame } from 'context';
+import { ExplicitStyle } from './attributes';
 
 export abstract class Define extends AttributeBody {
   parse = parser(ParseContent);
@@ -19,6 +20,12 @@ export abstract class Define extends AttributeBody {
   
   setActive(){
     this.context.modifiersDeclared.add(this);
+  }
+
+  addStyle(name: string, value: any){
+    this.add(
+      new ExplicitStyle(name, value)
+    )
   }
 }
 

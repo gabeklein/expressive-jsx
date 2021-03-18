@@ -32,10 +32,4 @@ export abstract class AttributeBody {
     if("wasAddedTo" in item && item.wasAddedTo)
       item.wasAddedTo(this);
   }
-
-  addStyle(name: string, value: any){
-    this.add(
-      new ExplicitStyle(name, value)
-    )
-  }
 }
