@@ -75,12 +75,12 @@ class ComponentForX extends ElementInline {
         );
 
         if(!exists)
-          element.insert(keyProp);
+          element.add(keyProp);
 
         return;
       }
 
-    this.insert(keyProp);
+    this.add(keyProp);
   }
 
   getReferences(){

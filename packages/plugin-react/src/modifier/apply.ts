@@ -64,7 +64,7 @@ export function applyModifier(
   while(i in stack)
 
   for(const name in styles)
-    recipient.insert(styles[name]);
+    recipient.add(styles[name]);
 }
 
 export function handleTopLevelModifier(

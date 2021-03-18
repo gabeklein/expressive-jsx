@@ -3,16 +3,13 @@ import { ExplicitStyle } from './attributes';
 import type { StackFrame } from 'context';
 import type { Define } from 'handle/modifier';
 import type { ComponentIf } from 'handle/switch';
-import type { BunchOf, SequenceItem } from 'types';
-import type { Prop } from './attributes';
+import type { SequenceItem } from 'types';
 
 export abstract class AttributeBody {
   name?: string;
   context: StackFrame
   parent?: AttributeBody | ComponentIf;
 
-  props = {} as BunchOf<Prop>;
-  style = {} as BunchOf<ExplicitStyle>;
   sequence = [] as SequenceItem[];
 
   get uid(){
@@ -36,19 +33,8 @@ export abstract class AttributeBody {
       item.wasAddedTo(this);
   }
 
-  insert(item: Prop | ExplicitStyle){
-    const { name } = item;
-    const register = item instanceof ExplicitStyle
-      ? this.style : this.props
-
-    if(name)
-      register[name] = item;
-
-    this.add(item);
-  }
-
   addStyle(name: string, value: any){
-    this.insert(
+    this.add(
       new ExplicitStyle(name, value)
     )
   }
