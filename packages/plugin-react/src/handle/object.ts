@@ -41,14 +41,8 @@ export abstract class AttributeBody {
     const register = item instanceof ExplicitStyle
       ? this.style : this.props
 
-    if(name){
-      const existing = register[name];
-
-      if(existing)
-        existing.overridden = true;
-
+    if(name)
       register[name] = item;
-    }
 
     this.add(item);
   }

@@ -7,9 +7,6 @@ export abstract class Attribute<T extends Expression = Expression> {
   name?: string;
   value: FlatValue | T | undefined
 
-  /** May be ignored; another style took its place. */
-  overridden?: boolean;
-
   /** Is a static value. May be hoisted and/or baked. */
   invariant?: boolean;
 

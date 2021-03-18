@@ -123,11 +123,10 @@ export function generateElement(element: ElementInline){
 
       for(const style of mod.sequence)
         if(style instanceof ExplicitStyle){
-          const { name, invariant, overridden } = style;
+          const { name, invariant } = style;
   
           if(!inline_only && !invariant
           || !name
-          || overridden
           || existing.has(name)
           || accumulator.has(name))
             continue;
