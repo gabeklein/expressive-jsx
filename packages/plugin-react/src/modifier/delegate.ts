@@ -93,7 +93,7 @@ export class ModifyDelegate {
       target.modifiers.push(mod);
 
     else if(target instanceof DefineElement)
-      target.alsoApplies.push(mod);
+      target.includes.add(mod);
 
     else if(
       target instanceof DefineContingent && 

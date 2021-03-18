@@ -8,11 +8,14 @@ import type { StackFrame } from 'context';
 export abstract class Define extends AttributeBody {
   parse = parser(ParseContent);
 
+  next?: Define;
   forSelector?: string[];
   onlyWithin?: DefineContingent;
-
+  
   priority = 1;
-  alsoApplies = [] as Define[];
+  provides = new Set<Define>();
+  includes = new Set<Define>();
+  targets = new Set<ElementInline>();
   
   setActive(){
     this.context.modifiersDeclared.add(this);
@@ -20,9 +23,6 @@ export abstract class Define extends AttributeBody {
 }
 
 export class DefineElement extends Define {
-  next?: DefineElement;
-  includes = new Set<DefineElement>();
-  targets = new Set<ElementInline>();
 
   constructor(
     context: StackFrame,
@@ -42,16 +42,14 @@ export class DefineElement extends Define {
   get classList(){
     const names: string[] = []
  
-    for(const applicable of [this, ...this.alsoApplies]){
+    for(const applicable of [this, ...this.includes]){
       if(applicable.sequence.length)
         applicable.setActive();
 
-      if(applicable instanceof DefineContingent){
+      if(applicable instanceof DefineContingent)
         this.setActive();
-        continue;
-      }
-        
-      if(applicable instanceof DefineElement)
+
+      else if(applicable instanceof DefineElement)
         if(applicable.sequence.length)
           names.push(applicable.uid);
     }
@@ -61,7 +59,7 @@ export class DefineElement extends Define {
 
   use(define: DefineElement){
     define.priority = this.priority;
-    this.includes.add(define);
+    this.provides.add(define);
     this.onlyWithin = define.onlyWithin;
   }
 }
@@ -100,7 +98,7 @@ export class DefineContingent extends Define {
   toClassName(){
     this.setActive();
 
-    const include = this.alsoApplies.map(x => x.uid);
+    const include = [...this.includes.values()].map(x => x.uid);
 
     if(this.sequence.length)
       include.unshift(this.ownSelector!);
@@ -115,7 +113,7 @@ export class DefineContingent extends Define {
     define.priority = 4;
 
     if(anchor instanceof DefineElement)
-      anchor.includes.add(define)
+      anchor.provides.add(define)
     else
       anchor.context.elementMod(define)
   }

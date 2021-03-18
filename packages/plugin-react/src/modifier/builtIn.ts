@@ -32,7 +32,7 @@ export function use(
       target.modifiers.push(mod);
     else
     if(target instanceof Define)
-      target.alsoApplies.push(mod);
+      target.includes.add(mod);
   }
 }
 

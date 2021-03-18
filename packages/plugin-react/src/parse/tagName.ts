@@ -1,5 +1,4 @@
 import type { ElementInline } from 'handle/element';
-import type { DefineElement } from 'handle/modifier';
 
 const COMMON_HTML = [
   "article", "blockquote", "input",
@@ -50,31 +49,11 @@ export function applyNameImplications(
 
   while(modify){
     target.modifiers.push(modify);
-    modify.targets.add(target)
+    modify.targets.add(target);
 
-    // for(const mod of parent.modifiers)
-    // if(mod instanceof ElementModifier)
     for(const sub of modify.includes)
-      target.context.elementMod(sub)
+      target.context.elementMod(sub);
 
-    if(infiniteLoopDetected(modify))
-      break;
-      
     modify = modify.next;
   }
-}
-
-function infiniteLoopDetected(
-  modify: DefineElement){
-
-  if(modify !== modify.next)
-    return false;
-  
-  try {
-    if(~process.execArgv.join().indexOf("inspect-brk"))
-      console.error(`Still haven't fixed inheritance leak apparently. \n target: ${name}`)
-  }
-  catch(err){}
-
-  return true;
 }

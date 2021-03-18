@@ -5,7 +5,7 @@ import { DEFAULTS, hash, Stack } from 'shared';
 import type { NodePath as Path } from '@babel/traverse';
 import type { Program } from '@babel/types';
 import type { ComponentExpression } from 'handle/entry';
-import type { DefineElement, Define } from 'handle/modifier';
+import type { Define } from 'handle/modifier';
 import type { ComponentIf } from 'handle/switch';
 import type { ExternalsManager } from 'generate/scope';
 import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
@@ -26,7 +26,7 @@ export class StackFrame {
   parentIf?: ComponentIf;
   currentIf?: ComponentIf;
 
-  modifiers = new Stack<DefineElement>();
+  modifiers = new Stack<Define>();
   handlers = new Stack<ModifyAction>();
 
   Imports: ExternalsManager;
@@ -96,9 +96,9 @@ export class StackFrame {
     return this.handlers.get(named);
   }
 
-  elementMod(name: string): DefineElement | undefined;
-  elementMod(set: DefineElement): void;
-  elementMod(mod: string | DefineElement){
+  elementMod(name: string): Define | undefined;
+  elementMod(set: Define): void;
+  elementMod(mod: string | Define){
     const stack = this.modifiers;
 
     if(typeof mod == "string")

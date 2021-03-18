@@ -4,7 +4,7 @@ import { ComponentIf, DefineContingent, DefineElement, ExplicitStyle, Prop } fro
 
 import type { ElementInline } from 'handle';
 import type { Expression } from '@babel/types';
-import type { BunchOf, PropData, SequenceItem } from 'types';
+import type { PropData, SequenceItem } from 'types';
 import type { ExternalsManager } from 'generate';
 
 export function generateElement(element: ElementInline){
@@ -99,17 +99,24 @@ export function generateElement(element: ElementInline){
   }
 
   function applyModifiers(){
-    const accumulator = {} as BunchOf<ExplicitStyle>;
-    // TODO: respect priority differences!
+    const existing = new Set<string>();
+    const accumulator = new Map<string, ExplicitStyle>();
+    const definitions = element.modifiers.sort(
+      (x, y) => x.priority - y.priority
+    );
+    
+    for(const mod of element.sequence)
+      if(mod instanceof ExplicitStyle && mod.name)
+        existing.add(mod.name)
 
-    for(const mod of element.modifiers){
+    for(const mod of definitions){
       if(!(mod instanceof DefineElement))
-        continue
-
-      if(mod.sequence.length === 0 && mod.alsoApplies.length === 0)
         continue;
 
-      if(mod.targets.size > 1 || mod.onlyWithin && !inline_only){
+      if(mod.sequence.length === 0 && mod.includes.size === 0)
+        continue;
+
+      if(!inline_only && mod.targets.size > 1 || mod.onlyWithin){
         classList.push(...mod.classList)
         continue;
       }
@@ -118,22 +125,18 @@ export function generateElement(element: ElementInline){
         if(style instanceof ExplicitStyle){
           const { name, invariant, overridden } = style;
   
-          if(!invariant
+          if(!inline_only && !invariant
+          || !name
           || overridden
-          || name === undefined
-          || name in element.style
-          || name in accumulator)
+          || existing.has(name)
+          || accumulator.has(name))
             continue;
   
-          accumulator[name] = style;
+          accumulator.set(name, style);
         }
     }
 
-    for(const name in accumulator){
-      const style = accumulator[name];
-      element.style[name] = style;
-      applyStyle(style);
-    }
+    accumulator.forEach(applyStyle);
   }
 
   function applyHoistedStyle(){
