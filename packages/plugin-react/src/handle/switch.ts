@@ -2,9 +2,7 @@ import {
   blockStatement,
   booleanLiteral,
   conditionalExpression,
-  doExpression,
   expressionStatement,
-  isBlockStatement,
   isBooleanLiteral,
   isIdentifier,
   isUnaryExpression,
@@ -13,10 +11,10 @@ import {
   unaryExpression,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
+import { generateElement } from 'generate';
 import { ComponentExpression, DefineContingent, ElementInline } from 'handle';
 import { ParseConsequent, parser } from 'parse';
-import { generateElement } from 'generate';
-import { ensureArray, hash, meta } from 'shared';
+import { ensureArray, hash } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {
@@ -235,29 +233,12 @@ export class ComponentConsequent extends ElementInline {
     if(!path || !path.node)
       return;
 
-    this.handleContentBody(path.node);
+    this.handleBody(path);
   }
 
   toExpression(){
     const info = generateElement(this);
     return this.context.Imports.container(info);
-  }
-
-  private handleContentBody(content: Statement){
-    if(!isBlockStatement(content))
-      content = blockStatement([content])
-
-    const body = doExpression(content);
-    meta(body, this);
-
-    if(!body){
-      const child = this.children[0];
-
-      if(child instanceof ElementInline)
-        this.doBlock = child.doBlock
-    }
-    
-    this.doBlock = body;
   }
 
   adopt(child: InnerContent){

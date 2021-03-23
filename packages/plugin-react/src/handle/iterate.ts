@@ -1,10 +1,10 @@
-import { arrowFunctionExpression, blockStatement, doExpression, expressionStatement, isBlockStatement } from '@babel/types';
+import { arrowFunctionExpression, blockStatement, expressionStatement } from '@babel/types';
 import { generateElement } from 'generate';
 import { ElementInline } from 'handle';
 import { ParseForLoop, parser } from 'parse';
-import { meta } from 'shared';
 import { _call } from 'syntax';
 
+import type { NodePath as Path } from '@babel/traverse';
 import type { Statement, For } from '@babel/types';
 import type { ForPath } from 'types';
 
@@ -13,7 +13,7 @@ export class ComponentFor extends ElementInline {
   parse = parser(ParseForLoop);
   name = "forLoop";
 
-  node: For
+  node: For;
 
   constructor(
     public path: ForPath,
@@ -22,12 +22,11 @@ export class ComponentFor extends ElementInline {
     super(element.context);
 
     this.node = path.node;
-    this.handleContentBody(path.node.body);
+    this.handleBody(
+      path.get("body") as Path<Statement>
+    );
 
     element.adopt(this);
-
-    if(this.doBlock)
-      path.replaceWith(this.doBlock);
   }
 
   toExpression(){
@@ -49,14 +48,5 @@ export class ComponentFor extends ElementInline {
         [accumulator], blockStatement([ node ])
       )  
     )
-  }
-
-  private handleContentBody(content: Statement){
-    if(!isBlockStatement(content))
-      content = blockStatement([content])
-
-    const body = doExpression(content);
-    meta(body, this);
-    this.doBlock = body;
   }
 }

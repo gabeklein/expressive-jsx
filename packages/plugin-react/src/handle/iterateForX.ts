@@ -40,21 +40,11 @@ class ComponentForX extends ElementInline {
     super(element.context);
 
     this.node = path.node as ForXStatement;
-    this.handleContentBody(path.node.body);
+    this.handleBody(
+      path.get("body") as Path<Statement>
+    );
 
     element.adopt(this);
-
-    if(this.doBlock)
-      path.replaceWith(this.doBlock);
-  }
-
-  private handleContentBody(content: Statement){
-    if(!isBlockStatement(content))
-      content = blockStatement([content])
-
-    const body = doExpression(content);
-    meta(body, this);
-    this.doBlock = body;
   }
 
   ensureKeyProp(key: Identifier){
