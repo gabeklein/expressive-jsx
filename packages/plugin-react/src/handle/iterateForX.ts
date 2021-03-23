@@ -1,40 +1,44 @@
 import {
   arrowFunctionExpression,
   blockStatement,
-  doExpression,
   isArrayPattern,
   isBinaryExpression,
-  isBlockStatement,
-  isForInStatement,
   isIdentifier,
   isObjectPattern,
   isVariableDeclaration,
   returnStatement,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
+import { generateElement } from 'generate';
 import { ElementInline } from 'handle';
 import { ParseForLoop, parser } from 'parse';
-import { generateElement } from 'generate';
-import { meta } from 'shared';
 import { _call, _get, _objectKeys } from 'syntax';
 
 import { Prop } from './attributes';
 
-import type { Statement, Identifier, BlockStatement, Expression, ForXStatement } from '@babel/types';
-import type { ForPath } from 'types';
+import type { NodePath as Path } from '@babel/traverse';
+import type {
+  BlockStatement,
+  Expression,
+  ForInStatement,
+  ForOfStatement,
+  ForXStatement,
+  Identifier,
+  Statement
+} from '@babel/types';
 
 const Oops = ParseErrors({
   BadForOfAssignment: "Assignment of variable left of \"of\" must be Identifier or Destruture",
   BadForInAssignment: "Left of ForInStatement must be an Identifier here!"
 })
 
-class ComponentForX extends ElementInline {
+export class ComponentForX extends ElementInline {
   node: ForXStatement;
   statements = [] as Statement[];
   parse = parser(ParseForLoop);
 
   constructor(
-    public path: ForPath,
+    public path: Path<ForInStatement> | Path<ForOfStatement>,
     element: ElementInline){
 
     super(element.context);
@@ -47,7 +51,22 @@ class ComponentForX extends ElementInline {
     element.adopt(this);
   }
 
-  ensureKeyProp(key: Identifier){
+  toExpression(){
+    const { body, left, right, key } = this.getReferences();
+    
+    if(this.path.isForOfStatement())
+      return _call(
+        _get(right!, "map"),
+        arrowFunctionExpression([left!, key!], body)
+      )
+    else
+      return _call(
+        _get(_objectKeys(right!), "map"),
+        arrowFunctionExpression([left!], body)
+      )
+  }
+
+  protected ensureKeyProp(key: Identifier){
     const { children, sequence } = this;
     const [ element ] = children;
 
@@ -73,7 +92,7 @@ class ComponentForX extends ElementInline {
     this.add(keyProp);
   }
 
-  getReferences(){
+  protected getReferences(){
     let { left, right } = this.node as ForXStatement;
     let key: Identifier;
 
@@ -90,19 +109,21 @@ class ComponentForX extends ElementInline {
       right = right.right;
     }
 
-    if(isForInStatement(this.node)){
-      if(isIdentifier(left))
-        key = left
-      else 
-        throw Oops.BadForInAssignment(left);
-    }
-    else
+    if(this.path.isForOfStatement())
       key = this.context.Imports.ensureUIDIdentifier("i");
+    else if(isIdentifier(left))
+      key = left
+    else 
+      throw Oops.BadForInAssignment(left);
 
-    return { left, right, key }
+    this.ensureKeyProp(key);
+
+    const body = this.toReturnExpression();
+
+    return { left, right, body, key }
   }
 
-  toReturnExpression(){
+  protected toReturnExpression(){
     const compiled = generateElement(this);
     
     let body: BlockStatement | Expression = 
@@ -115,39 +136,5 @@ class ComponentForX extends ElementInline {
       ])
     
     return body;
-  }
-}
-
-export class ComponentForOf extends ComponentForX {
-  name = "forOfLoop";
-
-  toExpression(){
-    const { left, right, key } = this.getReferences();
-    
-    this.ensureKeyProp(key);
-    
-    const body = this.toReturnExpression();
-
-    return _call(
-      _get(right!, "map"),
-      arrowFunctionExpression([left!, key!], body)
-    )
-  }
-}
-
-export class ComponentForIn extends ComponentForX {
-  name = "forInLoop";
-
-  toExpression(){
-    const { left, right, key } = this.getReferences();
-
-    this.ensureKeyProp(key);
-
-    const body = this.toReturnExpression();
-
-    return _call(
-      _get(_objectKeys(right!), "map"),
-      arrowFunctionExpression([left!], body)
-    )
   }
 }

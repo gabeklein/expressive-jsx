@@ -3,8 +3,7 @@ import { ParseErrors } from 'errors';
 import {
   ComponentExpression,
   ComponentFor,
-  ComponentForIn,
-  ComponentForOf,
+  ComponentForX,
   ComponentIf,
   DefineElement,
   Prop,
@@ -95,16 +94,16 @@ export const ParseContent: ParserFor<ElementInline> = {
     ComponentIf.insert(path, this);
   },
 
+  ForStatement(path){
+    new ComponentFor(path, this);
+  },
+
   ForInStatement(path){
-    new ComponentForIn(path, this);
+    new ComponentForX(path, this);
   },
 
   ForOfStatement(path){
-    new ComponentForOf(path, this);
-  },
-
-  ForStatement(path){
-    new ComponentFor(path, this);
+    new ComponentForX(path, this);
   }
 }
 
