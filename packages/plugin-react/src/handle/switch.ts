@@ -78,34 +78,11 @@ export class ComponentIf {
       context.parentIf = this;
   }
 
-  private reduceUsing(predicate: GetProduct){
-    let { forks } = this;
-
-    forks = forks.slice().reverse();
-    let sum: Expression | undefined;
-  
-    for(const cond of forks){
-      const test = cond.test;
-      const product = predicate(cond);
-  
-      if(sum && test)
-        sum = product
-          ? opt(test, product, sum)
-          : and(anti(test), sum)
-      else if(product)
-        sum = test
-          ? and(test, product)
-          : product
-    }
-  
-    return sum || booleanLiteral(false)
-  }
-
   toExpression(context: StackFrame): Expression | undefined {
     if(!this.hasElementOutput)
       return;
 
-    return this.reduceUsing((cond) => {
+    return reduceOptions(this.forks, (cond) => {
       let product;
 
       if(cond instanceof ComponentIf)
@@ -124,7 +101,7 @@ export class ComponentIf {
     if(!this.hasStyleOutput)
       return;
     
-    return this.reduceUsing((cond) => {
+    return reduceOptions(this.forks, (cond) => {
       if(cond instanceof ComponentIf)
         return cond.toClassName();
 
@@ -137,7 +114,7 @@ export class ComponentIf {
   }
 
   setup(){
-    const { context } = this;
+    const { context, forks } = this;
     let layer: Path<any> = this.path;
 
     while(true){
@@ -150,23 +127,19 @@ export class ComponentIf {
       if(consequent.isBlockStatement()){
         const inner = ensureArray(consequent.get("body"));
         if(inner.length == 1)
-          consequent = inner[0]
+          consequent = inner[0];
       }
 
       const fork = consequent.isIfStatement()
-        ? new ComponentIf(
-          consequent,
-          context,
-          test
-        )
+        ? new ComponentIf(consequent, context, test)
         : new ComponentConsequent(
           consequent,
           context,
-          this.forks.length + 1,
+          forks.length + 1,
           test
         )
 
-      const index = this.forks.push(fork);
+      const index = forks.push(fork);
       fork.context.resolveFor(index);
 
       if(fork instanceof ComponentConsequent)
@@ -182,13 +155,12 @@ export class ComponentIf {
       if(layer.type === "IfStatement")
         continue
 
-      const final = new ComponentConsequent(
-        layer,
-        this.context,
-        this.forks.length + 1
-      );
+      const final =
+        new ComponentConsequent(
+          layer, context, forks.length + 1
+        );
 
-      this.forks.push(final);
+      forks.push(final);
 
       if(overrideRest){
         final.name = context.currentElement!.name
@@ -202,7 +174,7 @@ export class ComponentIf {
 
     const doInsert = [] as ExpressionStatement[];
 
-    for(const fork of this.forks)
+    for(const fork of forks)
       if(fork instanceof ComponentConsequent && fork.doBlock)
         doInsert.push(
           expressionStatement(fork.doBlock)
@@ -256,12 +228,10 @@ export class ComponentConsequent extends ElementInline {
   }
 
   slaveNewModifier(){
-    let { context } = this;
+    let { context, test, index } = this;
 
-    const uid = hash(this.context.prefix)
-
-    //TODO: Discover helpfulness of customized className.
-    const name = specifyOption(this.test) || `opt${this.index}`;
+    const uid = hash(context.prefix);
+    const name = specifyOption(test) || `opt${index}`;
     const selector = `${name}_${uid}`;
 
     const parent = context.currentElement!;
@@ -279,6 +249,30 @@ export class ComponentConsequent extends ElementInline {
 
     return this.slaveModifier = mod;
   }
+}
+
+function reduceOptions(
+  forks: Consequent[],
+  predicate: GetProduct){
+
+  forks = forks.slice().reverse();
+  let sum: Expression | undefined;
+
+  for(const cond of forks){
+    const test = cond.test;
+    const product = predicate(cond);
+
+    if(sum && test)
+      sum = product
+        ? opt(test, product, sum)
+        : and(anti(test), sum)
+    else if(product)
+      sum = test
+        ? and(test, product)
+        : product
+  }
+
+  return sum || booleanLiteral(false)
 }
 
 function specifyOption(test?: Expression){
