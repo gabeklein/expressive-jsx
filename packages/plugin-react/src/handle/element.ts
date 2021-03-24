@@ -22,6 +22,7 @@ export class ElementInline extends AttributeBody {
   primaryName?: string;
   explicitTagName?: string | JSXMemberExpression;
 
+  statements: Statement[] = [];
   children: InnerContent[] = [];
   modifiers: Define[] = [];
 

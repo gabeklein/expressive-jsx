@@ -9,7 +9,6 @@ import type { Statement, For } from '@babel/types';
 import type { ForPath } from 'types';
 
 export class ComponentFor extends ElementInline {
-  statements = [] as Statement[];
   parse = parser(ParseForLoop);
   name = "forLoop";
 

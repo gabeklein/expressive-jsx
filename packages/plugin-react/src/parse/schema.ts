@@ -104,15 +104,7 @@ export const ParseContent: ParserFor<ElementInline> = {
 
   ForOfStatement(path){
     new ComponentForX(path, this);
-  }
-}
-
-interface ComponentContainer extends ElementInline {
-  statements: Statement[];
-}
-
-export const ParseContainer: ParserFor<ComponentContainer> = {
-  ...ParseContent,
+  },
 
   VariableDeclaration({ node }){
     this.statements.push(node);
@@ -164,7 +156,7 @@ export const ParseConsequent: ParserFor<ComponentConsequent> = {
 };
 
 export const ParseForLoop: ParserFor<ComponentFor> = {
-  ...ParseContainer,
+  ...ParseContent,
 
   AssignmentExpression(assign){
     Oops.PropsNotAllowed(assign);

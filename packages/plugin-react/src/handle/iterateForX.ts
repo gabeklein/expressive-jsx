@@ -34,7 +34,6 @@ const Oops = ParseErrors({
 
 export class ComponentForX extends ElementInline {
   node: ForXStatement;
-  statements = [] as Statement[];
   parse = parser(ParseForLoop);
 
   constructor(

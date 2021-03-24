@@ -1,7 +1,6 @@
-import { applyNameImplications, ParseContainer, parser } from 'parse';
-import { meta } from 'shared';
-
 import { ElementInline } from 'handle';
+import { applyNameImplications, ParseContent, parser } from 'parse';
+import { meta } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { ArrowFunctionExpression, DoExpression, Statement } from '@babel/types';
@@ -14,7 +13,7 @@ export class ComponentExpression extends ElementInline {
   forwardTo?: ComponentConsequent;
 
   statements = [] as Statement[];
-  parse = parser(ParseContainer);
+  parse = parser(ParseContent);
 
   constructor(
     name: string,
