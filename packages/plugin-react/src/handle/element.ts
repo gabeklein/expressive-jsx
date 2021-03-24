@@ -26,7 +26,13 @@ export class ElementInline extends AttributeBody {
   children: InnerContent[] = [];
   modifiers: Define[] = [];
 
-  protected handleBody(content: Path<Statement>){
+  protected handleBody(
+    content: Path<any>,
+    key?: string){
+
+    if(key)
+      content = content.get(key) as any;
+
     if(!content.isBlockStatement())
       this.parse(content);
     else {

@@ -4,8 +4,7 @@ import { ElementInline } from 'handle';
 import { ParseForLoop, parser } from 'parse';
 import { _call } from 'syntax';
 
-import type { NodePath as Path } from '@babel/traverse';
-import type { Statement, For } from '@babel/types';
+import type { For } from '@babel/types';
 import type { ForPath } from 'types';
 
 export class ComponentFor extends ElementInline {
@@ -21,9 +20,7 @@ export class ComponentFor extends ElementInline {
     super(element.context);
 
     this.node = path.node;
-    this.handleBody(
-      path.get("body") as Path<Statement>
-    );
+    this.handleBody(path, "body");
 
     element.adopt(this);
   }

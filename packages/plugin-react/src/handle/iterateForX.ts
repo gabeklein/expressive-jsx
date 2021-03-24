@@ -23,8 +23,7 @@ import type {
   ForInStatement,
   ForOfStatement,
   ForXStatement,
-  Identifier,
-  Statement
+  Identifier
 } from '@babel/types';
 
 const Oops = ParseErrors({
@@ -43,15 +42,14 @@ export class ComponentForX extends ElementInline {
     super(element.context);
 
     this.node = path.node as ForXStatement;
-    this.handleBody(
-      path.get("body") as Path<Statement>
-    );
+    this.handleBody(path, "body");
 
     element.adopt(this);
   }
 
   toExpression(){
-    const { body, left, right, key } = this.getReferences();
+    const body = this.toReturnExpression();
+    const { left, right, key } = this.getReferences();
     
     if(this.path.isForOfStatement())
       return _call(
@@ -117,9 +115,7 @@ export class ComponentForX extends ElementInline {
 
     this.ensureKeyProp(key);
 
-    const body = this.toReturnExpression();
-
-    return { left, right, body, key }
+    return { left, right, key }
   }
 
   protected toReturnExpression(){
