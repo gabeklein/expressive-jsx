@@ -3,6 +3,7 @@ import {
   blockStatement,
   isArrayPattern,
   isBinaryExpression,
+  isForOfStatement,
   isIdentifier,
   isObjectPattern,
   isVariableDeclaration,
@@ -18,8 +19,6 @@ import { Prop } from './attributes';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {
-  BlockStatement,
-  Expression,
   ForInStatement,
   ForOfStatement,
   ForXStatement,
@@ -33,6 +32,7 @@ const Oops = ParseErrors({
 
 export class ComponentForX extends ElementInline {
   node: ForXStatement;
+
   parse = parser(ParseForLoop);
 
   constructor(
@@ -48,8 +48,11 @@ export class ComponentForX extends ElementInline {
   }
 
   toExpression(){
-    const body = this.toReturnExpression();
     const { left, right, key } = this.getReferences();
+
+    this.ensureKeyProp(key);
+
+    const body = this.toReturnExpression();
     
     if(this.path.isForOfStatement())
       return _call(
@@ -65,7 +68,6 @@ export class ComponentForX extends ElementInline {
 
   protected ensureKeyProp(key: Identifier){
     const { children, sequence } = this;
-    const [ element ] = children;
 
     const props = sequence.filter(x => x instanceof Prop) as Prop[];
 
@@ -74,7 +76,9 @@ export class ComponentForX extends ElementInline {
 
     const keyProp = new Prop("key", key);
 
-    if(children.length == 1 && props.length == 0)
+    if(children.length == 1 && props.length == 0){
+      const element = children[0];
+
       if(element instanceof ElementInline){
         const exists = element.sequence.find(x =>
           x instanceof Prop && x.name === "key"
@@ -85,12 +89,14 @@ export class ComponentForX extends ElementInline {
 
         return;
       }
+    }
 
     this.add(keyProp);
   }
 
   protected getReferences(){
-    let { left, right } = this.node as ForXStatement;
+    const { context, node } = this;
+    let { left, right } = node;
     let key: Identifier;
 
     if(isVariableDeclaration(left))
@@ -106,30 +112,29 @@ export class ComponentForX extends ElementInline {
       right = right.right;
     }
 
-    if(this.path.isForOfStatement())
-      key = this.context.Imports.ensureUIDIdentifier("i");
+    if(isForOfStatement(node))
+      key = context.Imports.ensureUIDIdentifier("i");
     else if(isIdentifier(left))
       key = left
     else 
       throw Oops.BadForInAssignment(left);
 
-    this.ensureKeyProp(key);
-
     return { left, right, key }
   }
 
   protected toReturnExpression(){
+    const { context, statements } = this;
     const compiled = generateElement(this);
     
-    let body: BlockStatement | Expression = 
-      this.context.Imports.container(compiled);
+    let output = 
+      context.Imports.container(compiled);
 
-    if(this.statements.length)
-      body = blockStatement([
-        ...this.statements,
-        returnStatement(body)
+    if(statements.length)
+      return blockStatement([
+        ...statements,
+        returnStatement(output)
       ])
     
-    return body;
+    return output;
   }
 }

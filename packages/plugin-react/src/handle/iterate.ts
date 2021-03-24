@@ -1,20 +1,20 @@
-import { arrowFunctionExpression, blockStatement, expressionStatement } from '@babel/types';
+import { arrowFunctionExpression, blockStatement, expressionStatement, forStatement } from '@babel/types';
 import { generateElement } from 'generate';
 import { ElementInline } from 'handle';
 import { ParseForLoop, parser } from 'parse';
 import { _call } from 'syntax';
 
-import type { For } from '@babel/types';
-import type { ForPath } from 'types';
+import type { NodePath as Path } from '@babel/traverse';
+import type { ForStatement, Statement } from '@babel/types';
 
 export class ComponentFor extends ElementInline {
   parse = parser(ParseForLoop);
   name = "forLoop";
 
-  node: For;
+  node: ForStatement;
 
   constructor(
-    public path: ForPath,
+    public path: Path<ForStatement>,
     element: ElementInline){
 
     super(element.context);
@@ -26,22 +26,24 @@ export class ComponentFor extends ElementInline {
   }
 
   toExpression(){
-    const { node, statements } = this;
-    const { Imports } = this.context;
-    const accumulator = Imports.ensureUIDIdentifier("add");
-    const content = Imports.container(generateElement(this));
-    const collect = Imports.ensure("$runtime", "collect");
-    const collector = expressionStatement(
-      _call(accumulator, content)
+    const { init, test, update } = this.node;
+    
+    const scope = this.context.Imports;
+    const output = scope.container(generateElement(this));
+    const accumulator = scope.ensureUIDIdentifier("add");
+    const collect = scope.ensure("$runtime", "collect");
+    let body: Statement = expressionStatement(
+      _call(accumulator, output)
     );
 
-    node.body = statements.length
-      ? blockStatement([ ...statements, collector ])
-      : node.body = collector;
+    if(this.statements.length)
+      body = blockStatement([ ...this.statements, body ]);
 
     return _call(collect, 
       arrowFunctionExpression(
-        [accumulator], blockStatement([ node ])
+        [accumulator], blockStatement([
+          forStatement(init, test, update, body)
+        ])
       )  
     )
   }
