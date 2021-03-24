@@ -103,14 +103,17 @@ export class DefineContingent extends Define {
   }
 
   toClassName(){
-    this.setActive();
+    const { includes, sequence, ownSelector } = this;
 
-    const include = [...this.includes.values()].map(x => x.uid);
+    const include = [...includes.values()].map(x => x.uid);
 
-    if(this.sequence.length)
-      include.unshift(this.ownSelector!);
+    if(sequence.length)
+      include.unshift(ownSelector!);
 
-    return include.join(" ");
+    if(include.length){
+      this.setActive();
+      return include.join(" ");
+    }
   }
 
   use(define: DefineElement){

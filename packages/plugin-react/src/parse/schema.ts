@@ -123,8 +123,11 @@ export const ParseConsequent: ParserFor<ComponentConsequent> = {
   ...ParseContent,
 
   LabeledStatement(path: Path<LabeledStatement>){
-    const mod = this.slaveModifier || this.slaveNewModifier();
-    parse(path as Path<Statement>, ParseAttributes, mod);
+    parse(
+      path as Path<Statement>,
+      ParseAttributes,
+      this.definition
+    );
   },
 
   ReturnStatement(path){

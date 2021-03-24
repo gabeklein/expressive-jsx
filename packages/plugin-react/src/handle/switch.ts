@@ -105,8 +105,8 @@ export class ComponentIf {
       if(cond instanceof ComponentIf)
         return cond.toClassName();
 
-      const mod = cond.slaveModifier;
-      const className = mod && mod.toClassName();
+      const className =
+        cond.definition.toClassName();
         
       if(className)
         return stringLiteral(className);
@@ -187,7 +187,7 @@ export class ComponentIf {
 export class ComponentConsequent extends ElementInline {
   parse = parser(ParseConsequent);
 
-  slaveModifier?: DefineContingent;
+  definition = this.slaveNewModifier();
   doesReturn?: true;
 
   get parentElement(){
@@ -247,7 +247,7 @@ export class ComponentConsequent extends ElementInline {
       }
       while(context = context.parent)
 
-    return this.slaveModifier = mod;
+    return mod;
   }
 }
 
