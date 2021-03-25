@@ -37,14 +37,14 @@ export class ComponentForX extends ElementInline {
 
   constructor(
     public path: Path<ForInStatement> | Path<ForOfStatement>,
-    element: ElementInline){
+    parent: ElementInline){
 
-    super(element.context);
+    super(parent.context);
 
     this.node = path.node as ForXStatement;
     this.handleBody(path, "body");
 
-    element.adopt(this);
+    parent.adopt(this);
   }
 
   toExpression(){
@@ -56,13 +56,13 @@ export class ComponentForX extends ElementInline {
     
     if(this.path.isForOfStatement())
       return _call(
-        _get(right!, "map"),
-        arrowFunctionExpression([left!, key!], body)
+        _get(right, "map"),
+        arrowFunctionExpression([left, key], body)
       )
     else
       return _call(
-        _get(_objectKeys(right!), "map"),
-        arrowFunctionExpression([left!], body)
+        _get(_objectKeys(right), "map"),
+        arrowFunctionExpression([left], body)
       )
   }
 

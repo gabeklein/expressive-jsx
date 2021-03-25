@@ -30,7 +30,6 @@ export abstract class Define extends AttributeBody {
 }
 
 export class DefineElement extends Define {
-
   constructor(
     context: StackFrame,
     name: string,

@@ -32,9 +32,10 @@ export class ComponentFor extends ElementInline {
     const output = scope.container(generateElement(this));
     const accumulator = scope.ensureUIDIdentifier("add");
     const collect = scope.ensure("$runtime", "collect");
-    let body: Statement = expressionStatement(
-      _call(accumulator, output)
-    );
+    let body: Statement =
+      expressionStatement(
+        _call(accumulator, output)
+      );
 
     if(this.statements.length)
       body = blockStatement([ ...this.statements, body ]);
