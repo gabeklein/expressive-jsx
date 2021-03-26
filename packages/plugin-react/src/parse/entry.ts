@@ -1,4 +1,4 @@
-import { isIdentifier } from '@babel/types';
+import { isIdentifier, isStringLiteral } from '@babel/types';
 import { ComponentExpression } from 'handle';
 
 import type { NodePath as Path } from '@babel/traverse';
@@ -112,7 +112,11 @@ function containerName(path: Path): string {
 
     case "ObjectProperty": {
       const { key } = parent.node as ObjectProperty;
-      return isIdentifier(key) ? key.name : "property"
+      return (
+        isIdentifier(key) ? key.name : 
+        isStringLiteral(key) ? key.value : 
+        "property"
+      )
     }
 
     // mark for deletion
