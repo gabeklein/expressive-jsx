@@ -1,6 +1,5 @@
 import { ElementInline } from 'handle';
 import { applyNameImplications } from 'parse';
-import { meta } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { ArrowFunctionExpression, DoExpression } from '@babel/types';
@@ -31,7 +30,6 @@ export class ComponentExpression extends ElementInline {
     if(/^[A-Z]/.test(name))
       applyNameImplications(this, name);
 
-    meta(path.node, this);
     this.context.resolveFor(this.name);
   }
 

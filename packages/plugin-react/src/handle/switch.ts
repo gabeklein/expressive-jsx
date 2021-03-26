@@ -1,8 +1,6 @@
 import {
-  blockStatement,
   booleanLiteral,
   conditionalExpression,
-  expressionStatement,
   isBooleanLiteral,
   isIdentifier,
   isUnaryExpression,
@@ -19,7 +17,6 @@ import { ensureArray, hash } from 'shared';
 import type { NodePath as Path } from '@babel/traverse';
 import type {
   Expression,
-  ExpressionStatement,
   IfStatement,
   Statement
 } from '@babel/types';
@@ -50,7 +47,6 @@ export class ComponentIf {
   hasElementOutput?: true;
   hasStyleOutput?: true;
 
-  private doBlocks = [] as ExpressionStatement[];
   private forks = [] as Consequent[];
 
   static insert(
@@ -61,9 +57,6 @@ export class ComponentIf {
 
     parent.adopt(item);
     item.setup();
-    path.replaceWith(
-      blockStatement(item.doBlocks!)
-    )
   }
 
   constructor(
@@ -171,16 +164,6 @@ export class ComponentIf {
       }
       break;
     }
-
-    const doInsert = [] as ExpressionStatement[];
-
-    for(const fork of forks)
-      if(fork instanceof ComponentConsequent && fork.doBlock)
-        doInsert.push(
-          expressionStatement(fork.doBlock)
-        )
-
-    this.doBlocks = doInsert;
   }
 }
 
@@ -205,7 +188,7 @@ export class ComponentConsequent extends ElementInline {
     if(!path || !path.node)
       return;
 
-    this.handleBody(path);
+    this.parse(path);
   }
 
   toExpression(){

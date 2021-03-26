@@ -42,7 +42,7 @@ export class ComponentForX extends ElementInline {
     super(parent.context);
 
     this.node = path.node as ForXStatement;
-    this.handleBody(path, "body");
+    this.parse(path, "body");
 
     parent.adopt(this);
   }

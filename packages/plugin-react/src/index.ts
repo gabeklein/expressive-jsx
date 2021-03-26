@@ -1,9 +1,8 @@
 import { StackFrame } from 'context';
 import { Status } from 'errors';
+import { replaceDoExpression } from 'generate';
 import { handleTopLevelModifier, printStyles } from 'modifier';
 import { generateEntryElement } from 'parse';
-import { replaceDoExpression } from 'generate';
-import { meta } from 'shared';
 
 import { builtIn } from './modifier';
 
@@ -45,17 +44,12 @@ const Program: Visitor<ProgramNode> = {
 
 const DoExpression: Visitor<DoExpressionNode> = {
   enter(path, state){
-    let element = meta(path.node).expressive_target;
+    let element = generateEntryElement(path, state.context);
 
-    if(!element)
-      element = generateEntryElement(path, state.context);
+    element.parse(path, "body");
 
-    path
-      .get("body")
-      .get("body")
-      .forEach(item => element.parse(item));
-  },
-  exit: replaceDoExpression
+    replaceDoExpression(path, element);
+  }
 }
 
 export default () => {

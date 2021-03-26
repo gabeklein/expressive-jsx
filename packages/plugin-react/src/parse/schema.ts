@@ -1,4 +1,4 @@
-import { identifier, isDoExpression, isIdentifier } from '@babel/types';
+import { isIdentifier } from '@babel/types';
 import { ParseErrors } from 'errors';
 import {
   ComponentExpression,
@@ -10,7 +10,6 @@ import {
 } from 'handle';
 import { applyModifier } from 'modifier';
 import { addElementFromJSX } from 'parse';
-import { meta } from 'shared';
 
 import { parse } from './helper';
 
@@ -68,18 +67,7 @@ export const ParseAttributes: ParserFor<AttributeBody> = {
     if(!isIdentifier(left))
       throw Oops.PropNotIdentifier(left)
 
-    const { name } = left;
-    let prop: Prop;
-
-    if(isDoExpression(right))
-      prop = 
-        meta(right).expressive_parent =
-        new Prop(name, identifier("undefined"));
-    else
-      prop =
-        new Prop(name, right)
-
-    this.add(prop);
+    this.add(new Prop(left.name, right));
   }
 }
 
@@ -147,12 +135,8 @@ export const ParseConsequent: ParserFor<ComponentConsequent> = {
 
     const arg = path.get("argument");
 
-    if(arg)
-      if(arg.isDoExpression())
-        meta(arg.node, this);
-
-      else if(arg.isExpression())
-        parse(arg, ParseContent, this);
+    if(arg && arg.isExpression())
+      parse(arg, ParseContent, this);
 
     this.doesReturn = true;
   }

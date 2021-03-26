@@ -16,11 +16,11 @@ export type ParserFor<T> = {
 };
 
 export function parser<T>(using: ParserFor<T>){
-  return function(
-    this: any,
-    ast: Path<Statement> | Path<Expression>
-  ){
-    parse(ast, using, this)
+  return function(this: any, ast: Path<any>, key?: string){
+    if(key)
+      ast = ast.get(key) as any;
+
+    parse(ast, using, this);
   }
 }
 

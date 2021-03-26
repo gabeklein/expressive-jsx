@@ -1,20 +1,17 @@
 import { blockStatement, returnStatement } from '@babel/types';
 import { generateElement } from 'generate';
-import { ComponentExpression } from 'handle';
-import { meta } from 'shared';
 
 import { recombineProps } from './es5';
+
+import type { ComponentExpression } from 'handle';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { DoExpression } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { ElementInline } from 'handle';
 
-export function replaceDoExpression(path: Path<DoExpression>){
-  const element = meta(path.node).expressive_target as ElementInline;
-
-  if(!(element instanceof ComponentExpression))
-    return;
+export function replaceDoExpression(
+  path: Path<DoExpression>,
+  element: ComponentExpression){
 
   const factory = generateElement(element);
 
@@ -37,12 +34,6 @@ export function replaceDoExpression(path: Path<DoExpression>){
     else
       path.replaceWith(blockStatement(replacement))
   }
-  else {
-    const prop = meta(path.node).expressive_parent;
-
-    if(prop)
-      prop.value = factoryExpression;
-    else
-      path.replaceWith(factoryExpression);
-  }
+  else
+    path.replaceWith(factoryExpression);
 }

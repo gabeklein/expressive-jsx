@@ -20,7 +20,7 @@ export class ComponentFor extends ElementInline {
     super(element.context);
 
     this.node = path.node;
-    this.handleBody(path, "body");
+    this.parse(path, "body");
 
     element.adopt(this);
   }
