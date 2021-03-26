@@ -11,7 +11,7 @@ import {
 import { ParseErrors } from 'errors';
 import { generateElement } from 'generate';
 import { ComponentExpression, DefineContingent, ElementInline } from 'handle';
-import { ParseConsequent, parser } from 'parse';
+import { parse, ParseConsequent } from 'parse';
 import { ensureArray, hash } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
@@ -168,8 +168,6 @@ export class ComponentIf {
 }
 
 export class ComponentConsequent extends ElementInline {
-  parse = parser(ParseConsequent);
-
   definition = this.slaveNewModifier();
   doesReturn?: true;
 
@@ -188,7 +186,7 @@ export class ComponentConsequent extends ElementInline {
     if(!path || !path.node)
       return;
 
-    this.parse(path);
+    parse(this, ParseConsequent, path);
   }
 
   toExpression(){

@@ -1,5 +1,5 @@
 import { ElementInline } from 'handle';
-import { applyNameImplications } from 'parse';
+import { applyNameImplications, parse, ParseContent } from 'parse';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { ArrowFunctionExpression, DoExpression } from '@babel/types';
@@ -31,6 +31,8 @@ export class ComponentExpression extends ElementInline {
       applyNameImplications(this, name);
 
     this.context.resolveFor(this.name);
+
+    parse(this, ParseContent, path, "body");
   }
 
   add(item: SequenceItem){

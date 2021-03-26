@@ -1,13 +1,6 @@
 import { isIdentifier } from '@babel/types';
 import { ParseErrors } from 'errors';
-import {
-  ComponentExpression,
-  ComponentFor,
-  ComponentForX,
-  ComponentIf,
-  DefineElement,
-  Prop,
-} from 'handle';
+import { ComponentExpression, ComponentFor, ComponentForX, ComponentIf, DefineElement, Prop } from 'handle';
 import { applyModifier } from 'modifier';
 import { addElementFromJSX } from 'parse';
 
@@ -35,7 +28,7 @@ const Oops = ParseErrors({
   PropsNotAllowed: "For block cannot accept prop assignments"
 })
 
-export { parser } from './helper'
+export { parse } from './helper'
 
 export const ParseAttributes: ParserFor<AttributeBody> = {
   LabeledStatement(path){
@@ -112,9 +105,9 @@ export const ParseConsequent: ParserFor<ComponentConsequent> = {
 
   LabeledStatement(path: Path<LabeledStatement>){
     parse(
-      path as Path<Statement>,
+      this.definition,
       ParseAttributes,
-      this.definition
+      path as Path<Statement>
     );
   },
 
@@ -136,13 +129,13 @@ export const ParseConsequent: ParserFor<ComponentConsequent> = {
     const arg = path.get("argument");
 
     if(arg && arg.isExpression())
-      parse(arg, ParseContent, this);
+      parse(this, ParseContent, arg);
 
     this.doesReturn = true;
   }
 };
 
-export const ParseForLoop: ParserFor<ComponentFor> = {
+export const ParseForLoop: ParserFor<ComponentFor | ComponentForX> = {
   ...ParseContent,
 
   AssignmentExpression(assign){

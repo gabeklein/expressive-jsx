@@ -45,9 +45,6 @@ const Program: Visitor<ProgramNode> = {
 const DoExpression: Visitor<DoExpressionNode> = {
   enter(path, state){
     let element = generateEntryElement(path, state.context);
-
-    element.parse(path, "body");
-
     replaceDoExpression(path, element);
   }
 }

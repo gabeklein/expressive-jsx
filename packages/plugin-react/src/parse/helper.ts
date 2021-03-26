@@ -1,7 +1,8 @@
 import { ParseErrors } from 'errors';
 import { ensureArray } from 'shared';
+
 import type { NodePath as Path } from '@babel/traverse';
-import type { Node, Statement, Expression } from '@babel/types';
+import type { Node } from '@babel/types';
 
 const Oops = ParseErrors({
   NodeUnknown: "Unhandled node of type {1}",
@@ -15,19 +16,14 @@ export type ParserFor<T> = {
   [K in Node['type']]?: Apply<K, T>;
 };
 
-export function parser<T>(using: ParserFor<T>){
-  return function(this: any, ast: Path<any>, key?: string){
-    if(key)
-      ast = ast.get(key) as any;
-
-    parse(ast, using, this);
-  }
-}
-
 export function parse<T>(
-  ast: Path<Statement> | Path<Expression>,
+  target: T,
   using: ParserFor<T>,
-  target: T){
+  ast: Path<any>,
+  key?: string){
+
+  if(key)
+    ast = ast.get(key) as any;
 
   const content = ast.isBlockStatement()
     ? ensureArray(ast.get("body"))
@@ -40,7 +36,7 @@ export function parse<T>(
     const { type } = item;
 
     if(type in using){
-      const handler: any = using[type];
+      const handler = (using as any)[type];
       handler.call(target, item);
     }
     else

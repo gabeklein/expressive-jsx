@@ -12,7 +12,7 @@ import {
 import { ParseErrors } from 'errors';
 import { generateElement } from 'generate';
 import { ElementInline } from 'handle';
-import { ParseForLoop, parser } from 'parse';
+import { parse, ParseForLoop } from 'parse';
 import { _call, _get, _objectKeys } from 'syntax';
 
 import { Prop } from './attributes';
@@ -33,8 +33,6 @@ const Oops = ParseErrors({
 export class ComponentForX extends ElementInline {
   node: ForXStatement;
 
-  parse = parser(ParseForLoop);
-
   constructor(
     public path: Path<ForInStatement> | Path<ForOfStatement>,
     parent: ElementInline){
@@ -42,7 +40,7 @@ export class ComponentForX extends ElementInline {
     super(parent.context);
 
     this.node = path.node as ForXStatement;
-    this.parse(path, "body");
+    parse(this, ParseForLoop, path, "body");
 
     parent.adopt(this);
   }

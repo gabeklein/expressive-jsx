@@ -1,14 +1,13 @@
 import { arrowFunctionExpression, blockStatement, expressionStatement, forStatement } from '@babel/types';
 import { generateElement } from 'generate';
 import { ElementInline } from 'handle';
-import { ParseForLoop, parser } from 'parse';
+import { parse, ParseForLoop } from 'parse';
 import { _call } from 'syntax';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { ForStatement, Statement } from '@babel/types';
 
 export class ComponentFor extends ElementInline {
-  parse = parser(ParseForLoop);
   name = "forLoop";
 
   node: ForStatement;
@@ -20,7 +19,8 @@ export class ComponentFor extends ElementInline {
     super(element.context);
 
     this.node = path.node;
-    this.parse(path, "body");
+
+    parse(this, ParseForLoop, path, "body");
 
     element.adopt(this);
   }

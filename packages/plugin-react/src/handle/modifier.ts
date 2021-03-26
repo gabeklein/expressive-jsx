@@ -1,5 +1,5 @@
 import { AttributeBody, ElementInline } from 'handle';
-import { ParseContent, parser } from 'parse';
+import { parse, ParseContent } from 'parse';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { Statement } from '@babel/types';
@@ -7,8 +7,6 @@ import type { StackFrame } from 'context';
 import { ExplicitStyle } from './attributes';
 
 export abstract class Define extends AttributeBody {
-  parse = parser(ParseContent);
-
   next?: Define;
   forSelector?: string[];
   onlyWithin?: DefineContingent;
@@ -39,7 +37,7 @@ export class DefineElement extends Define {
     this.name = name;
     this.context.resolveFor(name);
     this.forSelector = [ `.${this.uid}` ];
-    this.parse(body);
+    parse(this as any, ParseContent, body);
 
     // if(/^[A-Z]/.test(name))
     //   this.priority = 3;

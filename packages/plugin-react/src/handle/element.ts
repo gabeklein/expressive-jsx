@@ -1,5 +1,4 @@
 import { generateElement } from 'generate';
-import { ParseContent, parser } from 'parse';
 
 import { AttributeBody } from './object';
 
@@ -8,8 +7,6 @@ import type { DefineElement, Define } from 'handle/modifier';
 import type { InnerContent } from 'types';
 
 export class ElementInline extends AttributeBody {
-  parse = parser(ParseContent);
-
   primaryName?: string;
   explicitTagName?: string | JSXMemberExpression;
 
