@@ -3,7 +3,6 @@ import {
   blockStatement,
   isArrayPattern,
   isBinaryExpression,
-  isForOfStatement,
   isIdentifier,
   isObjectPattern,
   isVariableDeclaration,
@@ -12,7 +11,6 @@ import {
 import { ParseErrors } from 'errors';
 import { generateElement } from 'generate';
 import { ElementInline } from 'handle';
-import { parse, ParseForLoop } from 'parse';
 import { _call, _get, _objectKeys } from 'syntax';
 
 import { Prop } from './attributes';
@@ -21,28 +19,31 @@ import type { NodePath as Path } from '@babel/traverse';
 import type {
   ForInStatement,
   ForOfStatement,
-  ForXStatement,
   Identifier
 } from '@babel/types';
+import type { StackFrame } from 'context';
+import { parse, ParseForLoop } from 'parse';
 
 const Oops = ParseErrors({
   BadForOfAssignment: "Assignment of variable left of \"of\" must be Identifier or Destruture",
   BadForInAssignment: "Left of ForInStatement must be an Identifier here!"
 })
 
-export class ComponentForX extends ElementInline {
-  node: ForXStatement;
+export class ComponentForX {
+  context!: StackFrame;
+  definition: ElementInline;
 
   constructor(
-    public path: Path<ForInStatement> | Path<ForOfStatement>,
+    private path: Path<ForInStatement> | Path<ForOfStatement>,
     parent: ElementInline){
 
-    super(parent.context);
-
-    this.node = path.node as ForXStatement;
-    parse(this, ParseForLoop, path, "body");
-
-    parent.adopt(this);
+      const element = new ElementInline(parent.context);
+      parse(element, ParseForLoop, path, "body");
+  
+      this.definition = element;
+  
+      parent.context.push(this);
+      parent.adopt(this);
   }
 
   toExpression(){
@@ -65,7 +66,7 @@ export class ComponentForX extends ElementInline {
   }
 
   protected ensureKeyProp(key: Identifier){
-    const { children, sequence } = this;
+    const { children, sequence } = this.definition;
 
     const props = sequence.filter(x => x instanceof Prop) as Prop[];
 
@@ -89,12 +90,12 @@ export class ComponentForX extends ElementInline {
       }
     }
 
-    this.add(keyProp);
+    this.definition.add(keyProp);
   }
 
   protected getReferences(){
-    const { context, node } = this;
-    let { left, right } = node;
+    const { context, path } = this;
+    let { left, right } = path.node;
     let key: Identifier;
 
     if(isVariableDeclaration(left))
@@ -110,7 +111,7 @@ export class ComponentForX extends ElementInline {
       right = right.right;
     }
 
-    if(isForOfStatement(node))
+    if(path.isForOfStatement())
       key = context.Imports.ensureUIDIdentifier("i");
     else if(isIdentifier(left))
       key = left
@@ -121,8 +122,9 @@ export class ComponentForX extends ElementInline {
   }
 
   protected toReturnExpression(){
-    const { context, statements } = this;
-    const compiled = generateElement(this);
+    const { context, definition } = this;
+    const { statements } = definition;
+    const compiled = generateElement(definition);
     
     let output = 
       context.Imports.container(compiled);

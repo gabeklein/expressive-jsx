@@ -30,6 +30,7 @@ import type { ModifyDelegate } from 'modifier/delegate';
 import type { ElementInline } from 'handle/element';
 import type { ComponentFor } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';
+import type { ComponentForX } from 'handle/iterateForX';
 
 export type JSXContent = JSXElement | JSXFragment | JSXExpressionContainer | JSXText | JSXSpreadChild;
 export type Attributes = JSXAttribute | JSXSpreadAttribute;
@@ -80,7 +81,7 @@ export interface PropData {
 
 export type FlatValue = string | number | boolean | null;
 export type SequenceItem = Attribute | InnerContent | Statement;
-export type InnerContent = Expression | ElementInline | ComponentIf | ComponentFor;
+export type InnerContent = Expression | ElementInline | ComponentIf | ComponentFor | ComponentForX;
 export type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | void;
 
 export type ModiferBody = 

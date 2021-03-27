@@ -135,7 +135,7 @@ export const ParseConsequent: ParserFor<ComponentConsequent> = {
   }
 };
 
-export const ParseForLoop: ParserFor<ComponentFor | ComponentForX> = {
+export const ParseForLoop: ParserFor<ElementInline> = {
   ...ParseContent,
 
   AssignmentExpression(assign){
