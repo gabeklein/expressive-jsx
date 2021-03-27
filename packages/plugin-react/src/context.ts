@@ -66,7 +66,9 @@ export class StackFrame {
   push(node: Stackable): StackFrame {
     const frame: StackFrame = Object.create(this);
 
+    node.context = frame;
     frame.current = node;
+
     if(node instanceof ElementInline)
       frame.currentElement = node;
 

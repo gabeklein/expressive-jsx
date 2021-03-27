@@ -43,7 +43,7 @@ const and = (a: Expression, b: Expression) => logicalExpression("&&", a, b);
 const anti = not;
 
 export class ComponentIf {
-  context: StackFrame;
+  context!: StackFrame;
   hasElementOutput?: true;
   hasStyleOutput?: true;
 
@@ -64,7 +64,7 @@ export class ComponentIf {
     context: StackFrame,
     public test?: Expression){
 
-    context = this.context = context.push(this);
+    context = context.push(this);
     context.currentIf = this;
 
     if(!test)

@@ -5,13 +5,13 @@ import type { SequenceItem } from 'types';
 
 export abstract class AttributeBody {
   name?: string;
-  context: StackFrame
+  context!: StackFrame;
   parent?: AttributeBody | ComponentIf;
 
   sequence = [] as SequenceItem[];
 
   constructor(context: StackFrame){
-    this.context = context.push(this);
+    context.push(this);
   }
 
   get uid(){
