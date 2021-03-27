@@ -17,7 +17,7 @@ export function applyPrimaryName(
   if(name == "s")
     name = "span";
 
-  const isCommonTag = COMMON_HTML.indexOf(name) >= 0;
+  const isCommonTag = COMMON_HTML.includes(name);
 
   if(isCommonTag || force || /^[A-Z]/.test(name))
     applyNameImplications(target, name, true, "html");
