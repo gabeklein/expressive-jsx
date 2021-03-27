@@ -34,7 +34,6 @@ export const ParseAttributes: ParserFor<AttributeBody> = {
   LabeledStatement(path){
     const body = path.get('body');
     const { name } = path.node.label;
-    const { context } = this;
 
     if(name[0] == "_")
       throw Oops.BadModifierName(path);
@@ -44,7 +43,7 @@ export const ParseAttributes: ParserFor<AttributeBody> = {
 
     else if(body.isBlockStatement() || body.isLabeledStatement())
       this.use(
-        new DefineElement(context, name, body)
+        new DefineElement(this.context, name, body)
       );
 
     else
