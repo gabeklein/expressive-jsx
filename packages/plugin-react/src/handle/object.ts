@@ -6,7 +6,6 @@ import type { SequenceItem } from 'types';
 export abstract class AttributeBody {
   name?: string;
   context!: StackFrame;
-  parent?: AttributeBody | ComponentIf;
 
   sequence = [] as SequenceItem[];
 
