@@ -3,6 +3,7 @@ import {
   blockStatement,
   isArrayPattern,
   isBinaryExpression,
+  isForInStatement,
   isIdentifier,
   isObjectPattern,
   isVariableDeclaration,
@@ -11,6 +12,7 @@ import {
 import { ParseErrors } from 'errors';
 import { generateElement } from 'generate';
 import { ElementInline } from 'handle';
+import { parse, ParseForLoop } from 'parse';
 import { _call, _get, _objectKeys } from 'syntax';
 
 import { Prop } from './attributes';
@@ -22,7 +24,6 @@ import type {
   Identifier
 } from '@babel/types';
 import type { StackFrame } from 'context';
-import { parse, ParseForLoop } from 'parse';
 
 const Oops = ParseErrors({
   BadForOfAssignment: "Assignment of variable left of \"of\" must be Identifier or Destruture",
@@ -49,15 +50,16 @@ export class ComponentForX {
   toExpression(){
     const { left, right, key } = this.getReferences();
 
-    this.ensureKeyProp(key);
-
     const body = this.toReturnExpression();
     
-    if(this.path.isForOfStatement())
+    if(this.path.isForOfStatement()){
+      const params = key ? [left, key] : [left];
+
       return _call(
         _get(right, "map"),
-        arrowFunctionExpression([left, key], body)
+        arrowFunctionExpression(params, body)
       )
+    }
     else
       return _call(
         _get(_objectKeys(right), "map"),
@@ -65,38 +67,42 @@ export class ComponentForX {
       )
   }
 
-  protected ensureKeyProp(key: Identifier){
-    const { children, sequence } = this.definition;
+  protected ensureKeyProp(key?: Identifier){
+    let target = this.definition;
+    const scope = this.context.Imports;
 
-    const props = sequence.filter(x => x instanceof Prop) as Prop[];
+    const props = target.sequence.filter(x => x instanceof Prop) as Prop[];
 
     if(props.find(x => x.name === "key"))
       return;
 
-    const keyProp = new Prop("key", key);
-
-    if(children.length == 1 && props.length == 0){
-      const element = children[0];
+    if(target.children.length == 1 && props.length == 0){
+      const element = target.children[0];
 
       if(element instanceof ElementInline){
         const exists = element.sequence.find(x =>
           x instanceof Prop && x.name === "key"
         );
 
-        if(!exists)
-          element.add(keyProp);
-
-        return;
+        if(exists)
+          return;
+        
+        target = element;
       }
     }
 
-    this.definition.add(keyProp);
+    if(!key)
+      key = scope.ensureUIDIdentifier("i");
+
+    target.add(new Prop("key", key));
+
+    return key;
   }
 
   protected getReferences(){
-    const { context, path } = this;
-    let { left, right } = path.node;
-    let key: Identifier;
+    const { node } = this.path;
+    let { left, right } = node;
+    let key: Identifier | undefined;
 
     if(isVariableDeclaration(left))
       left = left.declarations[0].id;
@@ -106,17 +112,18 @@ export class ComponentForX {
     else
       throw Oops.BadForOfAssignment(left);
 
-    if(isBinaryExpression(right, {operator: "in"})){
-      key = right.left as Identifier
+    if(isBinaryExpression(right, { operator: "in" })){
+      key = right.left as Identifier;
       right = right.right;
     }
 
-    if(path.isForOfStatement())
-      key = context.Imports.ensureUIDIdentifier("i");
-    else if(isIdentifier(left))
-      key = left
-    else 
-      throw Oops.BadForInAssignment(left);
+    if(isForInStatement(node))
+      if(isIdentifier(left))
+        key = left;
+      else
+        throw Oops.BadForInAssignment(left);
+
+    key = this.ensureKeyProp(key);
 
     return { left, right, key }
   }
