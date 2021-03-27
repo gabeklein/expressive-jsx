@@ -1,15 +1,31 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`basic component 1`] = `
-"const {
-  createElement: create
-} = require(\\"react\\");
+exports[`component 1`] = `"() => create(\\"div\\", {}, \\"Hello World\\");"`;
 
-const Component = () => create(\\"div\\", {}, \\"Hello World\\");"
+exports[`component 2`] = `"() => <div>Hello World</div>;"`;
+
+exports[`multiple 1`] = `
+"({
+  hello
+}) => create(Fragment, {}, create(\\"div\\", {}, \\"Foo\\"), create(\\"div\\", {}, \\"Bar\\"));"
 `;
 
-exports[`basic component 2`] = `
-"import React from \\"react\\";
+exports[`multiple 2`] = `
+"({
+  hello
+}) => <Fragment><div>Foo</div><div>Bar</div></Fragment>;"
+`;
 
-const Component = () => <div>Hello World</div>;"
+exports[`switch 1`] = `
+"({
+  hello
+}) => create(\\"div\\", {
+  \\"className\\": join(\\"do_erd\\", false)
+}, hello ? create(\\"div\\", {}, \\"Hello World\\") : create(\\"div\\", {}, \\"Goodbye World\\"));"
+`;
+
+exports[`switch 2`] = `
+"({
+  hello
+}) => <div className={join(\\"do_erd\\", false)}>{hello ? <div>Hello World</div> : <div>Goodbye World</div>}</div>;"
 `;
