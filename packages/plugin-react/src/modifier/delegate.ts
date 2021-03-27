@@ -1,4 +1,5 @@
-import { DefineContingent, ElementInline, DefineElement, ExplicitStyle } from 'handle';
+import { DefineContingent, DefineElement, ElementInline, ExplicitStyle } from 'handle';
+import { parse, ParseContent } from 'parse';
 import { _require } from 'syntax';
 
 import { DelegateTypes } from './arguments';
@@ -87,7 +88,7 @@ export class ModifyDelegate {
     )
 
     mod.priority = priority;
-    mod.parse(usingBody || this.body!);
+    parse(mod as any, ParseContent, usingBody || this.body!)
 
     if(target instanceof ElementInline)
       target.modifiers.push(mod);
