@@ -1,5 +1,5 @@
 import { ElementInline } from 'handle';
-import { applyNameImplications, parse, ParseContent } from 'parse';
+import { parse, ParseContent } from 'parse';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { ArrowFunctionExpression, DoExpression } from '@babel/types';
@@ -28,7 +28,7 @@ export class ComponentExpression extends ElementInline {
     this.explicitTagName = "div";
 
     if(/^[A-Z]/.test(name))
-      applyNameImplications(this, name);
+      this.applyModifiers(name);
 
     this.context.resolveFor(this.name);
 

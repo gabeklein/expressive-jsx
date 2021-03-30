@@ -1,15 +1,14 @@
-import { isJSXIdentifier, isJSXMemberExpression, stringLiteral } from '@babel/types';
+import { isJSXIdentifier, isJSXMemberExpression, isJSXSpreadAttribute, stringLiteral } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ElementInline, Prop } from 'handle';
-import { applyNameImplications, applyPrimaryName } from 'parse';
 
 import type {
   Expression,
   JSXAttribute,
   JSXElement,
-  JSXIdentifier,
   JSXSpreadAttribute
 } from '@babel/types';
+import type { Element } from 'handle';
 
 const Oops = ParseErrors({
   InvalidPropValue: "Can only consume an expression or string literal as value here.",
@@ -17,6 +16,14 @@ const Oops = ParseErrors({
   JSXMemberExpression: "Member Expression is not supported!",
   NonJSXIdentifier: "Cannot handle non-identifier!"
 });
+
+const COMMON_HTML = [
+  "article", "blockquote", "input",
+  "h1", "h2", "h3", "h4", "h5", "h6",
+  "p", "a", "ul", "ol", "li",
+  "i", "b", "em", "strong", "span",
+  "hr", "img", "div", "br"
+];
 
 export function addElementFromJSX(
   node: JSXElement,
@@ -66,24 +73,39 @@ export function addElementFromJSX(
 
 function createElement(
   element: JSXElement,
-  parent: ElementInline
-){
-  const target = new ElementInline(parent.context);
-  const { name } = element.openingElement;
+  parent: Element){
 
-  if(isJSXMemberExpression(name)){
-    applyNameImplications(target, name.property.name, true)
-    target.explicitTagName = name;
+  const target = new ElementInline(parent.context);
+  const tag = element.openingElement.name;
+  let name;
+
+  if(isJSXMemberExpression(tag)){
+    name = tag.property.name;
+    target.explicitTagName = tag;
   }
-  else if(!isJSXIdentifier(name)){
-    throw Oops.NonJSXIdentifier(name);
-  }
-  else if(/^html-.+/.test(name.name)){
-    const tag = name.name.slice(5);
-    applyNameImplications(target, tag, true, "html")
+  else if(isJSXIdentifier(tag)){
+    name = tag.name;
+
+    if(name == "s")
+      name = "span";
+
+    let explicit =
+      /^[A-Z]/.test(name) ||
+      COMMON_HTML.includes(name);
+
+    if(/^html-.+/.test(name)){
+      name = name.slice(5);
+      explicit = true;
+    }
+
+    if(explicit)
+      target.explicitTagName = name;
   }
   else
-    applyPrimaryName(target, name.name, "div");
+    throw Oops.NonJSXIdentifier(tag);
+
+  target.name = name;
+  target.applyModifiers(name);
 
   parent.adopt(target);
 
@@ -94,36 +116,37 @@ function applyAttribute(
   parent: ElementInline,
   attr: JSXAttribute | JSXSpreadAttribute){
 
-  if(attr.type == "JSXSpreadAttribute"){
-    const prop = new Prop(false, attr.argument);
-    parent.add(prop);
-    return;
-  }
-
-  const name = attr.name as JSXIdentifier;
-  const propValue = attr.value;
-
-  if(propValue === null){
-    applyNameImplications(parent, name.name);
-    return;
-  }
-
+  let name: string | false;
   let value: Expression;
 
-  switch(propValue.type){
-    case "JSXExpressionContainer":
-      value = propValue.expression as Expression;
-    break;
+  if(isJSXSpreadAttribute(attr)){
+    name = false;
+    value = attr.argument;
+  }
+  else {
+    const expression = attr.value;
+    name = attr.name.name as string;
 
-    case "StringLiteral":
-      value = propValue;
-    break;
-
-    default:
-      throw Oops.InvalidPropValue(propValue);
+    if(expression === null){
+      parent.applyModifiers(name);
+      return;
+    }
+  
+    switch(expression.type){
+      case "JSXExpressionContainer":
+        value = expression.expression as Expression;
+      break;
+  
+      case "StringLiteral":
+        value = expression;
+      break;
+  
+      default:
+        throw Oops.InvalidPropValue(expression);
+    }
   }
 
   parent.add(
-    new Prop(name.name, value)
+    new Prop(name, value)
   );
 }

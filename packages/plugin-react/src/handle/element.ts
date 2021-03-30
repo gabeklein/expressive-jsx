@@ -3,10 +3,11 @@ import { generateElement } from 'generate';
 import { AttributeBody } from './object';
 
 import type { Expression, JSXMemberExpression } from '@babel/types';
-import type { Define } from 'handle/modifier';
+import type { Define, DefineElement } from 'handle/modifier';
+
+export type Element = ElementInline | DefineElement;
 
 export class ElementInline extends AttributeBody {
-  primaryName?: string;
   explicitTagName?: string | JSXMemberExpression;
 
   modifiers = [] as Define[];
@@ -14,5 +15,19 @@ export class ElementInline extends AttributeBody {
   toExpression(): Expression {
     const info = generateElement(this);
     return this.context.Imports.element(info);
+  }
+
+  applyModifiers(name: string){
+    let modify = this.context.elementMod(name);
+  
+    while(modify){
+      this.modifiers.push(modify);
+      modify.targets.add(this);
+  
+      for(const sub of modify.includes)
+        this.context.elementMod(sub);
+  
+      modify = modify.next;
+    }
   }
 }
