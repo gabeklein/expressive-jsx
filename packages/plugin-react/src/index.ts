@@ -14,7 +14,6 @@ import type { BabelFile, Visitor } from 'types';
 
 const Program: Visitor<ProgramNode> = {
   enter(path, state){
-
     const external =
       Object.assign({}, ...state.opts.modifiers);
 
