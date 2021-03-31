@@ -17,17 +17,8 @@ export class ElementInline extends AttributeBody {
     return this.context.Imports.element(info);
   }
 
-  applyModifiers(name: string){
-    let modify = this.context.elementMod(name);
-  
-    while(modify){
-      this.modifiers.push(modify);
-      modify.targets.add(this);
-  
-      for(const sub of modify.includes)
-        this.context.elementMod(sub);
-  
-      modify = modify.next;
-    }
+  applyModifier(mod: Define){
+    this.modifiers.push(mod);
+    mod.targets.add(this);
   }
 }

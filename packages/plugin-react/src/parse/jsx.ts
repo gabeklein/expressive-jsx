@@ -27,7 +27,7 @@ const COMMON_HTML = [
 
 export function addElementFromJSX(
   node: JSXElement,
-  parent: ElementInline){
+  parent: Element){
 
   const shouldApplyToSelf = 
     isJSXIdentifier(node.openingElement.name, { name: "this" })
@@ -113,7 +113,7 @@ function createElement(
 }
 
 function applyAttribute(
-  parent: ElementInline,
+  parent: Element,
   attr: JSXAttribute | JSXSpreadAttribute){
 
   let name: string | false;

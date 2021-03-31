@@ -33,8 +33,7 @@ export class AttributeStack
       this.top = item
       this.push(item);
     }
-    else
-    if(item.invariant && this.length < 2){
+    else if(item.invariant && this.length < 2){
       // this.invariant.push(item);
       return true;
     }

@@ -37,4 +37,19 @@ export abstract class AttributeBody {
   add(item: SequenceItem){
     this.sequence.push(item);
   }
+
+  abstract applyModifier(mod: Define): void;
+
+  applyModifiers(name: string){
+    let modify = this.context.elementMod(name);
+  
+    while(modify){
+      this.applyModifier(modify);
+  
+      for(const sub of modify.includes)
+        this.context.elementMod(sub);
+  
+      modify = modify.next;
+    }
+  }
 }

@@ -25,6 +25,10 @@ export abstract class Define extends AttributeBody {
       new ExplicitStyle(name, value)
     )
   }
+
+  applyModifier(mod: Define){
+    this.includes.add(mod);
+  }
 }
 
 export class DefineElement extends Define {
