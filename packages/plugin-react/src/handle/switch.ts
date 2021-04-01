@@ -75,7 +75,7 @@ export class ComponentIf {
     if(!this.hasElementOutput)
       return;
 
-    return reduceOptions(this.forks, (cond) => {
+    return reduceToExpression(this.forks, (cond) => {
       let product;
 
       if(cond instanceof ComponentIf)
@@ -94,7 +94,7 @@ export class ComponentIf {
     if(!this.hasStyleOutput)
       return;
     
-    return reduceOptions(this.forks, (cond) => {
+    return reduceToExpression(this.forks, (cond) => {
       if(cond instanceof ComponentIf)
         return cond.toClassName();
 
@@ -232,7 +232,7 @@ export class ComponentConsequent extends ElementInline {
   }
 }
 
-function reduceOptions(
+function reduceToExpression(
   forks: Consequent[],
   predicate: GetProduct){
 

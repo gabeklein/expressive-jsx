@@ -38,13 +38,13 @@ export class ComponentForX {
     private path: Path<ForInStatement> | Path<ForOfStatement>,
     parent: ElementInline){
 
-      const element = new ElementInline(parent.context);
-      parse(element, ParseForLoop, path, "body");
-  
-      this.definition = element;
-  
-      parent.context.push(this);
-      parent.adopt(this);
+    const element = new ElementInline(parent.context);
+    parse(element, ParseForLoop, path, "body");
+
+    this.definition = element;
+
+    parent.context.push(this);
+    parent.adopt(this);
   }
 
   toExpression(){
