@@ -1,0 +1,107 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Attribute-based modifier 1`] = `
+"() => create(Foo, {
+  \\"className\\": \\"Foo_1u9\\"
+});
+
+Styles.include(\`
+	.Foo_1u9 { 
+		background: red;
+		color: white;
+	}
+\`);"
+`;
+
+exports[`Attribute-based modifier 2`] = `
+"() => <Foo className=\\"Foo_1u9\\"></Foo>;
+
+Styles.include(\`
+	.Foo_1u9 { 
+		background: red;
+		color: white;
+	}
+\`);"
+`;
+
+exports[`Explicitly use modifier 1`] = `
+"() => create(Fragment, {}, create(Baz, {
+  \\"className\\": \\"Foo_36o Baz_1u9\\"
+}), create(Foo, {
+  \\"className\\": \\"Foo_36o\\"
+}));
+
+Styles.include(\`
+	.Foo_36o { 
+		color: blue;
+	}
+	.Baz_1u9 { 
+		color: red;
+	}
+\`);"
+`;
+
+exports[`Explicitly use modifier 2`] = `
+"() => <Fragment><Baz className=\\"Foo_36o Baz_1u9\\"></Baz><Foo className=\\"Foo_36o\\"></Foo></Fragment>;
+
+Styles.include(\`
+	.Foo_36o { 
+		color: blue;
+	}
+	.Baz_1u9 { 
+		color: red;
+	}
+\`);"
+`;
+
+exports[`Nested modifier 1`] = `
+"() => create(Fragment, {}, create(Foo, {
+  \\"className\\": \\"Foo_36o\\"
+}), create(Bar, {}, create(Foo, {
+  \\"className\\": \\"Foo_36o Foo_51a\\"
+})));
+
+Styles.include(\`
+	.Foo_36o { 
+		color: red;
+	}
+	.Foo_51a { 
+		color: blue;
+	}
+\`);"
+`;
+
+exports[`Nested modifier 2`] = `
+"() => <Fragment><Foo className=\\"Foo_36o\\"></Foo><Bar><Foo className=\\"Foo_36o Foo_51a\\"></Foo></Bar></Fragment>;
+
+Styles.include(\`
+	.Foo_36o { 
+		color: red;
+	}
+	.Foo_51a { 
+		color: blue;
+	}
+\`);"
+`;
+
+exports[`Simple modifier 1`] = `
+"() => create(Foo, {
+  \\"className\\": \\"Foo_1u9\\"
+});
+
+Styles.include(\`
+	.Foo_1u9 { 
+		color: red;
+	}
+\`);"
+`;
+
+exports[`Simple modifier 2`] = `
+"() => <Foo className=\\"Foo_1u9\\"></Foo>;
+
+Styles.include(\`
+	.Foo_1u9 { 
+		color: red;
+	}
+\`);"
+`;
