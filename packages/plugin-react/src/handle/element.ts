@@ -18,7 +18,9 @@ export class ElementInline extends AttributeBody {
   }
 
   applyModifier(mod: Define){
-    this.modifiers.push(mod);
-    mod.targets.add(this);
+    for(const use of [mod, ...mod.includes]){
+      this.modifiers.push(use);
+      use.targets.add(this);
+    }
   }
 }

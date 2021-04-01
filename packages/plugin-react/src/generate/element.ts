@@ -121,7 +121,11 @@ export function generateElement(element: ElementInline){
         continue;
 
       if(!inline_only && mod.targets.size > 1 || mod.onlyWithin){
-        classList.push(...mod.classList)
+        if(mod.sequence.length){
+          classList.push(mod.uid)
+          mod.setActive();
+        }
+
         continue;
       }
 

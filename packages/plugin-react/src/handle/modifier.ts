@@ -53,24 +53,6 @@ export class DefineElement extends Define {
     //   this.priority = 3;
   }
 
-  get classList(){
-    const names: string[] = []
- 
-    for(const applicable of [this, ...this.includes]){
-      if(applicable.sequence.length)
-        applicable.setActive();
-
-      if(applicable instanceof DefineContingent)
-        this.setActive();
-
-      else if(applicable instanceof DefineElement)
-        if(applicable.sequence.length)
-          names.push(applicable.uid);
-    }
-
-    return names;
-  }
-
   use(define: DefineElement){
     define.priority = this.priority;
     this.provides.add(define);
