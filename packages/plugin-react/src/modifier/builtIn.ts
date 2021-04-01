@@ -20,20 +20,15 @@ export function use(
   ...args: any[]){
 
   const { target } = this;
-  for(const item of args){
-    if(typeof item !== "string")
-      continue;
 
-    const mod = target.context.elementMod(item);
-    if(!mod)
-      continue;
+  for(const item of args)
+    if(typeof item == "string"){
+      const mod =
+        target.context.elementMod(item);
 
-    if(target instanceof ElementInline)
-      target.modifiers.push(mod);
-    else
-    if(target instanceof Define)
-      target.includes.add(mod);
-  }
+      if(mod)
+        target.applyModifier(mod);
+    }
 }
 
 export function priority(
@@ -41,6 +36,7 @@ export function priority(
   priority: number){
 
   const { target } = this;
+
   if(target instanceof Define)
     target.priority = priority
 }

@@ -134,4 +134,9 @@ export class DefineContingent extends Define {
     else
       anchor.context.elementMod(define)
   }
+
+  applyModifier(mod: Define){
+    if(this.anchor instanceof ElementInline)
+      this.anchor.applyModifier(mod);
+  }
 }

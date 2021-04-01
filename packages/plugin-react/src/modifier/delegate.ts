@@ -90,17 +90,7 @@ export class ModifyDelegate {
     mod.priority = priority;
     parse(mod as any, ParseContent, usingBody || this.body!)
 
-    if(target instanceof ElementInline)
-      target.modifiers.push(mod);
-
-    else if(target instanceof DefineElement)
-      target.includes.add(mod);
-
-    else if(
-      target instanceof DefineContingent && 
-      target.anchor instanceof ElementInline
-    )
-      target.anchor.modifiers.push(mod);
+    target.applyModifier(mod);
 
     return mod;
   }
