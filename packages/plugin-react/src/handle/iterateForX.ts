@@ -24,6 +24,7 @@ import type {
   Identifier
 } from '@babel/types';
 import type { StackFrame } from 'context';
+import type { Element } from './element';
 
 const Oops = ParseErrors({
   BadForOfAssignment: "Assignment of variable left of \"of\" must be Identifier or Destruture",
@@ -36,7 +37,7 @@ export class ComponentForX {
 
   constructor(
     private path: Path<ForInStatement> | Path<ForOfStatement>,
-    parent: ElementInline){
+    parent: Element){
 
     const element = new ElementInline(parent.context);
     parse(element, ParseForLoop, path, "body");

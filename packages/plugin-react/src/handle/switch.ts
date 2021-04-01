@@ -22,6 +22,7 @@ import type {
 } from '@babel/types';
 import type { StackFrame } from 'context';
 import type { InnerContent } from 'types';
+import type { Element } from './element';
 
 const Oops = ParseErrors({
   ReturnElseNotImplemented: "This is an else condition, returning from here is not implemented.",
@@ -51,7 +52,7 @@ export class ComponentIf {
 
   static insert(
     path: Path<IfStatement>,
-    parent: ElementInline
+    parent: Element
   ){
     const item = new this(path, parent.context);
 

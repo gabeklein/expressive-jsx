@@ -7,6 +7,7 @@ import { _call } from 'syntax';
 import type { NodePath as Path } from '@babel/traverse';
 import type { ForStatement, Statement } from '@babel/types';
 import type { StackFrame } from 'context';
+import type { Element } from './element';
 
 export class ComponentFor {
   context!: StackFrame;
@@ -14,7 +15,7 @@ export class ComponentFor {
 
   constructor(
     private path: Path<ForStatement>,
-    parent: ElementInline){
+    parent: Element){
 
     const element = new ElementInline(parent.context);
     parse(element, ParseForLoop, path, "body");

@@ -3,9 +3,9 @@ import { generateElement } from 'generate';
 import { AttributeBody } from './object';
 
 import type { Expression, JSXMemberExpression } from '@babel/types';
-import type { Define, DefineElement } from 'handle/modifier';
+import type { Define } from 'handle/modifier';
 
-export type Element = ElementInline | DefineElement;
+export type Element = ElementInline | Define;
 
 export class ElementInline extends AttributeBody {
   explicitTagName?: string | JSXMemberExpression;

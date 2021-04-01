@@ -8,7 +8,7 @@ import { parse } from './helper';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { LabeledStatement, Statement , IfStatement} from '@babel/types';
-import type { ElementInline } from 'handle/element';
+import type { Element, ElementInline } from 'handle/element';
 import type { AttributeBody } from 'handle/object';
 import type { ComponentConsequent} from 'handle/switch';
 import type { ParserFor } from './helper';
@@ -63,7 +63,7 @@ export const ParseAttributes: ParserFor<AttributeBody> = {
   }
 }
 
-export const ParseContent: ParserFor<ElementInline> = {
+export const ParseContent: ParserFor<Element> = {
   ...ParseAttributes,
 
   JSXElement({ node }){
