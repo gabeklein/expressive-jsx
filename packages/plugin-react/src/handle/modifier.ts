@@ -12,8 +12,14 @@ export abstract class Define extends AttributeBody {
   onlyWithin?: DefineContingent;
   
   priority = 1;
+
+  /** Modifiers available to children of applicable elements. */
   provides = new Set<Define>();
+
+  /** Modifiers also applied to any recipient of this one. */
   includes = new Set<Define>();
+
+  /** Targets which this modifier applies to. */
   targets = new Set<ElementInline>();
   
   setActive(){

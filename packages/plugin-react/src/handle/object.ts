@@ -46,7 +46,7 @@ export abstract class AttributeBody {
     while(modify){
       this.applyModifier(modify);
   
-      for(const sub of modify.includes)
+      for(const sub of modify.provides)
         this.context.elementMod(sub);
   
       modify = modify.next;
