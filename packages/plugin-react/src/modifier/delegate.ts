@@ -1,4 +1,4 @@
-import { DefineContingent, DefineElement, ElementInline, ExplicitStyle } from 'handle';
+import { DefineContingent, ExplicitStyle } from 'handle';
 import { parse, ParseContent } from 'parse';
 import { _require } from 'syntax';
 

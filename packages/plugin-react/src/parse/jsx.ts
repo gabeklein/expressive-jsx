@@ -46,10 +46,11 @@ export function addElementFromJSX(
 
     for(const node of children){
       switch(node.type){
-        case "JSXElement": {
-          const child = createElement(node, element);
-          queue.push([child, node]);
-        }
+        case "JSXElement":
+          queue.push([
+            createElement(node, element),
+            node
+          ]);
         break;
 
         case "JSXText":
