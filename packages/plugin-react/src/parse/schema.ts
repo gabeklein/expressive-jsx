@@ -9,7 +9,6 @@ import { parse } from './helper';
 import type { NodePath as Path } from '@babel/traverse';
 import type { LabeledStatement, Statement , IfStatement} from '@babel/types';
 import type { Element, ElementInline } from 'handle/element';
-import type { AttributeBody } from 'handle/object';
 import type { ComponentConsequent} from 'handle/switch';
 import type { ParserFor } from './helper';
 
@@ -30,7 +29,7 @@ const Oops = ParseErrors({
 
 export { parse } from './helper'
 
-export const ParseAttributes: ParserFor<AttributeBody> = {
+export const ParseContent: ParserFor<Element> = {
   LabeledStatement(path){
     const body = path.get('body');
     const { name } = path.node.label;
@@ -60,11 +59,7 @@ export const ParseAttributes: ParserFor<AttributeBody> = {
       throw Oops.PropNotIdentifier(left)
 
     this.add(new Prop(left.name, right));
-  }
-}
-
-export const ParseContent: ParserFor<Element> = {
-  ...ParseAttributes,
+  },
 
   JSXElement({ node }){
     addElementFromJSX(node, this);
@@ -105,7 +100,7 @@ export const ParseConsequent: ParserFor<ComponentConsequent> = {
   LabeledStatement(path: Path<LabeledStatement>){
     parse(
       this.definition,
-      ParseAttributes,
+      ParseContent,
       path as Path<Statement>
     );
   },
