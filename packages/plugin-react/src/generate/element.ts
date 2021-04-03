@@ -113,14 +113,12 @@ export function generateElement(element: ElementInline){
       if(!(mod instanceof DefineElement))
         continue;
 
-      if(mod.sequence.length === 0 && mod.includes.size === 0)
+      if(!mod.containsStyles())
         continue;
 
-      if(!inline_only && mod.targets.size > 1 || mod.onlyWithin){
-        if(mod.sequence.length){
-          classList.push(mod.uid)
-          mod.setActive();
-        }
+      if(!mod.collapsable && !inline_only){
+        classList.push(mod.uid)
+        mod.setActive();
 
         continue;
       }

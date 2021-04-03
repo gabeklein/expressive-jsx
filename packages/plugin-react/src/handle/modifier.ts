@@ -19,6 +19,10 @@ export abstract class Define extends AttributeBody {
   /** Targets which this modifier applies to. */
   targets = new Set<ElementInline>();
 
+  get collapsable(){
+    return this.targets.size <= 1 && !this.onlyWithin;
+  }
+
   containsStyles(staticOnly?: boolean){
     return !!this.sequence.find(style => {
       if(style instanceof ExplicitStyle)
