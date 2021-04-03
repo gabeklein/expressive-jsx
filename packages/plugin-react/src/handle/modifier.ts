@@ -18,6 +18,14 @@ export abstract class Define extends AttributeBody {
 
   /** Targets which this modifier applies to. */
   targets = new Set<ElementInline>();
+
+  containsStyles(staticOnly?: boolean){
+    return !!this.sequence.find(style => {
+      if(style instanceof ExplicitStyle)
+        if(!staticOnly || style.invariant)
+          return true;
+    })
+  }
   
   setActive(){
     this.context.modifiersDeclared.add(this);
@@ -89,11 +97,11 @@ export class DefineContingent extends Define {
   }
 
   toClassName(){
-    const { includes, sequence, ownSelector } = this;
+    const { includes, ownSelector } = this;
 
     const include = [ ...includes ].map(x => x.uid);
 
-    if(sequence.length)
+    if(this.containsStyles(true))
       include.unshift(ownSelector!);
 
     if(include.length){
