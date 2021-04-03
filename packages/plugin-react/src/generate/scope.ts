@@ -44,7 +44,6 @@ type ImportSpecific =
   | ImportNamespaceSpecifier;
 
 interface ElementReact {
-  tagName: null | string | JSXMemberExpression;
   props: PropData[];
   children: Expression[];
 }
@@ -75,8 +74,12 @@ export abstract class ExternalsManager {
     content?: Expression[]
   ) => CallExpression | JSXElement;
 
-  element(src: ElementReact){
-    return this.createElement(src.tagName, src.props, src.children);
+  element(
+    src: ElementReact,
+    tagName?: string | JSXMemberExpression){
+
+    const tag = tagName || "div";
+    return this.createElement(tag, src.props, src.children);
   }
 
   fragment(

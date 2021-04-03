@@ -11,12 +11,17 @@ export class ElementInline extends AttributeBody {
   explicitTagName?: string | JSXMemberExpression;
 
   toExpression(collapse?: boolean): Expression {
+    const { name } = this;
+    const tagName = this.explicitTagName || (
+      name && /^[A-Z]/.test(name) ? name : undefined
+    )
+
     const scope = this.context.Imports;
     const info = generateElement(this);
 
     return collapse
       ? scope.container(info)
-      : scope.element(info);
+      : scope.element(info, tagName);
   }
 
   applyModifier(mod: Define){

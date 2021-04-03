@@ -8,12 +8,8 @@ import type { PropData, SequenceItem } from 'types';
 import type { ExternalsManager } from 'generate';
 
 export function generateElement(element: ElementInline){
-  const { name, explicitTagName, context } = element;
+  const { context } = element;
   const inline_only = context.opts.styleMode === "inline";
-
-  const tagName = explicitTagName || (
-    name && /^[A-Z]/.test(name) ? name : "div"
-  )
 
   const children = [] as Expression[];
   const props = [] as PropData[];
@@ -35,7 +31,7 @@ export function generateElement(element: ElementInline){
   if(value)
     props.push({ name: "style", value });
 
-  return { tagName, props, children };
+  return { props, children };
 
   function apply(item: SequenceItem){
     if(item instanceof ComponentIf){
