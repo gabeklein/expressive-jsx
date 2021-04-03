@@ -128,11 +128,14 @@ export function generateElement(element: ElementInline){
       for(const style of mod.sequence)
         if(style instanceof ExplicitStyle){
           const { name, invariant } = style;
+
+          if(!name)
+            continue;
+          
+          if(!invariant && !inline_only)
+            continue;
   
-          if(!inline_only && !invariant
-          || !name
-          || existing.has(name)
-          || accumulator.has(name))
+          if(existing.has(name) || accumulator.has(name))
             continue;
   
           accumulator.set(name, style);
