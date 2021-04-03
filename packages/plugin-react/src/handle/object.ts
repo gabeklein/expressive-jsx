@@ -11,6 +11,9 @@ export abstract class AttributeBody {
   statements = [] as Statement[];
   children = [] as InnerContent[];
 
+  /** Other definitions applicable to this one. */
+  includes = new Set<Define>();
+
   constructor(context: StackFrame){
     context.push(this);
   }

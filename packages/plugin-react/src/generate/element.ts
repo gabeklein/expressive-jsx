@@ -105,7 +105,7 @@ export function generateElement(element: ElementInline){
   function applyModifiers(){
     const existing = new Set<string>();
     const accumulator = new Map<string, ExplicitStyle>();
-    const definitions = element.modifiers.sort(
+    const definitions = [ ...element.includes ].sort(
       (x, y) => x.priority - y.priority
     );
     

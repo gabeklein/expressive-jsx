@@ -16,9 +16,6 @@ export abstract class Define extends AttributeBody {
   /** Modifiers available to children of applicable elements. */
   provides = new Set<Define>();
 
-  /** Modifiers also applied to any recipient of this one. */
-  includes = new Set<Define>();
-
   /** Targets which this modifier applies to. */
   targets = new Set<ElementInline>();
   
@@ -94,7 +91,7 @@ export class DefineContingent extends Define {
   toClassName(){
     const { includes, sequence, ownSelector } = this;
 
-    const include = [...includes.values()].map(x => x.uid);
+    const include = [ ...includes ].map(x => x.uid);
 
     if(sequence.length)
       include.unshift(ownSelector!);

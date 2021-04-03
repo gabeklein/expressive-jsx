@@ -10,8 +10,6 @@ export type Element = ElementInline | Define;
 export class ElementInline extends AttributeBody {
   explicitTagName?: string | JSXMemberExpression;
 
-  modifiers = [] as Define[];
-
   toExpression(collapse?: boolean): Expression {
     const scope = this.context.Imports;
     const info = generateElement(this);
@@ -23,7 +21,7 @@ export class ElementInline extends AttributeBody {
 
   applyModifier(mod: Define){
     for(const use of [mod, ...mod.includes]){
-      this.modifiers.push(use);
+      this.includes.add(use);
       use.targets.add(this);
     }
   }
