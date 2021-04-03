@@ -10,7 +10,6 @@ import {
   returnStatement,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { generateElement } from 'generate';
 import { ElementInline } from 'handle';
 import { parse, ParseForLoop } from 'parse';
 import { _call, _get, _objectKeys } from 'syntax';
@@ -130,16 +129,13 @@ export class ComponentForX {
   }
 
   protected toReturnExpression(){
-    const { context, definition } = this;
-    const { statements } = definition;
-    const compiled = generateElement(definition);
-    
-    let output = 
-      context.Imports.container(compiled);
+    const element = this.definition;
 
-    if(statements.length)
+    let output = element.toExpression(true);
+
+    if(element.statements.length)
       return blockStatement([
-        ...statements,
+        ...element.statements,
         returnStatement(output)
       ])
     

@@ -1,5 +1,4 @@
 import { arrowFunctionExpression, blockStatement, expressionStatement, forStatement } from '@babel/types';
-import { generateElement } from 'generate';
 import { ElementInline } from 'handle';
 import { parse, ParseForLoop } from 'parse';
 import { _call } from 'syntax';
@@ -29,12 +28,12 @@ export class ComponentFor {
   toExpression(){
     const { init, test, update } = this.path.node;
     const { statements } = this.definition;
-    
+
+    const output = this.definition.toExpression(true);
     const scope = this.context.Imports;
-    const content = generateElement(this.definition);
-    const output = scope.container(content);
     const accumulator = scope.ensureUIDIdentifier("add");
     const collect = scope.ensure("$runtime", "collect");
+
     let body: Statement =
       expressionStatement(
         _call(accumulator, output)

@@ -12,9 +12,13 @@ export class ElementInline extends AttributeBody {
 
   modifiers = [] as Define[];
 
-  toExpression(): Expression {
+  toExpression(collapse?: boolean): Expression {
+    const scope = this.context.Imports;
     const info = generateElement(this);
-    return this.context.Imports.element(info);
+
+    return collapse
+      ? scope.container(info)
+      : scope.element(info);
   }
 
   applyModifier(mod: Define){

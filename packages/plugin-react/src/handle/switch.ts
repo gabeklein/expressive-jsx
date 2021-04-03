@@ -9,7 +9,6 @@ import {
   unaryExpression,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { generateElement } from 'generate';
 import { ComponentExpression, DefineContingent, ElementInline } from 'handle';
 import { parse, ParseConsequent } from 'parse';
 import { ensureArray, hash } from 'shared';
@@ -191,8 +190,7 @@ export class ComponentConsequent extends ElementInline {
   }
 
   toExpression(){
-    const info = generateElement(this);
-    return this.context.Imports.container(info);
+    return super.toExpression(true);
   }
 
   adopt(child: InnerContent){
