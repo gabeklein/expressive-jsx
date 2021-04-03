@@ -7,6 +7,8 @@ import type { Expression } from '@babel/types';
 import type { PropData, SequenceItem } from 'types';
 import type { ExternalsManager } from 'generate';
 
+const byPriority = (x: any, y: any) => x.priority - y.priority;
+
 export function generateElement(element: ElementInline){
   const { context } = element;
   const inline_only = context.opts.styleMode === "inline";
@@ -101,9 +103,7 @@ export function generateElement(element: ElementInline){
   function applyModifiers(){
     const existing = new Set<string>();
     const accumulator = new Map<string, ExplicitStyle>();
-    const definitions = [ ...element.includes ].sort(
-      (x, y) => x.priority - y.priority
-    );
+    const definitions = [ ...element.includes ].sort(byPriority);
     
     for(const mod of element.sequence)
       if(mod instanceof ExplicitStyle && mod.name)
