@@ -13,7 +13,7 @@ Styles.include(\`
 `;
 
 exports[`basic style 2`] = `
-"() => <div className=\\"do_67v\\"></div>;
+"() => <div className=\\"do_67v\\" />;
 
 Styles.include(\`
 	.do_67v { 

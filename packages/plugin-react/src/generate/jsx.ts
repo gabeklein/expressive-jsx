@@ -49,12 +49,13 @@ export function createElement(
 
   Imports.ensure("$pragma", "default", "React");
 
+  const contains = children.length > 0;
+
   return jsxElement(
-    jsxOpeningElement(type, props),
-    jsxClosingElement(type),
-    children,
-    children.length > 0
-  )
+    jsxOpeningElement(type, props, !contains),
+    contains ? jsxClosingElement(type) : undefined,
+    children
+  );
 }
 
 function createAttribute({ name, value }: PropData){

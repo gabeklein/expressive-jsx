@@ -14,7 +14,7 @@ Styles.include(\`
 `;
 
 exports[`Attribute-based modifier 2`] = `
-"() => <Foo className=\\"Foo_1u9\\"></Foo>;
+"() => <Foo className=\\"Foo_1u9\\" />;
 
 Styles.include(\`
 	.Foo_1u9 { 
@@ -42,7 +42,7 @@ Styles.include(\`
 `;
 
 exports[`Explicitly use modifier 2`] = `
-"() => <Fragment><Baz className=\\"Foo_erd Baz_1u9\\"></Baz><Foo className=\\"Foo_erd\\"></Foo></Fragment>;
+"() => <Fragment><Baz className=\\"Foo_erd Baz_1u9\\" /><Foo className=\\"Foo_erd\\" /></Fragment>;
 
 Styles.include(\`
 	.Foo_erd { 
@@ -72,7 +72,7 @@ Styles.include(\`
 `;
 
 exports[`Nested modifier 2`] = `
-"() => <Fragment><Foo className=\\"Foo_erd\\"></Foo><Bar><Foo className=\\"Foo_erd Foo_51a\\"></Foo></Bar></Fragment>;
+"() => <Fragment><Foo className=\\"Foo_erd\\" /><Bar><Foo className=\\"Foo_erd Foo_51a\\" /></Bar></Fragment>;
 
 Styles.include(\`
 	.Foo_erd { 
@@ -97,7 +97,7 @@ Styles.include(\`
 `;
 
 exports[`Simple modifier 2`] = `
-"() => <Foo className=\\"Foo_1u9\\"></Foo>;
+"() => <Foo className=\\"Foo_1u9\\" />;
 
 Styles.include(\`
 	.Foo_1u9 { 

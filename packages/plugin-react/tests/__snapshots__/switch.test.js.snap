@@ -146,7 +146,7 @@ Styles.include(\`
 exports[`switch styles 2`] = `
 "({
   foo
-}) => <div className={foo ? \\"if_foo_1u9\\" : \\"else_7qc\\"}></div>;
+}) => <div className={foo ? \\"if_foo_1u9\\" : \\"else_7qc\\"} />;
 
 Styles.include(\`
 	.do_67v.else_7qc { 
