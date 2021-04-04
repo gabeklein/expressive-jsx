@@ -62,7 +62,10 @@ export const ParseContent: ParserFor<Element> = {
   },
 
   IfStatement(path: Path<IfStatement>){
-    ComponentIf.insert(path, this);
+    const item = new ComponentIf(path, this.context);
+
+    this.adopt(item);
+    item.setup();
   },
 
   ForStatement(path){

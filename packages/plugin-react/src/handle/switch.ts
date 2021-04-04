@@ -18,7 +18,6 @@ import type {
   Statement
 } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { Element } from './element';
 
 type Consequent = ComponentIf | ComponentConsequent;
 type GetProduct = (fork: Consequent) => Expression | undefined;
@@ -35,16 +34,6 @@ export class ComponentIf {
   context!: StackFrame;
 
   private forks = [] as Consequent[];
-
-  static insert(
-    path: Path<IfStatement>,
-    parent: Element
-  ){
-    const item = new this(path, parent.context);
-
-    parent.adopt(item);
-    item.setup();
-  }
 
   constructor(
     protected path: Path<IfStatement>,
