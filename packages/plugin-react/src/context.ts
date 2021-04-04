@@ -5,7 +5,6 @@ import { DEFAULTS, hash, Stack } from 'shared';
 import type { NodePath as Path } from '@babel/traverse';
 import type { ArrowFunctionExpression, Program, Statement } from '@babel/types';
 import type { Define } from 'handle/modifier';
-import type { ComponentIf } from 'handle/switch';
 import type { ExternalsManager } from 'generate/scope';
 import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
 
@@ -27,8 +26,6 @@ export class StackFrame {
   current = {} as any;
   currentComponent?: ComponentExpressionType;
   currentElement?: Define;
-  parentIf?: ComponentIf;
-  currentIf?: ComponentIf;
 
   modifiers = new Stack<Define>();
   handlers = new Stack<ModifyAction>();

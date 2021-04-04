@@ -52,10 +52,6 @@ export class ComponentIf {
     public test?: Expression){
 
     context = context.push(this);
-    context.currentIf = this;
-
-    if(!test)
-      context.parentIf = this;
   }
 
   toExpression(context: StackFrame): Expression | undefined {
