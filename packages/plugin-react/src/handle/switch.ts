@@ -25,10 +25,8 @@ type GetProduct = (fork: Consequent) => Expression | undefined;
 const opt = conditionalExpression;
 const not = (a: Expression) => unaryExpression("!", a);
 const and = (a: Expression, b: Expression) => logicalExpression("&&", a, b);
-
-//TODO: figure out if falsey values interfere before allowing them through
-// const anti = (a: Expression) => isUnaryExpression(a, { operator: "!" }) ? a.argument : not(a);
-const anti = not;
+const anti = (a: Expression) => isUnaryExpression(a, { operator: "!" }) ? a.argument : not(a);
+const is = (a: Expression) => not(not(a));
 
 export class ComponentIf {
   context!: StackFrame;
@@ -183,7 +181,7 @@ function reduceToExpression(
         : and(anti(test), sum)
     else if(product)
       sum = test
-        ? and(test, product)
+        ? and(is(test), product)
         : product
   }
 

@@ -4,7 +4,7 @@ exports[`alternate consequent types 1`] = `
 "({
   foo
 }) => create(\\"div\\", {
-  \\"className\\": foo && \\"if_foo_1u9\\"
+  \\"className\\": !!foo && \\"if_foo_1u9\\"
 }, !foo && create(\\"div\\", {}, \\"Foo is false\\"));
 
 Styles.include(\`
@@ -17,7 +17,7 @@ Styles.include(\`
 exports[`alternate consequent types 2`] = `
 "({
   foo
-}) => <div className={foo && \\"if_foo_1u9\\"}>{!foo && <div>Foo is false</div>}</div>;
+}) => <div className={!!foo && \\"if_foo_1u9\\"}>{!foo && <div>Foo is false</div>}</div>;
 
 Styles.include(\`
 	.do_67v.if_foo_1u9 { 
@@ -43,7 +43,7 @@ exports[`inverse consequent types 1`] = `
   foo
 }) => create(\\"div\\", {
   \\"className\\": !foo && \\"else_7qc\\"
-}, foo && create(\\"div\\", {}, \\"Foo is true\\"));
+}, !!foo && create(\\"div\\", {}, \\"Foo is true\\"));
 
 Styles.include(\`
 	.do_67v.else_7qc { 
@@ -55,7 +55,7 @@ Styles.include(\`
 exports[`inverse consequent types 2`] = `
 "({
   foo
-}) => <div className={!foo && \\"else_7qc\\"}>{foo && <div>Foo is true</div>}</div>;
+}) => <div className={!foo && \\"else_7qc\\"}>{!!foo && <div>Foo is true</div>}</div>;
 
 Styles.include(\`
 	.do_67v.else_7qc { 
@@ -70,7 +70,7 @@ exports[`supports complex else-if 1`] = `
   bar
 }) => create(\\"div\\", {
   \\"className\\": !foo && !bar && \\"else_40u\\"
-}, foo ? create(\\"div\\", {}, \\"Foo is true\\") : bar && create(\\"div\\", {}, \\"Bar is true\\"));
+}, foo ? create(\\"div\\", {}, \\"Foo is true\\") : !!bar && create(\\"div\\", {}, \\"Bar is true\\"));
 
 Styles.include(\`
 	.do_67v.else_40u { 
@@ -83,7 +83,7 @@ exports[`supports complex else-if 2`] = `
 "({
   foo,
   bar
-}) => <div className={!foo && !bar && \\"else_40u\\"}>{foo ? <div>Foo is true</div> : bar && <div>Bar is true</div>}</div>;
+}) => <div className={!foo && !bar && \\"else_40u\\"}>{foo ? <div>Foo is true</div> : !!bar && <div>Bar is true</div>}</div>;
 
 Styles.include(\`
 	.do_67v.else_40u { 
@@ -97,7 +97,7 @@ exports[`supports inverse else-if 1`] = `
   foo,
   bar
 }) => create(\\"div\\", {
-  \\"className\\": foo ? \\"if_foo_1u9\\" : bar && \\"if_bar_7qc\\"
+  \\"className\\": foo ? \\"if_foo_1u9\\" : !!bar && \\"if_bar_7qc\\"
 }, !foo && !bar && create(\\"div\\", {}, \\"Foo & Bar are false\\"));
 
 Styles.include(\`
@@ -114,7 +114,7 @@ exports[`supports inverse else-if 2`] = `
 "({
   foo,
   bar
-}) => <div className={foo ? \\"if_foo_1u9\\" : bar && \\"if_bar_7qc\\"}>{!foo && !bar && <div>Foo & Bar are false</div>}</div>;
+}) => <div className={foo ? \\"if_foo_1u9\\" : !!bar && \\"if_bar_7qc\\"}>{!foo && !bar && <div>Foo & Bar are false</div>}</div>;
 
 Styles.include(\`
 	.do_67v.if_bar_7qc { 
