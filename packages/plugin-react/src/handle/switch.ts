@@ -103,53 +103,32 @@ export class ComponentIf {
       const index = forks.push(fork);
       fork.context.resolveFor(index);
 
-      if(fork instanceof ComponentConsequent)
-        fork.index = index;
+      layer = layer.get("alternate") as Path<Statement>;
 
-      layer = layer.get("alternate") as Path<Statement>
+      if(layer.type === undefined)
+        break;
 
-      if(layer.type === "IfStatement")
-        continue;
-
-      const final =
-        new ComponentConsequent(
-          layer, context, forks.length + 1
+      if(layer.type !== "IfStatement"){
+        forks.push(
+          new ComponentConsequent(layer, context, forks.length + 1)
         );
-
-      forks.push(final);
-
-      break;
+  
+        break;
+      }
     }
   }
 }
 
 export class ComponentConsequent extends ElementInline {
-  definition = this.slaveNewModifier();
-
-  get parentElement(){
-    return this.context.currentElement;
-  }
+  definition: DefineContingent;
 
   constructor(
-    public path: Path<Statement> | undefined,
+    public path: Path<Statement>,
     public context: StackFrame,
     public index: number,
     public test?: Expression){
 
     super(context);
-
-    if(!path || !path.node)
-      return;
-
-    parse(this, ParseConsequent, path);
-  }
-
-  toExpression(){
-    return super.toExpression(true);
-  }
-
-  slaveNewModifier(){
-    let { context, test, index } = this;
 
     const uid = hash(context.prefix);
     const name = specifyOption(test) || `opt${index}`;
@@ -160,7 +139,13 @@ export class ComponentConsequent extends ElementInline {
 
     mod.priority = 5;
 
-    return mod;
+    this.definition = mod;
+
+    parse(this, ParseConsequent, path);
+  }
+
+  toExpression(){
+    return super.toExpression(true);
   }
 }
 
