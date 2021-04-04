@@ -7,8 +7,7 @@ import {
   stringLiteral,
   unaryExpression,
 } from '@babel/types';
-import { ParseErrors } from 'errors';
-import { ComponentExpression, DefineContingent, ElementInline } from 'handle';
+import { DefineContingent, ElementInline } from 'handle';
 import { parse, ParseConsequent } from 'parse';
 import { ensureArray, hash } from 'shared';
 
@@ -20,14 +19,6 @@ import type {
 } from '@babel/types';
 import type { StackFrame } from 'context';
 import type { Element } from './element';
-
-const Oops = ParseErrors({
-  ReturnElseNotImplemented: "This is an else condition, returning from here is not implemented.",
-  IfStatementCannotContinue: "Previous consequent already returned, cannot integrate another clause.",
-  CantReturnInNestedIf: "Cant return because this if-statement is nested!",
-  CanOnlyReturnTopLevel: "Cant return here because immediate parent is not the component.",
-  CanOnlyReturnFromLeadingIf: "Cant return here because it's not the first if consequent in-chain."
-})
 
 type Consequent = ComponentIf | ComponentConsequent;
 type GetProduct = (fork: Consequent) => Expression | undefined;
@@ -134,13 +125,8 @@ export class ComponentIf {
 
       layer = layer.get("alternate") as Path<Statement>
 
-      const overrideRest = "doesReturn" in fork;
-
-      if(overrideRest && layer.node)
-        throw Oops.IfStatementCannotContinue(layer)
-
       if(layer.type === "IfStatement")
-        continue
+        continue;
 
       const final =
         new ComponentConsequent(
@@ -149,13 +135,6 @@ export class ComponentIf {
 
       forks.push(final);
 
-      if(overrideRest){
-        final.name = context.currentElement!.name
-        final.explicitTagName = "div"
-        const { current } = context.parent;
-        if(current instanceof ComponentExpression)
-          current.forwardTo = final
-      }
       break;
     }
   }
@@ -163,7 +142,6 @@ export class ComponentIf {
 
 export class ComponentConsequent extends ElementInline {
   definition = this.slaveNewModifier();
-  doesReturn?: true;
 
   get parentElement(){
     return this.context.currentElement;

@@ -5,11 +5,11 @@ import { recombineProps } from './es5';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { DoExpression } from '@babel/types';
-import type { ComponentExpression2 } from 'handle';
+import type { ComponentExpression } from 'handle';
 
 export function replaceDoExpression(
   path: Path<DoExpression>,
-  element: ComponentExpression2){
+  element: ComponentExpression){
 
   const { exec, definition, root } = element;
   const { children, statements } = definition;

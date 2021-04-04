@@ -1,6 +1,6 @@
 import { isIdentifier } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { ComponentExpression, ComponentFor, ComponentForX, ComponentIf, DefineElement, Prop } from 'handle';
+import { ComponentFor, ComponentForX, ComponentIf, DefineElement, Prop } from 'handle';
 import { applyModifier } from 'modifier';
 import { addElementFromJSX } from 'parse';
 
@@ -13,11 +13,7 @@ import type { ComponentConsequent} from 'handle/switch';
 import type { ParserFor } from './helper';
 
 const Oops = ParseErrors({
-  ReturnElseNotImplemented: "This is an else condition, returning from here is not implemented.",
   IfStatementCannotContinue: "Previous consequent already returned, cannot integrate another clause.",
-  CantReturnInNestedIf: "Cant return because this if-statement is nested!",
-  CanOnlyReturnTopLevel: "Cant return here because immediate parent is not the component.",
-  CanOnlyReturnFromLeadingIf: "Cant return here because it's not the first if consequent in-chain.",
   AssignmentNotEquals: "Only `=` assignment may be used here.",
   BadInputModifier: "Modifier input of type {1} not supported here!",
   BadModifierName: "Modifier name cannot start with _ symbol!",
@@ -103,29 +99,6 @@ export const ParseConsequent: ParserFor<ComponentConsequent> = {
       ParseContent,
       path as Path<Statement>
     );
-  },
-
-  ReturnStatement(path){
-    const { context } = this;
-
-    if(!this.test)
-      throw Oops.ReturnElseNotImplemented(path)
-
-    if(this.index !== 1)
-      throw Oops.CanOnlyReturnFromLeadingIf(path)
-
-    if(context.currentIf !== context.parentIf)
-      throw Oops.CantReturnInNestedIf(path);
-
-    if(!(context.currentElement instanceof ComponentExpression))
-      throw Oops.CanOnlyReturnTopLevel(path);
-
-    const arg = path.get("argument");
-
-    if(arg && arg.isExpression())
-      parse(this, ParseContent, arg);
-
-    this.doesReturn = true;
   }
 };
 
