@@ -3,29 +3,31 @@ import { generateElement } from 'generate';
 
 import { recombineProps } from './es5';
 
-import type { ComponentExpression } from 'handle';
-
 import type { NodePath as Path } from '@babel/traverse';
 import type { DoExpression } from '@babel/types';
-import type { StackFrame } from 'context';
+import type { ComponentExpression2 } from 'handle';
 
 export function replaceDoExpression(
   path: Path<DoExpression>,
-  element: ComponentExpression){
+  element: ComponentExpression2){
 
-  const factory = generateElement(element);
+  const { exec, definition, root } = element;
+  const { children, statements } = definition;
 
-  if(factory.children.length == 0 && element.exec === undefined){
-    path.replaceWith(recombineProps(factory.props))
+  root.applyModifier(definition);
+
+  if(exec === undefined && children.length == 0){
+    const factory = generateElement(root);
+    const properties = recombineProps(factory.props);
+    path.replaceWith(properties);
     return;
   }
 
-  const context = element.context as StackFrame;
-  const factoryExpression = context.Imports.container(factory);
+  const factoryExpression = root.toExpression(true);
 
-  if(element.exec && element.statements.length){
+  if(exec && statements.length){
     const replacement = [
-      ...element.statements,
+      ...statements,
       returnStatement(factoryExpression)
     ];
 

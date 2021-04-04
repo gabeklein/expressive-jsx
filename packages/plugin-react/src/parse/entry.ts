@@ -1,5 +1,5 @@
 import { isIdentifier, isStringLiteral } from '@babel/types';
-import { ComponentExpression } from 'handle';
+import { ComponentExpression2 } from 'handle';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {
@@ -37,7 +37,7 @@ export function generateEntryElement(
 
   const name = containerName(containerFn || path as any);
 
-  return new ComponentExpression(name, context, path, containerFn);
+  return new ComponentExpression2(name, context, path, containerFn);
 }
 
 function containerName(path: Path): string {

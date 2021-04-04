@@ -1,0 +1,159 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`alternate consequent types 1`] = `
+"({
+  foo
+}) => create(\\"div\\", {
+  \\"className\\": foo && \\"if_foo_1u9\\"
+}, !foo && create(\\"div\\", {}, \\"Foo is false\\"));
+
+Styles.include(\`
+	.do_67v.if_foo_1u9 { 
+		color: red;
+	}
+\`);"
+`;
+
+exports[`alternate consequent types 2`] = `
+"({
+  foo
+}) => <div className={foo && \\"if_foo_1u9\\"}>{!foo && <div>Foo is false</div>}</div>;
+
+Styles.include(\`
+	.do_67v.if_foo_1u9 { 
+		color: red;
+	}
+\`);"
+`;
+
+exports[`basic switch 1`] = `
+"({
+  hello
+}) => hello ? create(\\"div\\", {}, \\"Hello World\\") : create(\\"div\\", {}, \\"Goodbye World\\");"
+`;
+
+exports[`basic switch 2`] = `
+"({
+  hello
+}) => hello ? <div>Hello World</div> : <div>Goodbye World</div>;"
+`;
+
+exports[`inverse consequent types 1`] = `
+"({
+  foo
+}) => create(\\"div\\", {
+  \\"className\\": !foo && \\"else_7qc\\"
+}, foo && create(\\"div\\", {}, \\"Foo is true\\"));
+
+Styles.include(\`
+	.do_67v.else_7qc { 
+		color: red;
+	}
+\`);"
+`;
+
+exports[`inverse consequent types 2`] = `
+"({
+  foo
+}) => <div className={!foo && \\"else_7qc\\"}>{foo && <div>Foo is true</div>}</div>;
+
+Styles.include(\`
+	.do_67v.else_7qc { 
+		color: red;
+	}
+\`);"
+`;
+
+exports[`supports complex else-if 1`] = `
+"({
+  foo,
+  bar
+}) => create(\\"div\\", {
+  \\"className\\": !foo && !bar && \\"else_40u\\"
+}, foo ? create(\\"div\\", {}, \\"Foo is true\\") : bar && create(\\"div\\", {}, \\"Bar is true\\"));
+
+Styles.include(\`
+	.do_67v.else_40u { 
+		color: red;
+	}
+\`);"
+`;
+
+exports[`supports complex else-if 2`] = `
+"({
+  foo,
+  bar
+}) => <div className={!foo && !bar && \\"else_40u\\"}>{foo ? <div>Foo is true</div> : bar && <div>Bar is true</div>}</div>;
+
+Styles.include(\`
+	.do_67v.else_40u { 
+		color: red;
+	}
+\`);"
+`;
+
+exports[`supports inverse else-if 1`] = `
+"({
+  foo,
+  bar
+}) => create(\\"div\\", {
+  \\"className\\": foo ? \\"if_foo_1u9\\" : bar && \\"if_bar_7qc\\"
+}, !foo && !bar && create(\\"div\\", {}, \\"Foo & Bar are false\\"));
+
+Styles.include(\`
+	.do_67v.if_bar_7qc { 
+		color: blue;
+	}
+	.do_67v.if_foo_1u9 { 
+		color: red;
+	}
+\`);"
+`;
+
+exports[`supports inverse else-if 2`] = `
+"({
+  foo,
+  bar
+}) => <div className={foo ? \\"if_foo_1u9\\" : bar && \\"if_bar_7qc\\"}>{!foo && !bar && <div>Foo & Bar are false</div>}</div>;
+
+Styles.include(\`
+	.do_67v.if_bar_7qc { 
+		color: blue;
+	}
+	.do_67v.if_foo_1u9 { 
+		color: red;
+	}
+\`);"
+`;
+
+exports[`switch styles 1`] = `
+"({
+  foo
+}) => create(\\"div\\", {
+  \\"className\\": foo ? \\"if_foo_1u9\\" : \\"else_7qc\\"
+});
+
+Styles.include(\`
+	.do_67v.else_7qc { 
+		color: blue;
+	}
+	.do_67v.if_foo_1u9 { 
+		color: red;
+	}
+\`);"
+`;
+
+exports[`switch styles 2`] = `
+"({
+  foo
+}) => <div className={foo ? \\"if_foo_1u9\\" : \\"else_7qc\\"}></div>;
+
+Styles.include(\`
+	.do_67v.else_7qc { 
+		color: blue;
+	}
+	.do_67v.if_foo_1u9 { 
+		color: red;
+	}
+\`);"
+`;

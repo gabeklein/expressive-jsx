@@ -15,17 +15,3 @@ exports[`multiple 2`] = `
   hello
 }) => <Fragment><div>Foo</div><div>Bar</div></Fragment>;"
 `;
-
-exports[`switch 1`] = `
-"({
-  hello
-}) => create(\\"div\\", {
-  \\"className\\": join(\\"do_erd\\", false)
-}, hello ? create(\\"div\\", {}, \\"Hello World\\") : create(\\"div\\", {}, \\"Goodbye World\\"));"
-`;
-
-exports[`switch 2`] = `
-"({
-  hello
-}) => <div className={join(\\"do_erd\\", false)}>{hello ? <div>Hello World</div> : <div>Goodbye World</div>}</div>;"
-`;

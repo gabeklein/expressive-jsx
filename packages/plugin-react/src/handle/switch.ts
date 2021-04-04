@@ -1,5 +1,4 @@
 import {
-  booleanLiteral,
   conditionalExpression,
   isBooleanLiteral,
   isIdentifier,
@@ -20,7 +19,6 @@ import type {
   Statement
 } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { InnerContent } from 'types';
 import type { Element } from './element';
 
 const Oops = ParseErrors({
@@ -44,8 +42,6 @@ const anti = not;
 
 export class ComponentIf {
   context!: StackFrame;
-  hasElementOutput?: true;
-  hasStyleOutput?: true;
 
   private forks = [] as Consequent[];
 
@@ -72,10 +68,7 @@ export class ComponentIf {
   }
 
   toExpression(context: StackFrame): Expression | undefined {
-    if(!this.hasElementOutput)
-      return;
-
-    return reduceToExpression(this.forks, (cond) => {
+    function generate(cond: Consequent){
       let product;
 
       if(cond instanceof ComponentIf)
@@ -87,14 +80,13 @@ export class ComponentIf {
         product = undefined;
 
       return product
-    })
+    }
+
+    return reduceToExpression(this.forks, generate);
   }
 
   toClassName(): Expression | undefined {
-    if(!this.hasStyleOutput)
-      return;
-    
-    return reduceToExpression(this.forks, (cond) => {
+    function generate(cond: Consequent){
       if(cond instanceof ComponentIf)
         return cond.toClassName();
 
@@ -103,7 +95,9 @@ export class ComponentIf {
         
       if(className)
         return stringLiteral(className);
-    })
+    }
+
+    return reduceToExpression(this.forks, generate);
   }
 
   setup(){
@@ -193,20 +187,6 @@ export class ComponentConsequent extends ElementInline {
     return super.toExpression(true);
   }
 
-  adopt(child: InnerContent){
-    let { context } = this;
-
-    if(!context.currentIf!.hasElementOutput)
-      do {
-        if(context.current instanceof ComponentIf)
-          context.current.hasElementOutput = true;
-        else break;
-      }
-      while(context = context.parent);
-
-    super.adopt(child)
-  }
-
   slaveNewModifier(){
     let { context, test, index } = this;
 
@@ -217,15 +197,7 @@ export class ComponentConsequent extends ElementInline {
     const parent = context.currentElement!;
     const mod = new DefineContingent(context, parent, selector);
 
-    mod.priority = 5
-
-    if(!context.currentIf!.hasStyleOutput)
-      do {
-        if(context.current instanceof ComponentIf)
-          context.current.hasStyleOutput = true;
-        else break;
-      }
-      while(context = context.parent)
+    mod.priority = 5;
 
     return mod;
   }
@@ -252,7 +224,7 @@ function reduceToExpression(
         : product
   }
 
-  return sum || booleanLiteral(false)
+  return sum;
 }
 
 function specifyOption(test?: Expression){

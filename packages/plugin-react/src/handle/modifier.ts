@@ -1,10 +1,8 @@
-import { AttributeBody, ElementInline } from 'handle';
+import { AttributeBody, ElementInline, ExplicitStyle } from 'handle';
 import { parse, ParseContent } from 'parse';
 
 import type { NodePath as Path } from '@babel/traverse';
-import type { Statement } from '@babel/types';
 import type { StackFrame } from 'context';
-import { ExplicitStyle } from './attributes';
 
 export abstract class Define extends AttributeBody {
   next?: Define;
@@ -50,12 +48,14 @@ export class DefineElement extends Define {
   constructor(
     context: StackFrame,
     name: string,
-    body: Path<Statement>){
+    body: Path<any>){
 
     super(context);
+
     this.name = name;
-    this.context.resolveFor(name);
     this.forSelector = [ `.${this.uid}` ];
+    this.context.resolveFor(name);
+
     parse(this as any, ParseContent, body);
 
     // if(/^[A-Z]/.test(name))
@@ -76,14 +76,14 @@ export class DefineContingent extends Define {
 
   constructor(
     context: StackFrame,
-    parent: DefineElement | DefineContingent | ElementInline,
+    parent: Define | ElementInline,
     contingent?: string
   ){
     super(context);
 
     let select;
 
-    if(parent instanceof ElementInline)
+    if(parent instanceof ElementInline || parent instanceof DefineComponent)
       select = [ `.${parent.uid}` ];
     else {
       select = [ ...parent.forSelector || [] ];
@@ -129,5 +129,11 @@ export class DefineContingent extends Define {
   applyModifier(mod: Define){
     if(this.anchor instanceof ElementInline)
       this.anchor.applyModifier(mod);
+  }
+}
+
+export class DefineComponent extends DefineElement {
+  use(define: DefineElement){
+    this.context.elementMod(define);
   }
 }

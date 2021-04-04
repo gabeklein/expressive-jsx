@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`collapse style-only expression 1`] = `
+"const props = {
+  \\"className\\": \\"props_67v\\"
+};
+Styles.include(\`
+	.props_67v { 
+		color: red;
+	}
+\`);"
+`;
+
+exports[`collapse style-only expression 2`] = `
+"const props = {
+  \\"className\\": \\"props_67v\\"
+};
+Styles.include(\`
+	.props_67v { 
+		color: red;
+	}
+\`);"
+`;

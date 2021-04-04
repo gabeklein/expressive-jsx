@@ -26,13 +26,13 @@ Styles.include(\`
 
 exports[`Explicitly use modifier 1`] = `
 "() => create(Fragment, {}, create(Baz, {
-  \\"className\\": \\"Foo_36o Baz_1u9\\"
+  \\"className\\": \\"Foo_erd Baz_1u9\\"
 }), create(Foo, {
-  \\"className\\": \\"Foo_36o\\"
+  \\"className\\": \\"Foo_erd\\"
 }));
 
 Styles.include(\`
-	.Foo_36o { 
+	.Foo_erd { 
 		color: blue;
 	}
 	.Baz_1u9 { 
@@ -42,10 +42,10 @@ Styles.include(\`
 `;
 
 exports[`Explicitly use modifier 2`] = `
-"() => <Fragment><Baz className=\\"Foo_36o Baz_1u9\\"></Baz><Foo className=\\"Foo_36o\\"></Foo></Fragment>;
+"() => <Fragment><Baz className=\\"Foo_erd Baz_1u9\\"></Baz><Foo className=\\"Foo_erd\\"></Foo></Fragment>;
 
 Styles.include(\`
-	.Foo_36o { 
+	.Foo_erd { 
 		color: blue;
 	}
 	.Baz_1u9 { 
@@ -56,13 +56,13 @@ Styles.include(\`
 
 exports[`Nested modifier 1`] = `
 "() => create(Fragment, {}, create(Foo, {
-  \\"className\\": \\"Foo_36o\\"
+  \\"className\\": \\"Foo_erd\\"
 }), create(Bar, {}, create(Foo, {
-  \\"className\\": \\"Foo_36o Foo_51a\\"
+  \\"className\\": \\"Foo_erd Foo_51a\\"
 })));
 
 Styles.include(\`
-	.Foo_36o { 
+	.Foo_erd { 
 		color: red;
 	}
 	.Foo_51a { 
@@ -72,10 +72,10 @@ Styles.include(\`
 `;
 
 exports[`Nested modifier 2`] = `
-"() => <Fragment><Foo className=\\"Foo_36o\\"></Foo><Bar><Foo className=\\"Foo_36o Foo_51a\\"></Foo></Bar></Fragment>;
+"() => <Fragment><Foo className=\\"Foo_erd\\"></Foo><Bar><Foo className=\\"Foo_erd Foo_51a\\"></Foo></Bar></Fragment>;
 
 Styles.include(\`
-	.Foo_36o { 
+	.Foo_erd { 
 		color: red;
 	}
 	.Foo_51a { 

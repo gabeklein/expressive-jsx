@@ -1,16 +1,20 @@
-import { ElementInline } from 'handle';
 import { ImportManager, RequireManager } from 'generate';
+import { DefineElement } from 'handle/modifier';
 import { DEFAULTS, hash, Stack } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
-import type { Program } from '@babel/types';
-import type { ComponentExpression } from 'handle/entry';
+import type { ArrowFunctionExpression, Program, Statement } from '@babel/types';
 import type { Define } from 'handle/modifier';
 import type { ComponentIf } from 'handle/switch';
 import type { ExternalsManager } from 'generate/scope';
 import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
 
 type Stackable = { context: StackFrame };
+
+export type ComponentExpressionType = {
+  exec?: Path<ArrowFunctionExpression>;
+  statements: Statement[];
+}
 
 export class StackFrame {
   modifiersDeclared = new Set<Define>();
@@ -21,8 +25,8 @@ export class StackFrame {
   ModifierQuery?: string;
   
   current = {} as any;
-  currentComponent?: ComponentExpression;
-  currentElement?: ElementInline;
+  currentComponent?: ComponentExpressionType;
+  currentElement?: Define;
   parentIf?: ComponentIf;
   currentIf?: ComponentIf;
 
@@ -69,7 +73,7 @@ export class StackFrame {
     node.context = frame;
     frame.current = node;
 
-    if(node instanceof ElementInline)
+    if(node instanceof DefineElement)
       frame.currentElement = node;
 
     frame.handlers = frame.handlers.stack();

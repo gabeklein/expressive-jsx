@@ -101,17 +101,19 @@ export function generateElement(element: ElementInline){
   }
 
   function applyModifiers(){
-    const existing = new Set<string>();
     const accumulator = new Map<string, ExplicitStyle>();
     const definitions = [ ...element.includes ].sort(byPriority);
-    
-    for(const mod of element.sequence)
-      if(mod instanceof ExplicitStyle && mod.name)
-        existing.add(mod.name)
 
     for(const mod of definitions){
       if(!(mod instanceof DefineElement))
         continue;
+
+      if(mod.children.length > 0)
+        if(children.length > 0)
+          throw new Error("Cannot integrate children from modifier with an element's existing.")
+        else
+          for(const item of mod.children)
+            apply(item);
 
       if(!mod.containsStyles())
         continue;
@@ -133,7 +135,7 @@ export function generateElement(element: ElementInline){
           if(!invariant && !inline_only)
             continue;
   
-          if(existing.has(name) || accumulator.has(name))
+          if(accumulator.has(name))
             continue;
   
           accumulator.set(name, style);

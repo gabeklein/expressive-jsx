@@ -14,12 +14,3 @@ test("multiple", `
     </this>
   }
 `);
-
-test("switch", `
-  ({ hello }) => do {
-    if(hello)
-      <div>Hello World</div>
-    else
-      <div>Goodbye World</div>
-  }
-`);

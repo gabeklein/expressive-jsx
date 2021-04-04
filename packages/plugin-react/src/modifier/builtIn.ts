@@ -10,7 +10,7 @@ import {
 import { ElementInline, Define, Prop } from 'handle';
 
 import type { Identifier } from '@babel/types';
-import type { ComponentExpression } from 'handle/entry';
+import type { ComponentExpressionType } from 'context';
 import type { BunchOf } from 'types';
 
 import type { ModifyDelegate } from './delegate';
@@ -78,7 +78,7 @@ export function forward(this: ModifyDelegate, ...args: any[]){
 }
 
 function applyToParentProps(
-  parent: ComponentExpression,
+  parent: ComponentExpressionType,
   assignments: BunchOf<Identifier>){
 
   if(!parent.exec)
