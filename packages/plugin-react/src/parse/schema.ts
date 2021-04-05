@@ -4,13 +4,10 @@ import { ComponentFor, ComponentForX, ComponentIf, DefineElement, Prop } from 'h
 import { applyModifier } from 'modifier';
 import { addElementFromJSX } from 'parse';
 
-import { parse } from './helper';
-
 import type { NodePath as Path } from '@babel/traverse';
-import type { LabeledStatement, Statement , IfStatement} from '@babel/types';
-import type { Element, ElementInline } from 'handle/element';
+import type { Statement } from '@babel/types';
+import type { Element } from 'handle/element';
 import type { ComponentConsequent} from 'handle/switch';
-import type { ParserFor } from './helper';
 
 const Oops = ParseErrors({
   IfStatementCannotContinue: "Previous consequent already returned, cannot integrate another clause.",
@@ -25,90 +22,97 @@ const Oops = ParseErrors({
 
 export { parse } from './helper'
 
-export const ParseContent: ParserFor<Element> = {
-  LabeledStatement(path){
-    const body = path.get('body');
-    const { name } = path.node.label;
+export function ParseContent(
+  target: Element, path: Path<any>){
 
-    if(name[0] == "_")
-      throw Oops.BadModifierName(path);
+  switch(path.type){
+    case "LabeledStatement": {
+      const body = path.get('body') as Path<Statement>;
+      const { name } = path.node.label;
+  
+      if(name[0] == "_")
+        throw Oops.BadModifierName(path);
+  
+      if(body.isExpressionStatement())
+        applyModifier(name, target, body);
+  
+      else if(body.isBlockStatement() || body.isLabeledStatement())
+        target.use(
+          new DefineElement(target.context, name, body)
+        );
+  
+      else
+        throw Oops.BadInputModifier(body, body.type)
 
-    if(body.isExpressionStatement())
-      applyModifier(name, this, body);
+      break;
+    }
 
-    else if(body.isBlockStatement() || body.isLabeledStatement())
-      this.use(
-        new DefineElement(this.context, name, body)
-      );
+    case "AssignmentExpression": {
+      const { node } = path;
 
-    else
-      throw Oops.BadInputModifier(body, body.type)
-  },
+      if(node.operator !== "=")
+        throw Oops.AssignmentNotEquals(node)
+  
+      const { left, right } = node;
+  
+      if(!isIdentifier(left))
+        throw Oops.PropNotIdentifier(left)
+  
+      target.add(new Prop(left.name, right));
 
-  AssignmentExpression({ node }){
-    if(node.operator !== "=")
-      throw Oops.AssignmentNotEquals(node)
+      break;
+    }
 
-    const { left, right } = node;
+    case "IfStatement": {
+      const item = new ComponentIf(path, target.context);
 
-    if(!isIdentifier(left))
-      throw Oops.PropNotIdentifier(left)
+      target.adopt(item);
+      item.setup();
 
-    this.add(new Prop(left.name, right));
-  },
+      break;
+    }
 
-  JSXElement({ node }){
-    addElementFromJSX(node, this);
-  },
+    case "JSXElement":
+      addElementFromJSX(path, target);
+      break;
 
-  IfStatement(path: Path<IfStatement>){
-    const item = new ComponentIf(path, this.context);
+    case "ForStatement":
+      new ComponentFor(path, target);
+      break;
 
-    this.adopt(item);
-    item.setup();
-  },
+    case "ForInStatement":
+    case "ForOfStatement":
+      new ComponentForX(path, target);
+      break;
 
-  ForStatement(path){
-    new ComponentFor(path, this);
-  },
+    case "VariableDeclaration":
+    case "DebuggerStatement":
+    case "FunctionDeclaration":
+      target.statements.push(path.node);
+      break;
 
-  ForInStatement(path){
-    new ComponentForX(path, this);
-  },
-
-  ForOfStatement(path){
-    new ComponentForX(path, this);
-  },
-
-  VariableDeclaration({ node }){
-    this.statements.push(node);
-  },
-
-  DebuggerStatement({ node }){
-    this.statements.push(node);
-  },
-
-  FunctionDeclaration({ node }){
-    this.statements.push(node);
+    default:
+      return false;
   }
+
+  return true;
 }
 
-export const ParseConsequent: ParserFor<ComponentConsequent> = {
-  ...ParseContent,
+export function ParseConsequent(
+  target: ComponentConsequent,
+  path: Path<any>){
 
-  LabeledStatement(path: Path<LabeledStatement>){
-    parse(
-      this.definition,
-      ParseContent,
-      path as Path<Statement>
-    );
-  }
-};
+  if(path.isLabeledStatement())
+    return ParseContent(target.definition, path);
+  else
+    return ParseContent(target, path);
+}
 
-export const ParseForLoop: ParserFor<ElementInline> = {
-  ...ParseContent,
+export function ParseForLoop(
+  target: Element, path: Path<any>){
 
-  AssignmentExpression(assign){
-    Oops.PropsNotAllowed(assign);
-  }
+  if(path.isAssignmentExpression())
+    throw Oops.PropsNotAllowed(path);
+  else
+    return ParseContent(target, path);
 }

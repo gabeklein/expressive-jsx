@@ -2,6 +2,7 @@ import { isJSXIdentifier, isJSXMemberExpression, isJSXSpreadAttribute, stringLit
 import { ParseErrors } from 'errors';
 import { ElementInline, Prop } from 'handle';
 
+import type { NodePath as Path } from '@babel/traverse';
 import type {
   Expression,
   JSXAttribute,
@@ -26,8 +27,10 @@ const COMMON_HTML = [
 ];
 
 export function addElementFromJSX(
-  node: JSXElement,
+  path: Path<JSXElement>,
   parent: Element){
+
+  const { node } = path;
 
   const shouldApplyToSelf = 
     isJSXIdentifier(node.openingElement.name, { name: "this" })
