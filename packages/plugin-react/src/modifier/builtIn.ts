@@ -10,7 +10,6 @@ import {
 import { ElementInline, Define, Prop } from 'handle';
 
 import type { Identifier } from '@babel/types';
-import type { ComponentExpressionType } from 'context';
 import type { BunchOf } from 'types';
 
 import type { ModifyDelegate } from './delegate';
@@ -58,6 +57,9 @@ export function forward(this: ModifyDelegate, ...args: any[]){
   if(!parent.exec)
     throw new Error("Can only apply props from a parent `() => do {}` function!");
 
+  const { params } = parent.exec.node;
+  const { statements } = parent.definition;
+
   const all = args.indexOf("all") + 1;
   const reference = {} as BunchOf<Identifier>;
 
@@ -74,19 +76,7 @@ export function forward(this: ModifyDelegate, ...args: any[]){
       )
     }
 
-  applyToParentProps(parent, reference);
-}
-
-function applyToParentProps(
-  parent: ComponentExpressionType,
-  assignments: BunchOf<Identifier>){
-
-  if(!parent.exec)
-    throw new Error("Can only apply props from a parent `() => do {}` function!");
-
-  const { params } = parent.exec.node;
-
-  const properties = Object.entries(assignments).map(
+  const properties = Object.entries(reference).map(
     (e) => objectProperty(identifier(e[0]), e[1], false, e[1].name == e[0])
   )
 
@@ -99,7 +89,7 @@ function applyToParentProps(
     props.properties.push(...properties)
 
   else if(isIdentifier(props))
-    parent.statements.unshift(
+    statements.unshift(
       variableDeclaration("const", [
         variableDeclarator(objectPattern(properties), props)
       ])

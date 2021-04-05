@@ -3,17 +3,13 @@ import { DefineElement } from 'handle/modifier';
 import { DEFAULTS, hash, Stack } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
-import type { ArrowFunctionExpression, Program, Statement } from '@babel/types';
+import type { Program } from '@babel/types';
 import type { Define } from 'handle/modifier';
 import type { ExternalsManager } from 'generate/scope';
 import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
+import type { ComponentExpression } from 'handle';
 
 type Stackable = { context: StackFrame };
-
-export type ComponentExpressionType = {
-  exec?: Path<ArrowFunctionExpression>;
-  statements: Statement[];
-}
 
 export class StackFrame {
   modifiersDeclared = new Set<Define>();
@@ -24,7 +20,7 @@ export class StackFrame {
   ModifierQuery?: string;
   
   current = {} as any;
-  currentComponent?: ComponentExpressionType;
+  currentComponent?: ComponentExpression;
   currentElement?: Define;
 
   modifiers = new Stack<Define>();

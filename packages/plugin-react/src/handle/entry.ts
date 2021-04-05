@@ -3,7 +3,6 @@ import { ElementInline, DefineComponent } from 'handle';
 import type { NodePath as Path } from '@babel/traverse';
 import type { ArrowFunctionExpression, DoExpression } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { InnerContent, SequenceItem } from 'types';
 
 export class ComponentExpression {
   definition: DefineComponent;
@@ -26,17 +25,5 @@ export class ComponentExpression {
     const element = this.root = new ElementInline(context);
 
     element.name = name;
-  }
-
-  get statements(){
-    return this.definition.statements;
-  }
-
-  add(item: SequenceItem){
-    this.definition.add(item)
-  }
-
-  adopt(child: InnerContent){
-    this.definition.adopt(child)
   }
 }
