@@ -62,3 +62,16 @@ test("Explicitly use modifier", `
     </this>
   }
 `)
+
+test("collapse single-use modifiers", `
+  Bar: { color: red }
+
+  () => do {
+    Bar: { background: white }
+    Foo: Bar: { border: red }
+    
+    <Foo>
+      <Bar />
+    </Foo>
+  }
+`);

@@ -105,3 +105,29 @@ Styles.include(\`
 	}
 \`);"
 `;
+
+exports[`collapse single-use modifiers 1`] = `
+"() => create(Foo, {}, create(Bar, {
+  \\"className\\": \\"Bar_7qc\\"
+}));
+
+Styles.include(\`
+	.Bar_7qc { 
+		border: red solid 1px;
+		background: white;
+		color: red;
+	}
+\`);"
+`;
+
+exports[`collapse single-use modifiers 2`] = `
+"() => <Foo><Bar className=\\"Bar_7qc\\" /></Foo>;
+
+Styles.include(\`
+	.Bar_7qc { 
+		border: red solid 1px;
+		background: white;
+		color: red;
+	}
+\`);"
+`;

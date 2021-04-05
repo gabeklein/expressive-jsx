@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`competing style priority 1`] = `
+";
+
+() => create(Foo, {}, create(Bar, {
+  \\"className\\": \\"Bar_7qc\\"
+}));
+
+Styles.include(\`
+	.Bar_7qc { 
+		color: orange;
+	}
+\`);"
+`;
+
+exports[`competing style priority 2`] = `
+";
+
+() => <Foo><Bar className=\\"Bar_7qc\\" /></Foo>;
+
+Styles.include(\`
+	.Bar_7qc { 
+		color: orange;
+	}
+\`);"
+`;
