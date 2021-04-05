@@ -48,7 +48,7 @@ export class DefineElement extends Define {
   constructor(
     context: StackFrame,
     name: string,
-    body: Path<any>){
+    body?: Path<any>){
 
     super(context);
 
@@ -56,7 +56,8 @@ export class DefineElement extends Define {
     this.forSelector = [ `.${this.uid}` ];
     this.context.resolveFor(name);
 
-    parse(this as any, ParseContent, body);
+    if(body)
+      parse(this as any, ParseContent, body);
 
     // if(/^[A-Z]/.test(name))
     //   this.priority = 3;

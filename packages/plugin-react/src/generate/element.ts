@@ -1,6 +1,6 @@
 import { callExpression, isExpression, isStringLiteral, stringLiteral } from '@babel/types';
 import { AttributeStack } from 'generate';
-import { ComponentIf, DefineContingent, DefineElement, ExplicitStyle, Prop } from 'handle';
+import { ComponentIf, DefineElement, ExplicitStyle, Prop } from 'handle';
 
 import type { ElementInline } from 'handle';
 import type { Expression } from '@babel/types';
@@ -37,7 +37,7 @@ export function generateElement(element: ElementInline){
 
   function apply(item: SequenceItem){
     if(item instanceof ComponentIf){
-      const expression = item.toExpression(context);
+      const expression = item.toExpression();
       const className = item.toClassName();
 
       if(expression)
@@ -119,9 +119,7 @@ export function generateElement(element: ElementInline){
         continue;
 
       if(!mod.collapsable && !inline_only){
-        classList.push(mod.uid)
-        mod.setActive();
-
+        useModifier(mod);
         continue;
       }
 
@@ -145,16 +143,20 @@ export function generateElement(element: ElementInline){
     accumulator.forEach(applyStyle);
   }
 
+  function useModifier(mod: DefineElement){
+    classList.push(mod.uid)
+    mod.setActive();
+  }
+
   function applyHoistedStyle(){
     if(style_static.length === 0)
       return;
 
-    const mod = new DefineContingent(context, element);
-
+    const mod = new DefineElement(context, element.name!);
     mod.priority = 2;
     mod.sequence.push(...style_static);
-    mod.forSelector = [ `.${element.uid}` ];
-    mod.setActive();
+
+    useModifier(mod);
   }
 
   function applyClassname(){

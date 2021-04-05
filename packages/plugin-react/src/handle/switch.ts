@@ -41,12 +41,12 @@ export class ComponentIf {
     context = context.push(this);
   }
 
-  toExpression(context: StackFrame): Expression | undefined {
-    function generate(cond: Consequent){
+  toExpression(): Expression | undefined {
+    return reduceToExpression(this.forks, (cond) => {
       let product;
 
       if(cond instanceof ComponentIf)
-        product = cond.toExpression(context);
+        product = cond.toExpression();
       else if(cond.children.length)
         product = cond.toExpression();
 
@@ -54,13 +54,11 @@ export class ComponentIf {
         product = undefined;
 
       return product
-    }
-
-    return reduceToExpression(this.forks, generate);
+    });
   }
 
   toClassName(): Expression | undefined {
-    function generate(cond: Consequent){
+    return reduceToExpression(this.forks, (cond) => {
       if(cond instanceof ComponentIf)
         return cond.toClassName();
 
@@ -69,9 +67,7 @@ export class ComponentIf {
         
       if(className)
         return stringLiteral(className);
-    }
-
-    return reduceToExpression(this.forks, generate);
+    });
   }
 
   setup(){
