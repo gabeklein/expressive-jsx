@@ -11,7 +11,6 @@ const byPriority = (x: any, y: any) => x.priority - y.priority;
 
 export function generateElement(element: ElementInline){
   const { context } = element;
-  const inline_only = context.opts.styleMode === "inline";
 
   const children = [] as Expression[];
   const props = [] as PropData[];
@@ -101,6 +100,7 @@ export function generateElement(element: ElementInline){
   }
 
   function applyModifiers(){
+    const inline_only = context.opts.styleMode === "inline";
     const accumulator = new Map<string, ExplicitStyle>();
     const definitions = [ ...element.includes ].sort(byPriority);
 
@@ -108,36 +108,35 @@ export function generateElement(element: ElementInline){
       if(!(mod instanceof DefineElement))
         continue;
 
+      const allow_css = mod.collapsable && !inline_only;
+
+      if(allow_css && mod.containsStyles(true))
+        useModifier(mod);
+
+      for(const property of mod.sequence)
+        if(property instanceof ExplicitStyle){
+          const { name, invariant } = property;
+
+          if(!name)
+            continue;
+          
+          if(invariant && allow_css)
+            continue;
+  
+          if(accumulator.has(name))
+            continue;
+  
+          accumulator.set(name, property);
+        }
+        else if(property instanceof Prop)
+          apply(property);
+
       if(mod.children.length > 0)
         if(children.length > 0)
           throw new Error("Cannot integrate children from modifier with an element's existing.")
         else
           for(const item of mod.children)
             apply(item);
-
-      if(!mod.containsStyles())
-        continue;
-
-      if(!mod.collapsable && !inline_only){
-        useModifier(mod);
-        continue;
-      }
-
-      for(const style of mod.sequence)
-        if(style instanceof ExplicitStyle){
-          const { name, invariant } = style;
-
-          if(!name)
-            continue;
-          
-          if(!invariant && !inline_only)
-            continue;
-  
-          if(accumulator.has(name))
-            continue;
-  
-          accumulator.set(name, style);
-        }
     }
 
     accumulator.forEach(applyStyle);
