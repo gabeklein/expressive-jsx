@@ -14,6 +14,8 @@ export abstract class AttributeBody {
   /** Other definitions applicable to this one. */
   includes = new Set<Define>();
 
+  abstract applyModifier(mod: Define): void;
+
   constructor(context: StackFrame){
     context.push(this);
   }
@@ -41,18 +43,7 @@ export abstract class AttributeBody {
     this.sequence.push(item);
   }
 
-  abstract applyModifier(mod: Define): void;
-
   applyModifiers(name: string){
-    let modify = this.context.elementMod(name);
-  
-    while(modify){
-      this.applyModifier(modify);
-  
-      for(const sub of modify.provides)
-        this.context.elementMod(sub);
-  
-      modify = modify.next;
-    }
+    this.context.apply(name, this);
   }
 }

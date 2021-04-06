@@ -10,6 +10,7 @@ import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
 import type { ComponentExpression } from 'handle';
 
 type Stackable = { context: StackFrame };
+type Applicable = { applyModifier(mod: Define): void };
 
 export class StackFrame {
   modifiersDeclared = new Set<Define>();
@@ -58,6 +59,19 @@ export class StackFrame {
     }
 
     return context;
+  }
+
+  apply(name: string, to: Applicable){
+    let modify = this.elementMod(name);
+  
+    while(modify){
+      to.applyModifier(modify);
+  
+      for(const sub of modify.provides)
+        this.elementMod(sub);
+  
+      modify = modify.next;
+    }
   }
 
   push(node: Stackable): StackFrame {
