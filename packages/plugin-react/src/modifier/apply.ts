@@ -1,5 +1,6 @@
 import { ParseErrors } from 'errors';
 import { DefineElement } from 'handle';
+import { parse, ParseContent } from 'parse';
 
 import { ModifyDelegate } from './delegate';
 
@@ -83,7 +84,9 @@ export function handleTopLevelModifier(
   if(body.isExpressionStatement())
     throw Oops.IllegalAtTopLevel(node)
 
-  context.elementMod(
-    new DefineElement(context, name, body)
-  );
+  const define = new DefineElement(context, name);
+
+  parse(define, ParseContent, body);
+
+  context.elementMod(define);
 }

@@ -47,17 +47,13 @@ export abstract class Define extends AttributeBody {
 export class DefineElement extends Define {
   constructor(
     context: StackFrame,
-    name: string,
-    body?: Path<any>){
+    name: string){
 
     super(context);
 
     this.name = name;
     this.forSelector = [ `.${this.uid}` ];
     this.context.resolveFor(name);
-
-    if(body)
-      parse(this as any, ParseContent, body);
 
     // if(/^[A-Z]/.test(name))
     //   this.priority = 3;

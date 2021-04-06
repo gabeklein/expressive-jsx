@@ -1,4 +1,5 @@
-import { ElementInline, DefineComponent } from 'handle';
+import { DefineComponent, ElementInline } from 'handle';
+import { parse, ParseContent } from 'parse';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { ArrowFunctionExpression, DoExpression } from '@babel/types';
@@ -14,13 +15,17 @@ export class ComponentExpression {
     path: Path<DoExpression>,
     public exec?: Path<ArrowFunctionExpression>){
 
+    const body = path.get("body");
+
     const define = this.definition =
-      new DefineComponent(context, name, path.get("body"));
-    
-    if(/^[A-Z]/.test(name))
-      define.applyModifiers(name);
+      new DefineComponent(context, name);
 
     define.context.currentComponent = this;
+
+    parse(define, ParseContent, body);
+  
+    if(/^[A-Z]/.test(name))
+      define.applyModifiers(name);
 
     const element = this.root = new ElementInline(context);
 
