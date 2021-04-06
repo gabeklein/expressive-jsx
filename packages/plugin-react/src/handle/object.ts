@@ -21,9 +21,7 @@ export abstract class AttributeBody {
   }
 
   get uid(){
-    const value = this.context.unique(this.name!)
-    Object.defineProperty(this, "uid", { value });
-    return value
+    return this.context.unique(this.name!);
   }
 
   adopt(child: InnerContent){
