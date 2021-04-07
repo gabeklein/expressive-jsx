@@ -108,7 +108,7 @@ export function generateElement(element: ElementInline){
       if(!(mod instanceof DefineElement))
         continue;
 
-      const allow_css = mod.collapsable && !inline_only;
+      const allow_css = !mod.collapsable && !inline_only;
 
       if(allow_css && mod.containsStyles(true))
         useModifier(mod);
