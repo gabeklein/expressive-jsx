@@ -7,7 +7,6 @@ import { addElementFromJSX, parse } from 'parse';
 import type { NodePath as Path } from '@babel/traverse';
 import type { Statement } from '@babel/types';
 import type { Element } from 'handle/element';
-import type { ComponentConsequent } from 'handle/switch';
 
 const Oops = ParseErrors({
   IfStatementCannotContinue: "Previous consequent already returned, cannot integrate another clause.",
@@ -97,16 +96,6 @@ export function ParseContent(
   }
 
   return true;
-}
-
-export function ParseConsequent(
-  target: ComponentConsequent,
-  path: Path<any>){
-
-  if(path.isLabeledStatement())
-    return ParseContent(target.definition, path);
-  else
-    return ParseContent(target, path);
 }
 
 export function ParseForLoop(

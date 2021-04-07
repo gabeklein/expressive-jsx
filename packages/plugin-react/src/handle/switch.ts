@@ -7,9 +7,8 @@ import {
   stringLiteral,
   unaryExpression,
 } from '@babel/types';
-import { generateElement } from 'generate';
-import { DefineContingent, ElementInline } from 'handle';
-import { parse, ParseConsequent } from 'parse';
+import { DefineContingent } from 'handle';
+import { parse, ParseContent } from 'parse';
 import { ensureArray, hash } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
@@ -46,9 +45,7 @@ export class ComponentIf {
     return reduceToExpression(this.forks, (cond) => {
       let product;
 
-      if(cond instanceof ComponentIf)
-        product = cond.toExpression();
-      else if(cond.children.length)
+      if(cond instanceof ComponentIf || cond.definition.children.length)
         product = cond.toExpression();
 
       if(isBooleanLiteral(product, { value: false }))
@@ -116,7 +113,7 @@ export class ComponentIf {
   }
 }
 
-export class ComponentConsequent extends ElementInline {
+export class ComponentConsequent {
   definition: DefineContingent;
 
   constructor(
@@ -125,25 +122,21 @@ export class ComponentConsequent extends ElementInline {
     public index: number,
     public test?: Expression){
 
-    super(context);
-
     const uid = hash(context.prefix);
     const name = specifyOption(test) || `opt${index}`;
     const selector = `${name}_${uid}`;
 
     const parent = context.currentElement!;
-    const mod = new DefineContingent(context, parent, selector);
+    const mod = this.definition =
+      new DefineContingent(context, parent, selector);
 
     mod.priority = 5;
 
-    this.definition = mod;
-
-    parse(this, ParseConsequent, path);
+    parse(mod, ParseContent, path);
   }
 
   toExpression(){
-    const info = generateElement(this);
-    return this.context.Imports.container(info);
+    return this.definition.toExpression();
   }
 }
 

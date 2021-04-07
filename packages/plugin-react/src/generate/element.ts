@@ -107,9 +107,6 @@ export function generateElement(element: ElementInline){
     const definitions = [ ...element.includes ].sort(byPriority);
 
     for(const mod of definitions){
-      if(!(mod instanceof DefineElement))
-        continue;
-
       const allow_css = !inline_only && !mod.collapsable || no_collapse;
 
       if(allow_css && mod.containsStyles(true))
