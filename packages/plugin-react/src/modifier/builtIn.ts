@@ -7,7 +7,7 @@ import {
   variableDeclaration,
   variableDeclarator,
 } from '@babel/types';
-import { ElementInline, Define, Prop } from 'handle';
+import { Define, DefineElement, Prop } from 'handle';
 
 import type { Identifier } from '@babel/types';
 import type { BunchOf } from 'types';
@@ -48,7 +48,7 @@ export function forward(this: ModifyDelegate, ...args: any[]){
   const target = this.target;
   const parent = target.context.currentComponent;
 
-  if(!(target instanceof ElementInline))
+  if(!(target instanceof DefineElement))
     throw new Error("Can only forward props to another element");
 
   if(!parent)

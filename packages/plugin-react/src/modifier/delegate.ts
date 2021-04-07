@@ -4,10 +4,10 @@ import { _require } from 'syntax';
 
 import { DelegateTypes } from './arguments';
 
+import type { Element } from 'handle';
 import type { NodePath as Path } from '@babel/traverse';
 import type { Statement } from '@babel/types';
 import type { Prop } from 'handle/attributes';
-import type { AttributeBody } from 'handle/object';
 import type { BunchOf, ModifyBodyPath, ModifyAction } from 'types';
 
 export class ModifyDelegate {
@@ -20,7 +20,7 @@ export class ModifyDelegate {
   props = {} as BunchOf<Prop>;
 
   constructor(
-    public target: AttributeBody,
+    public target: Element,
     public name: string,
     transform: ModifyAction,
     input: any[] | ModifyBodyPath){

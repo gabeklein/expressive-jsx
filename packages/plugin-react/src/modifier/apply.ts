@@ -6,9 +6,9 @@ import { ModifyDelegate } from './delegate';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { LabeledStatement } from '@babel/types';
-import type { ExplicitStyle } from 'handle/attributes';
-import type { AttributeBody } from 'handle/object';
 import type { StackFrame } from 'context';
+import type { ExplicitStyle } from 'handle/attributes';
+import type { Element } from 'handle/element';
 import type { BunchOf, ModifyAction, ModifyBodyPath } from 'types';
 
 const Oops = ParseErrors({
@@ -25,7 +25,7 @@ type ModTuple = [
 
 export function applyModifier(
   initial: string,
-  recipient: AttributeBody,
+  recipient: Element,
   input: ModifyBodyPath){
 
   const { context } = recipient;
