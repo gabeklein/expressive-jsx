@@ -2,12 +2,12 @@ import { isIdentifier } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ComponentFor, ComponentForX, ComponentIf, DefineElement, Prop } from 'handle';
 import { applyModifier } from 'modifier';
-import { addElementFromJSX } from 'parse';
+import { addElementFromJSX, parse } from 'parse';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { Statement } from '@babel/types';
 import type { Element } from 'handle/element';
-import type { ComponentConsequent} from 'handle/switch';
+import type { ComponentConsequent } from 'handle/switch';
 
 const Oops = ParseErrors({
   IfStatementCannotContinue: "Previous consequent already returned, cannot integrate another clause.",
@@ -36,11 +36,12 @@ export function ParseContent(
       if(body.isExpressionStatement())
         applyModifier(name, target, body);
   
-      else if(body.isBlockStatement() || body.isLabeledStatement())
-        target.use(
-          new DefineElement(target.context, name, body)
-        );
-  
+      else if(body.isBlockStatement() || body.isLabeledStatement()){
+        const mod = new DefineElement(target.context, name);
+        parse(mod, ParseContent, body);
+        target.use(mod);
+      }
+
       else
         throw Oops.BadInputModifier(body, body.type)
 

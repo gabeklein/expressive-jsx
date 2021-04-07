@@ -30,7 +30,7 @@ export class AttributeStack
 
   insert(item: ExplicitStyle): boolean {
     if(item.name === undefined){
-      this.top = item
+      this.top = item;
       this.push(item);
     }
     else if(item.invariant && this.length < 2){

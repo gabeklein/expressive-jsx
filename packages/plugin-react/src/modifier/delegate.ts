@@ -82,10 +82,8 @@ export class ModifyDelegate {
 
     const { target } = this;
     const mod = new DefineContingent(
-      this.target.context,
-      this.target as any,
-      contingent
-    )
+      target.context, target as any, contingent
+    );
 
     mod.priority = priority;
     parse(mod as any, ParseContent, usingBody || this.body!)
