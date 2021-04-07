@@ -12,6 +12,9 @@ const byPriority = (x: any, y: any) => x.priority - y.priority;
 export function generateElement(element: ElementInline){
   const { context } = element;
 
+  const inline_only = context.opts.styleMode === "inline";
+  const no_collapse = context.opts.styleMode === "verbose";
+
   const children = [] as Expression[];
   const props = [] as PropData[];
 
@@ -90,17 +93,16 @@ export function generateElement(element: ElementInline){
   }
 
   function applyStyle(item: ExplicitStyle){
-    if(context.opts.styleMode == "inline")
+    if(inline_only)
       item.invariant = false;
 
-    if(item.invariant)
+    if(item.invariant && !inline_only)
       style_static.push(item);
     else
       style.insert(item)
   }
 
   function applyModifiers(){
-    const inline_only = context.opts.styleMode === "inline";
     const accumulator = new Map<string, ExplicitStyle>();
     const definitions = [ ...element.includes ].sort(byPriority);
 
@@ -108,7 +110,7 @@ export function generateElement(element: ElementInline){
       if(!(mod instanceof DefineElement))
         continue;
 
-      const allow_css = !mod.collapsable && !inline_only;
+      const allow_css = !inline_only && !mod.collapsable || no_collapse;
 
       if(allow_css && mod.containsStyles(true))
         useModifier(mod);
