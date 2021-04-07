@@ -7,6 +7,7 @@ import {
   stringLiteral,
   unaryExpression,
 } from '@babel/types';
+import { generateElement } from 'generate';
 import { DefineContingent, ElementInline } from 'handle';
 import { parse, ParseConsequent } from 'parse';
 import { ensureArray, hash } from 'shared';
@@ -141,7 +142,8 @@ export class ComponentConsequent extends ElementInline {
   }
 
   toExpression(){
-    return super.toExpression(true);
+    const info = generateElement(this);
+    return this.context.Imports.container(info);
   }
 }
 

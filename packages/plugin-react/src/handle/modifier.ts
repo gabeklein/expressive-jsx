@@ -1,7 +1,8 @@
-import { AttributeBody, ElementInline, ExplicitStyle } from 'handle';
-import { parse, ParseContent } from 'parse';
+import { generateElement } from 'generate';
+import { recombineProps } from 'generate/es5';
+import { ElementInline, ExplicitStyle } from 'handle';
+import { AttributeBody } from 'handle/object';
 
-import type { NodePath as Path } from '@babel/traverse';
 import type { StackFrame } from 'context';
 
 export abstract class Define extends AttributeBody {
@@ -16,6 +17,21 @@ export abstract class Define extends AttributeBody {
 
   /** Targets which this modifier applies to. */
   targets = new Set<ElementInline>();
+
+  toExpression(maybeProps?: boolean){
+    const { context } = this;
+    const element = new ElementInline(context);
+
+    element.name = this.name;
+    element.applyModifier(this);
+
+    const info = generateElement(element);
+
+    if(maybeProps && info.children.length === 0)
+      return recombineProps(info.props);
+
+    return context.Imports.container(info);
+  }
 
   get collapsable(){
     return this.targets.size <= 1 && !this.onlyWithin;
@@ -67,26 +83,24 @@ export class DefineElement extends Define {
 }
 
 export class DefineContingent extends Define {
-  anchor: DefineElement | ElementInline;
+  anchor: DefineElement;
   forSelector: string[];
   ownSelector?: string;
 
   constructor(
     context: StackFrame,
-    parent: Define | ElementInline,
+    parent: DefineComponent | DefineContingent,
     contingent?: string
   ){
     super(context);
 
     let select;
 
-    if(parent instanceof ElementInline || parent instanceof DefineComponent)
+    if(parent instanceof DefineComponent)
       select = [ `.${parent.uid}` ];
     else {
       select = [ ...parent.forSelector || [] ];
-
-      if(parent instanceof DefineContingent)
-        parent = parent.anchor;
+      parent = parent.anchor;
     }
 
     if(contingent)
@@ -112,20 +126,10 @@ export class DefineContingent extends Define {
   }
 
   use(define: DefineElement){
-    const { anchor } = this;
-
     define.onlyWithin = this;
     define.priority = 4;
 
-    if(anchor instanceof DefineElement)
-      anchor.provides.add(define)
-    else
-      anchor.context.elementMod(define)
-  }
-
-  applyModifier(mod: Define){
-    if(this.anchor instanceof ElementInline)
-      this.anchor.applyModifier(mod);
+    this.anchor.provides.add(define);
   }
 }
 

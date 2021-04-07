@@ -1,4 +1,4 @@
-import { DefineComponent, ElementInline } from 'handle';
+import { DefineComponent } from 'handle';
 import { parse, ParseContent } from 'parse';
 
 import type { NodePath as Path } from '@babel/traverse';
@@ -7,7 +7,6 @@ import type { StackFrame } from 'context';
 
 export class ComponentExpression {
   definition: DefineComponent;
-  root: ElementInline;
 
   constructor(
     name: string,
@@ -26,9 +25,5 @@ export class ComponentExpression {
   
     if(/^[A-Z]/.test(name))
       define.applyModifiers(name);
-
-    const element = this.root = new ElementInline(context);
-
-    element.name = name;
   }
 }

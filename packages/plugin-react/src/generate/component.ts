@@ -1,7 +1,4 @@
 import { blockStatement, returnStatement } from '@babel/types';
-import { generateElement } from 'generate';
-
-import { recombineProps } from './es5';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { DoExpression } from '@babel/types';
@@ -11,31 +8,22 @@ export function replaceDoExpression(
   path: Path<DoExpression>,
   element: ComponentExpression){
 
-  const { exec, definition, root } = element;
-  const { children, statements } = definition;
+  const { exec, definition } = element;
+  const { statements } = definition;
 
-  root.applyModifier(definition);
-
-  if(exec === undefined && children.length == 0){
-    const factory = generateElement(root);
-    const properties = recombineProps(factory.props);
-    path.replaceWith(properties);
-    return;
-  }
-
-  const factoryExpression = root.toExpression(true);
+  const output = definition.toExpression(!exec);
 
   if(exec && statements.length){
-    const replacement = [
+    const body = [
       ...statements,
-      returnStatement(factoryExpression)
+      returnStatement(output)
     ];
 
     if(path.parentPath.isReturnStatement())
-      path.parentPath.replaceWithMultiple(replacement)
+      path.parentPath.replaceWithMultiple(body)
     else
-      path.replaceWith(blockStatement(replacement))
+      path.replaceWith(blockStatement(body))
   }
   else
-    path.replaceWith(factoryExpression);
+    path.replaceWith(output);
 }

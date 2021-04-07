@@ -2,7 +2,7 @@
 
 exports[`Attribute-based modifier 1`] = `
 "() => create(Foo, {
-  \\"className\\": \\"Foo_1u9\\"
+  \\"className\\": \\"Foo_5cc\\"
 });
 
 Styles.include(\`
@@ -14,7 +14,7 @@ Styles.include(\`
 `;
 
 exports[`Attribute-based modifier 2`] = `
-"() => <Foo className=\\"Foo_1u9\\" />;
+"() => <Foo className=\\"Foo_5cc\\" />;
 
 Styles.include(\`
 	.Foo_1u9 { 
@@ -26,9 +26,9 @@ Styles.include(\`
 
 exports[`Explicitly use modifier 1`] = `
 "() => create(Fragment, {}, create(Baz, {
-  \\"className\\": \\"Foo_erd Baz_1u9\\"
+  \\"className\\": \\"Foo_36o Baz_3rl\\"
 }), create(Foo, {
-  \\"className\\": \\"Foo_erd\\"
+  \\"className\\": \\"Foo_36o\\"
 }));
 
 Styles.include(\`
@@ -42,7 +42,7 @@ Styles.include(\`
 `;
 
 exports[`Explicitly use modifier 2`] = `
-"() => <Fragment><Baz className=\\"Foo_erd Baz_1u9\\" /><Foo className=\\"Foo_erd\\" /></Fragment>;
+"() => <Fragment><Baz className=\\"Foo_36o Baz_3rl\\" /><Foo className=\\"Foo_36o\\" /></Fragment>;
 
 Styles.include(\`
 	.Foo_erd { 
@@ -56,9 +56,9 @@ Styles.include(\`
 
 exports[`Nested modifier 1`] = `
 "() => create(Fragment, {}, create(Foo, {
-  \\"className\\": \\"Foo_erd\\"
+  \\"className\\": \\"Foo_36o\\"
 }), create(Bar, {}, create(Foo, {
-  \\"className\\": \\"Foo_erd Foo_51a\\"
+  \\"className\\": \\"Foo_36o Foo_343\\"
 })));
 
 Styles.include(\`
@@ -72,7 +72,7 @@ Styles.include(\`
 `;
 
 exports[`Nested modifier 2`] = `
-"() => <Fragment><Foo className=\\"Foo_erd\\" /><Bar><Foo className=\\"Foo_erd Foo_51a\\" /></Bar></Fragment>;
+"() => <Fragment><Foo className=\\"Foo_36o\\" /><Bar><Foo className=\\"Foo_36o Foo_343\\" /></Bar></Fragment>;
 
 Styles.include(\`
 	.Foo_erd { 
@@ -86,7 +86,7 @@ Styles.include(\`
 
 exports[`Simple modifier 1`] = `
 "() => create(Foo, {
-  \\"className\\": \\"Foo_1u9\\"
+  \\"className\\": \\"Foo_5cc\\"
 });
 
 Styles.include(\`
@@ -97,7 +97,7 @@ Styles.include(\`
 `;
 
 exports[`Simple modifier 2`] = `
-"() => <Foo className=\\"Foo_1u9\\" />;
+"() => <Foo className=\\"Foo_5cc\\" />;
 
 Styles.include(\`
 	.Foo_1u9 { 
@@ -108,7 +108,7 @@ Styles.include(\`
 
 exports[`collapse single-use modifiers 1`] = `
 "() => create(Foo, {}, create(Bar, {
-  \\"className\\": \\"Bar_7qc\\"
+  \\"className\\": \\"Bar_14s\\"
 }));
 
 Styles.include(\`
@@ -121,7 +121,7 @@ Styles.include(\`
 `;
 
 exports[`collapse single-use modifiers 2`] = `
-"() => <Foo><Bar className=\\"Bar_7qc\\" /></Foo>;
+"() => <Foo><Bar className=\\"Bar_14s\\" /></Foo>;
 
 Styles.include(\`
 	.Bar_7qc { 

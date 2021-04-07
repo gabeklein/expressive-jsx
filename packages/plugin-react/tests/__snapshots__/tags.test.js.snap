@@ -6,7 +6,7 @@ exports[`Handle member-type tags 2`] = `"() => <Foo.Bar />;"`;
 
 exports[`Member property implemented as name 1`] = `
 "() => create(Foo.Bar, {
-  \\"className\\": \\"Bar_1u9\\"
+  \\"className\\": \\"Bar_796\\"
 });
 
 Styles.include(\`
@@ -17,7 +17,7 @@ Styles.include(\`
 `;
 
 exports[`Member property implemented as name 2`] = `
-"() => <Foo.Bar className=\\"Bar_1u9\\" />;
+"() => <Foo.Bar className=\\"Bar_796\\" />;
 
 Styles.include(\`
 	.Bar_1u9 { 

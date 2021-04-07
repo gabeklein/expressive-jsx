@@ -10,7 +10,7 @@ export type Element = ElementInline | Define;
 export class ElementInline extends AttributeBody {
   explicitTagName?: string | JSXMemberExpression;
 
-  toExpression(collapse?: boolean): Expression {
+  toExpression(): Expression {
     const { name } = this;
     const tagName = this.explicitTagName || (
       name && /^[A-Z]/.test(name) ? name : undefined
@@ -19,9 +19,7 @@ export class ElementInline extends AttributeBody {
     const scope = this.context.Imports;
     const info = generateElement(this);
 
-    return collapse
-      ? scope.container(info)
-      : scope.element(info, tagName);
+    return scope.element(info, tagName);
   }
 
   applyModifier(mod: Define){

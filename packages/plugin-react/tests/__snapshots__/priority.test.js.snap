@@ -4,7 +4,7 @@ exports[`competing style priority 1`] = `
 ";
 
 () => create(Foo, {}, create(Bar, {
-  \\"className\\": \\"Bar_7qc\\"
+  \\"className\\": \\"Bar_14s\\"
 }));
 
 Styles.include(\`
@@ -17,7 +17,7 @@ Styles.include(\`
 exports[`competing style priority 2`] = `
 ";
 
-() => <Foo><Bar className=\\"Bar_7qc\\" /></Foo>;
+() => <Foo><Bar className=\\"Bar_14s\\" /></Foo>;
 
 Styles.include(\`
 	.Bar_7qc { 

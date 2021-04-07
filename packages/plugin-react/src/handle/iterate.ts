@@ -1,7 +1,8 @@
 import { arrowFunctionExpression, blockStatement, expressionStatement, forStatement } from '@babel/types';
-import { ElementInline } from 'handle';
 import { parse, ParseForLoop } from 'parse';
 import { _call } from 'syntax';
+
+import { DefineElement } from './modifier';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { ForStatement, Statement } from '@babel/types';
@@ -10,13 +11,13 @@ import type { Element } from './element';
 
 export class ComponentFor {
   context!: StackFrame;
-  definition: ElementInline;
+  definition: DefineElement;
 
   constructor(
     private path: Path<ForStatement>,
     parent: Element){
 
-    const element = new ElementInline(parent.context);
+    const element = new DefineElement(parent.context, "forLoop");
     parse(element, ParseForLoop, path, "body");
 
     this.definition = element;
@@ -29,7 +30,7 @@ export class ComponentFor {
     const { init, test, update } = this.path.node;
     const { statements } = this.definition;
 
-    const output = this.definition.toExpression(true);
+    const output = this.definition.toExpression();
     const scope = this.context.Imports;
     const accumulator = scope.ensureUIDIdentifier("add");
     const collect = scope.ensure("$runtime", "collect");

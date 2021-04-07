@@ -2,10 +2,10 @@
 
 exports[`collapse style-only expression 1`] = `
 "const props = {
-  \\"className\\": \\"props_67v\\"
+  \\"className\\": \\"props_4o0\\"
 };
 Styles.include(\`
-	.props_67v { 
+	.props_4d3 { 
 		color: red;
 	}
 \`);"
@@ -13,10 +13,10 @@ Styles.include(\`
 
 exports[`collapse style-only expression 2`] = `
 "const props = {
-  \\"className\\": \\"props_67v\\"
+  \\"className\\": \\"props_4o0\\"
 };
 Styles.include(\`
-	.props_67v { 
+	.props_4d3 { 
 		color: red;
 	}
 \`);"
