@@ -2,55 +2,81 @@ import { pascalToDash } from "./util";
 
 const EXPORT = exports;
 
-const PSEUDO = {
-  onHover: ":hover",
-  onActive: ":active",
-  onFocus: ":focus",
-  after: "::after",
-  before: "::before",
-  afterOnHover: ":hover::after",
-  beforeOnHover: ":hover::before",
-  afterOnFocus: ":focus::after",
-  beforeOnFocus: ":focus::before",
-  afterOnActive: ":active::after",
-  beforeOnActive: ":active::before",
-  placeholder: "::placeholder"
-}
+const toDashCase = str =>
+  str.replace(/([A-Z])/g, ([x]) => `-${x.toLowerCase()}`);
 
-export function nthOfType(){
-  const inner = this.body.node.body;
-  let i = 0;
-  let select;
+const PSEUDO_CLASSES = [
+  /** conditional state */
+  "hover",
+  "active",
+  "focus",
+  "valid",
+  "invalid",
+  "visited",
+  "empty",
+  "target",
+  "checked",
+  "disabled",
+  "outOfRange",
 
-  for(const item of inner){
-    if(item.label.name !== "select"){
-      i++;
-      continue;
-    }
-    else {
-      inner.splice(i, 1);
-      select = item.body.expression.value;
-    }
+  /** positional state */
+  "firstChild",
+  "lastChild",
+  "onlyChild",
+  "firstOfType",
+  "lastOfType",
+  "onlyOfType"
+];
+
+const PSEUDO_ELEMENTS = [
+  "selection",
+  "after",
+  "before",
+  "placeholder"
+]
+
+const PSEUDO_SPECIFIC = [
+  "not",
+  "nthChild",
+  "nthLastChild",
+  "nthOfType",
+  "nthLastOfType"
+]
+
+for(const name of PSEUDO_CLASSES){
+  EXPORT["$" + name] = function(){
+    const select = ":" + toDashCase(name);
+    this.setContingent(select, 6);
   }
-
-  this.setContingent(`:nth-of-type(${select})`, 6);
 }
 
-for(const name in PSEUDO){
-  let priority = ~name.indexOf("Active") ? 7 : 6;
+for(const name of PSEUDO_ELEMENTS){
+  EXPORT["$" + name] = function(){
+    const select = "::" + toDashCase(name);
+    const mod = this.setContingent(select, 6);
+    const content = mod.containsStyle("content");
 
-  EXPORT[name] = function(){
-    const select = PSEUDO[name];
-    const mod = this.setContingent(select, priority);
-    
-    if(/^::/.test(select)){
-      const exist = mod.containsStyle("content");
+    if(content)
+      content.value = `"${content.value}"`;
+    else
+      mod.addStyle("content", `""`);
+  }
+}
 
-      if(exist)
-        exist.value = `"${exist.value}"`;
-      else
-        mod.addStyle("content", `""`);
+for(const name of PSEUDO_SPECIFIC){
+  EXPORT["$" + name] = function(){
+    const select = ":" + toDashCase(name);
+    const innerBody = this.body.node.body;
+    let specifier;
+
+    let i = innerBody.findIndex(x => x.label.name === "select");
+
+    if(i >= 0){
+      specifier = innerBody[i].body.expression.value;
+      innerBody.splice(i, 1);
     }
+
+    this.setContingent(`${select}(${specifier || "0"})`, 6);
   }
 }
 

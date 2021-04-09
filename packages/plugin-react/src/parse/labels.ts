@@ -14,22 +14,7 @@ const Oops = ParseErrors({
   BadModifierName: "Modifier name cannot start with _ symbol!",
 });
 
-const RESERVED_BLOCKS = [
-  "nthOfType",
-  "onHover",
-  "onActive",
-  "onFocus",
-  "after",
-  "before",
-  "afterOnHover",
-  "beforeOnHover",
-  "afterOnFocus",
-  "beforeOnFocus",
-  "afterOnActive",
-  "beforeOnActive",
-  "placeholder",
-  "css"
-];
+const LeadingDollarSign = /^\$[a-z]\w*/;
 
 export function parseDefineBlock(
   target: Define,
@@ -41,7 +26,7 @@ export function parseDefineBlock(
   if(name[0] == "_")
     throw Oops.BadModifierName(path);
 
-  if(body.isExpressionStatement() || RESERVED_BLOCKS.includes(name))
+  if(body.isExpressionStatement() || LeadingDollarSign.test(name))
     applyModifier(name, target, body as any);
 
   else if(body.isBlockStatement() || body.isLabeledStatement()){
