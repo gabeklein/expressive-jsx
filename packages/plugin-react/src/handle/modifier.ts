@@ -4,19 +4,29 @@ import { ElementInline, ExplicitStyle } from 'handle';
 import { AttributeBody } from 'handle/object';
 
 import type { StackFrame } from 'context';
+import type { DefineConsequent } from 'handle/switch';
+
+export type DefineAny =
+  | DefineElement
+  | DefineConsequent;
 
 export abstract class Define extends AttributeBody {
   next?: Define;
-  forSelector?: string[];
-  onlyWithin?: DefineContingent;
+  forSelector!: string[];
+  onlyWithin?: DefineConsequent;
   
   priority = 1;
 
   /** Modifiers available to children of applicable elements. */
   provides = new Set<Define>();
 
+  /** Modifiers based upon this one. */
+  variants = new Set<DefineVariant>();
+
   /** Targets which this modifier applies to. */
   targets = new Set<ElementInline>();
+
+  abstract use(define: DefineElement): void;
 
   toExpression(maybeProps?: boolean){
     const { context } = this;
@@ -34,15 +44,24 @@ export abstract class Define extends AttributeBody {
   }
 
   get collapsable(){
-    return this.targets.size <= 1 && !this.onlyWithin;
+    return (
+      this.targets.size <= 1 &&
+      this.variants.size < 1 &&
+      !this.onlyWithin
+    );
   }
 
-  containsStyles(staticOnly?: boolean){
-    return !!this.sequence.find(style => {
-      if(style instanceof ExplicitStyle)
-        if(!staticOnly || style.invariant)
-          return true;
-    })
+  containsStyle(staticOnly?: boolean): ExplicitStyle | undefined;
+  containsStyle(named: string): ExplicitStyle | undefined;
+  containsStyle(arg?: boolean | string){
+    return this.sequence.find(style => {
+      if(style instanceof ExplicitStyle){
+        if(typeof arg == "string")
+          return arg == style.name;
+        else
+          return !arg || style.invariant;
+      }
+    });
   }
   
   setActive(){
@@ -57,6 +76,9 @@ export abstract class Define extends AttributeBody {
 
   applyModifier(mod: Define){
     this.includes.add(mod);
+
+    if(mod instanceof DefineVariant)
+      this.variants.add(mod);
   }
 }
 
@@ -68,8 +90,8 @@ export class DefineElement extends Define {
     super(context);
 
     this.name = name;
-    this.forSelector = [ `.${this.uid}` ];
     this.context.resolveFor(name);
+    this.forSelector = [ `.${this.uid}` ];
 
     // if(/^[A-Z]/.test(name))
     //   this.priority = 3;
@@ -82,59 +104,33 @@ export class DefineElement extends Define {
   }
 }
 
-export class DefineContingent extends Define {
-  anchor: DefineElement;
-  forSelector: string[];
-  ownSelector?: string;
-
-  constructor(
-    context: StackFrame,
-    parent: DefineComponent | DefineContingent,
-    contingent?: string
-  ){
-    super(context);
-
-    let select;
-
-    if(parent instanceof DefineComponent)
-      select = [ `.${parent.uid}` ];
-    else {
-      select = [ ...parent.forSelector || [] ];
-      parent = parent.anchor;
-    }
-
-    if(contingent)
-      select.push(`.${contingent}`);
-
-    this.anchor = parent;
-    this.ownSelector = contingent;
-    this.forSelector = select;
-  }
-
-  toClassName(){
-    const { includes, ownSelector } = this;
-
-    const include = [ ...includes ].map(x => x.uid);
-
-    if(this.containsStyles(true))
-      include.unshift(ownSelector!);
-
-    if(include.length){
-      this.setActive();
-      return include.join(" ");
-    }
-  }
-
+export class DefineContainer extends DefineElement {
   use(define: DefineElement){
-    define.onlyWithin = this;
-    define.priority = 4;
-
-    this.anchor.provides.add(define);
+    this.context.elementMod(define);
   }
 }
 
-export class DefineComponent extends DefineElement {
-  use(define: DefineElement){
-    this.context.elementMod(define);
+export class DefineVariant extends Define {
+  constructor(
+    private parent: DefineElement,
+    suffix: string,
+    priority: number){
+
+    super(parent.context);
+
+    this.forSelector = [`.${parent.uid}${suffix}`];
+    this.priority = priority;
+  }
+
+  get collapsable(){
+    return false;
+  }
+
+  use(){
+    void 0;
+  }
+
+  get uid(){
+    return this.parent.uid;
   }
 }

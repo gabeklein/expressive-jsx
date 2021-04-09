@@ -7,19 +7,16 @@ import {
   stringLiteral,
   unaryExpression,
 } from '@babel/types';
-import { DefineContingent } from 'handle';
+import { Define } from 'handle/modifier';
 import { parse, ParseContent } from 'parse';
 import { ensureArray, hash } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
-import type {
-  Expression,
-  IfStatement,
-  Statement
-} from '@babel/types';
+import type { Expression, IfStatement, Statement } from '@babel/types';
 import type { StackFrame } from 'context';
+import type { DefineElement } from 'handle';
 
-type Consequent = ComponentIf | ComponentConsequent;
+type Consequent = ComponentIf | DefineConsequent;
 type GetProduct = (fork: Consequent) => Expression | undefined;
 
 const opt = conditionalExpression;
@@ -45,7 +42,7 @@ export class ComponentIf {
     return reduceToExpression(this.forks, (cond) => {
       let product;
 
-      if(cond instanceof ComponentIf || cond.definition.children.length)
+      if(cond instanceof ComponentIf || cond.children.length)
         product = cond.toExpression();
 
       if(isBooleanLiteral(product, { value: false }))
@@ -61,7 +58,7 @@ export class ComponentIf {
         return cond.toClassName();
 
       const className =
-        cond.definition.toClassName();
+        cond.toClassName();
         
       if(className)
         return stringLiteral(className);
@@ -87,7 +84,7 @@ export class ComponentIf {
 
       const fork = consequent.isIfStatement()
         ? new ComponentIf(consequent, context, test)
-        : new ComponentConsequent(
+        : new DefineConsequent(
           consequent,
           context,
           forks.length + 1,
@@ -104,7 +101,7 @@ export class ComponentIf {
 
       if(layer.type !== "IfStatement"){
         forks.push(
-          new ComponentConsequent(layer, context, forks.length + 1)
+          new DefineConsequent(layer, context, forks.length + 1)
         );
   
         break;
@@ -113,8 +110,10 @@ export class ComponentIf {
   }
 }
 
-export class ComponentConsequent {
-  definition: DefineContingent;
+export class DefineConsequent extends Define {
+  anchor: DefineElement;
+  forSelector: string[];
+  ownSelector?: string;
 
   constructor(
     public path: Path<Statement>,
@@ -122,21 +121,52 @@ export class ComponentConsequent {
     public index: number,
     public test?: Expression){
 
+    super(context);
+
     const uid = hash(context.prefix);
     const name = specifyOption(test) || `opt${index}`;
     const selector = `${name}_${uid}`;
 
-    const parent = context.currentElement!;
-    const mod = this.definition =
-      new DefineContingent(context, parent, selector);
+    let select;
+    let parent = context.currentElement as DefineElement | DefineConsequent;
 
-    mod.priority = 5;
+    if(parent instanceof DefineConsequent){
+      select = [ ...parent.forSelector || [] ];
+      parent = parent.anchor;
+    }
+    else 
+      select = [ `.${parent.uid}` ];
 
-    parse(mod, ParseContent, path);
+    if(selector)
+      select.push(`.${selector}`);
+
+    this.anchor = parent;
+    this.forSelector = select;
+    this.ownSelector = selector;
+    this.priority = 5;
+
+    parse(this, ParseContent, path);
   }
 
-  toExpression(){
-    return this.definition.toExpression();
+  toClassName(){
+    const { includes, ownSelector } = this;
+
+    const include = [ ...includes ].map(x => x.uid);
+
+    if(this.containsStyle(true))
+      include.unshift(ownSelector!);
+
+    if(include.length){
+      this.setActive();
+      return include.join(" ");
+    }
+  }
+
+  use(define: DefineElement){
+    define.onlyWithin = this;
+    define.priority = 4;
+
+    this.anchor.provides.add(define);
   }
 }
 

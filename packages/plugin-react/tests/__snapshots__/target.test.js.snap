@@ -6,7 +6,7 @@ exports[`Attribute-based modifier 1`] = `
 });
 
 Styles.include(\`
-	.Foo_1u9 { 
+	.Foo_5cc { 
 		background: red;
 		color: white;
 	}
@@ -17,7 +17,7 @@ exports[`Attribute-based modifier 2`] = `
 "() => <Foo className=\\"Foo_5cc\\" />;
 
 Styles.include(\`
-	.Foo_1u9 { 
+	.Foo_5cc { 
 		background: red;
 		color: white;
 	}
@@ -32,10 +32,10 @@ exports[`Explicitly use modifier 1`] = `
 }));
 
 Styles.include(\`
-	.Foo_erd { 
+	.Foo_36o { 
 		color: blue;
 	}
-	.Baz_1u9 { 
+	.Baz_3rl { 
 		color: red;
 	}
 \`);"
@@ -45,10 +45,10 @@ exports[`Explicitly use modifier 2`] = `
 "() => <Fragment><Baz className=\\"Foo_36o Baz_3rl\\" /><Foo className=\\"Foo_36o\\" /></Fragment>;
 
 Styles.include(\`
-	.Foo_erd { 
+	.Foo_36o { 
 		color: blue;
 	}
-	.Baz_1u9 { 
+	.Baz_3rl { 
 		color: red;
 	}
 \`);"
@@ -62,10 +62,10 @@ exports[`Nested modifier 1`] = `
 })));
 
 Styles.include(\`
-	.Foo_erd { 
+	.Foo_36o { 
 		color: red;
 	}
-	.Foo_51a { 
+	.Foo_343 { 
 		color: blue;
 	}
 \`);"
@@ -75,10 +75,10 @@ exports[`Nested modifier 2`] = `
 "() => <Fragment><Foo className=\\"Foo_36o\\" /><Bar><Foo className=\\"Foo_36o Foo_343\\" /></Bar></Fragment>;
 
 Styles.include(\`
-	.Foo_erd { 
+	.Foo_36o { 
 		color: red;
 	}
-	.Foo_51a { 
+	.Foo_343 { 
 		color: blue;
 	}
 \`);"
@@ -90,7 +90,7 @@ exports[`Simple modifier 1`] = `
 });
 
 Styles.include(\`
-	.Foo_1u9 { 
+	.Foo_5cc { 
 		color: red;
 	}
 \`);"
@@ -100,7 +100,7 @@ exports[`Simple modifier 2`] = `
 "() => <Foo className=\\"Foo_5cc\\" />;
 
 Styles.include(\`
-	.Foo_1u9 { 
+	.Foo_5cc { 
 		color: red;
 	}
 \`);"
@@ -112,7 +112,7 @@ exports[`collapse single-use modifiers 1`] = `
 }));
 
 Styles.include(\`
-	.Bar_7qc { 
+	.Bar_14s { 
 		border: red solid 1px;
 		background: white;
 		color: red;
@@ -124,7 +124,7 @@ exports[`collapse single-use modifiers 2`] = `
 "() => <Foo><Bar className=\\"Bar_14s\\" /></Foo>;
 
 Styles.include(\`
-	.Bar_7qc { 
+	.Bar_14s { 
 		border: red solid 1px;
 		background: white;
 		color: red;

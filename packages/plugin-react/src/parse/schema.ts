@@ -1,52 +1,27 @@
 import { isIdentifier } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { ComponentFor, ComponentForX, ComponentIf, DefineElement, Prop } from 'handle';
-import { applyModifier } from 'modifier';
-import { addElementFromJSX, parse } from 'parse';
+import { ComponentFor, ComponentForX, ComponentIf, Prop } from 'handle';
+import { addElementFromJSX } from 'parse';
+import { parseDefineBlock } from "./labels";
 
 import type { NodePath as Path } from '@babel/traverse';
-import type { Statement } from '@babel/types';
-import type { Element } from 'handle/element';
+import type { Define, DefineElement } from 'handle';
 
 const Oops = ParseErrors({
   IfStatementCannotContinue: "Previous consequent already returned, cannot integrate another clause.",
   AssignmentNotEquals: "Only `=` assignment may be used here.",
-  BadInputModifier: "Modifier input of type {1} not supported here!",
-  BadModifierName: "Modifier name cannot start with _ symbol!",
   ExpressionUnknown: "Unhandled expressionary statement of type {1}",
   NodeUnknown: "Unhandled node of type {1}",
   PropNotIdentifier: "Assignment must be identifier name of a prop.",
   PropsNotAllowed: "For block cannot accept prop assignments"
 })
 
-export { parse } from './helper'
+export { parse } from './helper';
 
 export function ParseContent(
-  target: Element, path: Path<any>){
+  target: Define, path: Path<any>){
 
   switch(path.type){
-    case "LabeledStatement": {
-      const body = path.get('body') as Path<Statement>;
-      const { name } = path.node.label;
-  
-      if(name[0] == "_")
-        throw Oops.BadModifierName(path);
-  
-      if(body.isExpressionStatement())
-        applyModifier(name, target, body);
-  
-      else if(body.isBlockStatement() || body.isLabeledStatement()){
-        const mod = new DefineElement(target.context, name);
-        parse(mod, ParseContent, body);
-        target.use(mod);
-      }
-
-      else
-        throw Oops.BadInputModifier(body, body.type)
-
-      break;
-    }
-
     case "AssignmentExpression": {
       const { node } = path;
 
@@ -60,6 +35,11 @@ export function ParseContent(
   
       target.add(new Prop(left.name, right));
 
+      break;
+    }
+
+    case "LabeledStatement": {
+      parseDefineBlock(target, path);
       break;
     }
 
@@ -99,7 +79,7 @@ export function ParseContent(
 }
 
 export function ParseForLoop(
-  target: Element, path: Path<any>){
+  target: DefineElement, path: Path<any>){
 
   if(path.isAssignmentExpression())
     throw Oops.PropsNotAllowed(path);

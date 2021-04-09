@@ -33,10 +33,6 @@ export abstract class AttributeBody {
     this.add(child);
   }
 
-  use(define: Define){
-    this.context.elementMod(define);
-  }
-
   add(item: SequenceItem){
     this.sequence.push(item);
   }

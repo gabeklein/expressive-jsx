@@ -1,4 +1,4 @@
-import { DefineComponent } from 'handle';
+import { DefineContainer } from 'handle';
 import { parse, ParseContent } from 'parse';
 
 import type { NodePath as Path } from '@babel/traverse';
@@ -6,7 +6,7 @@ import type { ArrowFunctionExpression, DoExpression } from '@babel/types';
 import type { StackFrame } from 'context';
 
 export class ComponentExpression {
-  definition: DefineComponent;
+  definition: DefineContainer;
 
   constructor(
     name: string,
@@ -17,7 +17,7 @@ export class ComponentExpression {
     const body = path.get("body");
 
     const define = this.definition =
-      new DefineComponent(context, name);
+      new DefineContainer(context, name);
 
     define.context.currentComponent = this;
 

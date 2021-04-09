@@ -1,14 +1,19 @@
-import { DefineContingent, ExplicitStyle } from 'handle';
+import { DefineVariant, ExplicitStyle } from 'handle';
 import { parse, ParseContent } from 'parse';
 import { _require } from 'syntax';
+import { ParseErrors } from 'errors';
 
 import { DelegateTypes } from './arguments';
 
-import type { Element } from 'handle';
 import type { NodePath as Path } from '@babel/traverse';
 import type { Statement } from '@babel/types';
+import type { DefineElement } from 'handle/modifier';
 import type { Prop } from 'handle/attributes';
 import type { BunchOf, ModifyBodyPath, ModifyAction } from 'types';
+
+const Oops = ParseErrors({
+  InlineModeNoVariants: "Cannot attach a CSS variant while styleMode is set to inline."
+})
 
 export class ModifyDelegate {
   arguments?: Array<any>
@@ -20,7 +25,7 @@ export class ModifyDelegate {
   props = {} as BunchOf<Prop>;
 
   constructor(
-    public target: Element,
+    public target: DefineElement,
     public name: string,
     transform: ModifyAction,
     input: any[] | ModifyBodyPath){
@@ -81,12 +86,16 @@ export class ModifyDelegate {
     usingBody?: Path<Statement>){
 
     const { target } = this;
-    const mod = new DefineContingent(
-      target.context, target as any, contingent
-    );
+    const body = usingBody || this.body!;
 
-    mod.priority = priority;
-    parse(mod as any, ParseContent, usingBody || this.body!)
+    if(target.context.opts.styleMode == "inline")
+      throw Oops.InlineModeNoVariants(body.parentPath);
+
+    const mod = new DefineVariant(
+      target, contingent, priority
+    );
+    
+    parse(mod as any, ParseContent, body);
 
     target.applyModifier(mod);
 

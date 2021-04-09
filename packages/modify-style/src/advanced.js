@@ -18,7 +18,7 @@ const PSEUDO = {
 }
 
 export function nthOfType(){
-  const inner = this.body.body;
+  const inner = this.body.node.body;
   let i = 0;
   let select;
 
@@ -42,9 +42,15 @@ for(const name in PSEUDO){
   EXPORT[name] = function(){
     const select = PSEUDO[name];
     const mod = this.setContingent(select, priority);
-    if(select.indexOf("::") !== -1)
-    if("content" in mod.style == false)
-      mod.addStyle("content", "\"\"")
+    
+    if(/^::/.test(select)){
+      const exist = mod.containsStyle("content");
+
+      if(exist)
+        exist.value = `"${exist.value}"`;
+      else
+        mod.addStyle("content", `""`);
+    }
   }
 }
 

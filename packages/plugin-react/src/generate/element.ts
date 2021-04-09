@@ -1,8 +1,8 @@
 import { callExpression, isExpression, isStringLiteral, stringLiteral } from '@babel/types';
 import { AttributeStack } from 'generate';
-import { ComponentIf, DefineElement, ExplicitStyle, Prop } from 'handle';
+import { ComponentIf, DefineElement, DefineVariant, ExplicitStyle, Prop } from 'handle';
 
-import type { ElementInline } from 'handle';
+import type { ElementInline, DefineConsequent } from 'handle';
 import type { Expression } from '@babel/types';
 import type { PropData, SequenceItem } from 'types';
 import type { ExternalsManager } from 'generate';
@@ -20,7 +20,7 @@ export function generateElement(element: ElementInline){
 
   const style = new AttributeStack();
   const style_static = [] as ExplicitStyle[];
-  const classList = [] as Array<string | Expression>;
+  const classList = new Set<string | Expression>();
 
   applyModifiers();
 
@@ -46,7 +46,7 @@ export function generateElement(element: ElementInline){
         children.push(expression)
 
       if(className)
-        classList.push(className);
+        classList.add(className);
     }
 
     else if(item instanceof ExplicitStyle)
@@ -79,12 +79,12 @@ export function generateElement(element: ElementInline){
         if(isStringLiteral(value))
           ({ value } = value);
         else if(isExpression(value)){
-          classList.push(value);
+          classList.add(value);
           return;
         }
 
       if(typeof value == "string")
-        classList.push(value.trim());
+        classList.add(value.trim());
 
       return;
     }
@@ -109,7 +109,11 @@ export function generateElement(element: ElementInline){
     for(const mod of definitions){
       const allow_css = !inline_only && !mod.collapsable || no_collapse;
 
-      if(allow_css && mod.containsStyles(true))
+      if(inline_only && mod instanceof DefineVariant){
+        console.warn(`Cannot include CSS for ${mod.forSelector} with inline_only mode. Skipping.`);
+      }
+
+      if(allow_css && mod.containsStyle(true))
         useModifier(mod);
 
       for(const property of mod.sequence)
@@ -141,8 +145,8 @@ export function generateElement(element: ElementInline){
     accumulator.forEach(applyStyle);
   }
 
-  function useModifier(mod: DefineElement){
-    classList.push(mod.uid)
+  function useModifier(mod: DefineElement | DefineConsequent){
+    classList.add(mod.uid)
     mod.setActive();
   }
 
@@ -159,7 +163,7 @@ export function generateElement(element: ElementInline){
 
   function applyClassname(){
     if(element.hasOwnProperty("uid"))
-      classList.push(element.uid);
+      classList.add(element.uid);
 
     const computeClassname =
       classValue(classList, context.Imports);
@@ -173,10 +177,10 @@ export function generateElement(element: ElementInline){
 }
 
 function classValue(
-  list: (Expression | string)[],
+  list: Set<Expression | string>,
   Imports: ExternalsManager){
 
-  if(!list.length)
+  if(!list.size)
     return;
 
   const selectors = [] as Expression[];

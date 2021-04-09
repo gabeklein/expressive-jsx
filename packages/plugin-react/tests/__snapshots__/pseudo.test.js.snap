@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`pseudo before/after 1`] = `
+"() => create(\\"div\\", {
+  \\"className\\": \\"do_erd\\"
+}, create(\\"div\\", {}, \\"Hello\\"));
+
+Styles.include(\`
+	.do_erd::before { 
+		content: \\"This is content\\";
+		color: blue;
+	}
+	.do_erd::after { 
+		background: red;
+		color: white;
+		content: \\"\\";
+	}
+\`);"
+`;
+
+exports[`pseudo before/after 2`] = `
+"() => <div className=\\"do_erd\\"><div>Hello</div></div>;
+
+Styles.include(\`
+	.do_erd::before { 
+		content: \\"This is content\\";
+		color: blue;
+	}
+	.do_erd::after { 
+		background: red;
+		color: white;
+		content: \\"\\";
+	}
+\`);"
+`;
+
+exports[`pseudo nthOfType 1`] = `
+"() => create(\\"div\\", {
+  \\"className\\": \\"do_erd\\"
+}, create(\\"div\\", {}, \\"Hello\\"));
+
+Styles.include(\`
+	.do_erd:nth-of-type(2n) { 
+		color: blue;
+	}
+	.do_erd:nth-of-type(3n+2) { 
+		color: red;
+	}
+\`);"
+`;
+
+exports[`pseudo nthOfType 2`] = `
+"() => <div className=\\"do_erd\\"><div>Hello</div></div>;
+
+Styles.include(\`
+	.do_erd:nth-of-type(2n) { 
+		color: blue;
+	}
+	.do_erd:nth-of-type(3n+2) { 
+		color: red;
+	}
+\`);"
+`;
