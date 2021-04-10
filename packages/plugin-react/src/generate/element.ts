@@ -15,11 +15,11 @@ export function generateElement(element: ElementInline){
   const inline_only = context.opts.styleMode === "inline";
   const no_collapse = context.opts.styleMode === "verbose";
 
-  const children = [] as Expression[];
   const props = [] as PropData[];
+  const children = [] as Expression[];
 
   const style = new AttributeStack();
-  const style_static = [] as ExplicitStyle[];
+  const style_static = new Set<ExplicitStyle>();
   const classList = new Set<string | Expression>();
 
   applyModifiers();
@@ -27,13 +27,22 @@ export function generateElement(element: ElementInline){
   for(const item of element.sequence)
     apply(item);
 
-  applyHoistedStyle();
-  applyClassname();
-  
-  const value = style.flatten();
+  if(style_static.size){
+    const mod = new DefineElement(context, element.name!);
+    mod.priority = 2;
+    mod.sequence.push(...style_static);
 
-  if(value)
-    props.push({ name: "style", value });
+    applyModifier(mod);
+  }
+
+  const className = classValue(classList, context.Imports);
+  const stylesProp = style.flatten();
+
+  if(className)
+    props.push({ name: "className", value: className });
+
+  if(stylesProp)
+    props.push({ name: "style", value: stylesProp });
 
   return { props, children };
 
@@ -97,9 +106,14 @@ export function generateElement(element: ElementInline){
       item.invariant = false;
 
     if(item.invariant && !inline_only)
-      style_static.push(item);
+      style_static.add(item);
     else
       style.insert(item)
+  }
+
+  function applyModifier(mod: DefineElement | DefineConsequent){
+    classList.add(mod.uid)
+    mod.setActive();
   }
 
   function applyModifiers(){
@@ -109,12 +123,11 @@ export function generateElement(element: ElementInline){
     for(const mod of definitions){
       const allow_css = !inline_only && !mod.collapsable || no_collapse;
 
-      if(inline_only && mod instanceof DefineVariant){
+      if(inline_only && mod instanceof DefineVariant)
         console.warn(`Cannot include CSS for ${mod.forSelector} with inline_only mode. Skipping.`);
-      }
 
       if(allow_css && mod.containsStyle(true))
-        useModifier(mod);
+        applyModifier(mod);
 
       for(const property of mod.sequence)
         if(property instanceof ExplicitStyle){
@@ -143,33 +156,6 @@ export function generateElement(element: ElementInline){
     }
 
     accumulator.forEach(applyStyle);
-  }
-
-  function useModifier(mod: DefineElement | DefineConsequent){
-    classList.add(mod.uid)
-    mod.setActive();
-  }
-
-  function applyHoistedStyle(){
-    if(style_static.length === 0)
-      return;
-
-    const mod = new DefineElement(context, element.name!);
-    mod.priority = 2;
-    mod.sequence.push(...style_static);
-
-    useModifier(mod);
-  }
-
-  function applyClassname(){
-    const computeClassname =
-      classValue(classList, context.Imports);
-
-    if(computeClassname)
-      props.push({
-        name: "className",
-        value: computeClassname
-      });
   }
 }
 
