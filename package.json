@@ -7,10 +7,8 @@
 	],
 	"description": "An alternative syntax for powerful react constructs using less code",
 	"scripts": {
-		"watch": "concurrently \"npm:watch:core\" \"npm:watch:react\"",
 		"postinstall": "yarn --cwd tests install",
-		"watch:core": "yarn workspace @expressive/babel-plugin-core run watch",
-		"watch:react": "yarn workspace @expressive/babel-plugin-react run watch",
+		"watch": "yarn workspace @expressive/babel-plugin-react run watch",
 		"clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +"
 	},
 	"keywords": [
@@ -25,8 +23,5 @@
 		"eslint": "^7.20.0",
 		"lerna": "^3.13.4",
 		"typescript": "^4.1.5"
-	},
-	"dependencies": {
-		"concurrently": "^4.1.0"
 	}
 }
