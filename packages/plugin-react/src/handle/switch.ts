@@ -112,7 +112,7 @@ export class ComponentIf {
 
 export class DefineConsequent extends Define {
   anchor: DefineElement;
-  forSelector: string[];
+  selector: string[];
   ownSelector?: string;
 
   constructor(
@@ -131,7 +131,7 @@ export class DefineConsequent extends Define {
     let parent = context.currentElement as DefineElement | DefineConsequent;
 
     if(parent instanceof DefineConsequent){
-      select = [ ...parent.forSelector || [] ];
+      select = [ ...parent.selector || [] ];
       parent = parent.anchor;
     }
     else 
@@ -141,7 +141,7 @@ export class DefineConsequent extends Define {
       select.push(`.${selector}`);
 
     this.anchor = parent;
-    this.forSelector = select;
+    this.selector = select;
     this.ownSelector = selector;
     this.priority = 5;
 

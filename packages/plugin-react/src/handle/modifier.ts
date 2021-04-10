@@ -12,7 +12,7 @@ export type DefineAny =
 
 export abstract class Define extends AttributeBody {
   next?: Define;
-  forSelector!: string[];
+  selector!: string[];
   onlyWithin?: DefineConsequent;
   
   priority = 1;
@@ -95,7 +95,7 @@ export class DefineElement extends Define {
 
     this.name = name;
     this.context.resolveFor(name);
-    this.forSelector = [ `.${this.uid}` ];
+    this.selector = [ `.${this.uid}` ];
 
     // if(/^[A-Z]/.test(name))
     //   this.priority = 3;
@@ -122,7 +122,7 @@ export class DefineVariant extends Define {
 
     super(parent.context);
 
-    this.forSelector = [`.${parent.uid}${suffix}`];
+    this.selector = [`.${parent.uid}${suffix}`];
     this.priority = priority;
   }
 

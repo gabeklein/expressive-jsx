@@ -124,7 +124,7 @@ export function generateElement(element: ElementInline){
       const allow_css = !inline_only && !mod.collapsable || no_collapse;
 
       if(inline_only && mod instanceof DefineVariant)
-        console.warn(`Cannot include CSS for ${mod.forSelector} with inline_only mode. Skipping.`);
+        console.warn(`Cannot include CSS for ${mod.selector} with inline_only mode. Skipping.`);
 
       if(allow_css && mod.containsStyle(true))
         applyModifier(mod);
