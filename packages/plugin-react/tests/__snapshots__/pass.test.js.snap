@@ -5,9 +5,7 @@ exports[`collapse style-only expression 1`] = `
   \\"className\\": \\"props_4o0\\"
 };
 Styles.include(\`
-	.props_4o0 { 
-		color: red;
-	}
+	.props_4o0 { color: red }
 \`);"
 `;
 
@@ -16,8 +14,6 @@ exports[`collapse style-only expression 2`] = `
   \\"className\\": \\"props_4o0\\"
 };
 Styles.include(\`
-	.props_4o0 { 
-		color: red;
-	}
+	.props_4o0 { color: red }
 \`);"
 `;

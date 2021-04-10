@@ -9,12 +9,13 @@ import type { StackFrame } from 'context';
 import type { BabelState, BunchOf } from 'types';
 
 export function printStyles(state: BabelState<StackFrame>){
-  const { modifiersDeclared, Imports } = state.context;
+  const { modifiersDeclared, Imports, opts } = state.context;
+  const pretty = opts.printStyle == "pretty";
 
   if(!modifiersDeclared.size)
     return;
   
-  const styles = new Printer(modifiersDeclared).print(true);
+  const styles = new Printer(modifiersDeclared).print(pretty);
   const fileId = state.opts.hot !== false && hash(state.filename, 10);
   const runtime = Imports.ensure("$runtime", "default", "Styles");
   const args: Expression[] = [ _template(styles) ];

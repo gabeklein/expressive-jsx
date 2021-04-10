@@ -6,9 +6,7 @@ exports[`basic style 1`] = `
 });
 
 Styles.include(\`
-	.do_167 { 
-		color: green;
-	}
+	.do_167 { color: green }
 \`);"
 `;
 
@@ -16,8 +14,6 @@ exports[`basic style 2`] = `
 "() => <div className=\\"do_167\\" />;
 
 Styles.include(\`
-	.do_167 { 
-		color: green;
-	}
+	.do_167 { color: green }
 \`);"
 `;

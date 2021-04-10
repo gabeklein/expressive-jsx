@@ -8,9 +8,7 @@ exports[`competing style priority 1`] = `
 }));
 
 Styles.include(\`
-	.Bar_14s { 
-		color: orange;
-	}
+	.Bar_14s { color: orange }
 \`);"
 `;
 
@@ -20,8 +18,6 @@ exports[`competing style priority 2`] = `
 () => <Foo><Bar className=\\"Bar_14s\\" /></Foo>;
 
 Styles.include(\`
-	.Bar_14s { 
-		color: orange;
-	}
+	.Bar_14s { color: orange }
 \`);"
 `;
