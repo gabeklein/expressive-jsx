@@ -162,9 +162,6 @@ export function generateElement(element: ElementInline){
   }
 
   function applyClassname(){
-    if(element.hasOwnProperty("uid"))
-      classList.add(element.uid);
-
     const computeClassname =
       classValue(classList, context.Imports);
 

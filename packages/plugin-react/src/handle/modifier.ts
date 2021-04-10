@@ -43,6 +43,10 @@ export abstract class Define extends AttributeBody {
     return context.Imports.container(info);
   }
 
+  get uid(){
+    return this.context.unique(this.name!);
+  }
+
   get collapsable(){
     return (
       this.targets.size <= 1 &&
