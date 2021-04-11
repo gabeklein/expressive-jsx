@@ -9,16 +9,17 @@ import type { NodePath as Path } from '@babel/traverse';
 import type { Statement } from '@babel/types';
 import type { DefineElement } from 'handle/modifier';
 import type { Prop } from 'handle/attributes';
-import type { BunchOf, ModifyBodyPath, ModifyAction } from 'types';
+import type { BunchOf, ModifyBodyPath, ModifyAction, Options } from 'types';
 
 const Oops = ParseErrors({
   InlineModeNoVariants: "Cannot attach a CSS variant while styleMode is set to inline."
 })
 
 export class ModifyDelegate {
-  arguments?: Array<any>
-  done?: true;
+  arguments: Array<any>;
   body?: Path<Statement>;
+  options: Options;
+  done?: true;
 
   attrs = {} as BunchOf<any[]>;
   styles = {} as BunchOf<ExplicitStyle>;
@@ -45,6 +46,7 @@ export class ModifyDelegate {
       args.pop();
     }
 
+    this.options = target.context.opts;
     this.arguments = args;
 
     if(!transform)
@@ -76,46 +78,32 @@ export class ModifyDelegate {
       }
   }
 
-  identifier(name: string){
-    return this.target.context.Scope.ensureUIDIdentifier(name);
-  }
-
   setContingent(
     contingent: string,
     priority: number,
     usingBody?: Path<Statement>){
 
-    const { target } = this;
     const body = usingBody || this.body!;
 
-    if(target.context.opts.styleMode == "inline")
+    if(this.options.styleMode == "inline")
       throw Oops.InlineModeNoVariants(body.parentPath);
 
     const mod = new DefineVariant(
-      target, contingent, priority
+      this.target, contingent, priority
     );
     
     parse(mod as any, ParseContent, body);
 
-    target.applyModifier(mod);
+    this.target.applyModifier(mod);
 
     return mod;
   }
 }
 
-function propertyModifierDefault(
-  this: ModifyDelegate){
-
-  const args = this.arguments!.map(arg => {
-    const { value, requires } = arg;
-
-    if(value)
-      return value;
-    else if(requires)
-      return _require(requires);
-    else
-      return arg;
-  })
+function propertyModifierDefault(this: ModifyDelegate){
+  const args = this.arguments.map(arg =>
+    arg.value || arg.requires ? _require(arg.requires) : arg
+  )
 
   const output =
     args.length == 1 || typeof args[0] == "object"

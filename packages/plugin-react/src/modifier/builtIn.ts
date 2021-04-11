@@ -57,20 +57,20 @@ export function forward(this: ModifyDelegate, ...args: any[]){
   if(!parent.exec)
     throw new Error("Can only apply props from a parent `() => do {}` function!");
 
-  const { params } = parent.exec.node;
-  const { statements } = parent;
+  const { statements, exec } = parent;
+  const { node, scope } = exec;
 
   const all = args.indexOf("all") + 1;
   const reference = {} as BunchOf<Identifier>;
 
   if(all || ~args.indexOf("children")){
-    const id = reference["children"] = this.identifier("children");
+    const id = reference["children"] = scope.generateUidIdentifier("children");
     target.adopt(id);
   }
 
   for(const prop of ["className", "style"])
     if(all || ~args.indexOf(prop)){
-      const id = reference[prop] = this.identifier(prop);
+      const id = reference[prop] = scope.generateUidIdentifier(prop);
       target.add(
         new Prop(prop, id)
       )
@@ -80,10 +80,10 @@ export function forward(this: ModifyDelegate, ...args: any[]){
     (e) => objectProperty(identifier(e[0]), e[1], false, e[1].name == e[0])
   )
 
-  let props = params[0];
+  let props = node.params[0];
 
   if(!props)
-    props = params[0] = objectPattern(properties);
+    props = node.params[0] = objectPattern(properties);
 
   else if(isObjectPattern(props))
     props.properties.push(...properties)
