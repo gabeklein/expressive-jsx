@@ -27,15 +27,9 @@ const COMMON_HTML = [
 ];
 
 export function addElementFromJSX(
-  path: Path<JSXElement>,
-  parent: Element){
+  { node }: Path<JSXElement>, parent: Element){
 
-  const { node } = path;
-
-  const shouldApplyToSelf = 
-    isJSXIdentifier(node.openingElement.name, { name: "this" })
-
-  if(!shouldApplyToSelf)
+  if(!isJSXIdentifier(node.openingElement.name, { name: "this" }))
     parent = createElement(node, parent);
 
   const queue = [[parent, node] as const];
@@ -60,8 +54,9 @@ export function addElementFromJSX(
           if(/^\n+ *$/.test(node.value))
             continue;
 
-          const text = node.value.replace(/\s+/g, " ");
-          element.add(stringLiteral(text));
+          element.add(stringLiteral(
+            node.value.replace(/\s+/g, " ")
+          ));
         break;
     
         case "JSXExpressionContainer":

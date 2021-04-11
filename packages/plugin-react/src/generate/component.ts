@@ -2,16 +2,15 @@ import { blockStatement, returnStatement } from '@babel/types';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { DoExpression } from '@babel/types';
-import type { ComponentExpression } from 'handle';
+import type { DefineContainer } from 'handle';
 
 export function replaceDoExpression(
   path: Path<DoExpression>,
-  element: ComponentExpression){
+  element: DefineContainer){
 
-  const { exec, definition } = element;
-  const { statements } = definition;
+  const { exec, statements } = element;
 
-  const output = definition.toExpression(!exec);
+  const output = element.toExpression();
 
   if(exec && statements.length){
     const body = [

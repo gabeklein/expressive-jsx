@@ -29,8 +29,8 @@ export function generateElement(element: ElementInline){
 
   if(style_static.size){
     const mod = new DefineElement(context, element.name!);
-    mod.priority = 2;
     mod.sequence.push(...style_static);
+    mod.priority = 2;
 
     applyModifier(mod);
   }

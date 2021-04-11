@@ -28,9 +28,8 @@ import type { StackFrame } from 'context';
 import type { Attribute } from 'handle/attributes';
 import type { ModifyDelegate } from 'modifier/delegate';
 import type { ElementInline } from 'handle/element';
-import type { ComponentFor } from 'handle/iterate';
+import type { ComponentFor, ComponentForX } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';
-import type { ComponentForX } from 'handle/iterateForX';
 
 export type JSXContent = JSXElement | JSXFragment | JSXExpressionContainer | JSXText | JSXSpreadChild;
 export type Attributes = JSXAttribute | JSXSpreadAttribute;

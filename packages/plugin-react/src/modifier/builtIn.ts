@@ -58,7 +58,7 @@ export function forward(this: ModifyDelegate, ...args: any[]){
     throw new Error("Can only apply props from a parent `() => do {}` function!");
 
   const { params } = parent.exec.node;
-  const { statements } = parent.definition;
+  const { statements } = parent;
 
   const all = args.indexOf("all") + 1;
   const reference = {} as BunchOf<Identifier>;

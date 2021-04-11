@@ -5,6 +5,8 @@ import { AttributeBody } from 'handle/object';
 
 import type { StackFrame } from 'context';
 import type { DefineConsequent } from 'handle/switch';
+import type { NodePath as Path } from '@babel/traverse';
+import type { ArrowFunctionExpression } from '@babel/types';
 
 export type DefineAny = DefineElement | DefineConsequent;
 
@@ -112,6 +114,12 @@ export class DefineElement extends Define {
 }
 
 export class DefineContainer extends DefineElement {
+  exec?: Path<ArrowFunctionExpression>;
+  
+  toExpression(){
+    return super.toExpression(!this.exec);
+  }
+  
   use(define: DefineElement){
     this.context.elementMod(define);
   }

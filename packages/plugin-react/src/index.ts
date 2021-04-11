@@ -37,7 +37,6 @@ const Program: Visitor<ProgramNode> = {
       path.pushContainer("body", [ styleBlock ]);
   
     Imports.EOF();
-    
   }
 }
 

@@ -1,5 +1,8 @@
 import { isIdentifier, isStringLiteral } from '@babel/types';
-import { ComponentExpression } from 'handle';
+import { DefineContainer } from 'handle';
+
+import { parse } from './helper';
+import { ParseContent } from './schema';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {
@@ -36,8 +39,17 @@ export function generateEntryElement(
   }
 
   const name = containerName(containerFn || path as any);
+  const define = new DefineContainer(context, name);
 
-  return new ComponentExpression(name, context, path, containerFn);
+  define.context.currentComponent = define;
+  define.exec = containerFn;
+
+  parse(define, ParseContent, path.get("body"));
+
+  if(/^[A-Z]/.test(name))
+    define.applyModifiers(name);
+
+  return define;
 }
 
 function containerName(path: Path): string {
