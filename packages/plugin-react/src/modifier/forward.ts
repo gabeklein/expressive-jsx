@@ -1,12 +1,9 @@
 import {
-  blockStatement,
   identifier,
-  isBlockStatement,
   isIdentifier,
   isObjectPattern,
   objectPattern,
   objectProperty,
-  returnStatement,
   variableDeclaration,
   variableDeclarator,
 } from '@babel/types';
@@ -31,9 +28,8 @@ export function forward(this: ModifyDelegate, ...args: any[]){
   if(!parent.exec)
     throw new Error("Can only apply props from a parent `() => do {}` function!");
 
-  const { exec } = parent;
-  const { scope } = exec;
-  const props = getProps(exec);
+  const { scope } = parent.exec;
+  const props = getProps(target, parent.exec);
 
   const all = find(args, "all");
 
@@ -49,7 +45,9 @@ export function forward(this: ModifyDelegate, ...args: any[]){
       )
 
   function getFromProps(name: string){
-    const id = scope.generateUidIdentifier(name);
+    const id = scope.hasBinding(name)
+      ? scope.generateUidIdentifier(name)
+      : identifier(name);
 
     props.properties.push(
       objectProperty(identifier(name), id, false, id.name == name)
@@ -59,8 +57,11 @@ export function forward(this: ModifyDelegate, ...args: any[]){
   }
 }
 
-function getProps(fn: Path<ArrowFunctionExpression>){
-  const { node } = fn;
+function getProps(
+  target: DefineElement,
+  exec: Path<ArrowFunctionExpression>){
+
+  const { node } = exec;
   let props = node.params[0];
   
   if(!isObjectPattern(props)){
@@ -71,17 +72,11 @@ function getProps(fn: Path<ArrowFunctionExpression>){
       node.params[0] = props;
 
     else if(isIdentifier(existing)){
-      const { body } = node;
       const init = variableDeclaration("const", [
         variableDeclarator(props, existing)
       ]);
 
-      if(isBlockStatement(body))
-        body.body.unshift(init);
-      else
-        node.body = blockStatement([
-          init, returnStatement(body)
-        ])
+      target.statements.push(init);
     }
   }
 
