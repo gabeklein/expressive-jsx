@@ -1,0 +1,119 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`forward children & className 1`] = `
+"({
+  children,
+  className
+}) => create(\\"div\\", {
+  \\"className\\": join(\\"do_167\\", className)
+}, children);
+
+Styles.include(\`
+	.do_167 { background: red }
+\`);"
+`;
+
+exports[`forward children & className 2`] = `
+"({
+  children,
+  className
+}) => <div className={join(\\"do_167\\", className)}>{children}</div>;
+
+Styles.include(\`
+	.do_167 { background: red }
+\`);"
+`;
+
+exports[`forward children 1`] = `
+"({
+  children
+}) => create(\\"div\\", {
+  \\"className\\": \\"do_167\\"
+}, children);
+
+Styles.include(\`
+	.do_167 { background: red }
+\`);"
+`;
+
+exports[`forward children 2`] = `
+"({
+  children
+}) => <div className=\\"do_167\\">{children}</div>;
+
+Styles.include(\`
+	.do_167 { background: red }
+\`);"
+`;
+
+exports[`forward className 1`] = `
+"({
+  className
+}) => create(\\"div\\", {
+  \\"className\\": className
+}, create(\\"div\\", {}, \\"Hello World\\"));"
+`;
+
+exports[`forward className 2`] = `
+"({
+  className
+}) => <div className={className}><div>Hello World</div></div>;"
+`;
+
+exports[`forward will join with existing styles 1`] = `
+"({
+  className
+}) => create(\\"div\\", {
+  \\"className\\": join(\\"do_167\\", className)
+}, create(\\"div\\", {}, \\"Hello World\\"));
+
+Styles.include(\`
+	.do_167 { color: red }
+\`);"
+`;
+
+exports[`forward will join with existing styles 2`] = `
+"({
+  className
+}) => <div className={join(\\"do_167\\", className)}><div>Hello World</div></div>;
+
+Styles.include(\`
+	.do_167 { color: red }
+\`);"
+`;
+
+exports[`forward will pull className from existing destructure 1`] = `
+"({
+  name,
+  className
+}) => create(\\"div\\", {
+  \\"className\\": className
+}, create(\\"div\\", {}, \\"Hello \\", name));"
+`;
+
+exports[`forward will pull className from existing destructure 2`] = `
+"({
+  name,
+  className
+}) => <div className={className}><div>Hello {name}</div></div>;"
+`;
+
+exports[`forward will pull className from existing props 1`] = `
+"props => {
+  const {
+    className
+  } = props;
+  return create(\\"div\\", {
+    \\"className\\": className
+  }, create(\\"div\\", {}, \\"Hello World\\"));
+};"
+`;
+
+exports[`forward will pull className from existing props 2`] = `
+"props => {
+  const {
+    className
+  } = props;
+  return <div className={className}><div>Hello World</div></div>;
+};"
+`;
