@@ -25,7 +25,10 @@ import type {
   Statement,
   ForInStatement,
   ForOfStatement,
-  Identifier } from '@babel/types';
+  Identifier ,
+  BlockStatement,
+  Expression
+} from '@babel/types';
 import type { StackFrame } from 'context';
 import type { Element } from './element';
 
@@ -97,11 +100,19 @@ export class ComponentForX {
   }
 
   toExpression(){
+    const { definition, path } = this;
     const { left, right, key } = this.getReferences();
 
-    const body = this.toReturnExpression();
+    let body: Expression | BlockStatement = 
+      definition.toExpression(true);
+
+    if(definition.statements.length)
+      body = blockStatement([
+        ...definition.statements,
+        returnStatement(body)
+      ])
     
-    if(this.path.isForOfStatement()){
+    if(path.isForOfStatement()){
       const params = key ? [left, key] : [left];
 
       return _call(
@@ -122,19 +133,17 @@ export class ComponentForX {
 
     const props = target.sequence.filter(x => x instanceof Prop) as Prop[];
 
-    if(props.find(x => x.name === "key"))
-      return;
+    for(const x of props)
+      if(x.name === "key")
+        return;
 
     if(target.children.length == 1 && props.length == 0){
       const element = target.children[0];
 
       if(element instanceof ElementInline){
-        const exists = element.sequence.find(x =>
-          x instanceof Prop && x.name === "key"
-        );
-
-        if(exists)
-          return;
+        for(const x of element.sequence)
+          if(x instanceof Prop && x.name === "key")
+            return;
         
         target = element as any;
       }
@@ -175,19 +184,5 @@ export class ComponentForX {
     key = this.ensureKeyProp(key);
 
     return { left, right, key }
-  }
-
-  protected toReturnExpression(){
-    const element = this.definition;
-
-    let output = element.toExpression(true);
-
-    if(element.statements.length)
-      return blockStatement([
-        ...element.statements,
-        returnStatement(output)
-      ])
-    
-    return output;
   }
 }
