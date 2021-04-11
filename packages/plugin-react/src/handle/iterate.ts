@@ -58,7 +58,7 @@ export class ComponentFor {
     const { statements } = this.definition;
 
     const output = this.definition.toExpression();
-    const scope = this.context.Imports;
+    const scope = this.context.Scope;
     const accumulator = scope.ensureUIDIdentifier("add");
     const collect = scope.ensure("$runtime", "collect");
 
@@ -128,7 +128,7 @@ export class ComponentForX {
 
   protected ensureKeyProp(key?: Identifier){
     let target = this.definition;
-    const scope = this.context.Imports;
+    const scope = this.context.Scope;
 
     const props = target.sequence.filter(x => x instanceof Prop) as Prop[];
 

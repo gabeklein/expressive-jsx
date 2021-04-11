@@ -48,7 +48,7 @@ interface ElementReact {
   children: Expression[];
 }
 
-export abstract class ExternalsManager {
+export abstract class FileManager {
   protected body: Statement[];
 
   protected imports = {} as BunchOf<(ObjectProperty | ImportSpecific)[]>
@@ -166,7 +166,7 @@ export abstract class ExternalsManager {
   }
 }
 
-export class ImportManager extends ExternalsManager {
+export class ImportManager extends FileManager {
   imports = {} as BunchOf<ImportSpecific[]>
 
   ensure(from: string, name: string, alt = name){
@@ -221,7 +221,7 @@ export class ImportManager extends ExternalsManager {
   }
 }
 
-export class RequireManager extends ExternalsManager {
+export class RequireManager extends FileManager {
   imports = {} as BunchOf<ObjectProperty[]>
   importTargets = {} as BunchOf<Expression | false>
 

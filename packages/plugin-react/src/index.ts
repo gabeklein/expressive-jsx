@@ -30,13 +30,12 @@ const Program: Visitor<ProgramNode> = {
       }
   },
   exit(path, state){
-    const { Imports } = state.context;
     const styleBlock = printStyles(state);
   
     if(styleBlock)
       path.pushContainer("body", [ styleBlock ]);
   
-    Imports.EOF();
+      state.context.Scope.EOF();
   }
 }
 

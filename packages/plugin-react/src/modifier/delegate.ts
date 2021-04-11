@@ -77,7 +77,7 @@ export class ModifyDelegate {
   }
 
   identifier(name: string){
-    return this.target.context.Imports.ensureUIDIdentifier(name);
+    return this.target.context.Scope.ensureUIDIdentifier(name);
   }
 
   setContingent(

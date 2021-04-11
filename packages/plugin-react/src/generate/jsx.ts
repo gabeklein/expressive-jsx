@@ -24,13 +24,13 @@ export function createElement(
   content: Expression[] = [],
   acceptBr?: boolean
 ): JSXElement {
-  const { Imports } = this;
+  const { Scope } = this;
 
   if(acceptBr === undefined)
     acceptBr = !tag || typeof tag == "string" && /^[a-z]/.test(tag);
 
   if(!tag)
-    tag = Imports.ensure("$pragma", "Fragment").name;
+    tag = Scope.ensure("$pragma", "Fragment").name;
 
   const type = typeof tag == "string" ? jsxIdentifier(tag) : tag;
   const props = properties.map(createAttribute);
@@ -47,7 +47,7 @@ export function createElement(
       child
     )
 
-  Imports.ensure("$pragma", "default", "React");
+  Scope.ensure("$pragma", "default", "React");
 
   const contains = children.length > 0;
 

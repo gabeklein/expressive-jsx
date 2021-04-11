@@ -29,13 +29,13 @@ export function createElement(
   properties: PropData[] = [],
   content: Expression[] = []
 ): CallExpression {
-  const { Imports } = this;
+  const { Scope } = this;
 
   const create =
-    Imports.ensure("$pragma", "createElement", "create");
+    Scope.ensure("$pragma", "createElement", "create");
 
   if(!tag)
-    tag = Imports.ensure("$pragma", "Fragment").name;
+    tag = Scope.ensure("$pragma", "Fragment").name;
 
   const type =
     typeof tag === "string" ?

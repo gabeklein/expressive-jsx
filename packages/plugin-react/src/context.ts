@@ -5,7 +5,7 @@ import { DEFAULTS, hash, Stack } from 'shared';
 import type { NodePath as Path } from '@babel/traverse';
 import type { Program } from '@babel/types';
 import type { Define , DefineContainer} from 'handle/modifier';
-import type { ExternalsManager } from 'generate/scope';
+import type { FileManager } from 'generate/scope';
 import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
 
 type Stackable = { context: StackFrame };
@@ -26,7 +26,7 @@ export class StackFrame {
   modifiers = new Stack<Define>();
   handlers = new Stack<ModifyAction>();
 
-  Imports: ExternalsManager;
+  Scope: FileManager;
 
   get parent(){
     return Object.getPrototypeOf(this);
@@ -39,12 +39,12 @@ export class StackFrame {
     this.prefix = hash(state.filename);
     this.opts = opts;
 
-    const Importer =
+    const FileManager =
       opts.useRequire || opts.output == "js"
         ? RequireManager
         : ImportManager;
 
-    this.Imports = new Importer(path, this);
+    this.Scope = new FileManager(path, this);
   }
 
   including(modifiers: BunchOf<any>[]): this {

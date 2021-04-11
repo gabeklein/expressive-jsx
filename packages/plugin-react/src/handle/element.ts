@@ -14,7 +14,7 @@ export class ElementInline extends AttributeBody {
       name && /^[A-Z]/.test(name) ? name : undefined
     )
 
-    const scope = this.context.Imports;
+    const scope = this.context.Scope;
     const info = generateElement(this);
 
     return scope.element(info, tagName);

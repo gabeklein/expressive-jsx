@@ -29,8 +29,7 @@ export abstract class Define extends AttributeBody {
   abstract use(define: DefineElement): void;
 
   toExpression(maybeProps?: boolean){
-    const { context } = this;
-    const element = new ElementInline(context);
+    const element = new ElementInline(this.context);
 
     element.name = this.name;
     element.applyModifier(this);
@@ -40,7 +39,7 @@ export abstract class Define extends AttributeBody {
     if(maybeProps && info.children.length === 0)
       return recombineProps(info.props);
 
-    return context.Imports.container(info);
+    return this.context.Scope.container(info);
   }
 
   get uid(){

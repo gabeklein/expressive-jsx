@@ -5,7 +5,7 @@ import { ComponentIf, DefineElement, DefineVariant, ExplicitStyle, Prop } from '
 import type { ElementInline, DefineConsequent } from 'handle';
 import type { Expression } from '@babel/types';
 import type { PropData, SequenceItem } from 'types';
-import type { ExternalsManager } from 'generate';
+import type { FileManager } from 'generate';
 
 const byPriority = (x: any, y: any) => x.priority - y.priority;
 
@@ -35,7 +35,7 @@ export function generateElement(element: ElementInline){
     applyModifier(mod);
   }
 
-  const className = classValue(classList, context.Imports);
+  const className = classValue(classList, context.Scope);
   const stylesProp = style.flatten();
 
   if(className)
@@ -161,7 +161,7 @@ export function generateElement(element: ElementInline){
 
 function classValue(
   list: Set<Expression | string>,
-  Imports: ExternalsManager){
+  Scope: FileManager){
 
   if(!list.size)
     return;
@@ -181,7 +181,7 @@ function classValue(
     )
 
   if(selectors.length > 1){
-    const join = Imports.ensure("$runtime", "join");
+    const join = Scope.ensure("$runtime", "join");
     return callExpression(join, selectors)
   }
   
