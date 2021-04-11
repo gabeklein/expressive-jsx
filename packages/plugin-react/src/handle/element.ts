@@ -5,8 +5,6 @@ import { AttributeBody } from './object';
 import type { Expression, JSXMemberExpression } from '@babel/types';
 import type { Define } from 'handle/modifier';
 
-export type Element = ElementInline | Define;
-
 export class ElementInline extends AttributeBody {
   explicitTagName?: string | JSXMemberExpression;
 

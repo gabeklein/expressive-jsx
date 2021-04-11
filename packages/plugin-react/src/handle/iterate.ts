@@ -30,7 +30,6 @@ import type {
   Expression
 } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { Element } from './element';
 
 const Oops = ParseErrors({
   BadForOfAssignment: "Assignment of variable left of \"of\" must be Identifier or Destruture",
@@ -43,7 +42,7 @@ export class ComponentFor {
 
   constructor(
     private path: Path<ForStatement>,
-    parent: Element){
+    parent: DefineElement){
 
     const element = new DefineElement(parent.context, "forLoop");
     parse(element, ParseForLoop, path, "body");
@@ -87,7 +86,7 @@ export class ComponentForX {
 
   constructor(
     private path: Path<ForInStatement> | Path<ForOfStatement>,
-    parent: Element){
+    parent: DefineElement){
 
     const name = path.type.replace("Statement", "Loop");
     const element = this.definition =

@@ -9,7 +9,9 @@ import type {
   JSXElement,
   JSXSpreadAttribute
 } from '@babel/types';
-import type { Element } from 'handle';
+import type { DefineElement, Define } from 'handle';
+
+export type Element = ElementInline | Define;
 
 const Oops = ParseErrors({
   InvalidPropValue: "Can only consume an expression or string literal as value here.",
@@ -27,12 +29,14 @@ const COMMON_HTML = [
 ];
 
 export function addElementFromJSX(
-  { node }: Path<JSXElement>, parent: Element){
+  { node }: Path<JSXElement>, parent: DefineElement){
+
+  let target = parent as Element;
 
   if(!isJSXIdentifier(node.openingElement.name, { name: "this" }))
-    parent = createElement(node, parent);
+    target = createElement(node, target);
 
-  const queue = [[parent, node] as const];
+  const queue = [[target, node] as const];
 
   for(const [element, node] of queue){
     const { children } = node;
