@@ -34,6 +34,58 @@ exports[`basic switch 2`] = `
 }) => hello ? <div>Hello World</div> : <div>Goodbye World</div>;"
 `;
 
+exports[`delegated variant may still contain style 1`] = `
+"const BuyButton = ({
+  active
+}) => create(\\"div\\", {
+  \\"className\\": active ? \\"if_active_392 exampleActive_fbb\\" : \\"else_122\\"
+}, \\"Hello World!\\");
+
+Styles.include(\`
+	.example_6a2.else_122 { color: green }
+	.example_6a2.if_active_392 { background: white }
+	.exampleActive_fbb { color: blue }
+\`);"
+`;
+
+exports[`delegated variant may still contain style 2`] = `
+"const BuyButton = ({
+  active
+}) => <div className={active ? \\"if_active_392 exampleActive_fbb\\" : \\"else_122\\"}>Hello World!</div>;
+
+Styles.include(\`
+	.example_6a2.else_122 { color: green }
+	.example_6a2.if_active_392 { background: white }
+	.exampleActive_fbb { color: blue }
+\`);"
+`;
+
+exports[`delegates definition via use 1`] = `
+"const BuyButton = ({
+  active
+}) => create(\\"div\\", {
+  \\"className\\": join(\\"example_14k\\", active ? \\"exampleActive_fbb\\" : \\"else_122\\")
+}, \\"Hello World!\\");
+
+Styles.include(\`
+	.example_14k { color: black }
+	.example_6a2.else_122 { color: green }
+	.exampleActive_fbb { color: blue }
+\`);"
+`;
+
+exports[`delegates definition via use 2`] = `
+"const BuyButton = ({
+  active
+}) => <div className={join(\\"example_14k\\", active ? \\"exampleActive_fbb\\" : \\"else_122\\")}>Hello World!</div>;
+
+Styles.include(\`
+	.example_14k { color: black }
+	.example_6a2.else_122 { color: green }
+	.exampleActive_fbb { color: blue }
+\`);"
+`;
+
 exports[`inverse consequent types 1`] = `
 "({
   foo
@@ -53,6 +105,30 @@ exports[`inverse consequent types 2`] = `
 
 Styles.include(\`
 	.do_erd.else_7qc { color: red }
+\`);"
+`;
+
+exports[`nested elements may have conditional 1`] = `
+"const BuyButton = ({
+  active
+}) => create(\\"div\\", {}, create(\\"div\\", {}, create(\\"div\\", {
+  \\"className\\": active ? \\"if_active_27p\\" : \\"else_1kq\\"
+})));
+
+Styles.include(\`
+	.inner_1mn.else_1kq { color: green }
+	.inner_1mn.if_active_27p { color: red }
+\`);"
+`;
+
+exports[`nested elements may have conditional 2`] = `
+"const BuyButton = ({
+  active
+}) => <div><div><div className={active ? \\"if_active_27p\\" : \\"else_1kq\\"} /></div></div>;
+
+Styles.include(\`
+	.inner_1mn.else_1kq { color: green }
+	.inner_1mn.if_active_27p { color: red }
 \`);"
 `;
 

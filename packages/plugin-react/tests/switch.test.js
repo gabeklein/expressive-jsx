@@ -58,6 +58,62 @@ test("supports inverse else-if", `
   }
 `);
 
+test("nested elements may have conditional", `
+  const BuyButton = ({ active }) => do {
+    inner: {
+      if(active)
+        color: red;
+      else
+        color: green;
+    }
+
+    <container>
+      <nested>
+        <inner />
+      </nested>
+    </container>
+  }
+`)
+
+test("delegates definition via use", `
+  example: {
+    color: black;
+  }
+
+  exampleActive: {
+    color: blue;
+  }
+
+  const BuyButton = ({ active }) => do {
+    example: {
+      if(active)
+        use: exampleActive;
+      else
+        color: green;
+    }
+
+    <example>Hello World!</example>
+  }
+`)
+
+test("delegated variant may still contain style", `
+  exampleActive: {
+    color: blue;
+  }
+
+  const BuyButton = ({ active }) => do {
+    example: {
+      if(active){
+        use: exampleActive;
+        background: white;
+      }
+      else
+        color: green;
+    }
+
+    <example>Hello World!</example>
+  }
+`)
 
 
 
