@@ -68,8 +68,13 @@ export abstract class Define extends AttributeBody {
     });
   }
   
-  setActive(){
+  setActive(withPriority?: number){
+    if(withPriority! > this.priority)
+      this.priority = withPriority!;
+
     this.context.modifiersDeclared.add(this);
+
+    return this.uid;
   }
 
   addStyle(name: string, value: any){
@@ -126,15 +131,15 @@ export class DefineVariant extends Define {
     this.priority = priority;
   }
 
+  get uid(){
+    return this.parent.uid;
+  }
+
   get collapsable(){
     return false;
   }
 
   use(){
     void 0;
-  }
-
-  get uid(){
-    return this.parent.uid;
   }
 }

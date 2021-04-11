@@ -113,7 +113,7 @@ export class ComponentIf {
 export class DefineConsequent extends Define {
   anchor: DefineElement;
   selector: string[];
-  ownSelector?: string;
+  ownSelector: string;
 
   constructor(
     public path: Path<Statement>,
@@ -148,18 +148,15 @@ export class DefineConsequent extends Define {
     parse(this, ParseContent, path);
   }
 
+  get uid(){
+    return this.ownSelector;
+  }
+
   toClassName(){
-    const { includes, ownSelector } = this;
-
-    const include = [ ...includes ].map(x => x.uid);
-
-    if(this.containsStyle(true))
-      include.unshift(ownSelector!);
-
-    if(include.length){
-      this.setActive();
-      return include.join(" ");
-    }
+    return [ this, ...this.includes ]
+      .filter(x => x.containsStyle(true))
+      .map(x => x.setActive(this.priority))
+      .join(" ");
   }
 
   use(define: DefineElement){
