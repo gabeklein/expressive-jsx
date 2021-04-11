@@ -1,12 +1,16 @@
 import { blockStatement, returnStatement } from '@babel/types';
+import { generateEntryElement } from 'parse';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { DoExpression } from '@babel/types';
-import type { DefineContainer } from 'handle';
+import type { StackFrame } from 'context';
+import type { BabelState } from 'types';
 
 export function replaceDoExpression(
   path: Path<DoExpression>,
-  element: DefineContainer){
+  state: BabelState<StackFrame>){
+
+  let element = generateEntryElement(path, state.context);
 
   const { exec, statements } = element;
 

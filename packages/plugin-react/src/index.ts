@@ -2,14 +2,10 @@ import { StackFrame } from 'context';
 import { Status } from 'errors';
 import { replaceDoExpression } from 'generate';
 import { handleTopLevelModifier, printStyles } from 'modifier';
-import { generateEntryElement } from 'parse';
 
 import { builtIn } from './modifier';
 
-import type {
-  DoExpression as DoExpressionNode,
-  Program as ProgramNode
-} from '@babel/types';
+import type { Program as ProgramNode } from '@babel/types';
 import type { BabelFile, Visitor } from 'types';
 
 const Program: Visitor<ProgramNode> = {
@@ -35,14 +31,7 @@ const Program: Visitor<ProgramNode> = {
     if(styleBlock)
       path.pushContainer("body", [ styleBlock ]);
   
-      state.context.Scope.EOF();
-  }
-}
-
-const DoExpression: Visitor<DoExpressionNode> = {
-  enter(path, state){
-    let element = generateEntryElement(path, state.context);
-    replaceDoExpression(path, element);
+    state.context.Scope.EOF();
   }
 }
 
@@ -53,7 +42,7 @@ export default () => {
     },
     visitor: {
       Program,
-      DoExpression
+      DoExpression: { enter: replaceDoExpression }
     }
   }
 }
