@@ -6,9 +6,7 @@ import { AttributeBody } from 'handle/object';
 import type { StackFrame } from 'context';
 import type { DefineConsequent } from 'handle/switch';
 
-export type DefineAny =
-  | DefineElement
-  | DefineConsequent;
+export type DefineAny = DefineElement | DefineConsequent;
 
 export abstract class Define extends AttributeBody {
   next?: Define;
