@@ -12,11 +12,10 @@ export function replaceDoExpression(
 
   let element = generateEntryElement(path, state.context);
 
-  const { exec, statements } = element;
-
+  const { statements } = element;
   const output = element.toExpression();
 
-  if(exec && statements.length){
+  if(element.exec && statements.length){
     const body = [
       ...statements,
       returnStatement(output)

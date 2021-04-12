@@ -58,13 +58,13 @@ export function addElementFromJSX(
           if(/^\n+ *$/.test(node.value))
             continue;
 
-          element.add(stringLiteral(
+          element.adopt(stringLiteral(
             node.value.replace(/\s+/g, " ")
           ));
         break;
     
         case "JSXExpressionContainer":
-          element.add(node.expression as Expression);
+          element.adopt(node.expression as Expression);
         break;
     
         default:

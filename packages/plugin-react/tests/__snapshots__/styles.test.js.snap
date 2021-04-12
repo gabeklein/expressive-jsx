@@ -3,7 +3,7 @@
 exports[`basic style 1`] = `
 "() => create(\\"div\\", {
   \\"className\\": \\"do_167\\"
-});
+}, \\"Hello World\\");
 
 Styles.include(\`
 	.do_167 { color: green }
@@ -11,7 +11,7 @@ Styles.include(\`
 `;
 
 exports[`basic style 2`] = `
-"() => <div className=\\"do_167\\" />;
+"() => <div className=\\"do_167\\">Hello World</div>;
 
 Styles.include(\`
 	.do_167 { color: green }
