@@ -94,7 +94,7 @@ export class ModifyDelegate {
     
     parse(mod as any, ParseContent, body);
 
-    this.target.apply(mod);
+    this.target.use(mod);
 
     return mod;
   }

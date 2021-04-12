@@ -25,7 +25,7 @@ export abstract class Define extends AttributeBody {
   /** Targets which this modifier applies to. */
   targets = new Set<ElementInline>();
 
-  abstract use(define: DefineElement): void;
+  abstract provide(define: DefineElement): void;
 
   abstract get selector(): string[];
 
@@ -33,7 +33,7 @@ export abstract class Define extends AttributeBody {
     const element = new ElementInline(this.context);
 
     element.name = this.name;
-    element.apply(this);
+    element.use(this);
 
     const info = generateElement(element);
 
@@ -83,7 +83,7 @@ export abstract class Define extends AttributeBody {
     )
   }
 
-  apply(mod: Define){
+  use(mod: Define){
     this.includes.add(mod);
 
     if(mod instanceof DefineVariant)
@@ -109,7 +109,7 @@ export class DefineElement extends Define {
     return [ `.${this.uid}` ];
   }
 
-  use(define: DefineElement){
+  provide(define: DefineElement){
     define.priority = this.priority;
     this.provides.add(define);
     this.onlyWithin = define.onlyWithin;
@@ -123,7 +123,7 @@ export class DefineContainer extends DefineElement {
     return super.toExpression(!this.exec);
   }
   
-  use(define: DefineElement){
+  provide(define: DefineElement){
     this.context.elementMod(define);
   }
 }
@@ -149,7 +149,7 @@ export class DefineVariant extends Define {
     return false;
   }
 
-  use(){
+  provide(){
     void 0;
   }
 }

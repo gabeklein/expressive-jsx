@@ -47,7 +47,7 @@ export function generateEntryElement(
   parse(define, ParseContent, path.get("body"));
 
   if(/^[A-Z]/.test(name))
-    define.applyModifiers(name);
+    define.uses(name);
 
   return define;
 }

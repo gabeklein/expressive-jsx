@@ -18,7 +18,7 @@ export abstract class AttributeBody {
     context.push(this);
   }
 
-  abstract apply(mod: Define): void;
+  abstract use(mod: Define): void;
 
   adopt(child: InnerContent){
     const index = this.children.push(child);
@@ -33,7 +33,7 @@ export abstract class AttributeBody {
     this.sequence.push(item);
   }
 
-  applyModifiers(name: string){
+  uses(name: string){
     this.context.apply(name, this);
   }
 }

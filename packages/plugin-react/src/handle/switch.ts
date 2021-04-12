@@ -140,7 +140,7 @@ export class DefineConsequent extends Define {
       .join(" ");
   }
 
-  use(define: DefineElement){
+  provide(define: DefineElement){
     define.onlyWithin = this;
     define.priority = 4;
 

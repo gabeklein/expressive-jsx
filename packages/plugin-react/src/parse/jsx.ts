@@ -116,7 +116,7 @@ function createElement(
     throw Oops.NonJSXIdentifier(tag);
 
   target.name = name;
-  target.applyModifiers(name);
+  target.uses(name);
 
   parent.adopt(target);
 
@@ -139,7 +139,7 @@ function applyAttribute(
     name = attr.name.name as string;
 
     if(expression === null){
-      parent.applyModifiers(name);
+      parent.uses(name);
       return;
     }
   

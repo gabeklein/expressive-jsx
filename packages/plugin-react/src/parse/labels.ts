@@ -30,7 +30,7 @@ export function parseDefineBlock(
   else if(body.isBlockStatement() || body.isLabeledStatement()){
     const mod = new DefineElement(target.context, name);
     parse(mod, ParseContent, body);
-    target.use(mod);
+    target.provide(mod);
   }
 
   else
