@@ -1,6 +1,6 @@
 {
   "name": "@expressive/babel-plugin-react",
-  "version": "1.0.0-beta.52",
+  "version": "1.0.0-beta.53",
   "description": "React output for XJS babel parser plugin.",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.10.3",
-    "@expressive/modify-pseudo": "^1.0.0-beta.52",
+    "@expressive/modify-pseudo": "^1.0.0-beta.53",
     "@expressive/modify-style": "^1.0.0-beta.52",
     "@jest/globals": "^26.4.2",
     "@types/babel__traverse": "^7.11.0",
