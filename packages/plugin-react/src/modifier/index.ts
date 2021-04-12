@@ -1,2 +1,2 @@
 export * from './apply';
-export * as builtIn from './builtIn';
+export * from './builtIn';

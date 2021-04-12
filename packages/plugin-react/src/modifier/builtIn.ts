@@ -2,9 +2,9 @@ import { Define } from 'handle';
 
 import type { ModifyDelegate } from './delegate';
 
-export { forward } from "./forward";
+import { forward } from "./forward";
 
-export function use(
+function use(
   this: ModifyDelegate,
   ...args: any[]){
 
@@ -20,7 +20,7 @@ export function use(
     }
 }
 
-export function priority(
+function priority(
   this: ModifyDelegate,
   priority: number){
 
@@ -30,7 +30,14 @@ export function priority(
     target.priority = priority
 }
 
-export function css(this: ModifyDelegate){
+function css(this: ModifyDelegate){
   debugger;
+}
+
+export const builtIn = {
+  forward,
+  use,
+  priority,
+  css
 }
 
