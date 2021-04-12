@@ -45,7 +45,7 @@ export function addElementFromJSX(
     for(const attribute of attributes)
       applyAttribute(element, attribute);
 
-    for(const node of children){
+    children.forEach((node, index) => {
       switch(node.type){
         case "JSXElement":
           queue.push([
@@ -56,11 +56,16 @@ export function addElementFromJSX(
 
         case "JSXText":
           if(/^\n+ *$/.test(node.value))
-            continue;
+            return;
 
-          element.adopt(stringLiteral(
-            node.value.replace(/\s+/g, " ")
-          ));
+          let text = node.value.replace(/\s+/g, " ");
+
+          if(!index)
+            text = text.trimLeft();
+          if(index == children.length - 1)
+            text = text.trimRight();
+
+          element.adopt(stringLiteral(text));
         break;
     
         case "JSXExpressionContainer":
@@ -68,9 +73,9 @@ export function addElementFromJSX(
         break;
     
         default:
-          throw Oops.UnhandledChild(node, node.type)
+          throw Oops.UnhandledChild(node, node.type);
       }
-    }
+    })
   }
 }
 
