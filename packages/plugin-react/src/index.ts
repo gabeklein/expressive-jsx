@@ -1,7 +1,7 @@
 import { StackFrame } from 'context';
 import { Status } from 'errors';
-import { replaceDoExpression } from 'generate';
-import { handleTopLevelModifier, printStyles } from 'modifier';
+import { replaceDoExpression, printStyles } from 'generate';
+import { handleTopLevelModifier } from 'modifier';
 
 import { builtIn } from './modifier';
 
