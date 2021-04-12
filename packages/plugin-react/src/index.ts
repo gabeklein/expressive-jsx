@@ -1,9 +1,8 @@
 import { StackFrame } from 'context';
 import { Status } from 'errors';
-import { replaceDoExpression, printStyles } from 'generate';
-import { handleTopLevelModifier } from 'modifier';
-
-import { builtIn } from './modifier';
+import { printStyles, replaceDoExpression } from 'generate';
+import { handleTopLevelDefine } from 'modifier/apply';
+import { builtIn } from 'modifier/builtIn';
 
 import type { Program as ProgramNode } from '@babel/types';
 import type { BabelFile, Visitor } from 'types';
@@ -21,7 +20,7 @@ const Program: Visitor<ProgramNode> = {
   
     for(const item of path.get("body"))
       if(item.isLabeledStatement()){
-        handleTopLevelModifier(item, context);
+        handleTopLevelDefine(item, context);
         item.remove();
       }
   },

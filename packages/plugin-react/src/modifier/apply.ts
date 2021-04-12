@@ -22,7 +22,7 @@ type ModTuple = [
   any[] | ModifyBodyPath
 ];
 
-export function applyModifier(
+export function applyDirective(
   initial: string,
   recipient: DefineElement,
   input: ModifyBodyPath){
@@ -67,7 +67,7 @@ export function applyModifier(
     recipient.add(styles[name]);
 }
 
-export function handleTopLevelModifier(
+export function handleTopLevelDefine(
   node: Path<LabeledStatement>,
   context: StackFrame){
 

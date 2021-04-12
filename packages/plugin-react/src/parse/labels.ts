@@ -1,13 +1,11 @@
 import { ParseErrors } from 'errors';
 import { DefineElement } from 'handle';
-import { applyModifier } from 'modifier';
-import { parse } from 'parse';
+import { applyDirective } from 'modifier/apply';
+import { parse, ParseContent } from 'parse';
 
 import type { NodePath as Path } from "@babel/traverse";
 import type { LabeledStatement, Statement } from "@babel/types";
 import type { Define } from "handle";
-
-import { ParseContent } from "./schema";
 
 const Oops = ParseErrors({
   BadInputModifier: "Modifier input of type {1} not supported here!",
@@ -27,7 +25,7 @@ export function parseDefineBlock(
     throw Oops.BadModifierName(path);
 
   if(body.isExpressionStatement() || LeadingDollarSign.test(name))
-    applyModifier(name, target, body as any);
+    applyDirective(name, target, body as any);
 
   else if(body.isBlockStatement() || body.isLabeledStatement()){
     const mod = new DefineElement(target.context, name);

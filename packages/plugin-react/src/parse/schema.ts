@@ -16,8 +16,6 @@ const Oops = ParseErrors({
   PropsNotAllowed: "For block cannot accept prop assignments"
 })
 
-export { parse } from './helper';
-
 export function ParseContent(
   target: Define, path: Path<any>){
 
