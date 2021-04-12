@@ -136,9 +136,11 @@ export abstract class FileManager {
   }
 
   EOF(){
+    if(this.context.opts.externals === false)
+      return;
+
     Object
-      .entries(this.importIndices)
-      .sort((a, b) => a[1] - b[1])
+      .entries(this.imports)
       .forEach(([ name ]) => {
         const importStatement = this.createImport(name);
   

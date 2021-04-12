@@ -61,8 +61,7 @@ export interface Options {
 
   hot?: boolean;
   printStyle?: "pretty";
-  useRequire?: boolean;
-  useImport?: boolean;
+  externals?: "require" | "import" | false;
 }
 
 export interface BabelState<S extends StackFrame = StackFrame> {

@@ -9,6 +9,7 @@ async function transform(source, opts){
     plugins: [
       [ThisPlugin, {
         hot: false,
+        externals: false,
         modifiers: [
           webstyleModifiers,
           pseudoModifiers

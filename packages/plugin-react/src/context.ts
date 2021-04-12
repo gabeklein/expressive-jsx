@@ -45,7 +45,7 @@ export class StackFrame {
     this.opts = opts;
 
     const FileManager =
-      opts.useRequire || opts.output == "js"
+      opts.externals == "require" || opts.output == "js"
         ? RequireManager
         : ImportManager;
 
