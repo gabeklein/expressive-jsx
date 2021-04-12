@@ -5,15 +5,14 @@ import { addElementFromJSX } from 'parse';
 import { parseDefineBlock } from "./labels";
 
 import type { NodePath as Path } from '@babel/traverse';
-import type { Define, DefineElement } from 'handle';
+import type { Define } from 'handle';
 
 const Oops = ParseErrors({
   IfStatementCannotContinue: "Previous consequent already returned, cannot integrate another clause.",
   AssignmentNotEquals: "Only `=` assignment may be used here.",
   ExpressionUnknown: "Unhandled expressionary statement of type {1}",
   NodeUnknown: "Unhandled node of type {1}",
-  PropNotIdentifier: "Assignment must be identifier name of a prop.",
-  PropsNotAllowed: "For block cannot accept prop assignments"
+  PropNotIdentifier: "Assignment must be identifier name of a prop."
 })
 
 export function ParseContent(
@@ -74,13 +73,4 @@ export function ParseContent(
   }
 
   return true;
-}
-
-export function ParseForLoop(
-  target: DefineElement, path: Path<any>){
-
-  if(path.isAssignmentExpression())
-    throw Oops.PropsNotAllowed(path);
-  else
-    return ParseContent(target, path);
 }

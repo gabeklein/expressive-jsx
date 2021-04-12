@@ -13,7 +13,7 @@ import {
 } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { DefineElement, ElementInline, Prop } from 'handle';
-import { parse, ParseForLoop } from 'parse';
+import { parse, ParseContent } from 'parse';
 import { _call, _get, _objectKeys } from 'syntax';
 
 import type { NodePath as Path } from '@babel/traverse';
@@ -30,8 +30,18 @@ import type { StackFrame } from 'context';
 
 const Oops = ParseErrors({
   BadForOfAssignment: "Assignment of variable left of \"of\" must be Identifier or Destruture",
-  BadForInAssignment: "Left of ForInStatement must be an Identifier here!"
-})
+  BadForInAssignment: "Left of ForInStatement must be an Identifier here!",
+  PropsNotAllowed: "For block cannot accept prop assignments"
+});
+
+function ParseForLoop(
+  target: DefineElement, path: Path<any>){
+
+  if(path.isAssignmentExpression())
+    throw Oops.PropsNotAllowed(path);
+  else
+    return ParseContent(target, path);
+}
 
 export class ComponentFor {
   context!: StackFrame;
