@@ -1,8 +1,8 @@
 import { Define } from 'handle';
 
-import type { ModifyDelegate } from './delegate';
+import { forward } from './forward';
 
-import { forward } from "./forward";
+import type { ModifyDelegate } from './delegate';
 
 function use(
   this: ModifyDelegate,
@@ -27,17 +27,12 @@ function priority(
   const { target } = this;
 
   if(target instanceof Define)
-    target.priority = priority
-}
-
-function css(this: ModifyDelegate){
-  debugger;
+    target.priority = priority;
 }
 
 export const builtIn = {
   forward,
-  use,
   priority,
-  css
+  use
 }
 
