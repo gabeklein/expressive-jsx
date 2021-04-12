@@ -1,4 +1,4 @@
-const MinMax = {
+const MIN_MAX = {
   ">": "min-",
   "<": "max-",
   "==": "",
@@ -6,37 +6,37 @@ const MinMax = {
   "<=": 1
 }
 
-const Size = {
+const SIZE = {
   width: "width",
   height: "height",
   deviceHeight: "device-height",
   deviceWidth: "device-width"
 }
 
-const Special = {
+const SPECIAL = {
   WebkitDevicePixelRatio: "-webkit-device-pixel-ratio"
 }
 
-const Keywords = {
+const KEYWORD = {
   landscape: "(orientation: landscape)",
   portrait: "(orientation: portrait)"
 }
 
 function Transform(e){
-  if(typeof e == "string" && Keywords[e])
-    return Keywords[e];
+  if(typeof e == "string" && KEYWORD[e])
+    return KEYWORD[e];
   else if(e.type == "binary"){
     let { operator, right, left } = e;
     if(operator[1] == "=="){
-      right += MinMax[operator];
+      right += MIN_MAX[operator];
       operator = operator[0]
     }
 
-    let op = MinMax[operator];
-    let key = Size[left];
+    let op = MIN_MAX[operator];
+    let key = SIZE[left];
 
     if(key && typeof right == "number") right += "px";
-    else key = Special[left]
+    else key = SPECIAL[left]
 
     if(key && op !== undefined){
       return `(${op}${key}: ${right})`

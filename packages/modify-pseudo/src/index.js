@@ -2,9 +2,6 @@ import { pascalToDash } from "./util";
 
 const EXPORT = exports;
 
-const toDashCase = str =>
-  str.replace(/([A-Z])/g, ([x]) => `-${x.toLowerCase()}`);
-
 const PSEUDO_CLASSES = [
   /** conditional state */
   "hover",
@@ -45,14 +42,14 @@ const PSEUDO_SPECIFIC = [
 
 for(const name of PSEUDO_CLASSES){
   EXPORT["$" + name] = function(){
-    const select = ":" + toDashCase(name);
+    const select = ":" + pascalToDash(name);
     this.setContingent(select, 6);
   }
 }
 
 for(const name of PSEUDO_ELEMENTS){
   EXPORT["$" + name] = function(){
-    const select = "::" + toDashCase(name);
+    const select = "::" + pascalToDash(name);
     const mod = this.setContingent(select, 6);
     const content = mod.containsStyle("content");
 
@@ -65,7 +62,7 @@ for(const name of PSEUDO_ELEMENTS){
 
 for(const name of PSEUDO_SPECIFIC){
   EXPORT["$" + name] = function(){
-    const select = ":" + toDashCase(name);
+    const select = ":" + pascalToDash(name);
     const innerBody = this.body.node.body;
     let specifier;
 
@@ -105,7 +102,6 @@ export function css(){
   if(!list)
     list = data.classList = [];
 
-  for(const className of this.arguments){
+  for(const className of this.arguments)
     list.push(pascalToDash(className));
-  }
 }

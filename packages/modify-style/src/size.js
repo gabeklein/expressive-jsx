@@ -22,9 +22,15 @@ for(const type of ["min", "max", ""]){
 
 export function aspectSize(x, y, unit){
   const y2 = Math.abs(y);
+
   if(y2 && y2 < 1)
-    if(y > 0) y = x, x = x * y2;
-    else y = x * y2;
+    if(y <= 0)
+      y = x * y2;
+    else {
+      y = x;
+      x = x * y2;
+    }
+
   return {
     attrs: {
       width: [x, unit],

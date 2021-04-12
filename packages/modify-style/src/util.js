@@ -1,6 +1,5 @@
-export function rect(a, b, c, d){
-  const args = arguments;
-  const { length } = args;
+export function rect(...args){
+  const [ a, b, c ] = args;
   let top, left, right, bottom;
 
   switch(args.length){
@@ -25,8 +24,4 @@ export function rect(a, b, c, d){
   }
 
   return [top, right, bottom, left]
-}
-
-export function pascalToDash(x){
-  return x.replace(/([A-Z]+)/g, "-$1").toLowerCase();
 }

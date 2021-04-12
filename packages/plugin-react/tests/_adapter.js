@@ -1,6 +1,7 @@
 const { expect, test } = require("@jest/globals")
 const { transformAsync } = require("@babel/core");
 const webstyleModifiers = require("@expressive/modify-style")
+const pseudoModifiers = require("@expressive/modify-pseudo")
 const ThisPlugin = require("../src").default;
 
 async function transform(source, opts){
@@ -8,7 +9,10 @@ async function transform(source, opts){
     plugins: [
       [ThisPlugin, {
         hot: false,
-        modifiers: [ webstyleModifiers ],
+        modifiers: [
+          webstyleModifiers,
+          pseudoModifiers
+        ],
         ...opts
       }]
     ]

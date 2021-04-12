@@ -2,6 +2,7 @@ const env = require("@babel/preset-env");
 const transformExpressiveReact = require("../../packages/plugin-react");
 const webstyleModifiers = require("../../packages/modify-style")
 const gradientModifiers = require("../../packages/modify-gradient");
+const pseudoModifiers = require("../../packages/modify-pseudo");
 
 const { 
   TARGET = "jsx"
@@ -25,7 +26,8 @@ module.exports = {
       // styleMode: "inline",
       modifiers: [
         webstyleModifiers,
-        gradientModifiers
+        gradientModifiers,
+        pseudoModifiers
       ]
     }]
   ]

@@ -27,8 +27,8 @@ export function relative(){
   };
 }
 
-function computePosition(a, b = 0, c = b){
-  let keyword;
+function computePosition(...args){
+  const [ a, b = 0, c = b ] = args;
 
   let out = {
     top: b,
@@ -54,14 +54,14 @@ function computePosition(a, b = 0, c = b){
     }
   }
 
-  return position(...arguments)
+  return position(...args)
 }
 
-function position(){
+function position(...args){
   let data = {};
 
   if(typeof a != "number")
-    for(const item of arguments)
+    for(const item of args)
       if(item.named)
         data[item.named] = item.inner[0]
       else {
@@ -70,7 +70,7 @@ function position(){
       }
 
   if(!data){
-    const [ top, right, bottom, left ] = rect(...arguments);
+    const [ top, right, bottom, left ] = rect(...args);
     return { top, right, bottom, left };
   }
 
