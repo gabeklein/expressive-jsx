@@ -33,7 +33,7 @@ export abstract class Define extends AttributeBody {
     const element = new ElementInline(this.context);
 
     element.name = this.name;
-    element.applyModifier(this);
+    element.apply(this);
 
     const info = generateElement(element);
 
@@ -83,7 +83,7 @@ export abstract class Define extends AttributeBody {
     )
   }
 
-  applyModifier(mod: Define){
+  apply(mod: Define){
     this.includes.add(mod);
 
     if(mod instanceof DefineVariant)

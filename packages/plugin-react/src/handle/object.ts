@@ -14,11 +14,11 @@ export abstract class AttributeBody {
   /** Other definitions applicable to this one. */
   includes = new Set<Define>();
 
-  abstract applyModifier(mod: Define): void;
-
   constructor(context: StackFrame){
     context.push(this);
   }
+
+  abstract apply(mod: Define): void;
 
   adopt(child: InnerContent){
     const index = this.children.push(child);

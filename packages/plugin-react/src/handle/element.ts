@@ -20,7 +20,7 @@ export class ElementInline extends AttributeBody {
     return scope.element(info, tagName);
   }
 
-  applyModifier(mod: Define){
+  apply(mod: Define){
     for(const use of [mod, ...mod.includes]){
       this.includes.add(use);
       use.targets.add(this);

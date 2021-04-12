@@ -9,7 +9,7 @@ import type { FileManager } from 'generate/scope';
 import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
 
 type Stackable = { context: StackFrame };
-type Applicable = { applyModifier(mod: Define): void };
+type Applicable = { apply(mod: Define): void };
 
 export class StackFrame {
   modifiersDeclared = new Set<Define>();
@@ -64,7 +64,7 @@ export class StackFrame {
     let modify = this.elementMod(name);
   
     while(modify){
-      to.applyModifier(modify);
+      to.apply(modify);
   
       for(const sub of modify.provides)
         this.elementMod(sub);

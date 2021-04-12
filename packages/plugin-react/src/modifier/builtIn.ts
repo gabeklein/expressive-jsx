@@ -16,7 +16,7 @@ function use(
         target.context.elementMod(item);
 
       if(mod)
-        target.applyModifier(mod);
+        target.apply(mod);
     }
 }
 
