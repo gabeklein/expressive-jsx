@@ -58,10 +58,13 @@ export function addElementFromJSX(
           if(/^\n+ *$/.test(node.value))
             return;
 
-          let text = node.value.replace(/\s+/g, " ");
+          let text = node.value
+            .replace(/ +/g, " ")
+            .replace(/\n\s*/, "");
 
           if(!index)
             text = text.trimLeft();
+
           if(index == children.length - 1)
             text = text.trimRight();
 
@@ -128,8 +131,8 @@ function applyAttribute(
   let value: Expression;
 
   if(t.isJSXSpreadAttribute(attr)){
-    name = false;
     value = attr.argument;
+    name = false;
   }
   else {
     const expression = attr.value;
