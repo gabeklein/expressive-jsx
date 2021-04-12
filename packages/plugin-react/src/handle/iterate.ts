@@ -12,12 +12,9 @@ import {
   returnStatement,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { ElementInline } from 'handle';
+import { DefineElement, ElementInline, Prop } from 'handle';
 import { parse, ParseForLoop } from 'parse';
 import { _call, _get, _objectKeys } from 'syntax';
-
-import { Prop } from './attributes';
-import { DefineElement } from './modifier';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {

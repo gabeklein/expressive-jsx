@@ -1,6 +1,6 @@
 import type { Statement } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { Define } from 'handle/modifier';
+import type { Define } from 'handle/definition';
 import type { InnerContent, SequenceItem } from 'types';
 
 export abstract class AttributeBody {

@@ -7,7 +7,7 @@ import { DelegateTypes } from './arguments';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { Statement } from '@babel/types';
-import type { DefineElement } from 'handle/modifier';
+import type { DefineElement } from 'handle/definition';
 import type { Prop } from 'handle/attributes';
 import type { BunchOf, ModifyBodyPath, ModifyAction, Options } from 'types';
 

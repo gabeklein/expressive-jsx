@@ -7,7 +7,7 @@ import {
   stringLiteral,
   unaryExpression,
 } from '@babel/types';
-import { Define } from 'handle/modifier';
+import { Define } from 'handle/definition';
 import { parse, ParseContent } from 'parse';
 import { ensureArray, hash } from 'shared';
 

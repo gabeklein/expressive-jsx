@@ -1,10 +1,10 @@
 import { ImportManager, RequireManager } from 'generate';
-import { DefineElement } from 'handle/modifier';
+import { DefineElement } from 'handle/definition';
 import { DEFAULTS, hash, Stack } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { Program } from '@babel/types';
-import type { Define , DefineContainer} from 'handle/modifier';
+import type { Define , DefineContainer} from 'handle/definition';
 import type { FileManager } from 'generate/scope';
 import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
 

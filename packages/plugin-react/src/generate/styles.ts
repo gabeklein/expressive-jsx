@@ -4,7 +4,7 @@ import { hash } from 'shared';
 import { _get, _template } from 'syntax';
 
 import type { Expression } from '@babel/types';
-import type { Define } from 'handle/modifier';
+import type { Define } from 'handle/definition';
 import type { StackFrame } from 'context';
 import type { BabelState, BunchOf } from 'types';
 

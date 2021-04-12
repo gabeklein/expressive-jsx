@@ -3,7 +3,7 @@ import { generateElement } from 'generate';
 import { AttributeBody } from './object';
 
 import type { Expression, JSXMemberExpression } from '@babel/types';
-import type { Define } from 'handle/modifier';
+import type { Define } from 'handle/definition';
 
 export class ElementInline extends AttributeBody {
   explicitTagName?: string | JSXMemberExpression;
