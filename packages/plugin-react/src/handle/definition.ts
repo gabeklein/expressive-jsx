@@ -12,7 +12,6 @@ export type DefineAny = DefineElement | DefineConsequent;
 
 export abstract class Define extends AttributeBody {
   next?: Define;
-  selector!: string[];
   onlyWithin?: DefineConsequent;
   
   priority = 1;
@@ -27,6 +26,8 @@ export abstract class Define extends AttributeBody {
   targets = new Set<ElementInline>();
 
   abstract use(define: DefineElement): void;
+
+  abstract get selector(): string[];
 
   toExpression(maybeProps?: boolean){
     const element = new ElementInline(this.context);
@@ -99,10 +100,13 @@ export class DefineElement extends Define {
 
     this.name = name;
     this.context.resolveFor(name);
-    this.selector = [ `.${this.uid}` ];
 
     // if(/^[A-Z]/.test(name))
     //   this.priority = 3;
+  }
+
+  get selector(){
+    return [ `.${this.uid}` ];
   }
 
   use(define: DefineElement){
@@ -127,13 +131,14 @@ export class DefineContainer extends DefineElement {
 export class DefineVariant extends Define {
   constructor(
     private parent: DefineElement,
-    suffix: string,
-    priority: number){
+    private suffix: string,
+    public priority: number){
 
     super(parent.context);
+  }
 
-    this.selector = [`.${parent.uid}${suffix}`];
-    this.priority = priority;
+  get selector(){
+    return [`.${this.parent.uid}${this.suffix}`];
   }
 
   get uid(){

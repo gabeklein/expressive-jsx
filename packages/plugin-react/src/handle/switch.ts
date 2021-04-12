@@ -76,15 +76,9 @@ export class ComponentIf {
 
       const fork = consequent.isIfStatement()
         ? new ComponentIf(consequent, context, test)
-        : new DefineConsequent(
-          consequent,
-          context,
-          forks.length + 1,
-          test
-        )
+        : new DefineConsequent(consequent, context, forks.length, test)
 
-      const index = forks.push(fork);
-      fork.context.resolveFor(index);
+      forks.push(fork);
 
       layer = layer.get("alternate") as Path<Statement>;
 
@@ -93,7 +87,7 @@ export class ComponentIf {
 
       if(layer.type !== "IfStatement"){
         forks.push(
-          new DefineConsequent(layer, context, forks.length + 1)
+          new DefineConsequent(layer, context, forks.length)
         );
   
         break;
@@ -104,44 +98,39 @@ export class ComponentIf {
 
 export class DefineConsequent extends Define {
   anchor: DefineElement;
-  selector: string[];
-  ownSelector: string;
 
   constructor(
     public path: Path<Statement>,
-    public context: StackFrame,
+    context: StackFrame,
     public index: number,
     public test?: Expression){
 
     super(context);
 
-    const uid = hash(context.prefix);
-    const name = specifyOption(test) || `opt${index}`;
-    const selector = `${name}_${uid}`;
+    this.context.resolveFor(index);
 
-    let select;
     let parent = context.currentElement as DefineElement | DefineConsequent;
 
-    if(parent instanceof DefineConsequent){
-      select = [ ...parent.selector || [] ];
+    if(parent instanceof DefineConsequent)
       parent = parent.anchor;
-    }
-    else 
-      select = [ `.${parent.uid}` ];
-
-    if(selector)
-      select.push(`.${selector}`);
 
     this.anchor = parent;
-    this.selector = select;
-    this.ownSelector = selector;
     this.priority = 5;
 
     parse(this, ParseContent, path);
   }
 
+  get selector(): string[] {
+    let parent =
+      this.context.currentElement as DefineElement | DefineConsequent;
+    
+    return [ ...parent.selector, "." + this.uid ];
+  }
+
   get uid(){
-    return this.ownSelector;
+    const uid = hash(this.context.prefix);
+    const name = specifyOption(this.test) || `opt${this.index + 1}`;
+    return `${name}_${uid}`;
   }
 
   toClassName(){
