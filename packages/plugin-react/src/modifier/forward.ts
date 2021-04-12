@@ -1,12 +1,4 @@
-import {
-  identifier,
-  isIdentifier,
-  isObjectPattern,
-  objectPattern,
-  objectProperty,
-  variableDeclaration,
-  variableDeclarator,
-} from '@babel/types';
+import * as t from '@babel/types';
 import { DefineElement, Prop } from 'handle';
 
 import type { NodePath as Path } from '@babel/traverse';
@@ -47,10 +39,10 @@ export function forward(this: ModifyDelegate, ...args: any[]){
   function getFromProps(name: string){
     const id = scope.hasBinding(name)
       ? scope.generateUidIdentifier(name)
-      : identifier(name);
+      : t.identifier(name);
 
     props.properties.push(
-      objectProperty(identifier(name), id, false, id.name == name)
+      t.objectProperty(t.identifier(name), id, false, id.name == name)
     )
     
     return id;
@@ -64,16 +56,16 @@ function getProps(
   const { node } = exec;
   let props = node.params[0];
   
-  if(!isObjectPattern(props)){
+  if(!t.isObjectPattern(props)){
     const existing = props;
-    props = objectPattern([]);
+    props = t.objectPattern([]);
 
     if(!existing)
       node.params[0] = props;
 
-    else if(isIdentifier(existing)){
-      const init = variableDeclaration("const", [
-        variableDeclarator(props, existing)
+    else if(t.isIdentifier(existing)){
+      const init = t.variableDeclaration("const", [
+        t.variableDeclarator(props, existing)
       ]);
 
       target.statements.push(init);

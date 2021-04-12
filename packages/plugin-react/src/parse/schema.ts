@@ -1,4 +1,4 @@
-import { isIdentifier } from '@babel/types';
+import * as t from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ComponentFor, ComponentForX, ComponentIf, Prop } from 'handle';
 import { addElementFromJSX } from 'parse';
@@ -28,7 +28,7 @@ export function ParseContent(
   
       const { left, right } = node;
   
-      if(!isIdentifier(left))
+      if(!t.isIdentifier(left))
         throw Oops.PropNotIdentifier(left)
   
       target.add(new Prop(left.name, right));

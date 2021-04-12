@@ -1,4 +1,4 @@
-import { booleanLiteral, identifier, nullLiteral, numericLiteral, stringLiteral } from '@babel/types';
+import * as t from '@babel/types';
 
 import type { Expression } from '@babel/types';
 import type { FlatValue } from 'types';
@@ -27,18 +27,18 @@ export abstract class Attribute<T extends Expression = Expression> {
   
     switch(typeof value){
       case "string":
-        return stringLiteral(value);
+        return t.stringLiteral(value);
       case "number":
-        return numericLiteral(value);
+        return t.numericLiteral(value);
       case "boolean":
-        return booleanLiteral(value);
+        return t.booleanLiteral(value);
       case "object":
         if(value === null)
-          return nullLiteral();
+          return t.nullLiteral();
         else
           return value;
       default:
-        return identifier("undefined");
+        return t.identifier("undefined");
     }
   }
 }

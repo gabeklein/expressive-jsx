@@ -1,4 +1,4 @@
-import { isIdentifier, isStringLiteral } from '@babel/types';
+import * as t from '@babel/types';
 import { DefineContainer } from 'handle';
 
 import { parse } from './helper';
@@ -60,7 +60,7 @@ function containerName(path: Path): string {
   switch(parent.type){
     case "VariableDeclarator": {
       const { id } = parent.node as VariableDeclarator;
-      return isIdentifier(id)
+      return t.isIdentifier(id)
         ? id.name
         : (<VariableDeclaration>parent.parentPath.node).kind
     }
@@ -68,7 +68,7 @@ function containerName(path: Path): string {
     case "AssignmentExpression":
     case "AssignmentPattern": {
       const { left } = parent.node as AssignmentExpression;
-      return isIdentifier(left) ? left.name : "assignment"
+      return t.isIdentifier(left) ? left.name : "assignment"
     }
 
     case "FunctionDeclaration":
@@ -103,7 +103,7 @@ function containerName(path: Path): string {
       }
 
       if(node.type == "ClassMethod"){
-        if(!isIdentifier(node.key))
+        if(!t.isIdentifier(node.key))
           return "ClassMethod";
         if(node.key.name == "render"){
           const owner = within.parentPath.parentPath as Path<Class>;
@@ -125,8 +125,8 @@ function containerName(path: Path): string {
     case "ObjectProperty": {
       const { key } = parent.node as ObjectProperty;
       return (
-        isIdentifier(key) ? key.name : 
-        isStringLiteral(key) ? key.value : 
+        t.isIdentifier(key) ? key.name : 
+        t.isStringLiteral(key) ? key.value : 
         "property"
       )
     }

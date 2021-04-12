@@ -1,17 +1,4 @@
-import {
-  callExpression,
-  identifier,
-  memberExpression,
-  numericLiteral,
-  objectExpression,
-  objectProperty,
-  stringLiteral,
-  templateElement,
-  templateLiteral,
-  thisExpression,
-  variableDeclaration,
-  variableDeclarator,
-} from '@babel/types';
+import * as t from '@babel/types';
 
 import type { Expression, LVal, MemberExpression } from '@babel/types';
 import type { BunchOf } from 'types';
@@ -24,13 +11,13 @@ export function _object(
   for(const x in obj)
     if(obj[x])
       properties.push(
-        objectProperty(
-          identifier(x),
+        t.objectProperty(
+          t.identifier(x),
           obj[x] as Expression
         )
       )
 
-  return objectExpression(properties);
+  return t.objectExpression(properties);
 }
 
 export function _get(
@@ -38,7 +25,7 @@ export function _get(
   ...path: (string | number)[] ){
 
   if(object == "this")
-    object = thisExpression()
+    object = t.thisExpression()
 
   if(typeof object == "string")
     path = [...object.split("."), ...path]
@@ -48,16 +35,16 @@ export function _get(
 
     if(typeof member == "string"){
       select = /^[A-Za-z0-9$_]+$/.test(member)
-        ? identifier(member)
-        : stringLiteral(member);
+        ? t.identifier(member)
+        : t.stringLiteral(member);
     }
     else if(typeof member == "number")
-      select = numericLiteral(member);
+      select = t.numericLiteral(member);
     else
       throw new Error("Bad member id, only strings and numbers are allowed")
 
     object = typeof object == "object"
-      ? memberExpression(object, select, select!.type !== "Identifier")
+      ? t.memberExpression(object, select, select!.type !== "Identifier")
       : select;
   }
 
@@ -68,17 +55,17 @@ export function _call(
   callee: Expression,
   ...args: Expression[]
 ){
-  return callExpression(callee, args)
+  return t.callExpression(callee, args)
 }
 
 export function _require(from: string){
   const argument = 
     typeof from == "string"
-      ? stringLiteral(from)
+      ? t.stringLiteral(from)
       : from
 
-  return callExpression(
-    identifier("require"), [argument]
+  return t.callExpression(
+    t.identifier("require"), [argument]
   )
 }
 
@@ -88,8 +75,8 @@ export function _declare(
   init?: Expression ){
 
   return (
-    variableDeclaration(type, [
-      variableDeclarator(id, init)
+    t.variableDeclaration(type, [
+      t.variableDeclarator(id, init)
     ])
   )
 }
@@ -97,7 +84,7 @@ export function _declare(
 export function _objectAssign(
   ...objects: Expression[]){
 
-  return callExpression(
+  return t.callExpression(
     _get("Object.assign"),
     objects
   )
@@ -114,8 +101,8 @@ export function _objectKeys(
 
 export function _template(text: string){
   return (
-    templateLiteral([
-      templateElement({ raw: text, cooked: text }, true)
+    t.templateLiteral([
+      t.templateElement({ raw: text, cooked: text }, true)
     ], [])
   )
 }

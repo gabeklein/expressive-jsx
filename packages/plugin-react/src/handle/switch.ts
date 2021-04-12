@@ -1,12 +1,4 @@
-import {
-  conditionalExpression,
-  isBooleanLiteral,
-  isIdentifier,
-  isUnaryExpression,
-  logicalExpression,
-  stringLiteral,
-  unaryExpression,
-} from '@babel/types';
+import * as t from '@babel/types';
 import { Define } from 'handle/definition';
 import { parse, ParseContent } from 'parse';
 import { ensureArray, hash } from 'shared';
@@ -19,10 +11,10 @@ import type { DefineElement } from 'handle';
 type Consequent = ComponentIf | DefineConsequent;
 type GetProduct = (fork: Consequent) => Expression | undefined;
 
-const opt = conditionalExpression;
-const not = (a: Expression) => unaryExpression("!", a);
-const and = (a: Expression, b: Expression) => logicalExpression("&&", a, b);
-const anti = (a: Expression) => isUnaryExpression(a, { operator: "!" }) ? a.argument : not(a);
+const opt = t.conditionalExpression;
+const not = (a: Expression) => t.unaryExpression("!", a);
+const and = (a: Expression, b: Expression) => t.logicalExpression("&&", a, b);
+const anti = (a: Expression) => t.isUnaryExpression(a, { operator: "!" }) ? a.argument : not(a);
 const is = (a: Expression) => not(not(a));
 
 export class ComponentIf {
@@ -45,7 +37,7 @@ export class ComponentIf {
       if(cond instanceof ComponentIf || cond.children.length)
         product = cond.toExpression();
 
-      if(isBooleanLiteral(product, { value: false }))
+      if(t.isBooleanLiteral(product, { value: false }))
         product = undefined;
 
       return product
@@ -61,7 +53,7 @@ export class ComponentIf {
         cond.toClassName();
         
       if(className)
-        return stringLiteral(className);
+        return t.stringLiteral(className);
     });
   }
 
@@ -197,11 +189,11 @@ function specifyOption(test?: Expression){
 
   let ref = "if_";
 
-  if(isUnaryExpression(test, { operator: "!" })){
+  if(t.isUnaryExpression(test, { operator: "!" })){
     test = test.argument;
     ref = "not_"
   }
 
-  if(isIdentifier(test))
+  if(t.isIdentifier(test))
     return ref + test.name;
 }

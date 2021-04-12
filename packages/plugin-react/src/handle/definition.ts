@@ -3,10 +3,10 @@ import { recombineProps } from 'generate/es5';
 import { ElementInline, ExplicitStyle } from 'handle';
 import { AttributeBody } from 'handle/object';
 
-import type { StackFrame } from 'context';
-import type { DefineConsequent } from 'handle/switch';
 import type { NodePath as Path } from '@babel/traverse';
 import type { ArrowFunctionExpression } from '@babel/types';
+import type { StackFrame } from 'context';
+import type { DefineConsequent } from 'handle/switch';
 
 export type DefineAny = DefineElement | DefineConsequent;
 

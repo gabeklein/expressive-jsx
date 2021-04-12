@@ -1,20 +1,4 @@
-import {
-  booleanLiteral,
-  identifier,
-  importDeclaration,
-  importDefaultSpecifier,
-  importSpecifier,
-  isCallExpression,
-  isIdentifier,
-  isImportDeclaration,
-  isImportDefaultSpecifier,
-  isObjectPattern,
-  isStringLiteral,
-  isVariableDeclaration,
-  objectPattern,
-  objectProperty,
-  stringLiteral,
-} from '@babel/types';
+import * as t from '@babel/types';
 import { _declare, _require } from 'syntax';
 
 import { createElement as createJS } from './es5';
@@ -101,7 +85,7 @@ export abstract class FileManager {
       const { children } = src;
 
       if(children.length == 0)
-        return booleanLiteral(false);
+        return t.booleanLiteral(false);
 
       if(children.length > 1)
         return this.fragment(children, key);
@@ -148,7 +132,7 @@ export abstract class FileManager {
   }
 
   ensureUIDIdentifier(name: string){
-    return identifier(this.ensureUID(name));
+    return t.identifier(this.ensureUID(name));
   }
 
   EOF(){
@@ -176,25 +160,25 @@ export class ImportManager extends FileManager {
     const list = this.imports[from] || this.ensureImported(from);
 
     if(name == "default"){
-      if(isImportDefaultSpecifier(list[0]))
+      if(t.isImportDefaultSpecifier(list[0]))
         return list[0].local;
       else {
         uid = this.ensureUIDIdentifier(alt);
-        list.unshift(importDefaultSpecifier(uid));
+        list.unshift(t.importDefaultSpecifier(uid));
         return uid
       }
     }
 
     for(const spec of list)
-      if("imported" in spec && isIdentifier(spec.imported, { name })){
-        uid = identifier(spec.local.name);
+      if("imported" in spec && t.isIdentifier(spec.imported, { name })){
+        uid = t.identifier(spec.local.name);
         break;
       }
 
     if(!uid){
       uid = this.ensureUIDIdentifier(alt || name);
       list.push(
-        importSpecifier(uid, identifier(name))
+        t.importSpecifier(uid, t.identifier(name))
       )
     }
 
@@ -207,7 +191,7 @@ export class ImportManager extends FileManager {
     name = this.replaceAlias(name);
 
     for(const stat of body)
-      if(isImportDeclaration(stat) && stat.source.value == name)
+      if(t.isImportDeclaration(stat) && stat.source.value == name)
         return imports[name] = stat.specifiers;
 
     return imports[name] = [];
@@ -217,7 +201,7 @@ export class ImportManager extends FileManager {
     const list = this.imports[name];
 
     if(list.length)
-      return importDeclaration(list, stringLiteral(name));
+      return t.importDeclaration(list, t.stringLiteral(name));
   }
 }
 
@@ -229,13 +213,13 @@ export class RequireManager extends FileManager {
     const source = this.ensureImported(from);
 
     for(const { key, value } of source)
-      if(isIdentifier(key, { name }) && isIdentifier(value))
+      if(t.isIdentifier(key, { name }) && t.isIdentifier(value))
         return value;
 
     const ref = this.ensureUIDIdentifier(alt);
-    const key = identifier(name);
+    const key = t.identifier(name);
     const useShorthand = ref.name === name;
-    const property = objectProperty(key, ref, false, useShorthand);
+    const property = t.objectProperty(key, ref, false, useShorthand);
 
     source.push(property)
 
@@ -254,15 +238,15 @@ export class RequireManager extends FileManager {
     let list;
 
     for(let i = 0, stat; stat = body[i]; i++)
-      if(isVariableDeclaration(stat))
+      if(t.isVariableDeclaration(stat))
         target = requireResultFrom(name, stat);
 
-    if(target && isObjectPattern(target))
+    if(target && t.isObjectPattern(target))
       list = imports[name] = target.properties as ObjectProperty[];
     else {
       list = imports[name] = [];
 
-      if(isIdentifier(target))
+      if(t.isIdentifier(target))
         importTargets[name] = target;
     }
 
@@ -274,7 +258,7 @@ export class RequireManager extends FileManager {
 
     if(list.length){
       const target = this.importTargets[name] || _require(name);
-      return _declare("const", objectPattern(list), target);
+      return _declare("const", t.objectPattern(list), target);
     }
   }
 }
@@ -284,8 +268,8 @@ function requireResultFrom(
   statement: VariableDeclaration){
 
   for(const { init, id } of statement.declarations)
-    if(isCallExpression(init)
-    && isIdentifier(init.callee, { name: "require" })
-    && isStringLiteral(init.arguments[0], { value: name }))
+    if(t.isCallExpression(init)
+    && t.isIdentifier(init.callee, { name: "require" })
+    && t.isStringLiteral(init.arguments[0], { value: name }))
       return id;
 }

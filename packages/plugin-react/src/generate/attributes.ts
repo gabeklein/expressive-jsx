@@ -1,7 +1,7 @@
-import { objectExpression, objectProperty, spreadElement, stringLiteral } from '@babel/types';
+import * as t from '@babel/types';
 import { ExplicitStyle } from 'handle/attributes';
 
-import type { ObjectProperty, SpreadElement} from '@babel/types';
+import type { ObjectProperty, SpreadElement } from '@babel/types';
 
 export class ArrayStack<T = any, I = T>
   extends Array<T[] | I> {
@@ -55,16 +55,16 @@ export class AttributeStack
 
       for(const item of this)
         if(item instanceof ExplicitStyle)
-          chunks.push(spreadElement(item.expression))
+          chunks.push(t.spreadElement(item.expression))
         else
           chunks.push(...item.map(style =>
-            objectProperty(
-              stringLiteral(style.name!),
+            t.objectProperty(
+              t.stringLiteral(style.name!),
               style.expression
             )
           ));
 
-      return objectExpression(chunks)
+      return t.objectExpression(chunks)
     }
   }
 }

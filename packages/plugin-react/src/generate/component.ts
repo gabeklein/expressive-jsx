@@ -1,4 +1,4 @@
-import { blockStatement, returnStatement } from '@babel/types';
+import * as t from '@babel/types';
 import { generateEntryElement } from 'parse';
 
 import type { NodePath as Path } from '@babel/traverse';
@@ -18,13 +18,13 @@ export function replaceDoExpression(
   if(element.exec && statements.length){
     const body = [
       ...statements,
-      returnStatement(output)
+      t.returnStatement(output)
     ];
 
     if(path.parentPath.isReturnStatement())
       path.parentPath.replaceWithMultiple(body)
     else
-      path.replaceWith(blockStatement(body))
+      path.replaceWith(t.blockStatement(body))
   }
   else
     path.replaceWith(output);

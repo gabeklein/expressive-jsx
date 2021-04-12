@@ -1,13 +1,4 @@
-import {
-  booleanLiteral,
-  callExpression,
-  identifier,
-  isExpression,
-  memberExpression,
-  objectExpression,
-  objectProperty,
-  stringLiteral,
-} from '@babel/types';
+import * as t from '@babel/types';
 import { ArrayStack } from 'generate';
 import { _object, _objectAssign } from 'syntax';
 
@@ -40,8 +31,8 @@ export function createElement(
   const type =
     typeof tag === "string" ?
       /^[A-Z]/.test(tag) ?
-        identifier(tag) :
-        stringLiteral(tag) :
+        t.identifier(tag) :
+        t.stringLiteral(tag) :
       stripJSX(tag);
 
   const props = recombineProps(properties);
@@ -49,12 +40,12 @@ export function createElement(
 
   for(let child of content)
     children.push(
-      isExpression(child) ?
+      t.isExpression(child) ?
         child :
-      booleanLiteral(false)
+      t.booleanLiteral(false)
     )
 
-  return callExpression(create, [type, props, ...children]);
+  return t.callExpression(create, [type, props, ...children]);
 }
 
 export function recombineProps(props: PropData[]){
@@ -68,15 +59,15 @@ export function recombineProps(props: PropData[]){
       propStack.push(value);
     else
       propStack.insert(
-        objectProperty(
-          stringLiteral(name),
+        t.objectProperty(
+          t.stringLiteral(name),
           value
         )
       );
 
   const properties = propStack.map(chunk =>
     Array.isArray(chunk)
-      ? objectExpression(chunk)
+      ? t.objectExpression(chunk)
       : chunk
   )
 
@@ -96,9 +87,9 @@ function stripJSX(
     case "Identifier":
       return exp;
     case "JSXIdentifier":
-      return identifier(exp.name);
+      return t.identifier(exp.name);
     case "JSXMemberExpression":
-      return memberExpression(
+      return t.memberExpression(
         stripJSX(exp.object),
         stripJSX(exp.property)
       );

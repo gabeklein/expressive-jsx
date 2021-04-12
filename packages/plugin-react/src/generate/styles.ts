@@ -1,4 +1,4 @@
-import { callExpression, expressionStatement, stringLiteral } from '@babel/types';
+import * as t from '@babel/types';
 import { ExplicitStyle } from 'handle';
 import { hash } from 'shared';
 import { _get, _template } from 'syntax';
@@ -21,10 +21,10 @@ export function printStyles(state: BabelState<StackFrame>){
   const args: Expression[] = [ _template(styles) ];
 
   if(fileId)
-    args.push(stringLiteral(fileId));
+    args.push(t.stringLiteral(fileId));
 
-  return expressionStatement(
-    callExpression(
+  return t.expressionStatement(
+    t.callExpression(
       _get(runtime, "include"), args
     )
   );

@@ -1,12 +1,4 @@
-import {
-  isBlockStatement,
-  isExpression,
-  isExpressionStatement,
-  isIdentifier,
-  isLabeledStatement,
-  isNumericLiteral,
-  isSpreadElement,
-} from '@babel/types';
+import * as t from '@babel/types';
 import { ParseErrors } from 'errors';
 import { inParenthesis } from 'shared';
 
@@ -46,11 +38,11 @@ export class DelegateTypes {
   [type: string]: (...args: any[]) => any;
 
   parse(element: Expression | Statement): any[] {
-    if(isExpressionStatement(element))
+    if(t.isExpressionStatement(element))
       element = element.expression
 
     return [].concat(
-      isExpression(element)
+      t.isExpression(element)
         ? this.Expression(element)
         : this.Extract(element)
     )
@@ -93,9 +85,9 @@ export class DelegateTypes {
 
   UnaryExpression(e: UnaryExpression){
     const arg = e.argument;
-    if(e.operator == "-" && isNumericLiteral(arg))
+    if(e.operator == "-" && t.isNumericLiteral(arg))
       return this.NumericLiteral(arg, -1)
-    if(e.operator == "!" && isIdentifier(arg) && arg.name == "important")
+    if(e.operator == "!" && t.isIdentifier(arg) && arg.name == "important")
       return "!important";
     // else if(e.operator == "!")
     //     return new DelegateExpression(arg, "verbatim");
@@ -148,15 +140,15 @@ export class DelegateTypes {
     const args = [] as Expression[];
 
     for(const item of e.arguments){
-      if(isExpression(item))
+      if(t.isExpression(item))
         args.push(item);
-      else if(isSpreadElement(item))
+      else if(t.isSpreadElement(item))
         throw Oops.ArgumentSpread(item)
       else
         throw Oops.UnknownArgument(item)
     }
 
-    if(!isIdentifier(callee))
+    if(!t.isIdentifier(callee))
       throw Oops.MustBeIdentifier(callee)
 
     const call = args.map(x => this.Expression(x)) as CallAbstraction;
@@ -181,9 +173,9 @@ export class DelegateTypes {
     if(alt)
       throw Oops.ElseNotSupported(test);
 
-    if(isBlockStatement(body)
-    || isLabeledStatement(body)
-    || isExpressionStatement(body)) {
+    if(t.isBlockStatement(body)
+    || t.isLabeledStatement(body)
+    || t.isExpressionStatement(body)) {
       Object.assign(data, this.Extract(body))
     }
 
@@ -200,7 +192,7 @@ export class DelegateTypes {
     const map = {} as BunchOf<any>
 
     for(const item of statement.body){
-      if(!isLabeledStatement(item))
+      if(!t.isLabeledStatement(item))
         throw Oops.ModiferCantParse(statement);
 
       map[item.label.name] = this.parse(item.body)

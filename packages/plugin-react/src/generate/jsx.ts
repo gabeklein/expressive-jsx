@@ -1,16 +1,4 @@
-import {
-  isExpression,
-  isJSXElement,
-  isStringLiteral,
-  jsxAttribute,
-  jsxClosingElement,
-  jsxElement,
-  jsxExpressionContainer,
-  jsxIdentifier,
-  jsxOpeningElement,
-  jsxSpreadAttribute,
-  jsxText,
-} from '@babel/types';
+import * as t from '@babel/types';
 import { IsLegalAttribute } from 'types';
 
 import type { JSXElement, JSXMemberExpression, Expression } from '@babel/types';
@@ -32,18 +20,18 @@ export function createElement(
   if(!tag)
     tag = Scope.ensure("$pragma", "Fragment").name;
 
-  const type = typeof tag == "string" ? jsxIdentifier(tag) : tag;
+  const type = typeof tag == "string" ? t.jsxIdentifier(tag) : tag;
   const props = properties.map(createAttribute);
   const children = [] as JSXContent[];
 
   for(let child of content)
     children.push(
-      isJSXElement(child) ?
+      t.isJSXElement(child) ?
         child :
-      isStringLiteral(child) && !/\{/.test(child.value) ?
-        jsxText(child.value) :
-      isExpression(child) ?
-        jsxExpressionContainer(child) :
+      t.isStringLiteral(child) && !/\{/.test(child.value) ?
+        t.jsxText(child.value) :
+      t.isExpression(child) ?
+        t.jsxExpressionContainer(child) :
       child
     )
 
@@ -51,27 +39,27 @@ export function createElement(
 
   const contains = children.length > 0;
 
-  return jsxElement(
-    jsxOpeningElement(type, props, !contains),
-    contains ? jsxClosingElement(type) : undefined,
+  return t.jsxElement(
+    t.jsxOpeningElement(type, props, !contains),
+    contains ? t.jsxClosingElement(type) : undefined,
     children
   );
 }
 
 function createAttribute({ name, value }: PropData){
   if(typeof name !== "string")
-    return jsxSpreadAttribute(value);
+    return t.jsxSpreadAttribute(value);
 
   if(IsLegalAttribute.test(name) == false)
     throw new Error(`Illegal characters in prop named ${name}`)
 
   const insertedValue =
-    isStringLiteral(value)
+    t.isStringLiteral(value)
       ? value.value === "true" ? null : value
-      : jsxExpressionContainer(value)
+      : t.jsxExpressionContainer(value)
 
-  return jsxAttribute(
-    jsxIdentifier(name),
+  return t.jsxAttribute(
+    t.jsxIdentifier(name),
     insertedValue
   )
 }

@@ -1,4 +1,4 @@
-import { callExpression, isExpression, isStringLiteral, stringLiteral } from '@babel/types';
+import * as t from '@babel/types';
 import { AttributeStack } from 'generate';
 import { ComponentIf, DefineElement, DefineVariant, ExplicitStyle, Prop } from 'handle';
 
@@ -67,7 +67,7 @@ export function generateElement(element: ElementInline){
     else if("toExpression" in item)
       children.push(item.toExpression())
 
-    else if(isExpression(item))
+    else if(t.isExpression(item))
       children.push(item);
   }
 
@@ -85,9 +85,9 @@ export function generateElement(element: ElementInline){
       let { value } = item;
 
       if(value && typeof value == "object")
-        if(isStringLiteral(value))
+        if(t.isStringLiteral(value))
           ({ value } = value);
-        else if(isExpression(value)){
+        else if(t.isExpression(value)){
           classList.add(value);
           return;
         }
@@ -177,12 +177,12 @@ function classValue(
 
   if(className)
     selectors.unshift(
-      stringLiteral(className.slice(1))
+      t.stringLiteral(className.slice(1))
     )
 
   if(selectors.length > 1){
     const join = Scope.ensure("$runtime", "join");
-    return callExpression(join, selectors)
+    return t.callExpression(join, selectors)
   }
   
   return selectors[0];

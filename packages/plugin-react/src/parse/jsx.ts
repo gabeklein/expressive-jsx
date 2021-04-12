@@ -1,4 +1,4 @@
-import { isJSXIdentifier, isJSXMemberExpression, isJSXSpreadAttribute, stringLiteral } from '@babel/types';
+import * as t from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ElementInline, Prop } from 'handle';
 
@@ -33,7 +33,7 @@ export function addElementFromJSX(
 
   let target = parent as Element;
 
-  if(!isJSXIdentifier(node.openingElement.name, { name: "this" }))
+  if(!t.isJSXIdentifier(node.openingElement.name, { name: "this" }))
     target = createElement(node, target);
 
   const queue = [[target, node] as const];
@@ -65,7 +65,7 @@ export function addElementFromJSX(
           if(index == children.length - 1)
             text = text.trimRight();
 
-          element.adopt(stringLiteral(text));
+          element.adopt(t.stringLiteral(text));
         break;
     
         case "JSXExpressionContainer":
@@ -87,11 +87,11 @@ function createElement(
   const tag = element.openingElement.name;
   let name;
 
-  if(isJSXMemberExpression(tag)){
+  if(t.isJSXMemberExpression(tag)){
     name = tag.property.name;
     target.explicitTagName = tag;
   }
-  else if(isJSXIdentifier(tag)){
+  else if(t.isJSXIdentifier(tag)){
     name = tag.name;
 
     if(name == "s")
@@ -127,7 +127,7 @@ function applyAttribute(
   let name: string | false;
   let value: Expression;
 
-  if(isJSXSpreadAttribute(attr)){
+  if(t.isJSXSpreadAttribute(attr)){
     name = false;
     value = attr.argument;
   }
