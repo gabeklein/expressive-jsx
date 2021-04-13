@@ -7,7 +7,6 @@
 	],
 	"description": "An alternative syntax for powerful react constructs using less code",
 	"scripts": {
-		"postinstall": "yarn --cwd tests install",
 		"watch": "yarn workspace @expressive/babel-plugin-react run watch",
 		"clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +"
 	},

@@ -1,0 +1,21 @@
+{
+  "name": "@expressive/test-env",
+  "version": "1.0.0-beta.54",
+  "description": "Developer testing environment",
+  "private": true,
+  "main": "bin/debug.js",
+  "dependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@expressive/babel-plugin-react": "1.0.0-beta.54",
+    "@expressive/modify-gradient": "1.0.0-beta.52",
+    "@expressive/modify-pseudo": "1.0.0-beta.53",
+    "@expressive/modify-style": "1.0.0-beta.52",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-prettier": "^2.0.0",
+    "gulp-replace": "^1.0.0",
+    "prettyjson": "^1.2.1",
+    "source-map-support": "^0.5.10"
+  }
+}

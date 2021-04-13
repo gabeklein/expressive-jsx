@@ -18,35 +18,25 @@
       "type": "node",
       "request": "launch",
       "name": "XJS -> JSX",
-      "program": "${workspaceFolder}/tests/bin/debug.js",
-      "cwd": "${workspaceRoot}/tests",
+      "program": "${workspaceFolder}/packages/test-env/bin/debug.js",
+      "cwd": "${workspaceRoot}/packages/test-env",
       "protocol": "inspector",
       "sourceMaps": true,
-      "env": {
-        "TARGET": "jsx"
-      },
+      "env": { "TARGET": "jsx" },
       "envFile": "${workspaceRoot}/tests/.env",
-      "runtimeArgs": [
-        "-r",
-        "source-map-support/register"
-      ]
+      "runtimeArgs": ["-r", "source-map-support/register"]
     },
     {
       "type": "node",
       "request": "launch",
       "name": "XJS -> JS",
-      "program": "${workspaceFolder}/tests/bin/debug.js",
-      "cwd": "${workspaceRoot}/tests",
+      "program": "${workspaceFolder}/packages/test-env/bin/debug.js",
+      "cwd": "${workspaceRoot}/packages/test-env",
       "protocol": "inspector",
       "sourceMaps": true,
-      "env": {
-        "TARGET": "js"
-      },
+      "env": { "TARGET": "js" },
       "envFile": "${workspaceRoot}/tests/.env",
-      "runtimeArgs": [
-        "-r",
-        "source-map-support/register"
-      ]
+      "runtimeArgs": ["-r", "source-map-support/register"]
     },
   ],
   "inputs": [

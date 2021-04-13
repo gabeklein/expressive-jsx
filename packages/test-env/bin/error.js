@@ -1,6 +1,6 @@
 const isStackTrace = /\s*at/;
 const breakdownTrace = /at (.+) \(.+packages\/plugin-(.+):(\d+):(\d+)/;
-const isCodeFrame = /\s*[>0-9]/;
+// const isCodeFrame = /\s*[>0-9]/;
 
 module.exports = function onFault(e){
   let [error, ...trace] = e.stack.split("\n");
@@ -45,7 +45,7 @@ module.exports = function onFault(e){
       if(!location)
         continue;
 
-      const [, scope, file, ln, column] = location;
+      const [, scope, file, ln] = location;
       const spacing = Array(marginMax - line.indexOf("(/")).fill(" ").join("");
       const relative = file.replace(/\/src/, "");
       

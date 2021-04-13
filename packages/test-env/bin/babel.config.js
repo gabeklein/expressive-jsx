@@ -1,8 +1,9 @@
 const env = require("@babel/preset-env");
-const transformExpressiveReact = require("../../packages/plugin-react");
-const webstyleModifiers = require("../../packages/modify-style")
-const gradientModifiers = require("../../packages/modify-gradient");
-const pseudoModifiers = require("../../packages/modify-pseudo");
+
+const BabelPluginReact = require("@expressive/babel-plugin-react");
+const webstyleModifiers = require("@expressive/modify-style");
+const pseudoModifiers = require("@expressive/modify-pseudo");
+const gradientModifiers = require("@expressive/modify-gradient");
 
 const { 
   TARGET = "jsx"
@@ -18,7 +19,7 @@ module.exports = {
     }]
   ],
   plugins: [
-    [transformExpressiveReact, {
+    [BabelPluginReact, {
       hot: false, 
       output: TARGET,
       useImport: true, 

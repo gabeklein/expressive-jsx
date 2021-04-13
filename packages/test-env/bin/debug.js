@@ -4,14 +4,10 @@ const replace = require('gulp-replace');
 const prettier = require("gulp-prettier");
 const prettyjson = require("prettyjson")
 
-const printError = require("./error")
+// const printError = require("./error")
 const babelrc = require("./babel.config")
 
-let {
-  TEST_INPUT,
-  TEST_OUTPUT,
-  TEST_DEFAULT
-} = process.env;
+let { TEST_INPUT, TEST_OUTPUT, TEST_DEFAULT } = process.env;
 
 if(TEST_DEFAULT == "false")
   TEST_DEFAULT = false;
