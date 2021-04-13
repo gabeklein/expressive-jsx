@@ -28,23 +28,15 @@
     "prebuild": "rm -rf lib",
     "prepare": "yarn build"
   },
+  "dependencies": {
+    "@babel/types": "7.10.3"
+  },
   "devDependencies": {
-    "@babel/core": "^7.10.3",
-    "@expressive/modify-pseudo": "^1.0.0-beta.53",
-    "@expressive/modify-style": "^1.0.0-beta.52",
-    "@jest/globals": "^26.4.2",
     "@types/babel__traverse": "^7.11.0",
-    "@types/jest": "^26.0.10",
     "@types/node": "^11.13.4",
-    "jest": "^26.4.2",
     "rollup": "^1.10.0",
     "rollup-plugin-commonjs": "^9.3.4",
     "rollup-plugin-typescript2": "^0.20.1",
-    "ts-jest": "^26.2.0",
     "typescript": "3.8.3"
-  },
-  "dependencies": {
-    "@babel/template": "^7.10.3",
-    "@babel/types": "7.10.3"
   }
 }

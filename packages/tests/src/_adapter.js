@@ -1,13 +1,14 @@
-const { expect, test } = require("@jest/globals")
-const { transformAsync } = require("@babel/core");
+const BabelPluginReact = require("@expressive/babel-plugin-react");
 const webstyleModifiers = require("@expressive/modify-style")
 const pseudoModifiers = require("@expressive/modify-pseudo")
-const ThisPlugin = require("../src").default;
+
+const { expect, test } = require("@jest/globals")
+const { transformAsync } = require("@babel/core");
 
 async function transform(source, opts){
   const result = await transformAsync(source, {
     plugins: [
-      [ThisPlugin, {
+      [BabelPluginReact, {
         hot: false,
         externals: false,
         modifiers: [
@@ -22,7 +23,7 @@ async function transform(source, opts){
   return result && result.code;
 }
 
-function compiles(name, code){
+function run(name, code){
   test(name, async () => {
     const [ jsx, js ] = await Promise.all([
       transform(code, { output: "jsx" }),
@@ -34,4 +35,4 @@ function compiles(name, code){
   })
 }
 
-module.exports = compiles;
+module.exports = run;

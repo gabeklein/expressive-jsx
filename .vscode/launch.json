@@ -9,7 +9,7 @@
       "request": "launch",
       "name": "Jest Tests",
       "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
-      "cwd": "${workspaceFolder}/packages/plugin-react",
+      "cwd": "${workspaceFolder}/packages/tests",
       "args": ["--watchAll", "--runInBand", "--config=jest.config.js", "${input:testName}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
