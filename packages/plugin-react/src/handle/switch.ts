@@ -15,7 +15,7 @@ const opt = t.conditionalExpression;
 const not = (a: Expression) => t.unaryExpression("!", a);
 const and = (a: Expression, b: Expression) => t.logicalExpression("&&", a, b);
 const anti = (a: Expression) => t.isUnaryExpression(a, { operator: "!" }) ? a.argument : not(a);
-const is = (a: Expression) => not(not(a));
+const is = (a: Expression) => t.isUnaryExpression(a, { operator: "!" }) ? a : not(not(a));
 
 export class ComponentIf {
   context!: StackFrame;
