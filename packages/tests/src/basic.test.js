@@ -14,3 +14,16 @@ test("multiple", `
     </this>
   }
 `);
+
+test("statement pass-thru", `
+  () => do {
+    const [x, setX] = useState();
+
+    useEffect(() => {
+      void x;
+      setX();
+    }, []);
+    
+    <div />
+  }
+`)
