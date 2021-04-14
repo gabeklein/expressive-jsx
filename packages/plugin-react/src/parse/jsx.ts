@@ -1,15 +1,21 @@
 import * as t from '@babel/types';
 import { ParseErrors } from 'errors';
-import { ElementInline, Prop } from 'handle';
+import { DefineElement, ElementInline, Prop } from 'handle';
+
+import { parse } from './helper';
+import { ParseContent } from './schema';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {
   Expression,
   JSXAttribute,
   JSXElement,
+  JSXIdentifier,
+  JSXMemberExpression,
+  JSXNamespacedName,
   JSXSpreadAttribute
 } from '@babel/types';
-import type { DefineElement, Define } from 'handle';
+import type { Define } from 'handle';
 
 export type Element = ElementInline | Define;
 
@@ -29,65 +35,64 @@ const COMMON_HTML = [
 ];
 
 export function addElementFromJSX(
-  { node }: Path<JSXElement>, parent: DefineElement){
+  path: Path<JSXElement>, parent: DefineElement){
 
   let target = parent as Element;
+  const tag = path.get("openingElement").get("name");
 
-  if(!t.isJSXIdentifier(node.openingElement.name, { name: "this" }))
-    target = createElement(node, target);
+  if(!tag.isJSXIdentifier({ name: "this" }))
+    target = createElement(tag.node, target);
 
-  const queue = [[target, node] as const];
+  const queue = [[target, path] as const];
 
-  for(const [element, node] of queue){
-    const { children } = node;
-    const { attributes } = node.openingElement;
+  for(const [element, path] of queue){
+    const children = path.get("children");
+    const attributes = path.get("openingElement").get("attributes");
 
     for(const attribute of attributes)
-      applyAttribute(element, attribute);
+      applyAttribute(element, attribute as any);
 
-    children.forEach((node, index) => {
-      switch(node.type){
-        case "JSXElement":
-          queue.push([
-            createElement(node, element),
-            node
-          ]);
-        break;
-
-        case "JSXText":
-          if(/^\n+ *$/.test(node.value))
-            return;
-
-          let text = node.value
-            .replace(/ +/g, " ")
-            .replace(/\n\s*/, "");
-
-          if(!index)
-            text = text.trimLeft();
-
-          if(index == children.length - 1)
-            text = text.trimRight();
-
-          element.adopt(t.stringLiteral(text));
-        break;
-    
-        case "JSXExpressionContainer":
-          element.adopt(node.expression as Expression);
-        break;
-    
-        default:
-          throw Oops.UnhandledChild(node, node.type);
+    children.forEach((path, index) => {
+      if(path.isJSXElement()){
+        queue.push([
+          createElement(path.node.openingElement.name, element),
+          path
+        ]);
       }
+
+      else if(path.isJSXText()){
+        const { value } = path.node;
+
+        if(/^\n+ *$/.test(value))
+          return;
+
+        let text = value
+          .replace(/ +/g, " ")
+          .replace(/\n\s*/, "");
+
+        if(!index)
+          text = text.trimLeft();
+
+        if(index == children.length - 1)
+          text = text.trimRight();
+
+        element.adopt(t.stringLiteral(text));
+      }
+
+      else if(path.isJSXExpressionContainer())
+        element.adopt(path.node.expression as Expression);
+
+      else
+        Oops.UnhandledChild(path, path.type);
     })
   }
 }
 
 function createElement(
-  element: JSXElement,
+  tag: JSXIdentifier | JSXMemberExpression | JSXNamespacedName,
   parent: Element){
 
   const target = new ElementInline(parent.context);
-  const tag = element.openingElement.name;
   let name;
 
   if(t.isJSXMemberExpression(tag)){
@@ -125,18 +130,27 @@ function createElement(
 
 function applyAttribute(
   parent: Element,
-  attr: JSXAttribute | JSXSpreadAttribute){
+  attr: Path<JSXAttribute> | Path<JSXSpreadAttribute>){
 
   let name: string | false;
-  let value: Expression;
+  let value: Expression | undefined;
 
-  if(t.isJSXSpreadAttribute(attr)){
-    value = attr.argument;
+  if(attr.isJSXSpreadAttribute()){
+    const arg = attr.get("argument");
+
+    if(arg.isDoExpression()){
+      const define = new DefineElement(parent.context, parent.name!);
+      parent.use(define);
+      parse(define, ParseContent, arg, "body");
+      return;
+    }
+
     name = false;
+    value = arg.node;
   }
   else {
-    const expression = attr.value;
-    name = attr.name.name as string;
+    const expression = attr.node.value;
+    name = attr.node.name.name as string;
 
     if(expression === null){
       parent.uses(name);
@@ -158,6 +172,6 @@ function applyAttribute(
   }
 
   parent.add(
-    new Prop(name, value)
+    new Prop(name, value || null)
   );
 }

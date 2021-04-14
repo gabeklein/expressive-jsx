@@ -17,3 +17,25 @@ Styles.include(\`
 	.props_4o0 { color: red }
 \`);"
 `;
+
+exports[`pass SpreadElement-do to element 1`] = `
+"({
+  active
+}) => create(\\"div\\", {
+  \\"className\\": \\"foo_754\\"
+});
+
+Styles.include(\`
+	.foo_754 { background: blue; color: red }
+\`);"
+`;
+
+exports[`pass SpreadElement-do to element 2`] = `
+"({
+  active
+}) => <div className=\\"foo_754\\" />;
+
+Styles.include(\`
+	.foo_754 { background: blue; color: red }
+\`);"
+`;

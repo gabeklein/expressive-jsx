@@ -5,3 +5,15 @@ test("collapse style-only expression", `
     color: red;
   }
 `);
+
+test("pass SpreadElement-do to element", `
+  ({ active }) => do {
+    foo: {
+      background: blue;
+    }
+    
+    <foo {...do {
+      color: red;
+    }} />
+  }
+`)
