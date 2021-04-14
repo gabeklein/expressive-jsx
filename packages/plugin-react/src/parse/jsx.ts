@@ -2,8 +2,7 @@ import * as t from '@babel/types';
 import { ParseErrors } from 'errors';
 import { DefineElement, ElementInline, Prop } from 'handle';
 
-import { parse } from './helper';
-import { ParseContent } from './schema';
+import { parse } from './body';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {
@@ -141,7 +140,7 @@ function applyAttribute(
     if(arg.isDoExpression()){
       const define = new DefineElement(parent.context, parent.name!);
       parent.use(define);
-      parse(define, ParseContent, arg, "body");
+      parse(define, arg, "body");
       return;
     }
 

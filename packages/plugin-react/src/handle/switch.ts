@@ -1,6 +1,6 @@
 import * as t from '@babel/types';
 import { Define } from 'handle/definition';
-import { parse, ParseContent } from 'parse';
+import { parse } from 'parse';
 import { ensureArray, hash } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
@@ -117,7 +117,7 @@ export class DefineConsequent extends Define {
     this.anchor = parent;
     this.priority = 5;
 
-    parse(this, ParseContent, path);
+    parse(this, path);
   }
 
   get selector(): string[] {

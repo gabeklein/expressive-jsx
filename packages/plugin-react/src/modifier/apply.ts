@@ -1,6 +1,6 @@
 import { ParseErrors } from 'errors';
 import { DefineElement } from 'handle';
-import { parse, ParseContent } from 'parse';
+import { parse } from 'parse';
 
 import { ModifyDelegate } from './delegate';
 
@@ -85,7 +85,7 @@ export function handleTopLevelDefine(
 
   const define = new DefineElement(context, name);
 
-  parse(define, ParseContent, body);
+  parse(define, body);
 
   context.elementMod(define);
 }

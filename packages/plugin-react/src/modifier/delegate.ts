@@ -1,5 +1,5 @@
 import { DefineVariant, ExplicitStyle } from 'handle';
-import { parse, ParseContent } from 'parse';
+import { parse } from 'parse';
 import { _require } from 'syntax';
 import { ParseErrors } from 'errors';
 
@@ -92,7 +92,7 @@ export class ModifyDelegate {
       this.target, contingent, priority
     );
     
-    parse(mod as any, ParseContent, body);
+    parse(mod, body);
 
     this.target.use(mod);
 

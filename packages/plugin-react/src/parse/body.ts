@@ -2,12 +2,15 @@ import * as t from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ComponentFor, ComponentForX, ComponentIf, Prop } from 'handle';
 import { addElementFromJSX } from 'parse';
-import { parseDefineBlock } from "./labels";
+import { ensureArray } from 'shared';
+
+import { parseDefineBlock } from './labels';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { Define } from 'handle';
 
 const Oops = ParseErrors({
+  BadInputModifier: "Modifier input of type {1} not supported here!",
   IfStatementCannotContinue: "Previous consequent already returned, cannot integrate another clause.",
   AssignmentNotEquals: "Only `=` assignment may be used here.",
   ExpressionUnknown: "Unhandled expressionary statement of type {1}",
@@ -15,7 +18,30 @@ const Oops = ParseErrors({
   PropNotIdentifier: "Assignment must be identifier name of a prop."
 })
 
-export function ParseContent(
+export function parse(
+  target: Define,
+  ast: Path<any>,
+  key?: string){
+
+  if(key)
+    ast = ast.get(key) as any;
+
+  const content = ast.isBlockStatement()
+    ? ensureArray(ast.get("body"))
+    : [ast];
+  
+  for(let item of content){
+    if(item.isExpressionStatement())
+      item = item.get("expression") as any;
+
+    if(parseContent(target, item))
+      continue;
+
+    throw Oops.NodeUnknown(item as any, item.type);
+  }
+}
+
+export function parseContent(
   target: Define, path: Path<any>){
 
   switch(path.type){

@@ -1,7 +1,7 @@
 import { ParseErrors } from 'errors';
 import { DefineElement } from 'handle';
 import { applyDirective } from 'modifier/apply';
-import { parse, ParseContent } from 'parse';
+import { parse } from 'parse';
 
 import type { NodePath as Path } from "@babel/traverse";
 import type { LabeledStatement, Statement } from "@babel/types";
@@ -29,7 +29,7 @@ export function parseDefineBlock(
 
   else if(body.isBlockStatement() || body.isLabeledStatement()){
     const mod = new DefineElement(target.context, name);
-    parse(mod, ParseContent, body);
+    parse(mod, body);
     target.provide(mod);
   }
 

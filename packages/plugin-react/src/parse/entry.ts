@@ -1,8 +1,7 @@
 import * as t from '@babel/types';
 import { DefineContainer } from 'handle';
 
-import { parse } from './helper';
-import { ParseContent } from './schema';
+import { parse } from './body';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {
@@ -44,7 +43,7 @@ export function generateEntryElement(
   define.context.currentComponent = define;
   define.exec = containerFn;
 
-  parse(define, ParseContent, path.get("body"));
+  parse(define, path.get("body"));
 
   if(/^[A-Z]/.test(name))
     define.uses(name);

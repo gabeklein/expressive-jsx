@@ -13,7 +13,7 @@ import {
 } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { DefineElement, ElementInline, Prop } from 'handle';
-import { parse, ParseContent } from 'parse';
+import { parse } from 'parse';
 import { _call, _get, _objectKeys } from 'syntax';
 
 import type { NodePath as Path } from '@babel/traverse';
@@ -34,15 +34,6 @@ const Oops = ParseErrors({
   PropsNotAllowed: "For block cannot accept prop assignments"
 });
 
-function ParseForLoop(
-  target: DefineElement, path: Path<any>){
-
-  if(path.isAssignmentExpression())
-    throw Oops.PropsNotAllowed(path);
-  else
-    return ParseContent(target, path);
-}
-
 export class ComponentFor {
   context!: StackFrame;
   definition: DefineElement;
@@ -52,7 +43,7 @@ export class ComponentFor {
     parent: DefineElement){
 
     const element = new DefineElement(parent.context, "forLoop");
-    parse(element, ParseForLoop, path, "body");
+    parse(element, path, "body");
 
     this.definition = element;
 
@@ -99,7 +90,7 @@ export class ComponentForX {
     const element = this.definition =
       new DefineElement(parent.context, name);
 
-    parse(element, ParseForLoop, path, "body");
+    parse(element, path, "body");
 
     parent.context.push(this);
     parent.adopt(this);
