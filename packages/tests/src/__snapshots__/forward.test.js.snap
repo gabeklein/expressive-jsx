@@ -1,51 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`forward children & className 1`] = `
-"({
-  children,
-  className
-}) => create(\\"div\\", {
-  \\"className\\": join(\\"do_167\\", className)
-}, children);
-
-Styles.include(\`
-	.do_167 { background: red }
-\`);"
-`;
-
-exports[`forward children & className 2`] = `
-"({
-  children,
-  className
-}) => <div className={join(\\"do_167\\", className)}>{children}</div>;
-
-Styles.include(\`
-	.do_167 { background: red }
-\`);"
-`;
-
-exports[`forward children 1`] = `
-"({
-  children
-}) => create(\\"div\\", {
-  \\"className\\": \\"do_167\\"
-}, children);
-
-Styles.include(\`
-	.do_167 { background: red }
-\`);"
-`;
-
-exports[`forward children 2`] = `
-"({
-  children
-}) => <div className=\\"do_167\\">{children}</div>;
-
-Styles.include(\`
-	.do_167 { background: red }
-\`);"
-`;
-
 exports[`forward className 1`] = `
 "({
   className
@@ -58,6 +12,29 @@ exports[`forward className 2`] = `
 "({
   className
 }) => <div className={className}><div>Hello World</div></div>;"
+`;
+
+exports[`forward react ref 1`] = `
+"forwardRef(({
+  active
+}, ref) => create(\\"input\\", {
+  \\"disabled\\": !active,
+  \\"ref\\": ref,
+  \\"type\\": \\"text\\",
+  \\"className\\": \\"input_5lu\\"
+}));
+Styles.include(\`
+	.input_5lu { color: red }
+\`);"
+`;
+
+exports[`forward react ref 2`] = `
+"forwardRef(({
+  active
+}, ref) => <input disabled={!active} ref={ref} type=\\"text\\" className=\\"input_5lu\\" />);
+Styles.include(\`
+	.input_5lu { color: red }
+\`);"
 `;
 
 exports[`forward will join with existing styles 1`] = `

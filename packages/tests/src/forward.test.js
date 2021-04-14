@@ -34,17 +34,17 @@ describe("forward", () => {
     }
   `);
 
-  test("children", `
-    () => do {
-      forward: children;
-      background: red;
+  test("react ref", `
+    ({ active }) => do {
+      input: {
+        disabled = !active;
+        color: red;
+        forward: ref;
+      }
+      
+      <this>
+        <input type="text" />
+      </this>
     }
-  `);
-
-  test("children & className", `
-    () => do {
-      forward: className, children;
-      background: red;
-    }
-  `);
+  `)
 })

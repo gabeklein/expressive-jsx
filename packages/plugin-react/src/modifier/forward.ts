@@ -1,52 +1,57 @@
 import * as t from '@babel/types';
-import { DefineElement, Prop } from 'handle';
+import { Prop } from 'handle';
+import { _call } from 'syntax';
 
-import type { NodePath as Path } from '@babel/traverse';
+import type { NodePath as Path, Scope } from '@babel/traverse';
 import type { ArrowFunctionExpression } from '@babel/types';
+import type { DefineElement } from 'handle';
 import type { ModifyDelegate } from './delegate';
-
-const find = (from: Array<any>, item: any) => from.indexOf(item) >= 0;
 
 export function forward(this: ModifyDelegate, ...args: any[]){
   const target = this.target;
   const parent = target.context.currentComponent;
 
-  if(!(target instanceof DefineElement))
-    throw new Error("Can only forward props to another element");
-
   if(!parent)
     throw new Error("No parent component found in hierarchy");
 
-  if(!parent.exec)
+  const { exec } = parent;
+
+  if(!exec)
     throw new Error("Can only apply props from a parent `() => do {}` function!");
 
-  const { scope } = parent.exec;
-  const props = getProps(target, parent.exec);
+  const { scope } = exec;
+  const properties = getProps(target, exec);
 
-  const all = find(args, "all");
-
-  if(all || find(args, "children"))
-    target.adopt(
-      getFromProps("children")
-    )
-
-  for(const prop of ["className", "style"])
-    if(all || find(args, prop))
+  for(const key of ["className", "style"])
+    if(args.includes(key))
       target.add(
-        new Prop(prop, getFromProps(prop))
+        new Prop(key, getFromProps(key))
       )
 
-  function getFromProps(name: string){
-    const id = scope.hasBinding(name)
-      ? scope.generateUidIdentifier(name)
-      : t.identifier(name);
+  if(args.includes("ref")){
+    const ref = uniqueWithin(scope, "ref");
+    const util = target.context.Scope.ensure("$pragma", "forwardRef");
 
-    props.properties.push(
+    exec.pushContainer("params", ref);
+    exec.replaceWith(_call(util, exec.node));
+    target.add(new Prop("ref", ref));
+  }
+
+  function getFromProps(name: string){
+    const id = uniqueWithin(scope, name);
+
+    properties.push(
       t.objectProperty(t.identifier(name), id, false, id.name == name)
     )
-    
+
     return id;
   }
+}
+
+function uniqueWithin(scope: Scope, name: string){
+  return scope.hasBinding(name)
+    ? scope.generateUidIdentifier(name)
+    : t.identifier(name);
 }
 
 function getProps(
@@ -72,5 +77,5 @@ function getProps(
     }
   }
 
-  return props;
+  return props.properties;
 }
