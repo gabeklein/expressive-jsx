@@ -62,12 +62,8 @@ gulp.task('xjs', (done) => {
     .on('end', done);
 });
 
-gulp.task('onChange', () => {
-  console.log("File Changed!")
-})
-
 gulp.task("watch", () => {
-  gulp.watch(inDir, gulp.series(['xjs', 'onChange']));
+  gulp.watch(inDir, gulp.series(['xjs']));
   console.log(`Watching for changes in ${inDir} files...`)
 })
 
