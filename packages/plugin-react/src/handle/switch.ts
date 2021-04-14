@@ -114,6 +114,8 @@ export class DefineConsequent extends Define {
     if(parent instanceof DefineConsequent)
       parent = parent.anchor;
 
+    parent.dependant.add(this);
+
     this.anchor = parent;
     this.priority = 5;
 

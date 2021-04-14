@@ -20,7 +20,7 @@ export abstract class Define extends AttributeBody {
   provides = new Set<Define>();
 
   /** Modifiers based upon this one. */
-  variants = new Set<DefineVariant>();
+  dependant = new Set<DefineVariant | DefineConsequent>();
 
   /** Targets which this modifier applies to. */
   targets = new Set<ElementInline>();
@@ -50,7 +50,7 @@ export abstract class Define extends AttributeBody {
   get collapsable(){
     return (
       this.targets.size <= 1 &&
-      this.variants.size < 1 &&
+      this.dependant.size < 1 &&
       !this.onlyWithin
     );
   }
@@ -87,7 +87,7 @@ export abstract class Define extends AttributeBody {
     this.includes.add(mod);
 
     if(mod instanceof DefineVariant)
-      this.variants.add(mod);
+      this.dependant.add(mod);
   }
 }
 
