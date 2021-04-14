@@ -4,14 +4,28 @@ exports[`component 1`] = `"() => create(\\"div\\", {}, \\"Hello World\\");"`;
 
 exports[`component 2`] = `"() => <div>Hello World</div>;"`;
 
-exports[`multiple 1`] = `
-"({
-  hello
-}) => create(Fragment, {}, create(\\"div\\", {}, \\"Foo\\"), create(\\"div\\", {}, \\"Bar\\"));"
+exports[`multiple 1`] = `"() => create(Fragment, {}, create(\\"div\\", {}, \\"Foo\\"), create(\\"div\\", {}, \\"Bar\\"));"`;
+
+exports[`multiple 2`] = `"() => <Fragment><div>Foo</div><div>Bar</div></Fragment>;"`;
+
+exports[`statement pass-thru 1`] = `
+"() => {
+  const [x, setX] = useState();
+  useEffect(() => {
+    void x;
+    setX();
+  }, []);
+  return create(\\"div\\", {});
+};"
 `;
 
-exports[`multiple 2`] = `
-"({
-  hello
-}) => <Fragment><div>Foo</div><div>Bar</div></Fragment>;"
+exports[`statement pass-thru 2`] = `
+"() => {
+  const [x, setX] = useState();
+  useEffect(() => {
+    void x;
+    setX();
+  }, []);
+  return <div />;
+};"
 `;

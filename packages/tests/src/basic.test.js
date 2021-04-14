@@ -7,7 +7,7 @@ test("component", `
 `);
 
 test("multiple", `
-  ({ hello }) => do {
+  () => do {
     <this>
       <div>Foo</div>
       <div>Bar</div>

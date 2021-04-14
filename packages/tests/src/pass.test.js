@@ -7,7 +7,7 @@ test("collapse style-only expression", `
 `);
 
 test("pass SpreadElement-do to element", `
-  ({ active }) => do {
+  () => do {
     foo: {
       background: blue;
     }
