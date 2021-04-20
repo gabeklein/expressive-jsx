@@ -3,7 +3,7 @@ import { IsLegalAttribute } from 'types';
 
 import type { JSXMemberExpression, Expression } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { JSXContent, PropData } from 'types';
+import type { PropData } from 'types';
 
 export function createElement(
   this: StackFrame,
@@ -20,18 +20,7 @@ export function createElement(
 
   const type = typeof tag == "string" ? t.jsxIdentifier(tag) : tag;
   const props = properties.map(createAttribute);
-  const children = [] as JSXContent[];
-
-  for(let child of content)
-    children.push(
-      t.isJSXElement(child) ?
-        child :
-      t.isStringLiteral(child) && !/\{/.test(child.value) ?
-        t.jsxText(child.value) :
-      t.isExpression(child) ?
-        t.jsxExpressionContainer(child) :
-      child
-    )
+  const children = content.map(jsxContent);
 
   this.Scope.ensure("$pragma", "default", "React");
 
@@ -42,6 +31,16 @@ export function createElement(
     contains ? t.jsxClosingElement(type) : undefined,
     children
   );
+}
+
+function jsxContent(child: Expression){
+  if(t.isJSXElement(child))
+    return child;
+
+  if(t.isStringLiteral(child) && !/\{/.test(child.value))
+    return t.jsxText(child.value);
+
+  return t.jsxExpressionContainer(child);
 }
 
 function createAttribute({ name, value }: PropData){

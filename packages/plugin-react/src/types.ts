@@ -13,12 +13,7 @@ import type {
   IfStatement,
   ObjectMethod,
   JSXAttribute,
-  JSXElement,
-  JSXExpressionContainer,
-  JSXFragment,
   JSXSpreadAttribute,
-  JSXSpreadChild,
-  JSXText,
   LabeledStatement,
   Node,
   Statement,
@@ -31,7 +26,6 @@ import type { ElementInline } from 'handle/element';
 import type { ComponentFor, ComponentForX } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';
 
-export type JSXContent = JSXElement | JSXFragment | JSXExpressionContainer | JSXText | JSXSpreadChild;
 export type Attributes = JSXAttribute | JSXSpreadAttribute;
 export type Visitor<T extends Node, S extends StackFrame = StackFrame> = VisitNodeObject<BabelState<S>, T>;
 
