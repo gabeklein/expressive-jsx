@@ -1,8 +1,8 @@
 {
-  "name": "@expressive/babel-plugin-tests",
+  "name": "@expressive/test-react",
   "version": "1.0.0-beta.56",
   "private": true,
-  "description": "Integration tests for babel plugin",
+  "description": "Integration tests for preset-react",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
     "name": "Gabe Klein",
