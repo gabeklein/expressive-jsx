@@ -1,18 +1,18 @@
-import * as t from '@babel/types';
+import { toExpression } from 'generate/attributes'
 
 import type { Expression } from '@babel/types';
 import type { FlatValue } from 'types';
 
-export abstract class Attribute<T extends Expression = Expression> {
+export abstract class Attribute {
   name?: string;
-  value: FlatValue | T | undefined
+  value?: FlatValue | Expression;
 
   /** Is a static value. May be hoisted and/or baked. */
   invariant?: boolean;
 
   constructor(
     name: string | false,
-    value: FlatValue | T){
+    value: FlatValue | Expression){
 
     if(name)
       this.name = name;
@@ -23,23 +23,7 @@ export abstract class Attribute<T extends Expression = Expression> {
   }
 
   get expression(){
-    const { value } = this;
-  
-    switch(typeof value){
-      case "string":
-        return t.stringLiteral(value);
-      case "number":
-        return t.numericLiteral(value);
-      case "boolean":
-        return t.booleanLiteral(value);
-      case "object":
-        if(value === null)
-          return t.nullLiteral();
-        else
-          return value;
-      default:
-        return t.identifier("undefined");
-    }
+    return toExpression(this.value)
   }
 }
 
@@ -51,15 +35,14 @@ export class ExplicitStyle extends Attribute {
     value: FlatValue | Expression | FlatValue[],
     public important = false){
 
-    super(name, flatten(value));
-
-    function flatten(content: typeof value){
-      if(Array.isArray(content)){
-        const [ callee, ...args ] = content;
-        return `${callee}(${args.join(" ")})`;
-      }
-
-      return content;
-    }
+    super(name, 
+      Array.isArray(value) ? flatten(value) : value
+    );
   }
+}
+
+const flatten = (content: FlatValue[]) => {
+  const [ callee, ...args ] = content;
+
+  return `${callee}(${args.join(" ")})`;
 }
