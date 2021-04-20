@@ -7,19 +7,20 @@ const prettyjson = require("prettyjson")
 // const printError = require("./error")
 const babelrc = require("./babel.config")
 
-let { TEST_INPUT, TEST_OUTPUT, TEST_DEFAULT } = process.env;
+let {
+  IN,
+  OUT,
+  TEST_DEFAULT = false
+} = process.env;
 
-if(TEST_DEFAULT == "false")
-  TEST_DEFAULT = false;
+if(TEST_DEFAULT || !IN)
+  IN = "input/"
 
-if(TEST_DEFAULT || !TEST_INPUT)
-  TEST_INPUT = "input/"
+if(TEST_DEFAULT || !OUT)
+  OUT = "output/"
 
-if(TEST_DEFAULT || !TEST_OUTPUT)
-  TEST_OUTPUT = "output/"
-
-const inDir = TEST_INPUT.replace(/\/$/, "").concat("/*.js");
-const outDir = TEST_OUTPUT.replace(/\/$/, "");
+const inDir = IN.replace(/\/$/, "").concat("/*.js");
+const outDir = OUT.replace(/\/$/, "");
 
 const statementLineSpacing = () =>
   replace(/^(.+?)\n(export|const|let)/gm, "$1\n\n$2")
@@ -39,7 +40,7 @@ const spaceAfterImports = () =>
 gulp.task('xjs', (done) => {
   gulp
     .src([inDir])
-    .pipe(babel({ babelrc: false, ...babelrc }))
+    .pipe(babel(babelrc))
     .on('error', function(e){
       // printError(e);
       console.error(
