@@ -37,9 +37,6 @@ export class ComponentIf {
       if(cond instanceof ComponentIf || cond.children.length)
         product = cond.toExpression();
 
-      if(t.isBooleanLiteral(product, { value: false }))
-        product = undefined;
-
       return product
     });
   }
@@ -49,8 +46,7 @@ export class ComponentIf {
       if(cond instanceof ComponentIf)
         return cond.toClassName();
 
-      const className =
-        cond.toClassName();
+      const className = cond.toClassName();
         
       if(className)
         return t.stringLiteral(className);

@@ -56,7 +56,7 @@ export abstract class FileManager {
     tag: null | string | JSXMemberExpression,
     properties?: PropData[],
     content?: Expression[]
-  ) => CallExpression | JSXElement;
+  ) => CallExpression | JSXElement | undefined;
 
   element(
     src: ElementReact,

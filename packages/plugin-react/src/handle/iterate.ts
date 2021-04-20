@@ -55,6 +55,10 @@ export class ComponentFor {
     const { statements } = this.definition;
 
     const output = this.definition.toExpression();
+
+    if(!output)
+      return;
+
     const scope = this.context.Scope;
     const accumulator = scope.ensureUIDIdentifier("add");
     const collect = scope.ensure("$runtime", "collect");
@@ -99,8 +103,11 @@ export class ComponentForX {
     const { definition, path } = this;
     const { left, right, key } = this.getReferences();
 
-    let body: Expression | BlockStatement = 
-      definition.toExpression(true);
+    let body: Expression | BlockStatement | undefined = 
+      definition.toExpression();
+
+    if(!body)
+      return;
 
     if(definition.statements.length)
       body = blockStatement([

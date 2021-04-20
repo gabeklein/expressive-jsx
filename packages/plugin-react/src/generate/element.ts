@@ -64,8 +64,12 @@ export function generateElement(element: ElementInline){
     else if(item instanceof Prop)
       applyProp(item);
 
-    else if("toExpression" in item)
-      children.push(item.toExpression())
+    else if("toExpression" in item){
+      const child = item.toExpression();
+
+      if(child)
+        children.push(child);
+    }
 
     else if(t.isExpression(item))
       children.push(item);

@@ -2,13 +2,13 @@ import { generateElement } from 'generate';
 
 import { AttributeBody } from './object';
 
-import type { Expression, JSXMemberExpression } from '@babel/types';
+import type { JSXMemberExpression } from '@babel/types';
 import type { Define } from 'handle/definition';
 
 export class ElementInline extends AttributeBody {
   explicitTagName?: string | JSXMemberExpression;
 
-  toExpression(): Expression {
+  toExpression(){
     const { name } = this;
     const tagName = this.explicitTagName || (
       name && /^[A-Z]/.test(name) ? name : undefined

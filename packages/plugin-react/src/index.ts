@@ -51,7 +51,8 @@ const HandleDoExpression: Visitor<DoExpression> = {
     let element = generateEntryElement(path, state.context);
 
     const { statements } = element;
-    const output = element.toExpression();
+    const output =
+      element.toExpression() || t.booleanLiteral(false);
   
     if(element.exec && statements.length){
       const body = [
