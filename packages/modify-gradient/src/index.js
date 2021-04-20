@@ -1,17 +1,16 @@
 const chroma = require('chroma-js');
 const easingCoordinates = require('easing-coordinates')
 
-const timingFunctions = [
-  'ease',
-  'ease-in',
-  'ease-out',
-  'ease-in-out',
-  'cubic-bezier',
-  'steps'
-]
+// const timingFunctions = [
+//   'ease',
+//   'ease-in',
+//   'ease-out',
+//   'ease-in-out',
+//   'cubic-bezier',
+//   'steps'
+// ]
 
 export function easingGradient(direction, from, timing, to, stops = 13){
-
   direction = direction.replace("-", " ");
   timing = timing.replace(/([A-Z])/g, "-$1").toLowerCase();
   [from, to] = normalize(from, to);
