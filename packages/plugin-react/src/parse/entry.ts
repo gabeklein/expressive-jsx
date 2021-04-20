@@ -21,27 +21,12 @@ export function generateEntryElement(
   path: Path<DoExpression>,
   context: StackFrame){
 
-  const parent = path.parentPath;
-  let containerFn: Path<ArrowFunctionExpression> | undefined;
-
-  switch(parent.type){
-    case "ArrowFunctionExpression":
-      containerFn = parent as Path<ArrowFunctionExpression>;
-    break;
-
-    case "ReturnStatement":
-      const container = parent.findParent(x => /.*Function.*/.test(x.type))!;
-
-      if(container.type == "ArrowFunctionExpression")
-        containerFn = container as Path<ArrowFunctionExpression>;
-    break;
-  }
-
-  const name = containerName(containerFn || path as any);
+  const exec = parentFunction(path);
+  const name = containerName(exec || path as any);
   const define = new DefineContainer(context, name);
 
   define.context.currentComponent = define;
-  define.exec = containerFn;
+  define.exec = exec;
 
   parse(define, path.get("body"));
 
@@ -49,6 +34,23 @@ export function generateEntryElement(
     define.uses(name);
 
   return define;
+}
+
+function parentFunction(path: Path<DoExpression>){
+  const parent = path.parentPath;
+  let containerFn: Path<ArrowFunctionExpression> | undefined;
+
+  if(parent.isArrowFunctionExpression())
+    containerFn = parent;
+  else
+  if(parent.isReturnStatement()){
+    const container = parent.findParent(x => /.*Function.*/.test(x.type))!;
+
+    if(container.type == "ArrowFunctionExpression")
+      containerFn = container as Path<ArrowFunctionExpression>;
+  }
+
+  return containerFn;
 }
 
 function containerName(path: Path): string {
