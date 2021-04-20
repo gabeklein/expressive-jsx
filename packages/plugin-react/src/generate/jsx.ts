@@ -1,7 +1,7 @@
 import * as t from '@babel/types';
 import { IsLegalAttribute } from 'types';
 
-import type { JSXElement, JSXMemberExpression, Expression } from '@babel/types';
+import type { JSXMemberExpression, Expression } from '@babel/types';
 import type { StackFrame } from 'context';
 import type { JSXContent, PropData } from 'types';
 
@@ -11,14 +11,12 @@ export function createElement(
   properties: PropData[] = [],
   content: Expression[] = [],
   acceptBr?: boolean
-): JSXElement {
-  const { Scope } = this;
-
+){
   if(acceptBr === undefined)
     acceptBr = !tag || typeof tag == "string" && /^[a-z]/.test(tag);
 
   if(!tag)
-    tag = Scope.ensure("$pragma", "Fragment").name;
+    tag = this.Scope.ensure("$pragma", "Fragment").name;
 
   const type = typeof tag == "string" ? t.jsxIdentifier(tag) : tag;
   const props = properties.map(createAttribute);
@@ -35,7 +33,7 @@ export function createElement(
       child
     )
 
-  Scope.ensure("$pragma", "default", "React");
+  this.Scope.ensure("$pragma", "default", "React");
 
   const contains = children.length > 0;
 
@@ -58,8 +56,5 @@ function createAttribute({ name, value }: PropData){
       ? value.value === "true" ? null : value
       : t.jsxExpressionContainer(value)
 
-  return t.jsxAttribute(
-    t.jsxIdentifier(name),
-    insertedValue
-  )
+  return t.jsxAttribute(t.jsxIdentifier(name), insertedValue)
 }

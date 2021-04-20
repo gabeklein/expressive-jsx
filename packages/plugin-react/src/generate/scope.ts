@@ -76,8 +76,7 @@ export abstract class FileManager {
 
   container(
     src: ElementReact,
-    key?: Identifier
-  ): Expression {
+    key?: Identifier){
 
     let output: Expression | undefined;
 

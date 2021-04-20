@@ -3,7 +3,6 @@ import { ArrayStack } from 'generate';
 import { _object, _objectAssign } from 'syntax';
 
 import type {
-  CallExpression,
   Expression,
   Identifier,
   JSXIdentifier,
@@ -19,14 +18,12 @@ export function createElement(
   tag: null | string | JSXMemberExpression,
   properties: PropData[] = [],
   content: Expression[] = []
-): CallExpression {
-  const { Scope } = this;
-
+){
   const create =
-    Scope.ensure("$pragma", "createElement", "create");
+    this.Scope.ensure("$pragma", "createElement", "create");
 
   if(!tag)
-    tag = Scope.ensure("$pragma", "Fragment").name;
+    tag = this.Scope.ensure("$pragma", "Fragment").name;
 
   const type =
     typeof tag === "string" ?
@@ -40,9 +37,7 @@ export function createElement(
 
   for(let child of content)
     children.push(
-      t.isExpression(child) ?
-        child :
-      t.booleanLiteral(false)
+      t.isExpression(child) ? child : t.booleanLiteral(false)
     )
 
   return t.callExpression(create, [type, props, ...children]);
