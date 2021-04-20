@@ -130,23 +130,6 @@ function containerName(path: Path): string {
       )
     }
 
-    // mark for deletion
-    case "SequenceExpression": {
-      const isWithin = path.findParent(
-        x => ["ArrowFunctionExpression", "ClassMethod"].includes(x.type)
-      );
-      const nestedIn = path.findParent(
-        x => x.type == "DoExpression"
-      )
-
-      if(isWithin && !nestedIn)
-        throw isWithin.buildCodeFrameError(
-          "Component Syntax `..., do {}` found outside expressive context! Did you forget to arrow-return a do expression?"
-        )
-      else
-        return "callback";
-    }
-
     default:
       return "do";
   }
