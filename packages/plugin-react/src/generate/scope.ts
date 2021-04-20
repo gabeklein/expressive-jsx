@@ -66,39 +66,21 @@ export abstract class FileManager {
     return this.createElement(tag, src.props, src.children);
   }
 
-  fragment(
-    children = [] as Expression[],
-    key?: Expression){
-
-    const props = key && [{ name: "key", value: key }];
-    return this.createElement(null, props, children)
-  }
-
   container(
     src: ElementReact,
     key?: Identifier){
 
-    let output: Expression | undefined;
+    let { children } = src;
 
-    if(src.props.length == 0){
-      const { children } = src;
+    if(src.props.length)
+      children = [ this.element(src)! ];
 
-      if(children.length == 0)
-        return t.booleanLiteral(false);
-
-      if(children.length > 1)
-        return this.fragment(children, key);
-
-      output = children[0];
+    if(children.length > 1 || key){
+      const props = key && [{ name: "key", value: key }];
+      return this.createElement(null, props, children)
     }
 
-    if(!output)
-      output = this.element(src)
-
-    if(key)
-      return this.fragment([ output ], key)
-    else
-      return output
+    return children[0] || t.booleanLiteral(false);
   }
 
   replaceAlias(value: string){
