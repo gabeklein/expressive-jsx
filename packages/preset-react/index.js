@@ -14,9 +14,9 @@ module.exports = (compiler, options = {}) => {
   return {
     plugins: [
       [PluginReact, {
-        ...opts,
         hot,
         output: "js",
+        ...opts,
         modifiers: [
           styleModifiers,
           pseudoModifiers,
