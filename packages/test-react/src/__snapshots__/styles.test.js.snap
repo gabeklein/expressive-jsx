@@ -2,18 +2,18 @@
 
 exports[`basic style 1`] = `
 "() => create(\\"div\\", {
-  \\"className\\": \\"do_167\\"
+  \\"className\\": \\"element_4q3\\"
 }, \\"Hello World\\");
 
 Styles.include(\`
-	.do_167 { color: green }
+	.element_4q3 { color: green }
 \`);"
 `;
 
 exports[`basic style 2`] = `
-"() => <div className=\\"do_167\\">Hello World</div>;
+"() => <div className=\\"element_4q3\\">Hello World</div>;
 
 Styles.include(\`
-	.do_167 { color: green }
+	.element_4q3 { color: green }
 \`);"
 `;

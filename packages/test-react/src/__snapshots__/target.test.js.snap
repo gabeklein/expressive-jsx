@@ -2,98 +2,98 @@
 
 exports[`Attribute-based modifier 1`] = `
 "() => create(Foo, {
-  \\"className\\": \\"Foo_5cc\\"
+  \\"className\\": \\"Foo_6rq\\"
 });
 
 Styles.include(\`
-	.Foo_5cc { background: red; color: white }
+	.Foo_6rq { background: red; color: white }
 \`);"
 `;
 
 exports[`Attribute-based modifier 2`] = `
-"() => <Foo className=\\"Foo_5cc\\" />;
+"() => <Foo className=\\"Foo_6rq\\" />;
 
 Styles.include(\`
-	.Foo_5cc { background: red; color: white }
+	.Foo_6rq { background: red; color: white }
 \`);"
 `;
 
 exports[`Explicitly use modifier 1`] = `
 "() => create(Fragment, {}, create(Baz, {
-  \\"className\\": \\"Foo_36o Baz_3rl\\"
+  \\"className\\": \\"Foo_76l Baz_24h\\"
 }), create(Foo, {
-  \\"className\\": \\"Foo_36o\\"
+  \\"className\\": \\"Foo_76l\\"
 }));
 
 Styles.include(\`
-	.Foo_36o { color: blue }
-	.Baz_3rl { color: red }
+	.Foo_76l { color: blue }
+	.Baz_24h { color: red }
 \`);"
 `;
 
 exports[`Explicitly use modifier 2`] = `
-"() => <Fragment><Baz className=\\"Foo_36o Baz_3rl\\" /><Foo className=\\"Foo_36o\\" /></Fragment>;
+"() => <Fragment><Baz className=\\"Foo_76l Baz_24h\\" /><Foo className=\\"Foo_76l\\" /></Fragment>;
 
 Styles.include(\`
-	.Foo_36o { color: blue }
-	.Baz_3rl { color: red }
+	.Foo_76l { color: blue }
+	.Baz_24h { color: red }
 \`);"
 `;
 
 exports[`Nested modifier 1`] = `
 "() => create(Fragment, {}, create(Foo, {
-  \\"className\\": \\"Foo_36o\\"
+  \\"className\\": \\"Foo_76l\\"
 }), create(Bar, {}, create(Foo, {
-  \\"className\\": \\"Foo_36o Foo_343\\"
+  \\"className\\": \\"Foo_76l Foo_61e\\"
 })));
 
 Styles.include(\`
-	.Foo_36o { color: red }
-	.Foo_343 { color: blue }
+	.Foo_76l { color: red }
+	.Foo_61e { color: blue }
 \`);"
 `;
 
 exports[`Nested modifier 2`] = `
-"() => <Fragment><Foo className=\\"Foo_36o\\" /><Bar><Foo className=\\"Foo_36o Foo_343\\" /></Bar></Fragment>;
+"() => <Fragment><Foo className=\\"Foo_76l\\" /><Bar><Foo className=\\"Foo_76l Foo_61e\\" /></Bar></Fragment>;
 
 Styles.include(\`
-	.Foo_36o { color: red }
-	.Foo_343 { color: blue }
+	.Foo_76l { color: red }
+	.Foo_61e { color: blue }
 \`);"
 `;
 
 exports[`Simple modifier 1`] = `
 "() => create(Foo, {
-  \\"className\\": \\"Foo_5cc\\"
+  \\"className\\": \\"Foo_6rq\\"
 });
 
 Styles.include(\`
-	.Foo_5cc { color: red }
+	.Foo_6rq { color: red }
 \`);"
 `;
 
 exports[`Simple modifier 2`] = `
-"() => <Foo className=\\"Foo_5cc\\" />;
+"() => <Foo className=\\"Foo_6rq\\" />;
 
 Styles.include(\`
-	.Foo_5cc { color: red }
+	.Foo_6rq { color: red }
 \`);"
 `;
 
 exports[`collapse single-use modifiers 1`] = `
 "() => create(Foo, {}, create(Bar, {
-  \\"className\\": \\"Bar_14s\\"
+  \\"className\\": \\"Bar_24g\\"
 }));
 
 Styles.include(\`
-	.Bar_14s { border: red solid 1px; background: white; color: red }
+	.Bar_24g { border: red solid 1px; background: white; color: red }
 \`);"
 `;
 
 exports[`collapse single-use modifiers 2`] = `
-"() => <Foo><Bar className=\\"Bar_14s\\" /></Foo>;
+"() => <Foo><Bar className=\\"Bar_24g\\" /></Foo>;
 
 Styles.include(\`
-	.Bar_14s { border: red solid 1px; background: white; color: red }
+	.Bar_24g { border: red solid 1px; background: white; color: red }
 \`);"
 `;

@@ -4,20 +4,20 @@ exports[`competing style priority 1`] = `
 ";
 
 () => create(Foo, {}, create(Bar, {
-  \\"className\\": \\"Bar_14s\\"
+  \\"className\\": \\"Bar_24g\\"
 }));
 
 Styles.include(\`
-	.Bar_14s { color: orange }
+	.Bar_24g { color: orange }
 \`);"
 `;
 
 exports[`competing style priority 2`] = `
 ";
 
-() => <Foo><Bar className=\\"Bar_14s\\" /></Foo>;
+() => <Foo><Bar className=\\"Bar_24g\\" /></Foo>;
 
 Styles.include(\`
-	.Bar_14s { color: orange }
+	.Bar_24g { color: orange }
 \`);"
 `;

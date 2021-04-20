@@ -4,21 +4,21 @@ exports[`alternate consequent types 1`] = `
 "({
   foo
 }) => create(\\"div\\", {
-  \\"className\\": !!foo && \\"if_foo_7vn\\"
+  \\"className\\": !!foo && \\"if_foo_6bf\\"
 }, !foo && create(\\"div\\", {}, \\"Foo is false\\"));
 
 Styles.include(\`
-	.do_erd.if_foo_7vn { color: red }
+	.element_26b.if_foo_6bf { color: red }
 \`);"
 `;
 
 exports[`alternate consequent types 2`] = `
 "({
   foo
-}) => <div className={!!foo && \\"if_foo_7vn\\"}>{!foo && <div>Foo is false</div>}</div>;
+}) => <div className={!!foo && \\"if_foo_6bf\\"}>{!foo && <div>Foo is false</div>}</div>;
 
 Styles.include(\`
-	.do_erd.if_foo_7vn { color: red }
+	.element_26b.if_foo_6bf { color: red }
 \`);"
 `;
 
@@ -90,21 +90,21 @@ exports[`inverse consequent types 1`] = `
 "({
   foo
 }) => create(\\"div\\", {
-  \\"className\\": !foo && \\"else_7qc\\"
+  \\"className\\": !foo && \\"else_i3g\\"
 }, !!foo && create(\\"div\\", {}, \\"Foo is true\\"));
 
 Styles.include(\`
-	.do_erd.else_7qc { color: red }
+	.element_26b.else_i3g { color: red }
 \`);"
 `;
 
 exports[`inverse consequent types 2`] = `
 "({
   foo
-}) => <div className={!foo && \\"else_7qc\\"}>{!!foo && <div>Foo is true</div>}</div>;
+}) => <div className={!foo && \\"else_i3g\\"}>{!!foo && <div>Foo is true</div>}</div>;
 
 Styles.include(\`
-	.do_erd.else_7qc { color: red }
+	.element_26b.else_i3g { color: red }
 \`);"
 `;
 
@@ -137,11 +137,11 @@ exports[`supports complex else-if 1`] = `
   foo,
   bar
 }) => create(\\"div\\", {
-  \\"className\\": !foo && !bar && \\"else_61h\\"
+  \\"className\\": !foo && !bar && \\"else_7cl\\"
 }, foo ? create(\\"div\\", {}, \\"Foo is true\\") : !!bar && create(\\"div\\", {}, \\"Bar is true\\"));
 
 Styles.include(\`
-	.do_erd.else_61h { color: red }
+	.element_26b.else_7cl { color: red }
 \`);"
 `;
 
@@ -149,10 +149,10 @@ exports[`supports complex else-if 2`] = `
 "({
   foo,
   bar
-}) => <div className={!foo && !bar && \\"else_61h\\"}>{foo ? <div>Foo is true</div> : !!bar && <div>Bar is true</div>}</div>;
+}) => <div className={!foo && !bar && \\"else_7cl\\"}>{foo ? <div>Foo is true</div> : !!bar && <div>Bar is true</div>}</div>;
 
 Styles.include(\`
-	.do_erd.else_61h { color: red }
+	.element_26b.else_7cl { color: red }
 \`);"
 `;
 
@@ -161,12 +161,12 @@ exports[`supports inverse else-if 1`] = `
   foo,
   bar
 }) => create(\\"div\\", {
-  \\"className\\": foo ? \\"if_foo_7vn\\" : !!bar && \\"if_bar_7qc\\"
+  \\"className\\": foo ? \\"if_foo_6bf\\" : !!bar && \\"if_bar_i3g\\"
 }, !foo && !bar && create(\\"div\\", {}, \\"Foo & Bar are false\\"));
 
 Styles.include(\`
-	.do_erd.if_bar_7qc { color: blue }
-	.do_erd.if_foo_7vn { color: red }
+	.element_26b.if_bar_i3g { color: blue }
+	.element_26b.if_foo_6bf { color: red }
 \`);"
 `;
 
@@ -174,11 +174,11 @@ exports[`supports inverse else-if 2`] = `
 "({
   foo,
   bar
-}) => <div className={foo ? \\"if_foo_7vn\\" : !!bar && \\"if_bar_7qc\\"}>{!foo && !bar && <div>Foo & Bar are false</div>}</div>;
+}) => <div className={foo ? \\"if_foo_6bf\\" : !!bar && \\"if_bar_i3g\\"}>{!foo && !bar && <div>Foo & Bar are false</div>}</div>;
 
 Styles.include(\`
-	.do_erd.if_bar_7qc { color: blue }
-	.do_erd.if_foo_7vn { color: red }
+	.element_26b.if_bar_i3g { color: blue }
+	.element_26b.if_foo_6bf { color: red }
 \`);"
 `;
 
@@ -186,22 +186,22 @@ exports[`switch styles 1`] = `
 "({
   foo
 }) => create(\\"div\\", {
-  \\"className\\": foo ? \\"if_foo_7vn\\" : \\"else_7qc\\"
+  \\"className\\": foo ? \\"if_foo_6bf\\" : \\"else_i3g\\"
 });
 
 Styles.include(\`
-	.do_erd.else_7qc { color: blue }
-	.do_erd.if_foo_7vn { color: red }
+	.element_26b.else_i3g { color: blue }
+	.element_26b.if_foo_6bf { color: red }
 \`);"
 `;
 
 exports[`switch styles 2`] = `
 "({
   foo
-}) => <div className={foo ? \\"if_foo_7vn\\" : \\"else_7qc\\"} />;
+}) => <div className={foo ? \\"if_foo_6bf\\" : \\"else_i3g\\"} />;
 
 Styles.include(\`
-	.do_erd.else_7qc { color: blue }
-	.do_erd.if_foo_7vn { color: red }
+	.element_26b.else_i3g { color: blue }
+	.element_26b.if_foo_6bf { color: red }
 \`);"
 `;

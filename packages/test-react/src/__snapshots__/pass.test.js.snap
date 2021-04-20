@@ -20,18 +20,18 @@ Styles.include(\`
 
 exports[`pass SpreadElement-do to element 1`] = `
 "() => create(\\"div\\", {
-  \\"className\\": \\"foo_754\\"
+  \\"className\\": \\"foo_62d\\"
 });
 
 Styles.include(\`
-	.foo_754 { background: blue; color: red }
+	.foo_62d { background: blue; color: red }
 \`);"
 `;
 
 exports[`pass SpreadElement-do to element 2`] = `
-"() => <div className=\\"foo_754\\" />;
+"() => <div className=\\"foo_62d\\" />;
 
 Styles.include(\`
-	.foo_754 { background: blue; color: red }
+	.foo_62d { background: blue; color: red }
 \`);"
 `;

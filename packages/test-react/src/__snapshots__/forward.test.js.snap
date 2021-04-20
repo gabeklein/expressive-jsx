@@ -21,19 +21,19 @@ exports[`forward react ref 1`] = `
   \\"disabled\\": !active,
   \\"ref\\": ref,
   \\"type\\": \\"text\\",
-  \\"className\\": \\"input_5lu\\"
+  \\"className\\": \\"input_5iq\\"
 }));
 Styles.include(\`
-	.input_5lu { color: red }
+	.input_5iq { color: red }
 \`);"
 `;
 
 exports[`forward react ref 2`] = `
 "forwardRef(({
   active
-}, ref) => <input disabled={!active} ref={ref} type=\\"text\\" className=\\"input_5lu\\" />);
+}, ref) => <input disabled={!active} ref={ref} type=\\"text\\" className=\\"input_5iq\\" />);
 Styles.include(\`
-	.input_5lu { color: red }
+	.input_5iq { color: red }
 \`);"
 `;
 
@@ -41,21 +41,21 @@ exports[`forward will join with existing styles 1`] = `
 "({
   className
 }) => create(\\"div\\", {
-  \\"className\\": join(\\"do_167\\", className)
+  \\"className\\": join(\\"element_4q3\\", className)
 }, create(\\"div\\", {}, \\"Hello World\\"));
 
 Styles.include(\`
-	.do_167 { color: red }
+	.element_4q3 { color: red }
 \`);"
 `;
 
 exports[`forward will join with existing styles 2`] = `
 "({
   className
-}) => <div className={join(\\"do_167\\", className)}><div>Hello World</div></div>;
+}) => <div className={join(\\"element_4q3\\", className)}><div>Hello World</div></div>;
 
 Styles.include(\`
-	.do_167 { color: red }
+	.element_4q3 { color: red }
 \`);"
 `;
 
