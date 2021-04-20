@@ -2,7 +2,6 @@ import {
   arrowFunctionExpression,
   blockStatement,
   expressionStatement,
-  forStatement,
   isArrayPattern,
   isBinaryExpression,
   isForInStatement,
@@ -52,7 +51,7 @@ export class ComponentFor {
   }
 
   toExpression(){
-    const { init, test, update } = this.path.node;
+    const { node } = this.path;
     const { statements } = this.definition;
 
     const output = this.definition.toExpression();
@@ -68,11 +67,11 @@ export class ComponentFor {
     if(statements.length)
       body = blockStatement([ ...statements, body ]);
 
+    node.body = body;
+
     return _call(collect, 
       arrowFunctionExpression(
-        [accumulator], blockStatement([
-          forStatement(init, test, update, body)
-        ])
+        [accumulator], blockStatement([ node ])
       )  
     )
   }
