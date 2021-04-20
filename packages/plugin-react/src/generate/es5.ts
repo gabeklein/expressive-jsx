@@ -17,7 +17,7 @@ export function createElement(
   this: StackFrame,
   tag: null | string | JSXMemberExpression,
   properties: PropData[] = [],
-  content: Expression[] = []
+  children: Expression[] = []
 ){
   const create =
     this.Scope.ensure("$pragma", "createElement", "create");
@@ -33,12 +33,6 @@ export function createElement(
       stripJSX(tag);
 
   const props = recombineProps(properties);
-  const children = [] as Expression[];
-
-  for(let child of content)
-    children.push(
-      t.isExpression(child) ? child : t.booleanLiteral(false)
-    )
 
   return t.callExpression(create, [type, props, ...children]);
 }
