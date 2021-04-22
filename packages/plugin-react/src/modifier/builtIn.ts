@@ -1,38 +1,33 @@
-import { Define } from 'handle';
-
-import { forward } from './forward';
+import { forwardProp } from './forward';
 
 import type { ModifyDelegate } from './delegate';
 
-function use(
+function applyAlso(
   this: ModifyDelegate,
-  ...args: any[]){
+  ...names: any[]){
 
   const { target } = this;
 
-  for(const item of args)
-    if(typeof item == "string"){
+  for(const name of names)
+    if(typeof name == "string"){
       const mod =
-        target.context.elementMod(item);
+        target.context.elementMod(name);
 
       if(mod)
         target.use(mod);
     }
 }
 
-function priority(
+function setPriority(
   this: ModifyDelegate,
   priority: number){
 
-  const { target } = this;
-
-  if(target instanceof Define)
-    target.priority = priority;
+  this.target.priority = priority;
 }
 
 export const builtIn = {
-  forward,
-  priority,
-  use
+  forward: forwardProp,
+  priority: setPriority,
+  use: applyAlso
 }
 

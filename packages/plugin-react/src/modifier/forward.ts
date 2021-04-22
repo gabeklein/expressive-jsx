@@ -1,13 +1,16 @@
 import * as t from '@babel/types';
 import { Prop } from 'handle';
-import { _call } from 'syntax';
+import { _call, _declare } from 'syntax';
 
 import type { NodePath as Path, Scope } from '@babel/traverse';
 import type { ArrowFunctionExpression } from '@babel/types';
 import type { DefineElement } from 'handle';
 import type { ModifyDelegate } from './delegate';
 
-export function forward(this: ModifyDelegate, ...args: any[]){
+export function forwardProp(
+  this: ModifyDelegate,
+  ...propNames: any[]){
+
   const target = this.target;
   const parent = target.context.currentComponent;
 
@@ -23,28 +26,32 @@ export function forward(this: ModifyDelegate, ...args: any[]){
   const properties = getProps(target, exec);
 
   for(const key of ["className", "style"])
-    if(args.includes(key))
+    if(propNames.includes(key))
       target.add(
         new Prop(key, getFromProps(key))
       )
 
-  if(args.includes("ref")){
-    const ref = uniqueWithin(scope, "ref");
-    const util = target.context.Scope.ensure("$pragma", "forwardRef");
+  if(propNames.includes("ref")){
+    const { Scope } = target.context;
+    const _ref = uniqueWithin(scope, "ref");
+    const _forwardRef = Scope.ensure("$pragma", "forwardRef");
+    const _wrapped = _call(_forwardRef, exec.node);
 
-    exec.pushContainer("params", ref);
-    exec.replaceWith(_call(util, exec.node));
-    target.add(new Prop("ref", ref));
+    exec.pushContainer("params", _ref);
+    exec.replaceWith(_wrapped);
+
+    target.add(new Prop("ref", _ref));
   }
 
   function getFromProps(name: string){
-    const id = uniqueWithin(scope, name);
+    const _key = t.identifier(name);
+    const _local = uniqueWithin(scope, name);
 
     properties.push(
-      t.objectProperty(t.identifier(name), id, false, id.name == name)
+      t.objectProperty(_key, _local, false, _local.name == name)
     )
 
-    return id;
+    return _local;
   }
 }
 
@@ -68,13 +75,10 @@ function getProps(
     if(!existing)
       node.params[0] = props;
 
-    else if(t.isIdentifier(existing)){
-      const init = t.variableDeclaration("const", [
-        t.variableDeclarator(props, existing)
-      ]);
-
-      target.statements.push(init);
-    }
+    else if(t.isIdentifier(existing))
+      target.statements.push(
+        _declare("const", props, existing)
+      );
   }
 
   return props.properties;
