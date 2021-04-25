@@ -1,15 +1,4 @@
-import {
-  arrowFunctionExpression,
-  blockStatement,
-  expressionStatement,
-  isArrayPattern,
-  isBinaryExpression,
-  isForInStatement,
-  isIdentifier,
-  isObjectPattern,
-  isVariableDeclaration,
-  returnStatement,
-} from '@babel/types';
+import * as t from '@babel/types';
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { DefineElement } from 'handle/definition';
@@ -66,18 +55,18 @@ export class ComponentFor {
     const collect = scope.ensure("$runtime", "collect");
 
     let body: Statement =
-      expressionStatement(
+      t.expressionStatement(
         s.call(accumulator, output)
       );
 
     if(statements.length)
-      body = blockStatement([ ...statements, body ]);
+      body = t.blockStatement([ ...statements, body ]);
 
     node.body = body;
 
     return s.call(collect, 
-      arrowFunctionExpression(
-        [accumulator], blockStatement([ node ])
+      t.arrowFunctionExpression(
+        [accumulator], t.blockStatement([ node ])
       )  
     )
   }
@@ -112,9 +101,9 @@ export class ComponentForX {
       return;
 
     if(definition.statements.length)
-      body = blockStatement([
+      body = t.blockStatement([
         ...definition.statements,
-        returnStatement(body)
+        t.returnStatement(body)
       ])
     
     if(path.isForOfStatement()){
@@ -122,13 +111,13 @@ export class ComponentForX {
 
       return s.call(
         s.get(right, "map"),
-        arrowFunctionExpression(params, body)
+        t.arrowFunctionExpression(params, body)
       )
     }
     else
       return s.call(
         s.get(s.objectKeys(right), "map"),
-        arrowFunctionExpression([left], body)
+        t.arrowFunctionExpression([left], body)
       )
   }
 
@@ -167,21 +156,21 @@ export class ComponentForX {
     let { left, right } = node;
     let key: Identifier | undefined;
 
-    if(isVariableDeclaration(left))
+    if(t.isVariableDeclaration(left))
       left = left.declarations[0].id;
 
-    if(isIdentifier(left) || isObjectPattern(left) || isArrayPattern(left))
+    if(t.isIdentifier(left) || t.isObjectPattern(left) || t.isArrayPattern(left))
       void 0;
     else
       throw Oops.BadForOfAssignment(left);
 
-    if(isBinaryExpression(right, { operator: "in" })){
+    if(t.isBinaryExpression(right, { operator: "in" })){
       key = right.left as Identifier;
       right = right.right;
     }
 
-    if(isForInStatement(node))
-      if(isIdentifier(left))
+    if(t.isForInStatement(node))
+      if(t.isIdentifier(left))
         key = left;
       else
         throw Oops.BadForInAssignment(left);
