@@ -1,13 +1,4 @@
-import type { BunchOf, Options } from 'types';
-
-export const DEFAULTS: Options = {
-  env: "web",
-  styleMode: "compile",
-  runtime: "@expressive/react",
-  pragma: "react",
-  output: "js",
-  modifiers: []
-};
+import type { BunchOf } from 'types';
 
 const m32 = Math.imul;
 

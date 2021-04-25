@@ -1,6 +1,6 @@
 import { ImportManager, RequireManager } from 'generate';
 import { DefineElement } from 'handle/definition';
-import { DEFAULTS, hash, Stack } from 'shared';
+import { hash, Stack } from 'shared';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { Program } from '@babel/types';
@@ -37,15 +37,18 @@ export class StackFrame {
     return Object.getPrototypeOf(this);
   }
 
-  constructor(path: Path<Program>, state: BabelState){
-    const opts = { ...DEFAULTS, ...state.opts };
+  constructor(
+    path: Path<Program>,
+    state: BabelState,
+    options: Options){
 
     this.current = state;
     this.prefix = hash(state.filename);
-    this.opts = opts;
+    this.opts = options;
 
     const FileManager =
-      opts.externals == "require" || opts.output == "js"
+      options.externals == "require" ||
+      options.output == "js"
         ? RequireManager
         : ImportManager;
 

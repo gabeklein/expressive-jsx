@@ -7,7 +7,16 @@ import { builtIn } from 'modifier/builtIn';
 import { generateEntryElement } from 'parse';
 
 import type { DoExpression, Program } from '@babel/types';
-import type { BabelFile, Visitor } from 'types';
+import type { BabelFile, Options, Visitor } from 'types';
+
+const DEFAULT_OPTIONS: Options = {
+  env: "web",
+  styleMode: "compile",
+  runtime: "@expressive/react",
+  pragma: "react",
+  output: "js",
+  modifiers: []
+};
 
 export default () => ({
   manipulateOptions: (options: any, parse: any) => {
@@ -24,8 +33,10 @@ const HandleProgram: Visitor<Program> = {
     const external =
       Object.assign({}, ...state.opts.modifiers);
 
+    const options = { ...DEFAULT_OPTIONS, ...state.opts };
+
     const context = state.context = 
-      new StackFrame(path, state)
+      new StackFrame(path, state, options)
         .including([ builtIn, external ]);
   
     Status.currentFile = state.file as BabelFile;
