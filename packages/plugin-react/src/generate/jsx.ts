@@ -9,12 +9,8 @@ export function createElement(
   this: StackFrame,
   tag: null | string | JSXMemberExpression,
   properties: PropData[] = [],
-  content: Expression[] = [],
-  acceptBr?: boolean
+  content: Expression[] = []
 ){
-  if(acceptBr === undefined)
-    acceptBr = !tag || typeof tag == "string" && /^[a-z]/.test(tag);
-
   if(!tag)
     tag = this.Scope.ensure("$pragma", "Fragment").name;
 
