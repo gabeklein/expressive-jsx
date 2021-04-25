@@ -1,9 +1,10 @@
 import * as t from '@babel/types';
-import { IsLegalAttribute } from 'types';
 
 import type { JSXMemberExpression, Expression } from '@babel/types';
 import type { StackFrame } from 'context';
 import type { PropData } from 'types';
+
+const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;
 
 export function createElement(
   this: StackFrame,

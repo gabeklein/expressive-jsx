@@ -9,7 +9,7 @@ import type { NodePath as Path } from '@babel/traverse';
 import type { Statement } from '@babel/types';
 import type { DefineElement } from 'handle/definition';
 import type { Prop } from 'handle/attributes';
-import type { BunchOf, ModifyBodyPath, ModifyAction, Options } from 'types';
+import type { BunchOf, DefineCompatibleBody, ModifyAction, Options } from 'types';
 
 const Oops = ParseErrors({
   InlineModeNoVariants: "Cannot attach a CSS variant while styleMode is set to inline."
@@ -29,7 +29,7 @@ export class ModifyDelegate {
     public target: DefineElement,
     public name: string,
     transform: ModifyAction,
-    input: any[] | ModifyBodyPath){
+    input: any[] | DefineCompatibleBody){
 
     let important = false;
     let args: any[];

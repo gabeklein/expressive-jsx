@@ -1,19 +1,10 @@
-import type { VisitNodeObject, NodePath as Path } from '@babel/traverse';
+import type { NodePath as Path } from '@babel/traverse';
 import type {
   BlockStatement,
-  ClassMethod,
   Expression,
   ExpressionStatement,
   File,
-  ForInStatement,
-  ForOfStatement,
-  ForStatement,
-  FunctionDeclaration,
-  FunctionExpression,
   IfStatement,
-  ObjectMethod,
-  JSXAttribute,
-  JSXSpreadAttribute,
   LabeledStatement,
   Node,
   Statement,
@@ -25,13 +16,6 @@ import type { ModifyDelegate } from 'modifier/delegate';
 import type { ElementInline } from 'handle/element';
 import type { ComponentFor, ComponentForX } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';
-
-export type Attributes = JSXAttribute | JSXSpreadAttribute;
-export type Visitor<T extends Node, S extends StackFrame = StackFrame> = VisitNodeObject<BabelState<S>, T>;
-
-export const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;
-export const IsLegalIdentifier = /^[a-zA-Z_]\w*$/;
-export const isIdentifierElement = /^[A-Z]\w*$/;
 
 export interface BunchOf<T> {
   [key: string]: T
@@ -46,6 +30,7 @@ export interface BabelFile extends File {
 }
 
 export interface Options {
+  // expected
   env: "native" | "web";
   output: "js" | "jsx";
   pragma: "react";
@@ -53,6 +38,7 @@ export interface Options {
   styleMode: "compile" | "inline" | "verbose";
   modifiers: BunchOf<(...args: any[]) => any>[];
 
+  // optional
   hot?: boolean;
   printStyle?: "pretty";
   externals?: "require" | "import" | false;
@@ -71,45 +57,35 @@ export interface PropData {
   value: Expression
 }
 
-export type FlatValue = string | number | boolean | null;
-export type SequenceItem = Attribute | InnerContent | Statement;
-export type InnerContent = Expression | ElementInline | ComponentIf | ComponentFor | ComponentForX;
-export type ModifyAction = (this: ModifyDelegate, ...args: any[]) => ModifierOutput | void;
+export type FlatValue =
+  | string
+  | number
+  | boolean
+  | null;
 
-export type ModiferBody = 
-  | ExpressionStatement 
-  | BlockStatement 
-  | LabeledStatement 
-  | IfStatement;
+export type SequenceItem =
+  | Attribute
+  | InnerContent
+  | Statement;
 
-export type FunctionPath =
-  | Path<ClassMethod>
-  | Path<ObjectMethod>
-  | Path<FunctionDeclaration>
-  | Path<FunctionExpression>
+export type InnerContent =
+  | Expression
+  | ElementInline
+  | ComponentIf
+  | ComponentFor
+  | ComponentForX;
 
-export type ForPath =
-  | Path<ForInStatement>
-  | Path<ForOfStatement>
-  | Path<ForStatement>;
-
-export type ModifyBodyPath =
-  | Path<ExpressionStatement>
-  | Path<BlockStatement>
-  | Path<LabeledStatement>
-  | Path<IfStatement>;
-
-export interface ModifierOutput {
+interface ModifierOutput {
   attrs?: BunchOf<any>
   style?: BunchOf<any>
   props?: BunchOf<any>
 }
 
-export interface CallAbstraction extends Array<any> {
-  callee: string;
-}
+export type ModifyAction =
+  (this: ModifyDelegate, ...args: any[]) => ModifierOutput | void;
 
-export interface IfAbstraction {
-  [type: string]: (...args: any[]) => any;
-  test: any;
-}
+export type DefineCompatibleBody =
+  | Path<ExpressionStatement>
+  | Path<BlockStatement>
+  | Path<LabeledStatement>
+  | Path<IfStatement>;

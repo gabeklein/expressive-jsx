@@ -9,7 +9,7 @@ import type { NodePath as Path } from '@babel/traverse';
 import type { LabeledStatement } from '@babel/types';
 import type { StackFrame } from 'context';
 import type { ExplicitStyle } from 'handle/attributes';
-import type { BunchOf, ModifyBodyPath } from 'types';
+import type { BunchOf, DefineCompatibleBody } from 'types';
 
 const Oops = ParseErrors({
   IllegalAtTopLevel: "Cannot apply element styles in top-level of program",
@@ -20,7 +20,7 @@ const Oops = ParseErrors({
 export function applyDirective(
   initial: string,
   recipient: DefineElement,
-  input: ModifyBodyPath){
+  input: DefineCompatibleBody){
 
   const { context } = recipient;
   const handler = context.getHandler(initial);

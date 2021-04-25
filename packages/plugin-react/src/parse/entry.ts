@@ -8,14 +8,22 @@ import type {
   ArrowFunctionExpression,
   AssignmentExpression,
   Class,
+  ClassMethod,
   DoExpression,
   FunctionDeclaration,
+  FunctionExpression,
+  ObjectMethod,
   ObjectProperty,
   VariableDeclaration,
   VariableDeclarator
 } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { FunctionPath } from 'types';
+
+type FunctionPath =
+  | Path<ClassMethod>
+  | Path<ObjectMethod>
+  | Path<FunctionDeclaration>
+  | Path<FunctionExpression>
 
 export function generateEntryElement(
   path: Path<DoExpression>,

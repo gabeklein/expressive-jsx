@@ -6,8 +6,12 @@ import { handleTopLevelDefine } from 'modifier/apply';
 import { builtIn } from 'modifier/builtIn';
 import { generateEntryElement } from 'parse';
 
-import type { DoExpression, Program } from '@babel/types';
-import type { BabelFile, Options, Visitor } from 'types';
+import type { DoExpression, Program, Node } from '@babel/types';
+import type { BabelFile, BabelState, Options } from 'types';
+import type { VisitNodeObject } from '@babel/traverse';
+
+type Visitor<T extends Node, S extends StackFrame = StackFrame> =
+  VisitNodeObject<BabelState<S>, T>;
 
 const DEFAULT_OPTIONS: Options = {
   env: "web",
