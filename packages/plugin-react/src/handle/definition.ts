@@ -1,8 +1,9 @@
 import { generateElement } from 'generate';
 import { recombineProps } from 'generate/es5';
-import { ExplicitStyle } from 'handle/attributes';
-import { ElementInline } from 'handle/element';
-import { AttributeBody } from 'handle/object';
+
+import { ExplicitStyle } from './attributes';
+import { ElementInline } from './element';
+import { AttributeBody } from './object';
 
 import type { StackFrame } from 'context';
 import type { DefineConsequent } from 'handle/switch';

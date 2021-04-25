@@ -1,7 +1,8 @@
-import * as t from 'syntax';
-import { Define } from 'handle/definition';
 import { parse } from 'parse/body';
+import * as t from 'syntax';
 import { ensureArray, hash } from 'utility';
+
+import { Define } from './definition';
 
 import type { StackFrame } from 'context';
 import type { DefineElement } from 'handle/definition';

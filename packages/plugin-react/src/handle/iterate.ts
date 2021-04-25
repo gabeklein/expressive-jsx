@@ -1,9 +1,10 @@
 import { ParseErrors } from 'errors';
-import { Prop } from 'handle/attributes';
-import { DefineElement } from 'handle/definition';
-import { ElementInline } from 'handle/element';
 import { parse } from 'parse/body';
 import * as t from 'syntax';
+
+import { Prop } from './attributes';
+import { DefineElement } from './definition';
+import { ElementInline } from './element';
 
 import type {
   ForStatement,
