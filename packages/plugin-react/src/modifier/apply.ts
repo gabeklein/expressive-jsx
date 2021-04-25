@@ -23,18 +23,15 @@ export function applyDirective(
   input: ModifyBodyPath){
 
   const { context } = recipient;
-  const styles = {} as BunchOf<ExplicitStyle>;
-  const start = [
-    initial,
-    context.getHandler(initial),
-    input
-  ] as const;
+  const handler = context.getHandler(initial);
+  const output = {} as BunchOf<ExplicitStyle>;
+  const start = [ initial, handler, input ] as const;
 
   doUntilEmpty(start, (next, enqueue) => {
-    const { styles: contribute, attrs } =
+    const { styles, attrs } =
       new ModifyDelegate(recipient, ...next);
 
-    Object.assign(styles, contribute);
+    Object.assign(output, styles);
     Object.entries(attrs).forEach(([name, value]) => {
       if(!value)
         return;
@@ -46,8 +43,8 @@ export function applyDirective(
     });
   });
 
-  for(const name in styles)
-    recipient.add(styles[name]);
+  for(const name in output)
+    recipient.add(output[name]);
 }
 
 export function handleTopLevelDefine(

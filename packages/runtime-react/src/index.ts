@@ -54,14 +54,14 @@ const Controller = new class RuntimeStyleController {
 
     if(cssText in existing)
       return
-    else {
-      if(reoccuringKey)
+
+    if(reoccuringKey)
       for(const text in existing)
-      if(reoccuringKey === existing[text])
-        delete existing[text];
-    }
+        if(reoccuringKey === existing[text])
+          delete existing[text];
 
     this.apply(cssText, reoccuringKey)
+
     try {
       this.ref!.innerHTML = this.cssText;
     }
