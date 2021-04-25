@@ -1,6 +1,5 @@
 import * as t from '@babel/types';
 import { ParseErrors } from 'errors';
-import { inParenthesis } from 'shared';
 
 import type {
   ArrowFunctionExpression,
@@ -32,7 +31,7 @@ const Oops = ParseErrors({
   TemplateMustBeText: "Template can only contain text here",
   ModiferCantParse: "Illegal value in modifier",
   ElseNotSupported: "An else statement in an if modifier is not yet supported"
-})
+});
 
 export class DelegateTypes {
   [type: string]: (...args: any[]) => any;
@@ -230,4 +229,9 @@ function HEXColor(raw: string){
     return `rgba(${ decimal.join(",") })`
   }
   else return "#" + raw;
+}
+
+function inParenthesis(node: Expression){
+  const { extra } = node as any;
+  return extra ? extra.parenthesized === true : false;
 }

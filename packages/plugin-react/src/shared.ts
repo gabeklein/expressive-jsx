@@ -1,4 +1,3 @@
-import type { Expression } from '@babel/types';
 import type { BunchOf, Options } from 'types';
 
 export const DEFAULTS: Options = {
@@ -37,11 +36,6 @@ export function hash(str = "", length = 3){
 
 export function ensureArray<T>(a: T | T[]){
   return Array.isArray(a) ? a : [a];
-}
-
-export function inParenthesis(node: Expression): boolean {
-  const { extra } = node as any;
-  return extra ? extra.parenthesized === true : false;
 }
 
 export class Stack<T> {
