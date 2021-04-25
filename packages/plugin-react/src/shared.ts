@@ -65,3 +65,26 @@ export class Stack<T> {
     return this.layer.hasOwnProperty(key);
   }
 }
+
+export function doUntilEmpty<T>(
+  startingData: T,
+  step: (next: T, enqueue: (data: T) => void) => void
+){
+  let i = 0;
+  let queue = [startingData];
+
+  do {
+    let pending: T[] = [];
+    const add = (next: T) => pending.push(next);
+
+    step(queue[i], add);
+
+    if(!pending.length)
+      i++;
+    else {
+      queue = [ ...pending, ...queue.slice(i+1) ];
+      i = 0;
+    }
+  }
+  while(i in queue)
+}

@@ -1,6 +1,7 @@
 import { ParseErrors } from 'errors';
 import { DefineElement } from 'handle';
 import { parse } from 'parse';
+import { doUntilEmpty } from 'shared';
 
 import { ModifyDelegate } from './delegate';
 
@@ -8,19 +9,13 @@ import type { NodePath as Path } from '@babel/traverse';
 import type { LabeledStatement } from '@babel/types';
 import type { StackFrame } from 'context';
 import type { ExplicitStyle } from 'handle/attributes';
-import type { BunchOf, ModifyAction, ModifyBodyPath } from 'types';
+import type { BunchOf, ModifyBodyPath } from 'types';
 
 const Oops = ParseErrors({
   IllegalAtTopLevel: "Cannot apply element styles in top-level of program",
   BadModifierName: "Modifier name cannot start with _ symbol!",
   DuplicateModifier: "Duplicate declaration of named modifier!"
-})
-
-type ModTuple = [
-  string,
-  ModifyAction,
-  any[] | ModifyBodyPath
-];
+});
 
 export function applyDirective(
   initial: string,
@@ -29,39 +24,27 @@ export function applyDirective(
 
   const { context } = recipient;
   const styles = {} as BunchOf<ExplicitStyle>;
+  const start = [
+    initial,
+    context.getHandler(initial),
+    input
+  ] as const;
 
-  let i = 0;
-  let stack: ModTuple[] = [
-    [ initial, context.getHandler(initial), input ]
-  ];
+  doUntilEmpty(start, (next, enqueue) => {
+    const { styles: contribute, attrs } =
+      new ModifyDelegate(recipient, ...next);
 
-  do {
-    const output = new ModifyDelegate(recipient, ...stack[i]);
+    Object.assign(styles, contribute);
+    Object.entries(attrs).forEach(([name, value]) => {
+      if(!value)
+        return;
+      
+      const useNext = name === initial;
+      const handler = context.getHandler(name, useNext);
 
-    Object.assign(styles, output.styles);
-    const recycle = output.attrs;
-    const pending = [] as ModTuple[];
-
-    if(recycle)
-      for(const named in recycle){
-        const input = recycle[named];
-
-        if(input){
-          const useNext = named === initial;
-          const handler = context.getHandler(named, useNext);
-
-          pending.push([named, handler, input]);
-        }
-      }
-
-    if(pending.length){
-      const remaining = stack.slice(i+1);
-      stack = [...pending, ...remaining];
-      i = 0;
-    }
-    else i++
-  }
-  while(i in stack)
+      enqueue([name, handler, value as any]);
+    });
+  });
 
   for(const name in styles)
     recipient.add(styles[name]);
