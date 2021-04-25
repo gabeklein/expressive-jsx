@@ -3,7 +3,7 @@ import * as t from '@babel/types';
 import type { Expression, LVal, MemberExpression } from '@babel/types';
 import type { BunchOf } from 'types';
 
-export function _object(
+export function object(
   obj: BunchOf<Expression | false | undefined> = {}){
 
   const properties = [];
@@ -20,7 +20,7 @@ export function _object(
   return t.objectExpression(properties);
 }
 
-export function _get(
+export function get(
   object: string | Expression,
   ...path: (string | number)[] ){
 
@@ -51,14 +51,14 @@ export function _get(
   return object as MemberExpression;
 }
 
-export function _call(
+export function call(
   callee: Expression,
   ...args: Expression[]
 ){
   return t.callExpression(callee, args)
 }
 
-export function _require(from: string){
+export function require(from: string){
   const argument = 
     typeof from == "string"
       ? t.stringLiteral(from)
@@ -69,7 +69,7 @@ export function _require(from: string){
   )
 }
 
-export function _declare(
+export function declare(
   type: "const" | "let" | "var",
   id: LVal,
   init?: Expression ){
@@ -81,25 +81,23 @@ export function _declare(
   )
 }
 
-export function _objectAssign(
+export function objectAssign(
   ...objects: Expression[]){
 
   return t.callExpression(
-    _get("Object.assign"),
+    get("Object.assign"),
     objects
   )
 }
 
-export function _objectKeys(
-  object: Expression){
-
-  return _call(
-    _get("Object.keys"),
+export function objectKeys(object: Expression){
+  return call(
+    get("Object.keys"),
     object
   )
 }
 
-export function _template(text: string){
+export function template(text: string){
   return (
     t.templateLiteral([
       t.templateElement({ raw: text, cooked: text }, true)

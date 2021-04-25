@@ -1,5 +1,5 @@
 import * as t from '@babel/types';
-import { _declare, _require } from 'syntax';
+import * as s from 'syntax';
 
 import { createElement as createJS } from './es5';
 import { createElement as createJSX } from './jsx';
@@ -240,8 +240,8 @@ export class RequireManager extends FileManager {
     const list = this.imports[name]
 
     if(list.length){
-      const target = this.importTargets[name] || _require(name);
-      return _declare("const", t.objectPattern(list), target);
+      const target = this.importTargets[name] || s.require(name);
+      return s.declare("const", t.objectPattern(list), target);
     }
   }
 }

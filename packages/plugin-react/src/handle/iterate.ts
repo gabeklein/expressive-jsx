@@ -15,7 +15,7 @@ import { Prop } from 'handle/attributes';
 import { DefineElement } from 'handle/definition';
 import { ElementInline } from 'handle/element';
 import { parse } from 'parse/body';
-import { _call, _get, _objectKeys } from 'syntax';
+import * as s from 'syntax';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type {
@@ -67,7 +67,7 @@ export class ComponentFor {
 
     let body: Statement =
       expressionStatement(
-        _call(accumulator, output)
+        s.call(accumulator, output)
       );
 
     if(statements.length)
@@ -75,7 +75,7 @@ export class ComponentFor {
 
     node.body = body;
 
-    return _call(collect, 
+    return s.call(collect, 
       arrowFunctionExpression(
         [accumulator], blockStatement([ node ])
       )  
@@ -120,14 +120,14 @@ export class ComponentForX {
     if(path.isForOfStatement()){
       const params = key ? [left, key] : [left];
 
-      return _call(
-        _get(right, "map"),
+      return s.call(
+        s.get(right, "map"),
         arrowFunctionExpression(params, body)
       )
     }
     else
-      return _call(
-        _get(_objectKeys(right), "map"),
+      return s.call(
+        s.get(s.objectKeys(right), "map"),
         arrowFunctionExpression([left], body)
       )
   }

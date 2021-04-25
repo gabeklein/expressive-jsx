@@ -1,6 +1,6 @@
 import * as t from '@babel/types';
 import { ArrayStack } from 'generate';
-import { _object, _objectAssign } from 'syntax';
+import * as s from 'syntax';
 
 import type {
   Expression,
@@ -41,7 +41,7 @@ export function recombineProps(props: PropData[]){
   const propStack = new ArrayStack<ObjectProperty, Expression>()
 
   if(props.length === 0)
-    return _object();
+    return s.object();
 
   for(const { name, value } of props)
     if(!name)
@@ -61,10 +61,10 @@ export function recombineProps(props: PropData[]){
   )
 
   if(properties[0].type !== "ObjectExpression")
-    properties.unshift(_object())
+    properties.unshift(s.object())
 
   return properties.length > 1
-    ? _objectAssign(...properties)
+    ? s.objectAssign(...properties)
     : properties[0];
 }
 

@@ -1,6 +1,6 @@
 import * as t from '@babel/types';
 import { Prop } from 'handle/attributes';
-import { _call, _declare } from 'syntax';
+import * as s from 'syntax';
 
 import type { NodePath as Path, Scope } from '@babel/traverse';
 import type { ArrowFunctionExpression } from '@babel/types';
@@ -35,7 +35,7 @@ export function forwardProp(
     const { Scope } = target.context;
     const _ref = uniqueWithin(scope, "ref");
     const _forwardRef = Scope.ensure("$pragma", "forwardRef");
-    const _wrapped = _call(_forwardRef, exec.node);
+    const _wrapped = s.call(_forwardRef, exec.node);
 
     exec.pushContainer("params", _ref);
     exec.replaceWith(_wrapped);
@@ -77,7 +77,7 @@ function getProps(
 
     else if(t.isIdentifier(existing))
       target.statements.push(
-        _declare("const", props, existing)
+        s.declare("const", props, existing)
       );
   }
 

@@ -1,6 +1,6 @@
 import * as t from '@babel/types';
 import { ExplicitStyle } from 'handle/attributes';
-import { _get, _template } from 'syntax';
+import * as s from 'syntax';
 import { hash } from 'utility';
 
 import type { Expression } from '@babel/types';
@@ -18,14 +18,14 @@ export function printStyles(state: BabelState<StackFrame>){
   const styles = new Printer(modifiersDeclared).print(pretty);
   const fileId = state.opts.hot !== false && hash(state.filename, 10);
   const runtime = Scope.ensure("$runtime", "default", "Styles");
-  const args: Expression[] = [ _template(styles) ];
+  const args: Expression[] = [ s.template(styles) ];
 
   if(fileId)
     args.push(t.stringLiteral(fileId));
 
   return t.expressionStatement(
     t.callExpression(
-      _get(runtime, "include"), args
+      s.get(runtime, "include"), args
     )
   );
 }
