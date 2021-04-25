@@ -1,7 +1,8 @@
-import * as t from '@babel/types';
 import { ArrayStack } from 'generate';
-import * as s from 'syntax';
+import * as t from 'syntax';
 
+import type { StackFrame } from 'context';
+import type { PropData } from 'types';
 import type {
   Expression,
   Identifier,
@@ -9,9 +10,7 @@ import type {
   JSXMemberExpression,
   MemberExpression,
   ObjectProperty
-} from '@babel/types';
-import type { StackFrame } from 'context';
-import type { PropData } from 'types';
+} from 'syntax';
 
 export function createElement(
   this: StackFrame,
@@ -41,7 +40,7 @@ export function recombineProps(props: PropData[]){
   const propStack = new ArrayStack<ObjectProperty, Expression>()
 
   if(props.length === 0)
-    return s.object();
+    return t.object();
 
   for(const { name, value } of props)
     if(!name)
@@ -61,10 +60,10 @@ export function recombineProps(props: PropData[]){
   )
 
   if(properties[0].type !== "ObjectExpression")
-    properties.unshift(s.object())
+    properties.unshift(t.object())
 
   return properties.length > 1
-    ? s.objectAssign(...properties)
+    ? t.objectAssign(...properties)
     : properties[0];
 }
 

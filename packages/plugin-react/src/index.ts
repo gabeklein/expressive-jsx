@@ -1,14 +1,13 @@
-import * as t from '@babel/types';
 import { StackFrame } from 'context';
 import { Status } from 'errors';
 import { printStyles } from 'generate';
 import { builtIn } from 'modifier/builtIn';
 import { generateEntryElement } from 'parse/entry';
 import { handleTopLevelDefine } from 'parse/labels';
+import * as t from 'syntax';
 
-import type { DoExpression, Program, Node } from '@babel/types';
+import type { DoExpression, Program, Node, VisitNodeObject } from 'syntax';
 import type { BabelFile, BabelState, Options } from 'types';
-import type { VisitNodeObject } from '@babel/traverse';
 
 type Visitor<T extends Node, S extends StackFrame = StackFrame> =
   VisitNodeObject<BabelState<S>, T>;

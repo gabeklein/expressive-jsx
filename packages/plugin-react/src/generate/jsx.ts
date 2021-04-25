@@ -1,7 +1,7 @@
-import * as t from '@babel/types';
+import * as t from 'syntax';
 
-import type { JSXMemberExpression, Expression } from '@babel/types';
 import type { StackFrame } from 'context';
+import type { JSXMemberExpression, Expression } from 'syntax';
 import type { PropData } from 'types';
 
 const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;

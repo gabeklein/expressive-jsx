@@ -1,10 +1,8 @@
-import * as t from '@babel/types';
-import * as s from 'syntax';
+import * as t from 'syntax';
 
 import { createElement as createJS } from './es5';
 import { createElement as createJSX } from './jsx';
 
-import type { NodePath as Path } from '@babel/traverse';
 import type {
   CallExpression,
   Expression,
@@ -15,10 +13,11 @@ import type {
   JSXElement,
   JSXMemberExpression,
   ObjectProperty,
+  Path,
   Program,
   Statement,
   VariableDeclaration
-} from '@babel/types';
+} from 'syntax';
 import type { StackFrame } from 'context';
 import type { BunchOf, Options, PropData } from 'types';
 
@@ -240,8 +239,8 @@ export class RequireManager extends FileManager {
     const list = this.imports[name]
 
     if(list.length){
-      const target = this.importTargets[name] || s.require(name);
-      return s.declare("const", t.objectPattern(list), target);
+      const target = this.importTargets[name] || t.require(name);
+      return t.declare("const", t.objectPattern(list), target);
     }
   }
 }

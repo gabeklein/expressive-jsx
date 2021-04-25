@@ -2,10 +2,9 @@ import { ImportManager, RequireManager } from 'generate';
 import { DefineElement } from 'handle/definition';
 import { hash, Stack } from 'utility';
 
-import type { NodePath as Path } from '@babel/traverse';
-import type { Program } from '@babel/types';
 import type { Define , DefineContainer} from 'handle/definition';
 import type { FileManager } from 'generate/scope';
+import type { Path, Program } from 'syntax';
 import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
 
 interface Stackable {

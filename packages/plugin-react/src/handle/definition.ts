@@ -4,10 +4,9 @@ import { ExplicitStyle } from 'handle/attributes';
 import { ElementInline } from 'handle/element';
 import { AttributeBody } from 'handle/object';
 
-import type { NodePath as Path } from '@babel/traverse';
-import type { ArrowFunctionExpression } from '@babel/types';
 import type { StackFrame } from 'context';
 import type { DefineConsequent } from 'handle/switch';
+import type { ArrowFunctionExpression, Path } from 'syntax';
 
 export type DefineAny = DefineElement | DefineConsequent;
 

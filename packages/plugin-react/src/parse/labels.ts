@@ -5,12 +5,11 @@ import { doUntilEmpty } from 'utility';
 
 import { parse } from './body';
 
-import type { NodePath as Path } from '@babel/traverse';
-import type { LabeledStatement, Statement } from '@babel/types';
+import type { StackFrame } from 'context';
 import type { Define } from 'handle/definition';
 import type { ExplicitStyle } from 'handle/attributes';
+import type { LabeledStatement, Path, Statement } from 'syntax';
 import type { BunchOf, DefineCompatibleBody } from 'types';
-import type { StackFrame } from 'context';
 
 const Oops = ParseErrors({
   BadInputModifier: "Modifier input of type {1} not supported here!",

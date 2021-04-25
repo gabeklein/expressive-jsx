@@ -1,12 +1,11 @@
-import * as t from '@babel/types';
+import * as t from 'syntax';
 import { Define } from 'handle/definition';
 import { parse } from 'parse/body';
 import { ensureArray, hash } from 'utility';
 
-import type { NodePath as Path } from '@babel/traverse';
-import type { Expression, IfStatement, Statement } from '@babel/types';
 import type { StackFrame } from 'context';
 import type { DefineElement } from 'handle/definition';
+import type { Expression, IfStatement, Statement, Path } from 'syntax';
 
 type Consequent = ComponentIf | DefineConsequent;
 type GetProduct = (fork: Consequent) => Expression | undefined;

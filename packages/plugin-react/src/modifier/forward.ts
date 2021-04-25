@@ -1,11 +1,9 @@
-import * as t from '@babel/types';
 import { Prop } from 'handle/attributes';
-import * as s from 'syntax';
+import * as t from 'syntax';
 
-import type { NodePath as Path, Scope } from '@babel/traverse';
-import type { ArrowFunctionExpression } from '@babel/types';
 import type { DefineElement } from 'handle/definition';
 import type { ModifyDelegate } from 'parse/modifiers';
+import type { ArrowFunctionExpression, Path, Scope } from 'syntax';
 
 export function forwardProp(
   this: ModifyDelegate,
@@ -35,7 +33,7 @@ export function forwardProp(
     const { Scope } = target.context;
     const _ref = uniqueWithin(scope, "ref");
     const _forwardRef = Scope.ensure("$pragma", "forwardRef");
-    const _wrapped = s.call(_forwardRef, exec.node);
+    const _wrapped = t.call(_forwardRef, exec.node);
 
     exec.pushContainer("params", _ref);
     exec.replaceWith(_wrapped);
@@ -77,7 +75,7 @@ function getProps(
 
     else if(t.isIdentifier(existing))
       target.statements.push(
-        s.declare("const", props, existing)
+        t.declare("const", props, existing)
       );
   }
 

@@ -1,6 +1,6 @@
-import { toExpression } from 'generate/attributes'
+import { toExpression } from 'generate/attributes';
 
-import type { Expression } from '@babel/types';
+import type { Expression } from 'syntax';
 import type { FlatValue } from 'types';
 
 export abstract class Attribute {

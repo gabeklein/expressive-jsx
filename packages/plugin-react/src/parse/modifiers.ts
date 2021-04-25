@@ -1,15 +1,14 @@
 import { ParseErrors } from 'errors';
 import { ExplicitStyle } from 'handle/attributes';
 import { DefineVariant } from 'handle/definition';
-import * as s from 'syntax';
+import * as t from 'syntax';
 
 import { DelegateTypes } from './arguments';
 import { parse } from './body';
 
-import type { NodePath as Path } from '@babel/traverse';
-import type { Statement } from '@babel/types';
 import type { DefineElement } from 'handle/definition';
 import type { Prop } from 'handle/attributes';
+import type { Path, Statement } from 'syntax';
 import type { BunchOf, DefineCompatibleBody, ModifyAction, Options } from 'types';
 
 const Oops = ParseErrors({
@@ -103,7 +102,7 @@ export class ModifyDelegate {
 
 function propertyModifierDefault(this: ModifyDelegate){
   const args = this.arguments.map(arg =>
-    arg.value || arg.requires ? s.require(arg.requires) : arg
+    arg.value || arg.requires ? t.require(arg.requires) : arg
   )
 
   const output =

@@ -1,12 +1,10 @@
-import * as t from '@babel/types';
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { DefineElement } from 'handle/definition';
 import { ElementInline } from 'handle/element';
 import { parse } from 'parse/body';
-import * as s from 'syntax';
+import * as t from 'syntax';
 
-import type { NodePath as Path } from '@babel/traverse';
 import type {
   ForStatement,
   Statement,
@@ -14,8 +12,9 @@ import type {
   ForOfStatement,
   Identifier ,
   BlockStatement,
-  Expression
-} from '@babel/types';
+  Expression,
+  Path
+} from 'syntax';
 import type { StackFrame } from 'context';
 
 const Oops = ParseErrors({
@@ -56,7 +55,7 @@ export class ComponentFor {
 
     let body: Statement =
       t.expressionStatement(
-        s.call(accumulator, output)
+        t.call(accumulator, output)
       );
 
     if(statements.length)
@@ -64,7 +63,7 @@ export class ComponentFor {
 
     node.body = body;
 
-    return s.call(collect, 
+    return t.call(collect, 
       t.arrowFunctionExpression(
         [accumulator], t.blockStatement([ node ])
       )  
@@ -109,14 +108,14 @@ export class ComponentForX {
     if(path.isForOfStatement()){
       const params = key ? [left, key] : [left];
 
-      return s.call(
-        s.get(right, "map"),
+      return t.call(
+        t.get(right, "map"),
         t.arrowFunctionExpression(params, body)
       )
     }
     else
-      return s.call(
-        s.get(s.objectKeys(right), "map"),
+      return t.call(
+        t.get(t.objectKeys(right), "map"),
         t.arrowFunctionExpression([left], body)
       )
   }

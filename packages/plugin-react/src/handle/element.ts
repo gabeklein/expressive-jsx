@@ -2,8 +2,8 @@ import { generateElement } from 'generate';
 
 import { AttributeBody } from './object';
 
-import type { JSXMemberExpression } from '@babel/types';
 import type { Define } from 'handle/definition';
+import type { JSXMemberExpression } from 'syntax';
 
 export class ElementInline extends AttributeBody {
   explicitTagName?: string | JSXMemberExpression;

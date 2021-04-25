@@ -3,6 +3,9 @@ import * as t from '@babel/types';
 import type { Expression, LVal, MemberExpression } from '@babel/types';
 import type { BunchOf } from 'types';
 
+export type { NodePath as Path, Scope, VisitNodeObject } from '@babel/traverse';
+export * from '@babel/types';
+
 export function object(
   obj: BunchOf<Expression | false | undefined> = {}){
 

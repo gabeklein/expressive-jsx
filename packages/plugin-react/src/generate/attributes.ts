@@ -1,7 +1,7 @@
-import * as t from '@babel/types';
 import { ExplicitStyle } from 'handle/attributes';
+import * as t from 'syntax';
 
-import type { ObjectProperty, SpreadElement, Expression } from '@babel/types';
+import type { ObjectProperty, SpreadElement, Expression } from 'syntax';
 import type { FlatValue } from 'types';
 
 export function toExpression(value?: FlatValue | Expression){

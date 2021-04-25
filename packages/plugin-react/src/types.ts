@@ -1,4 +1,3 @@
-import type { NodePath as Path } from '@babel/traverse';
 import type {
   BlockStatement,
   Expression,
@@ -7,8 +6,9 @@ import type {
   IfStatement,
   LabeledStatement,
   Node,
+  Path,
   Statement,
-} from '@babel/types';
+} from 'syntax';
 
 import type { StackFrame } from 'context';
 import type { Attribute } from 'handle/attributes';

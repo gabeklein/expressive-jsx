@@ -1,5 +1,5 @@
-import * as t from '@babel/types';
 import { ParseErrors } from 'errors';
+import * as t from 'syntax';
 
 import type {
   ArrowFunctionExpression,
@@ -17,7 +17,7 @@ import type {
   StringLiteral,
   TemplateLiteral,
   UnaryExpression
-} from '@babel/types';
+} from 'syntax';
 import type { BunchOf } from 'types';
 
 const Oops = ParseErrors({

@@ -1,12 +1,12 @@
-import * as t from '@babel/types';
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { DefineElement } from 'handle/definition';
 import { ElementInline } from 'handle/element';
+import * as t from 'syntax';
 
 import { parse } from './body';
 
-import type { NodePath as Path } from '@babel/traverse';
+import type { Define } from 'handle/definition';
 import type {
   Expression,
   JSXAttribute,
@@ -14,9 +14,9 @@ import type {
   JSXIdentifier,
   JSXMemberExpression,
   JSXNamespacedName,
-  JSXSpreadAttribute
-} from '@babel/types';
-import type { Define } from 'handle/definition';
+  JSXSpreadAttribute,
+  Path
+} from 'syntax';
 
 export type Element = ElementInline | Define;
 

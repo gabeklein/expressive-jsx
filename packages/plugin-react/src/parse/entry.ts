@@ -1,9 +1,8 @@
-import * as t from '@babel/types';
 import { DefineContainer } from 'handle/definition';
+import * as t from 'syntax';
 
 import { parse } from './body';
 
-import type { NodePath as Path } from '@babel/traverse';
 import type {
   ArrowFunctionExpression,
   AssignmentExpression,
@@ -14,9 +13,10 @@ import type {
   FunctionExpression,
   ObjectMethod,
   ObjectProperty,
+  Path,
   VariableDeclaration,
   VariableDeclarator
-} from '@babel/types';
+} from 'syntax';
 import type { StackFrame } from 'context';
 
 type FunctionPath =

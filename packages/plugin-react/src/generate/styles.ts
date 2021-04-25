@@ -1,11 +1,10 @@
-import * as t from '@babel/types';
 import { ExplicitStyle } from 'handle/attributes';
-import * as s from 'syntax';
+import * as t from 'syntax';
 import { hash } from 'utility';
 
-import type { Expression } from '@babel/types';
-import type { Define } from 'handle/definition';
 import type { StackFrame } from 'context';
+import type { Define } from 'handle/definition';
+import type { Expression } from 'syntax';
 import type { BabelState, BunchOf } from 'types';
 
 export function printStyles(state: BabelState<StackFrame>){
@@ -18,14 +17,14 @@ export function printStyles(state: BabelState<StackFrame>){
   const styles = new Printer(modifiersDeclared).print(pretty);
   const fileId = state.opts.hot !== false && hash(state.filename, 10);
   const runtime = Scope.ensure("$runtime", "default", "Styles");
-  const args: Expression[] = [ s.template(styles) ];
+  const args: Expression[] = [ t.template(styles) ];
 
   if(fileId)
     args.push(t.stringLiteral(fileId));
 
   return t.expressionStatement(
     t.callExpression(
-      s.get(runtime, "include"), args
+      t.get(runtime, "include"), args
     )
   );
 }
