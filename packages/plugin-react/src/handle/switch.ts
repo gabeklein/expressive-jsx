@@ -1,6 +1,6 @@
 import * as t from '@babel/types';
 import { Define } from 'handle/definition';
-import { parse } from 'parse';
+import { parse } from 'parse/body';
 import { ensureArray, hash } from 'utility';
 
 import type { NodePath as Path } from '@babel/traverse';

@@ -1,9 +1,9 @@
-import { DefineVariant, ExplicitStyle } from 'handle';
-import { parse } from 'parse';
-import { _require } from 'syntax';
 import { ParseErrors } from 'errors';
+import { DefineVariant, ExplicitStyle } from 'handle';
+import { _require } from 'syntax';
 
 import { DelegateTypes } from './arguments';
+import { parse } from './body';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { Statement } from '@babel/types';

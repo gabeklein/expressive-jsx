@@ -12,7 +12,7 @@ import type {
 
 import type { StackFrame } from 'context';
 import type { Attribute } from 'handle/attributes';
-import type { ModifyDelegate } from 'modifier/delegate';
+import type { ModifyDelegate } from 'parse/modifiers';
 import type { ElementInline } from 'handle/element';
 import type { ComponentFor, ComponentForX } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';

@@ -12,7 +12,7 @@ import {
 } from '@babel/types';
 import { ParseErrors } from 'errors';
 import { DefineElement, ElementInline, Prop } from 'handle';
-import { parse } from 'parse';
+import { parse } from 'parse/body';
 import { _call, _get, _objectKeys } from 'syntax';
 
 import type { NodePath as Path } from '@babel/traverse';

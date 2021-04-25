@@ -2,9 +2,9 @@ import * as t from '@babel/types';
 import { StackFrame } from 'context';
 import { Status } from 'errors';
 import { printStyles } from 'generate';
-import { handleTopLevelDefine } from 'modifier/apply';
 import { builtIn } from 'modifier/builtIn';
-import { generateEntryElement } from 'parse';
+import { generateEntryElement } from 'parse/entry';
+import { handleTopLevelDefine } from 'parse/labels';
 
 import type { DoExpression, Program, Node } from '@babel/types';
 import type { BabelFile, BabelState, Options } from 'types';

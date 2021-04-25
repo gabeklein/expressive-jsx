@@ -1,6 +1,6 @@
 import { forwardProp } from './forward';
 
-import type { ModifyDelegate } from './delegate';
+import type { ModifyDelegate } from 'parse/modifiers';
 
 function applyAlso(
   this: ModifyDelegate,

@@ -1,9 +1,9 @@
 import * as t from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ComponentFor, ComponentForX, ComponentIf, Prop } from 'handle';
-import { addElementFromJSX } from 'parse';
 import { ensureArray } from 'utility';
 
+import { addElementFromJSX } from './jsx';
 import { parseDefineBlock } from './labels';
 
 import type { NodePath as Path } from '@babel/traverse';

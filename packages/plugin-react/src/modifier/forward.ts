@@ -5,7 +5,7 @@ import { _call, _declare } from 'syntax';
 import type { NodePath as Path, Scope } from '@babel/traverse';
 import type { ArrowFunctionExpression } from '@babel/types';
 import type { DefineElement } from 'handle';
-import type { ModifyDelegate } from './delegate';
+import type { ModifyDelegate } from 'parse/modifiers';
 
 export function forwardProp(
   this: ModifyDelegate,
