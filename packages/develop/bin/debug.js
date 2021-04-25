@@ -35,7 +35,7 @@ const spaceOutBlocks = () =>
   replace(/([\t \r]*\n)([\)\}\]]+;?)([\t \r]*\n{1})(\s*[^\ni])/g, "$1$2$3\n$4")
 
 const spaceAfterImports = () =>
-  replace(/(from ".+";?)([\t \r]*\n)([^\ni])/g, "$1$2\n$3");
+  replace(/(from '.+";?)([\t \r]*\n)([^\ni])/g, "$1$2\n$3');
 
 gulp.task('xjs', (done) => {
   gulp

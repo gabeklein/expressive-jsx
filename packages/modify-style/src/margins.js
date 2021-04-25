@@ -1,5 +1,5 @@
-import { rect } from "./util";
-import { appendUnitToN } from "./units";
+import { rect } from './util';
+import { appendUnitToN } from './units';
 
 const EXPORT = exports;
 

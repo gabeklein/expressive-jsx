@@ -1,4 +1,4 @@
-import { pascalToDash } from "./util";
+import { pascalToDash } from './util';
 
 const EXPORT = exports;
 

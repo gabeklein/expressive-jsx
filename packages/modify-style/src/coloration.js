@@ -1,4 +1,4 @@
-import { rgba, hsla } from "./colors";
+import { rgba, hsla } from './colors';
 
 export function bg(a){
   const { URL_IMAGES } = process.env;

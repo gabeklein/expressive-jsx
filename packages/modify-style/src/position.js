@@ -1,4 +1,4 @@
-import { rect } from "./util"
+import { rect } from './util'
 
 const INVERSE = {
   top: "bottom",

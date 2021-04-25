@@ -1,4 +1,4 @@
-import { pascalToDash } from "./util";
+import { pascalToDash } from './util';
 
 export function css(){
   let body = this.body;
