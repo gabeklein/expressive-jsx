@@ -1,7 +1,7 @@
 import * as t from '@babel/types';
 import { Define } from 'handle/definition';
 import { parse } from 'parse';
-import { ensureArray, hash } from 'shared';
+import { ensureArray, hash } from 'utility';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { Expression, IfStatement, Statement } from '@babel/types';

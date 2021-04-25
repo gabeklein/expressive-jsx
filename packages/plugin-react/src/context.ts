@@ -1,6 +1,6 @@
 import { ImportManager, RequireManager } from 'generate';
 import { DefineElement } from 'handle/definition';
-import { hash, Stack } from 'shared';
+import { hash, Stack } from 'utility';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { Program } from '@babel/types';

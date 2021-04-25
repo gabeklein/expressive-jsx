@@ -1,7 +1,7 @@
 import { ParseErrors } from 'errors';
 import { DefineElement } from 'handle';
 import { parse } from 'parse';
-import { doUntilEmpty } from 'shared';
+import { doUntilEmpty } from 'utility';
 
 import { ModifyDelegate } from './delegate';
 

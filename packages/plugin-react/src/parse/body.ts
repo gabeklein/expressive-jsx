@@ -2,7 +2,7 @@ import * as t from '@babel/types';
 import { ParseErrors } from 'errors';
 import { ComponentFor, ComponentForX, ComponentIf, Prop } from 'handle';
 import { addElementFromJSX } from 'parse';
-import { ensureArray } from 'shared';
+import { ensureArray } from 'utility';
 
 import { parseDefineBlock } from './labels';
 

@@ -1,7 +1,7 @@
 import * as t from '@babel/types';
 import { ExplicitStyle } from 'handle';
-import { hash } from 'shared';
 import { _get, _template } from 'syntax';
+import { hash } from 'utility';
 
 import type { Expression } from '@babel/types';
 import type { Define } from 'handle/definition';
