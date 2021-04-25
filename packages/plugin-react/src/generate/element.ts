@@ -1,8 +1,11 @@
 import * as t from '@babel/types';
-import { AttributeStack } from 'generate';
-import { ComponentIf, DefineElement, DefineVariant, ExplicitStyle, Prop } from 'handle';
+import { AttributeStack } from 'generate/attributes';
+import { ExplicitStyle, Prop } from 'handle/attributes';
+import { DefineElement, DefineVariant } from 'handle/definition';
+import { ComponentIf } from 'handle/switch';
 
-import type { ElementInline, DefineConsequent } from 'handle';
+import type { ElementInline } from 'handle/element';
+import type { DefineConsequent } from 'handle/switch';
 import type { Expression } from '@babel/types';
 import type { PropData, SequenceItem } from 'types';
 import type { FileManager } from 'generate';

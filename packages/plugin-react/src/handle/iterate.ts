@@ -11,7 +11,9 @@ import {
   returnStatement,
 } from '@babel/types';
 import { ParseErrors } from 'errors';
-import { DefineElement, ElementInline, Prop } from 'handle';
+import { Prop } from 'handle/attributes';
+import { DefineElement } from 'handle/definition';
+import { ElementInline } from 'handle/element';
 import { parse } from 'parse/body';
 import { _call, _get, _objectKeys } from 'syntax';
 

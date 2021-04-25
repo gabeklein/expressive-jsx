@@ -1,6 +1,7 @@
 import { generateElement } from 'generate';
 import { recombineProps } from 'generate/es5';
-import { ElementInline, ExplicitStyle } from 'handle';
+import { ExplicitStyle } from 'handle/attributes';
+import { ElementInline } from 'handle/element';
 import { AttributeBody } from 'handle/object';
 
 import type { NodePath as Path } from '@babel/traverse';

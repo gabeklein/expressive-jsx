@@ -1,5 +1,6 @@
 import { ParseErrors } from 'errors';
-import { DefineVariant, ExplicitStyle } from 'handle';
+import { ExplicitStyle } from 'handle/attributes';
+import { DefineVariant } from 'handle/definition';
 import { _require } from 'syntax';
 
 import { DelegateTypes } from './arguments';

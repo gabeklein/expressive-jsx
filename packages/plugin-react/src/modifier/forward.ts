@@ -1,10 +1,10 @@
 import * as t from '@babel/types';
-import { Prop } from 'handle';
+import { Prop } from 'handle/attributes';
 import { _call, _declare } from 'syntax';
 
 import type { NodePath as Path, Scope } from '@babel/traverse';
 import type { ArrowFunctionExpression } from '@babel/types';
-import type { DefineElement } from 'handle';
+import type { DefineElement } from 'handle/definition';
 import type { ModifyDelegate } from 'parse/modifiers';
 
 export function forwardProp(

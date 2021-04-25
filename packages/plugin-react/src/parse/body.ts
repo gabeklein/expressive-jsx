@@ -1,6 +1,8 @@
 import * as t from '@babel/types';
 import { ParseErrors } from 'errors';
-import { ComponentFor, ComponentForX, ComponentIf, Prop } from 'handle';
+import { Prop } from 'handle/attributes';
+import { ComponentFor, ComponentForX } from 'handle/iterate';
+import { ComponentIf } from 'handle/switch';
 import { ensureArray } from 'utility';
 
 import { addElementFromJSX } from './jsx';
@@ -8,7 +10,7 @@ import { parseDefineBlock } from './labels';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { Node } from '@babel/types';
-import type { Define } from 'handle';
+import type { Define } from 'handle/definition';
 
 const Oops = ParseErrors({
   BadInputModifier: "Modifier input of type {1} not supported here!",

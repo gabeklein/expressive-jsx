@@ -6,7 +6,7 @@ import { ensureArray, hash } from 'utility';
 import type { NodePath as Path } from '@babel/traverse';
 import type { Expression, IfStatement, Statement } from '@babel/types';
 import type { StackFrame } from 'context';
-import type { DefineElement } from 'handle';
+import type { DefineElement } from 'handle/definition';
 
 type Consequent = ComponentIf | DefineConsequent;
 type GetProduct = (fork: Consequent) => Expression | undefined;

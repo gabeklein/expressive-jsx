@@ -1,5 +1,5 @@
 import { ParseErrors } from 'errors';
-import { DefineElement } from 'handle';
+import { DefineElement } from 'handle/definition';
 import { ModifyDelegate } from 'parse/modifiers';
 import { doUntilEmpty } from 'utility';
 
@@ -7,7 +7,7 @@ import { parse } from './body';
 
 import type { NodePath as Path } from '@babel/traverse';
 import type { LabeledStatement, Statement } from '@babel/types';
-import type { Define } from 'handle';
+import type { Define } from 'handle/definition';
 import type { ExplicitStyle } from 'handle/attributes';
 import type { BunchOf, DefineCompatibleBody } from 'types';
 import type { StackFrame } from 'context';

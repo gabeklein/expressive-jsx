@@ -1,5 +1,5 @@
 import * as t from '@babel/types';
-import { DefineContainer } from 'handle';
+import { DefineContainer } from 'handle/definition';
 
 import { parse } from './body';
 

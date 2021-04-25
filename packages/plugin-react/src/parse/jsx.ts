@@ -1,6 +1,8 @@
 import * as t from '@babel/types';
 import { ParseErrors } from 'errors';
-import { DefineElement, ElementInline, Prop } from 'handle';
+import { Prop } from 'handle/attributes';
+import { DefineElement } from 'handle/definition';
+import { ElementInline } from 'handle/element';
 
 import { parse } from './body';
 
@@ -14,7 +16,7 @@ import type {
   JSXNamespacedName,
   JSXSpreadAttribute
 } from '@babel/types';
-import type { Define } from 'handle';
+import type { Define } from 'handle/definition';
 
 export type Element = ElementInline | Define;
 

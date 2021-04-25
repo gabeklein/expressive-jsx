@@ -1,5 +1,5 @@
 import * as t from '@babel/types';
-import { ExplicitStyle } from 'handle';
+import { ExplicitStyle } from 'handle/attributes';
 import { _get, _template } from 'syntax';
 import { hash } from 'utility';
 
