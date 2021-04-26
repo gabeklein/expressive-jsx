@@ -1,3 +1,4 @@
+import { reduceToExpression, specifyOption } from 'generate/switch';
 import { parse } from 'parse/body';
 import * as t from 'syntax';
 import { ensureArray, hash } from 'utility';
@@ -8,14 +9,7 @@ import type { StackFrame } from 'context';
 import type { DefineElement } from 'handle/definition';
 import type { Expression, IfStatement, Statement, Path } from 'syntax';
 
-type Consequent = ComponentIf | DefineConsequent;
-type GetProduct = (fork: Consequent) => Expression | undefined;
-
-const opt = t.conditionalExpression;
-const not = (a: Expression) => t.unaryExpression("!", a);
-const and = (a: Expression, b: Expression) => t.logicalExpression("&&", a, b);
-const anti = (a: Expression) => t.isUnaryExpression(a, { operator: "!" }) ? a.argument : not(a);
-const is = (a: Expression) => t.isUnaryExpression(a, { operator: "!" }) ? a : not(not(a));
+export type Consequent = ComponentIf | DefineConsequent;
 
 export class ComponentIf {
   context!: StackFrame;
@@ -128,6 +122,7 @@ export class DefineConsequent extends Define {
   get uid(){
     const uid = hash(this.context.prefix);
     const name = specifyOption(this.test) || `opt${this.index + 1}`;
+
     return `${name}_${uid}`;
   }
 
@@ -144,43 +139,4 @@ export class DefineConsequent extends Define {
 
     this.anchor.provides.add(define);
   }
-}
-
-function reduceToExpression(
-  forks: Consequent[],
-  predicate: GetProduct){
-
-  forks = forks.slice().reverse();
-  let sum: Expression | undefined;
-
-  for(const cond of forks){
-    const test = cond.test;
-    const product = predicate(cond);
-
-    if(sum && test)
-      sum = product
-        ? opt(test, product, sum)
-        : and(anti(test), sum)
-    else if(product)
-      sum = test
-        ? and(is(test), product)
-        : product
-  }
-
-  return sum;
-}
-
-function specifyOption(test?: Expression){
-  if(!test)
-    return "else"
-
-  let ref = "if_";
-
-  if(t.isUnaryExpression(test, { operator: "!" })){
-    test = test.argument;
-    ref = "not_"
-  }
-
-  if(t.isIdentifier(test))
-    return ref + test.name;
 }
