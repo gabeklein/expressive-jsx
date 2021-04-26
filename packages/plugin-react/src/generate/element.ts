@@ -4,7 +4,7 @@ import { DefineElement, DefineVariant } from 'handle/definition';
 import { ComponentIf } from 'handle/switch';
 import * as t from 'syntax';
 
-import type { FileManager } from 'generate';
+import type { FileManager } from 'scope';
 import type { ElementInline } from 'handle/element';
 import type { DefineConsequent } from 'handle/switch';
 import type { Expression } from 'syntax';

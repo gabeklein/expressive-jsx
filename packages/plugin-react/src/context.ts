@@ -1,10 +1,10 @@
-import { ImportManager, RequireManager } from 'generate';
 import { DefineElement } from 'handle/definition';
+import { ImportManager, RequireManager } from 'scope';
 import { hash, Stack } from 'utility';
 
 import type { Define , DefineContainer} from 'handle/definition';
-import type { FileManager } from 'generate/scope';
-import type { Path, Program } from 'syntax';
+import type { FileManager } from 'scope';
+import type { Path, BabelProgram } from 'syntax';
 import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
 
 interface Stackable {
@@ -37,7 +37,7 @@ export class StackFrame {
   }
 
   constructor(
-    path: Path<Program>,
+    path: Path<BabelProgram>,
     state: BabelState,
     options: Options){
 

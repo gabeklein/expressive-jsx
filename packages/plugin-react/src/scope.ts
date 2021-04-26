@@ -1,9 +1,10 @@
 import * as t from 'syntax';
 
-import { createElement as createJS } from './es5';
-import { createElement as createJSX } from './jsx';
+import { createElement as createJS } from './generate/es5';
+import { createElement as createJSX } from './generate/jsx';
 
 import type {
+  BabelProgram,
   CallExpression,
   Expression,
   Identifier,
@@ -14,7 +15,6 @@ import type {
   JSXMemberExpression,
   ObjectProperty,
   Path,
-  Program,
   Statement,
   VariableDeclaration
 } from 'syntax';
@@ -38,7 +38,7 @@ export abstract class FileManager {
   protected importIndices = {} as BunchOf<number>;
 
   constructor(
-    private path: Path<Program>,
+    private path: Path<BabelProgram>,
     protected context: StackFrame){
 
     const create = context.opts.output === "js" ? createJS : createJSX;
