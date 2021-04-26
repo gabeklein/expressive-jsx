@@ -33,3 +33,35 @@ describe("pseudo", () => {
     }
   `);
 });
+
+describe("css", () => {
+  test("directive", `
+    () => do {
+      color: blue;
+      
+      $css: isRed: {
+        color: red;
+      }
+
+      <div>Hello</div>
+    }
+  `);
+
+  test("multiple directives", `
+    () => do {
+      color: blue;
+      
+      $css: {
+        isRed: {
+          color: red;
+        }
+
+        isGreen: {
+          color: green;
+        }
+      }
+
+      <div>Hello</div>
+    }
+  `);
+});

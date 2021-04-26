@@ -1,5 +1,47 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`css directive 1`] = `
+"() => create(\\"div\\", {
+  \\"className\\": \\"element_26b element_4q3\\"
+}, create(\\"div\\", {}, \\"Hello\\"));
+
+Styles.include(\`
+	.element_4q3 { color: blue }
+	.element_26b.isRed { color: red }
+\`);"
+`;
+
+exports[`css directive 2`] = `
+"() => <div className=\\"element_26b element_4q3\\"><div>Hello</div></div>;
+
+Styles.include(\`
+	.element_4q3 { color: blue }
+	.element_26b.isRed { color: red }
+\`);"
+`;
+
+exports[`css multiple directives 1`] = `
+"() => create(\\"div\\", {
+  \\"className\\": \\"element_26b element_4q3\\"
+}, create(\\"div\\", {}, \\"Hello\\"));
+
+Styles.include(\`
+	.element_4q3 { color: blue }
+	.element_26b.isRed { color: red }
+	.element_26b.isGreen { color: green }
+\`);"
+`;
+
+exports[`css multiple directives 2`] = `
+"() => <div className=\\"element_26b element_4q3\\"><div>Hello</div></div>;
+
+Styles.include(\`
+	.element_4q3 { color: blue }
+	.element_26b.isRed { color: red }
+	.element_26b.isGreen { color: green }
+\`);"
+`;
+
 exports[`pseudo before/after 1`] = `
 "() => create(\\"div\\", {
   \\"className\\": \\"element_26b\\"

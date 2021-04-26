@@ -1,30 +1,20 @@
-import { pascalToDash } from './util';
+export function $css(){
+  let { body } = this;
 
-export function css(){
-  let body = this.body;
+  if(!body)
+    return
+  
+  if(body.type == "BlockStatement")
+    body = body.get("body");
+  else
+    body = [body];
 
-  if(body){
-    if(body.type == "BlockStatement")
-      body = body.get("body");
-    else
-      body = [body];
+  for(const item of body){
+    if(!item.type == "LabeledStatement")
+      throw new Error("css modifier blew up");
 
-    for(const item of body){
-      const className = "." + item.label.name;
-      if(!item.type == "LabeledStatement")
-        throw new Error("css modifier blew up")
-      this.setContingent(className, 5, item.body)
-    }
+    const className = "." + item.node.label.name;
 
-    return;
+    this.setContingent(className, 5, item.get("body"))
   }
-
-  const { data } = this.target;
-  let list = data.classList;
-
-  if(!list)
-    list = data.classList = [];
-
-  for(const className of this.arguments)
-    list.push(pascalToDash(className));
 }
