@@ -98,7 +98,7 @@ function createElement(
 
   if(t.isJSXMemberExpression(tag)){
     name = tag.property.name;
-    target.explicitTagName = tag;
+    target.tagName = tag;
   }
   else if(t.isJSXIdentifier(tag)){
     name = tag.name;
@@ -115,8 +115,8 @@ function createElement(
       explicit = true;
     }
 
-    if(explicit)
-      target.explicitTagName = name;
+    if(explicit || /^[A-Z]/.test(name))
+      target.tagName = name;
   }
   else
     throw Oops.NonJSXIdentifier(tag);
