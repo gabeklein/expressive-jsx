@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "@expressive/babel-plugin-react": "^1.0.0-beta.56",
-    "@expressive/modify-pseudo": "1.0.0-beta.53",
-    "@expressive/modify-style": "1.0.0-beta.52"
+    "@expressive/modify-pseudo": "^1.0.0-beta.53",
+    "@expressive/modify-style": "^1.0.0-beta.52"
   },
   "devDependencies": {
     "@babel/core": "^7.10.3",
