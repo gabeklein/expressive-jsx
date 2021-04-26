@@ -12,10 +12,6 @@ import type { Define } from 'handle/definition';
 import type { Node, Path } from 'syntax';
 
 const Oops = ParseErrors({
-  BadInputModifier: "Modifier input of type {1} not supported here!",
-  IfStatementCannotContinue: "Previous consequent already returned, cannot integrate another clause.",
-  ExpressionUnknown: "Unhandled expressionary statement of type {1}",
-  NodeUnknown: "Unhandled node of type {1}",
   PropNotIdentifier: "Assignment must be identifier name of a prop."
 })
 

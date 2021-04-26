@@ -21,14 +21,12 @@ import type {
 import type { BunchOf } from 'types';
 
 const Oops = ParseErrors({
-  StatementAsArgument: "Cannot parse statement as a modifier argument!",
   UnaryUseless: "Unary operator here doesn't do anything",
   HexNoNegative: "Hexadecimal numbers are converted into colors (#FFF) so negative sign doesn't mean anything here.\nParenthesize the number if you really need \"-{1}\" for some reason...",
   ArrowNotImplemented: "Arrow Function not supported yet",
   ArgumentSpread: "Cannot parse argument spreads for modifier handlers",
   UnknownArgument: "Unknown argument while parsing for modifier.",
   MustBeIdentifier: "Only Identifers allowed here! Call expression must reference another modifier.",
-  TemplateMustBeText: "Template can only contain text here",
   ModiferCantParse: "Illegal value in modifier",
   ElseNotSupported: "An else statement in an if modifier is not yet supported"
 });

@@ -21,7 +21,6 @@ import type { StackFrame } from 'context';
 const Oops = ParseErrors({
   BadForOfAssignment: "Assignment of variable left of \"of\" must be Identifier or Destruture",
   BadForInAssignment: "Left of ForInStatement must be an Identifier here!",
-  PropsNotAllowed: "For block cannot accept prop assignments"
 });
 
 export class ComponentFor {
