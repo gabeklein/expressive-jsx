@@ -2,10 +2,10 @@ import { generateElement } from 'generate/element';
 import { recombineProps } from 'generate/es5';
 
 import { ExplicitStyle } from './attributes';
-import { ElementInline } from './element';
 import { AttributeBody } from './object';
 
 import type { StackFrame } from 'context';
+import type { ElementInline } from 'handle/element';
 import type { DefineConsequent } from 'handle/switch';
 import type { ArrowFunctionExpression, Path } from 'syntax';
 
@@ -31,12 +31,7 @@ export abstract class Define extends AttributeBody {
   abstract get selector(): string[];
 
   toExpression(maybeProps?: boolean){
-    const element = new ElementInline(this.context);
-
-    element.name = this.name;
-    element.use(this);
-
-    const info = generateElement(element);
+    const info = generateElement(this);
 
     if(maybeProps && info.children.length === 0)
       return recombineProps(info.props);

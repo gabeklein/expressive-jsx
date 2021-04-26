@@ -4,6 +4,7 @@ import { DefineElement, DefineVariant } from 'handle/definition';
 import * as t from 'syntax';
 
 import type { FileManager } from 'scope';
+import type { Define } from 'handle/definition';
 import type { ElementInline } from 'handle/element';
 import type { DefineConsequent } from 'handle/switch';
 import type { Expression } from 'syntax';
@@ -11,8 +12,8 @@ import type { PropData, SequenceItem } from 'types';
 
 const byPriority = (x: any, y: any) => x.priority - y.priority;
 
-export function generateElement(element: ElementInline){
-  const { context } = element;
+export function generateElement(element: ElementInline | Define){
+  const { context, sequence, name, includes } = element;
 
   const inline_only = context.opts.styleMode === "inline";
   const no_collapse = context.opts.styleMode === "verbose";
@@ -26,11 +27,11 @@ export function generateElement(element: ElementInline){
 
   applyModifiers();
 
-  for(const item of element.sequence)
+  for(const item of sequence)
     apply(item);
 
   if(style_static.size){
-    const mod = new DefineElement(context, element.name!);
+    const mod = new DefineElement(context, name!);
     mod.sequence.push(...style_static);
     mod.priority = 2;
 
@@ -120,7 +121,7 @@ export function generateElement(element: ElementInline){
 
   function applyModifiers(){
     const accumulator = new Map<string, ExplicitStyle>();
-    const definitions = [ ...element.includes ].sort(byPriority);
+    const definitions = [ ...includes ].sort(byPriority);
 
     for(const mod of definitions){
       const allow_css = !inline_only && !mod.collapsable || no_collapse;
