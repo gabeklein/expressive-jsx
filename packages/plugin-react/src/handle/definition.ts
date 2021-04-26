@@ -120,10 +120,6 @@ export class DefineElement extends Define {
 export class DefineContainer extends DefineElement {
   exec?: Path<ArrowFunctionExpression>;
   
-  toExpression(){
-    return super.toExpression(!this.exec);
-  }
-  
   provide(define: DefineElement){
     this.context.elementMod(define);
   }

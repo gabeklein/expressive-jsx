@@ -65,11 +65,13 @@ const HandleDoExpression: Visitor<DoExpression> = {
   enter(path, state){
     let element = generateEntryElement(path, state.context);
 
-    const { statements } = element;
+    const { statements, exec } = element;
+
     const output =
-      element.toExpression() || t.booleanLiteral(false);
+      element.toExpression(!exec) || 
+      t.booleanLiteral(false);
   
-    if(element.exec && statements.length){
+    if(exec && statements.length){
       const body = [
         ...statements,
         t.returnStatement(output)
