@@ -1,4 +1,4 @@
-import { generateElement } from 'generate';
+import { generateElement } from 'generate/element';
 import { recombineProps } from 'generate/es5';
 
 import { ExplicitStyle } from './attributes';

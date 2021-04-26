@@ -1,14 +1,14 @@
 import { StackFrame } from 'context';
 import { Status } from 'errors';
-import { styleDeclaration } from 'generate';
+import { styleDeclaration } from 'generate/styles';
 import { builtIn } from 'modifier/builtIn';
 import { generateEntryElement } from 'parse/entry';
 import { handleTopLevelDefine } from 'parse/labels';
 import * as t from 'syntax';
+import { hash } from 'utility';
 
 import type { DoExpression, Program, Node, VisitNodeObject } from 'syntax';
 import type { BabelFile, BabelState, Options } from 'types';
-import { hash } from 'utility';
 
 type Visitor<T extends Node, S extends StackFrame = StackFrame> =
   VisitNodeObject<BabelState<S>, T>;

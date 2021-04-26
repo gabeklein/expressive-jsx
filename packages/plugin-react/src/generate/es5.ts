@@ -1,4 +1,4 @@
-import { ArrayStack } from 'generate';
+import { ArrayStack } from 'generate/attributes';
 import * as t from 'syntax';
 
 import type { StackFrame } from 'context';
