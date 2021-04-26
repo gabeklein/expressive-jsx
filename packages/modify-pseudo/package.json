@@ -22,17 +22,15 @@
     "/lib"
   ],
   "scripts": {
+    "build": "esbuild ./src --bundle --outfile=lib/index.js --platform=node --target=node10 --external:@babel/types",
+    "watch": "npm run build -- --sourcemap --watch",
     "prebuild": "rm -rf ./lib",
-    "build": "babel ./src --out-dir ./lib --presets @babel/env",
-    "watch": "yarn build --source-maps --watch",
     "prepare": "yarn build"
   },
   "dependencies": {
     "@babel/types": "7.10.3"
   },
   "devDependencies": {
-    "@babel/cli": "^7.10.3",
-    "@babel/core": "^7.10.3",
-    "@babel/preset-env": "^7.10.3"
+    "esbuild": "^0.11.14"
   }
 }

@@ -22,11 +22,11 @@
     "/lib"
   ],
   "scripts": {
-    "build": "rollup --config",
-    "watch": "rollup --config --watch --sourcemap",
+    "build": "esbuild ./src --bundle --outfile=lib/index.js --platform=node --target=node10 --external:@babel/types",
+    "watch": "npm run build -- --sourcemap --watch",
     "test": "jest",
     "prebuild": "rm -rf lib",
-    "prepare": "yarn build"
+    "prepare": "npm run build"
   },
   "dependencies": {
     "@babel/types": "7.10.3"
@@ -34,9 +34,6 @@
   "devDependencies": {
     "@types/babel__traverse": "^7.11.0",
     "@types/node": "^11.13.4",
-    "rollup": "^1.10.0",
-    "rollup-plugin-commonjs": "^9.3.4",
-    "rollup-plugin-typescript2": "^0.20.1",
-    "typescript": "3.8.3"
+    "esbuild": "^0.11.14"
   }
 }

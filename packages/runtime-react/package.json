@@ -8,29 +8,29 @@
     "name": "Gabe Klein",
     "email": "gabe@termtm.com"
   },
-  "scripts": {
-    "prebuild": "rm -rf ./lib",
-    "build": "tsc",
-    "watch": "tsc --sourceMap --watch",
-    "prepare": "yarn build"
-  },
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
-  "files": [
-    "/lib",
-    "index.d.ts"
-  ],
   "keywords": [
     "react",
     "expressive-react",
     "expressive"
   ],
+  "files": [
+    "/lib",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "build": "esbuild ./src --bundle --outfile=lib/index.js --platform=node --target=node10 --external:@babel/types",
+    "watch": "npm run build -- --sourcemap --watch",
+    "prebuild": "rm -rf ./lib",
+    "prepare": "yarn build"
+  },
   "devDependencies": {
     "@types/react": "^16.9.34",
+    "esbuild": "^0.11.14",
     "prop-types": "^15.7.2",
-    "react": "^16.8.0",
-    "typescript": "3.8.3"
+    "react": ">=16.8.0"
   }
 }

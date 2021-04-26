@@ -1,5 +1,5 @@
 export function rect(...args){
-  const [ a, b, c ] = args;
+  let [ a, b, c ] = args;
   let top, left, right, bottom;
 
   switch(args.length){
