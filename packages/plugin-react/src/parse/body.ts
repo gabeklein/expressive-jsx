@@ -1,6 +1,6 @@
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
-import { ComponentFor, ComponentForX } from 'handle/iterate';
+import { ComponentFor } from 'handle/iterate';
 import { ComponentIf } from 'handle/switch';
 import * as t from 'syntax';
 import { ensureArray } from 'utility';
@@ -45,7 +45,7 @@ export function parseContent(
   }
 
   if(path.isForXStatement()){
-    new ComponentForX(path, target);
+    new ComponentFor(path, target);
     return;
   }
 
