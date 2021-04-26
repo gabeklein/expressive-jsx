@@ -12,16 +12,10 @@ import type { Expression, IfStatement, Statement, Path } from 'syntax';
 export type Consequent = ComponentIf | DefineConsequent;
 
 export class ComponentIf {
-  context!: StackFrame;
-
   private forks = [] as Consequent[];
 
   constructor(
-    protected path: Path<IfStatement>,
-    context: StackFrame,
     public test?: Expression){
-
-    context = context.push(this);
   }
 
   toExpression(): Expression | undefined {
@@ -47,9 +41,9 @@ export class ComponentIf {
     });
   }
 
-  setup(){
-    const { context, forks } = this;
-    let layer: Path<any> = this.path;
+  setup(context: StackFrame, path: Path<IfStatement>){
+    const { forks } = this;
+    let layer = path as Path<any>;
 
     while(true){
       let consequent = layer.get("consequent") as Path<any>;
@@ -60,12 +54,13 @@ export class ComponentIf {
 
       if(consequent.isBlockStatement()){
         const inner = ensureArray(consequent.get("body"));
+
         if(inner.length == 1)
           consequent = inner[0];
       }
 
       const fork = consequent.isIfStatement()
-        ? new ComponentIf(consequent, context, test)
+        ? new ComponentIf(test)
         : new DefineConsequent(consequent, context, forks.length, test)
 
       forks.push(fork);
@@ -113,10 +108,12 @@ export class DefineConsequent extends Define {
   }
 
   get selector(): string[] {
-    let parent =
-      this.context.currentElement as DefineElement | DefineConsequent;
+    let parent = this.context.currentElement!;
     
-    return [ ...parent.selector, "." + this.uid ];
+    return [
+      ...parent.selector,
+      ...super.selector
+    ];
   }
 
   get uid(){

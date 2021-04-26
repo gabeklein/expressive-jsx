@@ -38,9 +38,9 @@ export function parseContent(
   }
   
   if(path.isIfStatement()){
-    const item = new ComponentIf(path, target.context);
+    const item = new ComponentIf();
+    item.setup(target.context, path);
     target.adopt(item);
-    item.setup();
     return;
   }
 
