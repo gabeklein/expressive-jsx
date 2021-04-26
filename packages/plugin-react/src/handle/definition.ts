@@ -28,8 +28,6 @@ export abstract class Define extends AttributeBody {
 
   abstract provide(define: DefineElement): void;
 
-  abstract get selector(): string[];
-
   toExpression(maybeProps?: boolean){
     const info = generateElement(this);
 
@@ -41,6 +39,10 @@ export abstract class Define extends AttributeBody {
 
   get uid(){
     return this.context.unique(this.name!);
+  }
+
+  get selector(){
+    return [ `.${this.uid}` ];
   }
 
   get collapsable(){
@@ -99,10 +101,6 @@ export class DefineElement extends Define {
 
     // if(/^[A-Z]/.test(name))
     //   this.priority = 3;
-  }
-
-  get selector(){
-    return [ `.${this.uid}` ];
   }
 
   provide(define: DefineElement){
