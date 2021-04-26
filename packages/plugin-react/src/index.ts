@@ -1,6 +1,6 @@
 import { StackFrame } from 'context';
 import { Status } from 'errors';
-import { printStyles } from 'generate';
+import { styleDeclaration } from 'generate';
 import { builtIn } from 'modifier/builtIn';
 import { generateEntryElement } from 'parse/entry';
 import { handleTopLevelDefine } from 'parse/labels';
@@ -8,6 +8,7 @@ import * as t from 'syntax';
 
 import type { DoExpression, Program, Node, VisitNodeObject } from 'syntax';
 import type { BabelFile, BabelState, Options } from 'types';
+import { hash } from 'utility';
 
 type Visitor<T extends Node, S extends StackFrame = StackFrame> =
   VisitNodeObject<BabelState<S>, T>;
@@ -50,13 +51,15 @@ const HandleProgram: Visitor<Program> = {
         item.remove();
       }
   },
-  exit(path, state){
-    const styleBlock = printStyles(state);
+  exit(path, { opts, filename, context }){
+    const fileId = opts.hot !== false && hash(filename, 10);
+    const argument = fileId ? t.stringLiteral(fileId) : undefined;
+    const styleBlock = styleDeclaration(context, argument);
   
     if(styleBlock)
       path.pushContainer("body", [ styleBlock ]);
   
-    state.context.program.close();
+    context.program.close();
   }
 }
 

@@ -1,26 +1,31 @@
 import { ExplicitStyle } from 'handle/attributes';
 import * as t from 'syntax';
-import { hash } from 'utility';
 
 import type { StackFrame } from 'context';
 import type { Define } from 'handle/definition';
 import type { Expression } from 'syntax';
-import type { BabelState, BunchOf } from 'types';
+import type { BunchOf } from 'types';
 
-export function printStyles(state: BabelState<StackFrame>){
-  const { modifiersDeclared, program, opts } = state.context;
+type SelectorContent = [ string, string[] ][];
+type MediaGroups = SelectorContent[];
+
+export function styleDeclaration(
+  context: StackFrame,
+  argument: Expression | undefined){
+
+  const { modifiersDeclared, program, opts } = context;
   const pretty = opts.printStyle == "pretty";
 
   if(!modifiersDeclared.size)
     return;
   
-  const styles = new Printer(modifiersDeclared).print(pretty);
-  const fileId = state.opts.hot !== false && hash(state.filename, 10);
   const runtime = program.ensure("$runtime", "default", "Styles");
-  const args: Expression[] = [ t.template(styles) ];
+  const mediaGroups = prioritize(modifiersDeclared);
+  const printedStyle = serialize(mediaGroups, pretty);
+  const args = [ t.template(printedStyle) as Expression ];
 
-  if(fileId)
-    args.push(t.stringLiteral(fileId));
+  if(argument)
+    args.push(argument);
 
   return t.expressionStatement(
     t.callExpression(
@@ -29,66 +34,59 @@ export function printStyles(state: BabelState<StackFrame>){
   );
 }
 
-type SelectorContent = [ string, string[] ][];
-type MediaGroups = SelectorContent[];
-
-class Printer {
-  media: BunchOf<MediaGroups> = {
+function prioritize(source: Set<Define>){
+  const media: BunchOf<MediaGroups> = {
     default: []
-  }
+  };
 
-  constructor(source: Set<Define>){
-    for(let item of source){
-      const group = this.getPlacement(item);
-      const selector = buildSelector(item);
-      const styles = generateBlock(item);
+  for(let item of source){
+    const { priority = 0 } = item;
 
-      group.push([ selector, styles ])
-    }
-  }
-
-  print(pretty?: boolean){
-    const { media } = this;
-    const lines = [];
-
-    for(const query in media){
-      const priorityBunches = media[query].filter(x => x);
-
-      for(const bunch of priorityBunches)
-        for(const [ name, styles ] of bunch){
-          if(pretty){
-            const rules = styles.map(x => `\t${x};`);
-            lines.push(name + " { ", ...rules, "}")
-          }
-          else {
-            const block = styles.join("; ");
-            lines.push(`${name} { ${block} }`)
-          }
-        }
-    }
-
-    const content = lines.map(x => "\t" + x).join("\n")
-
-    return `\n${content}\n`
-  }
-
-  getPlacement(target: Define){
-    const { media } = this;
-    const { priority = 0 } = target;
-  
-    const query = undefined;
+    const query = "default";
+    const selector = buildSelector(item);
+    const styles = print(item);
 
     const targetQuery: MediaGroups =
-      query === undefined ?
-        media.default :
       query in media ?
         media[query] :
         media[query] = [];
 
-    return priority in targetQuery ?
-      targetQuery[priority] :
-      targetQuery[priority] = [];
+    const group =
+      priority in targetQuery ?
+        targetQuery[priority] :
+        targetQuery[priority] = [];
+
+    group.push([ selector, styles ])
   }
+
+  return media;
+}
+
+function serialize(
+  media: BunchOf<MediaGroups>,
+  pretty?: boolean){
+
+  const lines = [];
+
+  for(const query in media){
+    const priorityBunches = media[query].filter(x => x);
+
+    for(const bunch of priorityBunches)
+      for(const [ name, styles ] of bunch){
+        if(pretty){
+          const rules = styles.map(x => `\t${x};`);
+          lines.push(name + " { ", ...rules, "}")
+        }
+        else {
+          const block = styles.join("; ");
+          lines.push(`${name} { ${block} }`)
+        }
+      }
+  }
+
+  const content = lines.map(x => "\t" + x).join("\n")
+
+  return `\n${content}\n`;
 }
 
 function buildSelector(target: Define){
@@ -105,7 +103,7 @@ function buildSelector(target: Define){
   return selection;
 }
 
-function generateBlock(target: Define){
+function print(target: Define){
   const items = [] as ExplicitStyle[];
 
   for(const item of target.sequence)
