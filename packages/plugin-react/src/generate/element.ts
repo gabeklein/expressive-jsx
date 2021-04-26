@@ -22,10 +22,14 @@ export function generateElement(element: ElementInline | Define){
   const children = [] as Expression[];
 
   const style = new AttributeStack();
+  const style_exists = new Set<string>();
   const style_static = new Set<ExplicitStyle>();
   const classList = new Set<string | Expression>();
 
-  applyModifiers();
+  Array
+    .from(includes)
+    .sort(byPriority)
+    .forEach(applyModifier);
 
   for(const item of sequence)
     apply(item);
@@ -35,7 +39,7 @@ export function generateElement(element: ElementInline | Define){
     mod.sequence.push(...style_static);
     mod.priority = 2;
 
-    applyModifier(mod);
+    useStyles(mod);
   }
 
   const className = classValue(classList, context.program);
@@ -114,51 +118,45 @@ export function generateElement(element: ElementInline | Define){
       style.insert(item)
   }
 
-  function applyModifier(mod: DefineElement | DefineConsequent){
-    classList.add(mod.uid)
-    mod.setActive();
+  function useStyles(from: DefineElement | DefineConsequent){
+    classList.add(from.uid)
+    from.setActive();
   }
 
-  function applyModifiers(){
-    const accumulator = new Map<string, ExplicitStyle>();
-    const definitions = [ ...includes ].sort(byPriority);
+  function applyModifier(mod: Define){
+    const allow_css = !inline_only && !mod.collapsable || no_collapse;
 
-    for(const mod of definitions){
-      const allow_css = !inline_only && !mod.collapsable || no_collapse;
+    if(inline_only && mod instanceof DefineVariant)
+      console.warn(`Cannot include CSS for ${mod.selector} with inline_only mode. Skipping.`);
 
-      if(inline_only && mod instanceof DefineVariant)
-        console.warn(`Cannot include CSS for ${mod.selector} with inline_only mode. Skipping.`);
+    if(allow_css && mod.containsStyle(true))
+      useStyles(mod);
 
-      if(allow_css && mod.containsStyle(true))
-        applyModifier(mod);
+    for(const property of mod.sequence)
+      if(property instanceof ExplicitStyle){
+        const { name, invariant } = property;
 
-      for(const property of mod.sequence)
-        if(property instanceof ExplicitStyle){
-          const { name, invariant } = property;
+        if(!name)
+          continue;
+        
+        if(invariant && allow_css)
+          continue;
 
-          if(!name)
-            continue;
-          
-          if(invariant && allow_css)
-            continue;
-  
-          if(accumulator.has(name))
-            continue;
-  
-          accumulator.set(name, property);
-        }
-        else if(property instanceof Prop)
-          apply(property);
+        if(style_exists.has(name))
+          continue;
 
-      if(mod.children.length > 0)
-        if(children.length > 0)
-          throw new Error("Cannot integrate children from modifier with an element's existing.")
-        else
-          for(const item of mod.children)
-            apply(item);
-    }
+        style_exists.add(name);
+        applyStyle(property)
+      }
+      else if(property instanceof Prop)
+        apply(property);
 
-    accumulator.forEach(applyStyle);
+    if(mod.children.length > 0)
+      if(children.length > 0)
+        throw new Error("Cannot integrate children from modifier with an element's existing.")
+      else
+        for(const item of mod.children)
+          apply(item);
   }
 }
 
