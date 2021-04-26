@@ -107,7 +107,8 @@ export abstract class FileManager {
     }
 
     const program = scope.getProgramParent() as any;
-    program.references[uid] = program.uids[uid] = true;
+    program.references[uid] = true;
+    program.uids[uid] = true;
     return uid;
   }
 
@@ -119,16 +120,14 @@ export abstract class FileManager {
     if(this.context.opts.externals === false)
       return;
 
-    Object
-      .entries(this.imports)
-      .forEach(([ name ]) => {
-        const importStatement = this.createImport(name);
-  
-        if(importStatement){
-          const index = this.importIndices[name];
-          this.body.splice(index, 0, importStatement);
-        }
-      })
+    for(const name in this.imports){
+      const importStatement = this.createImport(name);
+
+      if(importStatement){
+        const index = this.importIndices[name];
+        this.body.splice(index, 0, importStatement);
+      }
+    }
   }
 }
 

@@ -6,7 +6,7 @@ import * as t from 'syntax';
 import { ensureArray } from 'utility';
 
 import { addElementFromJSX } from './jsx';
-import { parseDefineBlock } from './labels';
+import { handleDefine } from './labels';
 
 import type { Define } from 'handle/definition';
 import type { Node, Path } from 'syntax';
@@ -33,7 +33,7 @@ export function parseContent(
   target: Define, path: Path<any>){
 
   if(path.isLabeledStatement()){
-    parseDefineBlock(target, path);
+    handleDefine(target, path);
     return;
   }
   

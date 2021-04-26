@@ -43,7 +43,7 @@ export function handleTopLevelDefine(
   context.elementMod(define);
 }
 
-export function parseDefineBlock(
+export function handleDefine(
   target: Define,
   path: Path<LabeledStatement>){
 
@@ -54,7 +54,7 @@ export function parseDefineBlock(
     throw Oops.BadModifierName(path);
 
   if(body.isExpressionStatement() || LeadingDollarSign.test(name))
-    applyDirective(name, target, body as any);
+    handleDirective(name, target, body as any);
 
   else if(body.isBlockStatement() || body.isLabeledStatement()){
     const mod = new DefineElement(target.context, name);
@@ -66,7 +66,7 @@ export function parseDefineBlock(
     throw Oops.BadInputModifier(body, body.type)
 }
 
-function applyDirective(
+function handleDirective(
   initial: string,
   recipient: DefineElement,
   input: DefineCompatibleBody){

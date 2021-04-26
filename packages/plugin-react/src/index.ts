@@ -34,10 +34,8 @@ export default () => ({
 
 const HandleProgram: Visitor<Program> = {
   enter(path, state){
-    const external =
-      Object.assign({}, ...state.opts.modifiers);
-
     const options = { ...DEFAULT_OPTIONS, ...state.opts };
+    const external = Object.assign({}, ...options.modifiers);
 
     const context = state.context = 
       new StackFrame(path, state, options)
