@@ -56,7 +56,7 @@ const HandleProgram: Visitor<Program> = {
     if(styleBlock)
       path.pushContainer("body", [ styleBlock ]);
   
-    state.context.Scope.EOF();
+    state.context.program.close();
   }
 }
 

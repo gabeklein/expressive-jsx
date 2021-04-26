@@ -49,9 +49,9 @@ export class ComponentFor {
     if(!output)
       return;
 
-    const scope = this.context.Scope;
-    const accumulator = scope.ensureUIDIdentifier("add");
-    const collect = scope.ensure("$runtime", "collect");
+    const { program } = this.context;
+    const accumulator = program.ensureUIDIdentifier("add");
+    const collect = program.ensure("$runtime", "collect");
 
     let body: Statement =
       t.expressionStatement(
@@ -122,7 +122,6 @@ export class ComponentForX {
 
   protected ensureKeyProp(key?: Identifier){
     let target = this.definition;
-    const scope = this.context.Scope;
 
     const props = target.sequence.filter(x => x instanceof Prop) as Prop[];
 
@@ -143,7 +142,7 @@ export class ComponentForX {
     }
 
     if(!key)
-      key = scope.ensureUIDIdentifier("i");
+      key = this.context.program.ensureUIDIdentifier("i");
 
     target.add(new Prop("key", key));
 

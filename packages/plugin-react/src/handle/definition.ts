@@ -41,7 +41,7 @@ export abstract class Define extends AttributeBody {
     if(maybeProps && info.children.length === 0)
       return recombineProps(info.props);
 
-    return this.context.Scope.container(info);
+    return this.context.program.container(info);
   }
 
   get uid(){

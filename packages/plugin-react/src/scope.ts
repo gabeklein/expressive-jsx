@@ -115,7 +115,7 @@ export abstract class FileManager {
     return t.identifier(this.ensureUID(name));
   }
 
-  EOF(){
+  close(){
     if(this.context.opts.externals === false)
       return;
 

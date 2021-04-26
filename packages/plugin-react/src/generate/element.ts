@@ -38,7 +38,7 @@ export function generateElement(element: ElementInline){
     applyModifier(mod);
   }
 
-  const className = classValue(classList, context.Scope);
+  const className = classValue(classList, context.program);
   const stylesProp = style.flatten();
 
   if(className)

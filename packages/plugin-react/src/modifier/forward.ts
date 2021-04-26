@@ -30,9 +30,9 @@ export function forwardProp(
       )
 
   if(propNames.includes("ref")){
-    const { Scope } = target.context;
+    const { program } = target.context;
     const _ref = uniqueWithin(scope, "ref");
-    const _forwardRef = Scope.ensure("$pragma", "forwardRef");
+    const _forwardRef = program.ensure("$pragma", "forwardRef");
     const _wrapped = t.call(_forwardRef, exec.node);
 
     exec.pushContainer("params", _ref);

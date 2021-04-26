@@ -13,13 +13,13 @@ export function createElement(
   content: Expression[] = []
 ){
   if(!tag)
-    tag = this.Scope.ensure("$pragma", "Fragment").name;
+    tag = this.program.ensure("$pragma", "Fragment").name;
 
   const type = typeof tag == "string" ? t.jsxIdentifier(tag) : tag;
   const props = properties.map(createAttribute);
   const children = content.map(jsxContent);
 
-  this.Scope.ensure("$pragma", "default", "React");
+  this.program.ensure("$pragma", "default", "React");
 
   const contains = children.length > 0;
 

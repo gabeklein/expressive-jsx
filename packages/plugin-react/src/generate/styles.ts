@@ -8,7 +8,7 @@ import type { Expression } from 'syntax';
 import type { BabelState, BunchOf } from 'types';
 
 export function printStyles(state: BabelState<StackFrame>){
-  const { modifiersDeclared, Scope, opts } = state.context;
+  const { modifiersDeclared, program, opts } = state.context;
   const pretty = opts.printStyle == "pretty";
 
   if(!modifiersDeclared.size)
@@ -16,7 +16,7 @@ export function printStyles(state: BabelState<StackFrame>){
   
   const styles = new Printer(modifiersDeclared).print(pretty);
   const fileId = state.opts.hot !== false && hash(state.filename, 10);
-  const runtime = Scope.ensure("$runtime", "default", "Styles");
+  const runtime = program.ensure("$runtime", "default", "Styles");
   const args: Expression[] = [ t.template(styles) ];
 
   if(fileId)

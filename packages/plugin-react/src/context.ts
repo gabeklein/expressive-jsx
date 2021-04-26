@@ -30,7 +30,7 @@ export class StackFrame {
   modifiers = new Stack<Define>();
   handlers = new Stack<ModifyAction>();
 
-  Scope: FileManager;
+  program: FileManager;
 
   get parent(){
     return Object.getPrototypeOf(this);
@@ -51,7 +51,7 @@ export class StackFrame {
         ? RequireManager
         : ImportManager;
 
-    this.Scope = new FileManager(path, this);
+    this.program = new FileManager(path, this);
   }
 
   including(modifiers: BunchOf<any>[]): this {

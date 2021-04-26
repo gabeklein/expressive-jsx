@@ -19,10 +19,10 @@ export function createElement(
   children: Expression[] = []
 ){
   const create =
-    this.Scope.ensure("$pragma", "createElement", "create");
+    this.program.ensure("$pragma", "createElement", "create");
 
   if(!tag)
-    tag = this.Scope.ensure("$pragma", "Fragment").name;
+    tag = this.program.ensure("$pragma", "Fragment").name;
 
   const type =
     typeof tag === "string" ?
