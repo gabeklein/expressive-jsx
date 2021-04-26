@@ -1,7 +1,6 @@
 import { AttributeStack } from 'generate/attributes';
 import { ExplicitStyle, Prop } from 'handle/attributes';
 import { DefineElement, DefineVariant } from 'handle/definition';
-import { ComponentIf } from 'handle/switch';
 import * as t from 'syntax';
 
 import type { FileManager } from 'scope';
@@ -50,18 +49,7 @@ export function generateElement(element: ElementInline){
   return { props, children };
 
   function apply(item: SequenceItem){
-    if(item instanceof ComponentIf){
-      const expression = item.toExpression();
-      const className = item.toClassName();
-
-      if(expression)
-        children.push(expression)
-
-      if(className)
-        classList.add(className);
-    }
-
-    else if(item instanceof ExplicitStyle)
+    if(item instanceof ExplicitStyle)
       applyStyle(item);
 
     else if(item instanceof Prop)
@@ -72,6 +60,13 @@ export function generateElement(element: ElementInline){
 
       if(child)
         children.push(child);
+
+      if("toClassName" in item){
+        const className = item.toClassName();
+
+        if(className)
+          classList.add(className);
+      }
     }
 
     else if(t.isExpression(item))
