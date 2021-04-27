@@ -59,11 +59,29 @@ Styles.include(\`
 \`);"
 `;
 
+exports[`forward will not break where ...rest exists 1`] = `
+"({
+  className,
+  name,
+  ...rest
+}) => create(\\"div\\", {
+  \\"className\\": className
+}, create(\\"div\\", Object.assign({}, rest), \\"Hello \\", name));"
+`;
+
+exports[`forward will not break where ...rest exists 2`] = `
+"({
+  className,
+  name,
+  ...rest
+}) => <div className={className}><div {...rest}>Hello {name}</div></div>;"
+`;
+
 exports[`forward will pull className from declared destructure 1`] = `
 "props => {
   const {
-    name,
-    className
+    className,
+    name
   } = props;
   return create(\\"div\\", {
     \\"className\\": className
@@ -74,8 +92,8 @@ exports[`forward will pull className from declared destructure 1`] = `
 exports[`forward will pull className from declared destructure 2`] = `
 "props => {
   const {
-    name,
-    className
+    className,
+    name
   } = props;
   return <div className={className}><div>Hello {name}</div></div>;
 };"
@@ -83,8 +101,8 @@ exports[`forward will pull className from declared destructure 2`] = `
 
 exports[`forward will pull className from existing destructure 1`] = `
 "({
-  name,
-  className
+  className,
+  name
 }) => create(\\"div\\", {
   \\"className\\": className
 }, create(\\"div\\", {}, \\"Hello \\", name));"
@@ -92,8 +110,8 @@ exports[`forward will pull className from existing destructure 1`] = `
 
 exports[`forward will pull className from existing destructure 2`] = `
 "({
-  name,
-  className
+  className,
+  name
 }) => <div className={className}><div>Hello {name}</div></div>;"
 `;
 

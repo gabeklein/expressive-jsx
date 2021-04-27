@@ -45,7 +45,7 @@ export function forwardProp(
     const _key = t.identifier(name);
     const _local = uniqueWithin(scope, name);
 
-    properties.push(
+    properties.unshift(
       t.objectProperty(_key, _local, false, _local.name == name)
     )
 

@@ -44,6 +44,16 @@ describe("forward", () => {
     }
   `);
 
+  test("will not break where ...rest exists", `
+    ({ name, ...rest }) => do {
+      forward: className;
+
+      <div {...rest}>
+        Hello {name}
+      </div>
+    }
+  `);
+
   test("react ref", `
     ({ active }) => do {
       input: {
