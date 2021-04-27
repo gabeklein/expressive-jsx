@@ -59,6 +59,28 @@ Styles.include(\`
 \`);"
 `;
 
+exports[`forward will pull className from declared destructure 1`] = `
+"props => {
+  const {
+    name,
+    className
+  } = props;
+  return create(\\"div\\", {
+    \\"className\\": className
+  }, create(\\"div\\", {}, \\"Hello \\", name));
+};"
+`;
+
+exports[`forward will pull className from declared destructure 2`] = `
+"props => {
+  const {
+    name,
+    className
+  } = props;
+  return <div className={className}><div>Hello {name}</div></div>;
+};"
+`;
+
 exports[`forward will pull className from existing destructure 1`] = `
 "({
   name,

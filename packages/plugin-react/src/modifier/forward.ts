@@ -21,7 +21,7 @@ export function forwardProp(
     throw new Error("Can only apply props from a parent `() => do {}` function!");
 
   const { scope } = exec;
-  const properties = getProps(target, exec);
+  const properties = getProps(parent, exec);
 
   for(const key of ["className", "style"])
     if(propNames.includes(key))
@@ -73,10 +73,22 @@ function getProps(
     if(!existing)
       node.params[0] = props;
 
-    else if(t.isIdentifier(existing))
-      target.statements.push(
+    else if(t.isIdentifier(existing)){
+      const { statements } = target;
+
+      for(const s of statements){
+        if(!t.isVariableDeclaration(s))
+          break;
+
+        for(const d of s.declarations)
+          if(d.init && t.isObjectPattern(d.id))
+            return d.id.properties;
+      }
+
+      statements.unshift(
         t.declare("const", props, existing)
       );
+    }
   }
 
   return props.properties;

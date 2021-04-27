@@ -34,6 +34,16 @@ describe("forward", () => {
     }
   `);
 
+  test("will pull className from declared destructure", `
+    (props) => do {
+      const { name } = props;
+
+      forward: className;
+
+      <div>Hello {name}</div>
+    }
+  `);
+
   test("react ref", `
     ({ active }) => do {
       input: {
