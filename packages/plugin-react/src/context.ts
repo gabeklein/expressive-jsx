@@ -67,11 +67,11 @@ export class StackFrame {
     return context;
   }
 
-  apply(name: string, to: Applicable){
+  apply(name: string, target: Applicable){
     let modify = this.elementMod(name);
   
     while(modify){
-      to.use(modify);
+      target.use(modify);
   
       for(const sub of modify.provides)
         this.elementMod(sub);

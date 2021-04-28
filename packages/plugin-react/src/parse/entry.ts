@@ -36,10 +36,10 @@ export function generateEntryElement(
   define.context.currentComponent = define;
   define.exec = exec;
 
-  parse(define, path.get("body"));
-
   if(/^[A-Z]/.test(name))
     define.uses(name);
+
+  parse(define, path.get("body"));
 
   return define;
 }

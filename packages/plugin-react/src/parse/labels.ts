@@ -58,8 +58,8 @@ export function handleDefine(
 
   else if(body.isBlockStatement() || body.isLabeledStatement()){
     const mod = new DefineElement(target.context, name);
-    parse(mod, body);
     target.provide(mod);
+    parse(mod, body);
   }
 
   else
