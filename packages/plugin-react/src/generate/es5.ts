@@ -1,5 +1,5 @@
-import { ArrayStack } from 'generate/attributes';
 import * as t from 'syntax';
+import { ArrayStack } from 'utility';
 
 import type { StackFrame } from 'context';
 import type { PropData } from 'types';

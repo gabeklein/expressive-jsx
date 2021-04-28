@@ -1,5 +1,6 @@
 import { ExplicitStyle } from 'handle/attributes';
 import * as t from 'syntax';
+import { ArrayStack } from 'utility';
 
 import type { ObjectProperty, SpreadElement, Expression } from 'syntax';
 import type { FlatValue } from 'types';
@@ -19,26 +20,6 @@ export function toExpression(value?: FlatValue | Expression){
         return value;
     default:
       return t.identifier("undefined");
-  }
-}
-
-export class ArrayStack<T = any, I = T>
-  extends Array<T[] | I> {
-
-  top?: T[] | I;
-
-  insert(x: T){
-     if(Array.isArray(this.top))
-      this.top.push(x)
-    else {
-      this.top = [x]
-      super.push(this.top)
-    }
-  }
-
-  push(x: I): number {
-    this.top = x;
-    return super.push(x);
   }
 }
 
