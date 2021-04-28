@@ -1,5 +1,8 @@
 {
   "parser": "@typescript-eslint/parser",
+  "ignorePatterns": [
+    "packages/develop/**/*.js"
+  ],
   "extends": [
     "plugin:@typescript-eslint/recommended"
   ],
