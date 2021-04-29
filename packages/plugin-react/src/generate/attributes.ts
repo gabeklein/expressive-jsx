@@ -26,21 +26,30 @@ export function toExpression(value?: FlatValue | Expression){
 export class AttributeStack
   extends ArrayStack<ExplicitStyle> {
 
-  invariant = [] as ExplicitStyle[];
+  exists = new Set<string>();
+  invariant = new Set<ExplicitStyle>();
 
-  insert(item: ExplicitStyle): boolean {
-    if(item.name === undefined){
+  insert(
+    item: ExplicitStyle,
+    inline_only?: boolean){
+
+    const { name } = item;
+
+    if(name === undefined){
       this.top = item;
       this.push(item);
+      return;
     }
-    else if(item.invariant && this.length < 2){
-      // this.invariant.push(item);
-      return true;
-    }
+
+    if(this.exists.has(name))
+      return;
+    
+    this.exists.add(name);
+
+    if(item.invariant && !inline_only)
+      this.invariant.add(item);
     else
       super.insert(item);
-
-    return false;
   }
 
   flatten(){

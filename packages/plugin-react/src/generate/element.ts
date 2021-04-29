@@ -22,8 +22,6 @@ export function generateElement(element: ElementInline | Define){
   const children = [] as Expression[];
 
   const style = new AttributeStack();
-  const style_exists = new Set<string>();
-  const style_static = new Set<ExplicitStyle>();
   const classList = new Set<string | Expression>();
 
   Array
@@ -34,9 +32,9 @@ export function generateElement(element: ElementInline | Define){
   for(const item of sequence)
     apply(item);
 
-  if(style_static.size){
+  if(style.invariant.size){
     const mod = new DefineElement(context, name!);
-    mod.sequence.push(...style_static);
+    mod.sequence.push(...style.invariant);
     mod.priority = 2;
 
     useStyles(mod);
@@ -55,7 +53,7 @@ export function generateElement(element: ElementInline | Define){
 
   function apply(item: SequenceItem){
     if(item instanceof ExplicitStyle)
-      applyStyle(item);
+      style.insert(item, inline_only);
 
     else if(item instanceof Prop)
       applyProp(item);
@@ -108,16 +106,6 @@ export function generateElement(element: ElementInline | Define){
     props.push({ name, value: item.expression });
   }
 
-  function applyStyle(item: ExplicitStyle){
-    if(inline_only)
-      item.invariant = false;
-
-    if(item.invariant && !inline_only)
-      style_static.add(item);
-    else
-      style.insert(item)
-  }
-
   function useStyles(from: DefineElement | DefineConsequent){
     classList.add(from.uid)
     from.setActive();
@@ -136,17 +124,10 @@ export function generateElement(element: ElementInline | Define){
       if(property instanceof ExplicitStyle){
         const { name, invariant } = property;
 
-        if(!name)
-          continue;
-        
-        if(invariant && allow_css)
+        if(!name || invariant && allow_css)
           continue;
 
-        if(style_exists.has(name))
-          continue;
-
-        style_exists.add(name);
-        applyStyle(property)
+        style.insert(property);
       }
       else if(property instanceof Prop)
         apply(property);
