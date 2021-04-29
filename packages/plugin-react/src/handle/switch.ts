@@ -111,8 +111,7 @@ export class DefineConsequent extends Define {
     let parent = this.context.currentElement!;
     
     return [
-      ...parent.selector,
-      ...super.selector
+      ...parent.selector, `.${this.uid}` 
     ];
   }
 

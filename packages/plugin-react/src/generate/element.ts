@@ -120,17 +120,17 @@ export function generateElement(element: ElementInline | Define){
     if(allow_css && mod.containsStyle(true))
       useStyles(mod);
 
-    for(const property of mod.sequence)
-      if(property instanceof ExplicitStyle){
-        const { name, invariant } = property;
+    for(const prop of mod.sequence)
+      if(prop instanceof ExplicitStyle){
+        const { name, invariant } = prop;
 
         if(!name || invariant && allow_css)
           continue;
 
-        style.insert(property);
+        style.insert(prop);
       }
-      else if(property instanceof Prop)
-        apply(property);
+      else if(prop instanceof Prop)
+        apply(prop);
 
     if(mod.children.length > 0)
       if(children.length > 0)
@@ -143,7 +143,7 @@ export function generateElement(element: ElementInline | Define){
 
 function classValue(
   list: Set<Expression | string>,
-  Scope: FileManager){
+  program: FileManager){
 
   if(!list.size)
     return;
@@ -163,7 +163,7 @@ function classValue(
     )
 
   if(selectors.length > 1){
-    const join = Scope.ensure("$runtime", "join");
+    const join = program.ensure("$runtime", "join");
     return t.callExpression(join, selectors)
   }
   
