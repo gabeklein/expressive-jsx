@@ -1,5 +1,5 @@
 {
-  "name": "@expressive/react",
+  "name": "@expressive/runtime",
   "version": "1.0.0-beta.57",
   "description": "Expressive-react runtime",
   "main": "lib/index.js",
@@ -12,11 +12,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "keywords": [
-    "react",
-    "expressive-react",
-    "expressive"
-  ],
   "files": [
     "/lib",
     "index.d.ts"
@@ -28,9 +23,6 @@
     "prepare": "yarn build"
   },
   "devDependencies": {
-    "@types/react": "^16.9.34",
-    "esbuild": "^0.11.14",
-    "prop-types": "^15.7.2",
-    "react": ">=16.8.0"
+    "esbuild": "^0.11.14"
   }
 }

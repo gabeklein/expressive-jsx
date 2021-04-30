@@ -172,8 +172,8 @@ function classValue(
     )
 
   if(selectors.length > 1){
-    const join = program.ensure("$runtime", "join");
-    return t.callExpression(join, selectors)
+    const _use = program.ensure("$runtime", "use");
+    return t.callExpression(_use, selectors)
   }
   
   return selectors[0];

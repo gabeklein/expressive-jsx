@@ -19,7 +19,7 @@ export function styleDeclaration(
   if(!modifiersDeclared.size)
     return;
   
-  const runtime = program.ensure("$runtime", "default", "Styles");
+  const runtime = program.ensure("$runtime", "default", "CSS");
   const mediaGroups = prioritize(modifiersDeclared);
   const printedStyle = serialize(mediaGroups, pretty);
   const args = [ t.template(printedStyle) as Expression ];
@@ -29,7 +29,7 @@ export function styleDeclaration(
 
   return t.expressionStatement(
     t.callExpression(
-      t.get(runtime, "include"), args
+      t.get(runtime, "put"), args
     )
   );
 }
