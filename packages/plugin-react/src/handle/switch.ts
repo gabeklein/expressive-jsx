@@ -123,16 +123,22 @@ export class DefineConsequent extends Define {
   }
 
   toClassName(){
-    return [ this, ...this.includes ]
-      .filter(x => x.containsStyle(true))
-      .map(x => x.setActive(this.priority))
-      .join(" ");
+    const segments = [];
+
+    for(const mod of [this, ...this.includes]){
+      mod.setActive(this.priority);
+
+      if(mod.isUsed)
+        segments.push(mod.uid);
+    }
+
+    return segments.join(" ");
   }
 
   provide(define: DefineElement){
     define.onlyWithin = this;
-    define.priority = 4;
 
-    this.anchor.provides.add(define);
+    this.anchor.provide(define, 4);
+    this.dependant.add(define);
   }
 }

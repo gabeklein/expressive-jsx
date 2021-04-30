@@ -1,11 +1,11 @@
 import { AttributeStack } from 'generate/attributes';
 import { ExplicitStyle, Prop } from 'handle/attributes';
-import { DefineElement, DefineVariant } from 'handle/definition';
+import { DefineContainer, DefineElement, DefineVariant } from 'handle/definition';
+import { ElementInline } from 'handle/element';
 import * as t from 'syntax';
 
 import type { FileManager } from 'scope';
 import type { Define } from 'handle/definition';
-import type { ElementInline } from 'handle/element';
 import type { DefineConsequent } from 'handle/switch';
 import type { Expression } from 'syntax';
 import type { PropData, SequenceItem } from 'types';
@@ -32,13 +32,16 @@ export function generateElement(element: ElementInline | Define){
   for(const item of sequence)
     apply(item);
 
-  if(style.invariant.size){
-    const mod = new DefineElement(context, name!);
-    mod.sequence.push(...style.invariant);
-    mod.priority = 2;
+  if(element instanceof DefineContainer)
+    useClass(element);
+  else if(element instanceof ElementInline)
+    if(style.invariant.size){
+      const mod = new DefineElement(context, name!);
+      mod.sequence.push(...style.invariant);
+      mod.priority = 2;
 
-    useStyles(mod);
-  }
+      useClass(mod);
+    }
 
   const className = classValue(classList, context.program);
   const stylesProp = style.flatten();
@@ -106,25 +109,31 @@ export function generateElement(element: ElementInline | Define){
     props.push({ name, value: item.expression });
   }
 
-  function useStyles(from: DefineElement | DefineConsequent){
-    classList.add(from.uid)
+  function useClass(from: DefineElement | DefineConsequent){
+    if(inline_only || from.collapsable && !no_collapse)
+      return false;
+
     from.setActive();
+
+    if(from.isUsed)
+      classList.add(from.uid);
+
+    return true;
   }
 
   function applyModifier(mod: Define){
-    const allow_css = !inline_only && !mod.collapsable || no_collapse;
-
-    if(inline_only && mod instanceof DefineVariant)
+    if(inline_only && mod instanceof DefineVariant){
       console.warn(`Cannot include CSS for ${mod.selector} with inline_only mode. Skipping.`);
+      return;
+    }
 
-    if(allow_css && mod.containsStyle(true))
-      useStyles(mod);
+    const using_css = useClass(mod);
 
     for(const prop of mod.sequence)
       if(prop instanceof ExplicitStyle){
         const { name, invariant } = prop;
 
-        if(!name || invariant && allow_css)
+        if(!name || invariant && using_css)
           continue;
 
         style.insert(prop);

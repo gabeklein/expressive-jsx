@@ -5,7 +5,6 @@ import { ExplicitStyle } from './attributes';
 import { AttributeBody } from './object';
 
 import type { StackFrame } from 'context';
-import type { ElementInline } from 'handle/element';
 import type { DefineConsequent } from 'handle/switch';
 import type { ArrowFunctionExpression, Path } from 'syntax';
 
@@ -21,10 +20,10 @@ export abstract class Define extends AttributeBody {
   provides = new Set<Define>();
 
   /** Modifiers based upon this one. */
-  dependant = new Set<DefineVariant | DefineConsequent>();
+  dependant = new Set<Define>();
 
   /** Targets which this modifier applies to. */
-  targets = new Set<ElementInline>();
+  targets = new Set<Define>();
 
   abstract provide(define: DefineElement): void;
 
@@ -37,6 +36,18 @@ export abstract class Define extends AttributeBody {
     return this.context.program.container(info);
   }
 
+  get isUsed(){
+    if(this.context.modifiersDeclared.has(this))
+      return true;
+
+    if(this.targets.size)
+      return true;
+
+    for(const child of this.dependant)
+      if(child.isUsed)
+        return true;
+  }
+
   get uid(){
     return this.context.unique(this.name!);
   }
@@ -47,7 +58,7 @@ export abstract class Define extends AttributeBody {
 
   get collapsable(){
     return (
-      this.targets.size <= 1 &&
+      this.targets.size == 1 &&
       this.dependant.size < 1 &&
       !this.onlyWithin
     );
@@ -67,12 +78,13 @@ export abstract class Define extends AttributeBody {
   }
   
   setActive(withPriority?: number){
+    if(!this.containsStyle(true))
+      return;
+
     if(withPriority! > this.priority)
       this.priority = withPriority!;
 
     this.context.modifiersDeclared.add(this);
-
-    return this.uid;
   }
 
   addStyle(name: string, value: any){
@@ -103,10 +115,12 @@ export class DefineElement extends Define {
     //   this.priority = 3;
   }
 
-  provide(define: DefineElement){
-    define.priority = this.priority;
+  provide(
+    define: DefineElement,
+    priority?: number){
+
+    define.priority = priority || this.priority;
     this.provides.add(define);
-    this.onlyWithin = define.onlyWithin;
   }
 }
 
