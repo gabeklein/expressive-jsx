@@ -1,13 +1,13 @@
 {
   "name": "@expressive/develop",
-  "version": "1.0.0-beta.59",
+  "version": "1.0.0-beta.60",
   "description": "Developer testing environment",
   "private": true,
   "main": "bin/debug.js",
   "dependencies": {
     "@babel/core": "^7.10.3",
     "@babel/preset-env": "^7.0.0",
-    "@expressive/babel-plugin-react": "^1.0.0-beta.59",
+    "@expressive/babel-plugin-react": "^1.0.0-beta.60",
     "@expressive/modify-gradient": "^1.0.0-beta.57",
     "@expressive/modify-pseudo": "^1.0.0-beta.57",
     "@expressive/modify-style": "^1.0.0-beta.57",
