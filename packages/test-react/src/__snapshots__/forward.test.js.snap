@@ -41,21 +41,21 @@ exports[`forward will join with existing styles 1`] = `
 "({
   className
 }) => create(\\"div\\", {
-  \\"className\\": join(\\"element_4q3\\", className)
+  \\"className\\": join(\\"element_26b\\", className)
 }, create(\\"div\\", {}, \\"Hello World\\"));
 
 Styles.include(\`
-	.element_4q3 { color: red }
+	.element_26b { color: red }
 \`);"
 `;
 
 exports[`forward will join with existing styles 2`] = `
 "({
   className
-}) => <div className={join(\\"element_4q3\\", className)}><div>Hello World</div></div>;
+}) => <div className={join(\\"element_26b\\", className)}><div>Hello World</div></div>;
 
 Styles.include(\`
-	.element_4q3 { color: red }
+	.element_26b { color: red }
 \`);"
 `;
 

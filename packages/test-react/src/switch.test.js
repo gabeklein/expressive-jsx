@@ -75,6 +75,20 @@ test("nested elements may have conditional", `
   }
 `)
 
+test("switch can provide style downstream", `
+  () => do {
+    if(true){
+      foo: { color: red }
+      bar: { color: blue }
+    }
+
+    <this>
+      <foo />
+      <bar />
+    </this>
+  }
+`)
+
 test("delegates definition via use", `
   example: {
     color: black;

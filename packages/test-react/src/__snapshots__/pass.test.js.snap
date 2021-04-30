@@ -2,19 +2,19 @@
 
 exports[`collapse style-only expression 1`] = `
 "const props = {
-  \\"className\\": \\"props_4o0\\"
+  \\"className\\": \\"props_4d3\\"
 };
 Styles.include(\`
-	.props_4o0 { color: red }
+	.props_4d3 { color: red }
 \`);"
 `;
 
 exports[`collapse style-only expression 2`] = `
 "const props = {
-  \\"className\\": \\"props_4o0\\"
+  \\"className\\": \\"props_4d3\\"
 };
 Styles.include(\`
-	.props_4o0 { color: red }
+	.props_4d3 { color: red }
 \`);"
 `;
 

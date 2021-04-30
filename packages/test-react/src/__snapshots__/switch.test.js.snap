@@ -4,7 +4,7 @@ exports[`alternate consequent types 1`] = `
 "({
   foo
 }) => create(\\"div\\", {
-  \\"className\\": !!foo && \\"if_foo_6ac\\"
+  \\"className\\": join(\\"element_26b\\", !!foo && \\"if_foo_6ac\\")
 }, !foo && create(\\"div\\", {}, \\"Foo is false\\"));
 
 Styles.include(\`
@@ -15,7 +15,7 @@ Styles.include(\`
 exports[`alternate consequent types 2`] = `
 "({
   foo
-}) => <div className={!!foo && \\"if_foo_6ac\\"}>{!foo && <div>Foo is false</div>}</div>;
+}) => <div className={join(\\"element_26b\\", !!foo && \\"if_foo_6ac\\")}>{!foo && <div>Foo is false</div>}</div>;
 
 Styles.include(\`
 	.element_26b.if_foo_6ac { color: red }
@@ -38,7 +38,7 @@ exports[`delegated variant may still contain style 1`] = `
 "const BuyButton = ({
   active
 }) => create(\\"div\\", {
-  \\"className\\": active ? \\"if_active_2df exampleActive_fbb\\" : \\"else_392\\"
+  \\"className\\": join(\\"example_6a2\\", active ? \\"if_active_2df exampleActive_fbb\\" : \\"else_392\\")
 }, \\"Hello World!\\");
 
 Styles.include(\`
@@ -51,7 +51,7 @@ Styles.include(\`
 exports[`delegated variant may still contain style 2`] = `
 "const BuyButton = ({
   active
-}) => <div className={active ? \\"if_active_2df exampleActive_fbb\\" : \\"else_392\\"}>Hello World!</div>;
+}) => <div className={join(\\"example_6a2\\", active ? \\"if_active_2df exampleActive_fbb\\" : \\"else_392\\")}>Hello World!</div>;
 
 Styles.include(\`
 	.example_6a2.else_392 { color: green }
@@ -64,7 +64,7 @@ exports[`delegates definition via use 1`] = `
 "const BuyButton = ({
   active
 }) => create(\\"div\\", {
-  \\"className\\": join(\\"example_14k\\", active ? \\"exampleActive_fbb\\" : \\"else_392\\")
+  \\"className\\": join(\\"example_6a2 example_14k\\", active ? \\"exampleActive_fbb\\" : \\"else_392\\")
 }, \\"Hello World!\\");
 
 Styles.include(\`
@@ -77,7 +77,7 @@ Styles.include(\`
 exports[`delegates definition via use 2`] = `
 "const BuyButton = ({
   active
-}) => <div className={join(\\"example_14k\\", active ? \\"exampleActive_fbb\\" : \\"else_392\\")}>Hello World!</div>;
+}) => <div className={join(\\"example_6a2 example_14k\\", active ? \\"exampleActive_fbb\\" : \\"else_392\\")}>Hello World!</div>;
 
 Styles.include(\`
 	.example_14k { color: black }
@@ -90,7 +90,7 @@ exports[`inverse consequent types 1`] = `
 "({
   foo
 }) => create(\\"div\\", {
-  \\"className\\": !foo && \\"else_16j\\"
+  \\"className\\": join(\\"element_26b\\", !foo && \\"else_16j\\")
 }, !!foo && create(\\"div\\", {}, \\"Foo is true\\"));
 
 Styles.include(\`
@@ -101,7 +101,7 @@ Styles.include(\`
 exports[`inverse consequent types 2`] = `
 "({
   foo
-}) => <div className={!foo && \\"else_16j\\"}>{!!foo && <div>Foo is true</div>}</div>;
+}) => <div className={join(\\"element_26b\\", !foo && \\"else_16j\\")}>{!!foo && <div>Foo is true</div>}</div>;
 
 Styles.include(\`
 	.element_26b.else_16j { color: red }
@@ -112,7 +112,7 @@ exports[`nested elements may have conditional 1`] = `
 "const BuyButton = ({
   active
 }) => create(\\"div\\", {}, create(\\"div\\", {}, create(\\"div\\", {
-  \\"className\\": active ? \\"if_active_3ef\\" : \\"else_27p\\"
+  \\"className\\": join(\\"inner_1mn\\", active ? \\"if_active_3ef\\" : \\"else_27p\\")
 })));
 
 Styles.include(\`
@@ -124,7 +124,7 @@ Styles.include(\`
 exports[`nested elements may have conditional 2`] = `
 "const BuyButton = ({
   active
-}) => <div><div><div className={active ? \\"if_active_3ef\\" : \\"else_27p\\"} /></div></div>;
+}) => <div><div><div className={join(\\"inner_1mn\\", active ? \\"if_active_3ef\\" : \\"else_27p\\")} /></div></div>;
 
 Styles.include(\`
 	.inner_1mn.else_27p { color: green }
@@ -137,7 +137,7 @@ exports[`supports complex else-if 1`] = `
   foo,
   bar
 }) => create(\\"div\\", {
-  \\"className\\": !foo && !bar && \\"else_6jg\\"
+  \\"className\\": join(\\"element_26b\\", !foo && !bar && \\"else_6jg\\")
 }, foo ? create(\\"div\\", {}, \\"Foo is true\\") : !!bar && create(\\"div\\", {}, \\"Bar is true\\"));
 
 Styles.include(\`
@@ -149,7 +149,7 @@ exports[`supports complex else-if 2`] = `
 "({
   foo,
   bar
-}) => <div className={!foo && !bar && \\"else_6jg\\"}>{foo ? <div>Foo is true</div> : !!bar && <div>Bar is true</div>}</div>;
+}) => <div className={join(\\"element_26b\\", !foo && !bar && \\"else_6jg\\")}>{foo ? <div>Foo is true</div> : !!bar && <div>Bar is true</div>}</div>;
 
 Styles.include(\`
 	.element_26b.else_6jg { color: red }
@@ -161,7 +161,7 @@ exports[`supports inverse else-if 1`] = `
   foo,
   bar
 }) => create(\\"div\\", {
-  \\"className\\": foo ? \\"if_foo_6ac\\" : !!bar && \\"if_bar_16j\\"
+  \\"className\\": join(\\"element_26b\\", foo ? \\"if_foo_6ac\\" : !!bar && \\"if_bar_16j\\")
 }, !foo && !bar && create(\\"div\\", {}, \\"Foo & Bar are false\\"));
 
 Styles.include(\`
@@ -174,7 +174,7 @@ exports[`supports inverse else-if 2`] = `
 "({
   foo,
   bar
-}) => <div className={foo ? \\"if_foo_6ac\\" : !!bar && \\"if_bar_16j\\"}>{!foo && !bar && <div>Foo & Bar are false</div>}</div>;
+}) => <div className={join(\\"element_26b\\", foo ? \\"if_foo_6ac\\" : !!bar && \\"if_bar_16j\\")}>{!foo && !bar && <div>Foo & Bar are false</div>}</div>;
 
 Styles.include(\`
 	.element_26b.if_bar_16j { color: blue }
@@ -182,11 +182,35 @@ Styles.include(\`
 \`);"
 `;
 
+exports[`switch can provide style downstream 1`] = `
+"() => create(\\"div\\", {
+  \\"className\\": join(\\"element_26b\\", !!true && \\"opt1_6ac\\")
+}, create(\\"div\\", {
+  \\"className\\": \\"foo_5rg\\"
+}), create(\\"div\\", {
+  \\"className\\": \\"bar_193\\"
+}));
+
+Styles.include(\`
+	.element_26b.opt1_6ac .foo_5rg { color: red }
+	.element_26b.opt1_6ac .bar_193 { color: blue }
+\`);"
+`;
+
+exports[`switch can provide style downstream 2`] = `
+"() => <div className={join(\\"element_26b\\", !!true && \\"opt1_6ac\\")}><div className=\\"foo_5rg\\" /><div className=\\"bar_193\\" /></div>;
+
+Styles.include(\`
+	.element_26b.opt1_6ac .foo_5rg { color: red }
+	.element_26b.opt1_6ac .bar_193 { color: blue }
+\`);"
+`;
+
 exports[`switch styles 1`] = `
 "({
   foo
 }) => create(\\"div\\", {
-  \\"className\\": foo ? \\"if_foo_6ac\\" : \\"else_16j\\"
+  \\"className\\": join(\\"element_26b\\", foo ? \\"if_foo_6ac\\" : \\"else_16j\\")
 });
 
 Styles.include(\`
@@ -198,7 +222,7 @@ Styles.include(\`
 exports[`switch styles 2`] = `
 "({
   foo
-}) => <div className={foo ? \\"if_foo_6ac\\" : \\"else_16j\\"} />;
+}) => <div className={join(\\"element_26b\\", foo ? \\"if_foo_6ac\\" : \\"else_16j\\")} />;
 
 Styles.include(\`
 	.element_26b.else_16j { color: blue }
