@@ -1,6 +1,6 @@
 {
   "name": "@expressive/test-react",
-  "version": "1.0.0-beta.60",
+  "version": "1.0.0-beta.61",
   "private": true,
   "description": "Integration tests for preset-react",
   "repository": "https://github.com/gabeklein/expressive-dsl",
@@ -14,7 +14,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@expressive/babel-plugin-react": "^1.0.0-beta.60",
+    "@expressive/babel-plugin-react": "^1.0.0-beta.61",
     "@expressive/modify-pseudo": "^1.0.0-beta.57",
     "@expressive/modify-style": "^1.0.0-beta.57"
   },
