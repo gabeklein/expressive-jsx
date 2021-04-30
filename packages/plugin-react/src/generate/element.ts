@@ -138,15 +138,8 @@ export function generateElement(element: ElementInline | Define){
 
         style.insert(prop);
       }
-      else if(prop instanceof Prop)
-        apply(prop);
-
-    if(mod.children.length > 0)
-      if(children.length > 0)
-        throw new Error("Cannot integrate children from modifier with an element's existing.")
       else
-        for(const item of mod.children)
-          apply(item);
+        apply(prop);
   }
 }
 
