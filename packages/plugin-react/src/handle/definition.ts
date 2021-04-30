@@ -10,7 +10,7 @@ import type { ArrowFunctionExpression, Path } from 'syntax';
 
 export type DefineAny = DefineElement | DefineConsequent;
 
-export abstract class Define extends AttributeBody {
+export class Define extends AttributeBody {
   next?: Define;
   onlyWithin?: DefineConsequent;
   
@@ -25,7 +25,13 @@ export abstract class Define extends AttributeBody {
   /** Targets which this modifier applies to. */
   targets = new Set<Define>();
 
-  abstract provide(define: DefineElement): void;
+  provide(
+    define: DefineElement,
+    priority?: number){
+
+    define.priority = Math.max(priority!, this.priority);
+    this.provides.add(define);
+  }
 
   toExpression(maybeProps?: boolean){
     const info = generateElement(this);
@@ -114,14 +120,6 @@ export class DefineElement extends Define {
     // if(/^[A-Z]/.test(name))
     //   this.priority = 3;
   }
-
-  provide(
-    define: DefineElement,
-    priority?: number){
-
-    define.priority = priority || this.priority;
-    this.provides.add(define);
-  }
 }
 
 export class DefineContainer extends DefineElement {
@@ -151,9 +149,5 @@ export class DefineVariant extends Define {
 
   get collapsable(){
     return false;
-  }
-
-  provide(){
-    void 0;
   }
 }
