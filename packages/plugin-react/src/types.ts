@@ -14,7 +14,7 @@ import type { StackFrame } from 'context';
 import type { Attribute } from 'handle/attributes';
 import type { ModifyDelegate } from 'parse/modifiers';
 import type { ElementInline } from 'handle/element';
-import type { ComponentFor, ComponentForX } from 'handle/iterate';
+import type { ComponentFor } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';
 
 export interface BunchOf<T> {
@@ -72,8 +72,7 @@ export type InnerContent =
   | Expression
   | ElementInline
   | ComponentIf
-  | ComponentFor
-  | ComponentForX;
+  | ComponentFor;
 
 interface ModifierOutput {
   attrs?: BunchOf<any>
