@@ -5,16 +5,16 @@ exports[`Attribute-based modifier 1`] = `
   \\"className\\": \\"Foo_6rq\\"
 });
 
-Styles.include(\`
-	.Foo_6rq { background: red; color: white }
+CSS.put(\`
+	.Foo_6rq { color: white; background: red }
 \`);"
 `;
 
 exports[`Attribute-based modifier 2`] = `
 "() => <Foo className=\\"Foo_6rq\\" />;
 
-Styles.include(\`
-	.Foo_6rq { background: red; color: white }
+CSS.put(\`
+	.Foo_6rq { color: white; background: red }
 \`);"
 `;
 
@@ -25,18 +25,18 @@ exports[`Explicitly use modifier 1`] = `
   \\"className\\": \\"Foo_76l\\"
 }));
 
-Styles.include(\`
-	.Foo_76l { color: blue }
+CSS.put(\`
 	.Baz_24h { color: red }
+	.Foo_76l { color: blue }
 \`);"
 `;
 
 exports[`Explicitly use modifier 2`] = `
 "() => <Fragment><Baz className=\\"Foo_76l Baz_24h\\" /><Foo className=\\"Foo_76l\\" /></Fragment>;
 
-Styles.include(\`
-	.Foo_76l { color: blue }
+CSS.put(\`
 	.Baz_24h { color: red }
+	.Foo_76l { color: blue }
 \`);"
 `;
 
@@ -47,18 +47,18 @@ exports[`Nested modifier 1`] = `
   \\"className\\": \\"Foo_76l Foo_61e\\"
 })));
 
-Styles.include(\`
-	.Foo_76l { color: red }
+CSS.put(\`
 	.Foo_61e { color: blue }
+	.Foo_76l { color: red }
 \`);"
 `;
 
 exports[`Nested modifier 2`] = `
 "() => <Fragment><Foo className=\\"Foo_76l\\" /><Bar><Foo className=\\"Foo_76l Foo_61e\\" /></Bar></Fragment>;
 
-Styles.include(\`
-	.Foo_76l { color: red }
+CSS.put(\`
 	.Foo_61e { color: blue }
+	.Foo_76l { color: red }
 \`);"
 `;
 
@@ -67,7 +67,7 @@ exports[`Simple modifier 1`] = `
   \\"className\\": \\"Foo_6rq\\"
 });
 
-Styles.include(\`
+CSS.put(\`
 	.Foo_6rq { color: red }
 \`);"
 `;
@@ -75,7 +75,7 @@ Styles.include(\`
 exports[`Simple modifier 2`] = `
 "() => <Foo className=\\"Foo_6rq\\" />;
 
-Styles.include(\`
+CSS.put(\`
 	.Foo_6rq { color: red }
 \`);"
 `;
@@ -85,15 +85,15 @@ exports[`collapse single-use modifiers 1`] = `
   \\"className\\": \\"Bar_24g\\"
 }));
 
-Styles.include(\`
-	.Bar_24g { border: red solid 1px; background: white; color: red }
+CSS.put(\`
+	.Bar_24g { color: red; border: red solid 1px; background: white }
 \`);"
 `;
 
 exports[`collapse single-use modifiers 2`] = `
 "() => <Foo><Bar className=\\"Bar_24g\\" /></Foo>;
 
-Styles.include(\`
-	.Bar_24g { border: red solid 1px; background: white; color: red }
+CSS.put(\`
+	.Bar_24g { color: red; border: red solid 1px; background: white }
 \`);"
 `;

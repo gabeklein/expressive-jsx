@@ -5,7 +5,7 @@ exports[`css directive 1`] = `
   \\"className\\": \\"element_26b\\"
 }, create(\\"div\\", {}, \\"Hello\\"));
 
-Styles.include(\`
+CSS.put(\`
 	.element_26b { color: blue }
 	.element_26b.isRed { color: red }
 \`);"
@@ -14,7 +14,7 @@ Styles.include(\`
 exports[`css directive 2`] = `
 "() => <div className=\\"element_26b\\"><div>Hello</div></div>;
 
-Styles.include(\`
+CSS.put(\`
 	.element_26b { color: blue }
 	.element_26b.isRed { color: red }
 \`);"
@@ -25,7 +25,7 @@ exports[`css multiple directives 1`] = `
   \\"className\\": \\"element_26b\\"
 }, create(\\"div\\", {}, \\"Hello\\"));
 
-Styles.include(\`
+CSS.put(\`
 	.element_26b { color: blue }
 	.element_26b.isRed { color: red }
 	.element_26b.isGreen { color: green }
@@ -35,7 +35,7 @@ Styles.include(\`
 exports[`css multiple directives 2`] = `
 "() => <div className=\\"element_26b\\"><div>Hello</div></div>;
 
-Styles.include(\`
+CSS.put(\`
 	.element_26b { color: blue }
 	.element_26b.isRed { color: red }
 	.element_26b.isGreen { color: green }
@@ -47,7 +47,7 @@ exports[`pseudo before/after 1`] = `
   \\"className\\": \\"element_26b\\"
 }, create(\\"div\\", {}, \\"Hello\\"));
 
-Styles.include(\`
+CSS.put(\`
 	.element_26b::before { content: \\"This is content\\"; color: blue }
 	.element_26b::after { background: red; color: white; content: \\"\\" }
 \`);"
@@ -56,7 +56,7 @@ Styles.include(\`
 exports[`pseudo before/after 2`] = `
 "() => <div className=\\"element_26b\\"><div>Hello</div></div>;
 
-Styles.include(\`
+CSS.put(\`
 	.element_26b::before { content: \\"This is content\\"; color: blue }
 	.element_26b::after { background: red; color: white; content: \\"\\" }
 \`);"
@@ -67,7 +67,7 @@ exports[`pseudo nthOfType 1`] = `
   \\"className\\": \\"element_26b\\"
 }, create(\\"div\\", {}, \\"Hello\\"));
 
-Styles.include(\`
+CSS.put(\`
 	.element_26b:nth-of-type(2n) { color: blue }
 	.element_26b:nth-of-type(3n+2) { color: red }
 \`);"
@@ -76,7 +76,7 @@ Styles.include(\`
 exports[`pseudo nthOfType 2`] = `
 "() => <div className=\\"element_26b\\"><div>Hello</div></div>;
 
-Styles.include(\`
+CSS.put(\`
 	.element_26b:nth-of-type(2n) { color: blue }
 	.element_26b:nth-of-type(3n+2) { color: red }
 \`);"

@@ -7,8 +7,8 @@ exports[`competing style priority 1`] = `
   \\"className\\": \\"Bar_24g\\"
 }));
 
-Styles.include(\`
-	.Bar_24g { color: orange }
+CSS.put(\`
+	.Bar_24g { color: red }
 \`);"
 `;
 
@@ -17,7 +17,7 @@ exports[`competing style priority 2`] = `
 
 () => <Foo><Bar className=\\"Bar_24g\\" /></Foo>;
 
-Styles.include(\`
-	.Bar_24g { color: orange }
+CSS.put(\`
+	.Bar_24g { color: red }
 \`);"
 `;

@@ -9,7 +9,7 @@ exports[`Member property implemented as name 1`] = `
   \\"className\\": \\"Bar_7ih\\"
 });
 
-Styles.include(\`
+CSS.put(\`
 	.Bar_7ih { color: blue }
 \`);"
 `;
@@ -17,7 +17,7 @@ Styles.include(\`
 exports[`Member property implemented as name 2`] = `
 "() => <Foo.Bar className=\\"Bar_7ih\\" />;
 
-Styles.include(\`
+CSS.put(\`
 	.Bar_7ih { color: blue }
 \`);"
 `;
