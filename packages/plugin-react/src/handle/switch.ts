@@ -137,8 +137,9 @@ export class DefineConsequent extends Define {
 
   provide(define: DefineElement){
     define.onlyWithin = this;
+    define.priority = 4;
 
-    this.anchor.provide(define, 4);
+    this.anchor.provide(define);
     this.dependant.add(define);
   }
 }

@@ -58,6 +58,10 @@ export function handleDefine(
 
   else if(body.isBlockStatement() || body.isLabeledStatement()){
     const mod = new DefineElement(target.context, name);
+
+    if(/^[A-Z]/.test(name))
+      mod.priority = 3;
+
     target.provide(mod);
     parse(mod, body);
   }

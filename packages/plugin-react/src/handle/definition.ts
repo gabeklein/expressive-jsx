@@ -25,11 +25,7 @@ export class Define extends AttributeBody {
   /** Targets which this modifier applies to. */
   targets = new Set<Define>();
 
-  provide(
-    define: DefineElement,
-    priority?: number){
-
-    define.priority = Math.max(priority!, this.priority);
+  provide(define: DefineElement){
     this.provides.add(define);
   }
 
@@ -116,9 +112,6 @@ export class DefineElement extends Define {
 
     this.name = name;
     this.context.resolveFor(name);
-
-    // if(/^[A-Z]/.test(name))
-    //   this.priority = 3;
   }
 }
 

@@ -12,3 +12,35 @@ test("competing style priority", `
     </Foo>
   };
 `);
+
+test("conditional priority should be higher", `
+  () => do {
+    if(checked)
+      test: {
+        color: red;
+      }
+
+    test: {
+      color: green;
+    }
+
+    <test />
+}
+`);
+
+test("prioritize external (capital-letter) define", `
+  const Foo = () => do {
+    forward: className;
+    color: red;
+
+    <this>Hello</this>
+  }
+
+  const Bar = () => do {
+    Foo: {
+      color: blue;
+    }
+    
+    <Foo />
+  }
+`);
