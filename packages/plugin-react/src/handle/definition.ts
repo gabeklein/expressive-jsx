@@ -5,6 +5,7 @@ import { ExplicitStyle } from './attributes';
 import { AttributeBody } from './object';
 
 import type { StackFrame } from 'context';
+import type { ElementInline } from 'handle/element';
 import type { DefineConsequent } from 'handle/switch';
 import type { ArrowFunctionExpression, Path } from 'syntax';
 
@@ -23,7 +24,7 @@ export class Define extends AttributeBody {
   dependant = new Set<Define>();
 
   /** Targets which this modifier applies to. */
-  targets = new Set<Define>();
+  targets = new Set<Define | ElementInline>();
 
   provide(define: DefineElement){
     this.provides.add(define);
