@@ -5,6 +5,7 @@ import type { JSXMemberExpression, Expression } from 'syntax';
 import type { PropData } from 'types';
 
 const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;
+const IsLocalFilePath = /^\.\/.*?\.[\w:]+$/;
 
 export function createElement(
   this: FileManager,
@@ -49,7 +50,10 @@ function createAttribute({ name, value }: PropData){
 
   const insertedValue =
     t.isStringLiteral(value)
-      ? value.value === "true" ? null : value
+      ? value.value === "true" ? null
+      : IsLocalFilePath.test(value.value)
+          ? t.jsxExpressionContainer(t.require(value.value))
+          : value
       : t.jsxExpressionContainer(value)
 
   return t.jsxAttribute(t.jsxIdentifier(name), insertedValue)
