@@ -6,19 +6,19 @@ exports[`Handle member-type tags 2`] = `"() => <Foo.Bar />;"`;
 
 exports[`Member property implemented as name 1`] = `
 "() => create(Foo.Bar, {
-  \\"className\\": \\"Bar_7ih\\"
+  \\"className\\": \\"Bar_16j\\"
 });
 
 CSS.put(\`
-	.Bar_7ih { color: blue }
+	.Bar_16j { color: blue }
 \`);"
 `;
 
 exports[`Member property implemented as name 2`] = `
-"() => <Foo.Bar className=\\"Bar_7ih\\" />;
+"() => <Foo.Bar className=\\"Bar_16j\\" />;
 
 CSS.put(\`
-	.Bar_7ih { color: blue }
+	.Bar_16j { color: blue }
 \`);"
 `;
 

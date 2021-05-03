@@ -20,6 +20,10 @@ export abstract class AttributeBody {
 
   abstract use(mod: Define): void;
 
+  get uid(){
+    return this.context.unique(this.name!);
+  }
+
   adopt(child: InnerContent){
     const index = this.children.push(child);
 

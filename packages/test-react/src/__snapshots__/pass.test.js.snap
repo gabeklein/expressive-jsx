@@ -20,18 +20,18 @@ CSS.put(\`
 
 exports[`pass SpreadElement-do to element 1`] = `
 "() => create(\\"div\\", {
-  \\"className\\": \\"foo_62d\\"
+  \\"className\\": \\"foo_16j\\"
 });
 
 CSS.put(\`
-	.foo_62d { background: blue; color: red }
+	.foo_16j { background: blue; color: red }
 \`);"
 `;
 
 exports[`pass SpreadElement-do to element 2`] = `
-"() => <div className=\\"foo_62d\\" />;
+"() => <div className=\\"foo_16j\\" />;
 
 CSS.put(\`
-	.foo_62d { background: blue; color: red }
+	.foo_16j { background: blue; color: red }
 \`);"
 `;

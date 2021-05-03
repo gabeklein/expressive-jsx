@@ -21,19 +21,19 @@ exports[`forward react ref 1`] = `
   \\"disabled\\": !active,
   \\"ref\\": ref,
   \\"type\\": \\"text\\",
-  \\"className\\": \\"input_5iq\\"
+  \\"className\\": \\"input_16j\\"
 }));
 CSS.put(\`
-	.input_5iq { color: red }
+	.input_16j { color: red }
 \`);"
 `;
 
 exports[`forward react ref 2`] = `
 "forwardRef(({
   active
-}, ref) => <input disabled={!active} ref={ref} type=\\"text\\" className=\\"input_5iq\\" />);
+}, ref) => <input disabled={!active} ref={ref} type=\\"text\\" className=\\"input_16j\\" />);
 CSS.put(\`
-	.input_5iq { color: red }
+	.input_16j { color: red }
 \`);"
 `;
 

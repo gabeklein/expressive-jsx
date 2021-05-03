@@ -51,10 +51,6 @@ export class Define extends AttributeBody {
         return true;
   }
 
-  get uid(){
-    return this.context.unique(this.name!);
-  }
-
   get selector(){
     return [ `.${this.uid}` ];
   }
@@ -101,6 +97,21 @@ export class Define extends AttributeBody {
 
     if(mod instanceof DefineVariant)
       this.dependant.add(mod);
+  }
+}
+
+export class DefineLocal extends Define {
+  constructor(
+    private parent: ElementInline,
+    styles: Set<ExplicitStyle>
+  ){
+    super(parent.context);
+    this.sequence = Array.from(styles);
+    this.priority = 2;
+  }
+
+  get uid(){
+    return this.parent.uid;
   }
 }
 

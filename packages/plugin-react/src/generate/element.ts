@@ -1,11 +1,11 @@
 import { AttributeStack } from 'generate/attributes';
 import { ExplicitStyle, Prop } from 'handle/attributes';
-import { DefineContainer, DefineElement, DefineVariant } from 'handle/definition';
+import { Define, DefineLocal, DefineVariant } from 'handle/definition';
 import { ElementInline } from 'handle/element';
 import * as t from 'syntax';
 
+import type { DefineElement} from 'handle/definition';
 import type { FileManager } from 'scope';
-import type { Define } from 'handle/definition';
 import type { DefineConsequent } from 'handle/switch';
 import type { Expression } from 'syntax';
 import type { PropData, SequenceItem } from 'types';
@@ -13,7 +13,7 @@ import type { PropData, SequenceItem } from 'types';
 const byPriority = (x: any, y: any) => x.priority - y.priority;
 
 export function generateElement(element: ElementInline | Define){
-  const { context, sequence, name, includes } = element;
+  const { context, sequence, includes } = element;
 
   const inline_only = context.opts.styleMode === "inline";
   const no_collapse = context.opts.styleMode === "verbose";
@@ -32,16 +32,11 @@ export function generateElement(element: ElementInline | Define){
   for(const item of sequence)
     apply(item);
 
-  if(element instanceof DefineContainer)
-    useClass(element);
-  else if(element instanceof ElementInline)
-    if(style.invariant.size){
-      const mod = new DefineElement(context, name!);
-      mod.sequence.push(...style.invariant);
-      mod.priority = 2;
+  if(element instanceof ElementInline && style.invariant.size)
+    element = new DefineLocal(element, style.invariant);
 
-      useClass(mod);
-    }
+  if(element instanceof Define)
+    useClass(element);
 
   const className = classValue(classList, context.program);
   const stylesProp = style.flatten();

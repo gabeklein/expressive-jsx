@@ -2,40 +2,40 @@
 
 exports[`Attribute-based modifier 1`] = `
 "() => create(Foo, {
-  \\"className\\": \\"Foo_6rq\\"
+  \\"className\\": \\"Foo_16j\\"
 });
 
 CSS.put(\`
-	.Foo_6rq { color: white; background: red }
+	.Foo_16j { color: white; background: red }
 \`);"
 `;
 
 exports[`Attribute-based modifier 2`] = `
-"() => <Foo className=\\"Foo_6rq\\" />;
+"() => <Foo className=\\"Foo_16j\\" />;
 
 CSS.put(\`
-	.Foo_6rq { color: white; background: red }
+	.Foo_16j { color: white; background: red }
 \`);"
 `;
 
 exports[`Explicitly use modifier 1`] = `
 "() => create(Fragment, {}, create(Baz, {
-  \\"className\\": \\"Foo_76l Baz_24h\\"
+  \\"className\\": \\"Foo_76l Baz_16j\\"
 }), create(Foo, {
   \\"className\\": \\"Foo_76l\\"
 }));
 
 CSS.put(\`
-	.Baz_24h { color: red }
+	.Baz_16j { color: red }
 	.Foo_76l { color: blue }
 \`);"
 `;
 
 exports[`Explicitly use modifier 2`] = `
-"() => <Fragment><Baz className=\\"Foo_76l Baz_24h\\" /><Foo className=\\"Foo_76l\\" /></Fragment>;
+"() => <Fragment><Baz className=\\"Foo_76l Baz_16j\\" /><Foo className=\\"Foo_76l\\" /></Fragment>;
 
 CSS.put(\`
-	.Baz_24h { color: red }
+	.Baz_16j { color: red }
 	.Foo_76l { color: blue }
 \`);"
 `;
@@ -44,56 +44,56 @@ exports[`Nested modifier 1`] = `
 "() => create(Fragment, {}, create(Foo, {
   \\"className\\": \\"Foo_76l\\"
 }), create(Bar, {}, create(Foo, {
-  \\"className\\": \\"Foo_76l Foo_61e\\"
+  \\"className\\": \\"Foo_76l Foo_6n9\\"
 })));
 
 CSS.put(\`
-	.Foo_61e { color: blue }
+	.Foo_6n9 { color: blue }
 	.Foo_76l { color: red }
 \`);"
 `;
 
 exports[`Nested modifier 2`] = `
-"() => <Fragment><Foo className=\\"Foo_76l\\" /><Bar><Foo className=\\"Foo_76l Foo_61e\\" /></Bar></Fragment>;
+"() => <Fragment><Foo className=\\"Foo_76l\\" /><Bar><Foo className=\\"Foo_76l Foo_6n9\\" /></Bar></Fragment>;
 
 CSS.put(\`
-	.Foo_61e { color: blue }
+	.Foo_6n9 { color: blue }
 	.Foo_76l { color: red }
 \`);"
 `;
 
 exports[`Simple modifier 1`] = `
 "() => create(Foo, {
-  \\"className\\": \\"Foo_6rq\\"
+  \\"className\\": \\"Foo_16j\\"
 });
 
 CSS.put(\`
-	.Foo_6rq { color: red }
+	.Foo_16j { color: red }
 \`);"
 `;
 
 exports[`Simple modifier 2`] = `
-"() => <Foo className=\\"Foo_6rq\\" />;
+"() => <Foo className=\\"Foo_16j\\" />;
 
 CSS.put(\`
-	.Foo_6rq { color: red }
+	.Foo_16j { color: red }
 \`);"
 `;
 
 exports[`collapse single-use modifiers 1`] = `
 "() => create(Foo, {}, create(Bar, {
-  \\"className\\": \\"Bar_24g\\"
+  \\"className\\": \\"Bar_i3g\\"
 }));
 
 CSS.put(\`
-	.Bar_24g { color: red; border: red solid 1px; background: white }
+	.Bar_i3g { color: red; border: red solid 1px; background: white }
 \`);"
 `;
 
 exports[`collapse single-use modifiers 2`] = `
-"() => <Foo><Bar className=\\"Bar_24g\\" /></Foo>;
+"() => <Foo><Bar className=\\"Bar_i3g\\" /></Foo>;
 
 CSS.put(\`
-	.Bar_24g { color: red; border: red solid 1px; background: white }
+	.Bar_i3g { color: red; border: red solid 1px; background: white }
 \`);"
 `;

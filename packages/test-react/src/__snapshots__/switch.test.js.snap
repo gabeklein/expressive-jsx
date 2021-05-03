@@ -64,11 +64,11 @@ exports[`delegates definition via use 1`] = `
 "const BuyButton = ({
   active
 }) => create(\\"div\\", {
-  \\"className\\": use(\\"example_6a2 example_14k\\", active ? \\"exampleActive_fbb\\" : \\"else_392\\")
+  \\"className\\": use(\\"example_6a2 example_p5t\\", active ? \\"exampleActive_fbb\\" : \\"else_392\\")
 }, \\"Hello World!\\");
 
 CSS.put(\`
-	.example_14k { color: black }
+	.example_p5t { color: black }
 	.example_6a2.else_392 { color: green }
 	.exampleActive_fbb { color: blue }
 \`);"
@@ -77,10 +77,10 @@ CSS.put(\`
 exports[`delegates definition via use 2`] = `
 "const BuyButton = ({
   active
-}) => <div className={use(\\"example_6a2 example_14k\\", active ? \\"exampleActive_fbb\\" : \\"else_392\\")}>Hello World!</div>;
+}) => <div className={use(\\"example_6a2 example_p5t\\", active ? \\"exampleActive_fbb\\" : \\"else_392\\")}>Hello World!</div>;
 
 CSS.put(\`
-	.example_14k { color: black }
+	.example_p5t { color: black }
 	.example_6a2.else_392 { color: green }
 	.exampleActive_fbb { color: blue }
 \`);"
