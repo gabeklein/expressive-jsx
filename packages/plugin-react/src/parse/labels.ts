@@ -56,18 +56,25 @@ export function handleDefine(
   if(body.isExpressionStatement() || LeadingDollarSign.test(name))
     handleDirective(name, target, body as any);
 
-  else if(body.isBlockStatement() || body.isLabeledStatement()){
-    const mod = new DefineElement(target.context, name);
-
-    if(/^[A-Z]/.test(name))
-      mod.priority = 3;
-
-    target.provide(mod);
-    parse(mod, body);
-  }
+  else if(body.isBlockStatement() || body.isLabeledStatement())
+    handleNestedDefine(target, name, body);
 
   else
     throw Oops.BadInputModifier(body, body.type)
+}
+
+function handleNestedDefine(
+  target: Define,
+  name: string,
+  body: Path<any>){
+
+  const mod = new DefineElement(target.context, name);
+
+  if(/^[A-Z]/.test(name))
+    mod.priority = 3;
+
+  target.provide(mod);
+  parse(mod, body);
 }
 
 function handleDirective(
