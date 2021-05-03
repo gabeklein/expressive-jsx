@@ -1,7 +1,7 @@
 import * as t from 'syntax';
 import { ArrayStack } from 'utility';
 
-import type { StackFrame } from 'context';
+import type { FileManager } from 'scope';
 import type { PropData } from 'types';
 import type {
   Expression,
@@ -13,16 +13,16 @@ import type {
 } from 'syntax';
 
 export function createElement(
-  this: StackFrame,
+  this: FileManager,
   tag: null | string | JSXMemberExpression,
   properties: PropData[] = [],
   children: Expression[] = []
 ){
   const create =
-    this.program.ensure("$pragma", "createElement", "create");
+    this.ensure("$pragma", "createElement", "create");
 
   if(!tag)
-    tag = this.program.ensure("$pragma", "Fragment").name;
+    tag = this.ensure("$pragma", "Fragment").name;
 
   const type =
     typeof tag === "string" ?

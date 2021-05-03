@@ -15,6 +15,7 @@ import type {
   JSXMemberExpression,
   ObjectProperty,
   Path,
+  Scope,
   Statement,
   VariableDeclaration
 } from 'syntax';
@@ -33,18 +34,22 @@ interface ElementReact {
 
 export abstract class FileManager {
   protected body: Statement[];
+  protected opts: Options;
+  protected scope: Scope;
 
   protected imports = {} as BunchOf<(ObjectProperty | ImportSpecific)[]>
   protected importIndices = {} as BunchOf<number>;
 
   constructor(
-    private path: Path<BabelProgram>,
-    protected context: StackFrame){
+    path: Path<BabelProgram>,
+    context: StackFrame){
 
     const create = context.opts.output === "js" ? createJS : createJSX;
 
-    this.createElement = create.bind(context);
     this.body = path.node.body;
+    this.createElement = create.bind(this);
+    this.opts = context.opts;
+    this.scope = path.scope;
   }
 
   abstract ensure(from: string, name: string, alt?: string): Identifier;
@@ -87,11 +92,11 @@ export abstract class FileManager {
       return value;
 
     const name = value.slice(1) as keyof Options;
-    return this.context.opts[name] as string;
+    return this.opts[name] as string;
   }
 
   ensureUID(name = "temp"){
-    const { scope } = this.path;
+    const { scope } = this;
 
     let uid = name = name
       .replace(/^_+/, "")
@@ -117,7 +122,7 @@ export abstract class FileManager {
   }
 
   close(){
-    if(this.context.opts.externals === false)
+    if(this.opts.externals === false)
       return;
 
     for(const name in this.imports){

@@ -1,25 +1,25 @@
 import * as t from 'syntax';
 
-import type { StackFrame } from 'context';
+import type { FileManager } from 'scope';
 import type { JSXMemberExpression, Expression } from 'syntax';
 import type { PropData } from 'types';
 
 const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;
 
 export function createElement(
-  this: StackFrame,
+  this: FileManager,
   tag: null | string | JSXMemberExpression,
   properties: PropData[] = [],
   content: Expression[] = []
 ){
   if(!tag)
-    tag = this.program.ensure("$pragma", "Fragment").name;
+    tag = this.ensure("$pragma", "Fragment").name;
 
   const type = typeof tag == "string" ? t.jsxIdentifier(tag) : tag;
   const props = properties.map(createAttribute);
   const children = content.map(jsxContent);
 
-  this.program.ensure("$pragma", "default", "React");
+  this.ensure("$pragma", "default", "React");
 
   const contains = children.length > 0;
 
