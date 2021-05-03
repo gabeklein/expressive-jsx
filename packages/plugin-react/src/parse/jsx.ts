@@ -164,7 +164,10 @@ function applyAttribute(
       break;
   
       case "StringLiteral":
-        value = expression;
+        if(name == "src" && /^\.\//.test(expression.value))
+          value = t.require(expression.value)
+        else
+          value = expression;
       break;
   
       default:
