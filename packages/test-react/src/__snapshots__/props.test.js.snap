@@ -2,7 +2,7 @@
 
 exports[`will convert \`./../file.ext\` to require 1`] = `
 "() => create(\\"img\\", {
-  \\"src\\": \\"./logo.svg\\"
+  \\"src\\": require(\\"./logo.svg\\")
 }, \\"This should be a require-sourced file!\\");"
 `;
 
