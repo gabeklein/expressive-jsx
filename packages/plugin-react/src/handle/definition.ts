@@ -13,7 +13,7 @@ export type DefineAny = DefineElement | DefineConsequent;
 
 export class Define extends AttributeBody {
   next?: Define;
-  onlyWithin?: DefineConsequent;
+  onlyWithin?: Define;
   
   priority = 1;
 
@@ -154,5 +154,13 @@ export class DefineVariant extends Define {
 
   get collapsable(){
     return false;
+  }
+
+  provide(define: DefineElement){
+    define.onlyWithin = this;
+    define.priority = this.priority;
+
+    this.parent.provide(define);
+    this.dependant.add(define);
   }
 }

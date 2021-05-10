@@ -1,7 +1,7 @@
 import { reduceToExpression, specifyOption } from 'generate/switch';
 import { parse } from 'parse/body';
 import * as t from 'syntax';
-import { ensureArray, hash } from 'utility';
+import { ensureArray } from 'utility';
 
 import { Define } from './definition';
 
@@ -82,17 +82,20 @@ export class ComponentIf {
 }
 
 export class DefineConsequent extends Define {
+  test: Expression | undefined;
   anchor: DefineElement;
 
   constructor(
-    public path: Path<Statement>,
+    consequent: Path<Statement>,
     context: StackFrame,
-    public index: number,
-    public test?: Expression){
+    index: number,
+    test?: Expression){
 
     super(context);
 
+    this.test = test;
     this.context.resolveFor(index);
+    this.name = specifyOption(test) || `opt${index + 1}`;
 
     let parent = context.currentElement as DefineElement | DefineConsequent;
 
@@ -104,22 +107,13 @@ export class DefineConsequent extends Define {
     this.anchor = parent;
     this.priority = 5;
 
-    parse(this, path);
+    parse(this, consequent);
   }
 
   get selector(): string[] {
     let parent = this.context.currentElement!;
     
-    return [
-      ...parent.selector, `.${this.uid}` 
-    ];
-  }
-
-  get uid(){
-    const uid = hash(this.context.prefix);
-    const name = specifyOption(this.test) || `opt${this.index + 1}`;
-
-    return `${name}_${uid}`;
+    return [ ...parent.selector, `.${this.uid}` ];
   }
 
   toClassName(){
