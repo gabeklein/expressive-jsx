@@ -1,5 +1,6 @@
 import { ExplicitStyle } from 'handle/attributes';
 import * as t from 'syntax';
+import { hash } from 'utility';
 
 import type { StackFrame } from 'context';
 import type { Define } from 'handle/definition';
@@ -11,10 +12,11 @@ type MediaGroups = SelectorContent[];
 
 export function styleDeclaration(
   context: StackFrame,
-  argument: Expression | undefined){
+  filename: string){
 
   const { modifiersDeclared, program, opts } = context;
   const pretty = opts.printStyle == "pretty";
+  const hot = opts.hot !== false;
 
   if(!modifiersDeclared.size)
     return;
@@ -24,8 +26,10 @@ export function styleDeclaration(
   const printedStyle = serialize(mediaGroups, pretty);
   const args = [ t.template(printedStyle) as Expression ];
 
-  if(argument)
-    args.push(argument);
+  if(hot){
+    const uid = hash(filename, 10);
+    args.push(t.stringLiteral(uid));
+  }
 
   return t.expressionStatement(
     t.callExpression(

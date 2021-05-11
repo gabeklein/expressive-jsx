@@ -5,10 +5,9 @@ import { builtIn } from 'modifier/builtIn';
 import { generateEntryElement } from 'parse/entry';
 import { handleTopLevelDefine } from 'parse/labels';
 import * as t from 'syntax';
-import { hash } from 'utility';
 
-import type { DoExpression, Program, Node, VisitNodeObject } from 'syntax';
-import type { BabelFile, BabelState, Options } from 'types';
+import type { DoExpression, Expression, Program, Node, Statement , VisitNodeObject } from 'syntax';
+import type { BabelFile, BabelState, Options} from 'types';
 
 type Visitor<T extends Node, S extends StackFrame = StackFrame> =
   VisitNodeObject<BabelState<S>, T>;
@@ -49,11 +48,9 @@ const HandleProgram: Visitor<Program> = {
         item.remove();
       }
   },
-  exit(path, { opts, filename, context }){
-    const fileId = opts.hot !== false && hash(filename, 10);
-    const argument = fileId ? t.stringLiteral(fileId) : undefined;
-    const styleBlock = styleDeclaration(context, argument);
-  
+  exit(path, { filename, context }){
+    const styleBlock = styleDeclaration(context, filename);
+
     if(styleBlock)
       path.pushContainer("body", [ styleBlock ]);
   
@@ -64,25 +61,26 @@ const HandleProgram: Visitor<Program> = {
 const HandleDoExpression: Visitor<DoExpression> = {
   enter(path, state){
     let element = generateEntryElement(path, state.context);
+    const collapsible = !element.exec;
 
-    const { statements, exec } = element;
-
-    const output =
-      element.toExpression(!exec) || 
+    let output: Expression | Statement =
+      element.toExpression(collapsible) || 
       t.booleanLiteral(false);
   
-    if(exec && statements.length){
+    if(element.exec && element.statements.length){
       const body = [
-        ...statements,
+        ...element.statements,
         t.returnStatement(output)
       ];
   
-      if(path.parentPath.isReturnStatement())
-        path.parentPath.replaceWithMultiple(body)
-      else
-        path.replaceWith(t.blockStatement(body))
+      if(path.parentPath.isReturnStatement()){
+        path.parentPath.replaceWithMultiple(body);
+        return;
+      }
+
+      output = t.blockStatement(body);
     }
-    else
-      path.replaceWith(output);
+
+    path.replaceWith(output);
   }
 }
