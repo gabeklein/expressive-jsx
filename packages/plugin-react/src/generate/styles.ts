@@ -66,12 +66,13 @@ function serialize(
   media: BunchOf<MediaGroups>,
   pretty?: boolean){
 
-  const lines = [];
+  const lines: string[] = [];
 
   for(const query in media){
-    const priorityBunches = media[query].filter(x => x);
+    media[query].forEach((bunch, index) => {
+      if(!pretty)
+        lines.push(`/* ${index} */`)
 
-    for(const bunch of priorityBunches)
       for(const [ name, styles ] of bunch){
         if(pretty){
           const rules = styles.map(x => `\t${x};`);
@@ -82,6 +83,7 @@ function serialize(
           lines.push(`${name} { ${block} }`)
         }
       }
+    });
   }
 
   const content = lines.map(x => "\t" + x).join("\n")

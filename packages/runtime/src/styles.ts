@@ -2,7 +2,7 @@ import { dev, version } from "./develop";
 
 export class RuntimeStyleController {
   element?: HTMLStyleElement;
-  chunks = new Map<string, boolean | string>();
+  chunks = [ new Map<string, boolean | string>() ];
 
   constructor(){
     try {
@@ -19,8 +19,32 @@ export class RuntimeStyleController {
   }
 
   get cssText(){
-    const output = Array.from(this.chunks.keys()).join("\n\n");
-    return output ? `\n${output}\n` : "";
+    const output: string[] = [];
+
+    for(const chunk of this.chunks){
+      if(!chunk)
+        continue;
+      
+      output.push(...chunk.keys());
+    }
+
+    const css = output
+      .map(x => x.replace(/\n$/, ""))
+      .join("\n")
+
+    if(output.length)
+      return `\n${css}\n`;
+    
+    return "";
+  }
+
+  refresh(){
+    const { element } = this;
+
+    if(element)
+      element.innerHTML = this.cssText;
+    else
+      throw new Error("Tried to insert, but target <style> not found!");
   }
 
   /**
@@ -30,36 +54,52 @@ export class RuntimeStyleController {
    * @param reoccuringKey - dedupe identifier (for HMR or potentially dynamic style)
    */
   put(cssText: string, reoccuringKey: string){
-    const { element: ref, chunks: existing } = this;
+    cssText = stripIndentation(cssText);
 
-    cssText = format(cssText);
+    const byPriority = /\/\* (\d+) \*\/\n/g;
+    const groups = cssText.split(byPriority);
 
-    if(existing.has(cssText))
+    if(groups.length === 1)
+      this.accept(cssText, 0, reoccuringKey);
+    else {
+      for(let i = 1; groups.length > i; i+=2)
+        this.accept(groups[i+1], Number(groups[i]), reoccuringKey);
+    }
+
+    this.refresh();
+  }
+
+  accept(
+    css: string,
+    priority: number,
+    sourceKey?: string){
+
+    let register = this.chunks[priority];
+
+    if(!register)
+      register = this.chunks[priority] = new Map();
+
+    if(register.has(css))
       return;
 
-    if(reoccuringKey)
-      for(const [text, key] of existing)
-        if(key === reoccuringKey)
-          existing.delete(text);
+    if(sourceKey)
+      for(const [text, key] of register)
+        if(key === sourceKey)
+          register.delete(text);
 
-    this.chunks.set(cssText, reoccuringKey || true);
-
-    if(ref)
-      ref.innerHTML = this.cssText;
-    else
-      throw new Error("Tried to insert, but target <style> not found!");
+    register.set(css, sourceKey || true);
   }
 }
 
 /**
-* Reindent CSS text and register for inclusion.
-*/
-function format(cssText: string){
+ * Reindent CSS text and register for inclusion.
+ */
+function stripIndentation(cssText: string){
   const regularIndent = /^\n(\s*)/.exec(cssText);
  
   if(regularIndent){
     const trim = new RegExp(`\n${ regularIndent[1] }`, "g");
-    cssText = cssText.replace(trim, "\n\t");
+    cssText = cssText.replace(trim, "\n");
   }
  
   return cssText
