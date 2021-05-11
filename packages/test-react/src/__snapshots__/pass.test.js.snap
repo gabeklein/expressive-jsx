@@ -5,6 +5,7 @@ exports[`collapse style-only expression 1`] = `
   \\"className\\": \\"props_4d3\\"
 };
 CSS.put(\`
+	/* 1 */
 	.props_4d3 { color: red }
 \`);"
 `;
@@ -14,6 +15,7 @@ exports[`collapse style-only expression 2`] = `
   \\"className\\": \\"props_4d3\\"
 };
 CSS.put(\`
+	/* 1 */
 	.props_4d3 { color: red }
 \`);"
 `;
@@ -24,6 +26,7 @@ exports[`pass SpreadElement-do to element 1`] = `
 });
 
 CSS.put(\`
+	/* 2 */
 	.foo_16j { background: blue; color: red }
 \`);"
 `;
@@ -32,6 +35,7 @@ exports[`pass SpreadElement-do to element 2`] = `
 "() => <div className=\\"foo_16j\\" />;
 
 CSS.put(\`
+	/* 2 */
 	.foo_16j { background: blue; color: red }
 \`);"
 `;

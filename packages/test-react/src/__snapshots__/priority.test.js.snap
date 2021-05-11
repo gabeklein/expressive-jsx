@@ -8,6 +8,7 @@ exports[`competing style priority 1`] = `
 }));
 
 CSS.put(\`
+	/* 2 */
 	.Bar_i3g { color: red }
 \`);"
 `;
@@ -18,6 +19,7 @@ exports[`competing style priority 2`] = `
 () => <Foo><Bar className=\\"Bar_i3g\\" /></Foo>;
 
 CSS.put(\`
+	/* 2 */
 	.Bar_i3g { color: red }
 \`);"
 `;
@@ -30,7 +32,9 @@ exports[`conditional priority should be higher 1`] = `
 }));
 
 CSS.put(\`
+	/* 2 */
 	.test_6jg { color: green }
+	/* 4 */
 	.element_26b.if_checked_6ac .test_2ng { color: red }
 \`);"
 `;
@@ -39,7 +43,9 @@ exports[`conditional priority should be higher 2`] = `
 "() => <div className={use(\\"element_26b\\", !!checked && \\"if_checked_6ac\\")}><div className=\\"test_2ng test_6jg\\" /></div>;
 
 CSS.put(\`
+	/* 2 */
 	.test_6jg { color: green }
+	/* 4 */
 	.element_26b.if_checked_6ac .test_2ng { color: red }
 \`);"
 `;
@@ -56,7 +62,9 @@ const Bar = () => create(Foo, {
 });
 
 CSS.put(\`
+	/* 1 */
 	.Foo_8ef { color: red }
+	/* 2 */
 	.Foo_124 { color: blue }
 \`);"
 `;
@@ -69,7 +77,9 @@ exports[`prioritize external (capital-letter) define 2`] = `
 const Bar = () => <Foo className=\\"Foo_124\\" />;
 
 CSS.put(\`
+	/* 1 */
 	.Foo_8ef { color: red }
+	/* 2 */
 	.Foo_124 { color: blue }
 \`);"
 `;

@@ -6,6 +6,7 @@ exports[`basic style 1`] = `
 }, \\"Hello World\\");
 
 CSS.put(\`
+	/* 1 */
 	.element_26b { color: green }
 \`);"
 `;
@@ -14,6 +15,7 @@ exports[`basic style 2`] = `
 "() => <div className=\\"element_26b\\">Hello World</div>;
 
 CSS.put(\`
+	/* 1 */
 	.element_26b { color: green }
 \`);"
 `;

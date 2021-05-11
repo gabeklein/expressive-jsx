@@ -8,6 +8,7 @@ exports[`alternate consequent types 1`] = `
 }, !foo && create(\\"div\\", {}, \\"Foo is false\\"));
 
 CSS.put(\`
+	/* 5 */
 	.element_26b.if_foo_6ac { color: red }
 \`);"
 `;
@@ -18,6 +19,7 @@ exports[`alternate consequent types 2`] = `
 }) => <div className={use(\\"element_26b\\", !!foo && \\"if_foo_6ac\\")}>{!foo && <div>Foo is false</div>}</div>;
 
 CSS.put(\`
+	/* 5 */
 	.element_26b.if_foo_6ac { color: red }
 \`);"
 `;
@@ -42,6 +44,7 @@ exports[`delegated variant may still contain style 1`] = `
 }, \\"Hello World!\\");
 
 CSS.put(\`
+	/* 5 */
 	.example_6a2.else_392 { color: green }
 	.example_6a2.if_active_2df { background: white }
 	.exampleActive_fbb { color: blue }
@@ -54,6 +57,7 @@ exports[`delegated variant may still contain style 2`] = `
 }) => <div className={use(\\"example_6a2\\", active ? \\"if_active_2df exampleActive_fbb\\" : \\"else_392\\")}>Hello World!</div>;
 
 CSS.put(\`
+	/* 5 */
 	.example_6a2.else_392 { color: green }
 	.example_6a2.if_active_2df { background: white }
 	.exampleActive_fbb { color: blue }
@@ -68,7 +72,9 @@ exports[`delegates definition via use 1`] = `
 }, \\"Hello World!\\");
 
 CSS.put(\`
+	/* 2 */
 	.example_p5t { color: black }
+	/* 5 */
 	.example_6a2.else_392 { color: green }
 	.exampleActive_fbb { color: blue }
 \`);"
@@ -80,7 +86,9 @@ exports[`delegates definition via use 2`] = `
 }) => <div className={use(\\"example_6a2 example_p5t\\", active ? \\"exampleActive_fbb\\" : \\"else_392\\")}>Hello World!</div>;
 
 CSS.put(\`
+	/* 2 */
 	.example_p5t { color: black }
+	/* 5 */
 	.example_6a2.else_392 { color: green }
 	.exampleActive_fbb { color: blue }
 \`);"
@@ -94,6 +102,7 @@ exports[`inverse consequent types 1`] = `
 }, !!foo && create(\\"div\\", {}, \\"Foo is true\\"));
 
 CSS.put(\`
+	/* 5 */
 	.element_26b.else_16j { color: red }
 \`);"
 `;
@@ -104,6 +113,7 @@ exports[`inverse consequent types 2`] = `
 }) => <div className={use(\\"element_26b\\", !foo && \\"else_16j\\")}>{!!foo && <div>Foo is true</div>}</div>;
 
 CSS.put(\`
+	/* 5 */
 	.element_26b.else_16j { color: red }
 \`);"
 `;
@@ -116,6 +126,7 @@ exports[`nested elements may have conditional 1`] = `
 })));
 
 CSS.put(\`
+	/* 5 */
 	.inner_1mn.else_27p { color: green }
 	.inner_1mn.if_active_3ef { color: red }
 \`);"
@@ -127,6 +138,7 @@ exports[`nested elements may have conditional 2`] = `
 }) => <div><div><div className={use(\\"inner_1mn\\", active ? \\"if_active_3ef\\" : \\"else_27p\\")} /></div></div>;
 
 CSS.put(\`
+	/* 5 */
 	.inner_1mn.else_27p { color: green }
 	.inner_1mn.if_active_3ef { color: red }
 \`);"
@@ -141,6 +153,7 @@ exports[`supports complex else-if 1`] = `
 }, foo ? create(\\"div\\", {}, \\"Foo is true\\") : !!bar && create(\\"div\\", {}, \\"Bar is true\\"));
 
 CSS.put(\`
+	/* 5 */
 	.element_26b.else_6jg { color: red }
 \`);"
 `;
@@ -152,6 +165,7 @@ exports[`supports complex else-if 2`] = `
 }) => <div className={use(\\"element_26b\\", !foo && !bar && \\"else_6jg\\")}>{foo ? <div>Foo is true</div> : !!bar && <div>Bar is true</div>}</div>;
 
 CSS.put(\`
+	/* 5 */
 	.element_26b.else_6jg { color: red }
 \`);"
 `;
@@ -165,6 +179,7 @@ exports[`supports inverse else-if 1`] = `
 }, !foo && !bar && create(\\"div\\", {}, \\"Foo & Bar are false\\"));
 
 CSS.put(\`
+	/* 5 */
 	.element_26b.if_bar_16j { color: blue }
 	.element_26b.if_foo_6ac { color: red }
 \`);"
@@ -177,6 +192,7 @@ exports[`supports inverse else-if 2`] = `
 }) => <div className={use(\\"element_26b\\", foo ? \\"if_foo_6ac\\" : !!bar && \\"if_bar_16j\\")}>{!foo && !bar && <div>Foo & Bar are false</div>}</div>;
 
 CSS.put(\`
+	/* 5 */
 	.element_26b.if_bar_16j { color: blue }
 	.element_26b.if_foo_6ac { color: red }
 \`);"
@@ -192,6 +208,7 @@ exports[`switch can provide style downstream 1`] = `
 }));
 
 CSS.put(\`
+	/* 4 */
 	.element_26b.opt1_6ac .foo_5rg { color: red }
 	.element_26b.opt1_6ac .bar_193 { color: blue }
 \`);"
@@ -201,6 +218,7 @@ exports[`switch can provide style downstream 2`] = `
 "() => <div className={use(\\"element_26b\\", !!true && \\"opt1_6ac\\")}><div className=\\"foo_5rg\\" /><div className=\\"bar_193\\" /></div>;
 
 CSS.put(\`
+	/* 4 */
 	.element_26b.opt1_6ac .foo_5rg { color: red }
 	.element_26b.opt1_6ac .bar_193 { color: blue }
 \`);"
@@ -214,6 +232,7 @@ exports[`switch styles 1`] = `
 });
 
 CSS.put(\`
+	/* 5 */
 	.element_26b.else_16j { color: blue }
 	.element_26b.if_foo_6ac { color: red }
 \`);"
@@ -225,6 +244,7 @@ exports[`switch styles 2`] = `
 }) => <div className={use(\\"element_26b\\", foo ? \\"if_foo_6ac\\" : \\"else_16j\\")} />;
 
 CSS.put(\`
+	/* 5 */
 	.element_26b.else_16j { color: blue }
 	.element_26b.if_foo_6ac { color: red }
 \`);"

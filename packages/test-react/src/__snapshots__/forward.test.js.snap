@@ -24,6 +24,7 @@ exports[`forward react ref 1`] = `
   \\"className\\": \\"input_16j\\"
 }));
 CSS.put(\`
+	/* 2 */
 	.input_16j { color: red }
 \`);"
 `;
@@ -33,6 +34,7 @@ exports[`forward react ref 2`] = `
   active
 }, ref) => <input disabled={!active} ref={ref} type=\\"text\\" className=\\"input_16j\\" />);
 CSS.put(\`
+	/* 2 */
 	.input_16j { color: red }
 \`);"
 `;
@@ -45,6 +47,7 @@ exports[`forward will join with existing styles 1`] = `
 }, create(\\"div\\", {}, \\"Hello World\\"));
 
 CSS.put(\`
+	/* 1 */
 	.element_26b { color: red }
 \`);"
 `;
@@ -55,6 +58,7 @@ exports[`forward will join with existing styles 2`] = `
 }) => <div className={use(\\"element_26b\\", className)}><div>Hello World</div></div>;
 
 CSS.put(\`
+	/* 1 */
 	.element_26b { color: red }
 \`);"
 `;

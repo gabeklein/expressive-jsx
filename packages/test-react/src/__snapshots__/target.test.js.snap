@@ -6,6 +6,7 @@ exports[`Attribute-based modifier 1`] = `
 });
 
 CSS.put(\`
+	/* 2 */
 	.Foo_16j { color: white; background: red }
 \`);"
 `;
@@ -14,6 +15,7 @@ exports[`Attribute-based modifier 2`] = `
 "() => <Foo className=\\"Foo_16j\\" />;
 
 CSS.put(\`
+	/* 2 */
 	.Foo_16j { color: white; background: red }
 \`);"
 `;
@@ -26,7 +28,9 @@ exports[`Explicitly use modifier 1`] = `
 }));
 
 CSS.put(\`
+	/* 2 */
 	.Baz_16j { color: red }
+	/* 3 */
 	.Foo_76l { color: blue }
 \`);"
 `;
@@ -35,7 +39,9 @@ exports[`Explicitly use modifier 2`] = `
 "() => <Fragment><Baz className=\\"Foo_76l Baz_16j\\" /><Foo className=\\"Foo_76l\\" /></Fragment>;
 
 CSS.put(\`
+	/* 2 */
 	.Baz_16j { color: red }
+	/* 3 */
 	.Foo_76l { color: blue }
 \`);"
 `;
@@ -48,7 +54,9 @@ exports[`Nested modifier 1`] = `
 })));
 
 CSS.put(\`
+	/* 2 */
 	.Foo_6n9 { color: blue }
+	/* 3 */
 	.Foo_76l { color: red }
 \`);"
 `;
@@ -57,7 +65,9 @@ exports[`Nested modifier 2`] = `
 "() => <Fragment><Foo className=\\"Foo_76l\\" /><Bar><Foo className=\\"Foo_76l Foo_6n9\\" /></Bar></Fragment>;
 
 CSS.put(\`
+	/* 2 */
 	.Foo_6n9 { color: blue }
+	/* 3 */
 	.Foo_76l { color: red }
 \`);"
 `;
@@ -68,6 +78,7 @@ exports[`Simple modifier 1`] = `
 });
 
 CSS.put(\`
+	/* 2 */
 	.Foo_16j { color: red }
 \`);"
 `;
@@ -76,6 +87,7 @@ exports[`Simple modifier 2`] = `
 "() => <Foo className=\\"Foo_16j\\" />;
 
 CSS.put(\`
+	/* 2 */
 	.Foo_16j { color: red }
 \`);"
 `;
@@ -86,6 +98,7 @@ exports[`collapse single-use modifiers 1`] = `
 }));
 
 CSS.put(\`
+	/* 2 */
 	.Bar_i3g { color: red; border: red solid 1px; background: white }
 \`);"
 `;
@@ -94,6 +107,7 @@ exports[`collapse single-use modifiers 2`] = `
 "() => <Foo><Bar className=\\"Bar_i3g\\" /></Foo>;
 
 CSS.put(\`
+	/* 2 */
 	.Bar_i3g { color: red; border: red solid 1px; background: white }
 \`);"
 `;
