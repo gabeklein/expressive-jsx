@@ -45,9 +45,12 @@ export class StackFrame {
     this.prefix = hash(state.filename);
     this.opts = options;
 
+    const { externals, output } = options;
+
     const FileManager =
-      options.externals == "require" ||
-      options.output == "js"
+      externals == "require" ? RequireManager :
+      externals == "import" ? ImportManager :
+      output == "js"
         ? RequireManager
         : ImportManager;
 

@@ -22,7 +22,6 @@ module.exports = {
     [BabelPluginReact, {
       hot: false, 
       output: TARGET,
-      useImport: true, 
       printStyle: "pretty",
       // styleMode: "inline",
       modifiers: [
