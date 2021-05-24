@@ -32,12 +32,17 @@ interface ElementReact {
   children: Expression[];
 }
 
+interface External<T> {
+  items: T[];
+  exists?: boolean;
+}
+
 export abstract class FileManager {
   protected body: Statement[];
   protected opts: Options;
   protected scope: Scope;
 
-  protected imports = {} as BunchOf<(ObjectProperty | ImportSpecific)[]>
+  protected imports = {} as BunchOf<External<any>>;
   protected importIndices = {} as BunchOf<number>;
 
   constructor(
@@ -125,25 +130,29 @@ export abstract class FileManager {
     if(this.opts.externals === false)
       return;
 
-    for(const name in this.imports){
+    Object.entries(this.imports).forEach(([name, external]) => {
+      if(external.exists)
+        return;
+      
       const importStatement = this.createImport(name);
 
       if(importStatement){
         const index = this.importIndices[name];
+        
         this.body.splice(index, 0, importStatement);
       }
-    }
+    })
   }
 }
 
 export class ImportManager extends FileManager {
-  imports = {} as BunchOf<ImportSpecific[]>
+  imports = {} as BunchOf<External<ImportSpecific>>
 
   ensure(from: string, name: string, alt = name){
     from = this.replaceAlias(from);
 
     let uid;
-    const list = this.imports[from] || this.ensureImported(from);
+    const list = this.ensureImported(from).items;
 
     if(name == "default"){
       if(t.isImportDefaultSpecifier(list[0]))
@@ -172,19 +181,28 @@ export class ImportManager extends FileManager {
   }
 
   ensureImported(name: string){
-    const { imports, body } = this;
+    const { imports } = this;
 
     name = this.replaceAlias(name);
 
-    for(const stat of body)
-      if(t.isImportDeclaration(stat) && stat.source.value == name)
-        return imports[name] = stat.specifiers;
+    if(imports[name])
+      return imports[name];
 
-    return imports[name] = [];
+    for(const stat of this.body)
+      if(t.isImportDeclaration(stat) && stat.source.value == name)
+        return imports[name] = {
+          exists: true,
+          items: stat.specifiers
+        };
+
+    return imports[name] = {
+      exists: false,
+      items: []
+    };
   }
 
   createImport(name: string){
-    const list = this.imports[name];
+    const list = this.imports[name].items;
 
     if(list.length)
       return t.importDeclaration(list, t.stringLiteral(name));
@@ -192,11 +210,11 @@ export class ImportManager extends FileManager {
 }
 
 export class RequireManager extends FileManager {
-  imports = {} as BunchOf<ObjectProperty[]>
+  imports = {} as BunchOf<External<ObjectProperty>>
   importTargets = {} as BunchOf<Expression | false>
 
   ensure(from: string, name: string, alt = name){
-    const source = this.ensureImported(from);
+    const source = this.ensureImported(from).items;
 
     for(const { key, value } of source)
       if(t.isIdentifier(key, { name }) && t.isIdentifier(value))
@@ -228,9 +246,12 @@ export class RequireManager extends FileManager {
         target = requireResultFrom(name, stat);
 
     if(target && t.isObjectPattern(target))
-      list = imports[name] = target.properties as ObjectProperty[];
+      list = imports[name] = {
+        exists: true,
+        items: target.properties as ObjectProperty[]
+      }
     else {
-      list = imports[name] = [];
+      list = imports[name] = { items: [] };
 
       if(t.isIdentifier(target))
         importTargets[name] = target;
@@ -240,7 +261,7 @@ export class RequireManager extends FileManager {
   }
 
   createImport(name: string){
-    const list = this.imports[name]
+    const list = this.imports[name].items;
 
     if(list.length){
       const target = this.importTargets[name] || t.require(name);
