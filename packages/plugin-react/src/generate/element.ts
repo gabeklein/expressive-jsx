@@ -24,13 +24,11 @@ export function generateElement(element: ElementInline | Define){
   const style = new AttributeStack();
   const classList = new Set<string | Expression>();
 
-  Array
-    .from(includes)
+  Array.from(includes)
     .sort(byPriority)
     .forEach(applyModifier);
 
-  for(const item of sequence)
-    apply(item);
+  sequence.forEach(apply);
 
   if(element instanceof ElementInline && style.invariant.size)
     element = new DefineLocal(element, style.invariant);
