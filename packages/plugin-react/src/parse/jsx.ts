@@ -41,8 +41,12 @@ export function addElementFromJSX(
   let target = parent as Element;
   const tag = path.get("openingElement").get("name");
 
-  if(!tag.isJSXIdentifier({ name: "this" }))
-    target = createElement(tag.node, target);
+  if(!tag.isJSXIdentifier({ name: "this" })){
+    const child = createElement(tag.node, target);
+
+    target.adopt(child);
+    target = child;
+  }
 
   const queue = [[target, path] as const];
 
@@ -55,10 +59,10 @@ export function addElementFromJSX(
 
     children.forEach((path, index) => {
       if(path.isJSXElement()){
-        queue.push([
-          createElement(path.node.openingElement.name, element),
-          path
-        ]);
+        const child = createElement(path.node.openingElement.name, element);
+
+        element.adopt(child);
+        queue.push([child, path]);
       }
 
       else if(path.isJSXText()){
@@ -123,8 +127,6 @@ function createElement(
 
   target.name = name;
   target.uses(name);
-
-  parent.adopt(target);
 
   return target;
 }
