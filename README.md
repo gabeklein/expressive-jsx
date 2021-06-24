@@ -4,9 +4,8 @@
     Another language, much the like of JSX, which introduces a new syntax<br/>for writing cleaner, more meaningful markup defining UI's, currently for React.
 </h4>
 
-# XJS
 
-If you develop with React, chances are you know JSX, its de-facto language so to speak. Expressive, or **XJS** for short, is an alternative syntax. It aims to let React developers write their components and apps in a more elegant way. It too generates code used by the react runtime, however it also adds useful features at the language level which can optimize how we make our components.
+If you develop with React, chances are you know JSX, its de-facto language so to speak. Expressive, extends JSX to add first-class styles and ES6 idioms to normal markup. It aims to let React developers write their components and apps in a more elegant way. It too generates code used by the react runtime, however it also adds useful features at the language level which can optimize how we make our components.
 
 <h4>Expressive-React provides, for-starters, these benefits:</h4>
 
