@@ -15,7 +15,7 @@ type Visitor<T extends Node, S extends StackFrame = StackFrame> =
 const DEFAULT_OPTIONS: Options = {
   env: "web",
   styleMode: "compile",
-  runtime: "@expressive/runtime",
+  runtime: "@expressive/css",
   pragma: "react",
   output: "js",
   modifiers: []

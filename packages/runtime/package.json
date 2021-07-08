@@ -1,5 +1,5 @@
 {
-  "name": "@expressive/runtime",
+  "name": "@expressive/css",
   "version": "1.0.0-beta.65",
   "description": "Expressive-react runtime",
   "main": "lib/index.js",
