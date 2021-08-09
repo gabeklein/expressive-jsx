@@ -10,7 +10,7 @@
     "@expressive/babel-plugin-jsx": "^1.0.0-beta.66",
     "@expressive/macro-gradient": "^1.0.0-beta.57",
     "@expressive/macro-pseudo": "^1.0.0-beta.57",
-    "@expressive/macro-styles": "^1.0.0-beta.57",
+    "@expressive/macro-style": "^1.0.0-beta.57",
     "gulp": "^4.0.2",
     "gulp-babel": "^8.0.0",
     "gulp-prettier": "^2.0.0",

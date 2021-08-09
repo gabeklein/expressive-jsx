@@ -1,5 +1,5 @@
 const PluginReact = require("@expressive/babel-plugin-jsx");
-const styleMacros = require("@expressive/macro-styles");
+const styleMacros = require("@expressive/macro-style");
 const pseudoMacros = require("@expressive/macro-pseudo");
 
 const { NODE_ENV } = process.env;

@@ -1,5 +1,5 @@
 const BabelPluginReact = require("@expressive/babel-plugin-jsx");
-const webstyleMacros = require("@expressive/macro-styles")
+const webstyleMacros = require("@expressive/macro-style")
 const pseudoMacros = require("@expressive/macro-pseudo")
 
 const { expect, test } = require("@jest/globals")

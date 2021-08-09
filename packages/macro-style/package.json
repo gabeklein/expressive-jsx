@@ -1,5 +1,5 @@
 {
-  "name": "@expressive/macro-styles",
+  "name": "@expressive/macro-style",
   "version": "1.0.0-beta.57",
   "description": "Style macros for most CSS keywords",
   "repository": "https://github.com/gabeklein/expressive-dsl",
