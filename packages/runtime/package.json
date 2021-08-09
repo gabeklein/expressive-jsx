@@ -1,6 +1,6 @@
 {
   "name": "@expressive/css",
-  "version": "1.0.0-beta.66",
+  "version": "1.0.0-beta.67",
   "description": "Expressive css accumulator",
   "main": "lib/index.js",
   "types": "index.d.ts",
