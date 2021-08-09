@@ -1,12 +1,12 @@
 {
   "name": "@expressive/css",
   "version": "1.0.0-beta.66",
-  "description": "Expressive-react runtime",
+  "description": "Expressive css accumulator",
   "main": "lib/index.js",
   "types": "index.d.ts",
   "author": {
     "name": "Gabe Klein",
-    "email": "gabe@termtm.com"
+    "email": "me@gabeklein.dev"
   },
   "license": "MIT",
   "publishConfig": {

@@ -6,7 +6,7 @@
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
     "name": "Gabe Klein",
-    "email": "gabe@termtm.com",
+    "email": "me@gabeklein.dev",
     "url": "https://github.com/gabeklein"
   },
   "main": "lib/index.js",
