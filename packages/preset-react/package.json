@@ -21,8 +21,8 @@
     "/index.js"
   ],
   "dependencies": {
-    "@expressive/babel-plugin-react": "^1.0.0-beta.66",
-    "@expressive/modify-pseudo": "^1.0.0-beta.57",
-    "@expressive/modify-style": "^1.0.0-beta.57"
+    "@expressive/babel-plugin-jsx": "^1.0.0-beta.66",
+    "@expressive/macro-pseudo": "^1.0.0-beta.57",
+    "@expressive/macro-styles": "^1.0.0-beta.57"
   }
 }

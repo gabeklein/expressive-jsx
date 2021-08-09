@@ -1,9 +1,9 @@
 const env = require("@babel/preset-env");
 
-const BabelPluginReact = require("@expressive/babel-plugin-react");
-const webstyleModifiers = require("@expressive/modify-style");
-const pseudoModifiers = require("@expressive/modify-pseudo");
-const gradientModifiers = require("@expressive/modify-gradient");
+const BabelPluginReact = require("@expressive/babel-plugin-jsx");
+const webstyleMacros = require("@expressive/macro-styles");
+const pseudoMacros = require("@expressive/macro-pseudo");
+const gradientMacros = require("@expressive/macro-gradient");
 
 const { 
   TARGET = "jsx"
@@ -25,9 +25,9 @@ module.exports = {
       printStyle: "pretty",
       // styleMode: "inline",
       modifiers: [
-        webstyleModifiers,
-        gradientModifiers,
-        pseudoModifiers
+        webstyleMacros,
+        gradientMacros,
+        pseudoMacros
       ]
     }]
   ]

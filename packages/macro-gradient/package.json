@@ -1,7 +1,7 @@
 {
-  "name": "@expressive/modify-pseudo",
+  "name": "@expressive/macro-gradient",
   "version": "1.0.0-beta.57",
-  "description": "Modifier macros for composition-based css.",
+  "description": "Style Modifier for fancier css gradients",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
     "name": "Gabe Klein",
@@ -15,20 +15,22 @@
   "keywords": [
     "react",
     "xjs",
-    "modifier"
+    "modifier",
+    "gradient"
   ],
   "main": "lib/index.js",
   "files": [
     "/lib"
   ],
   "scripts": {
-    "build": "esbuild ./src --bundle --outfile=lib/index.js --platform=node --target=node10 --external:@babel/types",
+    "build": "esbuild ./src --bundle --outfile=lib/index.js --platform=node --target=node10 --external:chroma-js --external:easing-coordinates",
     "watch": "npm run build -- --sourcemap --watch",
     "prebuild": "rm -rf ./lib",
     "prepare": "yarn build"
   },
   "dependencies": {
-    "@babel/types": "7.10.3"
+    "chroma-js": "^2.0.3",
+    "easing-coordinates": "^2.0.2"
   },
   "devDependencies": {
     "esbuild": "^0.11.14"
