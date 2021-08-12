@@ -1,6 +1,6 @@
-import { RuntimeStyleController } from "./styles";
+import { RuntimeStyle } from "./styles";
 
-export default new RuntimeStyleController();
+export default new RuntimeStyle();
 
 export function body(props: { children: any | any[] }){
   return [].concat(props.children)

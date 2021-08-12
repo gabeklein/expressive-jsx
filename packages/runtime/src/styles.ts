@@ -1,83 +1,72 @@
-import { dev, version } from "./develop";
+export class RuntimeStyle {
+  /** <style> tag expressing accumulated styles  */
+  element: HTMLStyleElement;
 
-export class RuntimeStyleController {
-  element?: HTMLStyleElement;
-  chunks = [ new Map<string, boolean | string>() ];
+  /** Priority chunks */
+  chunks = [
+    new Map<string, boolean | string>()
+  ];
 
   constructor(){
-    try {
-      const tag
-        = this.element
-        = document.createElement("style");
+    const style = this.element = document.createElement("style");
 
-      if(dev)
-        tag.setAttribute("expressive", version);
-
-      document.body.appendChild(tag);
-    }
-    catch(err){}
+    style.setAttribute("expressive", "");
+    document.body.appendChild(style);
   }
 
-  get cssText(){
+  /** Current aggregate of styles. */
+  get text(){
     const output: string[] = [];
 
-    for(const chunk of this.chunks){
-      if(!chunk)
-        continue;
-      
-      output.push(...chunk.keys());
-    }
+    for(const chunk of this.chunks)
+      if(chunk)
+        output.push(...chunk.keys());
+
+    if(!output.length)
+      return "";
 
     const css = output
       .map(x => x.replace(/\n$/, ""))
       .join("\n")
 
-    if(output.length)
-      return `\n${css}\n`;
-    
-    return "";
-  }
-
-  refresh(){
-    const { element } = this;
-
-    if(element)
-      element.innerHTML = this.cssText;
-    else
-      throw new Error("Tried to insert, but target <style> not found!");
+    return `\n${css}\n`;
   }
 
   /**
-   * Apply styles from cssText to generated stylesheet.
+   * Add styles from cssText to generated stylesheet.
    *
-   * @param cssText - plain CSS to be included
+   * @param css - plain CSS to be included
    * @param reoccuringKey - dedupe identifier (for HMR or potentially dynamic style)
    */
-  put(cssText: string, reoccuringKey: string){
-    cssText = stripIndentation(cssText);
-
-    const byPriority = /\/\* (\d+) \*\/\n/g;
-    const groups = cssText.split(byPriority);
-
-    if(groups.length === 1)
-      this.accept(cssText, 0, reoccuringKey);
-    else {
-      for(let i = 1; groups.length > i; i+=2)
-        this.accept(groups[i+1], Number(groups[i]), reoccuringKey);
+  put(css: string, reoccuringKey: string){
+    const indent = /^\n(\s*)/.exec(css);
+   
+    if(indent){
+      const line_offset = new RegExp("\n" + indent[1], "g");
+      css = css.replace(line_offset, "\n");
     }
 
-    this.refresh();
+    const groups = css
+      // remove empty lines
+      .replace(/^\n/, "")
+      // remove trailing whitespace
+      .replace(/\s+$/, "")
+      // split priorty chunks (if exist)
+      .split(/\/\* (\d+) \*\/\n/g);
+
+    if(groups.length < 2)
+      groups.unshift("0");
+
+    for(let i=1; groups.length > i; i+=2)
+      this.accept(groups[i+1], Number(groups[i]), reoccuringKey);
+
+    this.element.innerHTML = this.text;
   }
 
-  accept(
-    css: string,
-    priority: number,
-    sourceKey?: string){
-
-    let register = this.chunks[priority];
-
-    if(!register)
-      register = this.chunks[priority] = new Map();
+  accept(css: string, priority: number, sourceKey?: string){
+    let register = this.chunks[priority] || (
+      this.chunks[priority] = new Map()
+    )
 
     if(register.has(css))
       return;
@@ -90,19 +79,3 @@ export class RuntimeStyleController {
     register.set(css, sourceKey || true);
   }
 }
-
-/**
- * Reindent CSS text and register for inclusion.
- */
-function stripIndentation(cssText: string){
-  const regularIndent = /^\n(\s*)/.exec(cssText);
- 
-  if(regularIndent){
-    const trim = new RegExp(`\n${ regularIndent[1] }`, "g");
-    cssText = cssText.replace(trim, "\n");
-  }
- 
-  return cssText
-    .replace(/^\n/, "")
-    .replace(/\s+$/, "");
- }
