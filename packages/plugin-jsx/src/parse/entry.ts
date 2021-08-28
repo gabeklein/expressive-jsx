@@ -54,7 +54,7 @@ function parentFunction(path: Path<DoExpression>){
   if(parent.isReturnStatement()){
     const container = parent.findParent(x => /.*Function.*/.test(x.type))!;
 
-    if(container.type == "ArrowFunctionExpression")
+    if(container && container.type == "ArrowFunctionExpression")
       containerFn = container as Path<ArrowFunctionExpression>;
   }
 
