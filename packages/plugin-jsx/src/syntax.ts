@@ -108,3 +108,11 @@ export function template(text: string){
     ], [])
   )
 }
+
+const COMPARE_OP = ["==", "===", "!==", "in", "instanceof", ">", "<", ">=", "<="];
+
+export function isBinaryAssertion(a: Expression){
+  if(t.isBinaryExpression(a))
+    if(COMPARE_OP.includes(a.operator))
+      return true;
+}
