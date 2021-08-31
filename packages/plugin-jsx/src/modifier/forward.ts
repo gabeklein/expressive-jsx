@@ -81,7 +81,9 @@ function getProps(
           break;
 
         for(const d of s.declarations)
-          if(d.init && t.isObjectPattern(d.id))
+          if(d.init
+          && t.isObjectPattern(d.id)
+          && t.isIdentifier(d.init, { name: existing.name }))
             return d.id.properties;
       }
 
