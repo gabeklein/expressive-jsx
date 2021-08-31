@@ -28,10 +28,14 @@ exports[`pass-though capital (component) tags 1`] = `"() => create(Hello, {}, \\
 
 exports[`pass-though capital (component) tags 2`] = `"() => <Hello>Hello World</Hello>;"`;
 
-exports[`pass-through HTML5 tags 1`] = `"() => create(\\"div\\", {}, create(\\"div\\", {}), create(\\"article\\", {}), create(\\"blockquote\\", {}), create(\\"input\\", {}), create(\\"h1\\", {}), create(\\"h2\\", {}), create(\\"h3\\", {}), create(\\"h4\\", {}), create(\\"h5\\", {}), create(\\"h6\\", {}), create(\\"p\\", {}), create(\\"a\\", {}), create(\\"ul\\", {}), create(\\"ol\\", {}), create(\\"li\\", {}), create(\\"i\\", {}), create(\\"b\\", {}), create(\\"em\\", {}), create(\\"strong\\", {}), create(\\"span\\", {}), create(\\"hr\\", {}), create(\\"img\\", {}), create(\\"div\\", {}), create(\\"br\\", {}));"`;
+exports[`pass-through HTML5 tags 1`] = `"() => create(\\"div\\", {}, create(\\"article\\", {}), create(\\"blockquote\\", {}), create(\\"input\\", {}), create(\\"h1\\", {}), create(\\"h2\\", {}), create(\\"h3\\", {}), create(\\"h4\\", {}), create(\\"h5\\", {}), create(\\"h6\\", {}), create(\\"p\\", {}), create(\\"a\\", {}), create(\\"ul\\", {}), create(\\"ol\\", {}), create(\\"li\\", {}), create(\\"i\\", {}), create(\\"b\\", {}), create(\\"em\\", {}), create(\\"strong\\", {}), create(\\"span\\", {}), create(\\"hr\\", {}), create(\\"img\\", {}), create(\\"div\\", {}), create(\\"br\\", {}));"`;
 
-exports[`pass-through HTML5 tags 2`] = `"() => <div><div /><article /><blockquote /><input /><h1 /><h2 /><h3 /><h4 /><h5 /><h6 /><p /><a /><ul /><ol /><li /><i /><b /><em /><strong /><span /><hr /><img /><div /><br /></div>;"`;
+exports[`pass-through HTML5 tags 2`] = `"() => <div><article /><blockquote /><input /><h1 /><h2 /><h3 /><h4 /><h5 /><h6 /><p /><a /><ul /><ol /><li /><i /><b /><em /><strong /><span /><hr /><img /><div /><br /></div>;"`;
 
 exports[`strip tag; emit default 1`] = `"() => create(\\"div\\", {}, \\"Hello World\\");"`;
 
 exports[`strip tag; emit default 2`] = `"() => <div>Hello World</div>;"`;
+
+exports[`will not emit empty tag 1`] = `"() => false;"`;
+
+exports[`will not emit empty tag 2`] = `"() => false;"`;

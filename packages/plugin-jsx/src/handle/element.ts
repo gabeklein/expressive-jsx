@@ -9,9 +9,13 @@ export class ElementInline extends AttributeBody {
   tagName?: string | JSXMemberExpression;
 
   toExpression(){
-    return this.context.program.element(
-      generateElement(this), this.tagName
-    );
+    const { program } = this.context;
+    const output = generateElement(this);
+
+    if(this.tagName || this.sequence.length)
+      return program.element(output, this.tagName);
+    else
+      return program.container(output);
   }
 
   use(mod: Define){

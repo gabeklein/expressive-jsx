@@ -4,7 +4,7 @@ import { Define, DefineLocal, DefineVariant } from 'handle/definition';
 import { ElementInline } from 'handle/element';
 import * as t from 'syntax';
 
-import type { DefineElement} from 'handle/definition';
+import type { DefineElement } from 'handle/definition';
 import type { FileManager } from 'scope';
 import type { DefineConsequent } from 'handle/switch';
 import type { Expression } from 'syntax';
@@ -57,7 +57,7 @@ export function generateElement(element: ElementInline | Define){
     else if("toExpression" in item){
       const child = item.toExpression();
 
-      if(child)
+      if(child && !t.isBooleanLiteral(child, { value: false }))
         children.push(child);
 
       if("toClassName" in item){
@@ -108,7 +108,7 @@ export function generateElement(element: ElementInline | Define){
 
     from.setActive();
 
-    if(from.isUsed)
+    if(from.containsStyle(true) || from.dependant.size && from.isUsed)
       classList.add(from.uid);
 
     return true;

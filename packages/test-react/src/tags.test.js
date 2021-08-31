@@ -6,6 +6,12 @@ test("strip tag; emit default", `
   }
 `);
 
+test("will not emit empty tag", `
+  () => do {
+    <foobar />
+  }
+`);
+
 test("pass-though capital (component) tags", `
   () => do {
     <Hello>Hello World</Hello>

@@ -27,7 +27,7 @@ test("conditional priority should be higher", `
     }
 
     <test />
-}
+  }
 `);
 
 test("prioritize external (capital-letter) define", `
