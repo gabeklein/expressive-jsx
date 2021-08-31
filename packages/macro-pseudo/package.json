@@ -1,6 +1,6 @@
 {
   "name": "@expressive/macro-pseudo",
-  "version": "1.0.0-beta.67",
+  "version": "1.0.0-beta.69",
   "description": "Macros for composition-based css.",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
