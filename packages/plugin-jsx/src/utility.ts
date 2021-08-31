@@ -71,6 +71,11 @@ export class ArrayStack<T = any, I = T>
   }
 }
 
+/**
+ * Put starting value into a queue and then iterate that queue.
+ * Each step receives next item in queue, and opportunity to add more.
+ * Use `enqueue` callback to push new item to stack for processing.
+*/
 export function doUntilEmpty<T>(
   startingData: T,
   step: (next: T, enqueue: (data: T) => void) => void

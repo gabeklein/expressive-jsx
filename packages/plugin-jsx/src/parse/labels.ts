@@ -9,7 +9,7 @@ import type { StackFrame } from 'context';
 import type { Define } from 'handle/definition';
 import type { ExplicitStyle } from 'handle/attributes';
 import type { LabeledStatement, Path, Statement } from 'syntax';
-import type { BunchOf, DefineCompatibleBody } from 'types';
+import type { BunchOf, DefineBodyCompat, ModifyAction } from 'types';
 
 const Oops = ParseErrors({
   BadInputModifier: "Modifier input of type {1} not supported here!",
@@ -77,29 +77,32 @@ function handleNestedDefine(
   parse(mod, body);
 }
 
+type DirectiveTuple = 
+  [string, ModifyAction, DefineBodyCompat];
+
 function handleDirective(
-  initial: string,
+  name: string,
   recipient: DefineElement,
-  input: DefineCompatibleBody){
+  input: DefineBodyCompat){
 
   const { context } = recipient;
-  const handler = context.getHandler(initial);
+  const handler = context.getHandler(name);
   const output = {} as BunchOf<ExplicitStyle>;
-  const start = [ initial, handler, input ] as const;
+  const initial: DirectiveTuple = [ name, handler, input ];
 
-  doUntilEmpty(start, (next, enqueue) => {
+  doUntilEmpty(initial, (next, enqueue) => {
     const { styles, attrs } =
       new ModifyDelegate(recipient, ...next);
 
     Object.assign(output, styles);
-    Object.entries(attrs).forEach(([name, value]) => {
+    Object.entries(attrs).forEach(([key, value]) => {
       if(!value)
         return;
       
-      const useNext = name === initial;
-      const handler = context.getHandler(name, useNext);
+      const useNext = key === name;
+      const handler = context.getHandler(key, useNext);
 
-      enqueue([name, handler, value as any]);
+      enqueue([key, handler, value as any]);
     });
   });
 

@@ -83,7 +83,7 @@ interface ModifierOutput {
 export type ModifyAction =
   (this: ModifyDelegate, ...args: any[]) => ModifierOutput | void;
 
-export type DefineCompatibleBody =
+export type DefineBodyCompat =
   | Path<ExpressionStatement>
   | Path<BlockStatement>
   | Path<LabeledStatement>

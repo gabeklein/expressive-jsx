@@ -9,7 +9,7 @@ import { parse } from './body';
 import type { DefineElement } from 'handle/definition';
 import type { Prop } from 'handle/attributes';
 import type { Path, Statement } from 'syntax';
-import type { BunchOf, DefineCompatibleBody, ModifyAction, Options } from 'types';
+import type { BunchOf, DefineBodyCompat, ModifyAction, Options } from 'types';
 
 const Oops = ParseErrors({
   InlineModeNoVariants: "Cannot attach a CSS variant while styleMode is set to inline."
@@ -29,7 +29,7 @@ export class ModifyDelegate {
     public target: DefineElement,
     public name: string,
     transform: ModifyAction,
-    input: any[] | DefineCompatibleBody){
+    input: any[] | DefineBodyCompat){
 
     let important = false;
     let args: any[];
