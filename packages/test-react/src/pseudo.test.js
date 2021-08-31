@@ -3,12 +3,12 @@ const test = require("./_adapter");
 describe("pseudo", () => {
   test("before/after", `
     () => do {
-      $before: {
+      css: before: {
         content: "This is content"
         color: blue;
       }
 
-      $after: {
+      css: after: {
         background: red;
         color: white;
       }
@@ -19,12 +19,12 @@ describe("pseudo", () => {
 
   test("nthOfType", `
     () => do {
-      $nthOfType: {
+      css: nthOfType: {
         select: "2n"
         color: blue;
       }
       
-      $nthOfType: {
+      css: nthOfType: {
         select: "3n+2"
         color: red;
       }
@@ -39,8 +39,10 @@ describe("css", () => {
     () => do {
       color: blue;
       
-      $css: isRed: {
-        color: red;
+      css: has: {
+        isRed: {
+          color: red;
+        }
       }
 
       <div>Hello</div>
@@ -51,7 +53,7 @@ describe("css", () => {
     () => do {
       color: blue;
       
-      $css: {
+      css: has: {
         isRed: {
           color: red;
         }

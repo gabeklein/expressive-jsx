@@ -5,7 +5,9 @@ test("competing style priority", `
 
   () => do {
     Bar: { color: blue }
-    Foo: Bar: { color: orange }
+    Foo: {
+      Bar: { color: orange }
+    }
     
     <Foo>
       <Bar />

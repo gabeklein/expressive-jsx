@@ -68,7 +68,9 @@ test("collapse single-use modifiers", `
 
   () => do {
     Bar: { background: white }
-    Foo: Bar: { border: red }
+    Foo: {
+      Bar: { border: red }
+    }
     
     <Foo>
       <Bar />
