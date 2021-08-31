@@ -109,10 +109,30 @@ export function template(text: string){
   )
 }
 
-const COMPARE_OP = ["==", "===", "!==", "in", "instanceof", ">", "<", ">=", "<="];
+type OP = typeof COMPARE_OP[number];
 
-export function isBinaryAssertion(a: Expression){
+const COMPARE_OP = <const>["==", "===", "!==", "in", "instanceof", ">", "<", ">=", "<="];
+const OP_POSITES = new Map<OP, OP>();
+
+[["==", "!="],["===", "!=="],[">", "<="],["<", ">="]].forEach(([a, b]) => {
+  OP_POSITES.set(a as OP, b as OP);
+})
+
+export function isBinaryAssertion(a: Expression): a is t.BinaryExpression {
   if(t.isBinaryExpression(a))
-    if(COMPARE_OP.includes(a.operator))
+    if(COMPARE_OP.includes(a.operator as any))
       return true;
+
+  return false;
+}
+
+export function inverseExpression(x: t.BinaryExpression){
+  const inverse = OP_POSITES.get(x.operator as any);
+  
+  if(inverse)
+    return t.binaryExpression(inverse, x.left, x.right);
+  else
+    throw new Error(`Can't invert binary comparison ${x.operator}.`);
+  
+  return x;
 }

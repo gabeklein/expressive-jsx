@@ -6,7 +6,7 @@ import type { Consequent } from 'handle/switch';
 type GetProduct = (fork: Consequent) => Expression | undefined;
 
 const opt = t.conditionalExpression;
-const not = (a: Expression) => t.unaryExpression("!", a);
+const not = (a: Expression) => t.isBinaryAssertion(a) ? t.inverseExpression(a) : t.unaryExpression("!", a);
 const and = (a: Expression, b: Expression) => t.logicalExpression("&&", a, b);
 const anti = (a: Expression) => t.isUnaryExpression(a, { operator: "!" }) ? a.argument : not(a);
 const is = (a: Expression) => t.isUnaryExpression(a, { operator: "!" }) || t.isBinaryAssertion(a) ? a : not(not(a));
