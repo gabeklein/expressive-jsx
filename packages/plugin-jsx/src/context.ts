@@ -115,7 +115,13 @@ export class StackFrame {
         context = context.parent;
       }
 
-    return this.handlers.get(named);
+    const [key, ...path] = named.split(".");
+    let handler = this.handlers.get(key);
+
+    for(const key of path)
+      handler = (handler as any)[key];
+
+    return handler;
   }
 
   elementMod(name: string): Define | undefined;

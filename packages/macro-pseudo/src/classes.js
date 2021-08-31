@@ -34,14 +34,14 @@ const SPECIFIC = [
 ]
 
 for(const name of [ ...STATE, ...POSITION ]){
-  EXPORT["$" + name] = function(){
+  EXPORT[name] = function(){
     const select = ":" + pascalToDash(name);
     this.setContingent(select, 6);
   }
 }
 
 for(const name of SPECIFIC){
-  EXPORT["$" + name] = function(){
+  EXPORT[name] = function(){
     const select = ":" + pascalToDash(name);
     const innerBody = this.body.node.body;
     let specifier;

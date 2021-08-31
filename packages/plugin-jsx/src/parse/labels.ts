@@ -47,17 +47,23 @@ export function handleDefine(
   target: Define,
   path: Path<LabeledStatement>){
 
-  const body = path.get('body') as Path<Statement>;
-  const { name } = path.node.label;
+  let key = path.node.label.name;
+  let body = path.get('body') as Path<Statement>;
 
-  if(name[0] == "_")
+  if(key[0] == "_")
     throw Oops.BadModifierName(path);
 
-  if(body.isExpressionStatement() || LeadingDollarSign.test(name))
-    handleDirective(name, target, body as any);
+  if(body.isExpressionStatement() || body.isLabeledStatement() || LeadingDollarSign.test(key)){
+    while(body.isLabeledStatement()){
+      key = `${key}.${body.node.label.name}`;
+      body = body.get("body") as Path<Statement>;
+    }
+
+    handleDirective(key, target, body as any);
+  }
 
   else if(body.isBlockStatement() || body.isLabeledStatement())
-    handleNestedDefine(target, name, body);
+    handleNestedDefine(target, key, body);
 
   else
     throw Oops.BadInputModifier(body, body.type)

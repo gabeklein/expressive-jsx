@@ -10,7 +10,7 @@ const PSEUDO_ELEMENTS = [
 ]
 
 for(const name of PSEUDO_ELEMENTS){
-  EXPORT["$" + name] = function(){
+  EXPORT[name] = function(){
     const select = "::" + pascalToDash(name);
     const mod = this.setContingent(select, 6);
     const content = mod.containsStyle("content");

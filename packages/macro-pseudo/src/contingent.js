@@ -1,4 +1,6 @@
-export function $css(){
+import { pascalToDash } from "./util";
+
+function hasAlso(){
   let { body } = this;
 
   if(!body)
@@ -13,8 +15,10 @@ export function $css(){
     if(!item.type == "LabeledStatement")
       throw new Error("css modifier blew up");
 
-    const className = "." + item.node.label.name;
+    const className = "." + pascalToDash(item.node.label.name);
 
     this.setContingent(className, 5, item.get("body"))
   }
 }
+
+export { hasAlso as has }
