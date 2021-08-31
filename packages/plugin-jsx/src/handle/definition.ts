@@ -1,5 +1,6 @@
 import { generateElement } from 'generate/element';
 import { recombineProps } from 'generate/es5';
+import { doUntilEmpty } from 'utility';
 
 import { ExplicitStyle } from './attributes';
 import { AttributeBody } from './object';
@@ -49,6 +50,17 @@ export class Define extends AttributeBody {
     for(const child of this.dependant)
       if(child.isUsed)
         return true;
+  }
+
+  get isDeclared(){
+    return doUntilEmpty<Define, boolean>(this,
+      (x, add) => {
+        if(x.containsStyle(true))
+          return true;
+
+        add(...x.dependant);
+      }
+    )
   }
 
   get selector(){

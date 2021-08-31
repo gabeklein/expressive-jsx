@@ -108,7 +108,7 @@ export function generateElement(element: ElementInline | Define){
 
     from.setActive();
 
-    if(from.containsStyle(true) || from.dependant.size && from.isUsed)
+    if(from.isDeclared && from.isUsed)
       classList.add(from.uid);
 
     return true;

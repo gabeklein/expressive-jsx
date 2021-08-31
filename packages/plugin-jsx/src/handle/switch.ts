@@ -116,6 +116,10 @@ export class DefineConsequent extends Define {
     return [ ...parent.selector, `.${this.uid}` ];
   }
 
+  get isDeclared(){
+    return false;
+  }
+
   toClassName(){
     const segments = [];
 
