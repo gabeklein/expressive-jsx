@@ -38,6 +38,6 @@ export abstract class AttributeBody {
   }
 
   uses(name: string){
-    this.context.apply(name, this);
+    return this.context.apply(name, this);
   }
 }

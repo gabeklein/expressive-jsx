@@ -72,8 +72,10 @@ export class StackFrame {
 
   apply(name: string, target: Applicable){
     let modify = this.elementMod(name);
+    const didApply = [] as Define[];
   
     while(modify){
+      didApply.push(modify);
       target.use(modify);
   
       for(const sub of modify.provides)
@@ -81,6 +83,8 @@ export class StackFrame {
   
       modify = modify.next;
     }
+
+    return didApply;
   }
 
   push(node: Stackable): StackFrame {

@@ -156,7 +156,16 @@ function applyAttribute(
     name = attr.node.name.name as string;
 
     if(expression === null){
-      parent.uses(name);
+      const applied = parent.uses(name);
+
+      if(/^[A-Z]/.test(parent.name!))
+        for(const define of applied){
+          define.priority = 3;
+          Object.defineProperty(define, "collapsable", {
+            value: false
+          })
+        }
+
       return;
     }
   
