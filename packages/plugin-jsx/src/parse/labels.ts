@@ -14,11 +14,10 @@ import type { BunchOf, DefineBodyCompat, ModifyAction } from 'types';
 const Oops = ParseErrors({
   BadInputModifier: "Modifier input of type {1} not supported here!",
   BadModifierName: "Modifier name cannot start with _ symbol!",
+  DollarSignDeprecated: "$ modifiers are deprecated. Did you mean to use a namespace?",
   DuplicateModifier: "Duplicate declaration of named modifier!",
   IllegalAtTopLevel: "Cannot apply element styles in top-level of program"
 });
-
-const LeadingDollarSign = /^\$[a-z]\w*/;
 
 export function handleTopLevelDefine(
   node: Path<LabeledStatement>,
@@ -53,20 +52,33 @@ export function handleDefine(
   if(key[0] == "_")
     throw Oops.BadModifierName(path);
 
-  if(body.isExpressionStatement() || body.isLabeledStatement() || LeadingDollarSign.test(key)){
-    while(body.isLabeledStatement()){
-      key = `${key}.${body.node.label.name}`;
-      body = body.get("body") as Path<Statement>;
+  if(key[0] == "$")
+    throw Oops.DollarSignDeprecated(path);
+
+  switch(body.type){
+    case "BlockStatement":
+      handleNestedDefine(target, key, body);
+    break;
+    
+    case "IfStatement":
+      handleDirective(`${key}.if`, target, body as any);
+    break;
+
+    case "ExpressionStatement":
+    case "LabeledStatement": {
+      while(body.isLabeledStatement()){
+        key = `${key}.${body.node.label.name}`;
+        body = body.get("body") as Path<Statement>;
+      }
+  
+      handleDirective(key, target, body as any);
+      break;
     }
 
-    handleDirective(key, target, body as any);
+    default:
+      Oops.BadInputModifier(body, body.type)
+
   }
-
-  else if(body.isBlockStatement() || body.isLabeledStatement())
-    handleNestedDefine(target, key, body);
-
-  else
-    throw Oops.BadInputModifier(body, body.type)
 }
 
 function handleNestedDefine(

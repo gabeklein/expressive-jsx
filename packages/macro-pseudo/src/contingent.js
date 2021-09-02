@@ -1,48 +1,51 @@
-import { pascalToDash } from "./util";
-
-function hasAlso(){
-  let { body } = this;
-
-  if(!body)
-    return
-  
-  if(body.type == "BlockStatement")
-    body = body.get("body");
-  else
-    body = [body];
-
-  for(const item of body){
-    if(!item.type == "LabeledStatement")
-      throw new Error("css modifier blew up");
-
-    const className = "." + pascalToDash(item.node.label.name);
-
-    this.setContingent(className, 5, item.get("body"))
-  }
+function selectAlso(){
+  forEachChild(this.body, (select, body) => {
+    this.setContingent(select, 5, body);
+  })
 }
 
-function hasInner(){
-  let { body } = this;
+function selectChild(){
+  forEachChild(this.body, (select, body) => {
+    this.setContingent(` ${select}`, 5, body);
+  })
+}
 
+function forEachChild(body, callbackfn){
   if(!body)
-    return
+    return;
   
-  if(body.type == "BlockStatement")
-    body = body.get("body");
-  else
-    body = [body];
+  body = body.isBlockStatement()
+    ? body.get("body") : [body];
 
-  for(const item of body){
-    if(!item.type == "LabeledStatement")
-      throw new Error("css modifier blew up");
+  for(const item of body)
+    switch(item.type){
+      case "LabeledStatement": {
+        const className = item.node.label.name;
+        const body = item.get("body");
 
-    const className = " ." + pascalToDash(item.node.label.name);
+        callbackfn(`.${className}`, body);
 
-    this.setContingent(className, 5, item.get("body"))
-  }
+        break;
+      }
+
+      case "IfStatement": {
+        const { test } = item.node;
+
+        if(test.type !== "StringLiteral")
+          throw new Error("CSS if(selector) only supports strings right now.");
+
+        callbackfn(test.value, item.get("consequent"));
+
+        break;
+      }
+
+      default: 
+        throw new Error("css modifier blew up");
+    }
 }
 
 export {
-  hasAlso as has,
-  hasInner as inner
+  selectAlso as self,
+  selectAlso as if,
+  selectChild as child
 }

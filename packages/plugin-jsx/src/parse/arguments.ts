@@ -198,10 +198,10 @@ export class DelegateTypes {
     const map = {} as BunchOf<any>
 
     for(const item of statement.body){
-      if(!t.isLabeledStatement(item))
+      if(t.isLabeledStatement(item))
+        map[item.label.name] = this.parse(item.body);
+      else if(!t.isIfStatement(item))
         throw Oops.ModiferCantParse(statement);
-
-      map[item.label.name] = this.parse(item.body)
     }
 
     return map;
