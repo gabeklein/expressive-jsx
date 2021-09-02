@@ -9,7 +9,7 @@ CSS.put(\`
 	/* 1 */
 	.element_26b { color: blue }
 	/* 5 */
-	.element_26b.is-red { color: red }
+	.element_26b.isRed { color: red }
 \`);"
 `;
 
@@ -20,7 +20,7 @@ CSS.put(\`
 	/* 1 */
 	.element_26b { color: blue }
 	/* 5 */
-	.element_26b.is-red { color: red }
+	.element_26b.isRed { color: red }
 \`);"
 `;
 
@@ -33,8 +33,8 @@ CSS.put(\`
 	/* 1 */
 	.element_26b { color: blue }
 	/* 5 */
-	.element_26b.is-red { color: red }
-	.element_26b.is-green { color: green }
+	.element_26b.isRed { color: red }
+	.element_26b.isGreen { color: green }
 \`);"
 `;
 
@@ -45,8 +45,8 @@ CSS.put(\`
 	/* 1 */
 	.element_26b { color: blue }
 	/* 5 */
-	.element_26b.is-red { color: red }
-	.element_26b.is-green { color: green }
+	.element_26b.isRed { color: red }
+	.element_26b.isGreen { color: green }
 \`);"
 `;
 

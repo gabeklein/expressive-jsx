@@ -39,7 +39,7 @@ describe("css", () => {
     () => do {
       color: blue;
       
-      css: has: {
+      css: self: {
         isRed: {
           color: red;
         }
@@ -53,7 +53,7 @@ describe("css", () => {
     () => do {
       color: blue;
       
-      css: has: {
+      css: self: {
         isRed: {
           color: red;
         }

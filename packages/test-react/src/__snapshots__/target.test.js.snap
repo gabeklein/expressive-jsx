@@ -2,21 +2,25 @@
 
 exports[`Attribute-based modifier 1`] = `
 "() => create(Foo, {
-  \\"className\\": \\"Foo_16j\\"
+  \\"className\\": \\"hasWhiteText_4b3 Foo_16j\\"
 });
 
 CSS.put(\`
 	/* 2 */
-	.Foo_16j { color: white; background: red }
+	.Foo_16j { background: red }
+	/* 3 */
+	.hasWhiteText_4b3 { color: white }
 \`);"
 `;
 
 exports[`Attribute-based modifier 2`] = `
-"() => <Foo className=\\"Foo_16j\\" />;
+"() => <Foo className=\\"hasWhiteText_4b3 Foo_16j\\" />;
 
 CSS.put(\`
 	/* 2 */
-	.Foo_16j { color: white; background: red }
+	.Foo_16j { background: red }
+	/* 3 */
+	.hasWhiteText_4b3 { color: white }
 \`);"
 `;
 
