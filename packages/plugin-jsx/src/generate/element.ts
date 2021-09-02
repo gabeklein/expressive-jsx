@@ -76,9 +76,9 @@ export function generateElement(element: ElementInline | Define){
     const { name } = item;
 
     if(name === "style"){
-      const styleProp = item.expression;
-      const spread = new ExplicitStyle(false, styleProp);
-      style.push(spread);
+      style.push(
+        new ExplicitStyle(false, item.expression)
+      );
       return;
     }
 
