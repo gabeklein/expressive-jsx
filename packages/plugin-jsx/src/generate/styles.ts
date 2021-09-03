@@ -79,8 +79,15 @@ function serialize(
 
       for(const [ name, styles ] of bunch){
         if(pretty){
+          const select = name.split(", ");
+          const final = select.pop();
+
+          select.forEach(alternate => {
+            lines.push(alternate + ",");
+          });
+
           const rules = styles.map(x => `\t${x};`);
-          lines.push(name + " { ", ...rules, "}")
+          lines.push(final + " { ", ...rules, "}");
         }
         else {
           const block = styles.join("; ");
@@ -96,17 +103,17 @@ function serialize(
 }
 
 function buildSelector(target: Define){
-  let selection = "";
+  return target.selector
+    .map(select => {
+      let selection = [select];
+      let source = target;
 
-  do {
-    let select = target.selector.join("");
-    if(selection)
-      select += " " + selection;
-    selection = select;
-  }
-  while(target = target.onlyWithin!);
+      while(source = source.onlyWithin!)
+        selection.unshift(source.selector[0]);
 
-  return selection;
+      return selection.join(" ");
+    })
+    .join(", ");
 }
 
 function print(target: Define){

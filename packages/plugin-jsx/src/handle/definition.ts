@@ -40,7 +40,7 @@ export class Define extends AttributeBody {
     return this.context.program.container(info);
   }
 
-  get isUsed(){
+  get isUsed(): boolean | void {
     if(this.context.modifiersDeclared.has(this))
       return true;
 
@@ -48,7 +48,7 @@ export class Define extends AttributeBody {
       return true;
 
     for(const child of this.dependant)
-      if(child.isUsed)
+      if(child.isUsed || child instanceof DefineVariant)
         return true;
   }
 
@@ -150,14 +150,15 @@ export class DefineContainer extends DefineElement {
 export class DefineVariant extends Define {
   constructor(
     private parent: DefineElement,
-    private suffix: string,
+    private suffix: string[],
     public priority: number){
 
     super(parent.context);
   }
 
   get selector(){
-    return [`.${this.parent.uid}${this.suffix}`];
+    return this.suffix
+      .map(select => `${this.parent.selector}${select}`)
   }
 
   get uid(){
@@ -165,6 +166,10 @@ export class DefineVariant extends Define {
   }
 
   get collapsable(){
+    return false;
+  }
+
+  get isUsed(){
     return false;
   }
 

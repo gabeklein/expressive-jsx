@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`contingent in consequent 1`] = `
+"() => create(\\"div\\", {
+  \\"className\\": use(\\"element_26b\\", !!true && \\"opt1_6ac\\")
+}, create(\\"div\\", {
+  \\"className\\": \\"div_sqm\\"
+}, \\"Hello\\"));
+
+CSS.put(\`
+	/* 5 */
+	.div_sqm.foo-bar { background: blue }
+\`);"
+`;
+
+exports[`contingent in consequent 2`] = `
+"() => <div className={use(\\"element_26b\\", !!true && \\"opt1_6ac\\")}><div className=\\"div_sqm\\">Hello</div></div>;
+
+CSS.put(\`
+	/* 5 */
+	.div_sqm.foo-bar { background: blue }
+\`);"
+`;
+
+exports[`contingent on consequent 1`] = `
+"() => create(\\"div\\", {
+  \\"className\\": use(\\"element_26b\\", !!true && \\"opt1_6ac\\")
+}, create(\\"div\\", {
+  \\"className\\": \\"div_sqm\\"
+}, \\"Hello\\"));
+
+CSS.put(\`
+	/* 5 */
+	.div_sqm.foo-bar { background: blue }
+\`);"
+`;
+
+exports[`contingent on consequent 2`] = `
+"() => <div className={use(\\"element_26b\\", !!true && \\"opt1_6ac\\")}><div className=\\"div_sqm\\">Hello</div></div>;
+
+CSS.put(\`
+	/* 5 */
+	.div_sqm.foo-bar { background: blue }
+\`);"
+`;
+
+exports[`multiple contingent on consequent 1`] = `
+"() => create(\\"div\\", {
+  \\"className\\": use(\\"element_26b\\", !!active && \\"if_active_6ac\\")
+}, create(\\"div\\", {}, \\"Hello\\"));
+
+CSS.put(\`
+	/* 5 */
+	.element_26b.if_active_6ac.foo { color: red }
+	.element_26b.if_active_6ac.bar { color: red }
+\`);"
+`;
+
+exports[`multiple contingent on consequent 2`] = `
+"() => <div className={use(\\"element_26b\\", !!active && \\"if_active_6ac\\")}><div>Hello</div></div>;
+
+CSS.put(\`
+	/* 5 */
+	.element_26b.if_active_6ac.foo { color: red }
+	.element_26b.if_active_6ac.bar { color: red }
+\`);"
+`;

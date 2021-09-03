@@ -6,7 +6,8 @@ function selectAlso(){
 
 function selectChild(){
   forEachChild(this.body, (select, body) => {
-    this.setContingent(` ${select}`, 5, body);
+    select = select.map(x => " " + x);
+    this.setContingent(select, 5, body);
   })
 }
 
@@ -23,18 +24,22 @@ function forEachChild(body, callbackfn){
         const className = item.node.label.name;
         const body = item.get("body");
 
-        callbackfn(`.${className}`, body);
+        callbackfn([`.${className}`], body);
 
         break;
       }
 
       case "IfStatement": {
         const { test } = item.node;
+        const select = test.expressions || [test];
+        const selectors = select.map(x => {
+          if(x.type !== "StringLiteral")
+            throw new Error("CSS if(selector) only support strings right now.");
 
-        if(test.type !== "StringLiteral")
-          throw new Error("CSS if(selector) only supports strings right now.");
+          return x.value;
+        })
 
-        callbackfn(test.value, item.get("consequent"));
+        callbackfn(selectors, item.get("consequent"));
 
         break;
       }

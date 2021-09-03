@@ -79,7 +79,7 @@ export class ModifyDelegate {
   }
 
   setContingent(
-    contingent: string,
+    contingent: string | string[],
     priority: number,
     usingBody?: Path<Statement>){
 
@@ -88,9 +88,8 @@ export class ModifyDelegate {
     if(this.options.styleMode == "inline")
       throw Oops.InlineModeNoVariants(body.parentPath);
 
-    const mod = new DefineVariant(
-      this.target, contingent, priority
-    );
+    const select = ([] as string[]).concat(contingent);
+    const mod = new DefineVariant(this.target, select, priority);
     
     parse(mod, body);
 

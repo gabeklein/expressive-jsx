@@ -112,8 +112,11 @@ export class DefineConsequent extends Define {
 
   get selector(): string[] {
     let parent = this.context.currentElement!;
-    
-    return [ ...parent.selector, `.${this.uid}` ];
+
+    if(!parent)
+      throw new Error("No consequent parent found.")
+
+    return parent.selector.map(x => `${x}.${this.uid}`);
   }
 
   get isDeclared(){
