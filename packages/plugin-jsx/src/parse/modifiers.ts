@@ -83,17 +83,20 @@ export class ModifyDelegate {
     priority: number,
     usingBody?: Path<Statement>){
 
+    const { target } = this;
     const body = usingBody || this.body!;
 
     if(this.options.styleMode == "inline")
       throw Oops.InlineModeNoVariants(body.parentPath);
 
     const select = ([] as string[]).concat(contingent);
-    const mod = new DefineVariant(this.target, select, priority);
+    const mod = new DefineVariant(target, select, priority);
+
+    mod.onlyWithin = target.onlyWithin;
     
     parse(mod, body);
 
-    this.target.use(mod);
+    target.use(mod);
 
     return mod;
   }

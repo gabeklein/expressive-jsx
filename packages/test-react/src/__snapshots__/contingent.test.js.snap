@@ -4,21 +4,21 @@ exports[`contingent in consequent 1`] = `
 "() => create(\\"div\\", {
   \\"className\\": use(\\"element_26b\\", !!true && \\"opt1_6ac\\")
 }, create(\\"div\\", {
-  \\"className\\": \\"div_sqm\\"
+  \\"className\\": \\"inner_71a\\"
 }, \\"Hello\\"));
 
 CSS.put(\`
 	/* 5 */
-	.div_sqm.foo-bar { background: blue }
+	.element_26b.opt1_6ac .inner_71a.foo-bar { background: blue }
 \`);"
 `;
 
 exports[`contingent in consequent 2`] = `
-"() => <div className={use(\\"element_26b\\", !!true && \\"opt1_6ac\\")}><div className=\\"div_sqm\\">Hello</div></div>;
+"() => <div className={use(\\"element_26b\\", !!true && \\"opt1_6ac\\")}><div className=\\"inner_71a\\">Hello</div></div>;
 
 CSS.put(\`
 	/* 5 */
-	.div_sqm.foo-bar { background: blue }
+	.element_26b.opt1_6ac .inner_71a.foo-bar { background: blue }
 \`);"
 `;
 
@@ -31,7 +31,7 @@ exports[`contingent on consequent 1`] = `
 
 CSS.put(\`
 	/* 5 */
-	.div_sqm.foo-bar { background: blue }
+	.element_26b.opt1_6ac .div_sqm.foo-bar { background: blue }
 \`);"
 `;
 
@@ -40,7 +40,7 @@ exports[`contingent on consequent 2`] = `
 
 CSS.put(\`
 	/* 5 */
-	.div_sqm.foo-bar { background: blue }
+	.element_26b.opt1_6ac .div_sqm.foo-bar { background: blue }
 \`);"
 `;
 

@@ -32,12 +32,14 @@ test("multiple contingent on consequent", `
 test("contingent in consequent", `
   () => do {
     if(true){
-      div: {
+      inner: {
         css: if(".foo-bar")
           background: blue;
       }
     }
 
-    <div>Hello</div>
+    <this>
+      <inner>Hello</inner>
+    </this>
   }
 `);
