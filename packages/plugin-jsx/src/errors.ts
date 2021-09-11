@@ -1,7 +1,7 @@
-import type { Node, Path } from 'syntax';
+import type * as t from 'syntax';
 import type { BabelFile, BunchOf, FlatValue } from 'types';
 
-type ParseError = <T extends Node>(node: Path<T> | T, ...args: FlatValue[]) => Error;
+type ParseError = <T extends t.Node>(node: t.Path<T> | T, ...args: FlatValue[]) => Error;
 
 export const Status = {
   currentFile: undefined as unknown as BabelFile

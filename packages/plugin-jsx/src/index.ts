@@ -6,11 +6,10 @@ import { generateEntryElement } from 'parse/entry';
 import { handleTopLevelDefine } from 'parse/labels';
 import * as t from 'syntax';
 
-import type { DoExpression, Expression, Program, Node, Statement , VisitNodeObject } from 'syntax';
-import type { BabelFile, BabelState, Options} from 'types';
+import type { BabelFile, BabelState, Options } from 'types';
 
-type Visitor<T extends Node, S extends StackFrame = StackFrame> =
-  VisitNodeObject<BabelState<S>, T>;
+type Visitor<T extends t.Node, S extends StackFrame = StackFrame> =
+  t.VisitNodeObject<BabelState<S>, T>;
 
 const DEFAULT_OPTIONS: Options = {
   env: "web",
@@ -31,7 +30,7 @@ export default () => ({
   }
 })
 
-const HandleProgram: Visitor<Program> = {
+const HandleProgram: Visitor<t.Program> = {
   enter(path, state){
     const options = { ...DEFAULT_OPTIONS, ...state.opts };
     const external = Object.assign({}, ...options.modifiers);
@@ -58,12 +57,12 @@ const HandleProgram: Visitor<Program> = {
   }
 }
 
-const HandleDoExpression: Visitor<DoExpression> = {
+const HandleDoExpression: Visitor<t.DoExpression> = {
   enter(path, state){
     let element = generateEntryElement(path, state.context);
     const collapsible = !element.exec;
 
-    let output: Expression | Statement =
+    let output: t.Expression | t.Statement =
       element.toExpression(collapsible) || 
       t.booleanLiteral(false);
   

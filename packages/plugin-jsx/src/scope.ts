@@ -3,33 +3,17 @@ import * as t from 'syntax';
 import { createElement as createJS } from './generate/es5';
 import { createElement as createJSX } from './generate/jsx';
 
-import type {
-  BabelProgram,
-  CallExpression,
-  Expression,
-  Identifier,
-  ImportDefaultSpecifier,
-  ImportNamespaceSpecifier,
-  ImportSpecifier,
-  JSXElement,
-  JSXMemberExpression,
-  ObjectProperty,
-  Path,
-  Scope,
-  Statement,
-  VariableDeclaration
-} from 'syntax';
 import type { StackFrame } from 'context';
 import type { BunchOf, Options, PropData } from 'types';
 
 type ImportSpecific =
-  | ImportSpecifier 
-  | ImportDefaultSpecifier 
-  | ImportNamespaceSpecifier;
+  | t.ImportSpecifier 
+  | t.ImportDefaultSpecifier 
+  | t.ImportNamespaceSpecifier;
 
 interface ElementReact {
   props: PropData[];
-  children: Expression[];
+  children: t.Expression[];
 }
 
 interface External<T> {
@@ -38,15 +22,15 @@ interface External<T> {
 }
 
 export abstract class FileManager {
-  protected body: Statement[];
+  protected body: t.Statement[];
+  protected scope: t.Scope;
   protected opts: Options;
-  protected scope: Scope;
 
   protected imports = {} as BunchOf<External<any>>;
   protected importIndices = {} as BunchOf<number>;
 
   constructor(
-    path: Path<BabelProgram>,
+    path: t.Path<t.BabelProgram>,
     context: StackFrame){
 
     const create = context.opts.output === "js" ? createJS : createJSX;
@@ -57,19 +41,19 @@ export abstract class FileManager {
     this.scope = path.scope;
   }
 
-  abstract ensure(from: string, name: string, alt?: string): Identifier;
+  abstract ensure(from: string, name: string, alt?: string): t.Identifier;
   abstract ensureImported(from: string): void;
-  abstract createImport(name: string): Statement | undefined;
+  abstract createImport(name: string): t.Statement | undefined;
 
   private createElement: (
-    tag: null | string | JSXMemberExpression,
+    tag: null | string | t.JSXMemberExpression,
     properties?: PropData[],
-    content?: Expression[]
-  ) => CallExpression | JSXElement | undefined;
+    content?: t.Expression[]
+  ) => t.CallExpression | t.JSXElement | undefined;
 
   element(
     src: ElementReact,
-    tagName?: string | JSXMemberExpression){
+    tagName?: string | t.JSXMemberExpression){
 
     const tag = tagName || "div";
     return this.createElement(tag, src.props, src.children);
@@ -77,7 +61,7 @@ export abstract class FileManager {
 
   container(
     src: ElementReact,
-    key?: Identifier){
+    key?: t.Identifier){
 
     let { children } = src;
 
@@ -210,8 +194,8 @@ export class ImportManager extends FileManager {
 }
 
 export class RequireManager extends FileManager {
-  imports = {} as BunchOf<External<ObjectProperty>>
-  importTargets = {} as BunchOf<Expression | false>
+  imports = {} as BunchOf<External<t.ObjectProperty>>
+  importTargets = {} as BunchOf<t.Expression | false>
 
   ensure(from: string, name: string, alt = name){
     const source = this.ensureImported(from).items;
@@ -248,7 +232,7 @@ export class RequireManager extends FileManager {
     if(target && t.isObjectPattern(target))
       list = imports[name] = {
         exists: true,
-        items: target.properties as ObjectProperty[]
+        items: target.properties as t.ObjectProperty[]
       }
     else {
       list = imports[name] = { items: [] };
@@ -272,7 +256,7 @@ export class RequireManager extends FileManager {
 
 function requireResultFrom(
   name: string,
-  statement: VariableDeclaration){
+  statement: t.VariableDeclaration){
 
   for(const { init, id } of statement.declarations)
     if(t.isCallExpression(init)

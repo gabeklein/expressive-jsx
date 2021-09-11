@@ -2,11 +2,11 @@ import { generateElement } from 'generate/element';
 
 import { AttributeBody } from './object';
 
+import type * as t from 'syntax';
 import type { Define } from 'handle/definition';
-import type { JSXMemberExpression } from 'syntax';
 
 export class ElementInline extends AttributeBody {
-  tagName?: string | JSXMemberExpression;
+  tagName?: string | t.JSXMemberExpression;
 
   toExpression(){
     const { program } = this.context;

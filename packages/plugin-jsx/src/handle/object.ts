@@ -1,6 +1,5 @@
 import type { StackFrame } from 'context';
 import type { Define } from 'handle/definition';
-import type { Statement } from 'syntax';
 import type { InnerContent, SequenceItem } from 'types';
 
 export abstract class AttributeBody {
@@ -8,7 +7,7 @@ export abstract class AttributeBody {
   context!: StackFrame;
 
   sequence = [] as SequenceItem[];
-  statements = [] as Statement[];
+  statements = [] as t.Statement[];
   children = [] as InnerContent[];
 
   /** Other definitions applicable to this one. */

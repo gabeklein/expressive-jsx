@@ -8,7 +8,6 @@ import { AttributeBody } from './object';
 import type { StackFrame } from 'context';
 import type { ElementInline } from 'handle/element';
 import type { DefineConsequent } from 'handle/switch';
-import type { ArrowFunctionExpression, Path } from 'syntax';
 
 export type DefineAny = DefineElement | DefineConsequent;
 
@@ -140,7 +139,7 @@ export class DefineElement extends Define {
 }
 
 export class DefineContainer extends DefineElement {
-  exec?: Path<ArrowFunctionExpression>;
+  exec?: t.Path<t.ArrowFunctionExpression>;
   
   provide(define: DefineElement){
     this.context.elementMod(define);

@@ -1,16 +1,15 @@
 import * as t from 'syntax';
 
 import type { FileManager } from 'scope';
-import type { JSXMemberExpression, Expression } from 'syntax';
 import type { PropData } from 'types';
 
 const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;
 
 export function createElement(
   this: FileManager,
-  tag: null | string | JSXMemberExpression,
+  tag: null | string | t.JSXMemberExpression,
   properties: PropData[] = [],
-  content: Expression[] = []
+  content: t.Expression[] = []
 ){
   if(!tag)
     tag = this.ensure("$pragma", "Fragment").name;
@@ -30,7 +29,7 @@ export function createElement(
   );
 }
 
-function jsxContent(child: Expression){
+function jsxContent(child: t.Expression){
   if(t.isJSXElement(child))
     return child;
 

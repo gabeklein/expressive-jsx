@@ -8,7 +8,6 @@ import { parse } from './body';
 
 import type { DefineElement } from 'handle/definition';
 import type { Prop } from 'handle/attributes';
-import type { Path, Statement } from 'syntax';
 import type { BunchOf, DefineBodyCompat, ModifyAction, Options } from 'types';
 
 const Oops = ParseErrors({
@@ -17,7 +16,7 @@ const Oops = ParseErrors({
 
 export class ModifyDelegate {
   arguments: Array<any>;
-  body?: Path<Statement>;
+  body?: t.Path<t.Statement>;
   options: Options;
   done?: true;
 
@@ -38,7 +37,7 @@ export class ModifyDelegate {
       args = input;
     else {
       args = new DelegateTypes().parse(input.node);
-      this.body = input as Path<Statement>;
+      this.body = input as t.Path<t.Statement>;
     }
 
     if(args[args.length - 1] == "!important"){
@@ -81,7 +80,7 @@ export class ModifyDelegate {
   setContingent(
     contingent: string | string[],
     priority: number,
-    usingBody?: Path<Statement>){
+    usingBody?: t.Path<t.Statement>){
 
     const { target } = this;
     const body = usingBody || this.body!;

@@ -2,10 +2,9 @@ import { ExplicitStyle } from 'handle/attributes';
 import * as t from 'syntax';
 import { ArrayStack } from 'utility';
 
-import type { ObjectProperty, SpreadElement, Expression } from 'syntax';
 import type { FlatValue } from 'types';
 
-export function toExpression(value?: FlatValue | Expression){
+export function toExpression(value?: FlatValue | t.Expression){
   switch(typeof value){
     case "string":
       return t.stringLiteral(value);
@@ -60,7 +59,7 @@ export class AttributeStack
       return this[0].expression;
 
     else {
-      const chunks = [] as (ObjectProperty | SpreadElement)[];
+      const chunks = [] as (t.ObjectProperty | t.SpreadElement)[];
 
       for(const item of this)
         if(item instanceof ExplicitStyle)

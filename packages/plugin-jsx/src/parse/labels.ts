@@ -5,10 +5,10 @@ import { doUntilEmpty } from 'utility';
 
 import { parse } from './body';
 
+import type * as t from 'syntax';
 import type { StackFrame } from 'context';
 import type { Define } from 'handle/definition';
 import type { ExplicitStyle } from 'handle/attributes';
-import type { LabeledStatement, Path, Statement } from 'syntax';
 import type { BunchOf, DefineBodyCompat, ModifyAction } from 'types';
 
 const Oops = ParseErrors({
@@ -20,7 +20,7 @@ const Oops = ParseErrors({
 });
 
 export function handleTopLevelDefine(
-  node: Path<LabeledStatement>,
+  node: t.Path<t.LabeledStatement>,
   context: StackFrame){
 
   const { name } = node.get("label").node;
@@ -44,10 +44,10 @@ export function handleTopLevelDefine(
 
 export function handleDefine(
   target: Define,
-  path: Path<LabeledStatement>){
+  path: t.Path<t.LabeledStatement>){
 
   let key = path.node.label.name;
-  let body = path.get('body') as Path<Statement>;
+  let body = path.get('body') as t.Path<t.Statement>;
 
   if(key[0] == "_")
     throw Oops.BadModifierName(path);
@@ -68,7 +68,7 @@ export function handleDefine(
     case "LabeledStatement": {
       while(body.isLabeledStatement()){
         key = `${key}.${body.node.label.name}`;
-        body = body.get("body") as Path<Statement>;
+        body = body.get("body") as t.Path<t.Statement>;
       }
   
       handleDirective(key, target, body as any);
@@ -84,7 +84,7 @@ export function handleDefine(
 function handleNestedDefine(
   target: Define,
   name: string,
-  body: Path<any>){
+  body: t.Path<any>){
 
   const mod = new DefineElement(target.context, name);
 

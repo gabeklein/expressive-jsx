@@ -1,14 +1,13 @@
 import * as t from '@babel/types';
 
-import type { Expression, LVal, MemberExpression } from '@babel/types';
 import type { BunchOf } from 'types';
 
 export type { NodePath as Path, Scope, VisitNodeObject } from '@babel/traverse';
-export { Program as BabelProgram } from '@babel/types';
+export type { Program as BabelProgram } from '@babel/types';
 export * from '@babel/types';
 
 export function object(
-  obj: BunchOf<Expression | false | undefined> = {}){
+  obj: BunchOf<t.Expression | false | undefined> = {}){
 
   const properties = [];
 
@@ -17,7 +16,7 @@ export function object(
       properties.push(
         t.objectProperty(
           t.identifier(x),
-          obj[x] as Expression
+          obj[x] as t.Expression
         )
       )
 
@@ -25,7 +24,7 @@ export function object(
 }
 
 export function get(
-  object: string | Expression,
+  object: string | t.Expression,
   ...path: (string | number)[] ){
 
   if(object == "this")
@@ -52,12 +51,12 @@ export function get(
       : select;
   }
 
-  return object as MemberExpression;
+  return object as t.MemberExpression;
 }
 
 export function call(
-  callee: Expression,
-  ...args: Expression[]
+  callee: t.Expression,
+  ...args: t.Expression[]
 ){
   return t.callExpression(callee, args)
 }
@@ -75,8 +74,8 @@ export function require(from: string){
 
 export function declare(
   type: "const" | "let" | "var",
-  id: LVal,
-  init?: Expression ){
+  id: t.LVal,
+  init?: t.Expression ){
 
   return (
     t.variableDeclaration(type, [
@@ -86,7 +85,7 @@ export function declare(
 }
 
 export function objectAssign(
-  ...objects: Expression[]){
+  ...objects: t.Expression[]){
 
   return t.callExpression(
     get("Object.assign"),
@@ -94,7 +93,7 @@ export function objectAssign(
   )
 }
 
-export function objectKeys(object: Expression){
+export function objectKeys(object: t.Expression){
   return call(
     get("Object.keys"),
     object
@@ -118,7 +117,7 @@ const OP_POSITES = new Map<OP, OP>();
   OP_POSITES.set(a as OP, b as OP);
 })
 
-export function isBinaryAssertion(a: Expression): a is t.BinaryExpression {
+export function isBinaryAssertion(a: t.Expression): a is t.BinaryExpression {
   if(t.isBinaryExpression(a))
     if(COMPARE_OP.includes(a.operator as any))
       return true;

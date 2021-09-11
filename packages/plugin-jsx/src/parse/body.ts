@@ -9,14 +9,13 @@ import { addElementFromJSX } from './jsx';
 import { handleDefine } from './labels';
 
 import type { Define } from 'handle/definition';
-import type { Node, Path } from 'syntax';
 
 const Oops = ParseErrors({
   PropNotIdentifier: "Assignment must be identifier name of a prop."
 })
 
 export function parse(
-  target: Define, ast: Path<any>, key?: string){
+  target: Define, ast: t.Path<any>, key?: string){
 
   if(key)
     ast = ast.get(key) as any;
@@ -30,7 +29,7 @@ export function parse(
 }
 
 export function parseContent(
-  target: Define, path: Path<any>){
+  target: Define, path: t.Path<any>){
 
   if(path.isLabeledStatement()){
     handleDefine(target, path);
@@ -55,7 +54,7 @@ export function parseContent(
   }
 
   if(path.isExpressionStatement()){
-    const e = path.get("expression") as Path<Node>;
+    const e = path.get("expression") as t.Path<t.Node>;
 
     if(e.isJSXElement()){
       addElementFromJSX(e, target);

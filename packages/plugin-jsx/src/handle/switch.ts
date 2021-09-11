@@ -7,7 +7,6 @@ import { Define } from './definition';
 
 import type { StackFrame } from 'context';
 import type { DefineElement } from 'handle/definition';
-import type { Expression, IfStatement, Statement, Path } from 'syntax';
 
 export type Consequent = ComponentIf | DefineConsequent;
 
@@ -15,10 +14,10 @@ export class ComponentIf {
   private forks = [] as Consequent[];
 
   constructor(
-    public test?: Expression){
+    public test?: t.Expression){
   }
 
-  toExpression(): Expression | undefined {
+  toExpression(): t.Expression | undefined {
     return reduceToExpression(this.forks, (cond) => {
       let product;
 
@@ -29,7 +28,7 @@ export class ComponentIf {
     });
   }
 
-  toClassName(): Expression | undefined {
+  toClassName(): t.Expression | undefined {
     return reduceToExpression(this.forks, (cond) => {
       if(cond instanceof ComponentIf)
         return cond.toClassName();
@@ -41,13 +40,13 @@ export class ComponentIf {
     });
   }
 
-  setup(context: StackFrame, path: Path<IfStatement>){
+  setup(context: StackFrame, path: t.Path<t.IfStatement>){
     const { forks } = this;
-    let layer = path as Path<any>;
+    let layer = path as t.Path<any>;
 
     while(true){
-      let consequent = layer.get("consequent") as Path<any>;
-      let test: Expression | undefined;
+      let consequent = layer.get("consequent") as t.Path<any>;
+      let test: t.Expression | undefined;
 
       if(layer.isIfStatement())
         test = layer.node.test;
@@ -65,7 +64,7 @@ export class ComponentIf {
 
       forks.push(fork);
 
-      layer = layer.get("alternate") as Path<Statement>;
+      layer = layer.get("alternate") as t.Path<t.Statement>;
 
       if(layer.type === undefined)
         break;
@@ -82,14 +81,14 @@ export class ComponentIf {
 }
 
 export class DefineConsequent extends Define {
-  test: Expression | undefined;
+  test: t.Expression | undefined;
   anchor: DefineElement;
 
   constructor(
-    consequent: Path<Statement>,
+    consequent: t.Path<t.Statement>,
     context: StackFrame,
     index: number,
-    test?: Expression){
+    test?: t.Expression){
 
     super(context);
 

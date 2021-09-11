@@ -4,14 +4,13 @@ import * as t from 'syntax';
 
 import { DefineElement } from './definition';
 
-import type { For, Path } from 'syntax';
 
 export class ComponentFor {
   definition: DefineElement;
-  node: For;
+  node: t.For;
 
   constructor(
-    path: Path<For>,
+    path: t.Path<t.For>,
     parent: DefineElement){
 
     const name = path.type.replace("Statement", "Loop");

@@ -1,22 +1,21 @@
 import * as t from 'syntax';
 
-import type { Expression } from 'syntax';
 import type { Consequent } from 'handle/switch';
 
-type GetProduct = (fork: Consequent) => Expression | undefined;
+type GetProduct = (fork: Consequent) => t.Expression | undefined;
 
 const opt = t.conditionalExpression;
-const not = (a: Expression) => t.isBinaryAssertion(a) ? t.inverseExpression(a) : t.unaryExpression("!", a);
-const and = (a: Expression, b: Expression) => t.logicalExpression("&&", a, b);
-const anti = (a: Expression) => t.isUnaryExpression(a, { operator: "!" }) ? a.argument : not(a);
-const is = (a: Expression) => t.isUnaryExpression(a, { operator: "!" }) || t.isBinaryAssertion(a) ? a : not(not(a));
+const not = (a: t.Expression) => t.isBinaryAssertion(a) ? t.inverseExpression(a) : t.unaryExpression("!", a);
+const and = (a: t.Expression, b: t.Expression) => t.logicalExpression("&&", a, b);
+const anti = (a: t.Expression) => t.isUnaryExpression(a, { operator: "!" }) ? a.argument : not(a);
+const is = (a: t.Expression) => t.isUnaryExpression(a, { operator: "!" }) || t.isBinaryAssertion(a) ? a : not(not(a));
 
 export function reduceToExpression(
   forks: Consequent[],
   predicate: GetProduct){
 
   forks = forks.slice().reverse();
-  let sum: Expression | undefined;
+  let sum: t.Expression | undefined;
 
   for(const cond of forks){
     const test = cond.test;
@@ -35,7 +34,7 @@ export function reduceToExpression(
   return sum;
 }
 
-export function specifyOption(test?: Expression){
+export function specifyOption(test?: t.Expression){
   if(!test)
     return "else"
 

@@ -3,7 +3,6 @@ import * as t from 'syntax';
 
 import type { DefineElement } from 'handle/definition';
 import type { ModifyDelegate } from 'parse/modifiers';
-import type { ArrowFunctionExpression, Path, Scope } from 'syntax';
 
 export function forwardProp(
   this: ModifyDelegate,
@@ -53,7 +52,7 @@ export function forwardProp(
   }
 }
 
-function uniqueWithin(scope: Scope, name: string){
+function uniqueWithin(scope: t.Scope, name: string){
   return scope.hasBinding(name)
     ? scope.generateUidIdentifier(name)
     : t.identifier(name);
@@ -61,7 +60,7 @@ function uniqueWithin(scope: Scope, name: string){
 
 function getProps(
   target: DefineElement,
-  exec: Path<ArrowFunctionExpression>){
+  exec: t.Path<t.ArrowFunctionExpression>){
 
   const { node } = exec;
   let props = node.params[0];

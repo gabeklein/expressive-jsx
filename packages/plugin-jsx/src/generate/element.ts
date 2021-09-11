@@ -7,7 +7,6 @@ import * as t from 'syntax';
 import type { DefineElement } from 'handle/definition';
 import type { FileManager } from 'scope';
 import type { DefineConsequent } from 'handle/switch';
-import type { Expression } from 'syntax';
 import type { PropData, SequenceItem } from 'types';
 
 const byPriority = (x: any, y: any) => x.priority - y.priority;
@@ -19,10 +18,10 @@ export function generateElement(element: ElementInline | Define){
   const no_collapse = context.opts.styleMode === "verbose";
 
   const props = [] as PropData[];
-  const children = [] as Expression[];
+  const children = [] as t.Expression[];
 
   const style = new AttributeStack();
-  const classList = new Set<string | Expression>();
+  const classList = new Set<string | t.Expression>();
 
   Array.from(includes)
     .sort(byPriority)
@@ -137,13 +136,13 @@ export function generateElement(element: ElementInline | Define){
 }
 
 function classValue(
-  list: Set<Expression | string>,
+  list: Set<t.Expression | string>,
   program: FileManager){
 
   if(!list.size)
     return;
 
-  const selectors = [] as Expression[];
+  const selectors = [] as t.Expression[];
   let className = "";
 
   for(const item of list)

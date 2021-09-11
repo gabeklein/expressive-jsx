@@ -1,18 +1,17 @@
 import { toExpression } from 'generate/attributes';
 
-import type { Expression } from 'syntax';
 import type { FlatValue } from 'types';
 
 export abstract class Attribute {
   name?: string;
-  value?: FlatValue | Expression;
+  value?: FlatValue | t.Expression;
 
   /** Is a static value. May be hoisted and/or baked. */
   invariant?: boolean;
 
   constructor(
     name: string | false,
-    value: FlatValue | Expression){
+    value: FlatValue | t.Expression){
 
     if(name)
       this.name = name;
@@ -32,7 +31,7 @@ export class Prop extends Attribute {}
 export class ExplicitStyle extends Attribute {
   constructor(
     name: string | false,
-    value: FlatValue | Expression | FlatValue[],
+    value: FlatValue | t.Expression | FlatValue[],
     public important = false){
 
     super(name, 
