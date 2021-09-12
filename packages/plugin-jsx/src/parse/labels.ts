@@ -1,3 +1,4 @@
+import * as s from 'syntax';
 import { ParseErrors } from 'errors';
 import { DefineElement } from 'handle/definition';
 import { ModifyDelegate } from 'parse/modifiers';
@@ -32,7 +33,7 @@ export function handleTopLevelDefine(
   if(context.modifiers.has(name))
     throw Oops.DuplicateModifier(node);
 
-  if(body.isExpressionStatement())
+  if(s.assert(body, "ExpressionStatement"))
     throw Oops.IllegalAtTopLevel(node)
 
   const define = new DefineElement(context, name);
@@ -66,7 +67,7 @@ export function handleDefine(
 
     case "ExpressionStatement":
     case "LabeledStatement": {
-      while(body.isLabeledStatement()){
+      while(s.assert(body, "LabeledStatement")){
         key = `${key}.${body.node.label.name}`;
         body = body.get("body") as t.Path<t.Statement>;
       }

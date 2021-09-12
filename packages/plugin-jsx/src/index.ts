@@ -43,7 +43,7 @@ const HandleProgram: Visitor<t.Program> = {
     Status.currentFile = state.file as BabelFile;
   
     for(const item of path.get("body"))
-      if(item.isLabeledStatement()){
+      if(s.assert(item, "LabeledStatement")){
         handleTopLevelDefine(item, context);
         item.remove();
       }
@@ -67,13 +67,14 @@ const HandleDoExpression: Visitor<t.DoExpression> = {
       element.toExpression(collapsible) || s.literal(false);
   
     if(element.exec && element.statements.length){
+      const parent = path.parentPath;
       const body = [
         ...element.statements,
         s.returns(output as t.Expression)
       ];
   
-      if(path.parentPath.isReturnStatement()){
-        path.parentPath.replaceWithMultiple(body);
+      if(s.assert(parent, "ReturnStatement")){
+        parent.replaceWithMultiple(body);
         return;
       }
 

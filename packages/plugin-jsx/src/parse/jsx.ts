@@ -32,7 +32,7 @@ export function addElementFromJSX(
   let target = parent as Element;
   const tag = path.get("openingElement").get("name");
 
-  if(!tag.isJSXIdentifier({ name: "this" })){
+  if(!s.assert(tag, "JSXIdentifier", { name: "this" })){
     const child = createElement(tag.node, target);
 
     target.adopt(child);
@@ -49,14 +49,14 @@ export function addElementFromJSX(
       applyAttribute(element, attribute as any);
 
     children.forEach((path, index) => {
-      if(path.isJSXElement()){
+      if(s.assert(path, "JSXElement")){
         const child = createElement(path.node.openingElement.name, element);
 
         element.adopt(child);
         queue.push([child, path]);
       }
 
-      else if(path.isJSXText()){
+      else if(s.assert(path, "JSXText")){
         const { value } = path.node;
 
         if(/^\n+ *$/.test(value))
@@ -75,7 +75,7 @@ export function addElementFromJSX(
         element.adopt(s.literal(text));
       }
 
-      else if(path.isJSXExpressionContainer())
+      else if(s.assert(path, "JSXExpressionContainer"))
         element.adopt(path.node.expression as t.Expression);
 
       else
@@ -129,10 +129,10 @@ function applyAttribute(
   let name: string | false;
   let value: t.Expression | undefined;
 
-  if(attr.isJSXSpreadAttribute()){
+  if(s.assert(attr, "JSXSpreadAttribute")){
     const arg = attr.get("argument");
 
-    if(arg.isDoExpression()){
+    if(s.assert(arg, "DoExpression")){
       const define = new DefineElement(parent.context, parent.name!);
       parent.use(define);
       parse(define, arg, "body");

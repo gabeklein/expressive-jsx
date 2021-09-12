@@ -49,17 +49,17 @@ export class ComponentIf {
       let consequent = layer.get("consequent") as t.Path<any>;
       let test: t.Expression | undefined;
 
-      if(layer.isIfStatement())
+      if(s.assert(layer, "IfStatement"))
         test = layer.node.test;
 
-      if(consequent.isBlockStatement()){
+      if(s.assert(consequent, "BlockStatement")){
         const inner = ensureArray(consequent.get("body"));
 
         if(inner.length == 1)
           consequent = inner[0];
       }
 
-      const fork = consequent.isIfStatement()
+      const fork = s.assert(consequent, "IfStatement")
         ? new ComponentIf(test)
         : new DefineConsequent(consequent, context, forks.length, test)
 

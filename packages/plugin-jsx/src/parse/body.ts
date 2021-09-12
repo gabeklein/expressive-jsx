@@ -1,3 +1,4 @@
+import * as s from 'syntax';
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { ComponentFor } from 'handle/iterate';
@@ -20,7 +21,7 @@ export function parse(
   if(key)
     ast = ast.get(key) as any;
 
-  const content = ast.isBlockStatement()
+  const content = s.assert(ast, "BlockStatement")
     ? ensureArray(ast.get("body"))
     : [ast];
   
@@ -31,29 +32,30 @@ export function parse(
 export function parseContent(
   target: Define, path: t.Path<any>){
 
-  if(path.isLabeledStatement()){
+  if(s.assert(path, "LabeledStatement")){
     handleDefine(target, path);
     return;
   }
   
-  if(path.isIfStatement()){
+  if(s.assert(path, "IfStatement")){
     const item = new ComponentIf();
     item.setup(target.context, path);
     target.adopt(item);
     return;
   }
 
-  if(path.isForXStatement()){
+  if(s.assert(path, "ForInStatement")
+  || s.assert(path, "ForOfStatement") ){
     new ComponentFor(path, target);
     return;
   }
 
-  if(path.isForStatement()){
+  if(s.assert(path, "ForStatement")){
     new ComponentFor(path, target);
     return;
   }
 
-  if(path.isExpressionStatement()){
+  if(s.assert(path, "ExpressionStatement")){
     const e = path.get("expression") as t.Path<t.Node>;
 
     if(e.isJSXElement()){

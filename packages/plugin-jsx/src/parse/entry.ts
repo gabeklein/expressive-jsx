@@ -35,13 +35,13 @@ function parentFunction(path: t.Path<t.DoExpression>){
   const parent = path.parentPath;
   let containerFn: t.Path<t.ArrowFunctionExpression> | undefined;
 
-  if(parent.isArrowFunctionExpression())
+  if(s.assert(parent, "ArrowFunctionExpression"))
     containerFn = parent;
   else
-  if(parent.isReturnStatement()){
+  if(s.assert(parent, "ReturnStatement")){
     const container = parent.findParent(x => /.*Function.*/.test(x.type))!;
 
-    if(container && container.isArrowFunctionExpression())
+    if(s.assert(container, "ArrowFunctionExpression"))
       containerFn = container as t.Path<t.ArrowFunctionExpression>;
   }
 
