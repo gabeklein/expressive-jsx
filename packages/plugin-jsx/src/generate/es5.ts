@@ -18,12 +18,10 @@ export function createElement(
   if(!tag)
     tag = this.ensure("$pragma", "Fragment").name;
 
-  const type =
-    typeof tag === "string" ?
-      /^[A-Z]/.test(tag) ?
-        s.identifier(tag) :
-        s.literal(tag) :
-      stripJSX(tag);
+  const type = typeof tag === "string" ?
+    /^[A-Z]/.test(tag)
+      ? s.identifier(tag) : s.literal(tag) :
+    stripJSX(tag);
 
   const props = recombineProps(properties);
 
@@ -45,9 +43,7 @@ export function recombineProps(props: PropData[]){
       );
 
   const properties = propStack.map(chunk =>
-    Array.isArray(chunk)
-      ? s.object(chunk)
-      : chunk
+    Array.isArray(chunk) ? s.object(chunk) : chunk
   )
 
   if(properties[0].type !== "ObjectExpression")
@@ -68,10 +64,7 @@ function stripJSX(
     case "JSXIdentifier":
       return s.identifier(exp.name);
     case "JSXMemberExpression":
-      return memberExpression(
-        stripJSX(exp.object),
-        stripJSX(exp.property)
-      );
+      return memberExpression(stripJSX(exp.object), stripJSX(exp.property));
     default:
       throw new Error("Bad MemeberExpression");
   }

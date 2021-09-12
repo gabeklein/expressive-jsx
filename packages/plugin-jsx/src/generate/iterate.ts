@@ -58,10 +58,7 @@ export function forXElement(
     return;
 
   if(define.statements.length)
-    body = s.block(
-      ...define.statements,
-      s.returns(body)
-    )
+    body = s.block(...define.statements, s.returns(body));
   
   if(s.assert(node, "ForOfStatement")){
     const params = key ? [left, key] : [left];

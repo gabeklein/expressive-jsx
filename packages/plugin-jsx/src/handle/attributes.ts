@@ -41,8 +41,6 @@ export class ExplicitStyle extends Attribute {
   }
 }
 
-const flatten = (content: FlatValue[]) => {
-  const [ callee, ...args ] = content;
-
+const flatten = ([ callee, ...args ]: FlatValue[]) => {
   return `${callee}(${args.join(" ")})`;
 }
