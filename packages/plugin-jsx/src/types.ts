@@ -1,5 +1,5 @@
 import type { StackFrame } from 'context';
-import type { Attribute } from 'handle/attributes';
+import type { ExplicitStyle, Prop } from 'handle/attributes';
 import type { ModifyDelegate } from 'parse/modifiers';
 import type { ElementInline } from 'handle/element';
 import type { ComponentFor } from 'handle/iterate';
@@ -57,7 +57,8 @@ export type FlatValue =
   | null;
 
 export type SequenceItem =
-  | Attribute
+  | ExplicitStyle
+  | Prop
   | InnerContent
   | t.Statement;
 
