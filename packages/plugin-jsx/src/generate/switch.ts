@@ -4,11 +4,14 @@ import type { Consequent } from 'handle/switch';
 
 type GetProduct = (fork: Consequent) => t.Expression | undefined;
 
+const isNotAssertion = (a: t.Expression): a is t.UnaryExpression =>
+  a.type == "UnaryExpression" && a.operator == "!";
+
 const opt = t.conditionalExpression;
 const not = (a: t.Expression) => t.isBinaryAssertion(a) ? t.inverseExpression(a) : t.unaryExpression("!", a);
 const and = (a: t.Expression, b: t.Expression) => t.logicalExpression("&&", a, b);
-const anti = (a: t.Expression) => t.isUnaryExpression(a, { operator: "!" }) ? a.argument : not(a);
-const is = (a: t.Expression) => t.isUnaryExpression(a, { operator: "!" }) || t.isBinaryAssertion(a) ? a : not(not(a));
+const anti = (a: t.Expression) => isNotAssertion(a) ? a.argument : not(a);
+const is = (a: t.Expression) => isNotAssertion(a) || t.isBinaryAssertion(a) ? a : not(not(a));
 
 export function reduceToExpression(
   forks: Consequent[],
@@ -40,7 +43,7 @@ export function specifyOption(test?: t.Expression){
 
   let ref = "if_";
 
-  if(t.isUnaryExpression(test, { operator: "!" })){
+  if(isNotAssertion(test)){
     test = test.argument;
     ref = "not_"
   }
