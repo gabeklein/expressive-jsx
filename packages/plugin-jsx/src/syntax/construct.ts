@@ -19,7 +19,7 @@ import {
   thisExpression,
   variableDeclaration,
   variableDeclarator,
-} from '@babel/types';
+} from './primitives';
 
 import * as s from './';
 

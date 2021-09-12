@@ -1,4 +1,4 @@
-import { binaryExpression, logicalExpression, unaryExpression } from '@babel/types';
+import { binaryExpression, logicalExpression, unaryExpression } from './primitives';
 
 import * as s from './';
 

@@ -7,7 +7,7 @@ import {
   jsxOpeningElement,
   jsxSpreadAttribute,
   jsxText,
-} from '@babel/types';
+} from './primitives';
 
 import * as s from './';
 
