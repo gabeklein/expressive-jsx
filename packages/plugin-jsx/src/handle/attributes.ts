@@ -32,7 +32,7 @@ export class Prop extends Attribute {}
 export class ExplicitStyle extends Attribute {
   constructor(
     name: string | false,
-    value: FlatValue | t.Expression | FlatValue[],
+    value: FlatValue | FlatValue[] | t.Expression,
     public important = false){
 
     super(name, 

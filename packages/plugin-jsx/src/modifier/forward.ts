@@ -67,7 +67,7 @@ function getProps(
   
   if(!props || props.type !== "ObjectPattern"){
     const existing = props;
-    props = s.objectPattern([]);
+    props = s.pattern([]);
 
     if(!existing)
       node.params[0] = props;

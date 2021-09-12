@@ -69,7 +69,7 @@ const HandleDoExpression: Visitor<t.DoExpression> = {
     if(element.exec && element.statements.length){
       const body = [
         ...element.statements,
-        s.returnStatement(output)
+        s.returns(output as t.Expression)
       ];
   
       if(path.parentPath.isReturnStatement()){
@@ -77,7 +77,7 @@ const HandleDoExpression: Visitor<t.DoExpression> = {
         return;
       }
 
-      output = s.blockStatement(body);
+      output = s.block(...body);
     }
 
     path.replaceWith(output);

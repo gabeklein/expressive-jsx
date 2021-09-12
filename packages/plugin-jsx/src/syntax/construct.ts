@@ -2,6 +2,12 @@ import * as t from '@babel/types';
 
 import type { BunchOf, FlatValue } from 'types';
 
+const IdentifierType = /(Expression|Literal|Identifier|JSXElement|JSXFragment|Import|Super|MetaProperty|TSTypeAssertion)$/;
+
+export function isExpression(node: any): node is t.Expression {
+  return typeof node == "object" && IdentifierType.test(node.type);
+}
+
 export function expression(value?: FlatValue | t.Expression){
   try {
     return literal(value as any);
@@ -34,6 +40,10 @@ export function literal(value: string | number | boolean | null | undefined){
   }
 }
 
+export function identifier(name: string){
+  return t.identifier(name);
+}
+
 export function selector(name: string){
   return /^[A-Za-z0-9$_]+$/.test(name)
     ? t.identifier(name)
@@ -54,14 +64,27 @@ export function property(
   return t.objectProperty(key, value, false, shorthand);
 }
 
+export function spread(value: t.Expression){
+  return t.spreadElement(value);
+}
+
+export function pattern(
+  properties: (t.RestElement | t.ObjectProperty)[]){
+
+  return t.objectPattern(properties);
+}
+
 export function object(
-  obj: BunchOf<t.Expression | false | undefined> = {}){
+  obj: (t.ObjectProperty | t.SpreadElement)[] | BunchOf<t.Expression | false | undefined> = {}){
 
-  const properties = [];
+  let properties = [];
 
-  for(const [key, value] of Object.entries(obj))
-    if(value)
-      properties.push(property(key, value))
+  if(Array.isArray(obj))
+    properties = obj;
+  else
+    for(const [key, value] of Object.entries(obj))
+      if(value)
+        properties.push(property(key, value))
 
   return t.objectExpression(properties);
 }
@@ -108,6 +131,10 @@ export function require(from: string){
   return call("require", literal(from))
 }
 
+export function returns(exp: t.Expression){
+  return t.returnStatement(exp);
+}
+
 export function declare(
   type: "const" | "let" | "var", id: t.LVal, init?: t.Expression ){
 
@@ -128,4 +155,27 @@ export function template(text: string){
   return t.templateLiteral([
     t.templateElement({ raw: text, cooked: text }, true)
   ], [])
+}
+
+export function statement(from: t.Statement | t.Expression){
+  if(isExpression(from))
+    return t.expressionStatement(from);
+  else
+    return from;
+}
+
+export function block(
+  ...statements: (t.Statement | t.Expression)[]){
+
+  const stats = statements.map(statement);
+  
+  return t.blockStatement(stats);
+}
+
+export function arrow(
+  params: (t.Identifier | t.Pattern | t.RestElement | t.TSParameterProperty)[],
+  body: t.BlockStatement | t.Expression,
+  async?: boolean | undefined){
+
+  return t.arrowFunctionExpression(params, body, async);
 }

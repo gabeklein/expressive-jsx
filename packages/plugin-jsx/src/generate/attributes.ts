@@ -45,13 +45,13 @@ export class AttributeStack
 
       for(const item of this)
         if(item instanceof ExplicitStyle)
-          chunks.push(s.spreadElement(item.expression))
+          chunks.push(s.spread(item.expression))
         else
           chunks.push(...item.map(style => 
             s.property(style.name!, style.expression)
           ));
 
-      return s.objectExpression(chunks)
+      return s.object(chunks)
     }
   }
 }

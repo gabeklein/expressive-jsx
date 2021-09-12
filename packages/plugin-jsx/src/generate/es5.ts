@@ -46,7 +46,7 @@ export function recombineProps(props: PropData[]){
 
   const properties = propStack.map(chunk =>
     Array.isArray(chunk)
-      ? s.objectExpression(chunk)
+      ? s.object(chunk)
       : chunk
   )
 

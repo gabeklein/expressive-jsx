@@ -1,15 +1,7 @@
+import * as s from 'syntax';
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { ElementInline } from 'handle/element';
-import {
-  arrowFunctionExpression,
-  blockStatement,
-  call,
-  expressionStatement,
-  get,
-  objectKeys,
-  returnStatement,
-} from 'syntax';
 
 import type * as t from 'syntax/types';
 import type { DefineElement } from 'handle/definition';
@@ -34,19 +26,19 @@ export function forElement(
   const accumulator = program.ensureUIDIdentifier("add");
   const collect = program.ensure("$runtime", "collect");
 
-  let body: t.Statement =
-    expressionStatement(
-      call(accumulator, output)
+  let body: t.Statement | t.Expression =
+    s.statement(
+      s.call(accumulator, output)
     );
 
   if(statements.length)
-    body = blockStatement([ ...statements, body ]);
+    body = s.block(...statements, body);
 
   node.body = body;
 
-  return call(collect, 
-    arrowFunctionExpression(
-      [accumulator], blockStatement([ node ])
+  return s.call(collect, 
+    s.arrow(
+      [accumulator], s.block(node)
     )  
   )
 }
@@ -66,23 +58,23 @@ export function forXElement(
     return;
 
   if(define.statements.length)
-    body = blockStatement([
+    body = s.block(
       ...define.statements,
-      returnStatement(body)
-    ])
+      s.returns(body)
+    )
   
   if(node.type == "ForOfStatement"){
     const params = key ? [left, key] : [left];
 
-    return call(
-      get(right, "map"),
-      arrowFunctionExpression(params, body)
+    return s.call(
+      s.get(right, "map"),
+      s.arrow(params, body)
     )
   }
   else
-    return call(
-      get(objectKeys(right), "map"),
-      arrowFunctionExpression([left], body)
+    return s.call(
+      s.get(s.objectKeys(right), "map"),
+      s.arrow([left], body)
     )
 }
 

@@ -31,7 +31,7 @@ export function styleDeclaration(
     args.push(s.literal(uid));
   }
 
-  return s.expressionStatement(
+  return s.statement(
     s.call(s.get(runtime, "put"), ...args)
   );
 }
