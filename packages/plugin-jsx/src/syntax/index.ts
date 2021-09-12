@@ -1,7 +1,8 @@
 export {
   importDeclaration,
   importSpecifier,
-  importDefaultSpecifier
+  importDefaultSpecifier,
+  conditionalExpression as cond
 } from '@babel/types';
 
 export * from './assertion';

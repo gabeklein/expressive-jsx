@@ -14,10 +14,10 @@ export function createElement(
     tag = this.ensure("$pragma", "Fragment").name;
 
   const props = properties.map(
-    ({ name, value }) => s.jsxAttribute(value, name)
+    ({ name, value }) => s.jsxAttr(value, name)
   );
 
   this.ensure("$pragma", "default", "React");
 
-  return s.jsxElement(tag, props, content);
+  return s.jsxCreate(tag, props, content);
 }

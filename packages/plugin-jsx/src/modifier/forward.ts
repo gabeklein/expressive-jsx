@@ -55,7 +55,7 @@ export function forwardProp(
 function uniqueWithin(scope: t.Scope, name: string){
   return scope.hasBinding(name)
     ? scope.generateUidIdentifier(name)
-    : s.identifier(name);
+    : s.id(name);
 }
 
 function getProps(

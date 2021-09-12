@@ -1,5 +1,8 @@
+import { binaryExpression, logicalExpression, unaryExpression } from '@babel/types';
+
 import * as s from './';
-import * as t from '@babel/types';
+
+import type * as t from '@babel/types';
 
 const COMPARE_OP = new Set([
   "==", "===", "!=", "!==", "in", "instanceof", ">", "<", ">=", "<="
@@ -11,8 +14,6 @@ const INVERSE_OP = new Map([
 
 for(const [a, b] of INVERSE_OP)
   INVERSE_OP.set(b, a);
-  
-export const cond = t.conditionalExpression;
 
 export function isParenthesized(node: t.Expression){
   const { extra } = node as any;
@@ -33,7 +34,7 @@ export function inverseExpression(exp: t.BinaryExpression){
   const inverse = INVERSE_OP.get(exp.operator) as any;
   
   if(inverse)
-    return t.binaryExpression(inverse, exp.left, exp.right);
+    return binaryExpression(inverse, exp.left, exp.right);
   else
     throw new Error(`Can't invert binary comparison ${exp.operator}.`);
 }
@@ -48,11 +49,11 @@ export function falsy(exp: t.Expression){
   if(isBinaryAssertion(exp))
     return inverseExpression(exp);
   else
-    return t.unaryExpression("!", exp);
+    return unaryExpression("!", exp);
 }
 
 export function and(a: t.Expression, b: t.Expression){
-  return t.logicalExpression("&&", a, b);
+  return logicalExpression("&&", a, b);
 }
 
 export function anti(exp: t.Expression){
