@@ -86,7 +86,7 @@ export function generateElement(element: ElementInline | Define){
       let { value } = item;
 
       if(value && typeof value == "object")
-        if(value.type == "StringLiteral")
+        if(s.assert(value, "StringLiteral"))
           ({ value } = value);
         else if(s.isExpression(value)){
           classList.add(value);

@@ -63,7 +63,7 @@ export function forXElement(
       s.returns(body)
     )
   
-  if(node.type == "ForOfStatement"){
+  if(s.assert(node, "ForOfStatement")){
     const params = key ? [left, key] : [left];
 
     return s.call(
@@ -82,7 +82,7 @@ function getReferences(node: t.ForXStatement){
   let { left, right } = node;
   let key: t.Identifier | undefined;
 
-  if(left.type == "VariableDeclaration")
+  if(s.assert(left, "VariableDeclaration"))
     left = left.declarations[0].id;
 
   switch(left.type){
@@ -95,13 +95,13 @@ function getReferences(node: t.ForXStatement){
       throw Oops.BadForOfAssignment(left);
   }
 
-  if(right.type == "BinaryExpression" && right.operator == "in"){
+  if(s.assert(right, "BinaryExpression", { operator: "in" })){
     key = right.left as t.Identifier;
     right = right.right;
   }
 
-  if(node.type == "ForInStatement")
-    if(left.type == "Identifier")
+  if(s.assert(node, "ForInStatement"))
+    if(s.assert(left, "Identifier"))
       key = left;
     else
       throw Oops.BadForInAssignment(left);

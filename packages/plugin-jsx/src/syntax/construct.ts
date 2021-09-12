@@ -1,4 +1,5 @@
 import * as t from '@babel/types';
+import * as s from './';
 
 import type { BunchOf, FlatValue } from 'types';
 
@@ -54,12 +55,12 @@ export function property(
   key: string | t.StringLiteral | t.Identifier,
   value: t.Expression){
 
-  const shorthand =
-    value.type == "Identifier" &&
-    value.name == key;
+  let shorthand = false;
 
-  if(typeof key == "string")
+  if(typeof key == "string"){
+    shorthand = s.assert(value, "Identifier", { name: key })
     key = selector(key);
+  }
 
   return t.objectProperty(key, value, false, shorthand);
 }

@@ -91,11 +91,11 @@ function createElement(
   const target = new ElementInline(parent.context);
   let name;
 
-  if(tag.type == "JSXMemberExpression"){
+  if(s.assert(tag, "JSXMemberExpression")){
     name = tag.property.name;
     target.tagName = tag;
   }
-  else if(tag.type == "JSXIdentifier"){
+  else if(s.assert(tag, "JSXIdentifier")){
     name = tag.name;
 
     if(name == "s")

@@ -1,3 +1,4 @@
+import * as s from './';
 import * as t from '@babel/types';
 
 type JSXReference = t.JSXIdentifier | t.JSXMemberExpression;
@@ -25,10 +26,10 @@ export function jsxElement(
 }
 
 export function jsxContent(child: t.Expression){
-  if(child.type == "JSXElement")
+  if(s.assert(child, "JSXElement"))
     return child;
 
-  if(child.type == "StringLiteral" && !/\{/.test(child.value))
+  if(s.assert(child, "StringLiteral") && !/\{/.test(child.value))
     return t.jsxText(child.value);
 
   return t.jsxExpressionContainer(child);
@@ -43,7 +44,7 @@ export function jsxAttribute(value: t.Expression, name?: string | false){
   if(IsLegalAttribute.test(name) == false)
     throw new Error(`Illegal characters in prop named ${name}`)
 
-  const jsxValue = value.type == "StringLiteral"
+  const jsxValue = s.assert(value, "StringLiteral")
     ? value.value === "true" ? null : value
     : t.jsxExpressionContainer(value)
 

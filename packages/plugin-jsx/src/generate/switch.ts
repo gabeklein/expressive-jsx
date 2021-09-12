@@ -40,6 +40,6 @@ export function specifyOption(test?: t.Expression){
     ref = "not_"
   }
 
-  if(test.type == "Identifier")
+  if(s.assert(test, "Identifier"))
     return ref + test.name;
 }

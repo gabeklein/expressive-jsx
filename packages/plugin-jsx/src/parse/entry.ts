@@ -1,3 +1,4 @@
+import * as s from 'syntax';
 import { DefineContainer } from 'handle/definition';
 
 import { parse } from './body';
@@ -40,7 +41,7 @@ function parentFunction(path: t.Path<t.DoExpression>){
   if(parent.isReturnStatement()){
     const container = parent.findParent(x => /.*Function.*/.test(x.type))!;
 
-    if(container && container.type == "ArrowFunctionExpression")
+    if(container && container.isArrowFunctionExpression())
       containerFn = container as t.Path<t.ArrowFunctionExpression>;
   }
 
@@ -55,7 +56,7 @@ function containerName(path: t.Path): string {
   switch(parent.type){
     case "VariableDeclarator": {
       const { id } = parent.node as t.VariableDeclarator;
-      return id.type == "Identifier"
+      return s.assert(id, "Identifier")
         ? id.name
         : (<t.VariableDeclaration>parent.parentPath.node).kind
     }
@@ -63,7 +64,7 @@ function containerName(path: t.Path): string {
     case "AssignmentExpression":
     case "AssignmentPattern": {
       const { left } = parent.node as t.AssignmentExpression;
-      return left.type == "Identifier" ? left.name : "assignment"
+      return s.assert(left, "Identifier") ? left.name : "assignment"
     }
 
     case "FunctionDeclaration":
@@ -92,12 +93,12 @@ function containerName(path: t.Path): string {
       if("id" in node && node.id)
         return node.id.name;
 
-      if(node.type == "ObjectMethod"){
+      if(s.assert(node, "ObjectMethod")){
         parent = within.getAncestry()[2];
         continue
       }
 
-      if(node.type == "ClassMethod"){
+      if(s.assert(node, "ClassMethod")){
         if(node.key.type !== "Identifier")
           return "ClassMethod";
         if(node.key.name == "render"){
@@ -120,8 +121,8 @@ function containerName(path: t.Path): string {
     case "ObjectProperty": {
       const { key } = parent.node as t.ObjectProperty;
       return (
-        key.type == "Identifier" ? key.name : 
-        key.type == "StringLiteral" ? key.value : 
+        s.assert(key, "Identifier") ? key.name : 
+        s.assert(key, "StringLiteral") ? key.value : 
         "property"
       )
     }

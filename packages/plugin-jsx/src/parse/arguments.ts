@@ -28,7 +28,7 @@ export class DelegateTypes {
   [type: string]: (...args: any[]) => any;
 
   parse(element: t.Expression | t.Statement): any[] {
-    if(element.type == "ExpressionStatement")
+    if(s.assert(element, "ExpressionStatement"))
       element = element.expression
 
     return [].concat(
@@ -77,12 +77,11 @@ export class DelegateTypes {
     const { argument, operator } = e; 
 
     if(operator == "-"
-    && argument.type == "NumericLiteral")
+    && s.assert(argument, "NumericLiteral"))
       return this.NumericLiteral(argument, -1);
 
     if(operator == "!"
-    && argument.type == "Identifier"
-    && argument.name == "important")
+    && s.assert(argument, "Identifier", { name: "Important" }))
       return "!important";
   
     else throw Oops.UnaryUseless(e)
@@ -113,9 +112,8 @@ export class DelegateTypes {
   BinaryExpression(binary: t.BinaryExpression){
     const {left, right, operator} = binary;
     if(operator == "-"
-    && left.type == "Identifier"
-    && right.type == "Identifier"
-    && right.start == left.end! + 1)
+    && s.assert(left, "Identifier")
+    && s.assert(right, "Identifier", { start: left.end! + 1 }))
       return left.name + "-" + right.name
     else
       return [
@@ -136,7 +134,7 @@ export class DelegateTypes {
     for(const item of e.arguments){
       if(s.isExpression(item))
         args.push(item);
-      else if(item.type == "SpreadElement")
+      else if(s.assert(item, "SpreadElement"))
         throw Oops.ArgumentSpread(item)
       else
         throw Oops.UnknownArgument(item)
@@ -167,9 +165,9 @@ export class DelegateTypes {
     if(alt)
       throw Oops.ElseNotSupported(test);
 
-    if(body.type == "BlockStatement"
-    || body.type == "LabeledStatement"
-    || body.type == "ExpressionStatement") {
+    if(s.assert(body, "BlockStatement")
+    || s.assert(body, "LabeledStatement")
+    || s.assert(body, "ExpressionStatement")) {
       Object.assign(data, this.Extract(body))
     }
 
@@ -186,7 +184,7 @@ export class DelegateTypes {
     const map = {} as BunchOf<any>
 
     for(const item of statement.body){
-      if(item.type == "LabeledStatement")
+      if(s.assert(item, "LabeledStatement"))
         map[item.label.name] = this.parse(item.body);
       else if(item.type !== "IfStatement")
         throw Oops.ModiferCantParse(statement);

@@ -72,18 +72,16 @@ function getProps(
     if(!existing)
       node.params[0] = props;
 
-    else if(existing.type == "Identifier"){
+    else if(s.assert(existing, "Identifier")){
       const { statements } = target;
 
-      for(const s of statements){
-        if(s.type !== "VariableDeclaration")
+      for(const stat of statements){
+        if(!s.assert(stat, "VariableDeclaration"))
           break;
 
-        for(const { id, init } of s.declarations)
-          if(init
-          && init.type == "Identifier"
-          && init.name == existing.name
-          && id.type == "ObjectPattern")
+        for(const { id, init } of stat.declarations)
+          if(s.assert(init, "Identifier", { name: existing.name })
+          && s.assert(id, "ObjectPattern"))
             return id.properties;
       }
 

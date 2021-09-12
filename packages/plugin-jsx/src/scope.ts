@@ -141,7 +141,7 @@ export class ImportManager extends FileManager {
     if(name == "default"){
       const [ spec ] = list;
 
-      if(spec && spec.type == "ImportDefaultSpecifier")
+      if(s.assert(spec, "ImportDefaultSpecifier"))
         return spec.local;
       else {
         uid = this.ensureUIDIdentifier(alt);
@@ -179,7 +179,7 @@ export class ImportManager extends FileManager {
       return imports[name];
 
     for(const stat of this.body)
-      if(stat.type == "ImportDeclaration" && stat.source.value == name)
+      if(s.assert(stat, "ImportDeclaration") && stat.source.value == name)
         return imports[name] = {
           exists: true,
           items: stat.specifiers
@@ -207,9 +207,8 @@ export class RequireManager extends FileManager {
     const source = this.ensureImported(from).items;
 
     for(const { key, value } of source)
-      if(value.type == "Identifier"
-      && key.type == "Identifier"
-      && key.name == name)
+      if(s.assert(value, "Identifier")
+      && s.assert(key, "Identifier", { name }))
         return value;
 
     const ref = this.ensureUIDIdentifier(alt);
@@ -231,10 +230,10 @@ export class RequireManager extends FileManager {
     let list;
 
     for(let i = 0, stat; stat = body[i]; i++)
-      if(stat.type == "VariableDeclaration")
+      if(s.assert(stat, "VariableDeclaration"))
         target = requireResultFrom(name, stat);
 
-    if(target && target.type == "ObjectPattern")
+    if(s.assert(target, "ObjectPattern"))
       list = imports[name] = {
         exists: true,
         items: target.properties as t.ObjectProperty[]
@@ -264,14 +263,11 @@ function requireResultFrom(
   statement: t.VariableDeclaration){
 
   for(const { init, id } of statement.declarations)
-    if(init && init.type == "CallExpression"){
+    if(s.assert(init, "CallExpression")){
       const { callee, arguments: [ arg ] } = init;
 
-      if(callee.type == "Identifier"
-      && callee.name == "require"
-      && arg
-      && arg.type == "StringLiteral"
-      && arg.value == name)
-          return id;
+      if(s.assert(callee, "Identifier", { name: "require" })
+      && s.assert(arg, "StringLiteral", { value: name }))
+        return id;
     } 
 }

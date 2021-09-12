@@ -1,3 +1,4 @@
+import * as s from './';
 import * as t from '@babel/types';
 
 const COMPARE_OP = new Set([
@@ -21,7 +22,7 @@ export function isInParenthesis(node: t.Expression){
 export function isBinaryAssertion(
   exp: t.Expression | undefined): exp is t.BinaryExpression {
 
-  if(exp && exp.type == "BinaryExpression")
+  if(s.assert(exp, "BinaryExpression"))
     if(COMPARE_OP.has(exp.operator))
       return true;
 
@@ -40,7 +41,7 @@ export function inverseExpression(exp: t.BinaryExpression){
 export function isNotAssertion(
   exp: t.Expression): exp is t.UnaryExpression{
 
-  return exp.type == "UnaryExpression" && exp.operator == "!";
+  return s.assert(exp, "UnaryExpression") && exp.operator == "!";
 }
 
 export function not(exp: t.Expression){
