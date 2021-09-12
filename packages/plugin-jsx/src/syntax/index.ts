@@ -7,6 +7,7 @@ export type { Program as BabelProgram } from '@babel/types';
 export * from '@babel/types';
 
 export { toExpression } from './construct';
+export * from './assertion';
 
 const IdentifierType = /(Expression|Literal|Identifier|JSXElement|JSXFragment|Import|Super|MetaProperty|TSTypeAssertion)$/;
 
@@ -114,36 +115,4 @@ export function template(text: string){
       t.templateElement({ raw: text, cooked: text }, true)
     ], [])
   )
-}
-
-type OP = typeof COMPARE_OP[number];
-
-const COMPARE_OP = <const>["==", "===", "!=", "!==", "in", "instanceof", ">", "<", ">=", "<="];
-const OP_PAIRS: [OP, OP][] = [
-  ["==", "!="],
-  ["===", "!=="],
-  [">", "<="],
-  ["<", ">="]
-]
-
-export function isBinaryAssertion(a: t.Expression | undefined): a is t.BinaryExpression {
-  if(a && a.type == "BinaryExpression")
-    if(COMPARE_OP.includes(a.operator as any))
-      return true;
-
-  return false;
-}
-
-const OP_POSITES = new Map<OP, OP>();
-
-for(const [a, b] of OP_PAIRS)
-  OP_POSITES.set(a, b);
-
-export function inverseExpression(x: t.BinaryExpression){
-  const inverse = OP_POSITES.get(x.operator as OP);
-  
-  if(inverse)
-    return t.binaryExpression(inverse, x.left, x.right);
-  else
-    throw new Error(`Can't invert binary comparison ${x.operator}.`);
 }
