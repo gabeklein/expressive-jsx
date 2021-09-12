@@ -1,5 +1,5 @@
 import * as t from 'syntax';
-import type { FlatValue } from 'types';
+import type { BunchOf, FlatValue } from 'types';
 
 export function expression(value?: FlatValue | t.Expression){
   try {
@@ -31,4 +31,28 @@ export function literal(value: string | number | boolean | null | undefined){
     default:
       throw new Error("Not a literal type");
   }
+}
+
+export function property(
+  key: string | t.StringLiteral | t.Identifier,
+  value: t.Expression,
+  computed?: boolean | undefined,
+  shorthand?: boolean | undefined){
+
+  if(typeof key == "string")
+    key = t.literal(key);
+
+  return t.objectProperty(key, value, computed, shorthand);
+}
+
+export function object(
+  obj: BunchOf<t.Expression | false | undefined> = {}){
+
+  const properties = [];
+
+  for(const [key, value] of Object.entries(obj))
+    if(value)
+      properties.push(property(key, value))
+
+  return t.objectExpression(properties);
 }

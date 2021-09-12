@@ -39,10 +39,7 @@ export function recombineProps(props: PropData[]){
       propStack.push(value);
     else
       propStack.insert(
-        t.objectProperty(
-          t.literal(name),
-          value
-        )
+        t.property(name, value)
       );
 
   const properties = propStack.map(chunk =>

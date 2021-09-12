@@ -213,11 +213,10 @@ export class RequireManager extends FileManager {
         return value;
 
     const ref = this.ensureUIDIdentifier(alt);
-    const key = t.identifier(name);
-    const useShorthand = ref.name === name;
-    const property = t.objectProperty(key, ref, false, useShorthand);
 
-    source.push(property)
+    source.push(
+      t.property(name, ref, false, ref.name === name)
+    )
 
     return ref;
   }

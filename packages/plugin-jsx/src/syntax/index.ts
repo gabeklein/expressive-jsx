@@ -2,7 +2,6 @@ import * as t from '@babel/types';
 
 import { literal } from './construct';
 
-import type { BunchOf } from 'types';
 
 export type { NodePath as Path, Scope, VisitNodeObject } from '@babel/traverse';
 export type { Program as BabelProgram } from '@babel/types';
@@ -14,23 +13,6 @@ const IdentifierType = /(Expression|Literal|Identifier|JSXElement|JSXFragment|Im
 
 export function isExpression(node: any): node is t.Expression {
   return typeof node == "object" && IdentifierType.test(node.type);
-}
-
-export function object(
-  obj: BunchOf<t.Expression | false | undefined> = {}){
-
-  const properties = [];
-
-  for(const [key, value] of Object.entries(obj)){
-    if(!value)
-      continue;
-
-    properties.push(
-      t.objectProperty(t.identifier(key), value)
-    )
-  }
-
-  return t.objectExpression(properties);
 }
 
 export function get(object: "this"): t.ThisExpression;

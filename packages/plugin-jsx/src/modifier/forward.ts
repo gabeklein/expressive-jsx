@@ -41,11 +41,11 @@ export function forwardProp(
   }
 
   function getFromProps(name: string){
-    const _key = t.identifier(name);
     const _local = uniqueWithin(scope, name);
+    const shorthand = _local.name == name;
 
     properties.unshift(
-      t.objectProperty(_key, _local, false, _local.name == name)
+      t.property(name, _local, false, shorthand)
     )
 
     return _local;

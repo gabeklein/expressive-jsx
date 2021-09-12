@@ -45,11 +45,8 @@ export class AttributeStack
         if(item instanceof ExplicitStyle)
           chunks.push(t.spreadElement(item.expression))
         else
-          chunks.push(...item.map(style =>
-            t.objectProperty(
-              t.literal(style.name!),
-              style.expression
-            )
+          chunks.push(...item.map(style => 
+            t.property(style.name!, style.expression)
           ));
 
       return t.objectExpression(chunks)
