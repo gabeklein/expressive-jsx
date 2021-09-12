@@ -34,16 +34,24 @@ export function literal(value: string | number | boolean | null | undefined){
   }
 }
 
+export function selector(name: string){
+  return /^[A-Za-z0-9$_]+$/.test(name)
+  ? t.identifier(name)
+  : t.stringLiteral(name)
+}
+
 export function property(
   key: string | t.StringLiteral | t.Identifier,
-  value: t.Expression,
-  computed?: boolean | undefined,
-  shorthand?: boolean | undefined){
+  value: t.Expression){
+
+  const shorthand =
+    value.type == "Identifier" &&
+    value.name == key;
 
   if(typeof key == "string")
-    key = literal(key);
+    key = selector(key);
 
-  return t.objectProperty(key, value, computed, shorthand);
+  return t.objectProperty(key, value, false, shorthand);
 }
 
 export function object(

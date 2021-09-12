@@ -2,7 +2,7 @@
 
 exports[`basic style 1`] = `
 "() => create(\\"div\\", {
-  \\"className\\": \\"element_26b\\"
+  className: \\"element_26b\\"
 }, \\"Hello World\\");
 
 CSS.put(\`

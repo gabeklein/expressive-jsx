@@ -2,7 +2,7 @@
 
 exports[`Attribute-based modifier 1`] = `
 "() => create(Foo, {
-  \\"className\\": \\"hasWhiteText_4b3 Foo_16j\\"
+  className: \\"hasWhiteText_4b3 Foo_16j\\"
 });
 
 CSS.put(\`
@@ -26,9 +26,9 @@ CSS.put(\`
 
 exports[`Explicitly use modifier 1`] = `
 "() => create(Fragment, {}, create(Baz, {
-  \\"className\\": \\"Foo_76l Baz_16j\\"
+  className: \\"Foo_76l Baz_16j\\"
 }), create(Foo, {
-  \\"className\\": \\"Foo_76l\\"
+  className: \\"Foo_76l\\"
 }));
 
 CSS.put(\`
@@ -52,9 +52,9 @@ CSS.put(\`
 
 exports[`Nested modifier 1`] = `
 "() => create(Fragment, {}, create(Foo, {
-  \\"className\\": \\"Foo_76l\\"
+  className: \\"Foo_76l\\"
 }), create(Bar, {}, create(Foo, {
-  \\"className\\": \\"Foo_76l Foo_6n9\\"
+  className: \\"Foo_76l Foo_6n9\\"
 })));
 
 CSS.put(\`
@@ -78,7 +78,7 @@ CSS.put(\`
 
 exports[`Simple modifier 1`] = `
 "() => create(Foo, {
-  \\"className\\": \\"Foo_16j\\"
+  className: \\"Foo_16j\\"
 });
 
 CSS.put(\`
@@ -98,7 +98,7 @@ CSS.put(\`
 
 exports[`collapse single-use modifiers 1`] = `
 "() => create(Foo, {}, create(Bar, {
-  \\"className\\": \\"Bar_i3g\\"
+  className: \\"Bar_i3g\\"
 }));
 
 CSS.put(\`

@@ -43,10 +43,9 @@ export function forwardProp(
 
   function getFromProps(name: string){
     const _local = uniqueWithin(scope, name);
-    const shorthand = _local.name == name;
 
     properties.unshift(
-      s.property(name, _local, false, shorthand)
+      s.property(name, _local)
     )
 
     return _local;

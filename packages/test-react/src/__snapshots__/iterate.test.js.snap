@@ -14,7 +14,7 @@ exports[`for statement 2`] = `
 
 exports[`for-in statement 1`] = `
 "() => Object.keys(group).map(item => create(\\"div\\", {
-  \\"key\\": item
+  key: item
 }, group[item]));"
 `;
 
@@ -22,7 +22,7 @@ exports[`for-in statement 2`] = `"() => Object.keys(group).map(item => <div key=
 
 exports[`for-of statement 1`] = `
 "() => group.map((item, i) => create(\\"div\\", {
-  \\"key\\": i
+  key: i
 }, item));"
 `;
 
@@ -30,7 +30,7 @@ exports[`for-of statement 2`] = `"() => group.map((item, i) => <div key={i}>{ite
 
 exports[`for-of statement; key defined 1`] = `
 "() => group.map(item => create(\\"div\\", {
-  \\"key\\": item
+  key: item
 }, item));"
 `;
 

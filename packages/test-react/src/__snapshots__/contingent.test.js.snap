@@ -2,9 +2,9 @@
 
 exports[`contingent in consequent 1`] = `
 "() => create(\\"div\\", {
-  \\"className\\": use(\\"element_26b\\", !!true && \\"opt1_6ac\\")
+  className: use(\\"element_26b\\", !!true && \\"opt1_6ac\\")
 }, create(\\"div\\", {
-  \\"className\\": \\"inner_71a\\"
+  className: \\"inner_71a\\"
 }, \\"Hello\\"));
 
 CSS.put(\`
@@ -24,9 +24,9 @@ CSS.put(\`
 
 exports[`contingent on consequent 1`] = `
 "() => create(\\"div\\", {
-  \\"className\\": use(\\"element_26b\\", !!true && \\"opt1_6ac\\")
+  className: use(\\"element_26b\\", !!true && \\"opt1_6ac\\")
 }, create(\\"div\\", {
-  \\"className\\": \\"div_sqm\\"
+  className: \\"div_sqm\\"
 }, \\"Hello\\"));
 
 CSS.put(\`
@@ -46,7 +46,7 @@ CSS.put(\`
 
 exports[`multiple contingent on consequent 1`] = `
 "() => create(\\"div\\", {
-  \\"className\\": use(\\"element_26b\\", !!active && \\"if_active_6ac\\")
+  className: use(\\"element_26b\\", !!active && \\"if_active_6ac\\")
 }, create(\\"div\\", {}, \\"Hello\\"));
 
 CSS.put(\`

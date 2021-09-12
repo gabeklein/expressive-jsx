@@ -4,7 +4,7 @@ exports[`alternate consequent types 1`] = `
 "({
   foo
 }) => create(\\"div\\", {
-  \\"className\\": use(\\"element_26b\\", !!foo && \\"if_foo_6ac\\")
+  className: use(\\"element_26b\\", !!foo && \\"if_foo_6ac\\")
 }, !foo && create(\\"div\\", {}, \\"Foo is false\\"));
 
 CSS.put(\`
@@ -40,7 +40,7 @@ exports[`delegated variant may still contain style 1`] = `
 "const BuyButton = ({
   active
 }) => create(\\"div\\", {
-  \\"className\\": use(\\"example_6a2\\", active ? \\"if_active_2df exampleActive_fbb\\" : \\"else_392\\")
+  className: use(\\"example_6a2\\", active ? \\"if_active_2df exampleActive_fbb\\" : \\"else_392\\")
 }, \\"Hello World!\\");
 
 CSS.put(\`
@@ -68,7 +68,7 @@ exports[`delegates definition via use 1`] = `
 "const BuyButton = ({
   active
 }) => create(\\"div\\", {
-  \\"className\\": use(\\"example_6a2 example_p5t\\", active ? \\"exampleActive_fbb\\" : \\"else_392\\")
+  className: use(\\"example_6a2 example_p5t\\", active ? \\"exampleActive_fbb\\" : \\"else_392\\")
 }, \\"Hello World!\\");
 
 CSS.put(\`
@@ -98,7 +98,7 @@ exports[`inverse consequent types 1`] = `
 "({
   foo
 }) => create(\\"div\\", {
-  \\"className\\": use(\\"element_26b\\", !foo && \\"else_16j\\")
+  className: use(\\"element_26b\\", !foo && \\"else_16j\\")
 }, !!foo && create(\\"div\\", {}, \\"Foo is true\\"));
 
 CSS.put(\`
@@ -122,7 +122,7 @@ exports[`nested elements may have conditional 1`] = `
 "const BuyButton = ({
   active
 }) => create(\\"div\\", {}, create(\\"div\\", {}, create(\\"div\\", {
-  \\"className\\": use(\\"inner_1mn\\", active ? \\"if_active_3ef\\" : \\"else_27p\\")
+  className: use(\\"inner_1mn\\", active ? \\"if_active_3ef\\" : \\"else_27p\\")
 })));
 
 CSS.put(\`
@@ -149,7 +149,7 @@ exports[`supports complex else-if 1`] = `
   foo,
   bar
 }) => create(\\"div\\", {
-  \\"className\\": use(\\"element_26b\\", !foo && !bar && \\"else_6jg\\")
+  className: use(\\"element_26b\\", !foo && !bar && \\"else_6jg\\")
 }, foo ? create(\\"div\\", {}, \\"Foo is true\\") : !!bar && create(\\"div\\", {}, \\"Bar is true\\"));
 
 CSS.put(\`
@@ -175,7 +175,7 @@ exports[`supports inverse else-if 1`] = `
   foo,
   bar
 }) => create(\\"div\\", {
-  \\"className\\": use(\\"element_26b\\", foo ? \\"if_foo_6ac\\" : !!bar && \\"if_bar_16j\\")
+  className: use(\\"element_26b\\", foo ? \\"if_foo_6ac\\" : !!bar && \\"if_bar_16j\\")
 }, !foo && !bar && create(\\"div\\", {}, \\"Foo & Bar are false\\"));
 
 CSS.put(\`
@@ -200,11 +200,11 @@ CSS.put(\`
 
 exports[`switch can provide style downstream 1`] = `
 "() => create(\\"div\\", {
-  \\"className\\": use(\\"element_26b\\", !!true && \\"opt1_6ac\\")
+  className: use(\\"element_26b\\", !!true && \\"opt1_6ac\\")
 }, create(\\"div\\", {
-  \\"className\\": \\"foo_5rg\\"
+  className: \\"foo_5rg\\"
 }), create(\\"div\\", {
-  \\"className\\": \\"bar_193\\"
+  className: \\"bar_193\\"
 }));
 
 CSS.put(\`
@@ -228,7 +228,7 @@ exports[`switch styles 1`] = `
 "({
   foo
 }) => create(\\"div\\", {
-  \\"className\\": use(\\"element_26b\\", foo ? \\"if_foo_6ac\\" : \\"else_16j\\")
+  className: use(\\"element_26b\\", foo ? \\"if_foo_6ac\\" : \\"else_16j\\")
 });
 
 CSS.put(\`

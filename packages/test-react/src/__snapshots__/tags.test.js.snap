@@ -6,7 +6,7 @@ exports[`Handle member-type tags 2`] = `"() => <Foo.Bar />;"`;
 
 exports[`Member property implemented as name 1`] = `
 "() => create(Foo.Bar, {
-  \\"className\\": \\"Bar_16j\\"
+  className: \\"Bar_16j\\"
 });
 
 CSS.put(\`

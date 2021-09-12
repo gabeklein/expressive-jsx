@@ -214,9 +214,7 @@ export class RequireManager extends FileManager {
 
     const ref = this.ensureUIDIdentifier(alt);
 
-    source.push(
-      s.property(name, ref, false, ref.name === name)
-    )
+    source.push(s.property(name, ref));
 
     return ref;
   }

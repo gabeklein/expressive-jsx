@@ -2,7 +2,7 @@
 
 exports[`css directive 1`] = `
 "() => create(\\"div\\", {
-  \\"className\\": \\"element_26b\\"
+  className: \\"element_26b\\"
 }, create(\\"div\\", {}, \\"Hello\\"));
 
 CSS.put(\`
@@ -26,7 +26,7 @@ CSS.put(\`
 
 exports[`css multiple directives 1`] = `
 "() => create(\\"div\\", {
-  \\"className\\": \\"element_26b\\"
+  className: \\"element_26b\\"
 }, create(\\"div\\", {}, \\"Hello\\"));
 
 CSS.put(\`
@@ -52,7 +52,7 @@ CSS.put(\`
 
 exports[`pseudo before/after 1`] = `
 "() => create(\\"div\\", {
-  \\"className\\": \\"element_26b\\"
+  className: \\"element_26b\\"
 }, create(\\"div\\", {}, \\"Hello\\"));
 
 CSS.put(\`
@@ -74,7 +74,7 @@ CSS.put(\`
 
 exports[`pseudo nthOfType 1`] = `
 "() => create(\\"div\\", {
-  \\"className\\": \\"element_26b\\"
+  className: \\"element_26b\\"
 }, create(\\"div\\", {}, \\"Hello\\"));
 
 CSS.put(\`

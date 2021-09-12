@@ -4,7 +4,7 @@ exports[`competing style priority 1`] = `
 ";
 
 () => create(Foo, {}, create(Bar, {
-  \\"className\\": \\"Bar_i3g\\"
+  className: \\"Bar_i3g\\"
 }));
 
 CSS.put(\`
@@ -26,9 +26,9 @@ CSS.put(\`
 
 exports[`conditional priority should be higher 1`] = `
 "() => create(\\"div\\", {
-  \\"className\\": use(\\"element_26b\\", !!checked && \\"if_checked_6ac\\")
+  className: use(\\"element_26b\\", !!checked && \\"if_checked_6ac\\")
 }, create(\\"div\\", {
-  \\"className\\": \\"test_2ng test_6jg\\"
+  className: \\"test_2ng test_6jg\\"
 }));
 
 CSS.put(\`
@@ -54,11 +54,11 @@ exports[`prioritize external (capital-letter) define 1`] = `
 "const Foo = ({
   className
 }) => create(\\"div\\", {
-  \\"className\\": use(\\"Foo_8ef\\", className)
+  className: use(\\"Foo_8ef\\", className)
 }, \\"Hello\\");
 
 const Bar = () => create(Foo, {
-  \\"className\\": \\"Foo_124\\"
+  className: \\"Foo_124\\"
 });
 
 CSS.put(\`

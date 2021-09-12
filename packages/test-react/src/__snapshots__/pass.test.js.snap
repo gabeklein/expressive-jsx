@@ -2,7 +2,7 @@
 
 exports[`collapse style-only expression 1`] = `
 "const props = {
-  \\"className\\": \\"props_4d3\\"
+  className: \\"props_4d3\\"
 };
 CSS.put(\`
 	/* 1 */
@@ -12,7 +12,7 @@ CSS.put(\`
 
 exports[`collapse style-only expression 2`] = `
 "const props = {
-  \\"className\\": \\"props_4d3\\"
+  className: \\"props_4d3\\"
 };
 CSS.put(\`
 	/* 1 */
@@ -22,7 +22,7 @@ CSS.put(\`
 
 exports[`pass SpreadElement-do to element 1`] = `
 "() => create(\\"div\\", {
-  \\"className\\": \\"foo_16j\\"
+  className: \\"foo_16j\\"
 });
 
 CSS.put(\`

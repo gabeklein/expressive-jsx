@@ -4,7 +4,7 @@ exports[`forward className 1`] = `
 "({
   className
 }) => create(\\"div\\", {
-  \\"className\\": className
+  className
 }, create(\\"div\\", {}, \\"Hello World\\"));"
 `;
 
@@ -18,10 +18,10 @@ exports[`forward react ref 1`] = `
 "forwardRef(({
   active
 }, ref) => create(\\"input\\", {
-  \\"disabled\\": !active,
-  \\"ref\\": ref,
-  \\"type\\": \\"text\\",
-  \\"className\\": \\"input_16j\\"
+  disabled: !active,
+  ref,
+  type: \\"text\\",
+  className: \\"input_16j\\"
 }));
 CSS.put(\`
 	/* 2 */
@@ -43,7 +43,7 @@ exports[`forward will join with existing styles 1`] = `
 "({
   className
 }) => create(\\"div\\", {
-  \\"className\\": use(\\"element_26b\\", className)
+  className: use(\\"element_26b\\", className)
 }, create(\\"div\\", {}, \\"Hello World\\"));
 
 CSS.put(\`
@@ -69,7 +69,7 @@ exports[`forward will not break where ...rest exists 1`] = `
   name,
   ...rest
 }) => create(\\"div\\", {
-  \\"className\\": className
+  className
 }, create(\\"div\\", Object.assign({}, rest), \\"Hello \\", name));"
 `;
 
@@ -88,7 +88,7 @@ exports[`forward will pull className from declared destructure 1`] = `
     name
   } = props;
   return create(\\"div\\", {
-    \\"className\\": className
+    className
   }, create(\\"div\\", {}, \\"Hello \\", name));
 };"
 `;
@@ -108,7 +108,7 @@ exports[`forward will pull className from existing destructure 1`] = `
   className,
   name
 }) => create(\\"div\\", {
-  \\"className\\": className
+  className
 }, create(\\"div\\", {}, \\"Hello \\", name));"
 `;
 
@@ -125,7 +125,7 @@ exports[`forward will pull className from existing props 1`] = `
     className
   } = props;
   return create(\\"div\\", {
-    \\"className\\": className
+    className
   }, create(\\"div\\", {}, \\"Hello World\\"));
 };"
 `;
