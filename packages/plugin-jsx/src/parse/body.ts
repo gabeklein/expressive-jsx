@@ -45,7 +45,7 @@ export function parseContent(
   }
 
   if(s.assert(path, "ForInStatement")
-  || s.assert(path, "ForOfStatement") ){
+  || s.assert(path, "ForOfStatement")){
     new ComponentFor(path, target);
     return;
   }
@@ -58,12 +58,12 @@ export function parseContent(
   if(s.assert(path, "ExpressionStatement")){
     const e = path.get("expression") as t.Path<t.Node>;
 
-    if(e.isJSXElement()){
+    if(s.assert(e, "JSXElement")){
       addElementFromJSX(e, target);
       return;
     }
 
-    if(e.isAssignmentExpression({ operator: "=" })){
+    if(s.assert(e, "AssignmentExpression", { operator: "=" })){
       const { left, right } = e.node;
   
       if(left.type !== "Identifier")
