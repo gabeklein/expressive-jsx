@@ -22,7 +22,7 @@ export function reduceToExpression(
         : s.and(s.anti(test), sum)
     else if(product)
       sum = test
-        ? s.and(s.is(test), product)
+        ? s.and(s.truthy(test), product)
         : product
   }
 
@@ -35,7 +35,7 @@ export function specifyOption(test?: t.Expression){
 
   let ref = "if_";
 
-  if(s.isNotAssertion(test)){
+  if(s.isFalsy(test)){
     test = test.argument;
     ref = "not_"
   }

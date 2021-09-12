@@ -14,7 +14,7 @@ for(const [a, b] of INVERSE_OP)
   
 export const cond = t.conditionalExpression;
 
-export function isInParenthesis(node: t.Expression){
+export function isParenthesized(node: t.Expression){
   const { extra } = node as any;
   return extra ? extra.parenthesized === true : false;
 }
@@ -38,13 +38,13 @@ export function inverseExpression(exp: t.BinaryExpression){
     throw new Error(`Can't invert binary comparison ${exp.operator}.`);
 }
 
-export function isNotAssertion(
+export function isFalsy(
   exp: t.Expression): exp is t.UnaryExpression{
 
   return s.assert(exp, "UnaryExpression") && exp.operator == "!";
 }
 
-export function not(exp: t.Expression){
+export function falsy(exp: t.Expression){
   if(isBinaryAssertion(exp))
     return inverseExpression(exp);
   else
@@ -56,15 +56,15 @@ export function and(a: t.Expression, b: t.Expression){
 }
 
 export function anti(exp: t.Expression){
-  if(isNotAssertion(exp))
+  if(isFalsy(exp))
     return exp.argument;
   else
-    return not(exp);
+    return falsy(exp);
 }
 
-export function is(a: t.Expression){
-  if(isNotAssertion(a) || isBinaryAssertion(a))
+export function truthy(a: t.Expression){
+  if(isFalsy(a) || isBinaryAssertion(a))
     return a;
   else
-    return not(not(a));
+    return falsy(falsy(a));
 }

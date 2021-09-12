@@ -45,7 +45,7 @@ export class DelegateTypes {
     if(childKey)
       element = element[childKey] as unknown as T;
 
-    if(s.isInParenthesis(element))
+    if(s.isParenthesized(element))
       return element;
 
     return this.Extract(element)
@@ -93,7 +93,7 @@ export class DelegateTypes {
 
   NumericLiteral(number: t.NumericLiteral, sign = 1){
     const { extra: { rawValue, raw } } = number as any;
-    if(s.isInParenthesis(number) || !/^0x/.test(raw)){
+    if(s.isParenthesized(number) || !/^0x/.test(raw)){
       if(raw.indexOf(".") > 0)
         return sign == -1 ? "-" + raw : raw;
       return sign*rawValue;
