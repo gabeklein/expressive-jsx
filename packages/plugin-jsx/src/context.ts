@@ -2,7 +2,7 @@ import { DefineElement } from 'handle/definition';
 import { ImportManager, RequireManager } from 'scope';
 import { hash, Stack } from 'utility';
 
-import type * as t from 'syntax';
+import type * as t from 'syntax/types';
 import type { Define , DefineContainer } from 'handle/definition';
 import type { FileManager } from 'scope';
 import type { BabelState, BunchOf, ModifyAction, Options } from 'types';

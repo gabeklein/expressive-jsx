@@ -4,8 +4,9 @@ import { styleDeclaration } from 'generate/styles';
 import { builtIn } from 'modifier/builtIn';
 import { generateEntryElement } from 'parse/entry';
 import { handleTopLevelDefine } from 'parse/labels';
-import * as t from 'syntax';
+import * as s from 'syntax';
 
+import type * as t from 'syntax/types';
 import type { BabelFile, BabelState, Options } from 'types';
 
 type Visitor<T extends t.Node, S extends StackFrame = StackFrame> =
@@ -63,12 +64,12 @@ const HandleDoExpression: Visitor<t.DoExpression> = {
     const collapsible = !element.exec;
 
     let output: t.Expression | t.Statement =
-      element.toExpression(collapsible) || t.literal(false);
+      element.toExpression(collapsible) || s.literal(false);
   
     if(element.exec && element.statements.length){
       const body = [
         ...element.statements,
-        t.returnStatement(output)
+        s.returnStatement(output)
       ];
   
       if(path.parentPath.isReturnStatement()){
@@ -76,7 +77,7 @@ const HandleDoExpression: Visitor<t.DoExpression> = {
         return;
       }
 
-      output = t.blockStatement(body);
+      output = s.blockStatement(body);
     }
 
     path.replaceWith(output);

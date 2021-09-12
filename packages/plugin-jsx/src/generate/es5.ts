@@ -1,6 +1,8 @@
-import * as t from 'syntax';
+import * as s from 'syntax';
+import { memberExpression } from 'syntax/types';
 import { ArrayStack } from 'utility';
 
+import type * as t from 'syntax/types';
 import type { FileManager } from 'scope';
 import type { PropData } from 'types';
 
@@ -19,40 +21,40 @@ export function createElement(
   const type =
     typeof tag === "string" ?
       /^[A-Z]/.test(tag) ?
-        t.identifier(tag) :
-        t.literal(tag) :
+        s.identifier(tag) :
+        s.literal(tag) :
       stripJSX(tag);
 
   const props = recombineProps(properties);
 
-  return t.callExpression(create, [type, props, ...children]);
+  return s.call(create, type, props, ...children);
 }
 
 export function recombineProps(props: PropData[]){
   const propStack = new ArrayStack<t.ObjectProperty, t.Expression>()
 
   if(props.length === 0)
-    return t.object();
+    return s.object();
 
   for(const { name, value } of props)
     if(!name)
       propStack.push(value);
     else
       propStack.insert(
-        t.property(name, value)
+        s.property(name, value)
       );
 
   const properties = propStack.map(chunk =>
     Array.isArray(chunk)
-      ? t.objectExpression(chunk)
+      ? s.objectExpression(chunk)
       : chunk
   )
 
   if(properties[0].type !== "ObjectExpression")
-    properties.unshift(t.object())
+    properties.unshift(s.object())
 
   return properties.length > 1
-    ? t.objectAssign(...properties)
+    ? s.objectAssign(...properties)
     : properties[0];
 }
 
@@ -64,9 +66,9 @@ function stripJSX(
     case "Identifier":
       return exp;
     case "JSXIdentifier":
-      return t.identifier(exp.name);
+      return s.identifier(exp.name);
     case "JSXMemberExpression":
-      return t.memberExpression(
+      return memberExpression(
         stripJSX(exp.object),
         stripJSX(exp.property)
       );

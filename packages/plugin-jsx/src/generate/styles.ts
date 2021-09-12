@@ -1,10 +1,11 @@
 import { ExplicitStyle } from 'handle/attributes';
-import * as t from 'syntax';
 import { hash } from 'utility';
 
+import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
 import type { Define } from 'handle/definition';
 import type { BunchOf } from 'types';
+import * as s from 'syntax';
 
 type SelectorContent = [ string, string[] ][];
 type MediaGroups = SelectorContent[];
@@ -23,17 +24,15 @@ export function styleDeclaration(
   const runtime = program.ensure("$runtime", "default", "CSS");
   const mediaGroups = prioritize(modifiersDeclared);
   const printedStyle = serialize(mediaGroups, pretty);
-  const args = [ t.template(printedStyle) as t.Expression ];
+  const args = [ s.template(printedStyle) as t.Expression ];
 
   if(hot){
     const uid = hash(filename, 10);
-    args.push(t.literal(uid));
+    args.push(s.literal(uid));
   }
 
-  return t.expressionStatement(
-    t.callExpression(
-      t.get(runtime, "put"), args
-    )
+  return s.expressionStatement(
+    s.call(s.get(runtime, "put"), ...args)
   );
 }
 

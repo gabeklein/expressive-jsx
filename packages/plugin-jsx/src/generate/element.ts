@@ -2,8 +2,9 @@ import { AttributeStack } from 'generate/attributes';
 import { ExplicitStyle, Prop } from 'handle/attributes';
 import { Define, DefineLocal, DefineVariant } from 'handle/definition';
 import { ElementInline } from 'handle/element';
-import * as t from 'syntax';
+import * as s from 'syntax';
 
+import type * as t from 'syntax/types';
 import type { DefineElement } from 'handle/definition';
 import type { FileManager } from 'scope';
 import type { DefineConsequent } from 'handle/switch';
@@ -67,7 +68,7 @@ export function generateElement(element: ElementInline | Define){
       }
     }
 
-    else if(t.isExpression(item))
+    else if(s.isExpression(item))
       children.push(item);
   }
 
@@ -87,7 +88,7 @@ export function generateElement(element: ElementInline | Define){
       if(value && typeof value == "object")
         if(value.type == "StringLiteral")
           ({ value } = value);
-        else if(t.isExpression(value)){
+        else if(s.isExpression(value)){
           classList.add(value);
           return;
         }
@@ -153,12 +154,12 @@ function classValue(
 
   if(className)
     selectors.unshift(
-      t.literal(className.slice(1))
+      s.literal(className.slice(1))
     )
 
   if(selectors.length > 1){
     const _use = program.ensure("$runtime", "use");
-    return t.callExpression(_use, selectors)
+    return s.call(_use, ...selectors)
   }
   
   return selectors[0];

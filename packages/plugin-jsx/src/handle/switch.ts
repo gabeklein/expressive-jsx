@@ -1,10 +1,11 @@
 import { reduceToExpression, specifyOption } from 'generate/switch';
 import { parse } from 'parse/body';
-import * as t from 'syntax';
+import * as s from 'syntax';
 import { ensureArray } from 'utility';
 
 import { Define } from './definition';
 
+import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
 import type { DefineElement } from 'handle/definition';
 
@@ -36,7 +37,7 @@ export class ComponentIf {
       const className = cond.toClassName();
         
       if(className)
-        return t.literal(className);
+        return s.literal(className);
     });
   }
 

@@ -1,6 +1,6 @@
-import { expression } from 'syntax';
+import * as s from 'syntax';
 
-import type * as t from 'syntax';
+import type * as t from 'syntax/types';
 import type { FlatValue } from 'types';
 
 export abstract class Attribute {
@@ -23,7 +23,7 @@ export abstract class Attribute {
   }
 
   get expression(){
-    return expression(this.value)
+    return s.expression(this.value)
   }
 }
 

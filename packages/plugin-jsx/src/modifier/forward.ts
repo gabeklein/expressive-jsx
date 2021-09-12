@@ -1,6 +1,7 @@
+import * as s from 'syntax';
 import { Prop } from 'handle/attributes';
-import * as t from 'syntax';
 
+import type * as t from 'syntax/types';
 import type { DefineElement } from 'handle/definition';
 import type { ModifyDelegate } from 'parse/modifiers';
 
@@ -32,7 +33,7 @@ export function forwardProp(
     const { program } = target.context;
     const _ref = uniqueWithin(scope, "ref");
     const _forwardRef = program.ensure("$pragma", "forwardRef");
-    const _wrapped = t.call(_forwardRef, exec.node);
+    const _wrapped = s.call(_forwardRef, exec.node);
 
     exec.pushContainer("params", _ref);
     exec.replaceWith(_wrapped);
@@ -45,7 +46,7 @@ export function forwardProp(
     const shorthand = _local.name == name;
 
     properties.unshift(
-      t.property(name, _local, false, shorthand)
+      s.property(name, _local, false, shorthand)
     )
 
     return _local;
@@ -55,7 +56,7 @@ export function forwardProp(
 function uniqueWithin(scope: t.Scope, name: string){
   return scope.hasBinding(name)
     ? scope.generateUidIdentifier(name)
-    : t.identifier(name);
+    : s.identifier(name);
 }
 
 function getProps(
@@ -67,7 +68,7 @@ function getProps(
   
   if(!props || props.type !== "ObjectPattern"){
     const existing = props;
-    props = t.objectPattern([]);
+    props = s.objectPattern([]);
 
     if(!existing)
       node.params[0] = props;
@@ -88,7 +89,7 @@ function getProps(
       }
 
       statements.unshift(
-        t.declare("const", props, existing)
+        s.declare("const", props, existing)
       );
     }
   }

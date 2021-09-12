@@ -2,7 +2,7 @@ import { generateElement } from 'generate/element';
 
 import { AttributeBody } from './object';
 
-import type * as t from 'syntax';
+import type * as t from 'syntax/types';
 import type { Define } from 'handle/definition';
 
 export class ElementInline extends AttributeBody {

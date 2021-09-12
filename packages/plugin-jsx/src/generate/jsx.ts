@@ -1,5 +1,6 @@
-import * as t from 'syntax';
+import * as s from 'syntax';
 
+import type * as t from 'syntax/types';
 import type { FileManager } from 'scope';
 import type { PropData } from 'types';
 
@@ -14,7 +15,7 @@ export function createElement(
   if(!tag)
     tag = this.ensure("$pragma", "Fragment").name;
 
-  const type = typeof tag == "string" ? t.jsxIdentifier(tag) : tag;
+  const type = typeof tag == "string" ? s.jsxIdentifier(tag) : tag;
   const props = properties.map(createAttribute);
   const children = content.map(jsxContent);
 
@@ -22,9 +23,9 @@ export function createElement(
 
   const contains = children.length > 0;
 
-  return t.jsxElement(
-    t.jsxOpeningElement(type, props, !contains),
-    contains ? t.jsxClosingElement(type) : undefined,
+  return s.jsxElement(
+    s.jsxOpeningElement(type, props, !contains),
+    contains ? s.jsxClosingElement(type) : undefined,
     children
   );
 }
@@ -34,22 +35,22 @@ function jsxContent(child: t.Expression){
     return child;
 
   if(child.type == "StringLiteral" && !/\{/.test(child.value))
-    return t.jsxText(child.value);
+    return s.jsxText(child.value);
 
-  return t.jsxExpressionContainer(child);
+  return s.jsxExpressionContainer(child);
 }
 
 function createAttribute({ name, value }: PropData){
   if(typeof name !== "string")
-    return t.jsxSpreadAttribute(value);
+    return s.jsxSpreadAttribute(value);
 
   if(IsLegalAttribute.test(name) == false)
     throw new Error(`Illegal characters in prop named ${name}`)
 
-  return t.jsxAttribute(
-    t.jsxIdentifier(name), 
+  return s.jsxAttribute(
+    s.jsxIdentifier(name), 
     value.type == "StringLiteral"
       ? value.value === "true" ? null : value
-      : t.jsxExpressionContainer(value)
+      : s.jsxExpressionContainer(value)
   )
 }

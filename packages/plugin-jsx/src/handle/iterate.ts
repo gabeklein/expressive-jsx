@@ -3,7 +3,7 @@ import { parse } from 'parse/body';
 
 import { DefineElement } from './definition';
 
-import type * as t from 'syntax';
+import type * as t from 'syntax/types';
 
 export class ComponentFor {
   definition: DefineElement;

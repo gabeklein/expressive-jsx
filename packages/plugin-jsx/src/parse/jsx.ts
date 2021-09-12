@@ -2,10 +2,11 @@ import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { DefineElement } from 'handle/definition';
 import { ElementInline } from 'handle/element';
-import * as t from 'syntax';
+import * as s from 'syntax';
 
 import { parse } from './body';
 
+import type * as t from 'syntax/types';
 import type { Define } from 'handle/definition';
 
 export type Element = ElementInline | Define;
@@ -71,7 +72,7 @@ export function addElementFromJSX(
         if(index == children.length - 1)
           text = text.trimRight();
 
-        element.adopt(t.literal(text));
+        element.adopt(s.literal(text));
       }
 
       else if(path.isJSXExpressionContainer())
@@ -166,7 +167,7 @@ function applyAttribute(
   
       case "StringLiteral":
         if(name == "src" && /^\.\//.test(expression.value))
-          value = t.require(expression.value)
+          value = s.requireExpression(expression.value)
         else
           value = expression;
       break;

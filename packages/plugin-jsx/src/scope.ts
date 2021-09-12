@@ -1,10 +1,10 @@
-import * as t from 'syntax';
-
 import { createElement as createJS } from './generate/es5';
 import { createElement as createJSX } from './generate/jsx';
 
+import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
 import type { BunchOf, Options, PropData } from 'types';
+import * as s from 'syntax';
 
 type ImportSpecific =
   | t.ImportSpecifier 
@@ -73,7 +73,7 @@ export abstract class FileManager {
       return this.createElement(null, props, children)
     }
 
-    return children[0] || t.literal(false);
+    return children[0] || s.literal(false);
   }
 
   replaceAlias(value: string){
@@ -107,7 +107,7 @@ export abstract class FileManager {
   }
 
   ensureUIDIdentifier(name: string){
-    return t.identifier(this.ensureUID(name));
+    return s.identifier(this.ensureUID(name));
   }
 
   close(){
@@ -145,7 +145,7 @@ export class ImportManager extends FileManager {
         return spec.local;
       else {
         uid = this.ensureUIDIdentifier(alt);
-        list.unshift(t.importDefaultSpecifier(uid));
+        list.unshift(s.importDefaultSpecifier(uid));
         return uid
       }
     }
@@ -155,7 +155,7 @@ export class ImportManager extends FileManager {
         const { type, name: input } = spec.imported;
 
         if(type == "Identifier" && input == name){
-          uid = t.identifier(spec.local.name);
+          uid = s.identifier(spec.local.name);
           break;
         }
       }
@@ -163,7 +163,7 @@ export class ImportManager extends FileManager {
     if(!uid){
       uid = this.ensureUIDIdentifier(alt || name);
       list.push(
-        t.importSpecifier(uid, t.identifier(name))
+        s.importSpecifier(uid, s.identifier(name))
       )
     }
 
@@ -195,7 +195,7 @@ export class ImportManager extends FileManager {
     const list = this.imports[name].items;
 
     if(list.length)
-      return t.importDeclaration(list, t.literal(name));
+      return s.importDeclaration(list, s.literal(name));
   }
 }
 
@@ -215,7 +215,7 @@ export class RequireManager extends FileManager {
     const ref = this.ensureUIDIdentifier(alt);
 
     source.push(
-      t.property(name, ref, false, ref.name === name)
+      s.property(name, ref, false, ref.name === name)
     )
 
     return ref;
@@ -255,8 +255,8 @@ export class RequireManager extends FileManager {
     const list = this.imports[name].items;
 
     if(list.length){
-      const target = this.importTargets[name] || t.require(name);
-      return t.declare("const", t.objectPattern(list), target);
+      const target = this.importTargets[name] || s.requireExpression(name);
+      return s.declare("const", s.objectPattern(list), target);
     }
   }
 }

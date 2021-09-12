@@ -1,6 +1,7 @@
 import { ParseErrors } from 'errors';
-import * as t from 'syntax';
+import * as s from 'syntax';
 
+import type * as t from 'syntax/types';
 import type { BunchOf } from 'types';
 
 const Oops = ParseErrors({
@@ -31,7 +32,7 @@ export class DelegateTypes {
       element = element.expression
 
     return [].concat(
-      t.isExpression(element)
+      s.isExpression(element)
         ? this.Expression(element)
         : this.Extract(element)
     )
@@ -44,7 +45,7 @@ export class DelegateTypes {
     if(childKey)
       element = element[childKey] as unknown as T;
 
-    if(t.isInParenthesis(element))
+    if(s.isInParenthesis(element))
       return element;
 
     return this.Extract(element)
@@ -93,7 +94,7 @@ export class DelegateTypes {
 
   NumericLiteral(number: t.NumericLiteral, sign = 1){
     const { extra: { rawValue, raw } } = number as any;
-    if(t.isInParenthesis(number) || !/^0x/.test(raw)){
+    if(s.isInParenthesis(number) || !/^0x/.test(raw)){
       if(raw.indexOf(".") > 0)
         return sign == -1 ? "-" + raw : raw;
       return sign*rawValue;
@@ -133,7 +134,7 @@ export class DelegateTypes {
     const args = [] as t.Expression[];
 
     for(const item of e.arguments){
-      if(t.isExpression(item))
+      if(s.isExpression(item))
         args.push(item);
       else if(item.type == "SpreadElement")
         throw Oops.ArgumentSpread(item)

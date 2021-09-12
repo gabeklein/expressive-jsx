@@ -2,14 +2,12 @@ import * as t from '@babel/types';
 
 import { literal } from './construct';
 
-
-export type { NodePath as Path, Scope, VisitNodeObject } from '@babel/traverse';
-export type { Program as BabelProgram } from '@babel/types';
-export * from '@babel/types';
 export * from './assertion';
 export * from './construct';
 
 const IdentifierType = /(Expression|Literal|Identifier|JSXElement|JSXFragment|Import|Super|MetaProperty|TSTypeAssertion)$/;
+
+export * from '@babel/types'
 
 export function isExpression(node: any): node is t.Expression {
   return typeof node == "object" && IdentifierType.test(node.type);
@@ -53,7 +51,7 @@ export function call(callee: t.Expression | string, ...args: t.Expression[]){
   return t.callExpression(callee, args)
 }
 
-export function require(from: string){
+export function requireExpression(from: string){
   return call("require", literal(from))
 }
 

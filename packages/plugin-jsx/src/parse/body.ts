@@ -7,7 +7,7 @@ import { ensureArray } from 'utility';
 import { addElementFromJSX } from './jsx';
 import { handleDefine } from './labels';
 
-import type * as t from 'syntax';
+import type * as t from 'syntax/types';
 import type { Define } from 'handle/definition';
 
 const Oops = ParseErrors({

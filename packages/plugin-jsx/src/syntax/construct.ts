@@ -1,4 +1,5 @@
-import * as t from 'syntax';
+import * as t from '@babel/types';
+
 import type { BunchOf, FlatValue } from 'types';
 
 export function expression(value?: FlatValue | t.Expression){
@@ -40,7 +41,7 @@ export function property(
   shorthand?: boolean | undefined){
 
   if(typeof key == "string")
-    key = t.literal(key);
+    key = literal(key);
 
   return t.objectProperty(key, value, computed, shorthand);
 }

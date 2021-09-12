@@ -1,4 +1,4 @@
-import type * as t from 'syntax';
+import type * as t from 'syntax/types';
 import type { BabelFile, BunchOf, FlatValue } from 'types';
 
 type ParseError = <T extends t.Node>(node: t.Path<T> | T, ...args: FlatValue[]) => Error;

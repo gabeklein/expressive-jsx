@@ -2,7 +2,7 @@ import { DefineContainer } from 'handle/definition';
 
 import { parse } from './body';
 
-import type * as t from 'syntax';
+import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
 
 type FunctionPath =

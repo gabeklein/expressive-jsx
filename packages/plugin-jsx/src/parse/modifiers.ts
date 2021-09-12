@@ -1,11 +1,12 @@
 import { ParseErrors } from 'errors';
 import { ExplicitStyle } from 'handle/attributes';
 import { DefineVariant } from 'handle/definition';
-import * as t from 'syntax';
+import * as s from 'syntax';
 
 import { DelegateTypes } from './arguments';
 import { parse } from './body';
 
+import type * as t from 'syntax/types';
 import type { DefineElement } from 'handle/definition';
 import type { Prop } from 'handle/attributes';
 import type { BunchOf, DefineBodyCompat, ModifyAction, Options } from 'types';
@@ -103,7 +104,7 @@ export class ModifyDelegate {
 
 function propertyModifierDefault(this: ModifyDelegate){
   const args = this.arguments.map(arg =>
-    arg.value || arg.requires ? t.require(arg.requires) : arg
+    arg.value || arg.requires ? s.requireExpression(arg.requires) : arg
   )
 
   const output =

@@ -5,7 +5,7 @@ import { doUntilEmpty } from 'utility';
 import { ExplicitStyle } from './attributes';
 import { AttributeBody } from './object';
 
-import type * as t from 'syntax';
+import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
 import type { ElementInline } from 'handle/element';
 import type { DefineConsequent } from 'handle/switch';

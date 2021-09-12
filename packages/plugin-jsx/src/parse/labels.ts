@@ -5,7 +5,7 @@ import { doUntilEmpty } from 'utility';
 
 import { parse } from './body';
 
-import type * as t from 'syntax';
+import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
 import type { Define } from 'handle/definition';
 import type { ExplicitStyle } from 'handle/attributes';

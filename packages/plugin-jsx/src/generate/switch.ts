@@ -1,5 +1,6 @@
-import * as t from 'syntax';
+import * as s from 'syntax';
 
+import type * as t from 'syntax/types';
 import type { Consequent } from 'handle/switch';
 
 type GetProduct = (fork: Consequent) => t.Expression | undefined;
@@ -17,11 +18,11 @@ export function reduceToExpression(
 
     if(sum && test)
       sum = product
-        ? t.cond(test, product, sum)
-        : t.and(t.anti(test), sum)
+        ? s.cond(test, product, sum)
+        : s.and(s.anti(test), sum)
     else if(product)
       sum = test
-        ? t.and(t.assert(test), product)
+        ? s.and(s.assert(test), product)
         : product
   }
 
@@ -34,7 +35,7 @@ export function specifyOption(test?: t.Expression){
 
   let ref = "if_";
 
-  if(t.isNotAssertion(test)){
+  if(s.isNotAssertion(test)){
     test = test.argument;
     ref = "not_"
   }
