@@ -7,16 +7,6 @@ import * as t from 'syntax';
 import { parse } from './body';
 
 import type { Define } from 'handle/definition';
-import type {
-  Expression,
-  JSXAttribute,
-  JSXElement,
-  JSXIdentifier,
-  JSXMemberExpression,
-  JSXNamespacedName,
-  JSXSpreadAttribute,
-  Path
-} from 'syntax';
 
 export type Element = ElementInline | Define;
 
@@ -36,7 +26,7 @@ const COMMON_HTML = [
 ];
 
 export function addElementFromJSX(
-  path: Path<JSXElement>, parent: DefineElement){
+  path: t.Path<t.JSXElement>, parent: DefineElement){
 
   let target = parent as Element;
   const tag = path.get("openingElement").get("name");
@@ -85,7 +75,7 @@ export function addElementFromJSX(
       }
 
       else if(path.isJSXExpressionContainer())
-        element.adopt(path.node.expression as Expression);
+        element.adopt(path.node.expression as t.Expression);
 
       else
         Oops.UnhandledChild(path, path.type);
@@ -94,7 +84,7 @@ export function addElementFromJSX(
 }
 
 function createElement(
-  tag: JSXIdentifier | JSXMemberExpression | JSXNamespacedName,
+  tag: t.JSXIdentifier | t.JSXMemberExpression | t.JSXNamespacedName,
   parent: Element){
 
   const target = new ElementInline(parent.context);
@@ -133,10 +123,10 @@ function createElement(
 
 function applyAttribute(
   parent: Element,
-  attr: Path<JSXAttribute> | Path<JSXSpreadAttribute>){
+  attr: t.Path<t.JSXAttribute> | t.Path<t.JSXSpreadAttribute>){
 
   let name: string | false;
-  let value: Expression | undefined;
+  let value: t.Expression | undefined;
 
   if(attr.isJSXSpreadAttribute()){
     const arg = attr.get("argument");
@@ -171,7 +161,7 @@ function applyAttribute(
   
     switch(expression.type){
       case "JSXExpressionContainer":
-        value = expression.expression as Expression;
+        value = expression.expression as t.Expression;
       break;
   
       case "StringLiteral":
