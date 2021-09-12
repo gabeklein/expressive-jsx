@@ -1,21 +1,10 @@
-import type {
-  BlockStatement,
-  Expression,
-  ExpressionStatement,
-  File,
-  IfStatement,
-  LabeledStatement,
-  Node,
-  Path,
-  Statement,
-} from 'syntax';
-
 import type { StackFrame } from 'context';
 import type { Attribute } from 'handle/attributes';
 import type { ModifyDelegate } from 'parse/modifiers';
 import type { ElementInline } from 'handle/element';
 import type { ComponentFor } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';
+import type * as t from 'syntax';
 
 export interface BunchOf<T> {
   [key: string]: T
@@ -23,7 +12,7 @@ export interface BunchOf<T> {
 
 export interface BabelFile extends File {
   buildCodeFrameError<TError extends Error>(
-    node: Node,
+    node: t.Node,
     msg: string,
     Error?: new (msg: string) => TError
   ): TError;
@@ -54,7 +43,7 @@ export interface BabelState<S extends StackFrame = StackFrame> {
 
 export interface PropData {
   name: string | false | undefined
-  value: Expression
+  value: t.Expression
 }
 
 export type FlatValue =
@@ -66,10 +55,10 @@ export type FlatValue =
 export type SequenceItem =
   | Attribute
   | InnerContent
-  | Statement;
+  | t.Statement;
 
 export type InnerContent =
-  | Expression
+  | t.Expression
   | ElementInline
   | ComponentIf
   | ComponentFor;
@@ -84,7 +73,7 @@ export type ModifyAction =
   (this: ModifyDelegate, ...args: any[]) => ModifierOutput | void;
 
 export type DefineBodyCompat =
-  | Path<ExpressionStatement>
-  | Path<BlockStatement>
-  | Path<LabeledStatement>
-  | Path<IfStatement>;
+  | t.Path<t.ExpressionStatement>
+  | t.Path<t.BlockStatement>
+  | t.Path<t.LabeledStatement>
+  | t.Path<t.IfStatement>;

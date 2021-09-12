@@ -3,20 +3,12 @@ import { ArrayStack } from 'utility';
 
 import type { FileManager } from 'scope';
 import type { PropData } from 'types';
-import type {
-  Expression,
-  Identifier,
-  JSXIdentifier,
-  JSXMemberExpression,
-  MemberExpression,
-  ObjectProperty
-} from 'syntax';
 
 export function createElement(
   this: FileManager,
-  tag: null | string | JSXMemberExpression,
+  tag: null | string | t.JSXMemberExpression,
   properties: PropData[] = [],
-  children: Expression[] = []
+  children: t.Expression[] = []
 ){
   const create =
     this.ensure("$pragma", "createElement", "create");
@@ -37,7 +29,7 @@ export function createElement(
 }
 
 export function recombineProps(props: PropData[]){
-  const propStack = new ArrayStack<ObjectProperty, Expression>()
+  const propStack = new ArrayStack<t.ObjectProperty, t.Expression>()
 
   if(props.length === 0)
     return t.object();
@@ -68,8 +60,8 @@ export function recombineProps(props: PropData[]){
 }
 
 function stripJSX(
-  exp: JSXMemberExpression | JSXIdentifier | Identifier
-): MemberExpression | Identifier {
+  exp: t.JSXMemberExpression | t.JSXIdentifier | t.Identifier
+): t.MemberExpression | t.Identifier {
 
   switch(exp.type){
     case "Identifier":

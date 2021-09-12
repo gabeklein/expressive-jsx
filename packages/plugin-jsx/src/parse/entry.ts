@@ -3,30 +3,16 @@ import * as t from 'syntax';
 
 import { parse } from './body';
 
-import type {
-  ArrowFunctionExpression,
-  AssignmentExpression,
-  Class,
-  ClassMethod,
-  DoExpression,
-  FunctionDeclaration,
-  FunctionExpression,
-  ObjectMethod,
-  ObjectProperty,
-  Path,
-  VariableDeclaration,
-  VariableDeclarator
-} from 'syntax';
 import type { StackFrame } from 'context';
 
 type FunctionPath =
-  | Path<ClassMethod>
-  | Path<ObjectMethod>
-  | Path<FunctionDeclaration>
-  | Path<FunctionExpression>
+  | t.Path<t.ClassMethod>
+  | t.Path<t.ObjectMethod>
+  | t.Path<t.FunctionDeclaration>
+  | t.Path<t.FunctionExpression>
 
 export function generateEntryElement(
-  path: Path<DoExpression>,
+  path: t.Path<t.DoExpression>,
   context: StackFrame){
 
   const exec = parentFunction(path);
@@ -44,9 +30,9 @@ export function generateEntryElement(
   return define;
 }
 
-function parentFunction(path: Path<DoExpression>){
+function parentFunction(path: t.Path<t.DoExpression>){
   const parent = path.parentPath;
-  let containerFn: Path<ArrowFunctionExpression> | undefined;
+  let containerFn: t.Path<t.ArrowFunctionExpression> | undefined;
 
   if(parent.isArrowFunctionExpression())
     containerFn = parent;
@@ -55,33 +41,33 @@ function parentFunction(path: Path<DoExpression>){
     const container = parent.findParent(x => /.*Function.*/.test(x.type))!;
 
     if(container && container.type == "ArrowFunctionExpression")
-      containerFn = container as Path<ArrowFunctionExpression>;
+      containerFn = container as t.Path<t.ArrowFunctionExpression>;
   }
 
   return containerFn;
 }
 
-function containerName(path: Path): string {
+function containerName(path: t.Path): string {
   let parent = path.parentPath;
   let encounteredReturn;
 
   while(true)
   switch(parent.type){
     case "VariableDeclarator": {
-      const { id } = parent.node as VariableDeclarator;
+      const { id } = parent.node as t.VariableDeclarator;
       return t.isIdentifier(id)
         ? id.name
-        : (<VariableDeclaration>parent.parentPath.node).kind
+        : (<t.VariableDeclaration>parent.parentPath.node).kind
     }
 
     case "AssignmentExpression":
     case "AssignmentPattern": {
-      const { left } = parent.node as AssignmentExpression;
+      const { left } = parent.node as t.AssignmentExpression;
       return t.isIdentifier(left) ? left.name : "assignment"
     }
 
     case "FunctionDeclaration":
-      return (<FunctionDeclaration>path.node).id!.name;
+      return (<t.FunctionDeclaration>path.node).id!.name;
 
     case "ExportDefaultDeclaration":
       return "defaultExport";
@@ -115,7 +101,7 @@ function containerName(path: Path): string {
         if(!t.isIdentifier(node.key))
           return "ClassMethod";
         if(node.key.name == "render"){
-          const owner = within.parentPath.parentPath as Path<Class>;
+          const owner = within.parentPath.parentPath as t.Path<t.Class>;
           if(owner.node.id)
             return owner.node.id.name;
           else {
@@ -132,7 +118,7 @@ function containerName(path: Path): string {
     }
 
     case "ObjectProperty": {
-      const { key } = parent.node as ObjectProperty;
+      const { key } = parent.node as t.ObjectProperty;
       return (
         t.isIdentifier(key) ? key.name : 
         t.isStringLiteral(key) ? key.value : 

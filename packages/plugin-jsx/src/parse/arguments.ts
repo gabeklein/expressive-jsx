@@ -1,23 +1,6 @@
 import { ParseErrors } from 'errors';
 import * as t from 'syntax';
 
-import type {
-  ArrowFunctionExpression,
-  BinaryExpression,
-  BlockStatement,
-  BooleanLiteral,
-  CallExpression,
-  Expression,
-  Identifier,
-  IfStatement,
-  LabeledStatement,
-  NumericLiteral,
-  SequenceExpression,
-  Statement,
-  StringLiteral,
-  TemplateLiteral,
-  UnaryExpression
-} from 'syntax';
 import type { BunchOf } from 'types';
 
 const Oops = ParseErrors({
@@ -43,7 +26,7 @@ interface IfAbstraction {
 export class DelegateTypes {
   [type: string]: (...args: any[]) => any;
 
-  parse(element: Expression | Statement): any[] {
+  parse(element: t.Expression | t.Statement): any[] {
     if(t.isExpressionStatement(element))
       element = element.expression
 
@@ -54,7 +37,7 @@ export class DelegateTypes {
     )
   }
 
-  Expression<T extends Expression>(
+  Expression<T extends t.Expression>(
     element: T,
     childKey?: keyof T): any {
 
@@ -67,29 +50,29 @@ export class DelegateTypes {
     return this.Extract(element)
   }
 
-  Extract(element: Expression | Statement){
+  Extract(element: t.Expression | t.Statement){
     if(element.type in this)
       return this[element.type](element);
     else
       throw Oops.UnknownArgument(element)
   }
 
-  Identifier(e: Identifier){
+  Identifier(e: t.Identifier){
     return e.name
   }
 
-  StringLiteral(e: StringLiteral){
+  StringLiteral(e: t.StringLiteral){
     return e.value
   }
 
-  TemplateLiteral(e: TemplateLiteral) {
+  TemplateLiteral(e: t.TemplateLiteral) {
     const { quasis } = e;
     if(quasis.length > 1)
       return e;
     return e.quasis[0].value;
   }
 
-  UnaryExpression(e: UnaryExpression){
+  UnaryExpression(e: t.UnaryExpression){
     const arg = e.argument;
     if(e.operator == "-" && t.isNumericLiteral(arg))
       return this.NumericLiteral(arg, -1)
@@ -100,11 +83,11 @@ export class DelegateTypes {
     else throw Oops.UnaryUseless(e)
   }
 
-  BooleanLiteral(bool: BooleanLiteral){
+  BooleanLiteral(bool: t.BooleanLiteral){
     return bool.value
   }
 
-  NumericLiteral(number: NumericLiteral, sign = 1){
+  NumericLiteral(number: t.NumericLiteral, sign = 1){
     const { extra: { rawValue, raw } } = number as any;
     if(inParenthesis(number) || !/^0x/.test(raw)){
       if(raw.indexOf(".") > 0)
@@ -122,7 +105,7 @@ export class DelegateTypes {
     return null;
   }
 
-  BinaryExpression(binary: BinaryExpression){
+  BinaryExpression(binary: t.BinaryExpression){
     const {left, right, operator} = binary;
     if(operator == "-"
     && left.type == "Identifier"
@@ -137,13 +120,13 @@ export class DelegateTypes {
       ]
   }
 
-  SequenceExpression(sequence: SequenceExpression){
+  SequenceExpression(sequence: t.SequenceExpression){
     return sequence.expressions.map(x => this.Expression(x))
   }
 
-  CallExpression(e: CallExpression){
+  CallExpression(e: t.CallExpression){
     const callee = e.callee;
-    const args = [] as Expression[];
+    const args = [] as t.Expression[];
 
     for(const item of e.arguments){
       if(t.isExpression(item))
@@ -163,11 +146,11 @@ export class DelegateTypes {
     return call;
   }
 
-  ArrowFunctionExpression(e: ArrowFunctionExpression): never {
+  ArrowFunctionExpression(e: t.ArrowFunctionExpression): never {
     throw Oops.ArrowNotImplemented(e)
   }
 
-  IfStatement(statement: IfStatement){
+  IfStatement(statement: t.IfStatement){
     const alt = statement.alternate;
     const test = statement.test;
     const body = statement.consequent;
@@ -188,13 +171,13 @@ export class DelegateTypes {
     return data;
   }
 
-  LabeledStatement(statement: LabeledStatement){
+  LabeledStatement(statement: t.LabeledStatement){
     return {
       [statement.label.name]: this.parse(statement.body)
     }
   }
 
-  BlockStatement(statement: BlockStatement){
+  BlockStatement(statement: t.BlockStatement){
     const map = {} as BunchOf<any>
 
     for(const item of statement.body){
@@ -236,7 +219,7 @@ function HEXColor(raw: string){
   else return "#" + raw;
 }
 
-function inParenthesis(node: Expression){
+function inParenthesis(node: t.Expression){
   const { extra } = node as any;
   return extra ? extra.parenthesized === true : false;
 }

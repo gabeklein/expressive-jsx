@@ -4,14 +4,6 @@ import { ElementInline } from 'handle/element';
 import * as t from 'syntax';
 
 import type { DefineElement } from 'handle/definition';
-import type {
-  BlockStatement,
-  Expression,
-  ForStatement,
-  ForXStatement,
-  Identifier,
-  Statement
-} from "syntax";
 
 const Oops = ParseErrors({
   BadForOfAssignment: "Assignment of variable left of \"of\" must be Identifier or Destruture",
@@ -19,7 +11,7 @@ const Oops = ParseErrors({
 });
 
 export function forElement(
-  node: ForStatement,
+  node: t.ForStatement,
   define: DefineElement){
 
   const { statements } = define;
@@ -33,7 +25,7 @@ export function forElement(
   const accumulator = program.ensureUIDIdentifier("add");
   const collect = program.ensure("$runtime", "collect");
 
-  let body: Statement =
+  let body: t.Statement =
     t.expressionStatement(
       t.call(accumulator, output)
     );
@@ -51,14 +43,14 @@ export function forElement(
 }
 
 export function forXElement(
-  node: ForXStatement,
+  node: t.ForXStatement,
   define: DefineElement){
 
   let { left, right, key } = getReferences(node);
 
   key = ensureKeyProp(define, key);
 
-  let body: Expression | BlockStatement | undefined = 
+  let body: t.Expression | t.BlockStatement | undefined = 
     define.toExpression();
 
   if(!body)
@@ -85,9 +77,9 @@ export function forXElement(
     )
 }
 
-function getReferences(node: ForXStatement){
+function getReferences(node: t.ForXStatement){
   let { left, right } = node;
-  let key: Identifier | undefined;
+  let key: t.Identifier | undefined;
 
   if(t.isVariableDeclaration(left))
     left = left.declarations[0].id;
@@ -98,7 +90,7 @@ function getReferences(node: ForXStatement){
     throw Oops.BadForOfAssignment(left);
 
   if(t.isBinaryExpression(right, { operator: "in" })){
-    key = right.left as Identifier;
+    key = right.left as t.Identifier;
     right = right.right;
   }
 
@@ -113,7 +105,7 @@ function getReferences(node: ForXStatement){
 
 function ensureKeyProp(
   from: DefineElement,
-  used?: Identifier){
+  used?: t.Identifier){
 
   let { sequence, children } = from;
 
