@@ -47,7 +47,7 @@ export class AttributeStack
         else
           chunks.push(...item.map(style =>
             t.objectProperty(
-              t.stringLiteral(style.name!),
+              t.literal(style.name!),
               style.expression
             )
           ));

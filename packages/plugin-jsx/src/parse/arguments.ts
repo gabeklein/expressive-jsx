@@ -44,7 +44,7 @@ export class DelegateTypes {
     if(childKey)
       element = element[childKey] as unknown as T;
 
-    if(inParenthesis(element))
+    if(t.isInParenthesis(element))
       return element;
 
     return this.Extract(element)
@@ -93,7 +93,7 @@ export class DelegateTypes {
 
   NumericLiteral(number: t.NumericLiteral, sign = 1){
     const { extra: { rawValue, raw } } = number as any;
-    if(inParenthesis(number) || !/^0x/.test(raw)){
+    if(t.isInParenthesis(number) || !/^0x/.test(raw)){
       if(raw.indexOf(".") > 0)
         return sign == -1 ? "-" + raw : raw;
       return sign*rawValue;
@@ -221,9 +221,4 @@ function HEXColor(raw: string){
     return `rgba(${ decimal.join(",") })`
   }
   else return "#" + raw;
-}
-
-function inParenthesis(node: t.Expression){
-  const { extra } = node as any;
-  return extra ? extra.parenthesized === true : false;
 }

@@ -73,7 +73,7 @@ export abstract class FileManager {
       return this.createElement(null, props, children)
     }
 
-    return children[0] || t.booleanLiteral(false);
+    return children[0] || t.literal(false);
   }
 
   replaceAlias(value: string){
@@ -195,7 +195,7 @@ export class ImportManager extends FileManager {
     const list = this.imports[name].items;
 
     if(list.length)
-      return t.importDeclaration(list, t.stringLiteral(name));
+      return t.importDeclaration(list, t.literal(name));
   }
 }
 

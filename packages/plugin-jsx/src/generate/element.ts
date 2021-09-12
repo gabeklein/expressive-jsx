@@ -153,7 +153,7 @@ function classValue(
 
   if(className)
     selectors.unshift(
-      t.stringLiteral(className.slice(1))
+      t.literal(className.slice(1))
     )
 
   if(selectors.length > 1){

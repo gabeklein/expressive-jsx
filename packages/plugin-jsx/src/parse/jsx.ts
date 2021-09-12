@@ -81,7 +81,7 @@ export function addElementFromJSX(
         if(index == children.length - 1)
           text = text.trimRight();
 
-        element.adopt(t.stringLiteral(text));
+        element.adopt(t.literal(text));
       }
 
       else if(path.isJSXExpressionContainer())

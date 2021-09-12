@@ -63,8 +63,7 @@ const HandleDoExpression: Visitor<t.DoExpression> = {
     const collapsible = !element.exec;
 
     let output: t.Expression | t.Statement =
-      element.toExpression(collapsible) || 
-      t.booleanLiteral(false);
+      element.toExpression(collapsible) || t.literal(false);
   
     if(element.exec && element.statements.length){
       const body = [

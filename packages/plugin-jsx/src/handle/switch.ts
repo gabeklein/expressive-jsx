@@ -36,7 +36,7 @@ export class ComponentIf {
       const className = cond.toClassName();
         
       if(className)
-        return t.stringLiteral(className);
+        return t.literal(className);
     });
   }
 

@@ -13,6 +13,11 @@ for(const [a, b] of INVERSE_OP)
   
 export const cond = t.conditionalExpression;
 
+export function isInParenthesis(node: t.Expression){
+  const { extra } = node as any;
+  return extra ? extra.parenthesized === true : false;
+}
+
 export function isBinaryAssertion(
   exp: t.Expression | undefined): exp is t.BinaryExpression {
 

@@ -27,7 +27,7 @@ export function styleDeclaration(
 
   if(hot){
     const uid = hash(filename, 10);
-    args.push(t.stringLiteral(uid));
+    args.push(t.literal(uid));
   }
 
   return t.expressionStatement(

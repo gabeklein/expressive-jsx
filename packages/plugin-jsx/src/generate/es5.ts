@@ -20,7 +20,7 @@ export function createElement(
     typeof tag === "string" ?
       /^[A-Z]/.test(tag) ?
         t.identifier(tag) :
-        t.stringLiteral(tag) :
+        t.literal(tag) :
       stripJSX(tag);
 
   const props = recombineProps(properties);
@@ -40,7 +40,7 @@ export function recombineProps(props: PropData[]){
     else
       propStack.insert(
         t.objectProperty(
-          t.stringLiteral(name),
+          t.literal(name),
           value
         )
       );
