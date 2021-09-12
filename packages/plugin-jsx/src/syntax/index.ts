@@ -8,6 +8,12 @@ export * from '@babel/types';
 
 export { toExpression } from './construct';
 
+const IdentifierType = /(Expression|Literal|Identifier|JSXElement|JSXFragment|Import|Super|MetaProperty|TSTypeAssertion)$/;
+
+export function isExpression(node: any): node is t.Expression {
+  return typeof node == "object" && IdentifierType.test(node.type);
+}
+
 export function object(
   obj: BunchOf<t.Expression | false | undefined> = {}){
 
