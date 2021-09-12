@@ -253,7 +253,7 @@ export class RequireManager extends FileManager {
     const list = this.imports[name].items;
 
     if(list.length){
-      const target = this.importTargets[name] || s.requireExpression(name);
+      const target = this.importTargets[name] || s.require(name);
       return s.declare("const", s.objectPattern(list), target);
     }
   }

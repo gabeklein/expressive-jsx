@@ -167,7 +167,7 @@ function applyAttribute(
   
       case "StringLiteral":
         if(name == "src" && /^\.\//.test(expression.value))
-          value = s.requireExpression(expression.value)
+          value = s.require(expression.value)
         else
           value = expression;
       break;
