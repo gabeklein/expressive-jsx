@@ -22,7 +22,7 @@ export function reduceToExpression(
         : s.and(s.anti(test), sum)
     else if(product)
       sum = test
-        ? s.and(s.assert(test), product)
+        ? s.and(s.is(test), product)
         : product
   }
 

@@ -61,7 +61,7 @@ export function anti(exp: t.Expression){
     return not(exp);
 }
 
-export function assert(a: t.Expression){
+export function is(a: t.Expression){
   if(isNotAssertion(a) || isBinaryAssertion(a))
     return a;
   else
