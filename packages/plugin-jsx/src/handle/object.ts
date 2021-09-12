@@ -1,5 +1,6 @@
 import type { StackFrame } from 'context';
 import type { Define } from 'handle/definition';
+import type * as t from 'syntax';
 import type { InnerContent, SequenceItem } from 'types';
 
 export abstract class AttributeBody {

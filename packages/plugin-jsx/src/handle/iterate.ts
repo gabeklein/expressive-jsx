@@ -4,7 +4,6 @@ import * as t from 'syntax';
 
 import { DefineElement } from './definition';
 
-
 export class ComponentFor {
   definition: DefineElement;
   node: t.For;

@@ -6,6 +6,8 @@ export type { NodePath as Path, Scope, VisitNodeObject } from '@babel/traverse';
 export type { Program as BabelProgram } from '@babel/types';
 export * from '@babel/types';
 
+export { toExpression } from './construct';
+
 export function object(
   obj: BunchOf<t.Expression | false | undefined> = {}){
 

@@ -1,5 +1,6 @@
-import { toExpression } from 'generate/attributes';
+import { toExpression } from 'syntax';
 
+import type * as t from 'syntax';
 import type { FlatValue } from 'types';
 
 export abstract class Attribute {
