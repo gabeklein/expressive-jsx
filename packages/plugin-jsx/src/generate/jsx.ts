@@ -30,10 +30,10 @@ export function createElement(
 }
 
 function jsxContent(child: t.Expression){
-  if(t.isJSXElement(child))
+  if(child.type == "JSXElement")
     return child;
 
-  if(t.isStringLiteral(child) && !/\{/.test(child.value))
+  if(child.type == "StringLiteral" && !/\{/.test(child.value))
     return t.jsxText(child.value);
 
   return t.jsxExpressionContainer(child);
@@ -48,9 +48,8 @@ function createAttribute({ name, value }: PropData){
 
   return t.jsxAttribute(
     t.jsxIdentifier(name), 
-    t.isStringLiteral(value)
-      ? value.value === "true"
-        ? null : value
+    value.type == "StringLiteral"
+      ? value.value === "true" ? null : value
       : t.jsxExpressionContainer(value)
   )
 }

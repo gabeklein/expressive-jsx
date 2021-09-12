@@ -1,8 +1,9 @@
 import { forElement, forXElement } from 'generate/iterate';
 import { parse } from 'parse/body';
-import * as t from 'syntax';
 
 import { DefineElement } from './definition';
+
+import type * as t from 'syntax';
 
 export class ComponentFor {
   definition: DefineElement;
@@ -26,7 +27,7 @@ export class ComponentFor {
   toExpression(){
     const { node, definition } = this;
     
-    return t.isForStatement(node)
+    return node.type == "ForStatement"
       ? forElement(node, definition)
       : forXElement(node, definition)
   }

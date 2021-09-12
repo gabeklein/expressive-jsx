@@ -56,7 +56,7 @@ export function generateElement(element: ElementInline | Define){
     else if("toExpression" in item){
       const child = item.toExpression();
 
-      if(child && !t.isBooleanLiteral(child, { value: false }))
+      if(child && (child.type !== "BooleanLiteral" || child.value !== false))
         children.push(child);
 
       if("toClassName" in item){
@@ -85,7 +85,7 @@ export function generateElement(element: ElementInline | Define){
       let { value } = item;
 
       if(value && typeof value == "object")
-        if(t.isStringLiteral(value))
+        if(value.type == "StringLiteral")
           ({ value } = value);
         else if(t.isExpression(value)){
           classList.add(value);

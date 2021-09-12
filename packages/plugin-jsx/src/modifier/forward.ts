@@ -65,25 +65,26 @@ function getProps(
   const { node } = exec;
   let props = node.params[0];
   
-  if(!t.isObjectPattern(props)){
+  if(!props || props.type !== "ObjectPattern"){
     const existing = props;
     props = t.objectPattern([]);
 
     if(!existing)
       node.params[0] = props;
 
-    else if(t.isIdentifier(existing)){
+    else if(existing.type == "Identifier"){
       const { statements } = target;
 
       for(const s of statements){
-        if(!t.isVariableDeclaration(s))
+        if(s.type !== "VariableDeclaration")
           break;
 
-        for(const d of s.declarations)
-          if(d.init
-          && t.isObjectPattern(d.id)
-          && t.isIdentifier(d.init, { name: existing.name }))
-            return d.id.properties;
+        for(const { id, init } of s.declarations)
+          if(init
+          && init.type == "Identifier"
+          && init.name == existing.name
+          && id.type == "ObjectPattern")
+            return id.properties;
       }
 
       statements.unshift(

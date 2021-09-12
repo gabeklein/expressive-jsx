@@ -2,12 +2,12 @@ import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { ComponentFor } from 'handle/iterate';
 import { ComponentIf } from 'handle/switch';
-import * as t from 'syntax';
 import { ensureArray } from 'utility';
 
 import { addElementFromJSX } from './jsx';
 import { handleDefine } from './labels';
 
+import type * as t from 'syntax';
 import type { Define } from 'handle/definition';
 
 const Oops = ParseErrors({
@@ -64,7 +64,7 @@ export function parseContent(
     if(e.isAssignmentExpression({ operator: "=" })){
       const { left, right } = e.node;
   
-      if(!t.isIdentifier(left))
+      if(left.type !== "Identifier")
         throw Oops.PropNotIdentifier(left)
   
       const prop = new Prop(left.name, right);

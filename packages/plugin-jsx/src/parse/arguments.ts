@@ -27,7 +27,7 @@ export class DelegateTypes {
   [type: string]: (...args: any[]) => any;
 
   parse(element: t.Expression | t.Statement): any[] {
-    if(t.isExpressionStatement(element))
+    if(element.type == "ExpressionStatement")
       element = element.expression
 
     return [].concat(
@@ -73,13 +73,17 @@ export class DelegateTypes {
   }
 
   UnaryExpression(e: t.UnaryExpression){
-    const arg = e.argument;
-    if(e.operator == "-" && t.isNumericLiteral(arg))
-      return this.NumericLiteral(arg, -1)
-    if(e.operator == "!" && t.isIdentifier(arg) && arg.name == "important")
+    const { argument, operator } = e; 
+
+    if(operator == "-"
+    && argument.type == "NumericLiteral")
+      return this.NumericLiteral(argument, -1);
+
+    if(operator == "!"
+    && argument.type == "Identifier"
+    && argument.name == "important")
       return "!important";
-    // else if(e.operator == "!")
-    //     return new DelegateExpression(arg, "verbatim");
+  
     else throw Oops.UnaryUseless(e)
   }
 
@@ -131,13 +135,13 @@ export class DelegateTypes {
     for(const item of e.arguments){
       if(t.isExpression(item))
         args.push(item);
-      else if(t.isSpreadElement(item))
+      else if(item.type == "SpreadElement")
         throw Oops.ArgumentSpread(item)
       else
         throw Oops.UnknownArgument(item)
     }
 
-    if(!t.isIdentifier(callee))
+    if(callee.type !== "Identifier")
       throw Oops.MustBeIdentifier(callee)
 
     const call = args.map(x => this.Expression(x)) as CallAbstraction;
@@ -162,9 +166,9 @@ export class DelegateTypes {
     if(alt)
       throw Oops.ElseNotSupported(test);
 
-    if(t.isBlockStatement(body)
-    || t.isLabeledStatement(body)
-    || t.isExpressionStatement(body)) {
+    if(body.type == "BlockStatement"
+    || body.type == "LabeledStatement"
+    || body.type == "ExpressionStatement") {
       Object.assign(data, this.Extract(body))
     }
 
@@ -181,9 +185,9 @@ export class DelegateTypes {
     const map = {} as BunchOf<any>
 
     for(const item of statement.body){
-      if(t.isLabeledStatement(item))
+      if(item.type == "LabeledStatement")
         map[item.label.name] = this.parse(item.body);
-      else if(!t.isIfStatement(item))
+      else if(item.type !== "IfStatement")
         throw Oops.ModiferCantParse(statement);
     }
 

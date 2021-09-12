@@ -139,8 +139,10 @@ export class ImportManager extends FileManager {
     const list = this.ensureImported(from).items;
 
     if(name == "default"){
-      if(t.isImportDefaultSpecifier(list[0]))
-        return list[0].local;
+      const [ spec ] = list;
+
+      if(spec && spec.type == "ImportDefaultSpecifier")
+        return spec.local;
       else {
         uid = this.ensureUIDIdentifier(alt);
         list.unshift(t.importDefaultSpecifier(uid));
@@ -149,9 +151,13 @@ export class ImportManager extends FileManager {
     }
 
     for(const spec of list)
-      if("imported" in spec && t.isIdentifier(spec.imported, { name })){
-        uid = t.identifier(spec.local.name);
-        break;
+      if("imported" in spec){
+        const { type, name: input } = spec.imported;
+
+        if(type == "Identifier" && input == name){
+          uid = t.identifier(spec.local.name);
+          break;
+        }
       }
 
     if(!uid){
@@ -173,7 +179,7 @@ export class ImportManager extends FileManager {
       return imports[name];
 
     for(const stat of this.body)
-      if(t.isImportDeclaration(stat) && stat.source.value == name)
+      if(stat.type == "ImportDeclaration" && stat.source.value == name)
         return imports[name] = {
           exists: true,
           items: stat.specifiers
@@ -201,7 +207,9 @@ export class RequireManager extends FileManager {
     const source = this.ensureImported(from).items;
 
     for(const { key, value } of source)
-      if(t.isIdentifier(key, { name }) && t.isIdentifier(value))
+      if(value.type == "Identifier"
+      && key.type == "Identifier"
+      && key.name == name)
         return value;
 
     const ref = this.ensureUIDIdentifier(alt);
@@ -226,10 +234,10 @@ export class RequireManager extends FileManager {
     let list;
 
     for(let i = 0, stat; stat = body[i]; i++)
-      if(t.isVariableDeclaration(stat))
+      if(stat.type == "VariableDeclaration")
         target = requireResultFrom(name, stat);
 
-    if(target && t.isObjectPattern(target))
+    if(target && target.type == "ObjectPattern")
       list = imports[name] = {
         exists: true,
         items: target.properties as t.ObjectProperty[]
@@ -237,7 +245,7 @@ export class RequireManager extends FileManager {
     else {
       list = imports[name] = { items: [] };
 
-      if(t.isIdentifier(target))
+      if(target && target.type === "Identifier")
         importTargets[name] = target;
     }
 
@@ -259,8 +267,14 @@ function requireResultFrom(
   statement: t.VariableDeclaration){
 
   for(const { init, id } of statement.declarations)
-    if(t.isCallExpression(init)
-    && t.isIdentifier(init.callee, { name: "require" })
-    && t.isStringLiteral(init.arguments[0], { value: name }))
-      return id;
+    if(init && init.type == "CallExpression"){
+      const { callee, arguments: [ arg ] } = init;
+
+      if(callee.type == "Identifier"
+      && callee.name == "require"
+      && arg
+      && arg.type == "StringLiteral"
+      && arg.value == name)
+          return id;
+    } 
 }

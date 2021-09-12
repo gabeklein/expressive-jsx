@@ -1,8 +1,8 @@
 import { DefineContainer } from 'handle/definition';
-import * as t from 'syntax';
 
 import { parse } from './body';
 
+import type * as t from 'syntax';
 import type { StackFrame } from 'context';
 
 type FunctionPath =
@@ -55,7 +55,7 @@ function containerName(path: t.Path): string {
   switch(parent.type){
     case "VariableDeclarator": {
       const { id } = parent.node as t.VariableDeclarator;
-      return t.isIdentifier(id)
+      return id.type == "Identifier"
         ? id.name
         : (<t.VariableDeclaration>parent.parentPath.node).kind
     }
@@ -63,7 +63,7 @@ function containerName(path: t.Path): string {
     case "AssignmentExpression":
     case "AssignmentPattern": {
       const { left } = parent.node as t.AssignmentExpression;
-      return t.isIdentifier(left) ? left.name : "assignment"
+      return left.type == "Identifier" ? left.name : "assignment"
     }
 
     case "FunctionDeclaration":
@@ -98,7 +98,7 @@ function containerName(path: t.Path): string {
       }
 
       if(node.type == "ClassMethod"){
-        if(!t.isIdentifier(node.key))
+        if(node.key.type !== "Identifier")
           return "ClassMethod";
         if(node.key.name == "render"){
           const owner = within.parentPath.parentPath as t.Path<t.Class>;
@@ -120,8 +120,8 @@ function containerName(path: t.Path): string {
     case "ObjectProperty": {
       const { key } = parent.node as t.ObjectProperty;
       return (
-        t.isIdentifier(key) ? key.name : 
-        t.isStringLiteral(key) ? key.value : 
+        key.type == "Identifier" ? key.name : 
+        key.type == "StringLiteral" ? key.value : 
         "property"
       )
     }

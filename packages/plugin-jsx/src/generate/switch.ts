@@ -45,6 +45,6 @@ export function specifyOption(test?: t.Expression){
     ref = "not_"
   }
 
-  if(t.isIdentifier(test))
+  if(test.type == "Identifier")
     return ref + test.name;
 }

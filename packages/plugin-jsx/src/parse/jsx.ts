@@ -100,11 +100,11 @@ function createElement(
   const target = new ElementInline(parent.context);
   let name;
 
-  if(t.isJSXMemberExpression(tag)){
+  if(tag.type == "JSXMemberExpression"){
     name = tag.property.name;
     target.tagName = tag;
   }
-  else if(t.isJSXIdentifier(tag)){
+  else if(tag.type == "JSXIdentifier"){
     name = tag.name;
 
     if(name == "s")

@@ -120,8 +120,8 @@ const OP_PAIRS: [OP, OP][] = [
   ["<", ">="]
 ]
 
-export function isBinaryAssertion(a: t.Expression): a is t.BinaryExpression {
-  if(t.isBinaryExpression(a))
+export function isBinaryAssertion(a: t.Expression | undefined): a is t.BinaryExpression {
+  if(a && a.type == "BinaryExpression")
     if(COMPARE_OP.includes(a.operator as any))
       return true;
 
