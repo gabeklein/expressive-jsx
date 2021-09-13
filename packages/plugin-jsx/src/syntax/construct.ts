@@ -168,11 +168,11 @@ export function declare(
 }
 
 export function objectAssign(...objects: t.Expression[]){
-  return call("Objecassign", ...objects)
+  return call("Object.assign", ...objects)
 }
 
 export function objectKeys(object: t.Expression){
-  return call("Objeckeys", object)
+  return call("Object.keys", object)
 }
 
 export function template(text: string){
