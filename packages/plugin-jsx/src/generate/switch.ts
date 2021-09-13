@@ -18,7 +18,7 @@ export function reduceToExpression(
 
     if(sum && test)
       sum = product
-        ? s.cond(test, product, sum)
+        ? s.ternary(test, product, sum)
         : s.and(s.anti(test), sum)
     else if(product)
       sum = test

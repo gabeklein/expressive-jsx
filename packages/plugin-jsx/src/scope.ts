@@ -107,7 +107,7 @@ export abstract class FileManager {
   }
 
   ensureUIDIdentifier(name: string){
-    return s.id(this.ensureUID(name));
+    return s.identifier(this.ensureUID(name));
   }
 
   close(){
@@ -155,7 +155,7 @@ export class ImportManager extends FileManager {
         const { type, name: input } = spec.imported;
 
         if(type == "Identifier" && input == name){
-          uid = s.id(spec.local.name);
+          uid = s.identifier(spec.local.name);
           break;
         }
       }
@@ -163,7 +163,7 @@ export class ImportManager extends FileManager {
     if(!uid){
       uid = this.ensureUIDIdentifier(alt || name);
       list.push(
-        s.importSpecifier(uid, s.id(name))
+        s.importSpecifier(uid, s.identifier(name))
       )
     }
 

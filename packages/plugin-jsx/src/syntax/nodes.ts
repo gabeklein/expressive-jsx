@@ -31,3 +31,32 @@ export function assert<T extends Type, N extends Node<T>>(
     
   return true;
 }
+
+interface BaseNode {
+  leadingComments: ReadonlyArray<t.Comment> | null;
+  innerComments: ReadonlyArray<t.Comment> | null;
+  trailingComments: ReadonlyArray<t.Comment> | null;
+  start: number | null;
+  end: number | null;
+  loc: t.SourceLocation | null;
+  type: t.Node["type"];
+}
+
+const BASE_NODE = {
+  leadingComments: null,
+  innerComments: null,
+  trailingComments: null,
+  start: null,
+  end: null,
+  loc: null
+}
+
+type Fields<T extends t.Node> = 
+  & { [P in Exclude<keyof T, keyof BaseNode>]: T[P] }
+  & Partial<BaseNode>
+
+export function create<T extends Type>(
+  type: T, fields: Fields<Node<T>>){
+
+  return { ...BASE_NODE, ...fields, type } as Node<T>;
+}

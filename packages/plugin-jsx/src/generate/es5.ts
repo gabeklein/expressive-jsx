@@ -20,7 +20,7 @@ export function createElement(
 
   const type = typeof tag === "string" ?
     /^[A-Z]/.test(tag)
-      ? s.id(tag) : s.literal(tag) :
+      ? s.identifier(tag) : s.literal(tag) :
     stripJSX(tag);
 
   const props = recombineProps(properties);
@@ -62,7 +62,7 @@ function stripJSX(
     case "Identifier":
       return exp;
     case "JSXIdentifier":
-      return s.id(exp.name);
+      return s.identifier(exp.name);
     case "JSXMemberExpression":
       return memberExpression(stripJSX(exp.object), stripJSX(exp.property));
     default:

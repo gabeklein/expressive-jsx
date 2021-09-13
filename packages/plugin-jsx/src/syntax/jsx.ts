@@ -1,64 +1,70 @@
-import {
-  jsxAttribute,
-  jsxClosingElement,
-  jsxElement,
-  jsxExpressionContainer,
-  jsxIdentifier,
-  jsxOpeningElement,
-  jsxSpreadAttribute,
-  jsxText,
-} from './primitives';
-
-import * as s from './';
+import { assert, create } from './nodes';
 
 import type * as t from '@babel/types';
 
 type JSXReference = t.JSXIdentifier | t.JSXMemberExpression;
 
-function jsxID<T extends JSXReference>(name: T): T;
-function jsxID(name: string): t.JSXIdentifier;
-function jsxID(name: string | JSXReference): JSXReference;
-function jsxID(name: string | JSXReference){
-  return typeof name == "string" ? jsxIdentifier(name) : name;
+function jsxIdentifier<T extends JSXReference>(name: T): T;
+function jsxIdentifier(name: string): t.JSXIdentifier;
+function jsxIdentifier(name: string | JSXReference): JSXReference;
+function jsxIdentifier(name: string | JSXReference){
+  return typeof name == "string"
+    ? create("JSXIdentifier", { name })
+    : name;
 }
 
-export function jsxCreate(
+export function jsxElement(
   tag: string | t.JSXMemberExpression,
   props: (t.JSXSpreadAttribute | t.JSXAttribute)[],
   children: t.Expression[]
 ){
-  const type = jsxID(tag);
+  const type = jsxIdentifier(tag);
   const content = children.map(jsxContent);
   const contains = content.length > 0;
 
-  const opening = jsxOpeningElement(type, props, !contains);
-  const closing = contains ? jsxClosingElement(type) : undefined;
+  const openingElement = create("JSXOpeningElement", {
+    name: type,
+    attributes: props,
+    selfClosing: !contains,
+    typeParameters: null
+  });
 
-  return jsxElement(opening, closing, content);
+  const closingElement = contains
+    ? create("JSXClosingElement", { name: type })
+    : null;
+
+  return create("JSXElement", {
+    openingElement,
+    closingElement,
+    children: content,
+    selfClosing: !contains
+  });
 }
 
 export function jsxContent(child: t.Expression){
-  if(s.assert(child, "JSXElement"))
+  if(assert(child, "JSXElement"))
     return child;
 
-  if(s.assert(child, "StringLiteral") && !/\{/.test(child.value))
-    return jsxText(child.value);
+  if(assert(child, "StringLiteral") && !/\{/.test(child.value))
+    return create("JSXText", { value: child.value });
 
-  return jsxExpressionContainer(child);
+  return create("JSXExpressionContainer", { expression: child });
 }
 
 const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;
 
-export function jsxAttr(value: t.Expression, name?: string | false){
+export function jsxAttribute(value: t.Expression, name?: string | false){
   if(typeof name !== "string")
-    return jsxSpreadAttribute(value);
+    return create("JSXSpreadAttribute", { argument: value });
 
   if(IsLegalAttribute.test(name) == false)
     throw new Error(`Illegal characters in prop named ${name}`)
 
-  const jsxValue = s.assert(value, "StringLiteral")
+  const jsxValue = assert(value, "StringLiteral")
     ? value.value === "true" ? null : value
-    : jsxExpressionContainer(value)
+    : create("JSXExpressionContainer", { expression: value })
 
-  return jsxAttribute(jsxID(name), jsxValue);
+  return create("JSXAttribute", {
+    name: jsxIdentifier(name), value: jsxValue
+  });
 }

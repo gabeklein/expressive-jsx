@@ -55,7 +55,7 @@ export function forwardProp(
 function uniqueWithin(scope: t.Scope, name: string){
   return scope.hasBinding(name)
     ? scope.generateUidIdentifier(name)
-    : s.id(name);
+    : s.identifier(name);
 }
 
 function getProps(
@@ -65,7 +65,7 @@ function getProps(
   const { node } = exec;
   let props = node.params[0];
   
-  if(!props || props.type !== "ObjectPattern"){
+  if(!s.assert(props, "ObjectPattern")){
     const existing = props;
     props = s.pattern([]);
 
@@ -91,5 +91,5 @@ function getProps(
     }
   }
 
-  return props.properties;
+  return (props as t.ObjectPattern).properties;
 }

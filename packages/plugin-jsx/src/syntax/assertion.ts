@@ -1,15 +1,19 @@
-import { binaryExpression, logicalExpression, unaryExpression } from './primitives';
-
-import * as s from './';
-
 import type * as t from '@babel/types';
+import { assert, create } from './nodes';
 
-const COMPARE_OP = new Set([
-  "==", "===", "!=", "!==", "in", "instanceof", ">", "<", ">=", "<="
+const ASSERT_OP = new Set([
+  "in", "instanceof", 
+  "==", "===",
+  "!=", "!==",
+  ">", "<",
+  ">=", "<="
 ])
 
 const INVERSE_OP = new Map([
-  ["==", "!="], ["===", "!=="], [">", "<="], ["<", ">="]
+  ["==", "!="],
+  ["===", "!=="],
+  [">", "<="],
+  ["<", ">="]
 ]);
 
 for(const [a, b] of INVERSE_OP)
@@ -23,8 +27,8 @@ export function isParenthesized(node: t.Expression){
 export function isBinaryAssertion(
   exp: t.Expression | undefined): exp is t.BinaryExpression {
 
-  if(s.assert(exp, "BinaryExpression"))
-    if(COMPARE_OP.has(exp.operator))
+  if(assert(exp, "BinaryExpression"))
+    if(ASSERT_OP.has(exp.operator))
       return true;
 
   return false;
@@ -34,7 +38,11 @@ export function inverseExpression(exp: t.BinaryExpression){
   const inverse = INVERSE_OP.get(exp.operator) as any;
   
   if(inverse)
-    return binaryExpression(inverse, exp.left, exp.right);
+    return create("BinaryExpression", {
+      operator: inverse,
+      left: exp.left,
+      right: exp.right
+    })
   else
     throw new Error(`Can't invert binary comparison ${exp.operator}.`);
 }
@@ -42,18 +50,22 @@ export function inverseExpression(exp: t.BinaryExpression){
 export function isFalsy(
   exp: t.Expression): exp is t.UnaryExpression{
 
-  return s.assert(exp, "UnaryExpression") && exp.operator == "!";
+  return assert(exp, "UnaryExpression") && exp.operator == "!";
 }
 
 export function falsy(exp: t.Expression){
   if(isBinaryAssertion(exp))
     return inverseExpression(exp);
   else
-    return unaryExpression("!", exp);
+    return create("UnaryExpression", {
+      operator: "!", prefix: true, argument: exp
+    })
 }
 
 export function and(a: t.Expression, b: t.Expression){
-  return logicalExpression("&&", a, b);
+  return create("LogicalExpression", {
+    operator: "&&", left: a, right: b
+  })
 }
 
 export function anti(exp: t.Expression){
@@ -68,4 +80,14 @@ export function truthy(a: t.Expression){
     return a;
   else
     return falsy(falsy(a));
+}
+
+export function ternary(
+  test: t.Expression,
+  consequent: t.Expression,
+  alternate: t.Expression){
+
+  return create("ConditionalExpression", {
+    test, consequent, alternate
+  })
 }
