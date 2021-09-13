@@ -1,5 +1,4 @@
 import * as s from 'syntax';
-import { memberExpression } from 'syntax/types';
 import { ArrayStack } from 'utility';
 
 import type * as t from 'syntax/types';
@@ -64,7 +63,7 @@ function stripJSX(
     case "JSXIdentifier":
       return s.identifier(exp.name);
     case "JSXMemberExpression":
-      return memberExpression(stripJSX(exp.object), stripJSX(exp.property));
+      return s.member(stripJSX(exp.object), stripJSX(exp.property));
     default:
       throw new Error("Bad MemeberExpression");
   }

@@ -6,10 +6,6 @@ import type { ComponentFor } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';
 import type * as t from 'syntax/types';
 
-export type { NodePath as Path, Scope, VisitNodeObject } from '@babel/traverse';
-export type { Program as BabelProgram } from '@babel/types';
-export * from '@babel/types';
-
 export interface BunchOf<T> {
   [key: string]: T
 }

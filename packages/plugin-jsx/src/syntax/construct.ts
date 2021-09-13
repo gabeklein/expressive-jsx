@@ -41,7 +41,7 @@ export function literal(value: string | number | boolean | null | undefined){
   }
 }
 
-export function identifier(name: string){
+export function identifier(name: string): t.Identifier {
   return create("Identifier", {
     name,
     decorators: null,
@@ -101,36 +101,42 @@ export function object(
 
 export function get(object: "this"): t.ThisExpression;
 export function get<T extends t.Expression> (object: T): T;
-export function get(object: string | t.Expression, ...path: (string | number)[]): t.MemberExpression;
-export function get(object: string | t.Expression, ...path: (string | number)[]){
+export function get(object: string | t.Expression, ...path: (string | number | t.Expression)[]): t.MemberExpression;
+export function get(object: string | t.Expression, ...path: (string | number | t.Expression)[]){
   if(object == "this")
     object = create("ThisExpression", { /*  */ })
 
   if(typeof object == "string")
     path = [...object.split("."), ...path]
 
-  for(const member of path){
+  for(const x of path){
     let select;
 
-    if(typeof member == "string"){
-      select = keyIdentifier(member);
+    if(typeof x == "string"){
+      select = keyIdentifier(x);
     }
-    else if(typeof member == "number")
-      select = literal(member);
+    else if(typeof x == "number")
+      select = literal(x);
+    else if(isExpression(x))
+      select = x;
     else
       throw new Error("Bad member id, only strings and numbers are allowed")
 
     object = typeof object == "object"
-      ? create("MemberExpression", {
-        object,
-        property: select,
-        optional: select!.type !== "Identifier",
-        computed: false,
-      })
+      ? member(object, select)
       : select;
   }
 
   return object as t.Expression;
+}
+
+export function member(object: t.Expression, property: t.Expression){
+  return create("MemberExpression", {
+    object,
+    property,
+    optional: false,
+    computed: !assert(property, "Identifier")
+  })
 }
 
 export function call(
@@ -200,7 +206,7 @@ export function statement(from: t.Statement | t.Expression){
 }
 
 export function block(
-  ...statements: (t.Statement | t.Expression)[]){
+  ...statements: (t.Statement | t.Expression)[]): t.BlockStatement {
 
   const stats = statements.map(statement);
   
