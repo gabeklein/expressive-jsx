@@ -1,6 +1,6 @@
 import { assert, create } from './nodes';
 
-import type * as t from '@babel/types';
+import type * as t from './types';
 import type { BunchOf, FlatValue } from 'types';
 
 const IdentifierType = /(Expression|Literal|Identifier|JSXElement|JSXFragment|Import|Super|MetaProperty|TSTypeAssertion)$/;

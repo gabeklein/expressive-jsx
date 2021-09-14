@@ -1,4 +1,4 @@
-import type * as t from '@babel/types';
+import type * as t from './types';
 import { assert, create } from './nodes';
 
 const ASSERT_OP = new Set([
