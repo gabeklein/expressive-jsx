@@ -75,8 +75,12 @@ export function addElementFromJSX(
         element.adopt(s.literal(text));
       }
 
-      else if(s.assert(path, "JSXExpressionContainer"))
-        element.adopt(path.node.expression as t.Expression);
+      else if(s.assert(path, "JSXExpressionContainer")){
+        const { expression } = path.node;
+
+        if(!s.assert(expression, "JSXEmptyExpression"))
+          element.adopt(path.node.expression as t.Expression);
+      }
 
       else
         Oops.UnhandledChild(path, path.type);
