@@ -35,7 +35,7 @@ export function literal(value: string | number | boolean | null | undefined){
       return identifier("undefined");
     case "object":
       if(value === null)
-        return create("NullLiteral", { /*  */ });
+        return create("NullLiteral", {});
     default:
       throw new Error("Not a literal type");
   }
@@ -68,7 +68,9 @@ export function property(
   }
 
   return create("ObjectProperty", { 
-    key, value, shorthand, computed: false, decorators: []
+    key, value, shorthand,
+    computed: false,
+    decorators: []
   });
 }
 
@@ -112,13 +114,12 @@ export function get(object: string | t.Expression, ...path: (string | number | t
   for(const x of path){
     let select;
 
-    if(typeof x == "string"){
-      select = keyIdentifier(x);
-    }
+    if(isExpression(x))
+      select = x;    
     else if(typeof x == "number")
       select = literal(x);
-    else if(isExpression(x))
-      select = x;
+    else if(typeof x == "string")
+      select = keyIdentifier(x);
     else
       throw new Error("Bad member id, only strings and numbers are allowed")
 
