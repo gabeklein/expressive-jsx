@@ -6,5 +6,5 @@ export type { Program as BabelProgram } from '@babel/types';
 export * from '@babel/types';
 
 export type Type = t.Node["type"];
-export type NodeType<T extends Type> = t.Node & { type: T };
-export type PathType<T extends Type> = r.NodePath<t.Node & { type: T }>;
+export type NodeType<T extends Type, N = t.Node> = N extends { type: T } ? N : never;
+export type PathType<T extends Type> = r.NodePath<NodeType<T>>;
