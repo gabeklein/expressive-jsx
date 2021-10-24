@@ -13,7 +13,7 @@ module.exports = {
   presets: [
     [env, {
       "targets": {
-          node: "current"
+        node: "current"
       },
       modules: false
     }]
