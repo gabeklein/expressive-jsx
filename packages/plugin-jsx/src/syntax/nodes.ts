@@ -9,11 +9,11 @@ export function assert<T extends Type, N extends NodeType<T>>(
   if(!node || typeof node != "object")
     return false;
 
+  if(node.type !== type)
+      return false;
+
   if("node" in node)
     node = node.node;
-
-  if(type !== node.type)
-      return false;
       
   if(fields)
     for(const k in fields){
