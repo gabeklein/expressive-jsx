@@ -17,48 +17,59 @@ function requireExpression(value){
 }
 
 export function background(value, size, position){
-  const style = {};
-
-  if(size)
-    style.backgroundSize = size;
-
-  if(position)
-    style.backgroundPosition = position;
+  const attrs = {};
 
   if(/^\.\.?\//.test(value))
-    style.backgroundImage = {
-      type: "TemplateLiteral",
-      expressions: [
-        requireExpression(value)
-      ],
-      quasis: [
-        {
-          type: "TemplateElement",
-          value: { raw: "url(", cooked: "url(" },
-          tail: false
-        },
-        {
-          type: "TemplateElement",
-          value: { raw: ")", cooked: ")" },
-          tail: true
-        }
-      ]
-    }
+    attrs.backgroundImage = value;
   else
-    style.background = value;
+    attrs.background = value;
 
-  return { style };
+  if(size)
+    attrs.backgroundSize = size;
+
+  if(position)
+    attrs.backgroundPosition = position;
+
+  return { attrs };
 }
 
-export function backgroundImage(a){
-  if(typeof a == "object" && !a.named)
-    return { style: {
-      backgroundImage: a
-    }}
-  else
-    return { attrs: {
+export function backgroundImage(from){
+  if(/^\.\.?\//.test(from))
+    return {
+      style: {
+        backgroundImage: {
+          type: "TemplateLiteral",
+          expressions: [
+            requireExpression(from)
+          ],
+          quasis: [
+            {
+              type: "TemplateElement",
+              value: { raw: "url(", cooked: "url(" },
+              tail: false
+            },
+            {
+              type: "TemplateElement",
+              value: { raw: ")", cooked: ")" },
+              tail: true
+            }
+          ]
+        }
+      }
+    }
+
+  if(typeof from == "object" && !from.named)
+    return {
+      style: {
+        backgroundImage: from
+      }
+    }
+    
+  return {
+    attrs: {
       backgroundImage: this.arguments
-    }}
+    }
+  }
 }
 
 export function icon(mask, color){
