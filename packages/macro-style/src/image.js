@@ -18,11 +18,12 @@ function requireExpression(value){
 
 export function background(value, size, position){
   const attrs = {};
+  const style = {};
 
   if(/^\.\.?\//.test(value))
     attrs.backgroundImage = value;
   else
-    attrs.background = value;
+    style.background = value;
 
   if(size)
     attrs.backgroundSize = size;
@@ -30,7 +31,7 @@ export function background(value, size, position){
   if(position)
     attrs.backgroundPosition = position;
 
-  return { attrs };
+  return { attrs, style };
 }
 
 export function backgroundImage(from){
