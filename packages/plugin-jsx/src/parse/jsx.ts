@@ -49,43 +49,63 @@ export function addElementFromJSX(
       applyAttribute(element, attribute as any);
 
     children.forEach((path, index) => {
-      if(s.assert(path, "JSXElement")){
-        const child = createElement(path.node.openingElement.name, element);
+      const child = applyChild(element, path, index, children);
 
-        element.adopt(child);
-        queue.push([child, path]);
-      }
-
-      else if(s.assert(path, "JSXText")){
-        const { value } = path.node;
-
-        if(/^\n+ *$/.test(value))
-          return;
-
-        let text = value
-          .replace(/ +/g, " ")
-          .replace(/\n\s*/, "");
-
-        if(!index)
-          text = text.trimLeft();
-
-        if(index == children.length - 1)
-          text = text.trimRight();
-
-        element.adopt(s.literal(text));
-      }
-
-      else if(s.assert(path, "JSXExpressionContainer")){
-        const { expression } = path.node;
-
-        if(!s.assert(expression, "JSXEmptyExpression"))
-          element.adopt(path.node.expression as t.Expression);
-      }
-
-      else
-        Oops.UnhandledChild(path, path.type);
+      if(child)
+        queue.push([child, path as t.Path<t.JSXElement>]);
     })
   }
+}
+
+type JSXChild =
+  | t.JSXElement
+  | t.JSXFragment
+  | t.JSXExpressionContainer
+  | t.JSXSpreadChild
+  | t.JSXText;
+
+function applyChild(
+  parent: Element,
+  path: t.Path<JSXChild>,
+  index: number,
+  children: (typeof path)[]){
+
+  if(s.assert(path, "JSXElement")){
+    const child = createElement(path.node.openingElement.name, parent);
+
+    parent.adopt(child);
+
+    return child;
+  }
+
+  else if(s.assert(path, "JSXText")){
+    const { value } = path.node;
+
+    if(/^\n+ *$/.test(value))
+      return;
+
+    let text = value
+      .replace(/ +/g, " ")
+      .replace(/\n\s*/, "");
+
+    if(!index)
+      text = text.trimLeft();
+
+    if(index == children.length - 1)
+      text = text.trimRight();
+
+    parent.adopt(s.literal(text));
+  }
+
+  else if(s.assert(path, "JSXExpressionContainer")){
+    const { expression } = path.node;
+
+    if(!s.assert(expression, "JSXEmptyExpression"))
+      parent.adopt(path.node.expression as t.Expression);
+  }
+
+  else
+    Oops.UnhandledChild(path, path.type);
 }
 
 function createElement(
