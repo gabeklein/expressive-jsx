@@ -2,17 +2,18 @@ import * as s from 'syntax';
 
 import type * as t from 'syntax/types';
 import type { FlatValue } from 'types';
+import type { ElementInline } from './element';
 
 export abstract class Attribute {
   name?: string;
-  value?: FlatValue | t.Expression;
+  value?: FlatValue | t.Expression | ElementInline;
 
   /** Is a static value. May be hoisted and/or baked. */
   invariant?: boolean;
 
   constructor(
     name: string | false,
-    value: FlatValue | t.Expression){
+    value: FlatValue | t.Expression | ElementInline){
 
     if(name)
       this.name = name;
@@ -23,7 +24,12 @@ export abstract class Attribute {
   }
 
   get expression(){
-    return s.expression(this.value)
+    const { value } = this;
+
+    if(value && typeof value == "object" && "toExpression" in value)
+      return value.toExpression() || s.expression();
+    
+    return s.expression(value)
   }
 }
 

@@ -46,7 +46,7 @@ export function addElementFromJSX(
     const attributes = path.get("openingElement").get("attributes");
 
     for(const attribute of attributes)
-      applyAttribute(element, attribute as any);
+      applyAttribute(element, attribute as any, queue);
 
     children.forEach((path, index) => {
       const child = applyChild(element, path, index, children);
@@ -148,7 +148,8 @@ function createElement(
 
 function applyAttribute(
   parent: Element,
-  attr: t.Path<t.JSXAttribute> | t.Path<t.JSXSpreadAttribute>){
+  attr: t.Path<t.JSXAttribute> | t.Path<t.JSXSpreadAttribute>,
+  queue: (readonly [Element, t.Path<t.JSXElement>])[]){
 
   let name: string | false;
   let value: t.Expression | undefined;
@@ -199,6 +200,17 @@ function applyAttribute(
       default:
         throw Oops.InvalidPropValue(expression);
     }
+  }
+
+  if(value.type == "JSXElement"){
+    const path = attr.get("value.expression") as t.Path<t.JSXElement>;
+    const child = createElement(path.node.openingElement.name, parent);
+    const prop = new Prop(name, child);
+
+    parent.add(prop);
+    queue.push([child, path]);
+
+    return child;
   }
 
   parent.add(
