@@ -1,13 +1,13 @@
 {
   "name": "@expressive/develop",
-  "version": "1.0.0-beta.78",
+  "version": "1.0.0-beta.79",
   "description": "Developer testing environment",
   "private": true,
   "main": "bin/debug.js",
   "dependencies": {
     "@babel/core": "^7.10.3",
     "@babel/preset-env": "^7.0.0",
-    "@expressive/babel-plugin-jsx": "^1.0.0-beta.78",
+    "@expressive/babel-plugin-jsx": "^1.0.0-beta.79",
     "@expressive/macro-gradient": "^1.0.0-beta.67",
     "@expressive/macro-pseudo": "^1.0.0-beta.73",
     "@expressive/macro-style": "^1.0.0-beta.77",
