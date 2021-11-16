@@ -7,7 +7,7 @@
 	"description": "An alternative syntax for JSX constructs using less code",
 	"scripts": {
 		"test": "npm run test --prefix packages/test-react",
-		"watch": "npm run watch --prefix packages/plugin-react",
+		"watch": "npm run watch --prefix packages/plugin-jsx",
 		"clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +"
 	},
 	"keywords": [
