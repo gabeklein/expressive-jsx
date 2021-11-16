@@ -1,6 +1,6 @@
 import * as s from 'syntax';
 import { DefineContainer } from 'handle/definition';
-import { sep as separator } from "path";
+import { sep as separator, basename, dirname } from "path";
 
 import { parse } from './body';
 
@@ -72,13 +72,13 @@ function containerName(path: t.Path): string {
       return (<t.FunctionDeclaration>path.node).id!.name;
 
     case "ExportDefaultDeclaration": {
-      const { opts } = (path.hub as any).file;
-      const [ name ] = opts.filenameRelative.split(".");
+      const url = (path.hub as any).file.opts.filename as string;
+      const [ base ] = basename(url).split(".");
 
-      if(name !== "index")
-        return name;
+      if(base !== "index")
+        return base;
 
-      return opts.root.split(separator).pop();
+      return dirname(url).split(separator).pop()!;
     }
 
     case "ArrowFunctionExpression": {
