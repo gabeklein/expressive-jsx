@@ -1,5 +1,6 @@
 import * as s from 'syntax';
 import { DefineContainer } from 'handle/definition';
+import { sep as separator } from "path";
 
 import { parse } from './body';
 
@@ -70,8 +71,15 @@ function containerName(path: t.Path): string {
     case "FunctionDeclaration":
       return (<t.FunctionDeclaration>path.node).id!.name;
 
-    case "ExportDefaultDeclaration":
-      return "defaultExport";
+    case "ExportDefaultDeclaration": {
+      const { opts } = (path.hub as any).file;
+      const [ name ] = opts.filenameRelative.split(".");
+
+      if(name !== "index")
+        return name;
+
+      return opts.root.split(separator).pop();
+    }
 
     case "ArrowFunctionExpression": {
       parent = parent.parentPath;
