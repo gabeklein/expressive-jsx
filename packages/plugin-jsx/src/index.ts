@@ -1,8 +1,11 @@
 import { StackFrame } from 'context';
 import { Status } from 'errors';
+import { OUTPUT_NODE } from 'generate/jsx';
 import { styleDeclaration } from 'generate/styles';
+import { DefineElement } from 'handle/definition';
 import { builtIn } from 'modifier/builtIn';
 import { generateEntryElement } from 'parse/entry';
+import { addElementFromJSX } from 'parse/jsx';
 import { handleTopLevelDefine } from 'parse/labels';
 import * as s from 'syntax';
 
@@ -27,7 +30,8 @@ export default () => ({
   },
   visitor: {
     Program: HandleProgram,
-    DoExpression: HandleDoExpression
+    DoExpression: HandleDoExpression,
+    JSXElement: HandleNakedJSX
   }
 })
 
@@ -82,5 +86,22 @@ const HandleDoExpression: Visitor<t.DoExpression> = {
     }
 
     path.replaceWith(output);
+  }
+}
+
+const HandleNakedJSX: Visitor<t.JSXElement> = {
+  enter(path, state){
+    if(OUTPUT_NODE.has(path.node)){
+      path.skip();
+      return;
+    }
+
+    const element = new DefineElement(state.context, "element");
+
+    addElementFromJSX(path, element);
+
+    const result = element.toExpression();
+
+    path.replaceWith(result!);
   }
 }
