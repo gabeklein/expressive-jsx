@@ -48,6 +48,11 @@ export function outline(a, b){
   if(b == undefined )
     return { style: { outline: `1px dashed ${a || "green"}` }}
 
-  else
-    return { attrs: { outline: this.arguments }}
+  else {
+    const outline = this.arguments
+      .map(x => typeof x == "number" ? `${x}px` : x)
+      .join(" ");
+
+    return { style: { outline }}
+  }
 }
