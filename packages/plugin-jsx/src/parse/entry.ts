@@ -1,11 +1,11 @@
-import * as s from 'syntax';
 import { DefineContainer } from 'handle/definition';
-import { sep as separator, basename, dirname } from "path";
+import * as s from 'syntax';
 
 import { parse } from './body';
 
 import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
+import { getLocalFilename } from './filename';
 
 type FunctionPath =
   | t.Path<t.ClassMethod>
@@ -71,15 +71,8 @@ function containerName(path: t.Path): string {
     case "FunctionDeclaration":
       return (<t.FunctionDeclaration>path.node).id!.name;
 
-    case "ExportDefaultDeclaration": {
-      const url = (path.hub as any).file.opts.filename as string;
-      const [ base ] = basename(url).split(".");
-
-      if(base !== "index")
-        return base;
-
-      return dirname(url).split(separator).pop()!;
-    }
+    case "ExportDefaultDeclaration":
+      return getLocalFilename(path.hub);
 
     case "ArrowFunctionExpression": {
       parent = parent.parentPath;
