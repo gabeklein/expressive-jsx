@@ -16,11 +16,11 @@ export function appendUnitToN(val, unit) {
   if(val === undefined)
     return "";
 
+  if(typeof val == "string" && /\./.test(val) && !isNaN(parseFloat(val)))
+    return val + (unit || "em");
+
   if(parseInt(val) === val)
     return val + (unit || "px");
-
-  if(parseFloat(val) === val)
-    return val + (unit || "em");
 
   return val
 }
