@@ -1,8 +1,9 @@
-import * as s from 'syntax';
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
+import { DefineVariant } from 'handle/definition';
 import { ComponentFor } from 'handle/iterate';
 import { ComponentIf } from 'handle/switch';
+import * as s from 'syntax';
 import { ensureArray } from 'utility';
 
 import { addElementFromJSX } from './jsx';
@@ -38,6 +39,19 @@ export function parseContent(
   }
   
   if(s.assert(path, "IfStatement")){
+    const test = path.node.test;
+
+    if(s.assert(test, "StringLiteral")){
+      const body = path.get("consequent") as any;
+      const mod = new DefineVariant(target, [ test.value ], 5);
+
+      mod.onlyWithin = target.onlyWithin;
+
+      parse(mod, body);
+      target.use(mod);
+      return
+    }
+
     const item = new ComponentIf();
     item.setup(target.context, path);
     target.adopt(item);
