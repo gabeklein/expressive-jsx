@@ -6,6 +6,9 @@ import type { ComponentFor } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';
 import type * as t from 'syntax/types';
 
+type Visitor<T extends t.Node, S extends StackFrame = StackFrame> =
+  t.VisitNodeObject<BabelState<S>, T>;
+
 export interface BunchOf<T> {
   [key: string]: T
 }
