@@ -1,11 +1,12 @@
 import { DefineElement } from 'handle/definition';
+import { builtIn } from 'modifier/builtIn';
 import { ImportManager, RequireManager } from 'scope';
 import { hash, Stack } from 'utility';
 
 import type * as t from 'syntax/types';
 import type { Define , DefineContainer } from 'handle/definition';
 import type { FileManager } from 'scope';
-import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
+import type { BabelState, ModifyAction, Options } from 'types';
 
 interface Stackable {
   context: StackFrame;
@@ -14,6 +15,15 @@ interface Stackable {
 interface Applicable {
   use(mod: Define): void;
 }
+
+const DEFAULTS: Options = {
+  env: "web",
+  styleMode: "compile",
+  runtime: "@expressive/css",
+  pragma: "react",
+  output: "js",
+  modifiers: []
+};
 
 export class StackFrame {
   modifiersDeclared = new Set<Define>();
@@ -36,6 +46,29 @@ export class StackFrame {
     return Object.getPrototypeOf(this);
   }
 
+  static create(
+    path: t.Path<t.BabelProgram>,
+    state: BabelState
+  ){
+    const options = {
+      ...DEFAULTS,
+      ...state.opts
+    };
+    const external =
+      Object.assign({}, ...options.modifiers);
+
+    let context = new this(path, state, options);
+
+    for(const imports of [builtIn, external]){
+      context = Object.create(context);
+
+      for(const name in imports)
+        context.handlers.set(name, imports[name]);
+    }
+
+    return context;
+  }
+
   constructor(
     path: t.Path<t.BabelProgram>,
     state: BabelState,
@@ -55,19 +88,6 @@ export class StackFrame {
         : ImportManager;
 
     this.program = new FileManager(path, this);
-  }
-
-  including(modifiers: BunchOf<any>[]): this {
-    let context = this as any;
-
-    for(const imports of modifiers){
-      context = Object.create(context)
-
-      for(const name in imports)
-        context.handlers.set(name, imports[name]);
-    }
-
-    return context;
   }
 
   apply(name: string, target: Applicable){

@@ -3,32 +3,18 @@ import { Status } from 'errors';
 import { OUTPUT_NODE } from 'generate/jsx';
 import { styleDeclaration } from 'generate/styles';
 import { DefineElement } from 'handle/definition';
-import { builtIn } from 'modifier/builtIn';
 import { generateEntryElement } from 'parse/entry';
 import { addElementFromJSX } from 'parse/jsx';
 import { handleTopLevelDefine } from 'parse/labels';
 import * as s from 'syntax';
 
 import type * as t from 'syntax/types';
-import type { BabelFile, Options, Visitor } from 'types';
-
-const DEFAULT_OPTIONS: Options = {
-  env: "web",
-  styleMode: "compile",
-  runtime: "@expressive/css",
-  pragma: "react",
-  output: "js",
-  modifiers: []
-};
+import type { BabelFile, Visitor } from 'types';
   
 export const Program: Visitor<t.Program> = {
   enter(path, state){
-    const options = { ...DEFAULT_OPTIONS, ...state.opts };
-    const external = Object.assign({}, ...options.modifiers);
-
-    const context = state.context = 
-      new StackFrame(path, state, options)
-        .including([ builtIn, external ]);
+    const context = state.context =
+      StackFrame.create(path, state);
   
     Status.currentFile = state.file as BabelFile;
   
