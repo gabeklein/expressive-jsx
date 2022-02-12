@@ -4,6 +4,7 @@ const BabelPluginReact = require("@expressive/babel-plugin-jsx");
 const webstyleMacros = require("@expressive/macro-style");
 const pseudoMacros = require("@expressive/macro-pseudo");
 const gradientMacros = require("@expressive/macro-gradient");
+const classProperties = require("@babel/plugin-syntax-class-properties");
 
 const { 
   TARGET = "jsx"
@@ -19,6 +20,7 @@ module.exports = {
     }]
   ],
   plugins: [
+    classProperties,
     [BabelPluginReact, {
       hot: false, 
       output: TARGET,
