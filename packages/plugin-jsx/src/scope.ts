@@ -29,6 +29,24 @@ export abstract class FileManager {
   protected imports = {} as BunchOf<External<any>>;
   protected importIndices = {} as BunchOf<number>;
 
+  static create(
+    parent: StackFrame,
+    path: t.Path<t.BabelProgram>,
+    options: Options
+  ){
+    const { externals, output } = options;
+    const Type =
+      externals == "require"
+        ? RequireManager :
+      externals == "import"
+        ? ImportManager :
+      output == "js"
+        ? RequireManager
+        : ImportManager;
+
+    return new Type(path, parent);
+  }
+
   constructor(
     path: t.Path<t.BabelProgram>,
     context: StackFrame){
@@ -77,7 +95,7 @@ export abstract class FileManager {
   }
 
   replaceAlias(value: string){
-    if(value[0] !== "$")
+    if(!value.startsWith("$"))
       return value;
 
     const name = value.slice(1) as keyof Options;

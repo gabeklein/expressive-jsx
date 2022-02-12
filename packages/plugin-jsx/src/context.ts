@@ -1,11 +1,10 @@
 import { DefineElement } from 'handle/definition';
 import { builtIn } from 'modifier/builtIn';
-import { ImportManager, RequireManager } from 'scope';
+import { FileManager } from 'scope';
 import { hash, Stack } from 'utility';
 
 import type * as t from 'syntax/types';
 import type { Define , DefineContainer } from 'handle/definition';
-import type { FileManager } from 'scope';
 import type { BabelState, ModifyAction, Options } from 'types';
 
 interface Stackable {
@@ -75,19 +74,9 @@ export class StackFrame {
     options: Options){
 
     this.current = state;
-    this.prefix = hash(state.filename);
     this.opts = options;
-
-    const { externals, output } = options;
-
-    const FileManager =
-      externals == "require" ? RequireManager :
-      externals == "import" ? ImportManager :
-      output == "js"
-        ? RequireManager
-        : ImportManager;
-
-    this.program = new FileManager(path, this);
+    this.prefix = hash(state.filename);
+    this.program = FileManager.create(this, path, options);
   }
 
   apply(name: string, target: Applicable){
@@ -155,13 +144,12 @@ export class StackFrame {
 
     if(typeof mod == "string")
       return stack.get(mod);
-    else {
-      const name = mod.name!;
 
-      if(stack.get(name))
-        mod.next = stack.get(name);
+    const name = mod.name!;
 
-      stack.set(name, mod);
-    }
+    if(stack.get(name))
+    mod.next = stack.get(name);
+
+    stack.set(name, mod);
   }
 }
