@@ -67,14 +67,6 @@ export class Define extends AttributeBody {
     return [ `.${this.uid}` ];
   }
 
-  get collapsable(){
-    return (
-      this.targets.size == 1 &&
-      this.dependant.size < 1 &&
-      !this.onlyWithin
-    );
-  }
-
   containsStyle(staticOnly?: boolean): ExplicitStyle | undefined;
   containsStyle(named: string): ExplicitStyle | undefined;
   containsStyle(arg?: boolean | string){
@@ -164,10 +156,6 @@ export class DefineVariant extends Define {
 
   get uid(){
     return this.parent.uid;
-  }
-
-  get collapsable(){
-    return false;
   }
 
   get isUsed(){

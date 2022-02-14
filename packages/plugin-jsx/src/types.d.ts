@@ -27,7 +27,7 @@ export interface Options {
   output: "js" | "jsx";
   pragma: "react";
   runtime: string;
-  styleMode: "compile" | "inline" | "verbose";
+  styleMode: "compile" | "inline";
   modifiers: BunchOf<(...args: any[]) => any>[];
 
   // optional

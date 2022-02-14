@@ -16,7 +16,6 @@ export function generateElement(element: ElementInline | Define){
   const { context, sequence, includes } = element;
 
   const inline_only = context.opts.styleMode === "inline";
-  const no_collapse = context.opts.styleMode === "verbose";
 
   const props = [] as PropData[];
   const children = [] as t.Expression[];
@@ -105,7 +104,7 @@ export function generateElement(element: ElementInline | Define){
   }
 
   function useClass(from: DefineElement | DefineConsequent){
-    if(inline_only || from.collapsable && !no_collapse)
+    if(inline_only)
       return false;
 
     from.setActive();

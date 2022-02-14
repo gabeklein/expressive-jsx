@@ -15,13 +15,13 @@ export function styleDeclaration(
   filename: string){
 
   const { modifiersDeclared, program, opts } = context;
+  const runtime = program.ensure("$runtime", "default", "CSS");
   const pretty = opts.printStyle == "pretty";
   const hot = opts.hot !== false;
 
   if(!modifiersDeclared.size)
     return;
   
-  const runtime = program.ensure("$runtime", "default", "CSS");
   const mediaGroups = prioritize(modifiersDeclared);
   const printedStyle = serialize(mediaGroups, pretty);
   const args = [ s.template(printedStyle) as t.Expression ];
@@ -41,7 +41,7 @@ function prioritize(source: Set<Define>){
     default: []
   };
 
-  for(let item of source){
+  for(const item of source){
     const { priority = 0 } = item;
 
     const query = "default";
@@ -103,7 +103,7 @@ function serialize(
 function buildSelector(target: Define){
   return target.selector
     .map(select => {
-      let selection = [select];
+      const selection = [select];
       let source = target;
 
       while(source = source.onlyWithin!)
