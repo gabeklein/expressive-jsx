@@ -136,6 +136,7 @@ export class DefineElement extends Define {
 
     this.name = name;
     this.context.resolveFor(name);
+    this.context.currentElement = this;
   }
 }
 

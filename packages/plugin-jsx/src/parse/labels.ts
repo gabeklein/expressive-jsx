@@ -12,7 +12,7 @@ import type { Define } from 'handle/definition';
 import type { ExplicitStyle } from 'handle/attributes';
 import type { BunchOf, DefineBodyCompat, ModifyAction } from 'types';
 
-const Oops = ParseErrors({
+export const Oops = ParseErrors({
   BadInputModifier: "Modifier input of type {1} not supported here!",
   BadModifierName: "Modifier name cannot start with _ symbol!",
   DollarSignDeprecated: "$ modifiers are deprecated. Did you mean to use a namespace?",
@@ -20,15 +20,38 @@ const Oops = ParseErrors({
   IllegalAtTopLevel: "Cannot apply element styles in top-level of program"
 });
 
+export function getName(
+  path: t.Path<t.LabeledStatement>){
+
+  const { name } = path.get("label").node;
+
+  if(name.startsWith("_"))
+    throw Oops.BadModifierName(path);
+
+  if(name.startsWith("$"))
+    throw Oops.DollarSignDeprecated(path);
+
+  return name;
+}
+
+export function handleLabeledStatement(
+  path: t.Path<t.LabeledStatement>,
+  context: StackFrame){
+
+  const current = context.currentElement;
+
+  if(current)
+    handleDefine(current, path);
+  else
+    handleTopLevelDefine(path, context);
+}
+
 export function handleTopLevelDefine(
   node: t.Path<t.LabeledStatement>,
   context: StackFrame){
 
-  const { name } = node.get("label").node;
+  const name = getName(node);
   const body = node.get("body");
-
-  if(name[0] == "_")
-    throw Oops.BadModifierName(node)
 
   if(context.modifiers.has(name))
     throw Oops.DuplicateModifier(node);
@@ -47,14 +70,8 @@ export function handleDefine(
   target: Define,
   path: t.Path<t.LabeledStatement>){
 
-  let key = path.node.label.name;
+  let key = getName(path);
   let body = path.get('body') as t.Path<t.Statement>;
-
-  if(key[0] == "_")
-    throw Oops.BadModifierName(path);
-
-  if(key[0] == "$")
-    throw Oops.DollarSignDeprecated(path);
 
   switch(body.type){
     case "BlockStatement":
@@ -82,7 +99,7 @@ export function handleDefine(
   }
 }
 
-function handleNestedDefine(
+export function handleNestedDefine(
   target: Define,
   name: string,
   body: t.Path<any>){

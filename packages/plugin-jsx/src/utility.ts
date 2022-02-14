@@ -32,7 +32,7 @@ export function ensureArray<T>(a: T | T[]){
 export class Stack<T> {
   layer = {} as BunchOf<T>;
 
-  stack(){
+  push(){
     return Object.assign(Object.create(this), {
       layer: Object.create(this.layer)
     })

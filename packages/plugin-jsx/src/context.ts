@@ -1,11 +1,12 @@
-import { DefineElement } from 'handle/definition';
 import { builtIn } from 'modifier/builtIn';
 import { FileManager } from 'scope';
 import { hash, Stack } from 'utility';
 
+import * as s from 'syntax';
 import type * as t from 'syntax/types';
 import type { Define , DefineContainer } from 'handle/definition';
 import type { BabelState, ModifyAction, Options } from 'types';
+import { containerName } from 'parse/entry';
 
 interface Stackable {
   context: StackFrame;
@@ -24,31 +25,58 @@ const DEFAULTS: Options = {
   modifiers: []
 };
 
-export class StackFrame {
-  modifiersDeclared = new Set<Define>();
-  opts: Options;
+const REGISTER = new WeakMap<t.Node, StackFrame>();
 
+export class StackFrame {
+  opts: Options;
+  program: FileManager;
   prefix: string;
-  styleRoot = {} as any;
-  ModifierQuery?: string;
   
   current = {} as any;
   currentComponent?: DefineContainer;
   currentElement?: Define;
 
+  modifiersDeclared = new Set<Define>();
   modifiers = new Stack<Define>();
   handlers = new Stack<ModifyAction>();
 
-  program: FileManager;
-
   get parent(){
     return Object.getPrototypeOf(this);
+  }
+
+  static find(
+    path: t.Path<any>,
+    create?: boolean
+  ): StackFrame {
+    while(path = path.parentPath){
+      const scope = REGISTER.get(path.node);
+
+      if(scope)
+        return scope;
+  
+      if(s.assert(path, "BlockStatement") && create){
+        const inherits = this.find(path);
+        const name = containerName(path);
+        
+        if(!inherits)        
+          throw new Error("well that's awkward.");
+        
+        const next = inherits.push(name);
+        
+        REGISTER.set(path.node, next);
+
+        return next;
+      }
+    }
+
+    throw new Error("Scope not found!");
   }
 
   static create(
     path: t.Path<t.BabelProgram>,
     state: BabelState
   ){
+
     const options = {
       ...DEFAULTS,
       ...state.opts
@@ -56,7 +84,10 @@ export class StackFrame {
     const external =
       Object.assign({}, ...options.modifiers);
 
-    let context = new this(path, state, options);
+    let context = state.context
+      = new this(path, state, options);
+  
+    REGISTER.set(path.node, context);
 
     for(const imports of [builtIn, external]){
       context = Object.create(context);
@@ -96,17 +127,19 @@ export class StackFrame {
     return didApply;
   }
 
-  push(node: Stackable): StackFrame {
+  push(node?: Stackable | string): StackFrame {
     const frame: StackFrame = Object.create(this);
 
-    node.context = frame;
-    frame.current = node;
+    if(typeof node == "string"){
+      frame.resolveFor(node);
+    }
+    else if(node){
+      node.context = frame;
+      frame.current = node;
+    }
 
-    if(node instanceof DefineElement)
-      frame.currentElement = node;
-
-    frame.handlers = frame.handlers.stack();
-    frame.modifiers = frame.modifiers.stack();
+    frame.handlers = frame.handlers.push();
+    frame.modifiers = frame.modifiers.push();
 
     return frame;
   }

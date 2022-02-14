@@ -49,7 +49,7 @@ function parentFunction(path: t.Path<t.DoExpression>){
   return containerFn;
 }
 
-function containerName(path: t.Path): string {
+export function containerName(path: t.Path): string {
   let parent = path.parentPath;
   let encounteredReturn;
 
