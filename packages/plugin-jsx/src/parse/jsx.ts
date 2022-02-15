@@ -78,7 +78,7 @@ function applyChild(
     return child;
   }
 
-  else if(s.assert(path, "JSXText")){
+  if(s.assert(path, "JSXText")){
     const { value } = path.node;
 
     if(/^\n+ *$/.test(value))

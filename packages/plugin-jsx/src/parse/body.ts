@@ -26,7 +26,7 @@ export function parse(
     ? ensureArray(ast.get("body"))
     : [ast];
   
-  for(let item of content)
+  for(const item of content)
     parseContent(target, item);
 }
 
