@@ -34,18 +34,6 @@ export function getName(
   return name;
 }
 
-export function handleLabeledStatement(
-  path: t.Path<t.LabeledStatement>,
-  context: StackFrame){
-
-  const current = context.currentElement;
-
-  if(current)
-    handleDefine(current, path);
-  else
-    handleTopLevelDefine(path, context);
-}
-
 export function handleTopLevelDefine(
   node: t.Path<t.LabeledStatement>,
   context: StackFrame){
@@ -70,32 +58,22 @@ export function handleDefine(
   target: Define,
   path: t.Path<t.LabeledStatement>){
 
-  let key = getName(path);
-  let body = path.get('body') as t.Path<t.Statement>;
+  const key = getName(path);
+  const body = path.get('body') as t.Path<t.Statement>;
 
   switch(body.type){
     case "BlockStatement":
       handleNestedDefine(target, key, body);
     break;
     
-    case "IfStatement":
-      handleDirective(`${key}.if`, target, body as any);
-    break;
-
     case "ExpressionStatement":
-    case "LabeledStatement": {
-      while(s.assert(body, "LabeledStatement")){
-        key = `${key}.${body.node.label.name}`;
-        body = body.get("body") as t.Path<t.Statement>;
-      }
-  
-      handleDirective(key, target, body as any);
-      break;
-    }
+    case "LabeledStatement":
+    case "IfStatement":
+      handleModifier(target, key, body);
+    break;
 
     default:
       Oops.BadInputModifier(body, body.type)
-
   }
 }
 
@@ -116,32 +94,41 @@ export function handleNestedDefine(
 type DirectiveTuple = 
   [string, ModifyAction, DefineBodyCompat];
 
-function handleDirective(
-  name: string,
-  recipient: DefineElement,
-  input: DefineBodyCompat){
+export function handleModifier(
+  target: Define,
+  key: string,
+  body: t.Path<any>){
 
-  const { context } = recipient;
-  const handler = context.getHandler(name);
+  const { context } = target;
+  const handler = context.getHandler(key);
   const output = {} as BunchOf<ExplicitStyle>;
-  const initial: DirectiveTuple = [ name, handler, input ];
+
+  while(s.assert(body, "LabeledStatement")){
+    key = `${key}.${body.node.label.name}`;
+    body = body.get("body") as t.Path;
+  }
+
+  if(s.assert(body, "IfStatement"))
+    key = `${key}.if`;
+
+  const initial: DirectiveTuple = [ key, handler, body ];
 
   doUntilEmpty(initial, (next, enqueue) => {
     const { styles, attrs } =
-      new ModifyDelegate(recipient, ...next);
+      new ModifyDelegate(target, ...next);
 
     Object.assign(output, styles);
-    Object.entries(attrs).forEach(([key, value]) => {
+    Object.entries(attrs).forEach(([name, value]) => {
       if(!value)
         return;
       
-      const useNext = key === name;
-      const handler = context.getHandler(key, useNext);
+      const useNext = name === key;
+      const handler = context.getHandler(name, useNext);
 
-      enqueue([key, handler, value as any]);
+      enqueue([name, handler, value as any]);
     });
   });
 
   for(const name in output)
-    recipient.add(output[name]);
+    target.add(output[name]);
 }
