@@ -4,7 +4,7 @@ import { styleDeclaration } from 'generate/styles';
 import { DefineElement } from 'handle/definition';
 import { parse } from 'parse/body';
 import { addElementFromJSX } from 'parse/jsx';
-import { getName } from 'parse/labels';
+import { getName, handleModifier, Oops } from 'parse/labels';
 import * as s from 'syntax';
 
 import type { Visitor } from 'types';
@@ -44,11 +44,26 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
       return;
 
     const context = StackFrame.find(path, true);
-    const define = new DefineElement(context, key);
 
-    parse(define, body);
+    switch(body.type){
+      case "BlockStatement": {
+        const define = new DefineElement(context, key);
 
-    context.elementMod(define);
+        parse(define, body);
+        context.elementMod(define);
+        break;
+      }
+      
+      case "ExpressionStatement":
+      case "LabeledStatement":
+      case "IfStatement": {
+        handleModifier(context.ambient, key, body);
+        break;
+      }
+  
+      default:
+        Oops.BadInputModifier(body, body.type)
+    }
 
     path.remove();
   }
@@ -62,11 +77,11 @@ const JSXElement: Visitor<t.JSXElement> = {
     }
 
     const context = StackFrame.find(path, true);
-    const element = new DefineElement(context, "element");
+    const parent = context.ambient;
 
-    addElementFromJSX(path, element);
+    addElementFromJSX(path, parent);
 
-    const result = element.toExpression()!;
+    const result = parent.toExpression()!;
     const within = path.parentPath;
     
     if(s.assert(within, "ExpressionStatement"))

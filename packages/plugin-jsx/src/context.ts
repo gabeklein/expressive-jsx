@@ -1,12 +1,13 @@
+import { DefineElement } from 'handle/definition';
 import { builtIn } from 'modifier/builtIn';
+import { containerName } from 'parse/entry';
 import { FileManager } from 'scope';
+import * as s from 'syntax';
 import { hash, Stack } from 'utility';
 
-import * as s from 'syntax';
 import type * as t from 'syntax/types';
 import type { Define , DefineContainer } from 'handle/definition';
 import type { BabelState, ModifyAction, Options } from 'types';
-import { containerName } from 'parse/entry';
 
 interface Stackable {
   context: StackFrame;
@@ -26,11 +27,13 @@ const DEFAULTS: Options = {
 };
 
 const REGISTER = new WeakMap<t.Node, StackFrame>();
+const AMBIENT = new WeakMap<StackFrame, DefineElement>();
 
 export class StackFrame {
+  name?: string;
+  prefix: string;
   opts: Options;
   program: FileManager;
-  prefix: string;
   
   current = {} as any;
   currentComponent?: DefineContainer;
@@ -42,6 +45,17 @@ export class StackFrame {
 
   get parent(){
     return Object.getPrototypeOf(this);
+  }
+
+  get ambient(){
+    let ambient = AMBIENT.get(this);
+
+    if(!ambient){
+      ambient = new DefineElement(this, this.name!);
+      AMBIENT.set(this, ambient);
+    }
+
+    return ambient;
   }
 
   static find(
@@ -149,6 +163,7 @@ export class StackFrame {
   }
 
   resolveFor(append?: string | number){
+    this.name = String(append);
     this.prefix = `${this.prefix} ${append || ""}`;
   }
 
