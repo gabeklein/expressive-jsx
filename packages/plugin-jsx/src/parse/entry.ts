@@ -1,11 +1,8 @@
-import { DefineContainer } from 'handle/definition';
 import * as s from 'syntax';
 
-import { parse } from './body';
+import { getLocalFilename } from './filename';
 
 import type * as t from 'syntax/types';
-import type { StackFrame } from 'context';
-import { getLocalFilename } from './filename';
 
 type FunctionPath =
   | t.Path<t.ClassMethod>
@@ -13,40 +10,18 @@ type FunctionPath =
   | t.Path<t.FunctionDeclaration>
   | t.Path<t.FunctionExpression>
 
-export function generateEntryElement(
-  path: t.Path<t.DoExpression>,
-  context: StackFrame){
-
-  const exec = parentFunction(path);
-  const name = containerName(exec || path as any);
-  const define = new DefineContainer(context, name);
-
-  define.context.currentComponent = define;
-  define.exec = exec;
-
-  if(/^[A-Z]/.test(name))
-    define.uses(name);
-
-  parse(define, path.get("body"));
-
-  return define;
-}
-
-function parentFunction(path: t.Path<t.DoExpression>){
+export function parentFunction(path: t.Path<t.DoExpression>){
   const parent = path.parentPath;
-  let containerFn: t.Path<t.ArrowFunctionExpression> | undefined;
 
   if(s.assert(parent, "ArrowFunctionExpression"))
-    containerFn = parent;
-  else
+    return parent;
+
   if(s.assert(parent, "ReturnStatement")){
     const container = parent.findParent(x => /.*Function.*/.test(x.type))!;
 
     if(s.assert(container, "ArrowFunctionExpression"))
-      containerFn = container as t.Path<t.ArrowFunctionExpression>;
+      return container as t.Path<t.ArrowFunctionExpression>;
   }
-
-  return containerFn;
 }
 
 export function containerName(path: t.Path): string {

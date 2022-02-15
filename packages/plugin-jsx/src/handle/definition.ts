@@ -1,5 +1,6 @@
 import { generateElement } from 'generate/element';
 import { recombineProps } from 'generate/es5';
+import { containerName, parentFunction } from 'parse/entry';
 import { doUntilEmpty } from 'utility';
 
 import { ExplicitStyle } from './attributes';
@@ -134,6 +135,19 @@ export class DefineElement extends Define {
 
 export class DefineContainer extends DefineElement {
   exec?: t.Path<t.ArrowFunctionExpression>;
+
+  constructor(context: StackFrame, path: t.Path<any>){
+    const exec = parentFunction(path);
+    const name = containerName(exec || path as any);
+
+    super(context, name);
+
+    this.exec = exec;
+    context.currentComponent = this;
+
+    if(/^[A-Z]/.test(name))
+      this.uses(name);
+  }
   
   provide(define: DefineElement){
     this.context.elementMod(define);

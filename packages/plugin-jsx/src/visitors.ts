@@ -2,8 +2,8 @@ import { StackFrame } from 'context';
 import { Status } from 'errors';
 import { OUTPUT_NODE } from 'generate/jsx';
 import { styleDeclaration } from 'generate/styles';
-import { DefineElement } from 'handle/definition';
-import { generateEntryElement } from 'parse/entry';
+import { DefineContainer, DefineElement } from 'handle/definition';
+import { parse } from 'parse/body';
 import { addElementFromJSX } from 'parse/jsx';
 import { handleTopLevelDefine } from 'parse/labels';
 import * as s from 'syntax';
@@ -36,8 +36,10 @@ export const Program: Visitor<t.Program> = {
 
 export const DoExpression: Visitor<t.DoExpression> = {
   enter(path, state){
-    const element = generateEntryElement(path, state.context);
+    const element = new DefineContainer(state.context, path);
     const collapsible = !element.exec;
+  
+    parse(element, path.get("body"));
 
     let output: t.Expression | t.Statement =
       element.toExpression(collapsible) || s.literal(false);
