@@ -9,8 +9,10 @@ const m32 = Math.imul;
  * https://stackoverflow.com/a/52171480/877165
  * */
 export function hash(str = "", length = 3){
-  const x = 0x85ebca6b, y = 0xc2b2ae35;
-  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  const x = 0x85ebca6b;
+  const y = 0xc2b2ae35;
+  let h1 = 0xdeadbeef;
+  let h2 = 0x41c6ce57;
 
   for(let i = 0, ch; i < str.length; i++){
     ch = str.charCodeAt(i);
@@ -85,7 +87,7 @@ export function doUntilEmpty<T, R>(
   let queue = [ startingData ];
 
   do {
-    let pending: T[] = [];
+    const pending: T[] = [];
     const output = step(queue[i], 
       (...next) => pending.push(...next)  
     );

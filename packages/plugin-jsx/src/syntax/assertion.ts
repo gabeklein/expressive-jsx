@@ -43,8 +43,8 @@ export function inverseExpression(exp: t.BinaryExpression){
       left: exp.left,
       right: exp.right
     })
-  else
-    throw new Error(`Can't invert binary comparison ${exp.operator}.`);
+
+  throw new Error(`Can't invert binary comparison ${exp.operator}.`);
 }
 
 export function isFalsy(

@@ -4,9 +4,7 @@ import * as s from 'syntax';
 
 import type * as t from 'syntax/types';
 
-export class AttributeStack
-  extends ArrayStack<ExplicitStyle> {
-
+export class AttributeStack extends ArrayStack<ExplicitStyle> {
   exists = new Set<string>();
   invariant = new Set<ExplicitStyle>();
 
@@ -40,18 +38,16 @@ export class AttributeStack
     if(this.length == 1 && this[0] instanceof ExplicitStyle)
       return this[0].expression;
 
-    else {
-      const chunks = [] as (t.ObjectProperty | t.SpreadElement)[];
+    const chunks = [] as (t.ObjectProperty | t.SpreadElement)[];
 
-      for(const item of this)
-        if(item instanceof ExplicitStyle)
-          chunks.push(s.spread(item.expression))
-        else
-          chunks.push(...item.map(style => 
-            s.property(style.name!, style.expression)
-          ));
+    for(const item of this)
+      if(item instanceof ExplicitStyle)
+        chunks.push(s.spread(item.expression))
+      else
+        chunks.push(...item.map(style =>
+          s.property(style.name!, style.expression)
+        ));
 
-      return s.object(chunks)
-    }
+    return s.object(chunks)
   }
 }

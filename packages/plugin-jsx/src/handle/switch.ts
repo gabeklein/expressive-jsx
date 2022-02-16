@@ -20,12 +20,8 @@ export class ComponentIf {
 
   toExpression(): t.Expression | undefined {
     return reduceToExpression(this.forks, (cond) => {
-      let product;
-
       if(cond instanceof ComponentIf || cond.children.length)
-        product = cond.toExpression();
-
-      return product
+        return cond.toExpression();
     });
   }
 
@@ -111,7 +107,7 @@ export class DefineConsequent extends Define {
   }
 
   get selector(): string[] {
-    let parent = this.context.currentElement!;
+    const parent = this.context.currentElement!;
 
     if(!parent)
       throw new Error("No consequent parent found.")

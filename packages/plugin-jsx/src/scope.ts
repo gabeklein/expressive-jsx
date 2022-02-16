@@ -161,11 +161,10 @@ export class ImportManager extends FileManager {
 
       if(s.assert(spec, "ImportDefaultSpecifier"))
         return spec.local;
-      else {
-        uid = this.ensureUIDIdentifier(alt);
-        list.unshift(s.importDefaultSpecifier(uid));
-        return uid
-      }
+
+      uid = this.ensureUIDIdentifier(alt);
+      list.unshift(s.importDefaultSpecifier(uid));
+      return uid;
     }
 
     for(const spec of list)

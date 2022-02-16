@@ -88,18 +88,12 @@ export class StackFrame {
 
   static create(
     path: t.Path<t.BabelProgram>,
-    state: BabelState
-  ){
+    state: BabelState){
 
-    const options = {
-      ...DEFAULTS,
-      ...state.opts
-    };
-    const external =
-      Object.assign({}, ...options.modifiers);
+    const options = { ...DEFAULTS, ...state.opts };
+    const external = Object.assign({}, ...options.modifiers);
 
-    let context = state.context
-      = new this(path, state, options);
+    let context = state.context = new this(path, state, options);
   
     REGISTER.set(path.node, context);
 
@@ -185,8 +179,8 @@ export class StackFrame {
     return handler;
   }
 
-  elementMod(name: string): Define | undefined;
   elementMod(set: Define): void;
+  elementMod(name: string): Define | undefined;
   elementMod(mod: string | Define){
     const stack = this.modifiers;
 

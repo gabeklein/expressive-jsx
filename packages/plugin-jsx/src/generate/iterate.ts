@@ -68,11 +68,11 @@ export function forXElement(
       s.arrow(params, body)
     )
   }
-  else
-    return s.call(
-      s.get(s.objectKeys(right), "map"),
-      s.arrow([left], body)
-    )
+
+  return s.call(
+    s.get(s.objectKeys(right), "map"),
+    s.arrow([left], body)
+  )
 }
 
 function getReferences(node: t.ForXStatement){

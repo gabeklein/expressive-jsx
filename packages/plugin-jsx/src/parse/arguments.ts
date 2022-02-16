@@ -54,8 +54,8 @@ export class DelegateTypes {
   Extract(element: t.Expression | t.Statement){
     if(element.type in this)
       return this[element.type](element);
-    else
-      throw Oops.UnknownArgument(element)
+
+    throw Oops.UnknownArgument(element)
   }
 
   Identifier(e: t.Identifier){
@@ -74,7 +74,7 @@ export class DelegateTypes {
   }
 
   UnaryExpression(e: t.UnaryExpression){
-    const { argument, operator } = e; 
+    const { argument, operator } = e;
 
     if(operator == "-"
     && s.assert(argument, "NumericLiteral"))
@@ -83,8 +83,8 @@ export class DelegateTypes {
     if(operator == "!"
     && s.assert(argument, "Identifier", { name: "Important" }))
       return "!important";
-  
-    else throw Oops.UnaryUseless(e)
+
+    throw Oops.UnaryUseless(e)
   }
 
   BooleanLiteral(bool: t.BooleanLiteral){
@@ -98,11 +98,10 @@ export class DelegateTypes {
         return sign == -1 ? "-" + raw : raw;
       return sign*rawValue;
     }
-    else {
-      if(sign == -1)
-        throw Oops.HexNoNegative(number, rawValue)
-      return HEXColor(raw);
-    }
+    if(sign == -1)
+      throw Oops.HexNoNegative(number, rawValue);
+
+    return HEXColor(raw);
   }
 
   NullLiteral(){
@@ -219,5 +218,6 @@ function HEXColor(raw: string){
 
     return `rgba(${ decimal.join(",") })`
   }
-  else return "#" + raw;
+
+  return "#" + raw;
 }

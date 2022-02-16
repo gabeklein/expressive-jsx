@@ -14,13 +14,15 @@ export function parentFunction(path: t.Path<t.DoExpression>){
   const parent = path.parentPath;
 
   if(s.assert(parent, "ArrowFunctionExpression"))
-    return parent;
+    return parent as t.Path<t.Function>;
 
   if(s.assert(parent, "ReturnStatement")){
-    const container = parent.findParent(x => /.*Function.*/.test(x.type))!;
+    const container = parent.findParent(node => (
+      /.*Function.*/.test(node.type)
+    ));
 
-    if(s.assert(container, "ArrowFunctionExpression"))
-      return container as t.Path<t.ArrowFunctionExpression>;
+    if(container)
+      return container as t.Path<t.Function>;
   }
 }
 
@@ -79,12 +81,12 @@ export function containerName(path: t.Path): string {
           return "ClassMethod";
         if(node.key.name == "render"){
           const owner = within.parentPath.parentPath as t.Path<t.Class>;
+
           if(owner.node.id)
             return owner.node.id.name;
-          else {
-            parent = owner.parentPath;
-            continue
-          }
+
+          parent = owner.parentPath;
+          continue;
         }
         else
           return node.key.name;
