@@ -144,8 +144,9 @@ export class DefineContainer extends DefineElement {
 
     this.exec = exec;
 
-    if(/^[A-Z]/.test(name))
-      this.uses(name);
+    if(/^[A-Z]/.test(name)){
+      this.context.apply(name, this);
+    }
   }
   
   provide(define: DefineElement){

@@ -141,7 +141,7 @@ function createElement(
     throw Oops.NonJSXIdentifier(tag);
 
   target.name = name;
-  target.uses(name);
+  target.context.apply(name, target);
 
   return target;
 }
@@ -172,7 +172,7 @@ function applyAttribute(
     name = attr.node.name.name as string;
 
     if(expression === null){
-      const applied = parent.uses(name);
+      const applied = parent.context.apply(name, parent);
 
       if(/^[A-Z]/.test(parent.name!))
         for(const define of applied){

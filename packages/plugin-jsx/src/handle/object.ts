@@ -36,8 +36,4 @@ export abstract class AttributeBody {
   add(item: SequenceItem){
     this.sequence.push(item);
   }
-
-  uses(name: string){
-    return this.context.apply(name, this);
-  }
 }
