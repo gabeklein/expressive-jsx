@@ -1,55 +1,54 @@
-import * as s from 'syntax';
 import { Prop } from 'handle/attributes';
+import * as s from 'syntax';
 
 import type * as t from 'syntax/types';
-import type { DefineElement } from 'handle/definition';
 import type { ModifyDelegate } from 'parse/modifiers';
+import type { DefineElement } from 'handle/definition';
 
 export function forwardProp(
   this: ModifyDelegate,
   ...propNames: any[]){
 
   const target = this.target;
-  const parent = target.context.currentComponent;
-
-  if(!parent)
-    throw new Error("No parent component found in hierarchy");
-
-  const { exec } = parent;
+  const exec = target.context.currentComponent;
 
   if(!exec)
-    throw new Error("Can only apply props from a parent `() => do {}` function!");
+    throw new Error("No function-component found in hierarchy");
 
   const { scope } = exec;
-  const properties = getProps(parent, exec);
+  const properties = getProps(exec);
 
-  for(const key of ["className", "style"])
-    if(propNames.includes(key))
-      target.add(
-        new Prop(key, getFromProps(key))
-      )
+  for(const key of propNames)
+    if(key === "ref")
+      forwardRef(target, exec);
+    else {
+      const _local = uniqueWithin(scope, key);
+      const property = s.property(key, _local);
+      const prop = new Prop(key, _local);
+  
+      properties.unshift(property);
+      target.add(prop);
+    }
+}
 
-  if(propNames.includes("ref")){
-    const { program } = target.context;
-    const _ref = uniqueWithin(scope, "ref");
-    const _forwardRef = program.ensure("$pragma", "forwardRef");
-    const _wrapped = s.call(_forwardRef, exec.node);
+function forwardRef(
+  target: DefineElement,
+  component: t.Path<t.Function>
+){
+  const { node } = component as t.Path<any>;
+  const { program } = target.context;
 
-    exec.pushContainer("params", _ref);
-    exec.replaceWith(_wrapped);
+  if(s.assert(node, "FunctionDeclaration"))
+    node.type = "FunctionExpression";
 
-    target.add(new Prop("ref", _ref));
-  }
+  const _ref = uniqueWithin(component.scope, "ref");
+  const _forwardRef = program.ensure("$pragma", "forwardRef");
+  const _wrapped = s.call(_forwardRef, node);
 
-  function getFromProps(name: string){
-    const _local = uniqueWithin(scope, name);
+  component.pushContainer("params", _ref);
+  component.replaceWith(_wrapped);
 
-    properties.unshift(
-      s.property(name, _local)
-    )
-
-    return _local;
-  }
+  target.add(new Prop("ref", _ref));
 }
 
 function uniqueWithin(scope: t.Scope, name: string){
@@ -58,10 +57,7 @@ function uniqueWithin(scope: t.Scope, name: string){
     : s.identifier(name);
 }
 
-function getProps(
-  target: DefineElement,
-  exec: t.Path<t.ArrowFunctionExpression>){
-
+function getProps(exec: t.Path<t.Function>){
   const { node } = exec;
   let props = node.params[0];
   
@@ -73,9 +69,9 @@ function getProps(
       node.params[0] = props;
 
     else if(s.assert(existing, "Identifier")){
-      const { statements } = target;
+      const { body } = node.body as t.BlockStatement;
 
-      for(const stat of statements){
+      for(const stat of body){
         if(!s.assert(stat, "VariableDeclaration"))
           break;
 
@@ -85,7 +81,7 @@ function getProps(
             return id.properties;
       }
 
-      statements.unshift(
+      body.unshift(
         s.declare("const", props, existing)
       );
     }

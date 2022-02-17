@@ -1,12 +1,12 @@
 import { DefineElement } from 'handle/definition';
 import { builtIn } from 'modifier/builtIn';
-import { containerName } from 'parse/entry';
+import { containerName, parentFunction } from 'parse/entry';
 import { FileManager } from 'scope';
 import * as s from 'syntax';
 import { hash, Stack } from 'utility';
 
 import type * as t from 'syntax/types';
-import type { Define , DefineContainer } from 'handle/definition';
+import type { Define } from 'handle/definition';
 import type { BabelState, ModifyAction, Options } from 'types';
 
 interface Stackable {
@@ -36,7 +36,7 @@ export class StackFrame {
   program: FileManager;
   
   current = {} as any;
-  currentComponent?: DefineContainer;
+  currentComponent?: t.Path<t.Function>;
   currentElement?: Define;
 
   modifiersDeclared = new Set<Define>();
@@ -76,6 +76,8 @@ export class StackFrame {
           throw new Error("well that's awkward.");
         
         const next = inherits.push(name);
+
+        next.currentComponent = parentFunction(path);
         
         REGISTER.set(path.node, next);
 
