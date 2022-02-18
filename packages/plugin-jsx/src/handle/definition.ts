@@ -127,21 +127,6 @@ export class DefineElement extends Define {
 }
 
 export class DefineContainer extends DefineElement {
-  exec?: t.Path<t.Function>;
-
-  constructor(context: StackFrame, path: t.Path<any>){
-    const exec = parentFunction(path);
-    const name = containerName(exec || path as any);
-
-    super(context, name);
-
-    this.exec = exec;
-
-    if(/^[A-Z]/.test(name)){
-      this.context.apply(name, this);
-    }
-  }
-  
   provide(define: DefineElement){
     this.context.elementMod(define);
   }

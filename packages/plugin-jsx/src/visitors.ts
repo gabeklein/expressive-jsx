@@ -4,6 +4,7 @@ import { OUTPUT_NODE } from 'generate/jsx';
 import { styleDeclaration } from 'generate/styles';
 import { DefineContainer, DefineElement } from 'handle/definition';
 import { parse } from 'parse/body';
+import { containerName, parentFunction } from 'parse/entry';
 import { addElementFromJSX } from 'parse/jsx';
 import { handleTopLevelDefine } from 'parse/labels';
 import * as s from 'syntax';
@@ -36,15 +37,19 @@ export const Program: Visitor<t.Program> = {
 
 export const DoExpression: Visitor<t.DoExpression> = {
   enter(path, state){
-    const element = new DefineContainer(state.context, path);
-    const collapsible = !element.exec;
+    const exec = parentFunction(path);
+    const name = containerName(exec || path as any);
+    const element = new DefineContainer(state.context, name);
+
+    if(/^[A-Z]/.test(name))
+      state.context.apply(name, element);
   
     parse(element, path.get("body"));
 
     let output: t.Expression | t.Statement =
-      element.toExpression(collapsible) || s.literal(false);
+      element.toExpression(!exec) || s.literal(false);
   
-    if(element.exec && element.statements.length){
+    if(exec && element.statements.length){
       const parent = path.parentPath;
       const body = [
         ...element.statements,
