@@ -7,9 +7,6 @@ import { AttributeBody } from './object';
 
 import type { StackFrame } from 'context';
 import type { ElementInline } from 'handle/element';
-import type { DefineConsequent } from 'handle/switch';
-
-export type DefineAny = DefineElement | DefineConsequent;
 
 export class Define extends AttributeBody {
   next?: Define;
