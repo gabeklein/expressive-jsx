@@ -1,4 +1,4 @@
-import { generateElement } from 'generate/element';
+import { Generator } from 'generate/element';
 import { recombineProps } from 'generate/es5';
 import { doUntilEmpty } from 'utility';
 
@@ -31,7 +31,7 @@ export class Define extends AttributeBody {
   }
 
   toExpression(maybeProps?: boolean){
-    const info = generateElement(this);
+    const info = new Generator(this).info;
 
     if(maybeProps && info.children.length === 0)
       return recombineProps(info.props);

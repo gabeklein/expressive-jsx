@@ -9,75 +9,86 @@ import type { DefineElement } from 'handle/definition';
 import type { FileManager } from 'scope';
 import type { DefineConsequent } from 'handle/switch';
 import type { PropData, SequenceItem } from 'types';
+import type { StackFrame } from 'context';
 
 const byPriority = (x: any, y: any) => x.priority - y.priority;
 
-export function generateElement(element: ElementInline | Define){
-  const { context, sequence, includes } = element;
+export class Generator {
+  props = [] as PropData[];
+  children = [] as t.Expression[];
 
-  const inline_only = context.opts.styleMode === "inline";
+  style = new AttributeStack();
+  classList = new Set<string | t.Expression>();
 
-  const props = [] as PropData[];
-  const children = [] as t.Expression[];
+  context: StackFrame;
 
-  const style = new AttributeStack();
-  const classList = new Set<string | t.Expression>();
+  get inline_only(){
+    return this.context.opts.styleMode === "inline";
+  }
 
-  Array.from(includes)
-    .sort(byPriority)
-    .forEach(applyModifier);
+  get info(){
+    const { props, children } = this;
+    const className = classValue(this.classList, this.context.program);
+    const stylesProp = this.style.flatten();
+  
+    if(className)
+      props.push({ name: "className", value: className });
+  
+    if(stylesProp)
+      props.push({ name: "style", value: stylesProp });
+  
+    return { props, children };
+  }
 
-  sequence.forEach(apply);
+  constructor(element: ElementInline | Define){
+    const { invariant } = this.style;
 
-  if(element instanceof ElementInline && style.invariant.size)
-    element = new DefineLocal(element, style.invariant);
+    this.context = element.context;
 
-  if(element instanceof Define)
-    useClass(element);
+    Array.from(element.includes)
+      .sort(byPriority)
+      .forEach(this.applyModifier, this);
+  
+    element.sequence.forEach(this.add, this);
+  
+    if(element instanceof ElementInline && invariant.size)
+      element = new DefineLocal(element, invariant);
+  
+    if(element instanceof Define)
+      this.useClass(element);
+  }
 
-  const className = classValue(classList, context.program);
-  const stylesProp = style.flatten();
-
-  if(className)
-    props.push({ name: "className", value: className });
-
-  if(stylesProp)
-    props.push({ name: "style", value: stylesProp });
-
-  return { props, children };
-
-  function apply(item: SequenceItem){
+  add(item: SequenceItem){
     if(item instanceof ExplicitStyle)
-      style.insert(item, inline_only);
+      this.style.insert(item, this.inline_only);
 
     else if(item instanceof Prop)
-      applyProp(item);
+      this.applyProp(item);
 
     else if("toExpression" in item){
       const child = item.toExpression();
 
       if(child && (child.type !== "BooleanLiteral" || child.value !== false))
-        children.push(child);
+        this.children.push(child);
 
       if("toClassName" in item){
         const className = item.toClassName();
 
         if(className)
-          classList.add(className);
+          this.classList.add(className);
       }
     }
 
     else if(s.isExpression(item))
-      children.push(item);
+      this.children.push(item);
   }
 
-  function applyProp(item: Prop){
+  applyProp(item: Prop){
     const { name } = item;
 
     if(name === "style"){
-      style.push(
-        new ExplicitStyle(false, item.expression)
-      );
+      const style = new ExplicitStyle(false, item.expression);
+      this.style.push(style);
       return;
     }
 
@@ -90,38 +101,38 @@ export function generateElement(element: ElementInline | Define){
         else if(s.assert(value, "StringLiteral"))
           ({ value } = value);
         else if(s.isExpression(value)){
-          classList.add(value);
+          this.classList.add(value);
           return;
         }
 
       if(typeof value == "string")
-        classList.add(value.trim());
+        this.classList.add(value.trim());
 
       return;
     }
 
-    props.push({ name, value: item.expression });
+    this.props.push({ name, value: item.expression });
   }
 
-  function useClass(from: DefineElement | DefineConsequent){
-    if(inline_only)
+  useClass(from: DefineElement | DefineConsequent){
+    if(this.inline_only)
       return false;
 
     from.setActive();
 
     if(from.isDeclared && from.isUsed)
-      classList.add(from.uid);
+      this.classList.add(from.uid);
 
     return true;
   }
 
-  function applyModifier(mod: Define){
-    if(inline_only && mod instanceof DefineVariant){
+  applyModifier(mod: Define){
+    if(this.inline_only && mod instanceof DefineVariant){
       console.warn(`Cannot include CSS for ${mod.selector} with inline_only mode. Skipping.`);
       return;
     }
 
-    const using_css = useClass(mod);
+    const using_css = this.useClass(mod);
 
     for(const prop of mod.sequence)
       if(prop instanceof ExplicitStyle){
@@ -130,10 +141,10 @@ export function generateElement(element: ElementInline | Define){
         if(!name || invariant && using_css)
           continue;
 
-        style.insert(prop);
+        this.style.insert(prop);
       }
       else
-        apply(prop);
+        this.add(prop);
   }
 }
 
