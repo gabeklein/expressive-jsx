@@ -1,12 +1,10 @@
 import { generateElement } from 'generate/element';
 import { recombineProps } from 'generate/es5';
-import { containerName, parentFunction } from 'parse/entry';
 import { doUntilEmpty } from 'utility';
 
 import { ExplicitStyle } from './attributes';
 import { AttributeBody } from './object';
 
-import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
 import type { ElementInline } from 'handle/element';
 import type { DefineConsequent } from 'handle/switch';
@@ -121,14 +119,9 @@ export class DefineLocal extends Define {
 }
 
 export class DefineElement extends Define {
-  constructor(
-    context: StackFrame,
-    name: string){
+  constructor(context: StackFrame, name: string){
+    super(context, name);
 
-    super(context);
-
-    this.name = name;
-    this.context.resolveFor(name);
     this.context.currentElement = this;
   }
 }
@@ -164,8 +157,9 @@ export class DefineVariant extends Define {
   }
 
   get selector(){
-    return this.suffix
-      .map(select => `${this.parent.selector}${select}`)
+    return this.suffix.map(select => (
+      `${this.parent.selector}${select}`
+    ))
   }
 
   get uid(){

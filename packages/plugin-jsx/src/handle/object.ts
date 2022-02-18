@@ -14,8 +14,13 @@ export abstract class AttributeBody {
   /** Other definitions applicable to this one. */
   includes = new Set<Define>();
 
-  constructor(context: StackFrame){
+  constructor(context: StackFrame, name?: string){
     context.push(this);
+
+    if(name){
+      this.name = name;
+      this.context.resolveFor(name);
+    }
   }
 
   abstract use(mod: Define): void;
