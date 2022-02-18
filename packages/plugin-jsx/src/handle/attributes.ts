@@ -36,17 +36,21 @@ export abstract class Attribute {
 export class Prop extends Attribute {}
 
 export class ExplicitStyle extends Attribute {
+  important: boolean;
+
   constructor(
     name: string | false,
     value: FlatValue | FlatValue[] | t.Expression,
-    public important = false){
+    important?: boolean){
 
-    super(name, 
-      Array.isArray(value) ? flatten(value) : value
-    );
+    if(Array.isArray(value)){
+      const [ callee, ...args ] = value;
+
+      value = `${callee}(${args.join(" ")})`;
+    }
+
+    super(name, value);
+
+    this.important = important || false;
   }
-}
-
-const flatten = ([ callee, ...args ]: FlatValue[]) => {
-  return `${callee}(${args.join(" ")})`;
 }

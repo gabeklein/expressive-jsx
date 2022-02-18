@@ -90,10 +90,11 @@ export class DefineConsequent extends Define {
     super(context);
 
     this.test = test;
-    this.context.resolveFor(index);
     this.name = specifyOption(test) || `opt${index + 1}`;
 
-    let parent = context.currentElement as DefineElement | DefineConsequent;
+    context.resolveFor(index);
+
+    let parent = context.currentElement!
 
     if(parent instanceof DefineConsequent)
       parent = parent.anchor;

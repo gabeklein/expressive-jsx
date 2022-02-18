@@ -190,9 +190,10 @@ export class StackFrame {
       return stack.get(mod);
 
     const name = mod.name!;
+    const next = stack.get(name);
 
-    if(stack.get(name))
-    mod.next = stack.get(name);
+    if(next)
+      mod.next = next;
 
     stack.set(name, mod);
   }
