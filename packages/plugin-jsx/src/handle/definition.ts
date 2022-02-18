@@ -26,17 +26,8 @@ export class Define extends AttributeBody {
   /** Targets which this modifier applies to. */
   targets = new Set<Define | ElementInline>();
 
-  provide(define: DefineElement){
-    this.provides.add(define);
-  }
-
-  toExpression(maybeProps?: boolean){
-    const info = new Generator(this).info;
-
-    if(maybeProps && info.children.length === 0)
-      return recombineProps(info.props);
-
-    return this.context.program.container(info);
+  get selector(){
+    return [ `.${this.uid}` ];
   }
 
   get isUsed(): boolean | void {
@@ -62,8 +53,17 @@ export class Define extends AttributeBody {
     )
   }
 
-  get selector(){
-    return [ `.${this.uid}` ];
+  provide(define: DefineElement){
+    this.provides.add(define);
+  }
+
+  toExpression(maybeProps?: boolean){
+    const info = new Generator(this).info;
+
+    if(maybeProps && info.children.length === 0)
+      return recombineProps(info.props);
+
+    return this.context.program.container(info);
   }
 
   containsStyle(staticOnly?: boolean): ExplicitStyle | undefined;
