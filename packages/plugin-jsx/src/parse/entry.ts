@@ -10,7 +10,7 @@ type FunctionPath =
   | t.Path<t.FunctionDeclaration>
   | t.Path<t.FunctionExpression>
 
-export function parentFunction(path: t.Path<t.DoExpression>){
+export function parentFunction(path: t.Path<t.BlockStatement>){
   const parent = path.parentPath;
 
   if(s.assert(parent, "ArrowFunctionExpression"))

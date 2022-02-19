@@ -5,12 +5,14 @@ import { doUntilEmpty } from 'utility';
 import { ExplicitStyle } from './attributes';
 import { AttributeBody } from './object';
 
+import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
 import type { ElementInline } from 'handle/element';
 
 export class Define extends AttributeBody {
   next?: Define;
   onlyWithin?: Define;
+  tagName?: string | t.JSXMemberExpression;
   
   priority = 1;
 
@@ -55,7 +57,7 @@ export class Define extends AttributeBody {
   }
 
   toExpression(maybeProps?: boolean){
-    const info = new Generator(this).info;
+    const info = new Generator(this).info as any;
 
     if(maybeProps && info.children.length === 0)
       return recombineProps(info.props);

@@ -1,11 +1,9 @@
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
-import { DefineElement } from 'handle/definition';
 import { ElementInline } from 'handle/element';
 import * as s from 'syntax';
 
-import { parse } from './body';
-
+import type { DefineElement } from 'handle/definition';
 import type * as t from 'syntax/types';
 import type { Define } from 'handle/definition';
 
@@ -155,17 +153,8 @@ function applyAttribute(
   let value: t.Expression | undefined;
 
   if(s.assert(attr, "JSXSpreadAttribute")){
-    const arg = attr.get("argument");
-
-    if(s.assert(arg, "DoExpression")){
-      const define = new DefineElement(parent.context, parent.name!);
-      parent.use(define);
-      parse(define, arg, "body");
-      return;
-    }
-
     name = false;
-    value = arg.node;
+    value = attr.node.argument;
   }
   else {
     const expression = attr.node.value;
