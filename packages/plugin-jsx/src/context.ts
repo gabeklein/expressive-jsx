@@ -116,36 +116,6 @@ export class StackFrame {
     this.program = FileManager.create(this, path, options);
   }
 
-  getApplicable(name: string){
-    const apply = [] as Define[];
-    let modify: Define | undefined =
-      this.getModifier(name);
-  
-    while(modify){
-      apply.push(modify);
-  
-      for(const sub of modify.provides)
-        this.setModifier(sub);
-  
-      modify = modify.next;
-    }
-
-    return apply;
-  }
-
-  apply(name: string, target: Define){
-    const applied = this.getApplicable(name);
-
-    for(const modifier of applied){
-      target.use(modifier);
-
-      for(const sub of modifier.provides)
-        this.setModifier(sub);
-    }
-
-    return applied;
-  }
-
   push(node?: Stackable | string): StackFrame {
     const frame: StackFrame = Object.create(this);
 
@@ -190,7 +160,7 @@ export class StackFrame {
     return handler;
   }
 
-  getModifier(name: string){
+  getModifier(name: string): Define | undefined {
     return this.modifiers.get(name);
   }
 

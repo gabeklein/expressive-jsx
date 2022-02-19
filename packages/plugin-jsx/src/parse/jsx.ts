@@ -141,18 +141,6 @@ function createElement(
   return target;
 }
 
-function applyModifier(target: ElementInline, name: string){
-  const apply = target.context.getApplicable(name);
-
-  for(const mod of apply)
-    for(const use of [mod, ...mod.includes]){
-      target.includes.add(use);
-      use.targets.add(target);
-    }
-  
-  return apply;
-}
-
 function applyAttribute(
   parent: ElementInline,
   attr: t.Path<t.JSXAttribute> | t.Path<t.JSXSpreadAttribute>,
@@ -210,4 +198,25 @@ function applyAttribute(
   parent.add(
     new Prop(name, value || null)
   );
+}
+
+function applyModifier(target: ElementInline, name: string){
+  const apply = [] as Define[];
+  let modify = target.context.getModifier(name);
+
+  while(modify){
+    apply.push(modify);
+
+    for(const use of [modify, ...modify.includes]){
+      target.includes.add(use);
+      use.targets.add(target);
+    }
+
+    for(const sub of modify.provides)
+      target.context.setModifier(sub);
+
+    modify = modify.next;
+  }
+  
+  return apply;
 }
