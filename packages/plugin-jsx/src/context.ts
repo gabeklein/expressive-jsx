@@ -129,7 +129,7 @@ export class StackFrame {
       target.use(modify);
   
       for(const sub of modify.provides)
-        this.elementMod(sub);
+        this.setModifier(sub);
   
       modify = modify.next;
     }
@@ -181,20 +181,17 @@ export class StackFrame {
     return handler;
   }
 
-  elementMod(set: Define): void;
-  elementMod(name: string): Define | undefined;
-  elementMod(mod: string | Define){
-    const stack = this.modifiers;
+  getModifier(name: string){
+    return this.modifiers.get(name);
+  }
 
-    if(typeof mod == "string")
-      return stack.get(mod);
-
+  setModifier(mod: Define){
     const name = mod.name!;
-    const next = stack.get(name);
+    const next = this.modifiers.get(name);
 
     if(next)
       mod.next = next;
 
-    stack.set(name, mod);
+    this.modifiers.set(name, mod);
   }
 }

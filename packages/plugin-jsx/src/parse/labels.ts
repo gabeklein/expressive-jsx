@@ -51,7 +51,7 @@ export function handleTopLevelDefine(
 
   parse(define, body);
 
-  context.elementMod(define);
+  context.setModifier(define);
 }
 
 export function handleDefine(

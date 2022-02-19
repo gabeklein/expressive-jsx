@@ -127,7 +127,7 @@ export class DefineElement extends Define {
 
 export class DefineContainer extends DefineElement {
   provide(define: DefineElement){
-    this.context.elementMod(define);
+    this.context.setModifier(define);
   }
 }
 

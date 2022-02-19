@@ -50,7 +50,7 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
         const define = new DefineElement(context, key);
 
         parse(define, body);
-        context.elementMod(define);
+        context.setModifier(define);
         break;
       }
       
