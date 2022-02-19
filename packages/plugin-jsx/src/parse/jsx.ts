@@ -120,9 +120,6 @@ function createElement(
   else if(s.assert(tag, "JSXIdentifier")){
     name = tag.name;
 
-    if(name == "s")
-      name = "span";
-
     let explicit =
       /^[A-Z]/.test(name) ||
       COMMON_HTML.includes(name);
@@ -139,13 +136,25 @@ function createElement(
     throw Oops.NonJSXIdentifier(tag);
 
   target.name = name;
-  target.context.apply(name, target);
+  applyModifier(target, name);
 
   return target;
 }
 
+function applyModifier(target: ElementInline, name: string){
+  const apply = target.context.getApplicable(name);
+
+  for(const mod of apply)
+    for(const use of [mod, ...mod.includes]){
+      target.includes.add(use);
+      use.targets.add(target);
+    }
+  
+  return apply;
+}
+
 function applyAttribute(
-  parent: Element,
+  parent: ElementInline,
   attr: t.Path<t.JSXAttribute> | t.Path<t.JSXSpreadAttribute>,
   queue: (readonly [Element, t.Path<t.JSXElement>])[]){
 
@@ -161,15 +170,11 @@ function applyAttribute(
     name = attr.node.name.name as string;
 
     if(expression === null){
-      const applied = parent.context.apply(name, parent);
+      const applied = applyModifier(parent, name);
 
       if(/^[A-Z]/.test(parent.name!))
-        for(const define of applied){
+        for(const define of applied)
           define.priority = 3;
-          Object.defineProperty(define, "collapsable", {
-            value: false
-          })
-        }
 
       return;
     }

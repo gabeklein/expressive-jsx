@@ -13,10 +13,6 @@ interface Stackable {
   context: StackFrame;
 }
 
-interface Applicable {
-  use(mod: Define): void;
-}
-
 const DEFAULTS: Options = {
   env: "web",
   styleMode: "compile",
@@ -120,13 +116,13 @@ export class StackFrame {
     this.program = FileManager.create(this, path, options);
   }
 
-  apply(name: string, target: Applicable){
-    let modify = this.elementMod(name);
-    const didApply = [] as Define[];
+  getApplicable(name: string){
+    const apply = [] as Define[];
+    let modify: Define | undefined =
+      this.getModifier(name);
   
     while(modify){
-      didApply.push(modify);
-      target.use(modify);
+      apply.push(modify);
   
       for(const sub of modify.provides)
         this.setModifier(sub);
@@ -134,7 +130,20 @@ export class StackFrame {
       modify = modify.next;
     }
 
-    return didApply;
+    return apply;
+  }
+
+  apply(name: string, target: Define){
+    const applied = this.getApplicable(name);
+
+    for(const modifier of applied){
+      target.use(modifier);
+
+      for(const sub of modifier.provides)
+        this.setModifier(sub);
+    }
+
+    return applied;
   }
 
   push(node?: Stackable | string): StackFrame {

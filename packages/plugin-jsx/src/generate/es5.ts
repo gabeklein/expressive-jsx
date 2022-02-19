@@ -19,8 +19,8 @@ export function createElement(
 
   const type = typeof tag === "string" ?
     /^[A-Z]/.test(tag)
-      ? s.identifier(tag) : s.literal(tag) :
-    stripJSX(tag);
+      ? s.identifier(tag) : s.literal(tag)
+      : stripJSX(tag);
 
   const props = recombineProps(properties);
 
