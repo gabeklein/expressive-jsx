@@ -1,16 +1,39 @@
 import type { Comment, Node, NodeType, Path, PathType, SourceLocation, Type } from './types';
 
-export function assert(node: null | undefined, type: string, fields?: any): false;
-export function assert<T extends Type>(path: Path<any> | undefined | null, type: T, fields?: Partial<NodeType<T>>): path is PathType<T>;
-export function assert<T extends Type>(node: Node | undefined | null, type: T, fields?: Partial<NodeType<T>>): node is NodeType<T>;
-export function assert<T extends Type, N extends NodeType<T>>(
-  node: Node | Path<Node> | null | undefined, type: T, fields?: Partial<N>): boolean {
+function assert(
+  node: null | undefined,
+  type: string | string[],
+  fields?: any
+): false;
+
+function assert<T extends Type>(
+  path: Path<any> | undefined | null,
+  type: T | T[],
+  fields?: Partial<NodeType<T>>
+): path is PathType<T>;
+
+function assert<T extends Type>(
+  node: Node | undefined | null,
+  type: T | T[],
+  fields?: Partial<NodeType<T>>
+): node is NodeType<T>;
+
+function assert<T extends Type, N extends NodeType<T>>(
+  node: Node | Path<Node> | null | undefined,
+  expect: T | T[],
+  fields?: Partial<N>): boolean {
 
   if(!node || typeof node != "object")
     return false;
 
-  if(node.type !== type)
+  const nodeType = node.type;
+
+  if(typeof expect === "object"){
+    if(!expect.some(e => e === nodeType))
       return false;
+  }
+  else if(expect === nodeType)
+    return false;
 
   if("node" in node)
     node = node.node;
@@ -26,6 +49,8 @@ export function assert<T extends Type, N extends NodeType<T>>(
     
   return true;
 }
+
+export { assert }
 
 interface BaseNode {
   leadingComments: ReadonlyArray<Comment> | null;

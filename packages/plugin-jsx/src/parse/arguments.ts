@@ -164,11 +164,8 @@ export class DelegateTypes {
     if(alt)
       throw Oops.ElseNotSupported(test);
 
-    if(s.assert(body, "BlockStatement")
-    || s.assert(body, "LabeledStatement")
-    || s.assert(body, "ExpressionStatement")) {
+    if(s.assert(body, ["BlockStatement", "LabeledStatement", "ExpressionStatement"]))
       Object.assign(data, this.Extract(body))
-    }
 
     return data;
   }

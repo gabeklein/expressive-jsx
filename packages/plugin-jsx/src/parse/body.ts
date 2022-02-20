@@ -55,16 +55,11 @@ export function parseContent(
     const item = new ComponentIf();
     item.setup(target.context, path);
     target.adopt(item);
+
     return;
   }
 
-  if(s.assert(path, "ForInStatement")
-  || s.assert(path, "ForOfStatement")){
-    new ComponentFor(path, target);
-    return;
-  }
-
-  if(s.assert(path, "ForStatement")){
+  if(s.assert(path, ["ForInStatement", "ForOfStatement", "ForStatement"])){
     new ComponentFor(path, target);
     return;
   }
