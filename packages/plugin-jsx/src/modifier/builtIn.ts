@@ -10,8 +10,7 @@ function applyAlso(
 
   for(const name of names)
     if(typeof name == "string"){
-      const mod =
-        target.context.getModifier(name);
+      const mod = target.context.getModifier(name);
 
       if(mod)
         target.use(mod);

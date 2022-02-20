@@ -95,7 +95,6 @@ export class ModifyDelegate {
     mod.onlyWithin = target.onlyWithin;
     
     parse(mod, body);
-
     target.use(mod);
 
     return mod;

@@ -35,6 +35,7 @@ export function parseContent(
 
   if(s.assert(path, "LabeledStatement")){
     handleDefine(target, path);
+
     return;
   }
   
@@ -49,6 +50,7 @@ export function parseContent(
 
       parse(mod, body);
       target.use(mod);
+
       return
     }
 
