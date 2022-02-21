@@ -41,7 +41,7 @@ export function jsxElement(
   });
 }
 
-export function jsxContent(child: t.Expression){
+function jsxContent(child: t.Expression){
   if(assert(child, "JSXElement"))
     return child;
 

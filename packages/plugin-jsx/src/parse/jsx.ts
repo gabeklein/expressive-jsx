@@ -37,7 +37,14 @@ export function addElementFromJSX(
     target = child;
   }
 
-  const queue = [[target, path] as const];
+  parseJSX(target, path);
+}
+
+export function parseJSX(
+  into: DefineElement | ElementInline,
+  element: t.Path<t.JSXElement>){
+
+  const queue = [[into, element] as const];
 
   for(const [element, path] of queue){
     const children = path.get("children");
