@@ -23,7 +23,7 @@ export abstract class Attribute {
 
     if(value && typeof value == "object" && "toExpression" in value)
       return value.toExpression() || s.expression();
-    
+
     return s.expression(value)
   }
 }

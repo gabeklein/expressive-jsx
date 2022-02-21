@@ -69,7 +69,8 @@ function applyChild(
   children: (typeof path)[]){
 
   if(s.assert(path, "JSXElement")){
-    const child = createElement(path.node.openingElement.name, parent);
+    const tag = path.node.openingElement.name;
+    const child = createElement(tag, parent);
 
     parent.adopt(child);
 

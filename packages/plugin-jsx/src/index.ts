@@ -81,7 +81,7 @@ const JSXElement: Visitor<t.JSXElement> = {
 
     addElementFromJSX(path, parent);
 
-    const result = parent.toExpression()!;
+    const result = parent.toExpression();
     const within = path.parentPath;
     
     if(s.assert(within, "ExpressionStatement"))
