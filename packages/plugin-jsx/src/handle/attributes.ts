@@ -8,9 +8,6 @@ export abstract class Attribute {
   name?: string;
   value?: FlatValue | t.Expression | ElementInline;
 
-  /** Is a static value. May be hoisted and/or baked. */
-  invariant?: boolean;
-
   constructor(
     name: string | false,
     value: FlatValue | t.Expression | ElementInline){
@@ -19,8 +16,6 @@ export abstract class Attribute {
       this.name = name;
     if(value !== undefined)
       this.value = value;
-    if(value === null || typeof value !== "object")
-      this.invariant = true
   }
 
   get expression(){
@@ -38,6 +33,9 @@ export class Prop extends Attribute {}
 export class ExplicitStyle extends Attribute {
   important: boolean;
 
+  /** Is a static value. May be hoisted and/or baked. */
+  invariant?: boolean;
+
   constructor(
     name: string | false,
     value: FlatValue | FlatValue[] | t.Expression,
@@ -52,5 +50,8 @@ export class ExplicitStyle extends Attribute {
     super(name, value);
 
     this.important = important || false;
+
+    if(value === null || typeof value !== "object")
+      this.invariant = true
   }
 }
