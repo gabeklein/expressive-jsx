@@ -112,11 +112,21 @@ function createElement(
   parent: Element){
 
   const target = new ElementInline(parent.context);
+
+  applyTagName(target, tag);
+
+  return target;
+}
+
+function applyTagName(
+  element: ElementInline,
+  tag: t.JSXIdentifier | t.JSXMemberExpression | t.JSXNamespacedName){
+
   let name;
 
   if(s.assert(tag, "JSXMemberExpression")){
     name = tag.property.name;
-    target.tagName = tag;
+    element.tagName = tag;
   }
   else if(s.assert(tag, "JSXIdentifier")){
     name = tag.name;
@@ -131,19 +141,17 @@ function createElement(
     }
 
     if(explicit || /^[A-Z]/.test(name))
-      target.tagName = name;
+      element.tagName = name;
   }
   else
     throw Oops.NonJSXIdentifier(tag);
 
-  target.name = name;
-  applyModifier(target, name);
-
-  return target;
+  element.name = name;
+  applyModifier(element, name);
 }
 
 function applyAttribute(
-  parent: ElementInline,
+  parent: Element,
   attr: t.Path<t.JSXAttribute> | t.Path<t.JSXSpreadAttribute>,
   queue: (readonly [Element, t.Path<t.JSXElement>])[]){
 
@@ -201,7 +209,7 @@ function applyAttribute(
   );
 }
 
-function applyModifier(target: ElementInline, name: string){
+function applyModifier(target: Element, name: string){
   const apply = [] as Define[];
   let modify = target.context.getModifier(name);
 
