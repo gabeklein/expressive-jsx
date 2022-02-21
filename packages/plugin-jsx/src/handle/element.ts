@@ -11,9 +11,6 @@ export class ElementInline extends AttributeBody {
     const { program } = this.context;
     const { info } = new Generator(this);
 
-    if(this.tagName || this.sequence.length)
-      return program.element(info, this.tagName);
-    else
-      return program.container(info);
+    return program.element(info, this.tagName);
   }
 }
