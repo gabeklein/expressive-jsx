@@ -32,7 +32,7 @@ function assert<T extends Type, N extends NodeType<T>>(
     if(!expect.some(e => e === nodeType))
       return false;
   }
-  else if(expect === nodeType)
+  else if(expect !== nodeType)
     return false;
 
   if("node" in node)
