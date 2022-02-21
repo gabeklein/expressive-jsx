@@ -56,8 +56,8 @@ export class Define extends AttributeBody {
     this.provides.add(define);
   }
 
-  toExpression(maybeProps?: boolean){
-    const info = new Generator(this).info as any;
+  toExpression(maybeProps?: boolean): t.Expression {
+    const { info } = new Generator(this);
 
     if(maybeProps && info.children.length === 0)
       return recombineProps(info.props);

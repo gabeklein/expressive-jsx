@@ -9,11 +9,11 @@ export class ElementInline extends AttributeBody {
 
   toExpression(){
     const { program } = this.context;
-    const output = new Generator(this).info;
+    const { info } = new Generator(this);
 
     if(this.tagName || this.sequence.length)
-      return program.element(output, this.tagName);
+      return program.element(info, this.tagName);
     else
-      return program.container(output);
+      return program.container(info);
   }
 }
