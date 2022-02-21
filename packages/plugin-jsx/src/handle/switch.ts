@@ -79,7 +79,7 @@ export class ComponentIf {
 
 export class DefineConsequent extends Define {
   test: t.Expression | undefined;
-  anchor: DefineElement;
+  parent: DefineElement;
 
   constructor(
     consequent: t.Path<t.Statement>,
@@ -91,19 +91,18 @@ export class DefineConsequent extends Define {
 
     this.test = test;
     this.name = specifyOption(test) || `opt${index + 1}`;
+    this.priority = 5;
 
     context.resolveFor(index);
 
     let parent = context.currentElement!
 
     if(parent instanceof DefineConsequent)
-      parent = parent.anchor;
+      parent = parent.parent;
+
+    this.parent = parent;
 
     parent.dependant.add(this);
-
-    this.anchor = parent;
-    this.priority = 5;
-
     parse(this, consequent);
   }
 
@@ -137,7 +136,7 @@ export class DefineConsequent extends Define {
     define.onlyWithin = this;
     define.priority = 4;
 
-    this.anchor.provide(define);
+    this.parent.provide(define);
     this.dependant.add(define);
   }
 }
