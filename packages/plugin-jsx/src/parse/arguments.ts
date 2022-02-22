@@ -93,10 +93,12 @@ export class DelegateTypes {
 
   NumericLiteral(number: t.NumericLiteral, sign = 1){
     const { extra: { rawValue, raw } } = number as any;
+
     if(s.isParenthesized(number) || !/^0x/.test(raw)){
       if(raw.indexOf(".") > 0)
         return sign == -1 ? "-" + raw : raw;
-      return sign*rawValue;
+
+      return sign * rawValue;
     }
     if(sign == -1)
       throw Oops.HexNoNegative(number, rawValue);
@@ -143,6 +145,7 @@ export class DelegateTypes {
       throw Oops.MustBeIdentifier(callee)
 
     const call = args.map(x => this.Expression(x)) as CallAbstraction;
+
     call.callee = callee.name;
 
     return call;
@@ -179,12 +182,11 @@ export class DelegateTypes {
   BlockStatement(statement: t.BlockStatement){
     const map = {} as BunchOf<any>
 
-    for(const item of statement.body){
+    for(const item of statement.body)
       if(s.assert(item, "LabeledStatement"))
         map[item.label.name] = this.parse(item.body);
       else if(item.type !== "IfStatement")
         throw Oops.ModiferCantParse(statement);
-    }
 
     return map;
   }
@@ -207,7 +209,7 @@ function HEXColor(raw: string){
 
     else for(let i = 0; i < 4; i++)
       decimal.push(
-        parseInt(raw.slice(i*2, i*2+2), 16)
+        parseInt(raw.slice(i * 2, i * 2 + 2), 16)
       );
 
     //decimal for opacity, also prevents repeating digits (i.e. 1/3)

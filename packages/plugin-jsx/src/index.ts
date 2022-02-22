@@ -76,12 +76,11 @@ const JSXElement: Visitor<t.JSXElement> = {
       return;
     }
 
-    const context = StackFrame.find(path, true);
-    const parent = context.ambient;
+    const { ambient } = StackFrame.find(path, true);
 
-    addElementFromJSX(path, parent);
+    addElementFromJSX(path, ambient);
 
-    const result = parent.toExpression();
+    const result = ambient.toExpression();
     const within = path.parentPath;
     
     if(s.assert(within, "ExpressionStatement"))
