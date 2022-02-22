@@ -2,7 +2,7 @@ import * as s from 'syntax';
 
 import type * as t from 'syntax/types';
 import type { FlatValue } from 'types';
-import type { ElementInline } from './element';
+import type { ElementInline } from './definition';
 
 export abstract class Attribute {
   name?: string;

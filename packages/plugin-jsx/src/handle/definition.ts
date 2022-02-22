@@ -7,12 +7,10 @@ import { AttributeBody } from './object';
 
 import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
-import type { ElementInline } from 'handle/element';
 
 export class Define extends AttributeBody {
   next?: Define;
   onlyWithin?: Define;
-  tagName?: string | t.JSXMemberExpression;
   
   priority = 1;
 
@@ -99,6 +97,12 @@ export class Define extends AttributeBody {
 
     if(mod instanceof DefineVariant)
       this.dependant.add(mod);
+  }
+}
+
+export class ElementInline extends AttributeBody {
+  toExpression(){
+    return new Generator(this).element();
   }
 }
 

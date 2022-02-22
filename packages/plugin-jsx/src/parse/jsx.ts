@@ -1,6 +1,6 @@
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
-import { ElementInline } from 'handle/element';
+import { ElementInline } from 'handle/definition';
 import * as s from 'syntax';
 
 import type { DefineElement } from 'handle/definition';

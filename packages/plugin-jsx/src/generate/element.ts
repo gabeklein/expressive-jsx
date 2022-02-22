@@ -1,7 +1,6 @@
 import { AttributeStack } from 'generate/attributes';
 import { ExplicitStyle, Prop } from 'handle/attributes';
-import { Define, DefineLocal, DefineVariant } from 'handle/definition';
-import { ElementInline } from 'handle/element';
+import { Define, DefineLocal, DefineVariant, ElementInline } from 'handle/definition';
 import * as s from 'syntax';
 
 import type * as t from 'syntax/types';
@@ -14,6 +13,7 @@ import type { StackFrame } from 'context';
 const byPriority = (x: any, y: any) => x.priority - y.priority;
 
 export class Generator {
+  tag: string | t.JSXMemberExpression | undefined;
   props = [] as PropData[];
   children = [] as t.Expression[];
 
@@ -44,6 +44,7 @@ export class Generator {
     const { invariant } = this.style;
 
     this.context = element.context;
+    this.tag = element.tagName;
 
     Array.from(element.includes)
       .sort(byPriority)
@@ -56,6 +57,10 @@ export class Generator {
   
     if(element instanceof Define)
       this.useClass(element);
+  }
+
+  element(){
+    return this.context.program.element(this.info, this.tag);
   }
 
   add(item: SequenceItem){

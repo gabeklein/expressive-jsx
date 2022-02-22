@@ -1,7 +1,7 @@
-import * as s from 'syntax';
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
-import { ElementInline } from 'handle/element';
+import { ElementInline } from 'handle/definition';
+import * as s from 'syntax';
 
 import type * as t from 'syntax/types';
 import type { DefineElement } from 'handle/definition';
@@ -37,9 +37,7 @@ export function forElement(
   node.body = body;
 
   return s.call(collect, 
-    s.arrow(
-      [accumulator], s.block(node)
-    )  
+    s.arrow([accumulator], s.block(node))  
   )
 }
 

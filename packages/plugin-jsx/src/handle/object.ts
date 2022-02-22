@@ -5,6 +5,7 @@ import type { InnerContent, SequenceItem } from 'types';
 
 export abstract class AttributeBody {
   name?: string;
+  tagName?: string | t.JSXMemberExpression;
   context!: StackFrame;
 
   sequence = [] as SequenceItem[];
@@ -27,6 +28,10 @@ export abstract class AttributeBody {
     return this.context.unique(this.name!);
   }
 
+  add(item: SequenceItem){
+    this.sequence.push(item);
+  }
+
   adopt(child: InnerContent){
     const index = this.children.push(child);
 
@@ -34,9 +39,5 @@ export abstract class AttributeBody {
       child.context.resolveFor(index);
 
     this.add(child);
-  }
-
-  add(item: SequenceItem){
-    this.sequence.push(item);
   }
 }

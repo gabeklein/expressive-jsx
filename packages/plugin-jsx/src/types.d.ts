@@ -1,7 +1,7 @@
 import type { StackFrame } from 'context';
 import type { ExplicitStyle, Prop } from 'handle/attributes';
 import type { ModifyDelegate } from 'parse/modifiers';
-import type { ElementInline } from 'handle/element';
+import type { ElementInline } from 'handle/definition';
 import type { ComponentFor } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';
 import type * as t from 'syntax/types';
