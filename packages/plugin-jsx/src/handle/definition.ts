@@ -26,14 +26,14 @@ export class Define extends AttributeBody {
   
   priority = 1;
 
+  /** Targets which this modifier applies to. */
+  targets = new Set<Define | ElementInline>();
+
   /** Modifiers available to children of applicable elements. */
   provides = new Set<Define>();
 
   /** Modifiers based upon this one. */
   dependant = new Set<Define>();
-
-  /** Targets which this modifier applies to. */
-  targets = new Set<Define | ElementInline>();
 
   get selector(){
     return [ `.${this.uid}` ];
@@ -62,6 +62,13 @@ export class Define extends AttributeBody {
     )
   }
 
+  use(mod: Define){
+    this.includes.add(mod);
+
+    if(mod instanceof DefineVariant)
+      this.dependant.add(mod);
+  }
+
   provide(define: Define){
     this.provides.add(define);
   }
@@ -75,17 +82,10 @@ export class Define extends AttributeBody {
     return this.context.program.container(info);
   }
 
-  containsStyle(staticOnly?: boolean): ExplicitStyle | undefined;
-  containsStyle(named: string): ExplicitStyle | undefined;
-  containsStyle(arg?: boolean | string){
-    return this.sequence.find(style => {
-      if(style instanceof ExplicitStyle){
-        if(typeof arg == "string")
-          return arg == style.name;
-        else
-          return !arg || style.invariant;
-      }
-    });
+  addStyle(name: string, value: any){
+    this.add(
+      new ExplicitStyle(name, value)
+    )
   }
   
   setActive(withPriority?: number){
@@ -98,17 +98,17 @@ export class Define extends AttributeBody {
     this.context.modifiersDeclared.add(this);
   }
 
-  addStyle(name: string, value: any){
-    this.add(
-      new ExplicitStyle(name, value)
-    )
-  }
-
-  use(mod: Define){
-    this.includes.add(mod);
-
-    if(mod instanceof DefineVariant)
-      this.dependant.add(mod);
+  containsStyle(staticOnly?: boolean): ExplicitStyle | undefined;
+  containsStyle(named: string): ExplicitStyle | undefined;
+  containsStyle(arg?: boolean | string){
+    return this.sequence.find(style => {
+      if(style instanceof ExplicitStyle){
+        if(typeof arg == "string")
+          return arg == style.name;
+        else
+          return !arg || style.invariant;
+      }
+    });
   }
 }
 
