@@ -76,7 +76,7 @@ export function handleDefine(
   }
 }
 
-export function handleNestedDefine(
+function handleNestedDefine(
   target: Define,
   name: string,
   body: t.Path<any>){
@@ -89,9 +89,6 @@ export function handleNestedDefine(
   target.provide(mod);
   parse(mod, body);
 }
-
-type DirectiveTuple = 
-  [string, ModifyAction, DefineBodyCompat];
 
 export function handleModifier(
   target: Define,
@@ -110,7 +107,9 @@ export function handleModifier(
   if(s.assert(body, "IfStatement"))
     key = `${key}.if`;
 
-  const initial: DirectiveTuple = [ key, handler, body ];
+  const initial =
+    [ key, handler, body ] as
+    [string, ModifyAction, DefineBodyCompat];
 
   doUntilEmpty(initial, (next, enqueue) => {
     const { styles, attrs } =

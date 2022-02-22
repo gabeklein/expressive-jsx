@@ -46,8 +46,16 @@ export class ModifyDelegate {
       args.pop();
     }
 
-    this.options = target.context.opts;
     this.arguments = args;
+    this.options = target.context.opts;
+    this.applyTransform(transform, important)
+  }
+
+  applyTransform(
+    transform: ModifyAction,
+    important: boolean){
+
+    const args = this.arguments;
 
     if(!transform)
       transform = propertyModifierDefault;
