@@ -8,7 +8,19 @@ import { AttributeBody } from './object';
 import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
 
+export class ElementInline extends AttributeBody {
+  toExpression(){
+    return new Generator(this).element();
+  }
+}
+
 export class Define extends AttributeBody {
+  constructor(context: StackFrame, name?: string){
+    super(context, name);
+
+    this.context.currentElement = this;
+  }
+
   next?: Define;
   onlyWithin?: Define;
   
@@ -50,7 +62,7 @@ export class Define extends AttributeBody {
     )
   }
 
-  provide(define: DefineElement){
+  provide(define: Define){
     this.provides.add(define);
   }
 
@@ -100,12 +112,6 @@ export class Define extends AttributeBody {
   }
 }
 
-export class ElementInline extends AttributeBody {
-  toExpression(){
-    return new Generator(this).element();
-  }
-}
-
 export class DefineLocal extends Define {
   constructor(
     private parent: ElementInline,
@@ -121,23 +127,9 @@ export class DefineLocal extends Define {
   }
 }
 
-export class DefineElement extends Define {
-  constructor(context: StackFrame, name: string){
-    super(context, name);
-
-    this.context.currentElement = this;
-  }
-}
-
-export class DefineContainer extends DefineElement {
-  provide(define: DefineElement){
-    this.context.setModifier(define);
-  }
-}
-
 export class DefineVariant extends Define {
   constructor(
-    private parent: DefineElement,
+    private parent: Define,
     private suffix: string[],
     public priority: number){
 
@@ -158,7 +150,7 @@ export class DefineVariant extends Define {
     return false;
   }
 
-  provide(define: DefineElement){
+  provide(define: Define){
     define.onlyWithin = this;
     define.priority = this.priority;
 

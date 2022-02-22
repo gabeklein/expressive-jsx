@@ -3,7 +3,7 @@ import * as s from 'syntax';
 
 import type * as t from 'syntax/types';
 import type { ModifyDelegate } from 'parse/modifiers';
-import type { DefineElement } from 'handle/definition';
+import type { Define } from 'handle/definition';
 
 export function forwardProp(
   this: ModifyDelegate,
@@ -32,7 +32,7 @@ export function forwardProp(
 }
 
 function forwardRef(
-  target: DefineElement,
+  target: Define,
   component: t.Path<t.Function>
 ){
   const { node } = component as t.Path<any>;

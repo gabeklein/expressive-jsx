@@ -17,12 +17,13 @@ export function createElement(
   if(!tag)
     tag = this.ensure("$pragma", "Fragment").name;
 
-  const type = typeof tag === "string" ?
-    /^[A-Z]/.test(tag)
-      ? s.identifier(tag) : s.literal(tag)
-      : stripJSX(tag);
-
   const props = recombineProps(properties);
+  const type =
+    typeof tag === "string"
+      ? /^[A-Z]/.test(tag)
+        ? s.identifier(tag)
+        : s.literal(tag)
+      : stripJSX(tag);
 
   return s.call(create, type, props, ...children);
 }

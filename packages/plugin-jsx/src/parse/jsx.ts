@@ -3,9 +3,8 @@ import { Prop } from 'handle/attributes';
 import { ElementInline } from 'handle/definition';
 import * as s from 'syntax';
 
-import type { DefineElement } from 'handle/definition';
-import type * as t from 'syntax/types';
 import type { Define } from 'handle/definition';
+import type * as t from 'syntax/types';
 
 export type Element = ElementInline | Define;
 
@@ -32,7 +31,7 @@ const COMMON_HTML = [
 ];
 
 export function addElementFromJSX(
-  path: t.Path<t.JSXElement>, parent: DefineElement){
+  path: t.Path<t.JSXElement>, parent: Define){
 
   let target = parent as Element;
   const tag = path.get("openingElement").get("name");
@@ -49,7 +48,7 @@ export function addElementFromJSX(
 }
 
 export function parseJSX(
-  into: DefineElement | ElementInline,
+  into: Define | ElementInline,
   element: t.Path<t.JSXElement>){
 
   const queue = [[into, element] as const];

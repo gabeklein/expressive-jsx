@@ -7,7 +7,6 @@ import { Define } from './definition';
 
 import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
-import type { DefineElement } from 'handle/definition';
 
 export type Consequent = ComponentIf | DefineConsequent;
 
@@ -79,7 +78,7 @@ export class ComponentIf {
 
 export class DefineConsequent extends Define {
   test: t.Expression | undefined;
-  parent: DefineElement;
+  parent: Define;
 
   constructor(
     consequent: t.Path<t.Statement>,
@@ -107,7 +106,7 @@ export class DefineConsequent extends Define {
   }
 
   get selector(): string[] {
-    const parent = this.context.currentElement!;
+    const parent = this.parent;
 
     if(!parent)
       throw new Error("No consequent parent found.")
@@ -132,7 +131,7 @@ export class DefineConsequent extends Define {
     return segments.join(" ");
   }
 
-  provide(define: DefineElement){
+  provide(define: Define){
     define.onlyWithin = this;
     define.priority = 4;
 

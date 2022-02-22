@@ -1,4 +1,4 @@
-import { DefineElement } from 'handle/definition';
+import { Define } from 'handle/definition';
 import { builtIn } from 'modifier/builtIn';
 import { containerName, parentFunction } from 'parse/entry';
 import { FileManager } from 'scope';
@@ -6,7 +6,6 @@ import * as s from 'syntax';
 import { hash, Stack } from 'utility';
 
 import type * as t from 'syntax/types';
-import type { Define } from 'handle/definition';
 import type { BabelState, ModifyAction, Options } from 'types';
 
 interface Stackable {
@@ -23,7 +22,7 @@ const DEFAULTS: Options = {
 };
 
 const REGISTER = new WeakMap<t.Node, StackFrame>();
-const AMBIENT = new WeakMap<StackFrame, DefineElement>();
+const AMBIENT = new WeakMap<StackFrame, Define>();
 
 export class StackFrame {
   name?: string;
@@ -47,7 +46,7 @@ export class StackFrame {
     let ambient = AMBIENT.get(this);
 
     if(!ambient){
-      ambient = new DefineElement(this, this.name!);
+      ambient = new Define(this, this.name!);
       AMBIENT.set(this, ambient);
     }
 

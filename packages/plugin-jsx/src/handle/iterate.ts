@@ -2,20 +2,20 @@ import * as s from 'syntax';
 import { forElement, forXElement } from 'generate/iterate';
 import { parse } from 'parse/body';
 
-import { DefineElement } from './definition';
+import { Define } from './definition';
 
 import type * as t from 'syntax/types';
 
 export class ComponentFor {
-  definition: DefineElement;
+  definition: Define;
   node: t.For;
 
   constructor(
     path: t.Path<t.For>,
-    parent: DefineElement){
+    parent: Define){
 
     const name = path.type.replace("Statement", "Loop");
-    const element = new DefineElement(parent.context, name);
+    const element = new Define(parent.context, name);
 
     parse(element, path, "body");
 

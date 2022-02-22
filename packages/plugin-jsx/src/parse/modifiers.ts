@@ -7,7 +7,7 @@ import { DelegateTypes } from './arguments';
 import { parse } from './body';
 
 import type * as t from 'syntax/types';
-import type { DefineElement } from 'handle/definition';
+import type { Define } from 'handle/definition';
 import type { Prop } from 'handle/attributes';
 import type { BunchOf, DefineBodyCompat, ModifyAction, Options } from 'types';
 
@@ -26,7 +26,7 @@ export class ModifyDelegate {
   props = {} as BunchOf<Prop>;
 
   constructor(
-    public target: DefineElement,
+    public target: Define,
     public name: string,
     transform: ModifyAction,
     input: any[] | DefineBodyCompat){

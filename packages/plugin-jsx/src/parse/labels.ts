@@ -1,6 +1,6 @@
 import * as s from 'syntax';
 import { ParseErrors } from 'errors';
-import { DefineElement } from 'handle/definition';
+import { Define } from 'handle/definition';
 import { ModifyDelegate } from 'parse/modifiers';
 import { doUntilEmpty } from 'utility';
 
@@ -8,7 +8,6 @@ import { parse } from './body';
 
 import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
-import type { Define } from 'handle/definition';
 import type { ExplicitStyle } from 'handle/attributes';
 import type { BunchOf, DefineBodyCompat, ModifyAction } from 'types';
 
@@ -47,7 +46,7 @@ export function handleTopLevelDefine(
   if(s.assert(body, "ExpressionStatement"))
     throw Oops.IllegalAtTopLevel(node)
 
-  const define = new DefineElement(context, name);
+  const define = new Define(context, name);
 
   parse(define, body);
 
@@ -82,7 +81,7 @@ export function handleNestedDefine(
   name: string,
   body: t.Path<any>){
 
-  const mod = new DefineElement(target.context, name);
+  const mod = new Define(target.context, name);
 
   if(/^[A-Z]/.test(name))
     mod.priority = 3;

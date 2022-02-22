@@ -4,7 +4,7 @@ import { ElementInline } from 'handle/definition';
 import * as s from 'syntax';
 
 import type * as t from 'syntax/types';
-import type { DefineElement } from 'handle/definition';
+import type { Define } from 'handle/definition';
 
 const Oops = ParseErrors({
   BadForOfAssignment: "Assignment of variable left of \"of\" must be Identifier or Destruture",
@@ -13,7 +13,7 @@ const Oops = ParseErrors({
 
 export function forElement(
   node: t.ForStatement,
-  define: DefineElement){
+  define: Define){
 
   const { statements } = define;
   const { program } = define.context;
@@ -43,7 +43,7 @@ export function forElement(
 
 export function forXElement(
   node: t.ForXStatement,
-  define: DefineElement){
+  define: Define){
 
   let { left, right, key } = getReferences(node);
 
@@ -105,7 +105,7 @@ function getReferences(node: t.ForXStatement){
 }
 
 function ensureKeyProp(
-  from: DefineElement,
+  from: Define,
   used?: t.Identifier){
 
   let { sequence, children } = from;

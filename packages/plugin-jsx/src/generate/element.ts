@@ -4,7 +4,6 @@ import { Define, DefineLocal, DefineVariant, ElementInline } from 'handle/defini
 import * as s from 'syntax';
 
 import type * as t from 'syntax/types';
-import type { DefineElement } from 'handle/definition';
 import type { FileManager } from 'scope';
 import type { DefineConsequent } from 'handle/switch';
 import type { PropData, SequenceItem } from 'types';
@@ -119,7 +118,7 @@ export class Generator {
     this.props.push({ name, value: item.expression });
   }
 
-  useClass(from: DefineElement | DefineConsequent){
+  useClass(from: Define | DefineConsequent){
     if(this.inline_only)
       return false;
 
