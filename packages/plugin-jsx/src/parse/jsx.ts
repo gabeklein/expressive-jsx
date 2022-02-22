@@ -9,6 +9,13 @@ import type { Define } from 'handle/definition';
 
 export type Element = ElementInline | Define;
 
+type JSXChild =
+  | t.JSXElement
+  | t.JSXFragment
+  | t.JSXExpressionContainer
+  | t.JSXSpreadChild
+  | t.JSXText;
+
 const Oops = ParseErrors({
   InvalidPropValue: "Can only consume an expression or string literal as value here.",
   UnhandledChild: "Can't parse JSX child of type {1}",
@@ -31,8 +38,9 @@ export function addElementFromJSX(
   const tag = path.get("openingElement").get("name");
 
   if(!s.assert(tag, "JSXIdentifier", { name: "this" })){
-    const child = createElement(tag.node, target);
-
+    const child = new ElementInline(target.context);
+      
+    applyTagName(child, tag.node);
     target.adopt(child);
     target = child;
   }
@@ -53,36 +61,23 @@ export function parseJSX(
     for(const attribute of attributes)
       applyAttribute(element, attribute as any, queue);
 
-    children.forEach((path, index) => {
-      const child = applyChild(element, path, index, children);
-
-      if(child)
+    for(const path of children)
+      if(s.assert(path, "JSXElement")){
+        const tag = path.node.openingElement.name;
+        const child = new ElementInline(element.context);
+      
+        applyTagName(child, tag);
+        element.adopt(child);
         queue.push([child, path as t.Path<t.JSXElement>]);
-    })
+      }
+      else
+        applyChild(element, path);
   }
 }
 
-type JSXChild =
-  | t.JSXElement
-  | t.JSXFragment
-  | t.JSXExpressionContainer
-  | t.JSXSpreadChild
-  | t.JSXText;
-
 function applyChild(
   parent: Element,
-  path: t.Path<JSXChild>,
-  index: number,
-  children: (typeof path)[]){
-
-  if(s.assert(path, "JSXElement")){
-    const tag = path.node.openingElement.name;
-    const child = createElement(tag, parent);
-
-    parent.adopt(child);
-
-    return child;
-  }
+  path: t.Path<JSXChild>){
 
   if(s.assert(path, "JSXText")){
     const { value } = path.node;
@@ -90,39 +85,20 @@ function applyChild(
     if(/^\n+ *$/.test(value))
       return;
 
-    let text = value
+    const text = value
       .replace(/ +/g, " ")
       .replace(/\n\s*/, "");
 
-    if(!index)
-      text = text.trimLeft();
-
-    if(index == children.length - 1)
-      text = text.trimRight();
-
     parent.adopt(s.literal(text));
   }
-
   else if(s.assert(path, "JSXExpressionContainer")){
     const { expression } = path.node;
 
     if(!s.assert(expression, "JSXEmptyExpression"))
       parent.adopt(path.node.expression as t.Expression);
   }
-
   else
     Oops.UnhandledChild(path, path.type);
-}
-
-function createElement(
-  tag: t.JSXIdentifier | t.JSXMemberExpression | t.JSXNamespacedName,
-  parent: Element){
-
-  const target = new ElementInline(parent.context);
-
-  applyTagName(target, tag);
-
-  return target;
 }
 
 function applyTagName(
@@ -202,9 +178,10 @@ function applyAttribute(
 
   if(value.type == "JSXElement"){
     const path = attr.get("value.expression") as t.Path<t.JSXElement>;
-    const child = createElement(path.node.openingElement.name, parent);
+    const child = new ElementInline(parent.context);
     const prop = new Prop(name, child);
 
+    applyTagName(child, path.node.openingElement.name);
     parent.add(prop);
     queue.push([child, path]);
 
