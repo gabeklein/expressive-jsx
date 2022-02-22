@@ -2,18 +2,13 @@ import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { ElementInline } from 'handle/definition';
 import * as s from 'syntax';
+import { HTML_TAGS } from 'syntax/jsx';
 
 import type { Define } from 'handle/definition';
+import type { JSXChild } from 'syntax/jsx';
 import type * as t from 'syntax/types';
 
 export type Element = ElementInline | Define;
-
-type JSXChild =
-  | t.JSXElement
-  | t.JSXFragment
-  | t.JSXExpressionContainer
-  | t.JSXSpreadChild
-  | t.JSXText;
 
 const Oops = ParseErrors({
   InvalidPropValue: "Can only consume an expression or string literal as value here.",
@@ -21,14 +16,6 @@ const Oops = ParseErrors({
   JSXMemberExpression: "Member Expression is not supported!",
   NonJSXIdentifier: "Cannot handle non-identifier!"
 });
-
-const COMMON_HTML = [
-  "article", "blockquote", "input",
-  "h1", "h2", "h3", "h4", "h5", "h6",
-  "p", "a", "ul", "ol", "li", "input",
-  "i", "b", "em", "strong", "span",
-  "hr", "img", "div", "br"
-];
 
 export function addElementFromJSX(
   path: t.Path<t.JSXElement>, parent: Define){
@@ -115,7 +102,7 @@ function applyTagName(
 
     let explicit =
       /^[A-Z]/.test(name) ||
-      COMMON_HTML.includes(name);
+      HTML_TAGS.includes(name);
 
     if(/^html-.+/.test(name)){
       name = name.slice(5);

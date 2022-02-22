@@ -4,6 +4,21 @@ import type * as t from './types';
 
 type JSXReference = t.JSXIdentifier | t.JSXMemberExpression;
 
+export type JSXChild =
+  | t.JSXElement
+  | t.JSXFragment
+  | t.JSXExpressionContainer
+  | t.JSXSpreadChild
+  | t.JSXText;
+
+export const HTML_TAGS = [
+  "article", "blockquote", "input",
+  "h1", "h2", "h3", "h4", "h5", "h6",
+  "p", "a", "ul", "ol", "li", "input",
+  "i", "b", "em", "strong", "span",
+  "hr", "img", "div", "br"
+];
+
 function jsxIdentifier<T extends JSXReference>(name: T): T;
 function jsxIdentifier(name: string): t.JSXIdentifier;
 function jsxIdentifier(name: string | JSXReference): JSXReference;
