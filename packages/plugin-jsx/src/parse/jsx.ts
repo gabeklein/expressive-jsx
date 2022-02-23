@@ -23,7 +23,7 @@ export function addElementFromJSX(
   let target = parent as Element;
   const tag = path.get("openingElement").get("name");
 
-  if(!s.assert(tag, "JSXIdentifier", { name: "this" })){
+  if(!s.is(tag, "JSXIdentifier", { name: "this" })){
     const child = new ElementInline(target.context);
 
     applyTagName(child, tag.node);
@@ -51,7 +51,7 @@ export function parseJSX(
       applyAttribute(element, attribute as any, queue);
 
     for(const path of children)
-      if(s.assert(path, "JSXElement")){
+      if(s.is(path, "JSXElement")){
         const child = new ElementInline(element.context);
 
         element.adopt(child);
@@ -66,7 +66,7 @@ function applyChild(
   parent: Element,
   path: t.Path<JSXChild>){
 
-  if(s.assert(path, "JSXText")){
+  if(s.is(path, "JSXText")){
     const { value } = path.node;
 
     if(/^\n+ *$/.test(value))
@@ -78,10 +78,10 @@ function applyChild(
 
     parent.adopt(s.literal(text));
   }
-  else if(s.assert(path, "JSXExpressionContainer")){
+  else if(s.is(path, "JSXExpressionContainer")){
     const { expression } = path.node;
 
-    if(!s.assert(expression, "JSXEmptyExpression"))
+    if(!s.is(expression, "JSXEmptyExpression"))
       parent.adopt(path.node.expression as t.Expression);
   }
   else
@@ -94,11 +94,11 @@ export function applyTagName(
 
   let name;
 
-  if(s.assert(tag, "JSXMemberExpression")){
+  if(s.is(tag, "JSXMemberExpression")){
     name = tag.property.name;
     element.tagName = tag;
   }
-  else if(s.assert(tag, "JSXIdentifier")){
+  else if(s.is(tag, "JSXIdentifier")){
     name = tag.name;
 
     let explicit =
@@ -128,7 +128,7 @@ function applyAttribute(
   let name: string | false;
   let value: t.Expression | undefined;
 
-  if(s.assert(attr, "JSXSpreadAttribute")){
+  if(s.is(attr, "JSXSpreadAttribute")){
     name = false;
     value = attr.node.argument;
   }

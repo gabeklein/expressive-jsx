@@ -63,7 +63,7 @@ export class StackFrame {
       if(scope)
         return scope;
   
-      if(s.assert(path, "BlockStatement") && create){
+      if(s.is(path, "BlockStatement") && create){
         const inherits = this.find(path);
         const name = containerName(path);
         

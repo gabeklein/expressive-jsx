@@ -1,5 +1,5 @@
 import type * as t from './types';
-import { assert, create } from './nodes';
+import { is, create } from './nodes';
 
 const ASSERT_OP = new Set([
   "in", "instanceof", 
@@ -27,7 +27,7 @@ export function isParenthesized(node: t.Expression){
 export function isBinaryAssertion(
   exp: t.Expression | undefined): exp is t.BinaryExpression {
 
-  if(assert(exp, "BinaryExpression"))
+  if(is(exp, "BinaryExpression"))
     if(ASSERT_OP.has(exp.operator))
       return true;
 
@@ -50,7 +50,7 @@ export function inverseExpression(exp: t.BinaryExpression){
 export function isFalsy(
   exp: t.Expression): exp is t.UnaryExpression{
 
-  return assert(exp, "UnaryExpression") && exp.operator == "!";
+  return is(exp, "UnaryExpression") && exp.operator == "!";
 }
 
 export function falsy(exp: t.Expression){

@@ -76,7 +76,7 @@ const JSXElement: Visitor<t.JSXElement> = {
       return;
     }
 
-    const isComponent = s.assert(path.parentPath, "ExpressionStatement");
+    const isComponent = s.is(path.parentPath, "ExpressionStatement");
     const context = StackFrame.find(path, true);
     const ownStyle = context.ambient;
     let target = new ElementInline(context);

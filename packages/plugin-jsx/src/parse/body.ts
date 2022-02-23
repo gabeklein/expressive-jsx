@@ -22,7 +22,7 @@ export function parse(
   if(key)
     ast = ast.get(key) as any;
 
-  const content = s.assert(ast, "BlockStatement")
+  const content = s.is(ast, "BlockStatement")
     ? ensureArray(ast.get("body"))
     : [ast];
   
@@ -56,13 +56,13 @@ function handleExpression(
 
   const e = path.get("expression") as t.Path<t.Node>;
 
-  if(s.assert(e, "JSXElement"))
+  if(s.is(e, "JSXElement"))
     addElementFromJSX(e, target);
 
-  else if(s.assert(e, "AssignmentExpression", { operator: "=" })){
+  else if(s.is(e, "AssignmentExpression", { operator: "=" })){
     const { left, right } = e.node;
 
-    if(!s.assert(left, "Identifier"))
+    if(!s.is(left, "Identifier"))
       throw Oops.PropNotIdentifier(left)
 
     const prop = new Prop(left.name, right);
@@ -76,7 +76,7 @@ function handleIfStatement(
 
   const test = path.node.test;
 
-  if(s.assert(test, "StringLiteral")){
+  if(s.is(test, "StringLiteral")){
     const body = path.get("consequent") as any;
     const mod = new DefineVariant(target, [ test.value ], 5);
 

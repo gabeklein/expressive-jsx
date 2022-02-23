@@ -1,24 +1,24 @@
 import type { Comment, Node, NodeType, Path, PathType, SourceLocation, Type } from './types';
 
-function assert(
+function is(
   node: null | undefined,
   type: string | string[],
   fields?: any
 ): false;
 
-function assert<T extends Type>(
+function is<T extends Type>(
   path: Path<any> | undefined | null,
   type: T | T[],
   fields?: Partial<NodeType<T>>
 ): path is PathType<T>;
 
-function assert<T extends Type>(
+function is<T extends Type>(
   node: Node | undefined | null,
   type: T | T[],
   fields?: Partial<NodeType<T>>
 ): node is NodeType<T>;
 
-function assert<T extends Type, N extends NodeType<T>>(
+function is<T extends Type, N extends NodeType<T>>(
   node: Node | Path<Node> | null | undefined,
   expect: T | T[],
   fields?: Partial<N>): boolean {
@@ -50,7 +50,7 @@ function assert<T extends Type, N extends NodeType<T>>(
   return true;
 }
 
-export { assert }
+export { is }
 
 interface BaseNode {
   leadingComments: ReadonlyArray<Comment> | null;

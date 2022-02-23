@@ -13,10 +13,10 @@ type FunctionPath =
 export function parentFunction(path: t.Path<t.BlockStatement>){
   const parent = path.parentPath;
 
-  if(s.assert(parent, "ArrowFunctionExpression"))
+  if(s.is(parent, "ArrowFunctionExpression"))
     return parent as t.Path<t.Function>;
 
-  if(s.assert(parent, "ReturnStatement")){
+  if(s.is(parent, "ReturnStatement")){
     const container = parent.findParent(node => (
       /.*Function.*/.test(node.type)
     ));
@@ -34,7 +34,7 @@ export function containerName(path: t.Path): string {
   switch(parent.type){
     case "VariableDeclarator": {
       const { id } = parent.node as t.VariableDeclarator;
-      return s.assert(id, "Identifier")
+      return s.is(id, "Identifier")
         ? id.name
         : (<t.VariableDeclaration>parent.parentPath.node).kind
     }
@@ -42,7 +42,7 @@ export function containerName(path: t.Path): string {
     case "AssignmentExpression":
     case "AssignmentPattern": {
       const { left } = parent.node as t.AssignmentExpression;
-      return s.assert(left, "Identifier") ? left.name : "assignment"
+      return s.is(left, "Identifier") ? left.name : "assignment"
     }
 
     case "FunctionDeclaration":
@@ -71,12 +71,12 @@ export function containerName(path: t.Path): string {
       if("id" in node && node.id)
         return node.id.name;
 
-      if(s.assert(node, "ObjectMethod")){
+      if(s.is(node, "ObjectMethod")){
         parent = within.getAncestry()[2];
         continue
       }
 
-      if(s.assert(node, "ClassMethod")){
+      if(s.is(node, "ClassMethod")){
         if(node.key.type !== "Identifier")
           return "ClassMethod";
         if(node.key.name == "render"){
@@ -99,8 +99,8 @@ export function containerName(path: t.Path): string {
     case "ObjectProperty": {
       const { key } = parent.node as t.ObjectProperty;
       return (
-        s.assert(key, "Identifier") ? key.name : 
-        s.assert(key, "StringLiteral") ? key.value : 
+        s.is(key, "Identifier") ? key.name : 
+        s.is(key, "StringLiteral") ? key.value : 
         "property"
       )
     }

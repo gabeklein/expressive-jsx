@@ -28,7 +28,7 @@ export class DelegateTypes {
   [type: string]: (...args: any[]) => any;
 
   parse(element: t.Expression | t.Statement): any[] {
-    if(s.assert(element, "ExpressionStatement"))
+    if(s.is(element, "ExpressionStatement"))
       element = element.expression
 
     return [].concat(
@@ -77,11 +77,11 @@ export class DelegateTypes {
     const { argument, operator } = e;
 
     if(operator == "-"
-    && s.assert(argument, "NumericLiteral"))
+    && s.is(argument, "NumericLiteral"))
       return this.NumericLiteral(argument, -1);
 
     if(operator == "!"
-    && s.assert(argument, "Identifier", { name: "Important" }))
+    && s.is(argument, "Identifier", { name: "Important" }))
       return "!important";
 
     throw Oops.UnaryUseless(e)
@@ -113,8 +113,8 @@ export class DelegateTypes {
   BinaryExpression(binary: t.BinaryExpression){
     const {left, right, operator} = binary;
     if(operator == "-"
-    && s.assert(left, "Identifier")
-    && s.assert(right, "Identifier", { start: left.end! + 1 }))
+    && s.is(left, "Identifier")
+    && s.is(right, "Identifier", { start: left.end! + 1 }))
       return left.name + "-" + right.name
     else
       return [
@@ -135,7 +135,7 @@ export class DelegateTypes {
     for(const item of e.arguments){
       if(s.isExpression(item))
         args.push(item);
-      else if(s.assert(item, "SpreadElement"))
+      else if(s.is(item, "SpreadElement"))
         throw Oops.ArgumentSpread(item)
       else
         throw Oops.UnknownArgument(item)
@@ -167,7 +167,7 @@ export class DelegateTypes {
     if(alt)
       throw Oops.ElseNotSupported(test);
 
-    if(s.assert(body, ["BlockStatement", "LabeledStatement", "ExpressionStatement"]))
+    if(s.is(body, ["BlockStatement", "LabeledStatement", "ExpressionStatement"]))
       Object.assign(data, this.Extract(body))
 
     return data;
@@ -183,7 +183,7 @@ export class DelegateTypes {
     const map = {} as BunchOf<any>
 
     for(const item of statement.body)
-      if(s.assert(item, "LabeledStatement"))
+      if(s.is(item, "LabeledStatement"))
         map[item.label.name] = this.parse(item.body);
       else if(item.type !== "IfStatement")
         throw Oops.ModiferCantParse(statement);

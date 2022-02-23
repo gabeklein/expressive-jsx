@@ -28,7 +28,7 @@ export class ComponentFor {
   toExpression(){
     const { node, definition } = this;
     
-    return s.assert(node, "ForStatement")
+    return s.is(node, "ForStatement")
       ? forElement(node, definition)
       : forXElement(node, definition)
   }

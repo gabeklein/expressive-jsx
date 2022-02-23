@@ -159,7 +159,7 @@ export class ImportManager extends FileManager {
     if(name == "default"){
       const [ spec ] = list;
 
-      if(s.assert(spec, "ImportDefaultSpecifier"))
+      if(s.is(spec, "ImportDefaultSpecifier"))
         return spec.local;
 
       uid = this.ensureUIDIdentifier(alt);
@@ -196,7 +196,7 @@ export class ImportManager extends FileManager {
       return imports[name];
 
     for(const stat of this.body)
-      if(s.assert(stat, "ImportDeclaration") && stat.source.value == name)
+      if(s.is(stat, "ImportDeclaration") && stat.source.value == name)
         return imports[name] = {
           exists: true,
           items: stat.specifiers
@@ -224,8 +224,8 @@ export class RequireManager extends FileManager {
     const source = this.ensureImported(from).items;
 
     for(const { key, value } of source)
-      if(s.assert(value, "Identifier")
-      && s.assert(key, "Identifier", { name }))
+      if(s.is(value, "Identifier")
+      && s.is(key, "Identifier", { name }))
         return value;
 
     const ref = this.ensureUIDIdentifier(alt);
@@ -247,10 +247,10 @@ export class RequireManager extends FileManager {
     let list;
 
     for(let i = 0, stat; stat = body[i]; i++)
-      if(s.assert(stat, "VariableDeclaration"))
+      if(s.is(stat, "VariableDeclaration"))
         target = requireResultFrom(name, stat);
 
-    if(s.assert(target, "ObjectPattern"))
+    if(s.is(target, "ObjectPattern"))
       list = imports[name] = {
         exists: true,
         items: target.properties as t.ObjectProperty[]
@@ -280,11 +280,11 @@ function requireResultFrom(
   statement: t.VariableDeclaration){
 
   for(const { init, id } of statement.declarations)
-    if(s.assert(init, "CallExpression")){
+    if(s.is(init, "CallExpression")){
       const { callee, arguments: [ arg ] } = init;
 
-      if(s.assert(callee, "Identifier", { name: "require" })
-      && s.assert(arg, "StringLiteral", { value: name }))
+      if(s.is(callee, "Identifier", { name: "require" })
+      && s.is(arg, "StringLiteral", { value: name }))
         return id;
     } 
 }

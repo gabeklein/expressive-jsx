@@ -1,4 +1,4 @@
-import { assert, create } from './nodes';
+import { is, create } from './nodes';
 
 import type * as t from './types';
 
@@ -57,10 +57,10 @@ export function jsxElement(
 }
 
 function jsxContent(child: t.Expression){
-  if(assert(child, "JSXElement"))
+  if(is(child, "JSXElement"))
     return child;
 
-  if(assert(child, "StringLiteral") && !/\{/.test(child.value))
+  if(is(child, "StringLiteral") && !/\{/.test(child.value))
     return create("JSXText", { value: child.value });
 
   return create("JSXExpressionContainer", { expression: child });
@@ -75,7 +75,7 @@ export function jsxAttribute(value: t.Expression, name?: string | false){
   if(IsLegalAttribute.test(name) == false)
     throw new Error(`Illegal characters in prop named ${name}`)
 
-  const jsxValue = assert(value, "StringLiteral")
+  const jsxValue = is(value, "StringLiteral")
     ? value.value === "true" ? null : value
     : create("JSXExpressionContainer", { expression: value })
 

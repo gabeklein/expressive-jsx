@@ -43,7 +43,7 @@ export function handleTopLevelDefine(
   if(context.modifiers.has(name))
     throw Oops.DuplicateModifier(node);
 
-  if(s.assert(body, "ExpressionStatement"))
+  if(s.is(body, "ExpressionStatement"))
     throw Oops.IllegalAtTopLevel(node)
 
   const define = new Define(context, name);
@@ -99,12 +99,12 @@ export function handleModifier(
   const handler = context.getHandler(key);
   const output = {} as BunchOf<ExplicitStyle>;
 
-  while(s.assert(body, "LabeledStatement")){
+  while(s.is(body, "LabeledStatement")){
     key = `${key}.${body.node.label.name}`;
     body = body.get("body") as t.Path;
   }
 
-  if(s.assert(body, "IfStatement"))
+  if(s.is(body, "IfStatement"))
     key = `${key}.if`;
 
   const initial =

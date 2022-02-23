@@ -1,4 +1,4 @@
-import { assert, create } from './nodes';
+import { is, create } from './nodes';
 
 import type * as t from './types';
 import type { BunchOf, FlatValue } from 'types';
@@ -63,7 +63,7 @@ export function property(
   let shorthand = false;
 
   if(typeof key == "string"){
-    shorthand = assert(value, "Identifier", { name: key })
+    shorthand = is(value, "Identifier", { name: key })
     key = keyIdentifier(key);
   }
 
@@ -136,7 +136,7 @@ export function member(object: t.Expression, property: t.Expression){
     object,
     property,
     optional: false,
-    computed: !assert(property, "Identifier")
+    computed: !is(property, "Identifier")
   })
 }
 
