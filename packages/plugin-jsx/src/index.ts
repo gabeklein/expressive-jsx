@@ -1,9 +1,9 @@
 import { StackFrame } from 'context';
 import { OUTPUT_NODE } from 'generate/jsx';
 import { styleDeclaration } from 'generate/styles';
-import { Define } from 'handle/definition';
+import { Define, ElementInline } from 'handle/definition';
 import { parse } from 'parse/body';
-import { addElementFromJSX } from 'parse/jsx';
+import { applyModifier, parseJSX } from 'parse/jsx';
 import { getName, handleModifier, Oops } from 'parse/labels';
 import * as s from 'syntax';
 
@@ -76,18 +76,29 @@ const JSXElement: Visitor<t.JSXElement> = {
       return;
     }
 
-    const { ambient } = StackFrame.find(path, true);
+    const isComponent = s.assert(path.parentPath, "ExpressionStatement");
+    const context = StackFrame.find(path, true);
+    const ownStyle = context.ambient;
+    let target = new ElementInline(context);
 
-    addElementFromJSX(path, ambient);
+    parseJSX(target, path);
 
-    const result = ambient.toExpression();
-    const within = path.parentPath;
+    if(isComponent && ownStyle.containsStyle() && !ownStyle.isUsed){
+      const wrap = new ElementInline(target.context);
+      
+      wrap.adopt(target);
+      applyModifier(wrap, ownStyle);
+
+      target = wrap;
+    }
+
+    const element = target.toExpression();
     
-    if(s.assert(within, "ExpressionStatement"))
-      within.replaceWith(
-        s.create("ReturnStatement", { argument: result })
+    if(isComponent)
+      path.parentPath.replaceWith(
+        s.create("ReturnStatement", { argument: element })
       )
     else
-      path.replaceWith(result);
+      path.replaceWith(element);
   }
 }

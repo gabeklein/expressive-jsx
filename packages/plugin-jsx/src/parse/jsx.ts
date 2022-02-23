@@ -25,7 +25,7 @@ export function addElementFromJSX(
 
   if(!s.assert(tag, "JSXIdentifier", { name: "this" })){
     const child = new ElementInline(target.context);
-      
+
     applyTagName(child, tag.node);
     target.adopt(child);
     target = child;
@@ -35,24 +35,25 @@ export function addElementFromJSX(
 }
 
 export function parseJSX(
-  into: Define | ElementInline,
+  into: ElementInline | Define,
   element: t.Path<t.JSXElement>){
 
   const queue = [[into, element] as const];
 
   for(const [element, path] of queue){
+    const tag = path.node.openingElement.name;
     const children = path.get("children");
     const attributes = path.get("openingElement").get("attributes");
+
+    applyTagName(element, tag);
 
     for(const attribute of attributes)
       applyAttribute(element, attribute as any, queue);
 
     for(const path of children)
       if(s.assert(path, "JSXElement")){
-        const tag = path.node.openingElement.name;
         const child = new ElementInline(element.context);
-      
-        applyTagName(child, tag);
+
         element.adopt(child);
         queue.push([child, path as t.Path<t.JSXElement>]);
       }
@@ -87,8 +88,8 @@ function applyChild(
     Oops.UnhandledChild(path, path.type);
 }
 
-function applyTagName(
-  element: ElementInline,
+export function applyTagName(
+  element: ElementInline | Define,
   tag: t.JSXIdentifier | t.JSXMemberExpression | t.JSXNamespacedName){
 
   let name;
@@ -149,14 +150,14 @@ function applyAttribute(
       case "JSXExpressionContainer":
         value = expression.expression as t.Expression;
       break;
-  
+
       case "StringLiteral":
         if(name == "src" && /^\.\//.test(expression.value))
           value = s.require(expression.value)
         else
           value = expression;
       break;
-  
+
       default:
         throw Oops.InvalidPropValue(expression);
     }
@@ -179,9 +180,16 @@ function applyAttribute(
   );
 }
 
-function applyModifier(target: Element, name: string){
+export function applyModifier(
+  target: Element, from: string | Define){
+
   const apply = [] as Define[];
-  let modify = target.context.getModifier(name);
+  let modify =
+    from == "this"
+      ? target.context.parent.ambient :
+    typeof from == "string"
+      ? target.context.getModifier(from) :
+    from;
 
   while(modify){
     apply.push(modify);
@@ -196,6 +204,6 @@ function applyModifier(target: Element, name: string){
 
     modify = modify.next;
   }
-  
+
   return apply;
 }
