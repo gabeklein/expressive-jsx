@@ -1,4 +1,4 @@
-import { is, create } from './nodes';
+import { is, node } from './nodes';
 
 import type * as t from './types';
 
@@ -24,7 +24,7 @@ function jsxIdentifier(name: string): t.JSXIdentifier;
 function jsxIdentifier(name: string | JSXReference): JSXReference;
 function jsxIdentifier(name: string | JSXReference){
   return typeof name == "string"
-    ? create("JSXIdentifier", { name })
+    ? node("JSXIdentifier", { name })
     : name;
 }
 
@@ -37,7 +37,7 @@ export function jsxElement(
   const content = children.map(jsxContent);
   const contains = content.length > 0;
 
-  const openingElement = create("JSXOpeningElement", {
+  const openingElement = node("JSXOpeningElement", {
     name: type,
     attributes: props,
     selfClosing: !contains,
@@ -45,10 +45,10 @@ export function jsxElement(
   });
 
   const closingElement = contains
-    ? create("JSXClosingElement", { name: type })
+    ? node("JSXClosingElement", { name: type })
     : null;
 
-  return create("JSXElement", {
+  return node("JSXElement", {
     openingElement,
     closingElement,
     children: content,
@@ -61,25 +61,25 @@ function jsxContent(child: t.Expression){
     return child;
 
   if(is(child, "StringLiteral") && !/\{/.test(child.value))
-    return create("JSXText", { value: child.value });
+    return node("JSXText", { value: child.value });
 
-  return create("JSXExpressionContainer", { expression: child });
+  return node("JSXExpressionContainer", { expression: child });
 }
 
 const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;
 
 export function jsxAttribute(value: t.Expression, name?: string | false){
   if(typeof name !== "string")
-    return create("JSXSpreadAttribute", { argument: value });
+    return node("JSXSpreadAttribute", { argument: value });
 
   if(IsLegalAttribute.test(name) == false)
     throw new Error(`Illegal characters in prop named ${name}`)
 
   const jsxValue = is(value, "StringLiteral")
     ? value.value === "true" ? null : value
-    : create("JSXExpressionContainer", { expression: value })
+    : node("JSXExpressionContainer", { expression: value })
 
-  return create("JSXAttribute", {
+  return node("JSXAttribute", {
     name: jsxIdentifier(name), value: jsxValue
   });
 }

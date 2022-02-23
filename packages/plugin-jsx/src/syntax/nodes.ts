@@ -75,8 +75,8 @@ type Fields<T extends Node> =
   & { [P in Exclude<keyof T, keyof BaseNode>]: T[P] }
   & Partial<BaseNode>
 
-export function create<T extends Type>(
-  type: T, fields: Fields<NodeType<T>>){
+export function node<T extends Type>(
+  type: T, fields?: Fields<NodeType<T>>){
 
   return { ...BASE_NODE, ...fields, type } as NodeType<T>;
 }

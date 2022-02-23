@@ -96,7 +96,7 @@ const JSXElement: Visitor<t.JSXElement> = {
     
     if(isComponent)
       path.parentPath.replaceWith(
-        s.create("ReturnStatement", { argument: element })
+        s.node("ReturnStatement", { argument: element })
       )
     else
       path.replaceWith(element);

@@ -1,4 +1,4 @@
-import { is, create } from './nodes';
+import { is, node } from './nodes';
 
 import type * as t from './types';
 import type { BunchOf, FlatValue } from 'types';
@@ -26,23 +26,23 @@ export function literal(value: undefined): t.Identifier;
 export function literal(value: string | number | boolean | null | undefined){
   switch(typeof value){
     case "string":
-      return create("StringLiteral", { value });
+      return node("StringLiteral", { value });
     case "number":
-      return create("NumericLiteral", { value });
+      return node("NumericLiteral", { value });
     case "boolean":
-      return create("BooleanLiteral", { value });
+      return node("BooleanLiteral", { value });
     case "undefined":
       return identifier("undefined");
     case "object":
       if(value === null)
-        return create("NullLiteral", {});
+        return node("NullLiteral", {});
     default:
       throw new Error("Not a literal type");
   }
 }
 
 export function identifier(name: string): t.Identifier {
-  return create("Identifier", {
+  return node("Identifier", {
     name,
     decorators: null,
     typeAnnotation: null,
@@ -53,7 +53,7 @@ export function identifier(name: string): t.Identifier {
 export function keyIdentifier(name: string){
   return /^[A-Za-z0-9$_]+$/.test(name)
     ? identifier(name)
-    : create("StringLiteral", { value: name })
+    : node("StringLiteral", { value: name })
 }
 
 export function property(
@@ -67,7 +67,7 @@ export function property(
     key = keyIdentifier(key);
   }
 
-  return create("ObjectProperty", { 
+  return node("ObjectProperty", { 
     key, value, shorthand,
     computed: false,
     decorators: []
@@ -75,13 +75,13 @@ export function property(
 }
 
 export function spread(argument: t.Expression){
-  return create("SpreadElement", { argument });
+  return node("SpreadElement", { argument });
 }
 
 export function pattern(
   properties: (t.RestElement | t.ObjectProperty)[]){
 
-  return create("ObjectPattern", {
+  return node("ObjectPattern", {
     properties, decorators: [], typeAnnotation: null
   });
 }
@@ -98,7 +98,7 @@ export function object(
       if(value)
         properties.push(property(key, value))
 
-  return create("ObjectExpression", { properties });
+  return node("ObjectExpression", { properties });
 }
 
 export function get(object: "this"): t.ThisExpression;
@@ -106,7 +106,7 @@ export function get<T extends t.Expression> (object: T): T;
 export function get(object: string | t.Expression, ...path: (string | number | t.Expression)[]): t.MemberExpression;
 export function get(object: string | t.Expression, ...path: (string | number | t.Expression)[]){
   if(object == "this")
-    object = create("ThisExpression", { /*  */ })
+    object = node("ThisExpression")
 
   if(typeof object == "string")
     path = [...object.split("."), ...path]
@@ -132,7 +132,7 @@ export function get(object: string | t.Expression, ...path: (string | number | t
 }
 
 export function member(object: t.Expression, property: t.Expression){
-  return create("MemberExpression", {
+  return node("MemberExpression", {
     object,
     property,
     optional: false,
@@ -146,7 +146,7 @@ export function call(
   if(typeof callee == "string")
     callee = get(callee);
 
-  return create("CallExpression", {
+  return node("CallExpression", {
     callee,
     arguments: args,
     optional: false,
@@ -160,7 +160,7 @@ export function require(from: string){
 }
 
 export function returns(argument: t.Expression){
-  return create("ReturnStatement", { argument });
+  return node("ReturnStatement", { argument });
 }
 
 export function declare(
@@ -168,11 +168,11 @@ export function declare(
   id: t.LVal,
   init?: t.Expression ){
 
-  return create("VariableDeclaration", {
+  return node("VariableDeclaration", {
     kind,
     declare: false,
     declarations: [
-      create("VariableDeclarator", {
+      node("VariableDeclarator", {
         id, init: init || null, definite: null
       })
     ]
@@ -188,10 +188,10 @@ export function objectKeys(object: t.Expression){
 }
 
 export function template(text: string){
-  return create("TemplateLiteral", {
+  return node("TemplateLiteral", {
     expressions: [],
     quasis: [
-      create("TemplateElement", {
+      node("TemplateElement", {
         value: { raw: text, cooked: text },
         tail: false
       })
@@ -201,7 +201,7 @@ export function template(text: string){
 
 export function statement(from: t.Statement | t.Expression){
   if(isExpression(from))
-    return create("ExpressionStatement", { expression: from });
+    return node("ExpressionStatement", { expression: from });
   else
     return from;
 }
@@ -211,7 +211,7 @@ export function block(
 
   const stats = statements.map(statement);
   
-  return create("BlockStatement", {
+  return node("BlockStatement", {
     body: stats, directives: []
   });
 }
@@ -221,7 +221,7 @@ export function arrow(
   body: t.BlockStatement | t.Expression,
   async = false){
 
-  return create("ArrowFunctionExpression", {
+  return node("ArrowFunctionExpression", {
     async,
     body,
     typeParameters: null,
@@ -236,7 +236,7 @@ export function importDeclaration(
   specifiers: Array<t.ImportSpecifier | t.ImportDefaultSpecifier | t.ImportNamespaceSpecifier>,
   source: t.StringLiteral){
 
-  return create("ImportDeclaration", {
+  return node("ImportDeclaration", {
     specifiers, source, importKind: null
   })
 }
@@ -244,11 +244,11 @@ export function importDeclaration(
 export function importSpecifier(
   local: t.Identifier, imported: t.Identifier){
 
-  return create("ImportSpecifier", {
+  return node("ImportSpecifier", {
     local, imported, importKind: null
   })
 }
 
 export function importDefaultSpecifier(local: t.Identifier){
-  return create("ImportDefaultSpecifier", { local })
+  return node("ImportDefaultSpecifier", { local })
 }

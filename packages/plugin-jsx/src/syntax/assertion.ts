@@ -1,5 +1,5 @@
 import type * as t from './types';
-import { is, create } from './nodes';
+import { is, node } from './nodes';
 
 const ASSERT_OP = new Set([
   "in", "instanceof", 
@@ -38,7 +38,7 @@ export function inverseExpression(exp: t.BinaryExpression){
   const inverse = INVERSE_OP.get(exp.operator) as any;
   
   if(inverse)
-    return create("BinaryExpression", {
+    return node("BinaryExpression", {
       operator: inverse,
       left: exp.left,
       right: exp.right
@@ -57,13 +57,13 @@ export function falsy(exp: t.Expression){
   if(isBinaryAssertion(exp))
     return inverseExpression(exp);
   else
-    return create("UnaryExpression", {
+    return node("UnaryExpression", {
       operator: "!", prefix: true, argument: exp
     })
 }
 
 export function and(a: t.Expression, b: t.Expression){
-  return create("LogicalExpression", {
+  return node("LogicalExpression", {
     operator: "&&", left: a, right: b
   })
 }
@@ -87,7 +87,7 @@ export function ternary(
   consequent: t.Expression,
   alternate: t.Expression){
 
-  return create("ConditionalExpression", {
+  return node("ConditionalExpression", {
     test, consequent, alternate
   })
 }
