@@ -1,5 +1,5 @@
 import { ParseErrors } from 'errors';
-import * as s from 'syntax';
+import * as $ from 'syntax';
 
 import type * as t from 'syntax/types';
 import type { BunchOf } from 'types';
@@ -28,11 +28,11 @@ export class DelegateTypes {
   [type: string]: (...args: any[]) => any;
 
   parse(element: t.Expression | t.Statement): any[] {
-    if(s.is(element, "ExpressionStatement"))
+    if($.is(element, "ExpressionStatement"))
       element = element.expression
 
     return [].concat(
-      s.isExpression(element)
+      $.isExpression(element)
         ? this.Expression(element)
         : this.Extract(element)
     )
@@ -45,7 +45,7 @@ export class DelegateTypes {
     if(childKey)
       element = element[childKey] as unknown as T;
 
-    if(s.isParenthesized(element))
+    if($.isParenthesized(element))
       return element;
 
     return this.Extract(element)
@@ -77,11 +77,11 @@ export class DelegateTypes {
     const { argument, operator } = e;
 
     if(operator == "-"
-    && s.is(argument, "NumericLiteral"))
+    && $.is(argument, "NumericLiteral"))
       return this.NumericLiteral(argument, -1);
 
     if(operator == "!"
-    && s.is(argument, "Identifier", { name: "Important" }))
+    && $.is(argument, "Identifier", { name: "Important" }))
       return "!important";
 
     throw Oops.UnaryUseless(e)
@@ -94,7 +94,7 @@ export class DelegateTypes {
   NumericLiteral(number: t.NumericLiteral, sign = 1){
     const { extra: { rawValue, raw } } = number as any;
 
-    if(s.isParenthesized(number) || !/^0x/.test(raw)){
+    if($.isParenthesized(number) || !/^0x/.test(raw)){
       if(raw.indexOf(".") > 0)
         return sign == -1 ? "-" + raw : raw;
 
@@ -113,8 +113,8 @@ export class DelegateTypes {
   BinaryExpression(binary: t.BinaryExpression){
     const {left, right, operator} = binary;
     if(operator == "-"
-    && s.is(left, "Identifier")
-    && s.is(right, "Identifier", { start: left.end! + 1 }))
+    && $.is(left, "Identifier")
+    && $.is(right, "Identifier", { start: left.end! + 1 }))
       return left.name + "-" + right.name
     else
       return [
@@ -133,9 +133,9 @@ export class DelegateTypes {
     const args = [] as t.Expression[];
 
     for(const item of e.arguments){
-      if(s.isExpression(item))
+      if($.isExpression(item))
         args.push(item);
-      else if(s.is(item, "SpreadElement"))
+      else if($.is(item, "SpreadElement"))
         throw Oops.ArgumentSpread(item)
       else
         throw Oops.UnknownArgument(item)
@@ -167,7 +167,7 @@ export class DelegateTypes {
     if(alt)
       throw Oops.ElseNotSupported(test);
 
-    if(s.is(body, ["BlockStatement", "LabeledStatement", "ExpressionStatement"]))
+    if($.is(body, ["BlockStatement", "LabeledStatement", "ExpressionStatement"]))
       Object.assign(data, this.Extract(body))
 
     return data;
@@ -183,7 +183,7 @@ export class DelegateTypes {
     const map = {} as BunchOf<any>
 
     for(const item of statement.body)
-      if(s.is(item, "LabeledStatement"))
+      if($.is(item, "LabeledStatement"))
         map[item.label.name] = this.parse(item.body);
       else if(item.type !== "IfStatement")
         throw Oops.ModiferCantParse(statement);

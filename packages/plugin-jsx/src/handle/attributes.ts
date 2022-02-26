@@ -1,4 +1,4 @@
-import * as s from 'syntax';
+import * as $ from 'syntax';
 
 import type * as t from 'syntax/types';
 import type { FlatValue } from 'types';
@@ -22,9 +22,9 @@ export abstract class Attribute {
     const { value } = this;
 
     if(value && typeof value == "object" && "toExpression" in value)
-      return value.toExpression() || s.expression();
+      return value.toExpression() || $.expression();
 
-    return s.expression(value)
+    return $.expression(value)
   }
 }
 

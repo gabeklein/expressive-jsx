@@ -1,7 +1,7 @@
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { ElementInline } from 'handle/definition';
-import * as s from 'syntax';
+import * as $ from 'syntax';
 import { HTML_TAGS } from 'syntax/jsx';
 
 import type { Define } from 'handle/definition';
@@ -23,7 +23,7 @@ export function addElementFromJSX(
   let target = parent as Element;
   const tag = path.get("openingElement").get("name");
 
-  if(!s.is(tag, "JSXIdentifier", { name: "this" })){
+  if(!$.is(tag, "JSXIdentifier", { name: "this" })){
     const child = new ElementInline(target.context);
 
     applyTagName(child, tag.node);
@@ -51,7 +51,7 @@ export function parseJSX(
       applyAttribute(element, attribute as any, queue);
 
     for(const path of children)
-      if(s.is(path, "JSXElement")){
+      if($.is(path, "JSXElement")){
         const child = new ElementInline(element.context);
 
         element.adopt(child);
@@ -66,7 +66,7 @@ function applyChild(
   parent: Element,
   path: t.Path<JSXChild>){
 
-  if(s.is(path, "JSXText")){
+  if($.is(path, "JSXText")){
     const { value } = path.node;
 
     if(/^\n+ *$/.test(value))
@@ -76,12 +76,12 @@ function applyChild(
       .replace(/ +/g, " ")
       .replace(/\n\s*/, "");
 
-    parent.adopt(s.literal(text));
+    parent.adopt($.literal(text));
   }
-  else if(s.is(path, "JSXExpressionContainer")){
+  else if($.is(path, "JSXExpressionContainer")){
     const { expression } = path.node;
 
-    if(!s.is(expression, "JSXEmptyExpression"))
+    if(!$.is(expression, "JSXEmptyExpression"))
       parent.adopt(path.node.expression as t.Expression);
   }
   else
@@ -94,11 +94,11 @@ export function applyTagName(
 
   let name;
 
-  if(s.is(tag, "JSXMemberExpression")){
+  if($.is(tag, "JSXMemberExpression")){
     name = tag.property.name;
     element.tagName = tag;
   }
-  else if(s.is(tag, "JSXIdentifier")){
+  else if($.is(tag, "JSXIdentifier")){
     name = tag.name;
 
     let explicit =
@@ -128,7 +128,7 @@ function applyAttribute(
   let name: string | false;
   let value: t.Expression | undefined;
 
-  if(s.is(attr, "JSXSpreadAttribute")){
+  if($.is(attr, "JSXSpreadAttribute")){
     name = false;
     value = attr.node.argument;
   }
@@ -153,7 +153,7 @@ function applyAttribute(
 
       case "StringLiteral":
         if(name == "src" && /^\.\//.test(expression.value))
-          value = s.require(expression.value)
+          value = $.require(expression.value)
         else
           value = expression;
       break;

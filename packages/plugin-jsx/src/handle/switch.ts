@@ -1,5 +1,5 @@
 import { parse } from 'parse/body';
-import * as s from 'syntax';
+import * as $ from 'syntax';
 import { ensureArray } from 'utility';
 
 import { Define } from './definition';
@@ -31,7 +31,7 @@ export class ComponentIf {
       const className = cond.toClassName();
         
       if(className)
-        return s.literal(className);
+        return $.literal(className);
     });
   }
 
@@ -43,17 +43,17 @@ export class ComponentIf {
       let consequent = layer.get("consequent") as t.Path<any>;
       let test: t.Expression | undefined;
 
-      if(s.is(layer, "IfStatement"))
+      if($.is(layer, "IfStatement"))
         test = layer.node.test;
 
-      if(s.is(consequent, "BlockStatement")){
+      if($.is(consequent, "BlockStatement")){
         const inner = ensureArray(consequent.get("body"));
 
         if(inner.length == 1)
           consequent = inner[0];
       }
 
-      const fork = s.is(consequent, "IfStatement")
+      const fork = $.is(consequent, "IfStatement")
         ? new ComponentIf(test)
         : new DefineConsequent(consequent, context, forks.length, test)
 
@@ -152,11 +152,11 @@ function reduceToExpression(
 
     if(sum && test)
       sum = product
-        ? s.ternary(test, product, sum)
-        : s.and(s.anti(test), sum)
+        ? $.ternary(test, product, sum)
+        : $.and($.anti(test), sum)
     else if(product)
       sum = test
-        ? s.and(s.truthy(test), product)
+        ? $.and($.truthy(test), product)
         : product
   }
 
@@ -167,9 +167,9 @@ function specifyOption(test?: t.Expression){
   if(!test)
     return false;
 
-  if(s.isFalsy(test) && s.is(test.argument, "Identifier"))
+  if($.isFalsy(test) && $.is(test.argument, "Identifier"))
     return `not_${test.argument.name}`;
 
-  if(s.is(test, "Identifier"))
+  if($.is(test, "Identifier"))
     return test.name;
 }

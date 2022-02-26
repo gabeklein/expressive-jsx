@@ -5,7 +5,7 @@ import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
 import type { Define } from 'handle/definition';
 import type { BunchOf } from 'types';
-import * as s from 'syntax';
+import * as $ from 'syntax';
 
 type SelectorContent = [ string, string[] ][];
 type MediaGroups = SelectorContent[];
@@ -24,15 +24,15 @@ export function styleDeclaration(
   
   const mediaGroups = prioritize(modifiersDeclared);
   const printedStyle = serialize(mediaGroups, pretty);
-  const args = [ s.template(printedStyle) as t.Expression ];
+  const args = [ $.template(printedStyle) as t.Expression ];
 
   if(hot){
     const uid = hash(filename, 10);
-    args.push(s.literal(uid));
+    args.push($.literal(uid));
   }
 
-  return s.statement(
-    s.call(s.get(runtime, "put"), ...args)
+  return $.statement(
+    $.call($.get(runtime, "put"), ...args)
   );
 }
 

@@ -1,4 +1,4 @@
-import * as s from 'syntax';
+import * as $ from 'syntax';
 import { ParseErrors } from 'errors';
 import { Define } from 'handle/definition';
 import { ModifyDelegate } from 'parse/modifiers';
@@ -43,7 +43,7 @@ export function handleTopLevelDefine(
   if(context.modifiers.has(name))
     throw Oops.DuplicateModifier(node);
 
-  if(s.is(body, "ExpressionStatement"))
+  if($.is(body, "ExpressionStatement"))
     throw Oops.IllegalAtTopLevel(node)
 
   const define = new Define(context, name);
@@ -99,12 +99,12 @@ export function handleModifier(
   const handler = context.getHandler(key);
   const output = {} as BunchOf<ExplicitStyle>;
 
-  while(s.is(body, "LabeledStatement")){
+  while($.is(body, "LabeledStatement")){
     key = `${key}.${body.node.label.name}`;
     body = body.get("body") as t.Path;
   }
 
-  if(s.is(body, "IfStatement"))
+  if($.is(body, "IfStatement"))
     key = `${key}.if`;
 
   const initial =

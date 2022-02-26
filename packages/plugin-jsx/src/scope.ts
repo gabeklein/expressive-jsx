@@ -4,7 +4,7 @@ import { createElement as createJSX } from './generate/jsx';
 import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
 import type { BunchOf, Options, PropData } from 'types';
-import * as s from 'syntax';
+import * as $ from 'syntax';
 
 type ImportSpecific =
   | t.ImportSpecifier 
@@ -91,7 +91,7 @@ export abstract class FileManager {
       return this.createElement(null, props, children)
     }
 
-    return children[0] || s.literal(false);
+    return children[0] || $.literal(false);
   }
 
   replaceAlias(value: string){
@@ -125,7 +125,7 @@ export abstract class FileManager {
   }
 
   ensureUIDIdentifier(name: string){
-    return s.identifier(this.ensureUID(name));
+    return $.identifier(this.ensureUID(name));
   }
 
   close(){
@@ -159,11 +159,11 @@ export class ImportManager extends FileManager {
     if(name == "default"){
       const [ spec ] = list;
 
-      if(s.is(spec, "ImportDefaultSpecifier"))
+      if($.is(spec, "ImportDefaultSpecifier"))
         return spec.local;
 
       uid = this.ensureUIDIdentifier(alt);
-      list.unshift(s.importDefaultSpecifier(uid));
+      list.unshift($.importDefaultSpecifier(uid));
       return uid;
     }
 
@@ -172,7 +172,7 @@ export class ImportManager extends FileManager {
         const { type, name: input } = spec.imported;
 
         if(type == "Identifier" && input == name){
-          uid = s.identifier(spec.local.name);
+          uid = $.identifier(spec.local.name);
           break;
         }
       }
@@ -180,7 +180,7 @@ export class ImportManager extends FileManager {
     if(!uid){
       uid = this.ensureUIDIdentifier(alt || name);
       list.push(
-        s.importSpecifier(uid, s.identifier(name))
+        $.importSpecifier(uid, $.identifier(name))
       )
     }
 
@@ -196,7 +196,7 @@ export class ImportManager extends FileManager {
       return imports[name];
 
     for(const stat of this.body)
-      if(s.is(stat, "ImportDeclaration") && stat.source.value == name)
+      if($.is(stat, "ImportDeclaration") && stat.source.value == name)
         return imports[name] = {
           exists: true,
           items: stat.specifiers
@@ -212,7 +212,7 @@ export class ImportManager extends FileManager {
     const list = this.imports[name].items;
 
     if(list.length)
-      return s.importDeclaration(list, s.literal(name));
+      return $.importDeclaration(list, $.literal(name));
   }
 }
 
@@ -224,13 +224,13 @@ export class RequireManager extends FileManager {
     const source = this.ensureImported(from).items;
 
     for(const { key, value } of source)
-      if(s.is(value, "Identifier")
-      && s.is(key, "Identifier", { name }))
+      if($.is(value, "Identifier")
+      && $.is(key, "Identifier", { name }))
         return value;
 
     const ref = this.ensureUIDIdentifier(alt);
 
-    source.push(s.property(name, ref));
+    source.push($.property(name, ref));
 
     return ref;
   }
@@ -247,10 +247,10 @@ export class RequireManager extends FileManager {
     let list;
 
     for(let i = 0, stat; stat = body[i]; i++)
-      if(s.is(stat, "VariableDeclaration"))
+      if($.is(stat, "VariableDeclaration"))
         target = requireResultFrom(name, stat);
 
-    if(s.is(target, "ObjectPattern"))
+    if($.is(target, "ObjectPattern"))
       list = imports[name] = {
         exists: true,
         items: target.properties as t.ObjectProperty[]
@@ -269,8 +269,8 @@ export class RequireManager extends FileManager {
     const list = this.imports[name].items;
 
     if(list.length){
-      const target = this.importTargets[name] || s.require(name);
-      return s.declare("const", s.pattern(list), target);
+      const target = this.importTargets[name] || $.require(name);
+      return $.declare("const", $.pattern(list), target);
     }
   }
 }
@@ -280,11 +280,11 @@ function requireResultFrom(
   statement: t.VariableDeclaration){
 
   for(const { init, id } of statement.declarations)
-    if(s.is(init, "CallExpression")){
+    if($.is(init, "CallExpression")){
       const { callee, arguments: [ arg ] } = init;
 
-      if(s.is(callee, "Identifier", { name: "require" })
-      && s.is(arg, "StringLiteral", { value: name }))
+      if($.is(callee, "Identifier", { name: "require" })
+      && $.is(arg, "StringLiteral", { value: name }))
         return id;
     } 
 }

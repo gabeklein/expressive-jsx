@@ -5,7 +5,7 @@ import { Define, ElementInline } from 'handle/definition';
 import { parse } from 'parse/body';
 import { applyModifier, parseJSX } from 'parse/jsx';
 import { getName, handleModifier, Oops } from 'parse/labels';
-import * as s from 'syntax';
+import * as $ from 'syntax';
 
 import type { Visitor } from 'types';
 import type * as t from 'syntax/types';
@@ -76,7 +76,7 @@ const JSXElement: Visitor<t.JSXElement> = {
       return;
     }
 
-    const isComponent = s.is(path.parentPath, "ExpressionStatement");
+    const isComponent = $.is(path.parentPath, "ExpressionStatement");
     const context = StackFrame.find(path, true);
     const ownStyle = context.ambient;
     let target = new ElementInline(context);
@@ -96,7 +96,7 @@ const JSXElement: Visitor<t.JSXElement> = {
     
     if(isComponent)
       path.parentPath.replaceWith(
-        s.node("ReturnStatement", { argument: element })
+        $.node("ReturnStatement", { argument: element })
       )
     else
       path.replaceWith(element);

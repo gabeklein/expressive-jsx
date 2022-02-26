@@ -1,4 +1,4 @@
-import * as s from 'syntax';
+import * as $ from 'syntax';
 import { forElement, forXElement } from 'generate/iterate';
 import { parse } from 'parse/body';
 
@@ -28,7 +28,7 @@ export class ComponentFor {
   toExpression(){
     const { node, definition } = this;
     
-    return s.is(node, "ForStatement")
+    return $.is(node, "ForStatement")
       ? forElement(node, definition)
       : forXElement(node, definition)
   }

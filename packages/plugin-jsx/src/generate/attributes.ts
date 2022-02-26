@@ -1,6 +1,6 @@
 import { ExplicitStyle } from 'handle/attributes';
 import { ArrayStack } from 'utility';
-import * as s from 'syntax';
+import * as $ from 'syntax';
 
 import type * as t from 'syntax/types';
 
@@ -42,12 +42,12 @@ export class AttributeStack extends ArrayStack<ExplicitStyle> {
 
     for(const item of this)
       if(item instanceof ExplicitStyle)
-        chunks.push(s.spread(item.expression))
+        chunks.push($.spread(item.expression))
       else
         chunks.push(...item.map(style =>
-          s.property(style.name!, style.expression)
+          $.property(style.name!, style.expression)
         ));
 
-    return s.object(chunks)
+    return $.object(chunks)
   }
 }

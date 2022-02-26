@@ -2,7 +2,7 @@ import { Define } from 'handle/definition';
 import { builtIn } from 'modifier/builtIn';
 import { containerName, parentFunction } from 'parse/entry';
 import { FileManager } from 'scope';
-import * as s from 'syntax';
+import * as $ from 'syntax';
 import { hash, Stack } from 'utility';
 
 import type * as t from 'syntax/types';
@@ -63,7 +63,7 @@ export class StackFrame {
       if(scope)
         return scope;
   
-      if(s.is(path, "BlockStatement") && create){
+      if($.is(path, "BlockStatement") && create){
         const inherits = this.find(path);
         const name = containerName(path);
         

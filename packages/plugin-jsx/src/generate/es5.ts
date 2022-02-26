@@ -1,4 +1,4 @@
-import * as s from 'syntax';
+import * as $ from 'syntax';
 import { ArrayStack } from 'utility';
 
 import type * as t from 'syntax/types';
@@ -21,36 +21,36 @@ export function createElement(
   const type =
     typeof tag === "string"
       ? /^[A-Z]/.test(tag)
-        ? s.identifier(tag)
-        : s.literal(tag)
+        ? $.identifier(tag)
+        : $.literal(tag)
       : stripJSX(tag);
 
-  return s.call(create, type, props, ...children);
+  return $.call(create, type, props, ...children);
 }
 
 export function recombineProps(props: PropData[]){
   const propStack = new ArrayStack<t.ObjectProperty, t.Expression>()
 
   if(props.length === 0)
-    return s.object();
+    return $.object();
 
   for(const { name, value } of props)
     if(!name)
       propStack.push(value);
     else
       propStack.insert(
-        s.property(name, value)
+        $.property(name, value)
       );
 
   const properties = propStack.map(chunk =>
-    Array.isArray(chunk) ? s.object(chunk) : chunk
+    Array.isArray(chunk) ? $.object(chunk) : chunk
   )
 
   if(properties[0].type !== "ObjectExpression")
-    properties.unshift(s.object())
+    properties.unshift($.object())
 
   return properties.length > 1
-    ? s.objectAssign(...properties)
+    ? $.objectAssign(...properties)
     : properties[0];
 }
 
@@ -62,9 +62,9 @@ function stripJSX(
     case "Identifier":
       return exp;
     case "JSXIdentifier":
-      return s.identifier(exp.name);
+      return $.identifier(exp.name);
     case "JSXMemberExpression":
-      return s.member(stripJSX(exp.object), stripJSX(exp.property));
+      return $.member(stripJSX(exp.object), stripJSX(exp.property));
     default:
       throw new Error("Bad MemeberExpression");
   }

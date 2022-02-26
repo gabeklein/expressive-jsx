@@ -3,7 +3,7 @@ import { Prop } from 'handle/attributes';
 import { DefineVariant } from 'handle/definition';
 import { ComponentFor } from 'handle/iterate';
 import { ComponentIf } from 'handle/switch';
-import * as s from 'syntax';
+import * as $ from 'syntax';
 import { ensureArray } from 'utility';
 
 import { addElementFromJSX } from './jsx';
@@ -22,7 +22,7 @@ export function parse(
   if(key)
     ast = ast.get(key) as any;
 
-  const content = s.is(ast, "BlockStatement")
+  const content = $.is(ast, "BlockStatement")
     ? ensureArray(ast.get("body"))
     : [ast];
   
@@ -56,13 +56,13 @@ function handleExpression(
 
   const e = path.get("expression") as t.Path<t.Node>;
 
-  if(s.is(e, "JSXElement"))
+  if($.is(e, "JSXElement"))
     addElementFromJSX(e, target);
 
-  else if(s.is(e, "AssignmentExpression", { operator: "=" })){
+  else if($.is(e, "AssignmentExpression", { operator: "=" })){
     const { left, right } = e.node;
 
-    if(!s.is(left, "Identifier"))
+    if(!$.is(left, "Identifier"))
       throw Oops.PropNotIdentifier(left)
 
     const prop = new Prop(left.name, right);
@@ -76,7 +76,7 @@ function handleIfStatement(
 
   const test = path.node.test;
 
-  if(s.is(test, "StringLiteral")){
+  if($.is(test, "StringLiteral")){
     const body = path.get("consequent") as any;
     const mod = new DefineVariant(target, [ test.value ], 5);
 
