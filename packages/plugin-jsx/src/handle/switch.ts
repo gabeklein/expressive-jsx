@@ -1,4 +1,3 @@
-import { reduceToExpression, specifyOption } from 'generate/switch';
 import { parse } from 'parse/body';
 import * as s from 'syntax';
 import { ensureArray } from 'utility';
@@ -138,4 +137,39 @@ export class DefineConsequent extends Define {
     this.parent.provide(define);
     this.dependant.add(define);
   }
+}
+
+function reduceToExpression(
+  forks: Consequent[],
+  predicate: (fork: Consequent) => t.Expression | undefined){
+
+  forks = forks.slice().reverse();
+  let sum: t.Expression | undefined;
+
+  for(const cond of forks){
+    const test = cond.test;
+    const product = predicate(cond);
+
+    if(sum && test)
+      sum = product
+        ? s.ternary(test, product, sum)
+        : s.and(s.anti(test), sum)
+    else if(product)
+      sum = test
+        ? s.and(s.truthy(test), product)
+        : product
+  }
+
+  return sum;
+}
+
+function specifyOption(test?: t.Expression){
+  if(!test)
+    return false;
+
+  if(s.isFalsy(test) && s.is(test.argument, "Identifier"))
+    return `not_${test.argument.name}`;
+
+  if(s.is(test, "Identifier"))
+    return test.name;
 }
