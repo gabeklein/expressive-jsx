@@ -100,7 +100,7 @@ export class ModifyDelegate {
     const select = ([] as string[]).concat(contingent);
     const mod = new DefineVariant(target, select, priority);
 
-    mod.onlyWithin = target.onlyWithin;
+    mod.contingent = target.contingent;
     
     parse(mod, body);
     target.use(mod);

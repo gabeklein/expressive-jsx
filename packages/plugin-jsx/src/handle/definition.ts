@@ -22,7 +22,7 @@ export class Define extends AttributeBody {
   }
 
   next?: Define;
-  onlyWithin?: Define;
+  contingent?: Define;
   
   priority = 1;
 
@@ -151,7 +151,7 @@ export class DefineVariant extends Define {
   }
 
   provide(define: Define){
-    define.onlyWithin = this;
+    define.contingent = this;
     define.priority = this.priority;
 
     this.parent.provide(define);

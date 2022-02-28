@@ -131,7 +131,7 @@ export class DefineConsequent extends Define {
   }
 
   provide(define: Define){
-    define.onlyWithin = this;
+    define.contingent = this;
     define.priority = 4;
 
     this.parent.provide(define);
