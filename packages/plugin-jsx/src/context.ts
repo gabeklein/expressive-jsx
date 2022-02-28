@@ -163,13 +163,17 @@ export class StackFrame {
     return this.modifiers.get(name);
   }
 
-  setModifier(mod: Define){
-    const name = mod.name!;
+  setModifier(name: string, mod?: Define){
     const next = this.modifiers.get(name);
+
+    if(!mod)
+      mod = new Define(this, name);
 
     if(next)
       mod.next = next;
 
     this.modifiers.set(name, mod);
+
+    return mod;
   }
 }

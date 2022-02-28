@@ -200,7 +200,7 @@ export function applyModifier(
     }
 
     for(const sub of modify.provides)
-      target.context.setModifier(sub);
+      target.context.setModifier(sub.name!, sub);
 
     modify = modify.next;
   }

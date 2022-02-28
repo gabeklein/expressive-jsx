@@ -1,7 +1,7 @@
 import { StackFrame } from 'context';
 import { OUTPUT_NODE } from 'generate/jsx';
 import { styleDeclaration } from 'generate/styles';
-import { Define, ElementInline } from 'handle/definition';
+import { ElementInline } from 'handle/definition';
 import { parse } from 'parse/body';
 import { applyModifier, parseJSX } from 'parse/jsx';
 import { getName, handleModifier, Oops } from 'parse/labels';
@@ -47,10 +47,8 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
 
     switch(body.type){
       case "BlockStatement": {
-        const define = new Define(context, key);
-
+        const define = context.setModifier(key);
         parse(define, body);
-        context.setModifier(define);
         break;
       }
       

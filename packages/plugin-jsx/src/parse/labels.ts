@@ -46,11 +46,9 @@ export function handleTopLevelDefine(
   if($.is(body, "ExpressionStatement"))
     throw Oops.IllegalAtTopLevel(node)
 
-  const define = new Define(context, name);
+  const define = context.setModifier(name);
 
   parse(define, body);
-
-  context.setModifier(define);
 }
 
 export function handleDefine(
