@@ -184,12 +184,9 @@ export function applyModifier(
   target: Element, from: string | Define){
 
   const apply = [] as Define[];
-  let modify =
-    from == "this"
-      ? target.context.parent.ambient :
-    typeof from == "string"
-      ? target.context.getModifier(from) :
-    from;
+  let modify = typeof from == "string"
+    ? target.context.getModifier(from)
+    : from;
 
   while(modify){
     apply.push(modify);

@@ -160,6 +160,9 @@ export class StackFrame {
   }
 
   getModifier(name: string): Define | undefined {
+    if(name == "this")
+      return this.parent.ambient;
+
     return this.modifiers.get(name);
   }
 
