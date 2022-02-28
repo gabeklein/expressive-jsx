@@ -28,10 +28,17 @@ export class ComponentIf {
       if(cond instanceof ComponentIf)
         return cond.toClassName();
 
-      const className = cond.toClassName();
+      const segments = [];
+
+      for(const mod of [cond, ...cond.includes]){
+        mod.setActive(cond.priority);
+
+        if(mod.isUsed)
+          segments.push(mod.uid);
+      }
         
-      if(className)
-        return $.literal(className);
+      if(segments.length)
+        return $.literal(segments.join(" "));
     });
   }
 
@@ -115,19 +122,6 @@ export class DefineConsequent extends Define {
 
   get isDeclared(){
     return false;
-  }
-
-  toClassName(){
-    const segments = [];
-
-    for(const mod of [this, ...this.includes]){
-      mod.setActive(this.priority);
-
-      if(mod.isUsed)
-        segments.push(mod.uid);
-    }
-
-    return segments.join(" ");
   }
 
   provide(define: Define){
