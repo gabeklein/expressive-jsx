@@ -92,13 +92,13 @@ export class DefineConsequent extends Define {
     index: number,
     test?: t.Expression){
 
-    super(context);
+    const name = specifyOption(test) || `opt${index + 1}`;
+
+    super(context, name);
 
     this.test = test;
-    this.name = specifyOption(test) || `opt${index + 1}`;
     this.priority = 5;
-
-    context.resolveFor(index);
+    this.context.resolveFor(index);
 
     let parent = context.currentElement!
 
