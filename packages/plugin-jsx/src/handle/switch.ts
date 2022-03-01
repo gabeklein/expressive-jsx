@@ -10,11 +10,7 @@ import type { StackFrame } from 'context';
 export type Consequent = ComponentIf | DefineConsequent;
 
 export class ComponentIf {
-  private forks = [] as Consequent[];
-
-  constructor(
-    public test?: t.Expression){
-  }
+  private forks = [] as [Consequent, t.Expression?][];
 
   toExpression(): t.Expression | undefined {
     return reduceToExpression(this.forks, (cond) => {
@@ -60,11 +56,13 @@ export class ComponentIf {
           consequent = inner[0];
       }
 
-      const fork = $.is(consequent, "IfStatement")
-        ? new ComponentIf(test)
-        : new DefineConsequent(consequent, context, forks.length, test)
+      const name = specifyOption(test) || `opt${forks.length + 1}`;
 
-      forks.push(fork);
+      const fork = $.is(consequent, "IfStatement")
+        ? new ComponentIf()
+        : new DefineConsequent(context, name, consequent)
+
+      forks.push([fork, test]);
 
       layer = layer.get("alternate") as t.Path<t.Statement>;
 
@@ -72,9 +70,9 @@ export class ComponentIf {
         break;
 
       if(layer.type !== "IfStatement"){
-        forks.push(
-          new DefineConsequent(layer, context, forks.length)
-        );
+        forks.push([
+          new DefineConsequent(context, name, layer)
+        ]);
   
         break;
       }
@@ -83,22 +81,17 @@ export class ComponentIf {
 }
 
 export class DefineConsequent extends Define {
-  test: t.Expression | undefined;
   parent: Define;
 
   constructor(
-    consequent: t.Path<t.Statement>,
     context: StackFrame,
-    index: number,
-    test?: t.Expression){
-
-    const name = specifyOption(test) || `opt${index + 1}`;
+    name: string,
+    consequent: t.Path<t.Statement>){
 
     super(context, name);
 
-    this.test = test;
     this.priority = 5;
-    this.context.resolveFor(index);
+    this.context.resolveFor(name);
 
     let parent = context.currentElement!
 
@@ -134,14 +127,13 @@ export class DefineConsequent extends Define {
 }
 
 function reduceToExpression(
-  forks: Consequent[],
+  forks: [Consequent, t.Expression?][],
   predicate: (fork: Consequent) => t.Expression | undefined){
 
   forks = forks.slice().reverse();
   let sum: t.Expression | undefined;
 
-  for(const cond of forks){
-    const test = cond.test;
+  for(const [ cond, test ] of forks){
     const product = predicate(cond);
 
     if(sum && test)
