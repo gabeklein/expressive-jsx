@@ -40,14 +40,23 @@ export class ComponentIf {
 
   setup(context: StackFrame, path: t.Path<t.IfStatement>){
     const { forks } = this;
-    let layer = path as t.Path<any>;
+    const name = context.ambient.name!;
+    let layer = path as t.Path<t.IfStatement | t.Statement>;
 
     while(true){
-      let consequent = layer.get("consequent") as t.Path<any>;
-      let test: t.Expression | undefined;
+      if(!$.is(layer, "IfStatement")){
+        forks.push([
+          new DefineConsequent(context, name, forks.length, layer)
+        ]);
 
-      if($.is(layer, "IfStatement"))
-        test = layer.node.test;
+        return;
+      }
+
+      const test  = layer.node.test;
+      let consequent = layer.get("consequent") as t.Path<any>;
+
+      if($.is(consequent, "IfStatement"))
+        throw new Error("Nested if statements are not supported.");
 
       if($.is(consequent, "BlockStatement")){
         const inner = ensureArray(consequent.get("body"));
@@ -56,11 +65,8 @@ export class ComponentIf {
           consequent = inner[0];
       }
 
-      const name = specifyOption(test) || `opt${forks.length + 1}`;
-
-      const fork = $.is(consequent, "IfStatement")
-        ? new ComponentIf()
-        : new DefineConsequent(context, name, consequent)
+      const fork =
+        new DefineConsequent(context, name, forks.length, consequent);
 
       forks.push([fork, test]);
 
@@ -68,14 +74,6 @@ export class ComponentIf {
 
       if(layer.type === undefined)
         break;
-
-      if(layer.type !== "IfStatement"){
-        forks.push([
-          new DefineConsequent(context, name, layer)
-        ]);
-  
-        break;
-      }
     }
   }
 }
@@ -86,12 +84,13 @@ export class DefineConsequent extends Define {
   constructor(
     context: StackFrame,
     name: string,
+    index: number,
     consequent: t.Path<t.Statement>){
 
     super(context, name);
 
     this.priority = 5;
-    this.context.resolveFor(name);
+    this.context.resolveFor(index);
 
     let parent = context.currentElement!
 
@@ -100,17 +99,8 @@ export class DefineConsequent extends Define {
 
     this.parent = parent;
 
-    parent.dependant.add(this);
+    // parent.dependant.add(this);
     parse(this, consequent);
-  }
-
-  get selector(): string[] {
-    const parent = this.parent;
-
-    if(!parent)
-      throw new Error("No consequent parent found.")
-
-    return parent.selector.map(x => `${x}.${this.uid}`);
   }
 
   get isDeclared(){
@@ -149,7 +139,7 @@ function reduceToExpression(
   return sum;
 }
 
-function specifyOption(test?: t.Expression){
+void function specifyOption(test?: t.Expression){
   if(!test)
     return false;
 
