@@ -12,15 +12,32 @@ export type Consequent = ComponentIf | DefineConsequent;
 export class ComponentIf {
   private forks = [] as [Consequent, t.Expression?][];
 
+  setup(context: StackFrame, path: t.Path<t.Statement>){
+    do {
+      if(!$.is(path, "IfStatement")){
+        this.include(context, path);
+        break;
+      }
+
+      const test = path.get("test") as t.Path<t.Expression>;
+      const consequent = path.get("consequent") as t.Path<t.Statement>;
+
+      this.include(context, consequent, test);
+
+      path = path.get("alternate") as t.Path<t.Statement>;
+    }
+    while(path.type)
+  }
+
   toExpression(): t.Expression | undefined {
-    return reduceToExpression(this.forks, (cond) => {
+    return this.reduce(cond => {
       if(cond instanceof ComponentIf || cond.children.length)
         return cond.toExpression();
     });
   }
 
   toClassName(): t.Expression | undefined {
-    return reduceToExpression(this.forks, (cond) => {
+    return this.reduce(cond => {
       if(cond instanceof ComponentIf)
         return cond.toClassName();
 
@@ -41,7 +58,7 @@ export class ComponentIf {
   include(
     context: StackFrame,
     body: t.Path<any>,
-    test?: t.Expression){
+    test?: t.Path<t.Expression>){
 
     const { forks } = this;
     const name = context.ambient.name!;
@@ -62,26 +79,40 @@ export class ComponentIf {
     define.priority = 5;
     define.context.resolveFor(forks.length);
 
-    forks.push([define, test]);
+    forks.push([define, test && test.node]);
 
     return define;
   }
 
-  setup(context: StackFrame, path: t.Path<t.Statement>){
-    do {
-      if(!$.is(path, "IfStatement")){
-        this.include(context, path);
-        break;
-      }
-
-      const test = path.node.test;
-      const consequent = path.get("consequent") as t.Path<any>;
-
-      this.include(context, consequent, test);
-
-      path = path.get("alternate") as t.Path<t.Statement>;
+  reduce(predicate: (fork: Consequent) => t.Expression | undefined){
+    const forks = this.forks.slice().reverse();
+    let sum: t.Expression | undefined;
+  
+    for(const [ cond, test ] of forks){
+      const product = predicate(cond);
+  
+      if(sum && test)
+        sum = product
+          ? $.ternary(test, product, sum)
+          : $.and($.anti(test), sum)
+      else if(product)
+        sum = test
+          ? $.and($.truthy(test), product)
+          : product
     }
-    while(path.type)
+  
+    return sum;
+  }
+
+  specify(test?: t.Expression){
+    if(!test)
+      return false;
+  
+    if($.isFalsy(test) && $.is(test.argument, "Identifier"))
+      return `not_${test.argument.name}`;
+  
+    if($.is(test, "Identifier"))
+      return test.name;
   }
 }
 
@@ -117,38 +148,4 @@ export class DefineConsequent extends Define {
     this.parent.provide(define);
     this.dependant.add(define);
   }
-}
-
-function reduceToExpression(
-  forks: [Consequent, t.Expression?][],
-  predicate: (fork: Consequent) => t.Expression | undefined){
-
-  forks = forks.slice().reverse();
-  let sum: t.Expression | undefined;
-
-  for(const [ cond, test ] of forks){
-    const product = predicate(cond);
-
-    if(sum && test)
-      sum = product
-        ? $.ternary(test, product, sum)
-        : $.and($.anti(test), sum)
-    else if(product)
-      sum = test
-        ? $.and($.truthy(test), product)
-        : product
-  }
-
-  return sum;
-}
-
-void function specifyOption(test?: t.Expression){
-  if(!test)
-    return false;
-
-  if($.isFalsy(test) && $.is(test.argument, "Identifier"))
-    return `not_${test.argument.name}`;
-
-  if($.is(test, "Identifier"))
-    return test.name;
 }
