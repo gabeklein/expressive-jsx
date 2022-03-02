@@ -38,43 +38,50 @@ export class ComponentIf {
     });
   }
 
-  setup(context: StackFrame, path: t.Path<t.IfStatement>){
+  include(
+    context: StackFrame,
+    body: t.Path<any>,
+    test?: t.Expression){
+
     const { forks } = this;
     const name = context.ambient.name!;
-    let layer = path as t.Path<t.IfStatement | t.Statement>;
 
-    while(true){
-      if(!$.is(layer, "IfStatement")){
-        forks.push([
-          new DefineConsequent(context, name, forks.length, layer)
-        ]);
+    if($.is(body, "IfStatement"))
+      throw new Error("Nested if statements are not supported.");
 
-        return;
-      }
+    if($.is(body, "BlockStatement")){
+      const inner = ensureArray(body.get("body"));
 
-      const test  = layer.node.test;
-      let consequent = layer.get("consequent") as t.Path<any>;
-
-      if($.is(consequent, "IfStatement"))
-        throw new Error("Nested if statements are not supported.");
-
-      if($.is(consequent, "BlockStatement")){
-        const inner = ensureArray(consequent.get("body"));
-
-        if(inner.length == 1)
-          consequent = inner[0];
-      }
-
-      const fork =
-        new DefineConsequent(context, name, forks.length, consequent);
-
-      forks.push([fork, test]);
-
-      layer = layer.get("alternate") as t.Path<t.Statement>;
-
-      if(layer.type === undefined)
-        break;
+      if(inner.length == 1)
+        body = inner[0];
     }
+
+    const define =
+      new DefineConsequent(context, name, body);
+
+    define.priority = 5;
+    define.context.resolveFor(forks.length);
+
+    forks.push([define, test]);
+
+    return define;
+  }
+
+  setup(context: StackFrame, path: t.Path<t.Statement>){
+    do {
+      if(!$.is(path, "IfStatement")){
+        this.include(context, path);
+        break;
+      }
+
+      const test = path.node.test;
+      const consequent = path.get("consequent") as t.Path<any>;
+
+      this.include(context, consequent, test);
+
+      path = path.get("alternate") as t.Path<t.Statement>;
+    }
+    while(path.type)
   }
 }
 
@@ -84,13 +91,9 @@ export class DefineConsequent extends Define {
   constructor(
     context: StackFrame,
     name: string,
-    index: number,
     consequent: t.Path<t.Statement>){
 
     super(context, name);
-
-    this.priority = 5;
-    this.context.resolveFor(index);
 
     let parent = context.currentElement!
 
