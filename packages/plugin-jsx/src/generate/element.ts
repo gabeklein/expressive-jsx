@@ -1,7 +1,7 @@
 import { AttributeStack } from 'generate/attributes';
 import { ExplicitStyle, Prop } from 'handle/attributes';
 import { Define, DefineLocal, DefineVariant, ElementInline } from 'handle/definition';
-import * as T from 'syntax';
+import * as $ from 'syntax';
 
 import type * as t from 'syntax/types';
 import type { FileManager } from 'scope';
@@ -83,7 +83,7 @@ export class Generator {
       }
     }
 
-    else if(T.isExpression(item))
+    else if($.isExpression(item))
       this.children.push(item);
   }
 
@@ -102,9 +102,9 @@ export class Generator {
       if(value && typeof value == "object")
         if("toExpression" in value)
           return; 
-        else if(T.is(value, "StringLiteral"))
+        else if($.is(value, "StringLiteral"))
           ({ value } = value);
-        else if(T.isExpression(value)){
+        else if($.isExpression(value)){
           this.classList.add(value);
           return;
         }
@@ -170,12 +170,12 @@ function classValue(
 
   if(className)
     selectors.unshift(
-      T.literal(className.slice(1))
+      $.literal(className.slice(1))
     )
 
   if(selectors.length > 1){
     const _use = program.ensure("$runtime", "use");
-    return T.call(_use, ...selectors)
+    return $.call(_use, ...selectors)
   }
   
   return selectors[0];
