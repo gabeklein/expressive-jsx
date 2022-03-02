@@ -134,6 +134,7 @@ export class DefineVariant extends Define {
     public priority: number){
 
     super(parent.context);
+    this.contingent = parent.contingent;
   }
 
   get selector(){

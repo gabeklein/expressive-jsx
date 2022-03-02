@@ -80,7 +80,6 @@ function handleIfStatement(
     const body = path.get("consequent") as any;
     const mod = new DefineVariant(target, [ test.value ], 5);
 
-    mod.contingent = target.contingent;
 
     parse(mod, body);
     target.use(mod);
