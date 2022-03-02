@@ -118,9 +118,9 @@ export class StackFrame {
   push(node?: Stackable | string): StackFrame {
     const frame: StackFrame = Object.create(this);
 
-    if(typeof node == "string"){
+    if(typeof node == "string")
       frame.resolveFor(node);
-    }
+
     else if(node){
       node.context = frame;
       frame.current = node;

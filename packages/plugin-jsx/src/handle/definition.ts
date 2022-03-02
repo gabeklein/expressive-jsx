@@ -22,6 +22,7 @@ export class Define extends AttributeBody {
   }
 
   next?: Define;
+
   contingent?: Define;
   
   priority = 1;

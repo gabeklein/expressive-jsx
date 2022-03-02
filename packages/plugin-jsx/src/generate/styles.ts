@@ -104,9 +104,9 @@ function buildSelector(target: Define){
   return target.selector
     .map(select => {
       const selection = [select];
-      let source = target;
+      let source: Define | undefined = target;
 
-      while(source = source.contingent!)
+      while(source = source.contingent)
         selection.unshift(source.selector[0]);
 
       return selection.join(" ");
