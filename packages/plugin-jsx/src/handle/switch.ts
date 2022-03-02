@@ -12,7 +12,7 @@ export type Consequent = ComponentIf | DefineConsequent;
 export class ComponentIf {
   private forks = [] as [Consequent, t.Expression?][];
 
-  setup(context: StackFrame, path: t.Path<t.Statement>){
+  setup(context: StackFrame, path: t.Path<any>){
     do {
       if(!$.is(path, "IfStatement")){
         this.include(context, path);
@@ -74,10 +74,12 @@ export class ComponentIf {
     }
 
     const define =
-      new DefineConsequent(context, name, body);
+      new DefineConsequent(context, name);
 
     define.priority = 5;
     define.context.resolveFor(forks.length);
+
+    parse(define, body);
 
     forks.push([define, test && test.node]);
 
@@ -117,26 +119,6 @@ export class ComponentIf {
 }
 
 export class DefineConsequent extends Define {
-  parent: Define;
-
-  constructor(
-    context: StackFrame,
-    name: string,
-    consequent: t.Path<t.Statement>){
-
-    super(context, name);
-
-    let parent = context.currentElement!
-
-    if(parent instanceof DefineConsequent)
-      parent = parent.parent;
-
-    this.parent = parent;
-
-    // parent.dependant.add(this);
-    parse(this, consequent);
-  }
-
   get isDeclared(){
     return false;
   }
@@ -145,7 +127,6 @@ export class DefineConsequent extends Define {
     define.contingent = this;
     define.priority = 4;
 
-    this.parent.provide(define);
     this.dependant.add(define);
   }
 }
