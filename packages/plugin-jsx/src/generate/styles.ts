@@ -106,7 +106,7 @@ function buildSelector(target: Define){
       const selection = [select];
       let source: Define | undefined = target;
 
-      while(source = source.contingent)
+      while(source = source.within)
         selection.unshift(source.selector[0]);
 
       return selection.join(" ");

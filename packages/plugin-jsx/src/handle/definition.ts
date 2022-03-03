@@ -23,7 +23,7 @@ export class Define extends AttributeBody {
 
   next?: Define;
 
-  contingent?: Define;
+  within?: Define;
   
   priority = 1;
 
@@ -135,7 +135,7 @@ export class DefineVariant extends Define {
     public priority: number){
 
     super(parent.context);
-    this.contingent = parent.contingent;
+    this.within = parent.within;
   }
 
   get selector(){
@@ -153,7 +153,7 @@ export class DefineVariant extends Define {
   }
 
   provide(define: Define){
-    define.contingent = this;
+    define.within = this;
     define.priority = this.priority;
 
     this.parent.provide(define);

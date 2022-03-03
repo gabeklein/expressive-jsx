@@ -124,7 +124,7 @@ export class DefineConsequent extends Define {
   }
 
   provide(define: Define){
-    define.contingent = this;
+    define.within = this;
     define.priority = 4;
 
     this.dependant.add(define);
