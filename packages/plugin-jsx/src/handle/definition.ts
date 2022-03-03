@@ -131,7 +131,7 @@ export class DefineLocal extends Define {
 export class DefineVariant extends Define {
   constructor(
     private parent: Define,
-    private suffix: string[],
+    private suffix: string | string[],
     public priority: number){
 
     super(parent.context);
@@ -139,8 +139,13 @@ export class DefineVariant extends Define {
   }
 
   get selector(){
-    return this.suffix.map(select => (
-      `${this.parent.selector}${select}`
+    let { suffix } = this;
+
+    if(typeof suffix == "string")
+      suffix = [ suffix ];
+
+    return suffix.map(select => (
+      this.parent.selector + select
     ))
   }
 
@@ -156,7 +161,7 @@ export class DefineVariant extends Define {
     define.within = this;
     define.priority = this.priority;
 
-    this.parent.provide(define);
     this.dependant.add(define);
+    this.parent.provide(define);
   }
 }
