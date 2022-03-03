@@ -7,10 +7,7 @@ import { hash, Stack } from 'utility';
 
 import type * as t from 'syntax/types';
 import type { BabelState, ModifyAction, Options } from 'types';
-
-interface Stackable {
-  context: StackFrame;
-}
+import type { AttributeBody } from 'handle/object';
 
 const DEFAULTS: Options = {
   env: "web",
@@ -30,7 +27,7 @@ export class StackFrame {
   opts: Options;
   program: FileManager;
   
-  current = {} as any;
+  current!: AttributeBody;
   currentComponent?: t.Path<t.Function>;
   currentElement?: Define;
 
@@ -70,8 +67,9 @@ export class StackFrame {
         if(!inherits)        
           throw new Error("well that's awkward.");
         
-        const next = inherits.push(name);
+        const next = inherits.push();
 
+        next.resolveFor(name);
         next.currentComponent = parentFunction(path);
         
         REGISTER.set(path.node, next);
@@ -109,19 +107,15 @@ export class StackFrame {
     state: BabelState,
     options: Options){
 
-    this.current = state;
     this.opts = options;
     this.prefix = hash(state.filename);
     this.program = FileManager.create(this, path, options);
   }
 
-  push(node?: Stackable | string): StackFrame {
+  push(node?: AttributeBody): StackFrame {
     const frame: StackFrame = Object.create(this);
 
-    if(typeof node == "string")
-      frame.resolveFor(node);
-
-    else if(node){
+    if(node){
       node.context = frame;
       frame.current = node;
     }
