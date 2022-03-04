@@ -7,10 +7,8 @@ import { Define } from './definition';
 import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
 
-export type Consequent = ComponentIf | DefineConsequent;
-
 export class ComponentIf {
-  private forks = [] as [Consequent, t.Expression?][];
+  private forks = [] as [Define, t.Expression?][];
 
   setup(context: StackFrame, path: t.Path<any>){
     do {
@@ -74,7 +72,7 @@ export class ComponentIf {
     }
 
     const define =
-      new DefineConsequent(context, name);
+      new Define(context, name);
 
     define.priority = 5;
     define.context.resolveFor(forks.length);
@@ -86,7 +84,7 @@ export class ComponentIf {
     return define;
   }
 
-  reduce(predicate: (fork: Consequent) => t.Expression | undefined){
+  reduce(predicate: (fork: Define) => t.Expression | undefined){
     const forks = this.forks.slice().reverse();
     let sum: t.Expression | undefined;
   
@@ -115,18 +113,5 @@ export class ComponentIf {
   
     if($.is(test, "Identifier"))
       return test.name;
-  }
-}
-
-export class DefineConsequent extends Define {
-  get isDeclared(){
-    return false;
-  }
-
-  provide(define: Define){
-    define.within = this;
-    define.priority = 4;
-
-    this.dependant.add(define);
   }
 }

@@ -5,7 +5,6 @@ import * as $ from 'syntax';
 
 import type * as t from 'syntax/types';
 import type { FileManager } from 'scope';
-import type { DefineConsequent } from 'handle/switch';
 import type { PropData, SequenceItem } from 'types';
 import type { StackFrame } from 'context';
 
@@ -118,7 +117,7 @@ export class Generator {
     this.props.push({ name, value: item.expression });
   }
 
-  useClass(from: Define | DefineConsequent){
+  useClass(from: Define){
     if(this.inline_only)
       return false;
 
