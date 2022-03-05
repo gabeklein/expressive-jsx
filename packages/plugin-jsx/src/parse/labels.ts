@@ -106,7 +106,7 @@ export function handleModifier(
     key = `${key}.if`;
 
   const initial =
-    [ key, handler, body ] as
+    [key, handler, body] as
     [string, ModifyAction, DefineBodyCompat];
 
   doUntilEmpty(initial, (next, enqueue) => {

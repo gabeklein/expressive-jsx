@@ -43,7 +43,7 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
     if(/For/.test(body.type))
       return;
 
-    const context = StackFrame.find(path, true);
+    const context = StackFrame.get(path, true);
 
     switch(body.type){
       case "BlockStatement": {
@@ -75,7 +75,7 @@ const JSXElement: Visitor<t.JSXElement> = {
     }
 
     const isComponent = $.is(path.parentPath, "ExpressionStatement");
-    const context = StackFrame.find(path, true);
+    const context = StackFrame.get(path, true);
     const ownStyle = context.ambient;
     let target = new ElementInline(context);
 

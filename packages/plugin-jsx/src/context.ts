@@ -50,7 +50,7 @@ export class StackFrame {
     return ambient;
   }
 
-  static find(
+  static get(
     path: t.Path<any>,
     create?: boolean
   ): StackFrame {
@@ -61,7 +61,7 @@ export class StackFrame {
         return scope;
   
       if($.is(path, "BlockStatement") && create){
-        const inherits = this.find(path);
+        const inherits = this.get(path);
         const name = containerName(path);
         
         if(!inherits)        
