@@ -70,7 +70,11 @@ export class StackFrame {
         const next = inherits.push();
 
         next.resolveFor(name);
-        next.currentComponent = parentFunction(path);
+
+        const fn = parentFunction(path);
+
+        if(fn)
+          next.currentComponent = fn;
         
         REGISTER.set(path.node, next);
 
