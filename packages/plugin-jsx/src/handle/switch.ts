@@ -29,16 +29,13 @@ export class ComponentIf {
 
   toExpression(): t.Expression | undefined {
     return this.reduce(cond => {
-      if(cond instanceof ComponentIf || cond.children.length)
+      if(cond.children.length)
         return cond.toExpression();
     });
   }
 
   toClassName(): t.Expression | undefined {
     return this.reduce(cond => {
-      if(cond instanceof ComponentIf)
-        return cond.toClassName();
-
       const segments = [];
 
       for(const mod of [cond, ...cond.includes]){
