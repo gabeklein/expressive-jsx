@@ -51,35 +51,35 @@ export class StackFrame {
   }
 
   static get(
-    path: t.Path<any>,
-    create?: boolean
-  ): StackFrame {
+    path: t.Path<any>, create?: boolean): StackFrame {
+
     while(path = path.parentPath){
       const scope = REGISTER.get(path.node);
 
       if(scope)
         return scope;
-  
-      if($.is(path, "BlockStatement") && create){
-        const inherits = this.get(path);
-        const name = containerName(path);
-        
-        if(!inherits)        
-          throw new Error("well that's awkward.");
-        
-        const next = inherits.push();
 
-        next.resolveFor(name);
+      if(!$.is(path, "BlockStatement") || !create)
+        continue;
 
-        const fn = parentFunction(path);
+      const inherits = this.get(path);
 
-        if(fn)
-          next.currentComponent = fn;
-        
-        REGISTER.set(path.node, next);
+      if(!inherits)
+        throw new Error("well that's awkward.");
+      
+      const name = containerName(path);
+      const next = inherits.push();
 
-        return next;
-      }
+      next.resolveFor(name);
+
+      const fn = parentFunction(path);
+
+      if(fn)
+        next.currentComponent = fn;
+      
+      REGISTER.set(path.node, next);
+
+      return next;
     }
 
     throw new Error("Scope not found!");
