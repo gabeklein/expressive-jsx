@@ -30,7 +30,7 @@ const Program: Visitor<t.Program> = {
 
     if(styleBlock)
       path.pushContainer("body", [ styleBlock ]);
-  
+
     context.program.close();
   }
 }
@@ -83,7 +83,7 @@ const JSXElement: Visitor<t.JSXElement> = {
 
     if(isComponent && ownStyle.containsStyle() && !ownStyle.isUsed){
       const wrap = new ElementInline(target.context);
-      
+
       wrap.adopt(target);
       applyModifier(wrap, ownStyle);
 
@@ -91,7 +91,7 @@ const JSXElement: Visitor<t.JSXElement> = {
     }
 
     const element = target.toExpression();
-    
+
     if(isComponent)
       path.parentPath.replaceWith(
         $.node("ReturnStatement", { argument: element })

@@ -80,14 +80,13 @@ function handleIfStatement(
     const body = path.get("consequent") as any;
     const mod = new DefineVariant(target, [ test.value ], 5);
 
-
     parse(mod, body);
     target.use(mod);
-    return;
   }
+  else {
+    const item = new ComponentIf();
 
-  const item = new ComponentIf();
-
-  item.setup(target.context, path);
-  target.adopt(item);    
+    item.setup(target.context, path);
+    target.adopt(item);
+  }
 }

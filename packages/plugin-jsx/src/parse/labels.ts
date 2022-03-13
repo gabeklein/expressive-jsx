@@ -75,9 +75,7 @@ export function handleDefine(
 }
 
 function handleNestedDefine(
-  target: Define,
-  name: string,
-  body: t.Path<any>){
+  target: Define, name: string, body: t.Path<any>){
 
   const mod = new Define(target.context, name);
 
@@ -89,9 +87,7 @@ function handleNestedDefine(
 }
 
 export function handleModifier(
-  target: Define,
-  key: string,
-  body: t.Path<any>){
+  target: Define, key: string, body: t.Path<any>){
 
   const { context } = target;
   const handler = context.getHandler(key);
