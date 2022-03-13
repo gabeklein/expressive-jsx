@@ -79,9 +79,6 @@ function handleNestedDefine(
 
   const mod = new Define(target.context, name);
 
-  if(/^[A-Z]/.test(name))
-    mod.priority = 3;
-
   target.provide(mod);
   parse(mod, body);
 }

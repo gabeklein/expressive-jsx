@@ -19,6 +19,9 @@ export class Define extends AttributeBody {
     super(context, name);
 
     this.context.currentElement = this;
+
+    if(name && /^[A-Z]/.test(name))
+      this.priority = 3;
   }
 
   next?: Define;
