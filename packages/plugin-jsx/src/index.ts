@@ -1,11 +1,11 @@
-import { StackFrame } from 'context';
-import { OUTPUT_NODE } from 'generate/jsx';
-import { styleDeclaration } from 'generate/styles';
-import { ElementInline } from 'handle/definition';
-import { parse } from 'parse/body';
-import { applyModifier, parseJSX } from 'parse/jsx';
-import { getName, handleModifier, Oops } from 'parse/labels';
-import * as $ from 'syntax';
+import { StackFrame } from "context";
+import { OUTPUT_NODE } from "generate/jsx";
+import { styleDeclaration } from "generate/styles";
+import { ElementInline } from "handle/definition";
+import { applyModifier, parseJSX } from "parse/jsx";
+import { handleDefine } from "parse/labels";
+import { getTarget } from "parse/parent";
+import * as $ from "syntax";
 
 import type { Visitor } from 'types';
 import type * as t from 'syntax/types';
@@ -37,31 +37,12 @@ const Program: Visitor<t.Program> = {
 
 const LabeledStatement: Visitor<t.LabeledStatement> = {
   enter(path){
-    const key = getName(path);
-    const body = path.get("body");
-
-    if(/For/.test(body.type))
+    if(path.get("body").isFor())
       return;
 
-    const context = StackFrame.get(path, true);
+    const target = getTarget(path);
 
-    switch(body.type){
-      case "BlockStatement": {
-        const define = context.setModifier(key);
-        parse(define, body);
-        break;
-      }
-      
-      case "ExpressionStatement":
-      case "LabeledStatement":
-      case "IfStatement": {
-        handleModifier(context.ambient, key, body);
-        break;
-      }
-  
-      default:
-        Oops.BadInputModifier(body, body.type)
-    }
+    handleDefine(target, path);
 
     path.remove();
   }
