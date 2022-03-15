@@ -40,13 +40,13 @@ export class StackFrame {
   }
 
   get ambient(){
-    let ambient = AMBIENT.get(this);
+    return AMBIENT.get(this) || this.init(this.name);
+  }
 
-    if(!ambient){
-      ambient = new Define(this, this.name!);
-      AMBIENT.set(this, ambient);
-    }
+  init(name?: string){
+    const ambient = new Define(this, name);
 
+    AMBIENT.set(this, ambient);
     return ambient;
   }
 
