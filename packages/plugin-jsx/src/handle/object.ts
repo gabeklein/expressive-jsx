@@ -2,6 +2,7 @@ import type { StackFrame } from 'context';
 import type { Define } from 'handle/definition';
 import type * as t from 'syntax/types';
 import type { InnerContent, SequenceItem } from 'types';
+import { hash } from 'utility';
 
 export abstract class AttributeBody {
   name?: string;
@@ -20,12 +21,17 @@ export abstract class AttributeBody {
 
     if(name){
       this.name = name;
-      this.context.resolveFor(name);
+      this.context.name = name;
     }
   }
 
   get uid(){
-    return this.context.unique(this.name!);
+    let path = "";
+
+    for(let ctx = this.context; ctx; ctx = ctx.parent)
+      path += ctx.name
+
+    return this.name + "_" + hash(path);
   }
 
   add(item: SequenceItem){
@@ -36,7 +42,7 @@ export abstract class AttributeBody {
     const index = this.children.push(child);
 
     if("context" in child)
-      child.context.resolveFor(index);
+      child.context.name = String(index);
 
     this.add(child);
   }

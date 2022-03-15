@@ -41,7 +41,7 @@ export function getContext(
     const name = containerName(path);
     const context = parentContext.push();
 
-    context.resolveFor(name);
+    context.name = name;
 
     const fn = parentFunction(path);
 
@@ -57,8 +57,7 @@ export function getContext(
 }
 
 export class StackFrame {
-  name?: string;
-  prefix: string;
+  name: string;
   opts: Options;
   program: FileManager;
   
@@ -112,7 +111,7 @@ export class StackFrame {
     options: Options){
 
     this.opts = options;
-    this.prefix = hash(state.filename);
+    this.name = hash(state.filename);
     this.program = FileManager.create(this, path, options);
   }
 
@@ -128,15 +127,6 @@ export class StackFrame {
     frame.modifiers = frame.modifiers.push();
 
     return frame;
-  }
-
-  unique(name: string){
-    return name + "_" + hash(this.prefix);
-  }
-
-  resolveFor(append?: string | number){
-    this.name = String(append);
-    this.prefix = `${this.prefix} ${append || ""}`;
   }
 
   getHandler(named: string, ignoreOwn = false){

@@ -1,4 +1,4 @@
-import { StackFrame } from "context";
+import { getContext, StackFrame } from "context";
 import { OUTPUT_NODE } from "generate/jsx";
 import { styleDeclaration } from "generate/styles";
 import { ElementInline } from "handle/definition";
@@ -61,16 +61,17 @@ const JSXElement: Visitor<t.JSXElement> = {
     }
 
     const isComponent = $.is(path.parentPath, "ExpressionStatement");
-    const ambient = getTarget(path);
-    let target = new ElementInline(ambient.context);
+    const context = getContext(path, true);
+    const ownStyle = context.ambient;
+    let target = new ElementInline(context);
 
     parseJSX(target, path);
 
-    if(isComponent && ambient.containsStyle() && !ambient.isUsed){
+    if(isComponent && ownStyle.containsStyle() && !ownStyle.isUsed){
       const wrap = new ElementInline(target.context);
 
       wrap.adopt(target);
-      applyModifier(wrap, ambient);
+      applyModifier(wrap, ownStyle);
 
       target = wrap;
     }

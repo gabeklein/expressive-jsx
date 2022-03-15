@@ -72,7 +72,7 @@ export class ComponentIf {
       new Define(context, name);
 
     define.priority = 5;
-    define.context.resolveFor(forks.length);
+    define.context.name = String(forks.length);
 
     parse(define, body);
 
