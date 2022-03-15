@@ -21,6 +21,41 @@ const DEFAULTS: Options = {
 const REGISTER = new WeakMap<t.Node, StackFrame>();
 const AMBIENT = new WeakMap<StackFrame, Define>();
 
+export function getContext(
+  path: t.Path<any>, create?: boolean): StackFrame {
+
+  while(path = path.parentPath){
+    const scope = REGISTER.get(path.node);
+
+    if(scope)
+      return scope;
+
+    if(!$.is(path, "BlockStatement") || !create)
+      continue;
+
+    const parentContext = getContext(path);
+
+    if(!parentContext)
+      throw new Error("well that's awkward.");
+    
+    const name = containerName(path);
+    const context = parentContext.push();
+
+    context.resolveFor(name);
+
+    const fn = parentFunction(path);
+
+    if(fn)
+      context.currentComponent = fn;
+    
+    REGISTER.set(path.node, context);
+
+    return context;
+  }
+
+  throw new Error("Scope not found!");
+}
+
 export class StackFrame {
   name?: string;
   prefix: string;
@@ -48,41 +83,6 @@ export class StackFrame {
 
     AMBIENT.set(this, ambient);
     return ambient;
-  }
-
-  static get(
-    path: t.Path<any>, create?: boolean): StackFrame {
-
-    while(path = path.parentPath){
-      const scope = REGISTER.get(path.node);
-
-      if(scope)
-        return scope;
-
-      if(!$.is(path, "BlockStatement") || !create)
-        continue;
-
-      const parentContext = this.get(path);
-
-      if(!parentContext)
-        throw new Error("well that's awkward.");
-      
-      const name = containerName(path);
-      const context = parentContext.push();
-
-      context.resolveFor(name);
-
-      const fn = parentFunction(path);
-
-      if(fn)
-        context.currentComponent = fn;
-      
-      REGISTER.set(path.node, context);
-
-      return context;
-    }
-
-    throw new Error("Scope not found!");
   }
 
   static create(
