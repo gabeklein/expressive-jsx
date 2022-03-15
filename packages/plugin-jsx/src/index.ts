@@ -1,8 +1,8 @@
-import { getContext, StackFrame } from "context";
+import { applyModifier, getContext, StackFrame } from "context";
 import { OUTPUT_NODE } from "generate/jsx";
 import { styleDeclaration } from "generate/styles";
 import { ElementInline } from "handle/definition";
-import { applyModifier, parseJSX } from "parse/jsx";
+import { parseJSX } from "parse/jsx";
 import { handleDefine } from "parse/labels";
 import { getTarget } from "parse/parent";
 import * as $ from "syntax";

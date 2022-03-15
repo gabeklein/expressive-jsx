@@ -1,3 +1,4 @@
+import { applyModifier } from 'context';
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { ElementInline } from 'handle/definition';
@@ -178,29 +179,4 @@ function applyAttribute(
   parent.add(
     new Prop(name, value || null)
   );
-}
-
-export function applyModifier(
-  target: Element, from: string | Define){
-
-  const apply = [] as Define[];
-  let modify = typeof from == "string"
-    ? target.context.getModifier(from)
-    : from;
-
-  while(modify){
-    apply.push(modify);
-
-    for(const use of [modify, ...modify.includes]){
-      target.includes.add(use);
-      use.targets.add(target);
-    }
-
-    for(const sub of modify.provides)
-      target.context.setModifier(sub.name!, sub);
-
-    modify = modify.next;
-  }
-
-  return apply;
 }
