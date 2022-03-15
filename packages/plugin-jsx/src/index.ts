@@ -56,17 +56,16 @@ const JSXElement: Visitor<t.JSXElement> = {
     }
 
     const isComponent = $.is(path.parentPath, "ExpressionStatement");
-    const context = StackFrame.get(path, true);
-    const ownStyle = context.ambient;
-    let target = new ElementInline(context);
+    const ambient = getTarget(path);
+    let target = new ElementInline(ambient.context);
 
     parseJSX(target, path);
 
-    if(isComponent && ownStyle.containsStyle() && !ownStyle.isUsed){
+    if(isComponent && ambient.containsStyle() && !ambient.isUsed){
       const wrap = new ElementInline(target.context);
 
       wrap.adopt(target);
-      applyModifier(wrap, ownStyle);
+      applyModifier(wrap, ambient);
 
       target = wrap;
     }

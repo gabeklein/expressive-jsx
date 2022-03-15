@@ -62,24 +62,24 @@ export class StackFrame {
       if(!$.is(path, "BlockStatement") || !create)
         continue;
 
-      const inherits = this.get(path);
+      const parentContext = this.get(path);
 
-      if(!inherits)
+      if(!parentContext)
         throw new Error("well that's awkward.");
       
       const name = containerName(path);
-      const next = inherits.push();
+      const context = parentContext.push();
 
-      next.resolveFor(name);
+      context.resolveFor(name);
 
       const fn = parentFunction(path);
 
       if(fn)
-        next.currentComponent = fn;
+        context.currentComponent = fn;
       
-      REGISTER.set(path.node, next);
+      REGISTER.set(path.node, context);
 
-      return next;
+      return context;
     }
 
     throw new Error("Scope not found!");
