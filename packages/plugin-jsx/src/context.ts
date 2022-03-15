@@ -84,35 +84,21 @@ export class StackFrame {
     return ambient;
   }
 
-  static create(
+  constructor(
     path: t.Path<t.BabelProgram>,
     state: BabelState){
 
     const options = { ...DEFAULTS, ...state.opts };
-    const external = Object.assign({}, ...options.modifiers);
-
-    let context = state.context = new this(path, state, options);
-  
-    REGISTER.set(path.node, context);
-
-    for(const imports of [builtIn, external]){
-      context = Object.create(context);
-
-      for(const name in imports)
-        context.handlers.set(name, imports[name]);
-    }
-
-    return context;
-  }
-
-  constructor(
-    path: t.Path<t.BabelProgram>,
-    state: BabelState,
-    options: Options){
+    const imports = Object.assign({}, builtIn, ...options.modifiers);
 
     this.opts = options;
     this.name = hash(state.filename);
     this.program = FileManager.create(this, path, options);
+  
+    REGISTER.set(path.node, this);
+
+    for(const name in imports)
+      this.handlers.set(name, imports[name]);
   }
 
   push(node?: AttributeBody): StackFrame {

@@ -23,7 +23,7 @@ export default () => ({
 
 const Program: Visitor<t.Program> = {
   enter(path, state){
-    state.context = StackFrame.create(path, state);
+    state.context = new StackFrame(path, state);
   },
   exit(path, { context, filename }){
     const styleBlock = styleDeclaration(context, filename);
