@@ -40,6 +40,11 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
     if(path.get("body").isFor())
       return;
 
+    if(!path.parentPath.isBlockStatement()){
+      path.replaceWith($.block(path.node))
+      return;
+    }
+
     const target = getTarget(path);
 
     handleDefine(target, path);
