@@ -7,16 +7,13 @@ import { doUntilEmpty } from 'utility';
 import { parse } from './body';
 
 import type * as t from 'syntax/types';
-import type { StackFrame } from 'context';
 import type { ExplicitStyle } from 'handle/attributes';
 import type { BunchOf, DefineBodyCompat, ModifyAction } from 'types';
 
 export const Oops = ParseErrors({
   BadInputModifier: "Modifier input of type {1} not supported here!",
   BadModifierName: "Modifier name cannot start with _ symbol!",
-  DollarSignDeprecated: "$ modifiers are deprecated. Did you mean to use a namespace?",
-  DuplicateModifier: "Duplicate declaration of named modifier!",
-  IllegalAtTopLevel: "Cannot apply element styles in top-level of program"
+  DollarSignDeprecated: "$ modifiers are deprecated. Did you mean to use a namespace?"
 });
 
 export function getName(
@@ -31,24 +28,6 @@ export function getName(
     throw Oops.DollarSignDeprecated(path);
 
   return name;
-}
-
-export function handleTopLevelDefine(
-  node: t.Path<t.LabeledStatement>,
-  context: StackFrame){
-
-  const name = getName(node);
-  const body = node.get("body");
-
-  if(context.modifiers.has(name))
-    throw Oops.DuplicateModifier(node);
-
-  if($.is(body, "ExpressionStatement"))
-    throw Oops.IllegalAtTopLevel(node)
-
-  const define = context.setModifier(name);
-
-  parse(define, body);
 }
 
 export function handleDefine(
