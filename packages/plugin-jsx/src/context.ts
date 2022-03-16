@@ -81,6 +81,10 @@ export class StackFrame {
     return AMBIENT.get(this) || this.init(this.name);
   }
 
+  set ambient(item: Define){
+    AMBIENT.set(this, item);
+  }
+
   init(name?: string){
     const ambient = new Define(this, name);
 
