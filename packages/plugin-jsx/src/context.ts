@@ -34,27 +34,30 @@ export function getContext(
     if(!$.is(path, "BlockStatement") || !create)
       continue;
 
-    const parentContext = getContext(path);
-
-    if(!parentContext)
-      throw new Error("well that's awkward.");
-    
-    const name = containerName(path);
-    const context = parentContext.push();
-
-    context.name = name;
-
-    const fn = parentFunction(path);
-
-    if(fn)
-      context.currentComponent = fn;
-    
-    REGISTER.set(path.node, context);
-
-    return context;
+    return newContext(path);
   }
 
   throw new Error("Scope not found!");
+}
+
+export function newContext(path: t.Path<any>){
+  const parentContext = getContext(path);
+
+  if(!parentContext)
+    throw new Error("well that's awkward.");
+  
+  const context = parentContext.push();
+  
+  REGISTER.set(path.node, context);
+
+  context.name = containerName(path);
+
+  const fn = parentFunction(path);
+
+  if(fn)
+    context.currentComponent = fn;
+
+  return context;
 }
 
 export class StackFrame {

@@ -68,8 +68,7 @@ export class ComponentIf {
         body = inner[0];
     }
 
-    const define =
-      new Define(context, name);
+    const define = new Define(context, name);
 
     define.priority = 5;
     define.context.name = String(forks.length);
