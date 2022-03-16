@@ -11,6 +11,7 @@ const {
 } = process.env;
 
 module.exports = {
+  comments: false,
   presets: [
     [env, {
       "targets": {
