@@ -117,7 +117,6 @@ export class StackFrame {
       frame.current = node;
     }
 
-    frame.handlers = frame.handlers.push();
     frame.modifiers = frame.modifiers.push();
 
     return frame;
