@@ -46,7 +46,7 @@ export function containerName(path: t.Path): string {
     }
 
     case "FunctionDeclaration":
-      return (<t.FunctionDeclaration>path.node).id!.name;
+      return (<t.FunctionDeclaration>parent.node).id!.name;
 
     case "ExportDefaultDeclaration":
       return getLocalFilename(path.hub);
