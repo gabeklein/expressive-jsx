@@ -24,7 +24,7 @@ export class Define extends AttributeBody {
       this.priority = 3;
   }
 
-  next?: Define;
+  then?: Define;
 
   within?: Define;
   

@@ -154,7 +154,7 @@ export class StackFrame {
       mod = new Define(this, name);
 
     if(next)
-      mod.next = next;
+      mod.then = next;
 
     this.modifiers.set(name, mod);
 
@@ -181,7 +181,7 @@ export function applyModifier(
     for(const sub of modify.provides)
       target.context.setModifier(sub.name!, sub);
 
-    modify = modify.next;
+    modify = modify.then;
   }
 
   return apply;
