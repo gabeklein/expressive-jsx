@@ -16,6 +16,45 @@ const Oops = ParseErrors({
   PropNotIdentifier: "Assignment must be identifier name of a prop."
 })
 
+export function parseFunctionBody(
+  block: t.Path<t.BlockStatement>, target: Define){
+
+  const body = block.get("body") as t.Path<any>[];
+
+  for(const item of body){
+    switch(item.type){
+      case "LabeledStatement": 
+        handleDefine(target, item);
+      break
+
+      case "IfStatement":
+        handleIfStatement(target, item);
+      break;
+
+      case "ExpressionStatement": {
+        const exp = item.get("expression") as t.Path<t.Expression>;
+
+        if($.is(exp, "JSXElement"))
+          continue;
+        else
+          handleExpression(target, exp);
+      }
+      break;
+
+      case "ForInStatement":
+      case "ForOfStatement":
+      case "ForStatement":
+        new ComponentFor(item, target);
+      break;
+
+      default:
+        continue;
+    }
+
+    item.remove();
+  }
+}
+
 export function parse(
   target: Define, ast: t.Path<any>, key?: string){
 
@@ -36,8 +75,14 @@ export function parse(
         handleIfStatement(target, item);
       break;
 
-      case "ExpressionStatement":
-        handleExpression(target, item);
+      case "ExpressionStatement": {
+        const exp = item.get("expression") as t.Path<t.Expression>;
+
+        if($.is(exp, "JSXElement"))
+          addElementFromJSX(exp, target);
+        else
+          handleExpression(target, exp);
+      }
       break;
 
       case "ForInStatement":
@@ -52,15 +97,10 @@ export function parse(
 }
 
 function handleExpression(
-  target: Define, path: t.Path<t.IfStatement>){
+  target: Define, path: t.Path<t.Expression>){
 
-  const e = path.get("expression") as t.Path<t.Node>;
-
-  if($.is(e, "JSXElement"))
-    addElementFromJSX(e, target);
-
-  else if($.is(e, "AssignmentExpression", { operator: "=" })){
-    const { left, right } = e.node;
+  if($.is(path, "AssignmentExpression", { operator: "=" })){
+    const { left, right } = path.node;
 
     if(!$.is(left, "Identifier"))
       throw Oops.PropNotIdentifier(left)

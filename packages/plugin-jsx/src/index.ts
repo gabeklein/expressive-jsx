@@ -1,11 +1,10 @@
-import { applyModifier, getContext, StackFrame } from "context";
-import { OUTPUT_NODE } from "generate/jsx";
-import { styleDeclaration } from "generate/styles";
-import { ElementInline } from "handle/definition";
-import { parseJSX } from "parse/jsx";
-import { handleDefine } from "parse/labels";
-import { getTarget } from "parse/parent";
-import * as $ from "syntax";
+import { applyModifier, getContext, StackFrame } from 'context';
+import { OUTPUT_NODE } from 'generate/jsx';
+import { styleDeclaration } from 'generate/styles';
+import { ElementInline } from 'handle/definition';
+import { parseFunctionBody } from 'parse/body';
+import { parseJSX } from 'parse/jsx';
+import * as $ from 'syntax';
 
 import type { Visitor } from 'types';
 import type * as t from 'syntax/types';
@@ -16,8 +15,7 @@ export default () => ({
   },
   visitor: {
     Program,
-    JSXElement,
-    LabeledStatement
+    JSXElement
   }
 })
 
@@ -35,24 +33,6 @@ const Program: Visitor<t.Program> = {
   }
 }
 
-const LabeledStatement: Visitor<t.LabeledStatement> = {
-  enter(path){
-    if(path.get("body").isFor())
-      return;
-
-    if(!path.parentPath.isBlockStatement()){
-      path.replaceWith($.block(path.node))
-      return;
-    }
-
-    const target = getTarget(path);
-
-    handleDefine(target, path);
-
-    path.remove();
-  }
-}
-
 const JSXElement: Visitor<t.JSXElement> = {
   enter(path){
     if(OUTPUT_NODE.has(path.node)){
@@ -64,6 +44,13 @@ const JSXElement: Visitor<t.JSXElement> = {
     const context = getContext(path, true);
     const ownStyle = context.ambient;
     let target = new ElementInline(context);
+
+    if(isComponent){
+      const block = path.parentPath.parentPath;
+
+      if($.is(block, "BlockStatement"))
+        parseFunctionBody(block, ownStyle);
+    }
 
     parseJSX(target, path);
 
