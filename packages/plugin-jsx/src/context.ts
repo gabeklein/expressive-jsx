@@ -3,10 +3,10 @@ import { builtIn } from 'modifier/builtIn';
 import { containerName, parentFunction } from 'parse/entry';
 import { FileManager } from 'scope';
 import * as $ from 'syntax';
-import { hash, Stack } from 'utility';
+import { hash } from 'utility';
 
 import type * as t from 'syntax/types';
-import type { BabelState, ModifyAction, Options } from 'types';
+import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
 import type { AttributeBody } from 'handle/object';
 import type { Element } from "parse/jsx";
 
@@ -70,8 +70,8 @@ export class StackFrame {
   currentElement?: Define;
 
   modifiersDeclared = new Set<Define>();
-  modifiers = new Stack<Define>();
-  handlers = new Stack<ModifyAction>();
+  modifiers = {} as BunchOf<Define>;
+  handlers = {} as BunchOf<ModifyAction>;
 
   get parent(){
     return Object.getPrototypeOf(this);
@@ -106,7 +106,7 @@ export class StackFrame {
     REGISTER.set(path.node, this);
 
     for(const name in imports)
-      this.handlers.set(name, imports[name]);
+      this.handlers[name] = imports[name];
   }
 
   push(node?: AttributeBody): StackFrame {
@@ -117,7 +117,7 @@ export class StackFrame {
       frame.current = node;
     }
 
-    frame.modifiers = frame.modifiers.push();
+    frame.modifiers = Object.create(frame.modifiers);
 
     return frame;
   }
@@ -132,7 +132,7 @@ export class StackFrame {
       }
 
     const [key, ...path] = named.split(".");
-    let handler = this.handlers.get(key);
+    let handler = this.handlers[key];
 
     for(const key of path)
       handler = (handler as any)[key];
@@ -144,11 +144,11 @@ export class StackFrame {
     if(name == "this")
       return this.parent.ambient;
 
-    return this.modifiers.get(name);
+    return this.modifiers[name];
   }
 
   setModifier(name: string, mod?: Define){
-    const next = this.modifiers.get(name);
+    const next = this.modifiers[name];
 
     if(!mod)
       mod = new Define(this, name);
@@ -156,7 +156,7 @@ export class StackFrame {
     if(next)
       mod.then = next;
 
-    this.modifiers.set(name, mod);
+    this.modifiers[name] = mod;
 
     return mod;
   }

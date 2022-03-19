@@ -1,5 +1,3 @@
-import type { BunchOf } from 'types';
-
 const m32 = Math.imul;
 
 /**
@@ -29,28 +27,6 @@ export function hash(str = "", length = 3){
 
 export function ensureArray<T>(a: T | T[]){
   return Array.isArray(a) ? a : [a];
-}
-
-export class Stack<T> {
-  layer = {} as BunchOf<T>;
-
-  push(){
-    return Object.assign(Object.create(this), {
-      layer: Object.create(this.layer)
-    })
-  }
-
-  set(key: string, value: T){
-    this.layer[key] = value;
-  }
-
-  get(key: string){
-    return this.layer[key];
-  }
-
-  has(key: string){
-    return this.layer.hasOwnProperty(key);
-  }
 }
 
 export class ArrayStack<T = any, I = T>
