@@ -22,7 +22,7 @@
     "/lib"
   ],
   "scripts": {
-    "build": "esbuild ./src --bundle --outfile=lib/index.js --platform=node --target=node10 --external:@babel/types",
+    "build": "esbuild ./src --bundle --outfile=lib/index.js --platform=node --target=node10",
     "watch": "npm run build -- --sourcemap --watch",
     "test": "jest",
     "prebuild": "rm -rf lib",
@@ -32,6 +32,6 @@
     "@babel/types": "7.10.3",
     "@types/babel__traverse": "^7.11.0",
     "@types/node": "^11.13.4",
-    "esbuild": "^0.11.14"
+    "esbuild": "^0.14.27"
   }
 }
