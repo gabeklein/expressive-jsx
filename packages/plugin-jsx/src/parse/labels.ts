@@ -32,14 +32,23 @@ export function getName(
 
 export function handleDefine(
   target: Define,
-  path: t.Path<t.LabeledStatement>){
+  path: t.Path<t.LabeledStatement>,
+  top?: boolean){
 
   const key = getName(path);
   const body = path.get('body') as t.Path<t.Statement>;
 
   switch(body.type){
-    case "BlockStatement":
-      handleNestedDefine(target, key, body);
+    case "BlockStatement": {
+      const mod = new Define(target.context, key);
+
+      if(top)
+        target.context.setModifier(key, mod);
+      else 
+        target.provide(mod);
+
+      parse(mod, body);
+    }
     break;
     
     case "ExpressionStatement":
@@ -51,15 +60,6 @@ export function handleDefine(
     default:
       Oops.BadInputModifier(body, body.type)
   }
-}
-
-function handleNestedDefine(
-  target: Define, name: string, body: t.Path<any>){
-
-  const mod = new Define(target.context, name);
-
-  target.provide(mod);
-  parse(mod, body);
 }
 
 export function handleModifier(
