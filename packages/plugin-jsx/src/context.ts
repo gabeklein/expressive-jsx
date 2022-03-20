@@ -147,11 +147,8 @@ export class StackFrame {
     return this.modifiers[name];
   }
 
-  setModifier(name: string, mod?: Define){
+  setModifier(name: string, mod: Define){
     const next = this.modifiers[name];
-
-    if(!mod)
-      mod = new Define(this, name);
 
     if(next)
       mod.then = next;
