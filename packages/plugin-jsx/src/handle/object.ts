@@ -17,12 +17,14 @@ export abstract class AttributeBody {
   includes = new Set<Define>();
 
   constructor(context: StackFrame, name?: string){
-    context.push(this);
+    context = Object.create(context);
+    context.current = this;
+    context.modifiers = Object.create(context.modifiers);
 
-    if(name){
-      this.name = name;
-      this.context.name = name;
-    }
+    if(name)
+      context.name = this.name = name;
+
+    this.context = context;
   }
 
   get uid(){

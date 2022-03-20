@@ -34,30 +34,28 @@ export function getContext(
     if(!$.is(path, "BlockStatement") || !create)
       continue;
 
-    return newContext(path);
+    const parentContext = getContext(path);
+
+    if(!parentContext)
+      throw new Error("well that's awkward.");
+
+    const name = containerName(path);
+    const define = new Define(parentContext, name);
+    const { context } = define;
+
+    REGISTER.set(path.node, context);
+  
+    context.name = containerName(path);
+  
+    const fn = parentFunction(path);
+  
+    if(fn)
+      context.currentComponent = fn;
+  
+    return context;
   }
 
   throw new Error("Scope not found!");
-}
-
-export function newContext(path: t.Path<any>){
-  const parentContext = getContext(path);
-
-  if(!parentContext)
-    throw new Error("well that's awkward.");
-  
-  const context = parentContext.push();
-  
-  REGISTER.set(path.node, context);
-
-  context.name = containerName(path);
-
-  const fn = parentFunction(path);
-
-  if(fn)
-    context.currentComponent = fn;
-
-  return context;
 }
 
 export class StackFrame {
@@ -78,18 +76,16 @@ export class StackFrame {
   }
 
   get ambient(){
-    return AMBIENT.get(this) || this.init(this.name);
+    let ambient = AMBIENT.get(this);
+
+    if(ambient)
+      return ambient;
+
+    return new Define(this, this.name);
   }
 
   set ambient(item: Define){
     AMBIENT.set(this, item);
-  }
-
-  init(name?: string){
-    const ambient = new Define(this, name);
-
-    AMBIENT.set(this, ambient);
-    return ambient;
   }
 
   constructor(
@@ -107,19 +103,6 @@ export class StackFrame {
 
     for(const name in imports)
       this.handlers[name] = imports[name];
-  }
-
-  push(node?: AttributeBody): StackFrame {
-    const frame: StackFrame = Object.create(this);
-
-    if(node){
-      node.context = frame;
-      frame.current = node;
-    }
-
-    frame.modifiers = Object.create(frame.modifiers);
-
-    return frame;
   }
 
   getHandler(named: string, ignoreOwn = false){
@@ -142,7 +125,7 @@ export class StackFrame {
 
   getModifier(name: string): Define | undefined {
     if(name == "this")
-      return this.parent.ambient;
+      return this.ambient;
 
     return this.modifiers[name];
   }
