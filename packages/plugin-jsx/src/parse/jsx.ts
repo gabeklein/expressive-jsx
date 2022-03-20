@@ -52,22 +52,22 @@ export function parseJSX(
       applyAttribute(element, attribute as any, queue);
 
     for(const path of children)
-      if($.is(path, "JSXElement")){
-        const child = new ElementInline(element.context);
-
-        element.adopt(child);
-        queue.push([child, path as t.Path<t.JSXElement>]);
-      }
-      else
-        applyChild(element, path);
+      applyChild(element, path, queue);
   }
 }
 
 function applyChild(
-  parent: Element,
-  path: t.Path<JSXChild>){
+  element: Element,
+  path: t.Path<JSXChild>,
+  queue: (readonly [Element, t.Path<t.JSXElement>])[]
+){
+  if($.is(path, "JSXElement")){
+    const child = new ElementInline(element.context);
 
-  if($.is(path, "JSXText")){
+    element.adopt(child);
+    queue.push([child, path as t.Path<t.JSXElement>]);
+  }
+  else if($.is(path, "JSXText")){
     const { value } = path.node;
 
     if(/^\n+ *$/.test(value))
@@ -77,13 +77,13 @@ function applyChild(
       .replace(/ +/g, " ")
       .replace(/\n\s*/, "");
 
-    parent.adopt($.literal(text));
+    element.adopt($.literal(text));
   }
   else if($.is(path, "JSXExpressionContainer")){
     const { expression } = path.node;
 
     if(!$.is(expression, "JSXEmptyExpression"))
-      parent.adopt(path.node.expression as t.Expression);
+      element.adopt(path.node.expression as t.Expression);
   }
   else
     Oops.UnhandledChild(path, path.type);
