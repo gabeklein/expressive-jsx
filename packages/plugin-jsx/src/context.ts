@@ -158,8 +158,11 @@ export function applyModifier(
       use.targets.add(target);
     }
 
-    for(const sub of modify.provides)
-      target.context.setModifier(sub.name!, sub);
+    const context = modify.context.modifiers;
+
+    Object.getOwnPropertyNames(context).map(name => {
+      target.context.setModifier(name, context[name]);
+    })
 
     modify = modify.then;
   }

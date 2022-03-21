@@ -24,7 +24,7 @@ export function parseFunctionBody(
   for(const item of body){
     switch(item.type){
       case "LabeledStatement": 
-        handleDefine(target, item, true);
+        handleDefine(target, item);
       break
 
       case "IfStatement":

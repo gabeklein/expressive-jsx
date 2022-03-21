@@ -32,8 +32,7 @@ export function getName(
 
 export function handleDefine(
   target: Define,
-  path: t.Path<t.LabeledStatement>,
-  top?: boolean){
+  path: t.Path<t.LabeledStatement>){
 
   const key = getName(path);
   const body = path.get('body') as t.Path<t.Statement>;
@@ -42,11 +41,7 @@ export function handleDefine(
     case "BlockStatement": {
       const mod = new Define(target.context, key);
 
-      if(top)
-        target.context.setModifier(key, mod);
-      else 
-        target.provide(mod);
-
+      target.provide(mod);
       parse(mod, body);
     }
     break;

@@ -34,9 +34,6 @@ export class Define extends AttributeBody {
   /** Targets which this modifier applies to. */
   targets = new Set<Define | ElementInline>();
 
-  /** Modifiers available to children of applicable elements. */
-  provides = new Set<Define>();
-
   /** Modifiers based upon this one. */
   dependant = new Set<Define>();
 
@@ -75,7 +72,7 @@ export class Define extends AttributeBody {
   }
 
   provide(define: Define){
-    this.provides.add(define);
+    this.context.setModifier(define.name!, define);
   }
 
   toExpression(maybeProps?: boolean): t.Expression {
