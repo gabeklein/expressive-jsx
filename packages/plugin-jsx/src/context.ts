@@ -130,6 +130,10 @@ export class StackFrame {
   setModifier(name: string, mod: Define){
     const next = this.modifiers[name];
 
+    // TODO: this shouldn't happen
+    if(next === mod)
+      return mod;
+    
     if(next)
       mod.then = next;
 
@@ -161,7 +165,10 @@ export function applyModifier(
       target.context.setModifier(name, context[name]);
     })
 
-    modify = modify.then;
+    if(modify !== modify.then)
+      modify = modify.then;
+    else
+      break;
   }
 
   return apply;
