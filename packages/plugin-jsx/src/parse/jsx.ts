@@ -19,7 +19,7 @@ const Oops = ParseErrors({
 });
 
 export function addElementFromJSX(
-  path: t.Path<t.JSXElement>, parent: Define){
+  parent: Define, path: t.Path<t.JSXElement>){
 
   let target = parent as Element;
   const tag = path.get("openingElement").get("name");
@@ -101,6 +101,9 @@ export function applyTagName(
   }
   else if($.is(tag, "JSXIdentifier")){
     name = tag.name;
+
+    if(name === "this")
+      return;
 
     let explicit =
       /^[A-Z]/.test(name) ||

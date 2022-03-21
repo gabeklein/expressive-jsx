@@ -16,10 +16,17 @@ const Oops = ParseErrors({
   PropNotIdentifier: "Assignment must be identifier name of a prop."
 })
 
-export function parseFunctionBody(
-  block: t.Path<t.BlockStatement>, target: Define){
+export function parse(
+  target: Define,
+  block: t.Path<any>,
+  key?: string){
 
-  const body = block.get("body") as t.Path<any>[];
+  if(key)
+    block = block.get(key) as any;
+
+  const body = $.is(block, "BlockStatement")
+    ? ensureArray(block.get("body"))
+    : [block];
 
   for(const item of body){
     switch(item.type){
@@ -32,12 +39,12 @@ export function parseFunctionBody(
       break;
 
       case "ExpressionStatement": {
-        const exp = item.get("expression") as t.Path<t.Expression>;
+        const expr = item.get("expression") as t.Path<t.Expression>;
 
-        if($.is(exp, "JSXElement"))
-          continue;
-        else
-          handleExpression(target, exp);
+        if($.is(expr, "JSXElement"))
+          addElementFromJSX(target, expr);
+        else if($.is(expr, "AssignmentExpression", { operator: "=" }))
+          handlePropAssignment(target, expr);
       }
       break;
 
@@ -55,60 +62,17 @@ export function parseFunctionBody(
   }
 }
 
-export function parse(
-  target: Define, ast: t.Path<any>, key?: string){
+function handlePropAssignment(
+  target: Define, expr: t.Path<t.AssignmentExpression>){
 
-  if(key)
-    ast = ast.get(key) as any;
+  const { left, right } = expr.node;
 
-  const content = $.is(ast, "BlockStatement")
-    ? ensureArray(ast.get("body"))
-    : [ast];
-  
-  for(const item of content)
-    switch(item.type){
-      case "LabeledStatement": 
-        handleDefine(target, item);
-      break
+  if(!$.is(left, "Identifier"))
+    throw Oops.PropNotIdentifier(left)
 
-      case "IfStatement":
-        handleIfStatement(target, item);
-      break;
+  const prop = new Prop(left.name, right);
 
-      case "ExpressionStatement": {
-        const exp = item.get("expression") as t.Path<t.Expression>;
-
-        if($.is(exp, "JSXElement"))
-          addElementFromJSX(exp, target);
-        else
-          handleExpression(target, exp);
-      }
-      break;
-
-      case "ForInStatement":
-      case "ForOfStatement":
-      case "ForStatement":
-        new ComponentFor(item, target);
-      break;
-
-      default:
-        target.statements.push(item.node);
-    }
-}
-
-function handleExpression(
-  target: Define, path: t.Path<t.Expression>){
-
-  if($.is(path, "AssignmentExpression", { operator: "=" })){
-    const { left, right } = path.node;
-
-    if(!$.is(left, "Identifier"))
-      throw Oops.PropNotIdentifier(left)
-
-    const prop = new Prop(left.name, right);
-      
-    target.add(prop);
-  }
+  target.add(prop);
 }
 
 function handleIfStatement(

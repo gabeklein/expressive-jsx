@@ -1,8 +1,8 @@
-import { applyModifier, getContext, StackFrame } from 'context';
+import { getContext, StackFrame } from 'context';
 import { OUTPUT_NODE } from 'generate/jsx';
 import { styleDeclaration } from 'generate/styles';
-import { ElementInline } from 'handle/definition';
-import { parseFunctionBody } from 'parse/body';
+import { Define, ElementInline } from 'handle/definition';
+import { parse } from 'parse/body';
 import { parseJSX } from 'parse/jsx';
 import * as $ from 'syntax';
 
@@ -35,41 +35,40 @@ const Program: Visitor<t.Program> = {
 
 const JSXElement: Visitor<t.JSXElement> = {
   enter(path){
-    if(OUTPUT_NODE.has(path.node)){
+    if(OUTPUT_NODE.has(path.node) || path.getAncestry().find(x => x.removed)){
       path.skip();
       return;
     }
 
-    const isComponent = $.is(path.parentPath, "ExpressionStatement");
-    const context = getContext(path, true);
-    const ownStyle = context.ambient;
-    let target = new ElementInline(context);
+    let parent = path.parentPath;
+    let context = getContext(path, true);
 
-    if(isComponent){
-      const block = path.parentPath.parentPath;
-
-      if($.is(block, "BlockStatement"))
-        parseFunctionBody(block, ownStyle);
+    if(!$.is(parent, "ExpressionStatement")){
+      const target = new ElementInline(context);
+      parseJSX(target, path);
+      path.replaceWith(
+        target.toExpression()
+      );
+      return;
     }
 
-    parseJSX(target, path);
+    while(!$.is(parent.parentPath, [
+      "FunctionDeclaration",
+      "FunctionExpression",
+      "ArrowFunctionExpression"
+    ]))
+      parent = parent.parentPath;
 
-    if(isComponent && ownStyle.containsStyle() && !ownStyle.isUsed){
-      const wrap = new ElementInline(target.context);
+    const block = parent as unknown as t.Path<t.BlockStatement>;
+    const ambient = new Define(context);
 
-      wrap.adopt(target);
-      applyModifier(wrap, ownStyle);
+    parse(ambient, block);
 
-      target = wrap;
-    }
+    const output = ambient.toExpression();
 
-    const element = target.toExpression();
-
-    if(isComponent)
-      path.parentPath.replaceWith(
-        $.node("ReturnStatement", { argument: element })
+    if(output)
+      block.node.body.push(
+        $.node("ReturnStatement", { argument: output })
       )
-    else
-      path.replaceWith(element);
   }
 }
