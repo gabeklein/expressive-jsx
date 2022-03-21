@@ -61,7 +61,6 @@ export function handleModifier(
   target: Define, key: string, body: t.Path<any>){
 
   const { context } = target;
-  const handler = context.getHandler(key);
   const output = {} as BunchOf<ExplicitStyle>;
 
   while($.is(body, "LabeledStatement")){
@@ -71,6 +70,8 @@ export function handleModifier(
 
   if($.is(body, "IfStatement"))
     key = `${key}.if`;
+  
+  const handler = context.getHandler(key);
 
   const initial =
     [key, handler, body] as
