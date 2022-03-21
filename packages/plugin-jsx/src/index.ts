@@ -16,9 +16,16 @@ export default () => ({
   },
   visitor: {
     Program,
-    JSXElement
+    JSXElement,
+    DoExpression
   }
 })
+
+const DoExpression: Visitor<t.DoExpression> = {
+  enter(path){
+    path.replaceWith(path.get("body").node)
+  }
+}
 
 const Program: Visitor<t.Program> = {
   enter(path, state){
