@@ -45,6 +45,9 @@ export class DelegateTypes {
     if(childKey)
       element = element[childKey] as unknown as T;
 
+    if($.is(element, "Identifier") && element.name.startsWith("$"))
+      return `var(--${element.name.slice(1)})`;
+
     if($.isParenthesized(element))
       return element;
 

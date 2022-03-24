@@ -25,7 +25,7 @@ export function getName(
     throw Oops.BadModifierName(path);
 
   if(name.startsWith("$"))
-    throw Oops.DollarSignDeprecated(path);
+    return name.replace(/^\$/, "--");
 
   return name;
 }
