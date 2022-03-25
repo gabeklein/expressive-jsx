@@ -45,6 +45,8 @@ export function parse(
           addElementFromJSX(target, expr);
         else if($.is(expr, "AssignmentExpression", { operator: "=" }))
           handlePropAssignment(target, expr);
+        else
+          continue;
       }
       break;
 

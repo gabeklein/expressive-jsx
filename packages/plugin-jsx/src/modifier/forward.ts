@@ -10,7 +10,9 @@ export function forwardProp(
   ...propNames: any[]){
 
   const target = this.target;
-  const exec = target.context.currentComponent;
+  const exec = this.body!
+    .getAncestry()
+    .find(x => x.isFunction()) as t.Path<t.Function>;
 
   if(!exec)
     throw new Error("No function-component found in hierarchy");

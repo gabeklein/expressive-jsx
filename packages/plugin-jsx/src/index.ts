@@ -43,10 +43,11 @@ const Program: Visitor<t.Program> = {
 
 const JSXElement: Visitor<t.JSXElement> = {
   enter(path){
-    if(OUTPUT_NODE.has(path.node) || path.getAncestry().find(x => x.removed)){
-      path.skip();
+    if(!path.getAncestry().slice(0, 4).find(x => x.isFunction()))
       return;
-    }
+
+    if(OUTPUT_NODE.has(path.node))
+      return;
 
     let parent = path.parentPath;
     let context = getContext(path, true);
