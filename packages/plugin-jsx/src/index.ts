@@ -55,15 +55,22 @@ const JSXElement: Visitor<t.JSXElement> = {
       return;
     }
 
-    const parentFunction = path
-      .getAncestry()
-      .slice(0, 4)
-      .find(x => x.isFunction());
+    const ancestry = path.getAncestry();
+    let containerFunction;
 
-    if(!parentFunction)
+    for(const item of ancestry){
+      if(item.isLabeledStatement())
+        break;
+      if(item.isFunction()){
+        containerFunction = item;
+        break
+      }
+    }
+
+    if(!containerFunction)
       return;
 
-    const block = path.parentPath.parentPath as t.Path<t.BlockStatement>;
+    const block = containerFunction.get("body") as t.Path<t.BlockStatement>;
     const context = getContext(path, true);
     const ambient = context.ambient;
 

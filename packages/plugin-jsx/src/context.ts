@@ -43,7 +43,8 @@ export function getContext(
     const define = new Define(parentContext, name);
     const { context } = define;
 
-    REGISTER.set(path.node, context);
+    if(path.node)
+      REGISTER.set(path.node, context);
   
     context.name = containerName(path);
   
