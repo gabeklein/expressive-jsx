@@ -82,5 +82,9 @@ const JSXElement: Visitor<t.JSXElement> = {
       block.node.body.push(
         $.node("ReturnStatement", { argument: output })
       )
+  },
+  exit(path){
+    if(OUTPUT_NODE.has(path.node))
+      path.remove();
   }
 }

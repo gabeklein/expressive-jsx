@@ -1,4 +1,5 @@
 import { ParseErrors } from 'errors';
+import { OUTPUT_NODE } from 'generate/jsx';
 import { Prop } from 'handle/attributes';
 import { DefineVariant } from 'handle/definition';
 import { ComponentFor } from 'handle/iterate';
@@ -41,8 +42,11 @@ export function parse(
       case "ExpressionStatement": {
         const expr = item.get("expression") as t.Path<t.Expression>;
 
-        if($.is(expr, "JSXElement"))
+        if($.is(expr, "JSXElement")){
+          OUTPUT_NODE.add(expr.node)
           addElementFromJSX(target, expr);
+          continue;
+        }
         else if($.is(expr, "AssignmentExpression", { operator: "=" }))
           handlePropAssignment(target, expr);
         else
