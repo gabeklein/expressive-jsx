@@ -18,7 +18,6 @@ export class Define extends AttributeBody {
   constructor(context: StackFrame, name?: string){
     super(context, name);
 
-    this.context.currentElement = this;
     this.context.ambient = this;
 
     if(name && /^[A-Z]/.test(name))

@@ -18,7 +18,6 @@ export abstract class AttributeBody {
 
   constructor(context: StackFrame, name?: string){
     context = Object.create(context);
-    context.current = this;
     context.modifiers = Object.create(context.modifiers);
 
     if(name)

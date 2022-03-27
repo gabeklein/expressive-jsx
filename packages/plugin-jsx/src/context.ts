@@ -1,13 +1,12 @@
 import { Define } from 'handle/definition';
 import { builtIn } from 'modifier/builtIn';
-import { containerName, parentFunction } from 'parse/entry';
+import { containerName } from 'parse/entry';
 import { FileManager } from 'scope';
 import * as $ from 'syntax';
 import { hash } from 'utility';
 
 import type * as t from 'syntax/types';
 import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
-import type { AttributeBody } from 'handle/object';
 import type { Element } from "parse/jsx";
 
 const DEFAULTS: Options = {
@@ -48,11 +47,6 @@ export function getContext(
   
     context.name = containerName(path);
   
-    const fn = parentFunction(path);
-  
-    if(fn)
-      context.currentComponent = fn;
-  
     return context;
   }
 
@@ -63,10 +57,6 @@ export class StackFrame {
   name: string;
   opts: Options;
   program: FileManager;
-  
-  current!: AttributeBody;
-  currentComponent?: t.Path<t.Function>;
-  currentElement?: Define;
 
   modifiersDeclared = new Set<Define>();
   modifiers = {} as BunchOf<Define>;

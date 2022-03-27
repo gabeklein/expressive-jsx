@@ -10,22 +10,6 @@ type FunctionPath =
   | t.Path<t.FunctionDeclaration>
   | t.Path<t.FunctionExpression>
 
-export function parentFunction(path: t.Path<t.BlockStatement>){
-  const parent = path.parentPath;
-
-  if($.is(parent, "ArrowFunctionExpression"))
-    return parent as t.Path<t.Function>;
-
-  if($.is(parent, "ReturnStatement")){
-    const container = parent.findParent(node => (
-      /.*Function.*/.test(node.type)
-    ));
-
-    if(container)
-      return container as t.Path<t.Function>;
-  }
-}
-
 export function containerName(path: t.Path): string {
   let parent = path.parentPath;
   let encounteredReturn;
