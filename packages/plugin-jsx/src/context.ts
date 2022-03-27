@@ -149,7 +149,7 @@ export function applyModifier(
 
   const apply = [] as Define[];
   let modify = typeof from == "string"
-    ? target.context.getModifier(from)
+    ? target.getModifier(from)
     : from;
 
   while(modify){

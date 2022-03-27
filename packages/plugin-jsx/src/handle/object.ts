@@ -27,6 +27,10 @@ export abstract class AttributeBody {
     this.context = context;
   }
 
+  getModifier(name: string){
+    return this.context.getModifier(name);
+  }
+
   get uid(){
     let path = "";
 
