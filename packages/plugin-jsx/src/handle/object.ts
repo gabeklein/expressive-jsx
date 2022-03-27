@@ -16,6 +16,15 @@ export abstract class AttributeBody {
   /** Other definitions applicable to this one. */
   includes = new Set<Define>();
 
+  get uid(){
+    let path = "";
+
+    for(let ctx = this.context; ctx; ctx = ctx.parent)
+      path += ctx.name
+
+    return this.name + "_" + hash(path);
+  }
+
   constructor(context: StackFrame, name?: string){
     context = Object.create(context);
     context.modifiers = Object.create(context.modifiers);
@@ -26,17 +35,23 @@ export abstract class AttributeBody {
     this.context = context;
   }
 
-  getModifier(name: string){
-    return this.context.getModifier(name);
+  getModifier(name: string): Define | undefined {
+    return this.context.modifiers[name];
   }
 
-  get uid(){
-    let path = "";
+  setModifier(name: string, mod: Define){
+    const next = this.context.modifiers[name];
 
-    for(let ctx = this.context; ctx; ctx = ctx.parent)
-      path += ctx.name
+    // TODO: this shouldn't happen
+    if(next === mod)
+      return mod;
+    
+    if(next)
+      mod.then = next;
 
-    return this.name + "_" + hash(path);
+    this.context.modifiers[name] = mod;
+
+    return mod;
   }
 
   add(item: SequenceItem){

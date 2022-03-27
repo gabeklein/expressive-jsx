@@ -113,25 +113,6 @@ export class StackFrame {
 
     return handler;
   }
-
-  getModifier(name: string): Define | undefined {
-    return this.modifiers[name];
-  }
-
-  setModifier(name: string, mod: Define){
-    const next = this.modifiers[name];
-
-    // TODO: this shouldn't happen
-    if(next === mod)
-      return mod;
-    
-    if(next)
-      mod.then = next;
-
-    this.modifiers[name] = mod;
-
-    return mod;
-  }
 }
 
 export function applyModifier(
@@ -153,7 +134,7 @@ export function applyModifier(
     const context = modify.context.modifiers;
 
     Object.getOwnPropertyNames(context).map(name => {
-      target.context.setModifier(name, context[name]);
+      target.setModifier(name, context[name]);
     })
 
     if(modify !== modify.then)

@@ -71,7 +71,7 @@ export class Define extends AttributeBody {
   }
 
   provide(define: Define){
-    this.context.setModifier(define.name!, define);
+    this.setModifier(define.name!, define);
   }
 
   toExpression(maybeProps?: boolean): t.Expression {
