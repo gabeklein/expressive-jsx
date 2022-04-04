@@ -1,4 +1,5 @@
 import { getContext, StackFrame } from 'context';
+import { Status } from 'errors';
 import { OUTPUT_NODE } from 'generate/jsx';
 import { styleDeclaration } from 'generate/styles';
 import { ElementInline } from 'handle/definition';
@@ -28,6 +29,7 @@ const DoExpression: Visitor<t.DoExpression> = {
 
 const Program: Visitor<t.Program> = {
   enter(path, state){
+    Status.currentFile = state.file as any;
     state.context = new StackFrame(path, state);
   },
   exit(path, { context, filename }){
