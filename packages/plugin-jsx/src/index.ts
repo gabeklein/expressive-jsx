@@ -42,6 +42,8 @@ const Program: Visitor<t.Program> = {
   }
 }
 
+const TRIGGER_JSX = new Set<any>();
+
 const JSXElement: Visitor<t.JSXElement> = {
   enter(path){
     if(OUTPUT_NODE.has(path.node))
@@ -72,6 +74,8 @@ const JSXElement: Visitor<t.JSXElement> = {
     if(!containerFunction)
       return;
 
+    TRIGGER_JSX.add(path.node);
+
     const block = containerFunction.get("body") as t.Path<t.BlockStatement>;
     const context = getContext(path, true);
     const ambient = context.ambient;
@@ -86,7 +90,7 @@ const JSXElement: Visitor<t.JSXElement> = {
       )
   },
   exit(path){
-    if(OUTPUT_NODE.has(path.node))
+    if(TRIGGER_JSX.has(path.node))
       path.remove();
   }
 }
