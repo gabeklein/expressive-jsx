@@ -9,8 +9,10 @@ import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
 
 export class ElementInline extends AttributeBody {
+  selfClosing?: boolean;
+  
   toExpression(){
-    return new Generator(this).element();
+    return new Generator(this).element(this.selfClosing);
   }
 }
 

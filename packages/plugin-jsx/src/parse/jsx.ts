@@ -42,9 +42,12 @@ export function parseJSX(
   const queue = [[into, element] as const];
 
   for(const [element, path] of queue){
-    const tag = path.node.openingElement.name;
+    const { name: tag, selfClosing } = path.node.openingElement;
     const children = path.get("children");
     const attributes = path.get("openingElement").get("attributes");
+
+    if(element instanceof ElementInline)
+      element.selfClosing = selfClosing;
 
     applyTagName(element, tag);
 

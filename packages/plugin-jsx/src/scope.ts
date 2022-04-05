@@ -71,10 +71,19 @@ export abstract class FileManager {
 
   element(
     src: ElementReact,
-    tagName?: string | t.JSXMemberExpression){
+    tagName?: string | t.JSXMemberExpression,
+    collapsable?: boolean){
 
-    const tag = tagName || "div";
-    return this.createElement(tag, src.props, src.children);
+    const { children, props } = src;
+
+    const tag = tagName || (
+      props.length || !collapsable || !children.length ? "div" : null
+    )
+
+    if(!tag && children.length === 1)
+      return children[0];
+
+    return this.createElement(tag, props, children);
   }
 
   container(

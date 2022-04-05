@@ -57,8 +57,8 @@ export class Generator {
       this.useClass(element);
   }
 
-  element(){
-    return this.context.program.element(this.info, this.tag);
+  element(collapsable?: boolean){
+    return this.context.program.element(this.info, this.tag, collapsable);
   }
 
   add(item: SequenceItem){
