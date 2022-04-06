@@ -146,14 +146,18 @@ function applyAttribute(
     if(expression === null){
       const applied = applyModifier(parent, name);
 
-      if(/^[A-Z]/.test(parent.name!))
-        for(const define of applied)
-          define.priority = 3;
+      if(!applied.length)
+        value = $.node("BooleanLiteral", { value: true });
 
-      return;
+      else {
+        if(/^[A-Z]/.test(parent.name!))
+          for(const define of applied)
+            define.priority = 3;
+
+          return;
+        }
     }
-  
-    switch(expression.type){
+    else switch(expression.type){
       case "JSXExpressionContainer":
         value = expression.expression as t.Expression;
       break;
