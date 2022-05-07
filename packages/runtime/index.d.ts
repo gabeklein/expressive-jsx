@@ -10,7 +10,7 @@ interface RuntimeStyleController {
   /**
    * Reference to slave <style> tag
    */
-  element?: HTMLStyleElement;
+  styleElement?: HTMLStyleElement;
 
   /**
    * Computed CSS body.
@@ -26,7 +26,19 @@ interface RuntimeStyleController {
   put(cssText: string, reoccuringKey: string): void;
 }
 
-export default RuntimeStyleController;
+declare namespace css {
+  interface Options {
+    module?: string;
+    refreshToken?: string;
+  }
+}
+
+/**
+ * Register new styles for application.
+ */
+declare function css(stylesheet: string, options: css.Options): void;
+
+export default css;
 
 /**
  * Return children as array.

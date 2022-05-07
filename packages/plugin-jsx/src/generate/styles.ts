@@ -12,7 +12,6 @@ type MediaGroups = SelectorContent[];
 
 export function styleDeclaration(context: StackFrame){
   const { modifiersDeclared, program, opts } = context;
-  const runtime = program.ensure("$runtime", "default", "CSS");
   const pretty = opts.printStyle == "pretty";
   const hot = opts.hot !== false;
 
@@ -27,12 +26,19 @@ export function styleDeclaration(context: StackFrame){
   if(hot)
     options.refreshToken = $.literal(hash(context.filename, 10));
 
+  if(opts.module)
+    options.module = $.literal(
+      typeof opts.module == "string"
+        ? opts.module
+        : context.module && context.module.name || true
+    );
+
   if(Object.keys(options).length)
     args.push($.object(options));
 
   return $.statement(
     $.call(
-      $.get(runtime, "put"),
+      program.ensure("$runtime", "default", "css"),
       $.template(printedStyle),
       ...args
     )

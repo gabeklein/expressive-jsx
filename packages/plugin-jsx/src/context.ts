@@ -56,6 +56,7 @@ export function getContext(
 export class StackFrame {
   name: string;
   filename: string;
+  module: any;
 
   opts: Options;
   program: FileManager;
@@ -91,6 +92,7 @@ export class StackFrame {
     this.opts = options;
     this.name = hash(state.filename);
     this.filename = state.filename;
+    this.module = (state.file as any).opts.configFile;
     this.program = FileManager.create(this, path, options);
   
     REGISTER.set(path.node, this);

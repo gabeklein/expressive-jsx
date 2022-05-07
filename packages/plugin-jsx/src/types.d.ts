@@ -29,6 +29,7 @@ export interface Options {
   runtime: string;
   styleMode: "compile" | "inline";
   modifiers: BunchOf<(...args: any[]) => any>[];
+  module?: true | string;
 
   // optional
   hot?: boolean;

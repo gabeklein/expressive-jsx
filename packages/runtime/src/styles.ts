@@ -7,18 +7,19 @@ declare namespace RuntimeStyle {
 
 class RuntimeStyle {
   /** <style> tag expressing accumulated styles  */
-  element: HTMLStyleElement;
+  styleElement: HTMLStyleElement;
 
   /** Priority chunks */
   chunks = [
     new Map<string, boolean | string>()
   ];
 
-  constructor(){
-    const style = this.element = document.createElement("style");
+  constructor(name: string){
+    const style = this.styleElement =
+      document.createElement("style");
 
-    style.setAttribute("expressive", "");
-    document.body.appendChild(style);
+    if(name)
+      style.setAttribute("module", name);
   }
 
   /** Current aggregate of styles. */
@@ -45,8 +46,7 @@ class RuntimeStyle {
    * @param css - plain CSS to be included
    * @param options
    */
-  put(css: string, options: RuntimeStyle.PutOptions = {}){
-    const { refreshToken } = options;
+  put(css: string, refreshToken?: string){
     const indent = /^\n(\s*)/.exec(css);
    
     if(indent){
@@ -68,7 +68,7 @@ class RuntimeStyle {
     for(let i=1; groups.length > i; i+=2)
       this.accept(groups[i+1], Number(groups[i]), refreshToken);
 
-    this.element.innerHTML = this.text;
+    this.styleElement.innerHTML = this.text;
   }
 
   accept(css: string, priority: number, sourceKey?: string){
