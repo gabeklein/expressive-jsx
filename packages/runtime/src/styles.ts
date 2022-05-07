@@ -1,4 +1,11 @@
-export class RuntimeStyle {
+declare namespace RuntimeStyle {
+  interface PutOptions {
+    module?: string;
+    refreshToken?: string;
+  }
+}
+
+class RuntimeStyle {
   /** <style> tag expressing accumulated styles  */
   element: HTMLStyleElement;
 
@@ -36,9 +43,10 @@ export class RuntimeStyle {
    * Add styles from cssText to generated stylesheet.
    *
    * @param css - plain CSS to be included
-   * @param reoccuringKey - dedupe identifier (for HMR or potentially dynamic style)
+   * @param options
    */
-  put(css: string, reoccuringKey: string){
+  put(css: string, options: RuntimeStyle.PutOptions = {}){
+    const { refreshToken } = options;
     const indent = /^\n(\s*)/.exec(css);
    
     if(indent){
@@ -58,7 +66,7 @@ export class RuntimeStyle {
       groups.unshift("0");
 
     for(let i=1; groups.length > i; i+=2)
-      this.accept(groups[i+1], Number(groups[i]), reoccuringKey);
+      this.accept(groups[i+1], Number(groups[i]), refreshToken);
 
     this.element.innerHTML = this.text;
   }
@@ -79,3 +87,5 @@ export class RuntimeStyle {
     register.set(css, sourceKey || true);
   }
 }
+
+export { RuntimeStyle }

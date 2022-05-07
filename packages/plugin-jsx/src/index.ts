@@ -32,8 +32,8 @@ const Program: Visitor<t.Program> = {
     Status.currentFile = state.file as any;
     state.context = new StackFrame(path, state);
   },
-  exit(path, { context, filename }){
-    const styleBlock = styleDeclaration(context, filename);
+  exit(path, { context }){
+    const styleBlock = styleDeclaration(context);
 
     if(styleBlock)
       path.pushContainer("body", [ styleBlock ]);

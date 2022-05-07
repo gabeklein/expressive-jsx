@@ -10,10 +10,7 @@ import * as $ from 'syntax';
 type SelectorContent = [ string, string[] ][];
 type MediaGroups = SelectorContent[];
 
-export function styleDeclaration(
-  context: StackFrame,
-  filename: string){
-
+export function styleDeclaration(context: StackFrame){
   const { modifiersDeclared, program, opts } = context;
   const runtime = program.ensure("$runtime", "default", "CSS");
   const pretty = opts.printStyle == "pretty";
@@ -24,15 +21,21 @@ export function styleDeclaration(
   
   const mediaGroups = prioritize(modifiersDeclared);
   const printedStyle = serialize(mediaGroups, pretty);
-  const args = [ $.template(printedStyle) as t.Expression ];
+  const args: t.Expression[] = [];
+  const options: any = {};
 
-  if(hot){
-    const uid = hash(filename, 10);
-    args.push($.literal(uid));
-  }
+  if(hot)
+    options.refreshToken = $.literal(hash(context.filename, 10));
+
+  if(Object.keys(options).length)
+    args.push($.object(options));
 
   return $.statement(
-    $.call($.get(runtime, "put"), ...args)
+    $.call(
+      $.get(runtime, "put"),
+      $.template(printedStyle),
+      ...args
+    )
   );
 }
 
