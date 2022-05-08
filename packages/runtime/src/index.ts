@@ -7,14 +7,22 @@ export default function css(
   options: RuntimeStyle.PutOptions = {}){
 
   const { module: name = "" } = options;
+  const { body } = window.document;
 
   let group = CSS_MODULES.get(name);
 
   if(!group){
     group = new RuntimeStyle(name);
-    CSS_MODULES.set(name, group);
 
-    document.body.appendChild(group.styleElement);
+    if(name && CSS_MODULES.size){
+      const value = Array.from(CSS_MODULES.values()).at(-1)!;
+
+      body.insertBefore(group.styleElement, value.styleElement);
+    }
+    else
+      body.appendChild(group.styleElement);
+
+    CSS_MODULES.set(name, group);
   }
 
   group.put(stylesheet, options.refreshToken);
