@@ -14,7 +14,7 @@ class RuntimeStyle {
     new Map<string, boolean | string>()
   ];
 
-  constructor(name: string){
+  constructor(public name: string){
     const style = this.styleElement =
       document.createElement("style");
 
@@ -62,10 +62,13 @@ class RuntimeStyle {
       // split priorty chunks (if exist)
       .split(/\/\* (\d+) \*\/\n/g);
 
+    if(groups[0] === "")
+      groups.shift();
+
     if(groups.length < 2)
       groups.unshift("0");
 
-    for(let i=1; groups.length > i; i+=2)
+    for(let i=0; groups.length > i; i+=2)
       this.accept(groups[i+1], Number(groups[i]), refreshToken);
 
     this.styleElement.innerHTML = this.text;
