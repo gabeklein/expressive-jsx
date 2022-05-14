@@ -42,9 +42,9 @@ export function parse(
       case "ExpressionStatement": {
         const expr = item.get("expression") as t.Path<t.Expression>;
 
-        if($.is(expr, "JSXElement")){
+        if($.is(expr, ["JSXElement", "JSXFragment"])){
           OUTPUT_NODE.add(expr.node)
-          addElementFromJSX(target, expr);
+          addElementFromJSX(target, expr as any);
           continue;
         }
         else if($.is(expr, "AssignmentExpression", { operator: "=" }))

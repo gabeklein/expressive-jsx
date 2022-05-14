@@ -17,6 +17,7 @@ export default () => ({
   visitor: {
     Program,
     JSXElement,
+    JSXFragment: JSXElement,
     DoExpression
   }
 })
@@ -44,7 +45,7 @@ const Program: Visitor<t.Program> = {
 
 const TRIGGER_JSX = new Set<any>();
 
-const JSXElement: Visitor<t.JSXElement> = {
+const JSXElement: Visitor<t.JSXElement | t.JSXFragment> = {
   enter(path){
     if(OUTPUT_NODE.has(path.node))
       return;

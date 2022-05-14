@@ -19,17 +19,20 @@ const Oops = ParseErrors({
 });
 
 export function addElementFromJSX(
-  parent: Define, path: t.Path<t.JSXElement>){
+  parent: Define, path: t.Path<t.JSXElement | t.JSXFragment>){
 
   let target = parent as Element;
-  const tag = path.get("openingElement").get("name");
 
-  if(!$.is(tag, "JSXIdentifier", { name: "this" })){
-    const child = new ElementInline(target.context);
-
-    applyTagName(child, tag.node);
-    target.adopt(child);
-    target = child;
+  if($.is(path, "JSXElement")){
+    const tag = (path as t.Path<t.JSXElement>).get("openingElement").get("name");
+  
+    if(!$.is(tag, "JSXIdentifier", { name: "this" })){
+      const child = new ElementInline(target.context);
+  
+      applyTagName(child, tag.node);
+      target.adopt(child);
+      target = child;
+    }
   }
 
   parseJSX(target, path);
@@ -37,22 +40,25 @@ export function addElementFromJSX(
 
 export function parseJSX(
   into: ElementInline | Define,
-  element: t.Path<t.JSXElement>){
+  element: t.Path<t.JSXElement | t.JSXFragment>){
 
-  const queue = [[into, element] as const];
+  const queue = [[into, element as t.Path<t.JSXElement>] as const];
 
   for(const [element, path] of queue){
-    const { name: tag, selfClosing } = path.node.openingElement;
     const children = path.get("children");
-    const attributes = path.get("openingElement").get("attributes");
 
-    if(element instanceof ElementInline)
-      element.selfClosing = selfClosing;
+    if($.is(path, "JSXElement")){
+      const { name: tag, selfClosing } = path.node.openingElement;
+      const attributes = path.get("openingElement").get("attributes");
 
-    applyTagName(element, tag);
+      if(element instanceof ElementInline)
+        element.selfClosing = selfClosing;
 
-    for(const attribute of attributes)
-      applyAttribute(element, attribute as any, queue);
+      applyTagName(element, tag);
+
+      for(const attribute of attributes)
+        applyAttribute(element, attribute as any, queue);
+    }
 
     for(const path of children)
       applyChild(element, path, queue);
