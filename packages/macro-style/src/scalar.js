@@ -3,6 +3,7 @@ import { appendUnitToN } from './units';
 const EXPORT = exports;
 
 const EXPECTS_AUTO = [
+  "gap",
   "top",
   "left",
   "right",
