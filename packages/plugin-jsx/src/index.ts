@@ -51,7 +51,7 @@ const JSXElement: Visitor<t.JSXElement | t.JSXFragment> = {
       return;
 
     if(!$.is(path.parentPath, "ExpressionStatement")){
-      let context = getContext(path, true);
+      const context = getContext(path, true);
       const target = new ElementInline(context);
       parseJSX(target, path);
       path.replaceWith(
@@ -85,10 +85,12 @@ const JSXElement: Visitor<t.JSXElement | t.JSXFragment> = {
 
     const output = ambient.toExpression();
 
-    if(output)
-      block.node.body.push(
-        $.node("ReturnStatement", { argument: output })
-      )
+    if(output){
+      const returns =
+        $.node("ReturnStatement", { argument: output });
+
+      block.node.body.push(returns);
+    }
   },
   exit(path){
     if(TRIGGER_JSX.has(path.node))
