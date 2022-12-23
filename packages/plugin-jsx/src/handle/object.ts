@@ -16,13 +16,17 @@ export abstract class AttributeBody {
   /** Other definitions applicable to this one. */
   includes = new Set<Define>();
 
-  get uid(){
+  path(salt?: string | number){
     let path = "";
 
     for(let ctx = this.context; ctx; ctx = ctx.parent)
-      path += ctx.name
+      path += ctx.name;
 
-    return this.name + "_" + hash(path);
+    return hash(path + salt);
+  }
+
+  get uid(){
+    return this.name + "_" + this.path();
   }
 
   constructor(context: StackFrame, name?: string){

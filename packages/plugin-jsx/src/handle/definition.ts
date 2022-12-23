@@ -86,9 +86,7 @@ export class Define extends AttributeBody {
   }
 
   addStyle(name: string, value: any){
-    this.add(
-      new ExplicitStyle(name, value)
-    )
+    this.add(new ExplicitStyle(name, value));
   }
   
   setActive(withPriority?: number){
@@ -160,10 +158,10 @@ export class DefineVariant extends Define {
   }
 
   provide(define: Define){
-    define.within = this;
-    define.priority = this.priority;
-
     this.dependant.add(define);
     this.parent.provide(define);
+
+    define.within = this;
+    define.priority = this.priority;
   }
 }

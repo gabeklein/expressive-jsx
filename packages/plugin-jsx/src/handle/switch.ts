@@ -7,6 +7,38 @@ import { Define } from './definition';
 import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
 
+/** Number of consequents existing for a given parent Define. */
+const conseqentsExist = new Map<Define, number>();
+
+class DefineConsequent extends Define {
+  rank: number;
+  
+  constructor(
+    private parent: Define){
+
+    super(parent.context);
+
+    this.within = parent.within;
+    this.priority = 5;
+    this.rank = (conseqentsExist.get(this) || 0) + 1;
+    this.name = this.parent.name;
+
+    conseqentsExist.set(this, this.rank);
+  }
+
+  get uid(){
+    return this.name + "_" + this.path(this.rank);
+  }
+
+  provide(define: Define){
+    this.dependant.add(define);
+    this.parent.provide(define);
+
+    define.within = this;
+    define.priority = this.priority;
+  }
+}
+
 export class ComponentIf {
   private forks = [] as [Define, t.Expression?][];
 
@@ -56,7 +88,6 @@ export class ComponentIf {
     test?: t.Path<t.Expression>){
 
     const { forks } = this;
-    const name = context.ambient.name!;
 
     if($.is(body, "IfStatement"))
       throw new Error("Nested if statements are not supported.");
@@ -68,9 +99,8 @@ export class ComponentIf {
         body = inner[0];
     }
 
-    const define = new Define(context, name);
+    const define = new DefineConsequent(context.ambient);
 
-    define.priority = 5;
     define.context.name = String(forks.length);
 
     parse(define, body);
