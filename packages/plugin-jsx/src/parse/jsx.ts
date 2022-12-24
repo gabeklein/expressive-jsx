@@ -84,7 +84,7 @@ function applyChild(
 
     const text = value
       .replace(/ +/g, " ")
-      .replace(/\n\s*/, "");
+      .replace(/\n\s*/g, "");
 
     element.adopt($.literal(text));
   }
