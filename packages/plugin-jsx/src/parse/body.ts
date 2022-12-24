@@ -92,11 +92,11 @@ function handleIfStatement(
 
     parse(mod, body);
     target.use(mod);
+    return;
   }
-  else {
-    const item = new ComponentIf();
 
-    item.setup(target.context, path);
-    target.adopt(item);
-  }
+  const item = new ComponentIf();
+
+  item.setup(target.context, path);
+  target.adopt(item);
 }
