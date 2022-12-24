@@ -84,13 +84,15 @@ const JSXElement: Visitor<t.JSXElement | t.JSXFragment> = {
     parse(ambient, block);
 
     const output = ambient.toExpression();
+    const { body } = block.node;
+    
+    if(!output)
+      return;
 
-    if(output){
-      const returns =
-        $.node("ReturnStatement", { argument: output });
-
-      block.node.body.push(returns);
-    }
+    if(path.parentPath.node == body[0])
+      containerFunction.node.body = output;
+    else 
+      body.push($.returns(output));
   },
   exit(path){
     if(TRIGGER_JSX.has(path.node))
