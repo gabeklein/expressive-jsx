@@ -1,7 +1,7 @@
 const test = require("./_adapter");
 
 test("Simple modifier", `
-  () => do {
+  () => {
     Foo: {
       color: red;
     }
@@ -11,7 +11,7 @@ test("Simple modifier", `
 `)
 
 test("Attribute-based modifier", `
-  () => do {
+  () => {
     Foo: {
       background: red;
     }
@@ -25,7 +25,7 @@ test("Attribute-based modifier", `
 `)
 
 test("Nested modifier", `
-  () => do {
+  () => {
     Foo: {
       color: red;
     }
@@ -46,7 +46,7 @@ test("Nested modifier", `
 `)
 
 test("Explicitly use modifier", `
-  () => do {
+  () => {
     Foo: {
       color: blue;
     }
@@ -66,7 +66,7 @@ test("Explicitly use modifier", `
 test("collapse single-use modifiers", `
   Bar: { color: red }
 
-  () => do {
+  () => {
     Bar: { background: white }
     Foo: {
       Bar: { border: red }

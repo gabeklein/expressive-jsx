@@ -3,7 +3,7 @@ const test = require("./_adapter");
 test("competing style priority", `
   Bar: { color: red };
 
-  () => do {
+  () => {
     Bar: { color: blue }
     Foo: {
       Bar: { color: orange }
@@ -16,7 +16,7 @@ test("competing style priority", `
 `);
 
 test("conditional priority should be higher", `
-  () => do {
+  () => {
     if(checked)
       test: {
         color: red;
@@ -31,14 +31,14 @@ test("conditional priority should be higher", `
 `);
 
 test("prioritize external (capital-letter) define", `
-  const Foo = () => do {
+  const Foo = () => {
     forward: className;
     color: red;
 
     <this>Hello</this>
   }
 
-  const Bar = () => do {
+  const Bar = () => {
     Foo: {
       color: blue;
     }

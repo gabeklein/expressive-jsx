@@ -1,7 +1,7 @@
 const test = require("./_adapter");
 
 test("contingent on consequent", `
-  () => do {
+  () => {
     if(true){
       div: {
         css: if(".foo-bar")
@@ -14,7 +14,7 @@ test("contingent on consequent", `
 `);
 
 test("multiple contingent on consequent", `
-  () => do {
+  () => {
     if(active){
       css: self: {
         if(".foo")
@@ -30,7 +30,7 @@ test("multiple contingent on consequent", `
 `);
 
 test("contingent in consequent", `
-  () => do {
+  () => {
     if(true){
       inner: {
         css: if(".foo-bar")

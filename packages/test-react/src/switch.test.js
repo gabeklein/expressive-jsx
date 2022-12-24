@@ -1,7 +1,7 @@
 const test = require("./_adapter");
 
 test("basic switch", `
-  ({ hello }) => do {
+  ({ hello }) => {
     if(hello)
       <div>Hello World</div>
     else
@@ -10,7 +10,7 @@ test("basic switch", `
 `);
 
 test("switch styles", `
-  ({ foo }) => do {
+  ({ foo }) => {
     if(foo)
       color: red;
     else
@@ -19,7 +19,7 @@ test("switch styles", `
 `);
 
 test("alternate consequent types", `
-  ({ foo }) => do {
+  ({ foo }) => {
     if(foo)
       color: red;
     else
@@ -28,7 +28,7 @@ test("alternate consequent types", `
 `);
 
 test("inverse consequent types", `
-  ({ foo }) => do {
+  ({ foo }) => {
     if(foo)
       <div>Foo is true</div>
     else
@@ -37,7 +37,7 @@ test("inverse consequent types", `
 `);
 
 test("supports complex else-if", `
-  ({ foo, bar }) => do {
+  ({ foo, bar }) => {
     if(foo)
       <div>Foo is true</div>
     else if(bar)
@@ -48,7 +48,7 @@ test("supports complex else-if", `
 `);
 
 test("supports inverse else-if", `
-  ({ foo, bar }) => do {
+  ({ foo, bar }) => {
     if(foo)
       color: red;
     else if(bar)
@@ -59,7 +59,7 @@ test("supports inverse else-if", `
 `);
 
 test("nested elements may have conditional", `
-  const BuyButton = ({ active }) => do {
+  const BuyButton = ({ active }) => {
     inner: {
       if(active)
         color: red;
@@ -76,7 +76,7 @@ test("nested elements may have conditional", `
 `)
 
 test("switch can provide style downstream", `
-  () => do {
+  () => {
     if(true){
       foo: { color: red }
       bar: { color: blue }
@@ -98,7 +98,7 @@ test("delegates definition via use", `
     color: blue;
   }
 
-  const BuyButton = ({ active }) => do {
+  const BuyButton = ({ active }) => {
     example: {
       if(active)
         use: exampleActive;
@@ -115,7 +115,7 @@ test("delegated variant may still contain style", `
     color: blue;
   }
 
-  const BuyButton = ({ active }) => do {
+  const BuyButton = ({ active }) => {
     example: {
       if(active){
         use: exampleActive;

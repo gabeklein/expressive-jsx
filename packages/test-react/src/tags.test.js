@@ -1,25 +1,25 @@
 const test = require("./_adapter");
 
 test("strip tag; emit default", `
-  () => do {
+  () => {
     <hello>Hello World</hello>
   }
 `);
 
 test("will not emit empty tag", `
-  () => do {
+  () => {
     <foobar />
   }
 `);
 
 test("pass-though capital (component) tags", `
-  () => do {
+  () => {
     <Hello>Hello World</Hello>
   }
 `);
 
 test("pass-through HTML5 tags", `
-  () => do {
+  () => {
     <div>
       <uncommon />
       <article />
@@ -50,7 +50,7 @@ test("pass-through HTML5 tags", `
 `);
 
 test("Handle member-type tags", `
-  () => do {
+  () => {
     <Foo.Bar />
   }
 `);
@@ -60,7 +60,7 @@ test("Member property implemented as name", `
     color: blue;
   }
 
-  () => do {
+  () => {
     <Foo.Bar />
   }
 `);

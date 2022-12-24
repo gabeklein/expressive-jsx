@@ -1,13 +1,13 @@
 const test = require("./_adapter");
 
 test("component", `
-  () => do {
+  () => {
     <div>Hello World</div>
   }
 `);
 
 test("multiple", `
-  () => do {
+  () => {
     <this>
       <div>Foo</div>
       <div>Bar</div>
@@ -16,7 +16,7 @@ test("multiple", `
 `);
 
 test("statement pass-thru", `
-  () => do {
+  () => {
     const [x, setX] = useState();
 
     useEffect(() => {
