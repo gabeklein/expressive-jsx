@@ -11,50 +11,71 @@ export type JSXChild =
   | t.JSXSpreadChild
   | t.JSXText;
 
-export const VALID_HTML = [
+/** HTML Tags may collide with casual use. */
+// "address"
+// "area"
+// "article"
+// "aside"
+// "base"
+// "button"
+// "caption"
+// "code"
+// "command"
+// "comment"
+// "datalist"
+// "details"
+// "figure"
+// "footer"
+// "form"
+// "header"
+// "keygen"
+// "label"
+// "layer"
+// "legend"
+// "link"
+// "map"
+// "mark"
+// "meter"
+// "object"
+// "option"
+// "output"
+// "param"
+// "progress"
+// "section"
+// "select"
+// "spacer"
+// "time"
+// "video"
+
+export const LITERAL_TAGS = [
   "a",
   "abbr",
-  "address",
-  "area",
-  "article",
-  "aside",
   "audio",
   "b",
-  "base",
+  "big",
   "bdo",
   "bgsound",
   "blink",
   "blockquote",
   "br",
-  "button",
   "canvas",
-  "caption",
   "cite",
-  "code",
   "col",
   "colgroup",
-  "command",
-  "comment",
-  "datalist",
   "dd",
   "del",
-  "details",
   "dfn",
   "div",
   "dl",
   "dt",
   "em",
   "fieldset",
-  "figure",
-  "footer",
-  "form",
   "h1",
   "h2",
   "h3",
   "h4",
   "h5",
   "h6",
-  "header",
   "hgroup",
   "hr",
   "i",
@@ -62,35 +83,19 @@ export const VALID_HTML = [
   "input",
   "ins",
   "kbd",
-  "keygen",
-  "label",
-  "layer",
-  "legend",
   "li",
-  "link",
-  "map",
-  "mark",
   "marquee",
-  "meter",
   "multicol",
   "nav",
   "nobr",
   "noembed",
-  "object",
   "ol",
   "optgroup",
-  "option",
-  "output",
   "p",
-  "param",
   "pre",
-  "progress",
   "q",
   "samp",
-  "section",
-  "select",
   "small",
-  "spacer",
   "span",
   "strong",
   "style",
@@ -103,11 +108,9 @@ export const VALID_HTML = [
   "tfoot",
   "th",
   "thead",
-  "time",
   "tr",
   "ul",
   "var",
-  "video",
   "wbr",
 ];
 

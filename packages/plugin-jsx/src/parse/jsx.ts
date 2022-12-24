@@ -3,7 +3,7 @@ import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { ElementInline } from 'handle/definition';
 import * as $ from 'syntax';
-import { VALID_HTML } from 'syntax/jsx';
+import { LITERAL_TAGS } from 'syntax/jsx';
 
 import type { Define } from 'handle/definition';
 import type { JSXChild } from 'syntax/jsx';
@@ -116,7 +116,7 @@ export function applyTagName(
 
     let explicit =
       /^[A-Z]/.test(name) ||
-      VALID_HTML.includes(name);
+      LITERAL_TAGS.includes(name);
 
     if(/^html-.+/.test(name)){
       name = name.slice(5);
