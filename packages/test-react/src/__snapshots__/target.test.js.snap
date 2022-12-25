@@ -5,7 +5,7 @@ exports[`Attribute-based modifier 1`] = `
   className: \\"hasWhiteText_4b3 Foo_16j\\"
 });
 
-CSS.put(\`
+css(\`
 	/* 2 */
 	.Foo_16j { background: red }
 	/* 3 */
@@ -16,7 +16,7 @@ CSS.put(\`
 exports[`Attribute-based modifier 2`] = `
 "() => <Foo className=\\"hasWhiteText_4b3 Foo_16j\\" />;
 
-CSS.put(\`
+css(\`
 	/* 2 */
 	.Foo_16j { background: red }
 	/* 3 */
@@ -31,7 +31,7 @@ exports[`Explicitly use modifier 1`] = `
   className: \\"Foo_76l\\"
 }));
 
-CSS.put(\`
+css(\`
 	/* 2 */
 	.Baz_16j { color: red }
 	/* 3 */
@@ -42,7 +42,7 @@ CSS.put(\`
 exports[`Explicitly use modifier 2`] = `
 "() => <Fragment><Baz className=\\"Foo_76l Baz_16j\\" /><Foo className=\\"Foo_76l\\" /></Fragment>;
 
-CSS.put(\`
+css(\`
 	/* 2 */
 	.Baz_16j { color: red }
 	/* 3 */
@@ -57,7 +57,7 @@ exports[`Nested modifier 1`] = `
   className: \\"Foo_76l Foo_6n9\\"
 })));
 
-CSS.put(\`
+css(\`
 	/* 2 */
 	.Foo_6n9 { color: blue }
 	/* 3 */
@@ -68,7 +68,7 @@ CSS.put(\`
 exports[`Nested modifier 2`] = `
 "() => <Fragment><Foo className=\\"Foo_76l\\" /><Bar><Foo className=\\"Foo_76l Foo_6n9\\" /></Bar></Fragment>;
 
-CSS.put(\`
+css(\`
 	/* 2 */
 	.Foo_6n9 { color: blue }
 	/* 3 */
@@ -81,7 +81,7 @@ exports[`Simple modifier 1`] = `
   className: \\"Foo_16j\\"
 });
 
-CSS.put(\`
+css(\`
 	/* 2 */
 	.Foo_16j { color: red }
 \`);"
@@ -90,7 +90,7 @@ CSS.put(\`
 exports[`Simple modifier 2`] = `
 "() => <Foo className=\\"Foo_16j\\" />;
 
-CSS.put(\`
+css(\`
 	/* 2 */
 	.Foo_16j { color: red }
 \`);"
@@ -101,7 +101,7 @@ exports[`collapse single-use modifiers 1`] = `
   className: \\"Bar_i3g\\"
 }));
 
-CSS.put(\`
+css(\`
 	/* 2 */
 	.Bar_i3g { color: red; border: red solid 1px; background: white }
 \`);"
@@ -110,7 +110,7 @@ CSS.put(\`
 exports[`collapse single-use modifiers 2`] = `
 "() => <Foo><Bar className=\\"Bar_i3g\\" /></Foo>;
 
-CSS.put(\`
+css(\`
 	/* 2 */
 	.Bar_i3g { color: red; border: red solid 1px; background: white }
 \`);"

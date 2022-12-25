@@ -4,7 +4,7 @@ exports[`collapse style-only expression 1`] = `
 "const props = {
   className: \\"props_4d3\\"
 };
-CSS.put(\`
+css(\`
 	/* 1 */
 	.props_4d3 { color: red }
 \`);"
@@ -14,7 +14,7 @@ exports[`collapse style-only expression 2`] = `
 "const props = {
   className: \\"props_4d3\\"
 };
-CSS.put(\`
+css(\`
 	/* 1 */
 	.props_4d3 { color: red }
 \`);"
@@ -25,7 +25,7 @@ exports[`pass SpreadElement-do to element 1`] = `
   className: \\"foo_16j\\"
 });
 
-CSS.put(\`
+css(\`
 	/* 2 */
 	.foo_16j { background: blue; color: red }
 \`);"
@@ -34,7 +34,7 @@ CSS.put(\`
 exports[`pass SpreadElement-do to element 2`] = `
 "() => <div className=\\"foo_16j\\" />;
 
-CSS.put(\`
+css(\`
 	/* 2 */
 	.foo_16j { background: blue; color: red }
 \`);"

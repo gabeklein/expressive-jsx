@@ -7,7 +7,7 @@ exports[`contingent in consequent 1`] = `
   className: \\"inner_71a\\"
 }, \\"Hello\\"));
 
-CSS.put(\`
+css(\`
 	/* 5 */
 	.element_26b.opt1_6ac .inner_71a.foo-bar { background: blue }
 \`);"
@@ -16,7 +16,7 @@ CSS.put(\`
 exports[`contingent in consequent 2`] = `
 "() => <div className={use(\\"element_26b\\", !!true && \\"opt1_6ac\\")}><div className=\\"inner_71a\\">Hello</div></div>;
 
-CSS.put(\`
+css(\`
 	/* 5 */
 	.element_26b.opt1_6ac .inner_71a.foo-bar { background: blue }
 \`);"
@@ -29,7 +29,7 @@ exports[`contingent on consequent 1`] = `
   className: \\"div_sqm\\"
 }, \\"Hello\\"));
 
-CSS.put(\`
+css(\`
 	/* 5 */
 	.element_26b.opt1_6ac .div_sqm.foo-bar { background: blue }
 \`);"
@@ -38,7 +38,7 @@ CSS.put(\`
 exports[`contingent on consequent 2`] = `
 "() => <div className={use(\\"element_26b\\", !!true && \\"opt1_6ac\\")}><div className=\\"div_sqm\\">Hello</div></div>;
 
-CSS.put(\`
+css(\`
 	/* 5 */
 	.element_26b.opt1_6ac .div_sqm.foo-bar { background: blue }
 \`);"
@@ -49,7 +49,7 @@ exports[`multiple contingent on consequent 1`] = `
   className: use(\\"element_26b\\", !!active && \\"if_active_6ac\\")
 }, create(\\"div\\", {}, \\"Hello\\"));
 
-CSS.put(\`
+css(\`
 	/* 5 */
 	.element_26b.if_active_6ac.foo { color: red }
 	.element_26b.if_active_6ac.bar { color: red }
@@ -59,7 +59,7 @@ CSS.put(\`
 exports[`multiple contingent on consequent 2`] = `
 "() => <div className={use(\\"element_26b\\", !!active && \\"if_active_6ac\\")}><div>Hello</div></div>;
 
-CSS.put(\`
+css(\`
 	/* 5 */
 	.element_26b.if_active_6ac.foo { color: red }
 	.element_26b.if_active_6ac.bar { color: red }
