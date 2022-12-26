@@ -19,180 +19,190 @@ interface CallAbstraction extends Array<any> {
   callee: string;
 }
 
-interface IfAbstraction {
-  [type: string]: (...args: any[]) => any;
-  test: any;
+const types: any = {
+  Identifier,
+  StringLiteral,
+  TemplateLiteral,
+  UnaryExpression,
+  BooleanLiteral,
+  NumericLiteral,
+  NullLiteral,
+  BinaryExpression,
+  SequenceExpression,
+  CallExpression,
+  ArrowFunctionExpression,
+  IfStatement,
+  LabeledStatement,
+  BlockStatement
 }
 
-export class DelegateTypes {
-  [type: string]: (...args: any[]) => any;
+export function parse(element: t.Expression | t.Statement): any[] {
+  if($.is(element, "ExpressionStatement"))
+    element = element.expression;
 
-  parse(element: t.Expression | t.Statement): any[] {
-    if($.is(element, "ExpressionStatement"))
-      element = element.expression
+  return [].concat(
+    $.isExpression(element)
+      ? Expression(element)
+      : Extract(element)
+  )
+}
 
-    return [].concat(
-      $.isExpression(element)
-        ? this.Expression(element)
-        : this.Extract(element)
-    )
+function Expression<T extends t.Expression>(
+  element: T,
+  childKey?: keyof T): any {
+
+  if(childKey)
+    element = element[childKey] as unknown as T;
+
+  if($.is(element, "Identifier") && element.name.startsWith("$"))
+    return `var(--${element.name.slice(1)})`;
+
+  if($.isParenthesized(element))
+    return element;
+
+  return Extract(element)
+}
+
+function Extract(element: t.Expression | t.Statement){
+  if(element.type in types)
+    return types[element.type](element);
+
+  throw Oops.UnknownArgument(element)
+}
+
+function Identifier(e: t.Identifier){
+  return e.name;
+}
+
+function StringLiteral(e: t.StringLiteral){
+  return e.value;
+}
+
+function TemplateLiteral(e: t.TemplateLiteral) {
+  const { quasis } = e;
+
+  return quasis.length == 1
+    ? e.quasis[0].value
+    : e;
+}
+
+function UnaryExpression(e: t.UnaryExpression){
+  const { argument, operator } = e;
+
+  if(operator == "-"
+  && $.is(argument, "NumericLiteral"))
+    return NumericLiteral(argument, -1);
+
+  if(operator == "!"
+  && $.is(argument, "Identifier", { name: "Important" }))
+    return "!important";
+
+  throw Oops.UnaryUseless(e)
+}
+
+function BooleanLiteral(bool: t.BooleanLiteral){
+  return bool.value
+}
+
+function NumericLiteral(number: t.NumericLiteral, sign = 1){
+  const { extra: { rawValue, raw } } = number as any;
+
+  if($.isParenthesized(number) || !/^0x/.test(raw)){
+    if(raw.indexOf(".") > 0)
+      return sign == -1 ? "-" + raw : raw;
+
+    return sign * rawValue;
   }
+  if(sign == -1)
+    throw Oops.HexNoNegative(number, rawValue);
 
-  Expression<T extends t.Expression>(
-    element: T,
-    childKey?: keyof T): any {
+  return HEXColor(raw);
+}
 
-    if(childKey)
-      element = element[childKey] as unknown as T;
+function NullLiteral(){
+  return null;
+}
 
-    if($.is(element, "Identifier") && element.name.startsWith("$"))
-      return `var(--${element.name.slice(1)})`;
+function BinaryExpression(binary: t.BinaryExpression){
+  const {left, right, operator} = binary;
+  if(operator == "-"
+  && $.is(left, "Identifier")
+  && $.is(right, "Identifier", { start: left.end! + 1 }))
+    return left.name + "-" + right.name
+  else
+    return [
+      operator,
+      Expression(binary, "left"),
+      Expression(binary, "right")
+    ]
+}
 
-    if($.isParenthesized(element))
-      return element;
+function SequenceExpression(sequence: t.SequenceExpression){
+  return sequence.expressions.map(x => Expression(x))
+}
 
-    return this.Extract(element)
-  }
+function CallExpression(e: t.CallExpression){
+  const callee = e.callee;
+  const args = [] as t.Expression[];
 
-  Extract(element: t.Expression | t.Statement){
-    if(element.type in this)
-      return this[element.type](element);
-
-    throw Oops.UnknownArgument(element)
-  }
-
-  Identifier(e: t.Identifier){
-    return e.name
-  }
-
-  StringLiteral(e: t.StringLiteral){
-    return e.value
-  }
-
-  TemplateLiteral(e: t.TemplateLiteral) {
-    const { quasis } = e;
-    if(quasis.length > 1)
-      return e;
-    return e.quasis[0].value;
-  }
-
-  UnaryExpression(e: t.UnaryExpression){
-    const { argument, operator } = e;
-
-    if(operator == "-"
-    && $.is(argument, "NumericLiteral"))
-      return this.NumericLiteral(argument, -1);
-
-    if(operator == "!"
-    && $.is(argument, "Identifier", { name: "Important" }))
-      return "!important";
-
-    throw Oops.UnaryUseless(e)
-  }
-
-  BooleanLiteral(bool: t.BooleanLiteral){
-    return bool.value
-  }
-
-  NumericLiteral(number: t.NumericLiteral, sign = 1){
-    const { extra: { rawValue, raw } } = number as any;
-
-    if($.isParenthesized(number) || !/^0x/.test(raw)){
-      if(raw.indexOf(".") > 0)
-        return sign == -1 ? "-" + raw : raw;
-
-      return sign * rawValue;
-    }
-    if(sign == -1)
-      throw Oops.HexNoNegative(number, rawValue);
-
-    return HEXColor(raw);
-  }
-
-  NullLiteral(){
-    return null;
-  }
-
-  BinaryExpression(binary: t.BinaryExpression){
-    const {left, right, operator} = binary;
-    if(operator == "-"
-    && $.is(left, "Identifier")
-    && $.is(right, "Identifier", { start: left.end! + 1 }))
-      return left.name + "-" + right.name
+  for(const item of e.arguments){
+    if($.isExpression(item))
+      args.push(item);
+    else if($.is(item, "SpreadElement"))
+      throw Oops.ArgumentSpread(item)
     else
-      return [
-        operator,
-        this.Expression(binary, "left"),
-        this.Expression(binary, "right")
-      ]
+      throw Oops.UnknownArgument(item)
   }
 
-  SequenceExpression(sequence: t.SequenceExpression){
-    return sequence.expressions.map(x => this.Expression(x))
+  if(callee.type !== "Identifier")
+    throw Oops.MustBeIdentifier(callee)
+
+  const call = args.map(x => Expression(x)) as CallAbstraction;
+
+  call.callee = callee.name;
+
+  return call;
+}
+
+function ArrowFunctionExpression(e: t.ArrowFunctionExpression): never {
+  throw Oops.ArrowNotImplemented(e)
+}
+
+function IfStatement(statement: t.IfStatement){
+  const alt = statement.alternate;
+  const test = statement.test;
+  const body = statement.consequent;
+
+  if(alt)
+    throw Oops.ElseNotSupported(test);
+
+  const info =
+    body.type == "BlockStatement" ? BlockStatement(body) :
+    body.type == "LabeledStatement" ? LabeledStatement(body) :
+    body.type == "ExpressionStatement" ? Expression(body.expression) : {};
+
+  return {
+    test: Expression(test),
+    ...info
   }
+}
 
-  CallExpression(e: t.CallExpression){
-    const callee = e.callee;
-    const args = [] as t.Expression[];
-
-    for(const item of e.arguments){
-      if($.isExpression(item))
-        args.push(item);
-      else if($.is(item, "SpreadElement"))
-        throw Oops.ArgumentSpread(item)
-      else
-        throw Oops.UnknownArgument(item)
-    }
-
-    if(callee.type !== "Identifier")
-      throw Oops.MustBeIdentifier(callee)
-
-    const call = args.map(x => this.Expression(x)) as CallAbstraction;
-
-    call.callee = callee.name;
-
-    return call;
+function LabeledStatement(stat: t.LabeledStatement){
+  return {
+    [stat.label.name]: parse(stat.body)
   }
+}
 
-  ArrowFunctionExpression(e: t.ArrowFunctionExpression): never {
-    throw Oops.ArrowNotImplemented(e)
-  }
+function BlockStatement(statement: t.BlockStatement){
+  const map = {} as BunchOf<any>
 
-  IfStatement(statement: t.IfStatement){
-    const alt = statement.alternate;
-    const test = statement.test;
-    const body = statement.consequent;
+  for(const item of statement.body)
+    if($.is(item, "LabeledStatement"))
+      map[item.label.name] = parse(item.body);
+    else if(item.type !== "IfStatement")
+      throw Oops.ModiferCantParse(statement);
 
-    const data: IfAbstraction = {
-      test: this.Expression(test)
-    };
-
-    if(alt)
-      throw Oops.ElseNotSupported(test);
-
-    if($.is(body, ["BlockStatement", "LabeledStatement", "ExpressionStatement"]))
-      Object.assign(data, this.Extract(body))
-
-    return data;
-  }
-
-  LabeledStatement(statement: t.LabeledStatement){
-    return {
-      [statement.label.name]: this.parse(statement.body)
-    }
-  }
-
-  BlockStatement(statement: t.BlockStatement){
-    const map = {} as BunchOf<any>
-
-    for(const item of statement.body)
-      if($.is(item, "LabeledStatement"))
-        map[item.label.name] = this.parse(item.body);
-      else if(item.type !== "IfStatement")
-        throw Oops.ModiferCantParse(statement);
-
-    return map;
-  }
+  return map;
 }
 
 function HEXColor(raw: string){

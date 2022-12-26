@@ -3,7 +3,7 @@ import { ExplicitStyle } from 'handle/attributes';
 import { DefineVariant } from 'handle/definition';
 import * as $ from 'syntax';
 
-import { DelegateTypes } from './arguments';
+import { parse as parseArguments } from './arguments';
 import { parse } from './body';
 
 import type * as t from 'syntax/types';
@@ -37,7 +37,7 @@ export class ModifyDelegate {
     if(Array.isArray(input))
       args = input;
     else {
-      args = new DelegateTypes().parse(input.node);
+      args = parseArguments(input.node);
       this.body = input as t.Path<t.Statement>;
     }
 
