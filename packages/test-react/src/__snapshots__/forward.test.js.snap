@@ -14,6 +14,31 @@ exports[`forward className 2`] = `
 }) => <div className={className}><div>Hello World</div></div>;"
 `;
 
+exports[`forward react ref 1`] = `
+"forwardRef(({
+  active
+}, ref) => create(\\"input\\", {
+  disabled: !active,
+  ref,
+  type: \\"text\\",
+  className: \\"input_70c\\"
+}));
+css(\`
+	/* 1 */
+	.input_70c { color: red }
+\`);"
+`;
+
+exports[`forward react ref 2`] = `
+"forwardRef(({
+  active
+}, ref) => <input disabled={!active} ref={ref} type=\\"text\\" className=\\"input_70c\\" />);
+css(\`
+	/* 1 */
+	.input_70c { color: red }
+\`);"
+`;
+
 exports[`forward will join with existing styles 1`] = `
 "({
   className

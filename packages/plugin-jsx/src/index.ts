@@ -77,6 +77,7 @@ const JSXElement: Visitor<t.JSXElement | t.JSXFragment> = {
 
     NODE_HANDLED.add(path.node);
 
+    const functionNode = containerFunction.node;
     const block = containerFunction.get("body") as t.Path<t.BlockStatement>;
     const context = getContext(path, true);
     const ambient = context.ambient;
@@ -84,17 +85,18 @@ const JSXElement: Visitor<t.JSXElement | t.JSXFragment> = {
     parse(ambient, block);
 
     const output = ambient.toExpression();
-    const { body } = block.node;
     
     if(!output)
       return;
 
-    NODE_HANDLED.add(block.node);
+    const { body } = block.node;
 
     if(path.parentPath.node == body[0] || !body[0])
-      containerFunction.node.body = output;
+      functionNode.body = output;
     else 
       block.node.body.push($.returns(output));
+
+    NODE_HANDLED.add(block.node);
   },
   exit(path){
     if(NODE_HANDLED.has(path.node))
