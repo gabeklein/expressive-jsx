@@ -11,7 +11,14 @@ type SelectorContent = [ string, string[] ][];
 type MediaGroups = SelectorContent[];
 
 export function styleDeclaration(context: StackFrame){
-  const { modifiersDeclared, program, opts } = context;
+  const {
+    filename,
+    modifiersDeclared,
+    module,
+    program,
+    opts
+  } = context;
+
   const pretty = opts.printStyle == "pretty";
   const hot = opts.hot !== false;
 
@@ -24,23 +31,25 @@ export function styleDeclaration(context: StackFrame){
   const options: any = {};
 
   if(hot)
-    options.refreshToken = $.literal(hash(context.filename, 10));
+    options.refreshToken = $.literal(hash(filename, 10));
 
   if(opts.module)
     options.module = $.literal(
       typeof opts.module == "string"
         ? opts.module
-        : context.module && context.module.name || true
+        : module && module.name || true
     );
 
   if(Object.keys(options).length)
     args.push($.object(options));
 
-  return $.statement(
-    $.call(
-      program.ensure("$runtime", "default", "css"),
-      $.template(printedStyle),
-      ...args
+  return (
+    $.statement(
+      $.call(
+        program.ensure("$runtime", "default", "css"),
+        $.template(printedStyle),
+        ...args
+      )
     )
   );
 }
@@ -83,38 +92,35 @@ function serialize(
 
   const lines: string[] = [];
 
-  for(const query in media){
+  for(const query in media)
     Object.entries(media[query])
       .sort((a, b) => {
         return a[0] > b[0] ? 1 : -1;
       })
       .forEach(([index, bunch]) => {
-        if(!pretty){
-          const priority =
-            Number(index).toFixed(1).replace(/\.0$/, "");
-
-          lines.push(`/* ${priority} */`)
-        }
+        if(!pretty)
+          lines.push(`/* ${
+            Number(index).toFixed(1).replace(/\.0$/, "")
+          } */`);
 
         for(const [ name, styles ] of bunch){
           if(pretty){
+            const rules = styles.map(x => `\t${x};`);
             const select = name.split(", ");
             const final = select.pop();
 
-            select.forEach(alternate => {
+            for(const alternate of select)
               lines.push(alternate + ",");
-            });
 
-            const rules = styles.map(x => `\t${x};`);
             lines.push(final + " { ", ...rules, "}");
           }
           else {
             const block = styles.join("; ");
+
             lines.push(`${name} { ${block} }`)
           }
         }
       });
-  }
 
   const content = lines.map(x => "\t" + x).join("\n")
 
