@@ -23,10 +23,11 @@ export class Define extends AttributeBody {
     this.context.ambient = this;
 
     if(name && /^[A-Z]/.test(name))
-      this.priority = 3;
+      this.priority = 2;
   }
 
   then?: Define;
+  container?: Define;
 
   within?: Define;
   
@@ -73,6 +74,7 @@ export class Define extends AttributeBody {
   }
 
   provide(define: Define){
+    define.container = this;
     this.setModifier(define.name!, define);
   }
 

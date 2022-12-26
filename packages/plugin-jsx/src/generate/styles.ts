@@ -51,7 +51,11 @@ function prioritize(source: Set<Define>){
   };
 
   for(const item of source){
-    const { priority = 0 } = item;
+    let { priority = 0 } = item;
+
+    for(let x=item.container; x;)
+      if(x = x.container)
+        priority += 0.1;
 
     const query = "default";
     const selector = buildSelector(item);
@@ -80,28 +84,36 @@ function serialize(
   const lines: string[] = [];
 
   for(const query in media){
-    media[query].forEach((bunch, index) => {
-      if(!pretty)
-        lines.push(`/* ${index} */`)
+    Object.entries(media[query])
+      .sort((a, b) => {
+        return a[0] > b[0] ? 1 : -1;
+      })
+      .forEach(([index, bunch]) => {
+        if(!pretty){
+          const priority =
+            Number(index).toFixed(1).replace(/\.0$/, "");
 
-      for(const [ name, styles ] of bunch){
-        if(pretty){
-          const select = name.split(", ");
-          const final = select.pop();
-
-          select.forEach(alternate => {
-            lines.push(alternate + ",");
-          });
-
-          const rules = styles.map(x => `\t${x};`);
-          lines.push(final + " { ", ...rules, "}");
+          lines.push(`/* ${priority} */`)
         }
-        else {
-          const block = styles.join("; ");
-          lines.push(`${name} { ${block} }`)
+
+        for(const [ name, styles ] of bunch){
+          if(pretty){
+            const select = name.split(", ");
+            const final = select.pop();
+
+            select.forEach(alternate => {
+              lines.push(alternate + ",");
+            });
+
+            const rules = styles.map(x => `\t${x};`);
+            lines.push(final + " { ", ...rules, "}");
+          }
+          else {
+            const block = styles.join("; ");
+            lines.push(`${name} { ${block} }`)
+          }
         }
-      }
-    });
+      });
   }
 
   const content = lines.map(x => "\t" + x).join("\n")
