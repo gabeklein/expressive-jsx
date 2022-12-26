@@ -28,10 +28,9 @@ export function ParseErrors<O extends BunchOf<string>> (register: O) {
         node = node.node;
 
       for(const slice of message)
-        quote += (
-          typeof slice == "string"
-            ? slice : args[slice as number - 1]
-        )
+        quote += typeof slice == "string"
+          ? slice
+          : args[slice as number - 1]
 
       return Status.currentFile.buildCodeFrameError(node, quote);
     }
