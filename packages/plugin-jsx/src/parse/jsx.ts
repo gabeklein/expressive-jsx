@@ -160,8 +160,8 @@ function applyAttribute(
           for(const define of applied)
             define.priority = 3;
 
-          return;
-        }
+        return;
+      }
     }
     else switch(expression.type){
       case "JSXExpressionContainer":
