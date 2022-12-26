@@ -43,7 +43,7 @@ const Program: Visitor<t.Program> = {
   }
 }
 
-const TRIGGER_JSX = new Set<any>();
+const NODE_HANDLED = new WeakSet<any>();
 
 const JSXElement: Visitor<t.JSXElement | t.JSXFragment> = {
   enter(path){
@@ -75,7 +75,7 @@ const JSXElement: Visitor<t.JSXElement | t.JSXFragment> = {
     if(!containerFunction)
       return;
 
-    TRIGGER_JSX.add(path.node);
+    NODE_HANDLED.add(path.node);
 
     const block = containerFunction.get("body") as t.Path<t.BlockStatement>;
     const context = getContext(path, true);
@@ -89,13 +89,15 @@ const JSXElement: Visitor<t.JSXElement | t.JSXFragment> = {
     if(!output)
       return;
 
-    if(path.parentPath.node == body[0])
+    NODE_HANDLED.add(block.node);
+
+    if(path.parentPath.node == body[0] || !body[0])
       containerFunction.node.body = output;
     else 
-      body.push($.returns(output));
+      block.node.body.push($.returns(output));
   },
   exit(path){
-    if(TRIGGER_JSX.has(path.node))
+    if(NODE_HANDLED.has(path.node))
       path.remove();
   }
 }
