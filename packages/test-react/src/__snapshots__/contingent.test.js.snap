@@ -2,66 +2,66 @@
 
 exports[`contingent in consequent 1`] = `
 "() => create(\\"div\\", {
-  className: use(\\"element_26b\\", !!true && \\"opt1_6ac\\")
+  className: !!true && \\"element_3ld\\"
 }, create(\\"div\\", {
-  className: \\"inner_71a\\"
+  className: \\"inner_79m\\"
 }, \\"Hello\\"));
 
 css(\`
 	/* 5 */
-	.element_26b.opt1_6ac .inner_71a.foo-bar { background: blue }
+	.element_3ld .inner_79m.foo-bar { background: blue }
 \`);"
 `;
 
 exports[`contingent in consequent 2`] = `
-"() => <div className={use(\\"element_26b\\", !!true && \\"opt1_6ac\\")}><div className=\\"inner_71a\\">Hello</div></div>;
+"() => <div className={!!true && \\"element_3ld\\"}><div className=\\"inner_79m\\">Hello</div></div>;
 
 css(\`
 	/* 5 */
-	.element_26b.opt1_6ac .inner_71a.foo-bar { background: blue }
+	.element_3ld .inner_79m.foo-bar { background: blue }
 \`);"
 `;
 
 exports[`contingent on consequent 1`] = `
 "() => create(\\"div\\", {
-  className: use(\\"element_26b\\", !!true && \\"opt1_6ac\\")
+  className: !!true && \\"element_3ld\\"
 }, create(\\"div\\", {
-  className: \\"div_sqm\\"
+  className: \\"div_1cq\\"
 }, \\"Hello\\"));
 
 css(\`
 	/* 5 */
-	.element_26b.opt1_6ac .div_sqm.foo-bar { background: blue }
+	.element_3ld .div_1cq.foo-bar { background: blue }
 \`);"
 `;
 
 exports[`contingent on consequent 2`] = `
-"() => <div className={use(\\"element_26b\\", !!true && \\"opt1_6ac\\")}><div className=\\"div_sqm\\">Hello</div></div>;
+"() => <div className={!!true && \\"element_3ld\\"}><div className=\\"div_1cq\\">Hello</div></div>;
 
 css(\`
 	/* 5 */
-	.element_26b.opt1_6ac .div_sqm.foo-bar { background: blue }
+	.element_3ld .div_1cq.foo-bar { background: blue }
 \`);"
 `;
 
 exports[`multiple contingent on consequent 1`] = `
 "() => create(\\"div\\", {
-  className: use(\\"element_26b\\", !!active && \\"if_active_6ac\\")
+  className: !!active && \\"element_3ld\\"
 }, create(\\"div\\", {}, \\"Hello\\"));
 
 css(\`
 	/* 5 */
-	.element_26b.if_active_6ac.foo { color: red }
-	.element_26b.if_active_6ac.bar { color: red }
+	.element_3ld.foo { color: red }
+	.element_3ld.bar { color: red }
 \`);"
 `;
 
 exports[`multiple contingent on consequent 2`] = `
-"() => <div className={use(\\"element_26b\\", !!active && \\"if_active_6ac\\")}><div>Hello</div></div>;
+"() => <div className={!!active && \\"element_3ld\\"}><div>Hello</div></div>;
 
 css(\`
 	/* 5 */
-	.element_26b.if_active_6ac.foo { color: red }
-	.element_26b.if_active_6ac.bar { color: red }
+	.element_3ld.foo { color: red }
+	.element_3ld.bar { color: red }
 \`);"
 `;

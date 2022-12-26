@@ -63,17 +63,18 @@ test("Explicitly use modifier", `
   }
 `)
 
-test("collapse single-use modifiers", `
-  Bar: { color: red }
+// TODO - reimplement
+// test("collapse single-use modifiers", `
+//   Bar: { color: red }
 
-  () => {
-    Bar: { background: white }
-    Foo: {
-      Bar: { border: red }
-    }
+//   () => {
+//     Bar: { background: white }
+//     Foo: {
+//       Bar: { border: red }
+//     }
     
-    <Foo>
-      <Bar />
-    </Foo>
-  }
-`);
+//     <Foo>
+//       <Bar />
+//     </Foo>
+//   }
+// `);

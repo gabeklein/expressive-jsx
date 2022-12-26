@@ -2,20 +2,20 @@
 
 exports[`basic style 1`] = `
 "() => create(\\"div\\", {
-  className: \\"element_26b\\"
+  className: \\"element_7nq\\"
 }, \\"Hello World\\");
 
 css(\`
 	/* 1 */
-	.element_26b { color: green }
+	.element_7nq { color: green }
 \`);"
 `;
 
 exports[`basic style 2`] = `
-"() => <div className=\\"element_26b\\">Hello World</div>;
+"() => <div className=\\"element_7nq\\">Hello World</div>;
 
 css(\`
 	/* 1 */
-	.element_26b { color: green }
+	.element_7nq { color: green }
 \`);"
 `;

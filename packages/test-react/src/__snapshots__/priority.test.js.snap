@@ -1,52 +1,52 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`competing style priority 1`] = `
-";
-
-() => create(Foo, {}, create(Bar, {
-  className: \\"Bar_i3g\\"
+"() => create(Foo, {}, create(Bar, {
+  className: \\"Bar_lt8 Bar_1nq\\"
 }));
 
 css(\`
 	/* 2 */
-	.Bar_i3g { color: red }
+	.Bar_1nq { color: blue }
+	/* 2.1 */
+	.Bar_lt8 { color: orange }
 \`);"
 `;
 
 exports[`competing style priority 2`] = `
-";
-
-() => <Foo><Bar className=\\"Bar_i3g\\" /></Foo>;
+"() => <Foo><Bar className=\\"Bar_lt8 Bar_1nq\\" /></Foo>;
 
 css(\`
 	/* 2 */
-	.Bar_i3g { color: red }
+	.Bar_1nq { color: blue }
+	/* 2.1 */
+	.Bar_lt8 { color: orange }
 \`);"
 `;
 
 exports[`conditional priority should be higher 1`] = `
 "() => create(\\"div\\", {
-  className: use(\\"element_26b\\", !!checked && \\"if_checked_6ac\\")
+  className: !!checked && \\"element_3ld\\"
 }, create(\\"div\\", {
-  className: \\"test_2ng test_6jg\\"
+  className: \\"test_7au test_1gc\\"
 }));
 
 css(\`
-	/* 2 */
-	.test_6jg { color: green }
-	/* 4 */
-	.element_26b.if_checked_6ac .test_2ng { color: red }
+	/* 1 */
+	.test_7au { color: green }
+	/* 5 */
+	.element_3ld .test_1gc { color: red }
 \`);"
 `;
 
 exports[`conditional priority should be higher 2`] = `
-"() => <div className={use(\\"element_26b\\", !!checked && \\"if_checked_6ac\\")}><div className=\\"test_2ng test_6jg\\" /></div>;
+"() => <div className={!!checked && \\"element_3ld\\"}><div className=\\"test_7au test_1gc\\" /></div>;
 
 css(\`
-	/* 2 */
-	.test_6jg { color: green }
-	/* 4 */
-	.element_26b.if_checked_6ac .test_2ng { color: red }
+	/* 1 */
+	.test_7au { color: green }
+	/* 5 */
+	.element_3ld .test_1gc { color: red }
 \`);"
 `;
 
@@ -54,32 +54,30 @@ exports[`prioritize external (capital-letter) define 1`] = `
 "const Foo = ({
   className
 }) => create(\\"div\\", {
-  className: use(\\"Foo_8ef\\", className)
+  className: use(\\"Foo_2t4\\", className)
 }, \\"Hello\\");
 
 const Bar = () => create(Foo, {
-  className: \\"Foo_124\\"
+  className: \\"Foo_55p\\"
 });
 
 css(\`
-	/* 1 */
-	.Foo_8ef { color: red }
 	/* 2 */
-	.Foo_124 { color: blue }
+	.Foo_2t4 { color: red }
+	.Foo_55p { color: blue }
 \`);"
 `;
 
 exports[`prioritize external (capital-letter) define 2`] = `
 "const Foo = ({
   className
-}) => <div className={use(\\"Foo_8ef\\", className)}>Hello</div>;
+}) => <div className={use(\\"Foo_2t4\\", className)}>Hello</div>;
 
-const Bar = () => <Foo className=\\"Foo_124\\" />;
+const Bar = () => <Foo className=\\"Foo_55p\\" />;
 
 css(\`
-	/* 1 */
-	.Foo_8ef { color: red }
 	/* 2 */
-	.Foo_124 { color: blue }
+	.Foo_2t4 { color: red }
+	.Foo_55p { color: blue }
 \`);"
 `;

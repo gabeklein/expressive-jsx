@@ -54,17 +54,17 @@ describe("forward", () => {
     }
   `);
 
-  test("react ref", `
-    ({ active }) => {
-      input: {
-        disabled = !active;
-        color: red;
-        forward: ref;
-      }
+  // test("react ref", `
+  //   ({ active }) => {
+  //     input: {
+  //       disabled = !active;
+  //       color: red;
+  //       forward: ref;
+  //     }
       
-      <this>
-        <input type="text" />
-      </this>
-    }
-  `)
+  //     <this>
+  //       <input type="text" />
+  //     </this>
+  //   }
+  // `)
 })

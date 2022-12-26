@@ -6,23 +6,16 @@ test("strip tag; emit default", `
   }
 `);
 
-test("will not emit empty tag", `
-  () => {
-    <foobar />
-  }
-`);
-
 test("pass-though capital (component) tags", `
   () => {
     <Hello>Hello World</Hello>
   }
 `);
 
-test("pass-through HTML5 tags", `
+test("pass-through HTML tags", `
   () => {
     <div>
       <uncommon />
-      <article />
       <blockquote />
       <input />
       <h1 />
@@ -56,11 +49,11 @@ test("Handle member-type tags", `
 `);
 
 test("Member property implemented as name", `
-  Bar: {
-    color: blue;
-  }
-
   () => {
+    Bar: {
+      color: blue;
+    }
+
     <Foo.Bar />
   }
 `);

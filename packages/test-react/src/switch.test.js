@@ -89,45 +89,45 @@ test("switch can provide style downstream", `
   }
 `)
 
-test("delegates definition via use", `
-  example: {
-    color: black;
-  }
+// test("delegates definition via use", `
+//   example: {
+//     color: black;
+//   }
 
-  exampleActive: {
-    color: blue;
-  }
+//   exampleActive: {
+//     color: blue;
+//   }
 
-  const BuyButton = ({ active }) => {
-    example: {
-      if(active)
-        use: exampleActive;
-      else
-        color: green;
-    }
+//   const BuyButton = ({ active }) => {
+//     example: {
+//       if(active)
+//         use: exampleActive;
+//       else
+//         color: green;
+//     }
 
-    <example>Hello World!</example>
-  }
-`)
+//     <example>Hello World!</example>
+//   }
+// `)
 
-test("delegated variant may still contain style", `
-  exampleActive: {
-    color: blue;
-  }
+// test("delegated variant may still contain style", `
+//   exampleActive: {
+//     color: blue;
+//   }
 
-  const BuyButton = ({ active }) => {
-    example: {
-      if(active){
-        use: exampleActive;
-        background: white;
-      }
-      else
-        color: green;
-    }
+//   const BuyButton = ({ active }) => {
+//     example: {
+//       if(active){
+//         use: exampleActive;
+//         background: white;
+//       }
+//       else
+//         color: green;
+//     }
 
-    <example>Hello World!</example>
-  }
-`)
+//     <example>Hello World!</example>
+//   }
+// `)
 
 
 

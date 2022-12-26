@@ -1,8 +1,6 @@
 const test = require("./_adapter");
 
 test("competing style priority", `
-  Bar: { color: red };
-
   () => {
     Bar: { color: blue }
     Foo: {
