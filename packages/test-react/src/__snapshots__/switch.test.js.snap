@@ -36,6 +36,36 @@ exports[`basic switch 2`] = `
 }) => hello ? <div>Hello World</div> : <div>Goodbye World</div>;"
 `;
 
+exports[`handle both children and styles 1`] = `
+"() => {
+  <conatiner />;
+  return create(\\"div\\", {
+    className: use(\\"element_7nq\\", !true && \\"element_58b\\")
+  }, true ? create(\\"switch-true\\", {}) : create(\\"switch-false\\", {}), create(\\"div\\", {}));
+};
+
+css(\`
+	/* 1 */
+	.element_7nq { color: red }
+	/* 5 */
+	.element_58b { color: green }
+\`);"
+`;
+
+exports[`handle both children and styles 2`] = `
+"() => {
+  <conatiner />;
+  return <div className={use(\\"element_7nq\\", !true && \\"element_58b\\")}>{true ? <switch-true /> : <switch-false />}<div /></div>;
+};
+
+css(\`
+	/* 1 */
+	.element_7nq { color: red }
+	/* 5 */
+	.element_58b { color: green }
+\`);"
+`;
+
 exports[`inverse consequent types 1`] = `
 "({
   foo

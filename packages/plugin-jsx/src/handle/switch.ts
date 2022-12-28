@@ -26,6 +26,10 @@ class DefineConsequent extends Define {
     conseqentsExist.set(this, this.rank);
   }
 
+  get isDeclared(){
+    return false;
+  }
+
   get uid(){
     return this.name + "_" + this.path(this.rank);
   }

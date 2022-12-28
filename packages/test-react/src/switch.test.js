@@ -89,6 +89,22 @@ test("switch can provide style downstream", `
   }
 `)
 
+test("handle both children and styles", `
+  () => {
+    color: red;
+
+    if(true)
+      <html-switch-true />
+    else {
+      color: green;
+      
+      <html-switch-false />
+    }
+
+    <conatiner />
+  }
+`)
+
 // test("delegates definition via use", `
 //   example: {
 //     color: black;
