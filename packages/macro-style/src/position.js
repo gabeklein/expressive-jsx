@@ -47,8 +47,10 @@ function computePosition(...args){
       if(k1 == "fill")
         delete out[INVERSE[k2]]
 
-      else for(const dir of [k1, k2])
-        delete out[INVERSE[dir]]
+      else {
+        for(const dir of [k1, k2])
+          delete out[INVERSE[dir]]
+      }
 
       return out
     }
