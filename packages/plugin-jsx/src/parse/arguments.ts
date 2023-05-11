@@ -15,8 +15,8 @@ const Oops = ParseErrors({
   ElseNotSupported: "An else statement in an if modifier is not yet supported"
 });
 
-interface CallAbstraction extends Array<any> {
-  callee: string;
+function toDashCase(text: string){
+  return text.replace(/([A-Z]+)/g, "-$1").toLowerCase();
 }
 
 const types: any = {
@@ -69,7 +69,7 @@ function Extract(element: t.Expression | t.Statement){
 
 function Identifier({ name }: t.Identifier){
   if(name.startsWith("$")){
-    name = name.slice(1).replace(/([A-Z])/g, "-$1").toLowerCase();
+    name = toDashCase(name.slice(1));
 
     return `var(--${name})`;
   }
@@ -146,11 +146,11 @@ function SequenceExpression(sequence: t.SequenceExpression){
 
 function CallExpression(e: t.CallExpression){
   const callee = e.callee;
-  const args = [] as t.Expression[];
+  const args = [] as string[];
 
   for(const item of e.arguments){
     if($.isExpression(item))
-      args.push(item);
+      args.push(Expression(item));
     else if($.is(item, "SpreadElement"))
       throw Oops.ArgumentSpread(item)
     else
@@ -158,13 +158,9 @@ function CallExpression(e: t.CallExpression){
   }
 
   if(callee.type !== "Identifier")
-    throw Oops.MustBeIdentifier(callee)
+    throw Oops.MustBeIdentifier(callee);
 
-  const call = args.map(x => Expression(x)) as CallAbstraction;
-
-  call.callee = callee.name;
-
-  return call;
+  return toDashCase(callee.name) + `(${args.join(", ")})`;
 }
 
 function ArrowFunctionExpression(e: t.ArrowFunctionExpression): never {
