@@ -54,9 +54,6 @@ function Expression<T extends t.Expression>(
   if(childKey)
     element = element[childKey] as unknown as T;
 
-  if($.is(element, "Identifier") && element.name.startsWith("$"))
-    return `var(--${element.name.slice(1)})`;
-
   if($.isParenthesized(element))
     return element;
 
@@ -70,8 +67,14 @@ function Extract(element: t.Expression | t.Statement){
   throw Oops.UnknownArgument(element)
 }
 
-function Identifier(e: t.Identifier){
-  return e.name;
+function Identifier({ name }: t.Identifier){
+  if(name.startsWith("$")){
+    name = name.slice(1).replace(/([A-Z])/g, "-$1").toLowerCase();
+
+    return `var(--${name})`;
+  }
+
+  return name;
 }
 
 function StringLiteral(e: t.StringLiteral){
