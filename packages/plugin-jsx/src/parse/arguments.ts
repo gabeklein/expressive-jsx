@@ -82,7 +82,7 @@ function TemplateLiteral(e: t.TemplateLiteral) {
   const { quasis } = e;
 
   return quasis.length == 1
-    ? e.quasis[0].value
+    ? e.quasis[0].value.raw
     : e;
 }
 
