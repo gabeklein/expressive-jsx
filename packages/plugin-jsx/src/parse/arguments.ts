@@ -143,9 +143,29 @@ function SequenceExpression(sequence: t.SequenceExpression){
   return sequence.expressions.map(x => Expression(x))
 }
 
+const CSS_UNITS = new Set([
+  "ch",
+  "cm",
+  "em",
+  "ex",
+  "in",
+  "mm",
+  "pc",
+  "pt",
+  "px",
+  "rem",
+  "vh",
+  "vmax",
+  "vmin",
+  "vw",
+])
+
 function CallExpression(e: t.CallExpression){
   const callee = e.callee;
   const args = [] as string[];
+
+  if(callee.type !== "Identifier")
+    throw Oops.MustBeIdentifier(callee);
 
   for(const item of e.arguments){
     if($.isExpression(item))
@@ -156,14 +176,16 @@ function CallExpression(e: t.CallExpression){
       throw Oops.UnknownArgument(item)
   }
 
-  if(callee.type !== "Identifier")
-    throw Oops.MustBeIdentifier(callee);
+  const { name } = callee;
+
+  if(CSS_UNITS.has(name))
+    return args.map(x => String(x) + name).join(" ");
 
   return toDashCase(callee.name) + `(${args.join(", ")})`;
 }
 
 function ArrowFunctionExpression(e: t.ArrowFunctionExpression): never {
-  throw Oops.ArrowNotImplemented(e)
+  throw Oops.ArrowNotImplemented(e);
 }
 
 function IfStatement(statement: t.IfStatement){
