@@ -92,31 +92,30 @@ function TemplateLiteral(e: t.TemplateLiteral) {
 function UnaryExpression(e: t.UnaryExpression){
   const { argument, operator } = e;
 
-  if(operator == "-"
-  && $.is(argument, "NumericLiteral"))
-    return NumericLiteral(argument, -1);
+  if(operator == "-" && $.is(argument, "NumericLiteral"))
+    return NumericLiteral(argument, true);
 
-  if(operator == "!"
-  && $.is(argument, "Identifier", { name: "Important" }))
+  if(operator == "!" && $.is(argument, "Identifier", { name: "Important" }))
     return "!important";
 
   throw Oops.UnaryUseless(e)
 }
 
 function BooleanLiteral(bool: t.BooleanLiteral){
-  return bool.value
+  return bool.value;
 }
 
-function NumericLiteral(number: t.NumericLiteral, sign = 1){
-  const { extra: { rawValue, raw } } = number as any;
+function NumericLiteral(number: t.NumericLiteral, negative?: boolean){
+  let { extra: { rawValue, raw } } = number as any;
 
   if($.isParenthesized(number) || !/^0x/.test(raw)){
     if(raw.indexOf(".") > 0)
-      return sign == -1 ? "-" + raw : raw;
+      return negative ? "-" + raw : raw;
 
-    return sign * rawValue;
+    return negative ? -rawValue : rawValue;
   }
-  if(sign == -1)
+
+  if(negative)
     throw Oops.HexNoNegative(number, rawValue);
 
   return HEXColor(raw);
