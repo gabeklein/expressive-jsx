@@ -87,8 +87,13 @@ function handleIfStatement(
   const test = path.node.test;
 
   if($.is(test, "StringLiteral")){
+    let select = test.value;
+
+    if(/^\w+$/.test(select))
+      select = `.${select}`;
+
     const body = path.get("consequent") as any;
-    const mod = new DefineVariant(target, [ test.value ], 5);
+    const mod = new DefineVariant(target, [ select ], 5);
 
     parse(mod, body);
     target.use(mod);
