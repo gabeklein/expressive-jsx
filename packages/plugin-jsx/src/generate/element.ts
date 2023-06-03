@@ -173,7 +173,7 @@ function classValue(
     )
 
   if(selectors.length > 1){
-    const _use = program.ensure("$runtime", "use");
+    const _use = program.ensure("$runtime", "classNames");
     return $.call(_use, ...selectors)
   }
   

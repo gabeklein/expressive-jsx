@@ -28,11 +28,7 @@ export default function css(
   group.put(stylesheet, options.refreshToken);
 }
 
-export function body(props: { children: any | any[] }){
-  return [].concat(props.children)
-}
-
-export function use(...args: string[]){
+export function classNames(...args: string[]){
   return args.filter(x => x).join(" ");
 }
 
