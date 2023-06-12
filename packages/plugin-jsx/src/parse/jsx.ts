@@ -109,7 +109,7 @@ export function applyTagName(
     element.tagName = tag;
   }
   else if($.is(tag, "JSXIdentifier")){
-    name = element.name = tag.name;
+    name = tag.name;
 
     if(name === "this")
       return;
@@ -125,6 +125,7 @@ export function applyTagName(
       explicit = true;
 
     else if(SVG_TAGS.includes(name)){
+      element.name = name;
       let within: ElementInline | undefined = element;
 
       while(within instanceof ElementInline)
