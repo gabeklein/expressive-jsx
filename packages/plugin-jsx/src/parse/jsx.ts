@@ -3,7 +3,7 @@ import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { ElementInline } from 'handle/definition';
 import * as $ from 'syntax';
-import { HTML_TAGS } from 'syntax/jsx';
+import { HTML_TAGS, SVG_TAGS } from 'syntax/jsx';
 
 import type { Define } from 'handle/definition';
 import type { JSXChild } from 'syntax/jsx';
@@ -109,19 +109,32 @@ export function applyTagName(
     element.tagName = tag;
   }
   else if($.is(tag, "JSXIdentifier")){
-    name = tag.name;
+    name = element.name = tag.name;
 
     if(name === "this")
       return;
 
     let explicit = /^[A-Z]/.test(name);
 
-    if(/^html-.+/.test(name)){
+    if(/^(html|svg)-.+/.test(name)){
       name = name.slice(5);
       explicit = true;
     }
 
-    if(HTML_TAGS.includes(name))
+    if(SVG_TAGS.includes(name)){
+      let within: ElementInline | undefined = element;
+
+      while(within instanceof ElementInline)
+        if(within.name === "svg"){
+          explicit = true;
+          break;
+        }
+        else {
+          within = within.parent;
+          continue;
+        }
+    }
+    else if(HTML_TAGS.includes(name))
       explicit = true;
 
     if(explicit)
@@ -130,7 +143,6 @@ export function applyTagName(
   else
     throw Oops.NonJSXIdentifier(tag);
 
-  element.name = name;
   applyModifier(element, name);
 }
 
