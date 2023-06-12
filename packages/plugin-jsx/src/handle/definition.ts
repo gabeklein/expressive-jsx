@@ -7,9 +7,18 @@ import { AttributeBody } from './object';
 
 import type * as t from 'syntax/types';
 import type { StackFrame } from 'context';
+import { InnerContent } from 'types';
 
 export class ElementInline extends AttributeBody {
   selfClosing?: boolean;
+  parent?: ElementInline;
+
+  adopt(child: InnerContent): void {
+    if(child instanceof ElementInline)
+      child.parent = this;
+
+    super.adopt(child);
+  }
   
   toExpression(){
     return new Generator(this).element(this.selfClosing);
