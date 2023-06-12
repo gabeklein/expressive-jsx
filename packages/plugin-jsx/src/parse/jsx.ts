@@ -121,7 +121,10 @@ export function applyTagName(
       explicit = true;
     }
 
-    if(SVG_TAGS.includes(name)){
+    if(HTML_TAGS.includes(name))
+      explicit = true;
+
+    else if(SVG_TAGS.includes(name)){
       let within: ElementInline | undefined = element;
 
       while(within instanceof ElementInline)
@@ -134,8 +137,6 @@ export function applyTagName(
           continue;
         }
     }
-    else if(HTML_TAGS.includes(name))
-      explicit = true;
 
     if(explicit)
       element.tagName = name;

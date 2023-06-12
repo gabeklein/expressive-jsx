@@ -84,6 +84,7 @@ export const HTML_TAGS = [
   "section",
   "select",
   "small",
+  "source",
   "span",
   "strong",
   "style",
