@@ -1,6 +1,6 @@
 {
   "name": "@expressive/macro-gradient",
-  "version": "1.0.0-canary.0",
+  "version": "1.0.0",
   "description": "Style macros for fancier css gradients",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
