@@ -25,3 +25,7 @@ export function rect(...args){
 
   return [top, right, bottom, left]
 }
+
+export function pascalToDash(x){
+  return x.replace(/([A-Z]+)/g, "-$1").toLowerCase();
+}

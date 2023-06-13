@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@expressive/babel-plugin-jsx": "^1.0.2",
-    "@expressive/macro-pseudo": "^1.0.0",
     "@expressive/macro-css": "^1.0.0"
   },
   "devDependencies": {
