@@ -1,3 +1,4 @@
+import { PluginObj } from '@babel/core';
 import { getContext, StackFrame } from 'context';
 import { Status } from 'errors';
 import { OUTPUT_NODE } from 'generate/jsx';
@@ -10,8 +11,8 @@ import * as $ from 'syntax';
 import type { Visitor } from 'types';
 import type * as t from 'syntax/types';
 
-export default () => ({
-  manipulateOptions: (options: any, parse: any) => {
+export default () => <PluginObj>({
+  manipulateOptions(options, parse){
     parse.plugins.push("doExpressions", "jsx");
   },
   visitor: {
