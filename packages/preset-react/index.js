@@ -1,5 +1,5 @@
 const PluginReact = require("@expressive/babel-plugin-jsx");
-const styleMacros = require("@expressive/macro-style");
+const styleMacros = require("@expressive/macro-css");
 const pseudoMacros = require("@expressive/macro-pseudo");
 
 const DEV_MODE = process.env.NODE_ENV == "development";

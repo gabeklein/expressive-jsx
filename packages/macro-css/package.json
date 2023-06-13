@@ -1,7 +1,7 @@
 {
-  "name": "@expressive/macro-style",
+  "name": "@expressive/macro-css",
   "version": "1.0.0",
-  "description": "Style macros for most CSS keywords",
+  "description": "Macros for CSS keywords",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
     "name": "Gabe Klein",

@@ -11,7 +11,7 @@
     "@expressive/babel-plugin-jsx": "^1.0.2",
     "@expressive/macro-gradient": "^1.0.0",
     "@expressive/macro-pseudo": "^1.0.0",
-    "@expressive/macro-style": "^1.0.0",
+    "@expressive/macro-css": "^1.0.0",
     "gulp": "^4.0.2",
     "gulp-babel": "^8.0.0",
     "gulp-prettier": "^2.0.0",

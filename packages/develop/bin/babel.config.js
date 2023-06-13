@@ -1,7 +1,7 @@
 const env = require("@babel/preset-env");
 
 const BabelPluginReact = require("@expressive/babel-plugin-jsx");
-const webstyleMacros = require("@expressive/macro-style");
+const webstyleMacros = require("@expressive/macro-css");
 const pseudoMacros = require("@expressive/macro-pseudo");
 const gradientMacros = require("@expressive/macro-gradient");
 const classProperties = require("@babel/plugin-syntax-class-properties");
