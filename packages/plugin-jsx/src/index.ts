@@ -18,16 +18,9 @@ export default () => <PluginObj>({
   visitor: {
     Program,
     JSXElement,
-    JSXFragment: JSXElement,
-    DoExpression
+    JSXFragment: JSXElement
   }
 })
-
-const DoExpression: Visitor<t.DoExpression> = {
-  enter(path){
-    path.replaceWith(path.get("body").node)
-  }
-}
 
 const Program: Visitor<t.Program> = {
   enter(path, state){
