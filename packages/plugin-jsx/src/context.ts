@@ -70,7 +70,7 @@ export class StackFrame {
   }
 
   get ambient(){
-    let ambient = AMBIENT.get(this);
+    const ambient = AMBIENT.get(this);
 
     if(ambient)
       return ambient;
@@ -87,7 +87,6 @@ export class StackFrame {
     state: BabelState){
 
     const options = { ...DEFAULTS, ...state.opts };
-    const imports = Object.assign({}, builtIn, ...options.modifiers);
 
     this.opts = options;
     this.name = hash(state.filename);
@@ -96,9 +95,7 @@ export class StackFrame {
     this.program = FileManager.create(this, path, options);
   
     REGISTER.set(path.node, this);
-
-    for(const name in imports)
-      this.handlers[name] = imports[name];
+    Object.assign(this.handlers, builtIn, ...options.modifiers);
   }
 
   getHandler(named: string, ignoreOwn = false){
