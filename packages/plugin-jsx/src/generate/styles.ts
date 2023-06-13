@@ -67,8 +67,32 @@ function prioritize(source: Set<Define>){
         priority += 0.1;
 
     const query = "default";
-    const selector = buildSelector(item);
-    const styles = print(item);
+    const selector = item.selector.map(select => {
+      const selection = [select];
+      let source: Define | undefined = item;
+
+      while(source = source.within)
+        selection.unshift(source.selector[0]);
+
+      return selection.join(" ");
+    });
+
+    const styles = [] as string[];
+
+    for(const style of item.sequence)
+      if(style instanceof ExplicitStyle && style.invariant){
+        let styleKey = style.name;
+    
+        if(typeof styleKey == "string")
+          styleKey = styleKey.replace(/([A-Z]+)/g, "-$1").toLowerCase();
+    
+        let line = `${styleKey}: ${style.value}`;
+    
+        if(style.important)
+          line += " !important";
+    
+        styles.push(line);
+      }
 
     const targetQuery: MediaGroups =
       query in media ?
@@ -80,7 +104,10 @@ function prioritize(source: Set<Define>){
         targetQuery[priority] :
         targetQuery[priority] = [];
 
-    group.push([ selector, styles ])
+    group.push([
+      selector.join(", "),
+      styles
+    ])
   }
 
   return media;
@@ -125,40 +152,4 @@ function serialize(
   const content = lines.map(x => "\t" + x).join("\n")
 
   return `\n${content}\n`;
-}
-
-function buildSelector(target: Define){
-  return target.selector
-    .map(select => {
-      const selection = [select];
-      let source: Define | undefined = target;
-
-      while(source = source.within)
-        selection.unshift(source.selector[0]);
-
-      return selection.join(" ");
-    })
-    .join(", ");
-}
-
-function print(target: Define){
-  const items = [] as ExplicitStyle[];
-
-  for(const item of target.sequence)
-    if(item instanceof ExplicitStyle && item.invariant)
-      items.push(item);
-
-  return items.map(style => {
-    let styleKey = style.name;
-
-    if(typeof styleKey == "string")
-      styleKey = styleKey.replace(/([A-Z]+)/g, "-$1").toLowerCase();
-
-    const line = `${styleKey}: ${style.value}`;
-
-    if(style.important)
-      return `${line} !important`;
-
-    return line;
-  })
 }
