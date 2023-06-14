@@ -7,7 +7,7 @@ import type { Define } from 'handle/definition';
 import type { BunchOf } from 'types';
 import * as $ from 'syntax';
 
-type SelectorContent = [ string, string[] ][];
+type SelectorContent = [ string, ExplicitStyle[] ][];
 type MediaGroups = SelectorContent[];
 
 export function styleDeclaration(context: StackFrame){
@@ -24,11 +24,10 @@ export function styleDeclaration(context: StackFrame){
 
   if(!modifiersDeclared.size)
     return;
-  
-  const mediaGroups = prioritize(modifiersDeclared);
-  const printedStyle = serialize(mediaGroups, pretty);
+
   const args: t.Expression[] = [];
   const options: any = {};
+  const styles = serialize(modifiersDeclared, pretty)
 
   if(hot)
     options.refreshToken = $.literal(hash(filename, 10));
@@ -47,17 +46,15 @@ export function styleDeclaration(context: StackFrame){
     $.statement(
       $.call(
         program.ensure("$runtime", "default", "css"),
-        $.template(printedStyle),
+        $.template("\n" + styles + "\n"),
         ...args
       )
     )
   );
 }
 
-function prioritize(source: Set<Define>){
-  const media: BunchOf<MediaGroups> = {
-    default: []
-  };
+function serialize(source: Set<Define>, pretty?: boolean){
+  const media: BunchOf<MediaGroups> = { default: [] };
 
   for(const item of source){
     let { priority = 0 } = item;
@@ -77,22 +74,11 @@ function prioritize(source: Set<Define>){
       return selection.join(" ");
     });
 
-    const styles = [] as string[];
+    const styles = [] as ExplicitStyle[];
 
     for(const style of item.sequence)
-      if(style instanceof ExplicitStyle && style.invariant){
-        let styleKey = style.name;
-    
-        if(typeof styleKey == "string")
-          styleKey = styleKey.replace(/([A-Z]+)/g, "-$1").toLowerCase();
-    
-        let line = `${styleKey}: ${style.value}`;
-    
-        if(style.important)
-          line += " !important";
-    
-        styles.push(line);
-      }
+      if(style instanceof ExplicitStyle && style.invariant)
+        styles.push(style);
 
     const targetQuery: MediaGroups =
       query in media ?
@@ -110,46 +96,100 @@ function prioritize(source: Set<Define>){
     ])
   }
 
-  return media;
-}
-
-function serialize(
-  media: BunchOf<MediaGroups>,
-  pretty?: boolean){
-
   const lines: string[] = [];
 
-  for(const query in media)
-    Object.entries(media[query])
-      .sort((a, b) => {
-        return a[0] > b[0] ? 1 : -1;
-      })
-      .forEach(([index, bunch]) => {
-        if(!pretty)
-          lines.push(`/* ${
-            Number(index).toFixed(1).replace(/\.0$/, "")
-          } */`);
+  for(const query in media){
+    const group = media[query];
+    const index = Object
+      .keys(group)
+      .map(Number)
+      .sort((a, b) => a - b);
 
-        for(const [ name, styles ] of bunch){
-          if(pretty){
-            const rules = styles.map(x => `\t${x};`);
-            const select = name.split(", ");
-            const final = select.pop();
+    for(const priority of index){
+      if(!pretty)
+        lines.push(`/* ${
+          priority.toFixed(1).replace(/\.0$/, "")
+        } */`);
 
-            for(const alternate of select)
-              lines.push(alternate + ",");
+      for(const block of group[priority])
+        lines.push(...printStyles(block, pretty));
+    }
+  }
 
-            lines.push(final + " { ", ...rules, "}");
-          }
-          else {
-            const block = styles.join("; ");
-
-            lines.push(`${name} { ${block} }`)
-          }
-        }
-      });
-
-  const content = lines.map(x => "\t" + x).join("\n")
-
-  return `\n${content}\n`;
+  return lines.map(x => "\t" + x).join("\n");
 }
+
+function printStyles(groups: [string, ExplicitStyle[]], pretty?: boolean){
+  const [ select, styles ] = groups;
+  const lines: string[] = [];
+
+  const rules = styles.map(style => {
+    let styleKey = style.name;
+
+    if(typeof styleKey == "string")
+      styleKey = styleKey.replace(/([A-Z]+)/g, "-$1").toLowerCase();
+
+    let line = `\t${styleKey}: ${style.value}`;
+
+    if(style.important)
+      line += " !important";
+    
+    return line + ';';
+  });
+
+  if(pretty){
+    const selects = select.split(", ");
+    const final = selects.pop();
+
+    for(const alternate of selects)
+      lines.push(alternate + ",");
+
+    lines.push(final + " { ", ...rules, "}");
+  }
+  else {
+    const block = rules.join("; ");
+
+    lines.push(`${select} { ${block} }`)
+  }
+
+  return lines;
+}
+
+// type lines = string | lines[];
+
+// function output(input: lines[]): string {
+//   let output = "";
+
+//   function inject(block: lines[], indent: number){
+//     if(indent > 0)
+//       output += " {\n";
+
+//     for(const line of block){
+//       if(typeof line !== "string"){
+//         inject(line, indent + 1);
+//         continue;
+//       }
+      
+//       for(let i=0; i < indent; i++)
+//         output += "\t";
+
+//       output += line;
+//     }
+
+
+//     // const last = output.pop();
+
+//     // if(last)
+//     //   output.push(last + " {");
+
+//     // for(const line of block)
+//     //   if(typeof line == "string")
+//     //     output.push("" + line);
+    
+//   }
+
+//   if(typeof input == "string")
+//     return input;
+
+//   return input.map(x => print(x)).join("\n");
+// }
