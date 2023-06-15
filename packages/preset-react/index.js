@@ -1,25 +1,25 @@
-const PluginReact = require("@expressive/babel-plugin-react");
-const styleModifiers = require("@expressive/modify-style");
+const PluginReact = require("@expressive/babel-plugin-jsx");
+const styleMacros = require("@expressive/macro-css");
 
-const { NODE_ENV } = process.env;
+const DEV_MODE = process.env.NODE_ENV == "development";
 
 module.exports = (compiler, options = {}) => {
   let {
     modifiers = [],
-    hot = NODE_ENV == "development",
+    hot = DEV_MODE,
     ...opts
   } = options;
 
   return {
     plugins: [
       [PluginReact, {
-        reactEnv: "web",
+        hot,
         output: "js",
+        ...opts,
         modifiers: [
-          styleModifiers,
+          styleMacros,
           ...modifiers
-        ],
-        ...opts
+        ]
       }]
     ]
   }

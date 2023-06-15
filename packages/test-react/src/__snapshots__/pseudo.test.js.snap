@@ -1,0 +1,95 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`css directive 1`] = `
+"() => create(\\"div\\", {
+  className: \\"element_7nq\\"
+}, create(\\"div\\", {}, \\"Hello\\"));
+
+css(\`
+	/* 1 */
+	.element_7nq { color: blue }
+	/* 5 */
+	.element_7nq.isRed { color: red }
+\`);"
+`;
+
+exports[`css directive 2`] = `
+"() => <div className=\\"element_7nq\\"><div>Hello</div></div>;
+
+css(\`
+	/* 1 */
+	.element_7nq { color: blue }
+	/* 5 */
+	.element_7nq.isRed { color: red }
+\`);"
+`;
+
+exports[`css multiple directives 1`] = `
+"() => create(\\"div\\", {
+  className: \\"element_7nq\\"
+}, create(\\"div\\", {}, \\"Hello\\"));
+
+css(\`
+	/* 1 */
+	.element_7nq { color: blue }
+	/* 5 */
+	.element_7nq.isRed { color: red }
+	.element_7nq.isGreen { color: green }
+\`);"
+`;
+
+exports[`css multiple directives 2`] = `
+"() => <div className=\\"element_7nq\\"><div>Hello</div></div>;
+
+css(\`
+	/* 1 */
+	.element_7nq { color: blue }
+	/* 5 */
+	.element_7nq.isRed { color: red }
+	.element_7nq.isGreen { color: green }
+\`);"
+`;
+
+exports[`pseudo before/after 1`] = `
+"() => create(\\"div\\", {
+  className: \\"element_7nq\\"
+}, create(\\"div\\", {}, \\"Hello\\"));
+
+css(\`
+	/* 6 */
+	.element_7nq::before { content: \\"This is content\\"; color: blue }
+	.element_7nq::after { background: red; color: white; content: \\"\\" }
+\`);"
+`;
+
+exports[`pseudo before/after 2`] = `
+"() => <div className=\\"element_7nq\\"><div>Hello</div></div>;
+
+css(\`
+	/* 6 */
+	.element_7nq::before { content: \\"This is content\\"; color: blue }
+	.element_7nq::after { background: red; color: white; content: \\"\\" }
+\`);"
+`;
+
+exports[`pseudo nthOfType 1`] = `
+"() => create(\\"div\\", {
+  className: \\"element_7nq\\"
+}, create(\\"div\\", {}, \\"Hello\\"));
+
+css(\`
+	/* 6 */
+	.element_7nq:nth-of-type(2n) { color: blue }
+	.element_7nq:nth-of-type(3n+2) { color: red }
+\`);"
+`;
+
+exports[`pseudo nthOfType 2`] = `
+"() => <div className=\\"element_7nq\\"><div>Hello</div></div>;
+
+css(\`
+	/* 6 */
+	.element_7nq:nth-of-type(2n) { color: blue }
+	.element_7nq:nth-of-type(3n+2) { color: red }
+\`);"
+`;

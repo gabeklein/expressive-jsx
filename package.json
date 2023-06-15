@@ -1,16 +1,13 @@
 {
-	"name": "expressive-react",
-	"version": "0.9.0-alpha",
+	"name": "expressive-jsx",
 	"private": true,
 	"workspaces": [
 		"packages/*"
 	],
-	"description": "An alternative syntax for powerful react constructs using less code",
+	"description": "An alternative syntax for JSX constructs using less code",
 	"scripts": {
-		"watch": "concurrently \"npm:watch:core\" \"npm:watch:react\"",
-		"postinstall": "yarn --cwd tests install",
-		"watch:core": "yarn workspace @expressive/babel-plugin-core run watch",
-		"watch:react": "yarn workspace @expressive/babel-plugin-react run watch",
+		"test": "npm run test --prefix packages/test-react",
+		"watch": "npm run watch --prefix packages/plugin-jsx",
 		"clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +"
 	},
 	"keywords": [
@@ -20,12 +17,10 @@
 	],
 	"license": "MIT",
 	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "^4.14.2",
-		"@typescript-eslint/parser": "^4.14.2",
-		"eslint": "^7.19.0",
-		"lerna": "^3.13.4"
-	},
-	"dependencies": {
-		"concurrently": "^4.1.0"
+		"@typescript-eslint/eslint-plugin": "^4.15.1",
+		"@typescript-eslint/parser": "^4.15.1",
+		"eslint": "^7.20.0",
+		"lerna": "^3.13.4",
+		"typescript": "^4.1.5"
 	}
 }

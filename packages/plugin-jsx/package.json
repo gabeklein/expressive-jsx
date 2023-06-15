@@ -1,0 +1,37 @@
+{
+  "name": "@expressive/babel-plugin-jsx",
+  "version": "1.0.2",
+  "description": "React output for XJS babel parser plugin.",
+  "repository": "https://github.com/gabeklein/expressive-dsl",
+  "author": {
+    "name": "Gabe Klein",
+    "email": "me@gabeklein.dev",
+    "url": "https://github.com/gabeklein"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "babel",
+    "expressive",
+    "jsx"
+  ],
+  "main": "lib/index.js",
+  "files": [
+    "/lib"
+  ],
+  "scripts": {
+    "build": "esbuild ./src --bundle --outfile=lib/index.js --platform=node --target=node10",
+    "watch": "npm run build -- --sourcemap --watch",
+    "test": "jest",
+    "prebuild": "rm -rf lib",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@babel/types": "7.10.3",
+    "@types/babel__traverse": "^7.11.0",
+    "@types/node": "^11.13.4",
+    "esbuild": "^0.14.27"
+  }
+}

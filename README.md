@@ -57,7 +57,7 @@ yarn install @expressive/babel-preset-react
  
 
 ```js
-import StyledApp from "@expressive/react";
+import StyledApp from '@expressive/react';
 
 export default () => do { 
   StyledApp() >> App()

@@ -1,0 +1,32 @@
+{
+  "name": "@expressive/test-react",
+  "version": "1.0.2",
+  "private": true,
+  "description": "Integration tests for preset-react",
+  "repository": "https://github.com/gabeklein/expressive-dsl",
+  "author": {
+    "name": "Gabe Klein",
+    "email": "me@gabeklein.dev",
+    "url": "https://github.com/gabeklein"
+  },
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "@expressive/babel-plugin-jsx": "^1.0.2",
+    "@expressive/macro-css": "^1.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.3",
+    "@jest/globals": "^26.4.2",
+    "@types/jest": "^26.0.10",
+    "@types/node": "^11.13.4",
+    "jest": "^26.4.2",
+    "rollup": "^1.10.0",
+    "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-typescript2": "^0.20.1",
+    "ts-jest": "^26.2.0",
+    "typescript": "3.8.3"
+  }
+}

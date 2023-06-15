@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`for statement 1`] = `
+"() => collect(add => {
+  for (let i = 0; i < 10; i++) add(create(\\"div\\", {}, \\"Number: \\", i));
+});"
+`;
+
+exports[`for statement 2`] = `
+"() => collect(add => {
+  for (let i = 0; i < 10; i++) add(<div>Number: {i}</div>);
+});"
+`;
+
+exports[`for-in statement 1`] = `
+"() => Object.keys(group).map(item => create(\\"div\\", {
+  key: item
+}, group[item]));"
+`;
+
+exports[`for-in statement 2`] = `"() => Object.keys(group).map(item => <div key={item}>{group[item]}</div>);"`;
+
+exports[`for-of statement 1`] = `
+"() => group.map((item, i) => create(\\"div\\", {
+  key: i
+}, item));"
+`;
+
+exports[`for-of statement 2`] = `"() => group.map((item, i) => <div key={i}>{item}</div>);"`;
+
+exports[`for-of statement; key defined 1`] = `
+"() => group.map(item => create(\\"div\\", {
+  key: item
+}, item));"
+`;
+
+exports[`for-of statement; key defined 2`] = `"() => group.map(item => <div key={item}>{item}</div>);"`;

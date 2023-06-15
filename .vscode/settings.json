@@ -3,7 +3,7 @@
         "**/yarn.lock": true,
         "**/yarn-error.log": true,
         "**/.DS_Store": true,
-        "**/node_modules": false,
+        "**/node_modules": true,
         "**/.rpt2_cache": true,
         "**/rollup.config.js": true,
         "**/tsconfig.json": true,

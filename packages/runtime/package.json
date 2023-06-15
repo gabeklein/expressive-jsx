@@ -1,0 +1,28 @@
+{
+  "name": "@expressive/css",
+  "version": "1.0.0",
+  "description": "Expressive css accumulator",
+  "main": "lib/index.js",
+  "types": "index.d.ts",
+  "author": {
+    "name": "Gabe Klein",
+    "email": "me@gabeklein.dev"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "/lib",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "build": "esbuild ./src --bundle --outfile=lib/index.js --platform=node --target=node10",
+    "watch": "npm run build -- --sourcemap --watch",
+    "prebuild": "rm -rf ./lib",
+    "prepare": "yarn build"
+  },
+  "devDependencies": {
+    "esbuild": "^0.14.27"
+  }
+}
