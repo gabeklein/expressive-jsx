@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-        "baseUrl": "src",
-        "rootDir": "src",
+        "rootDir": ".",
+        "baseUrl": "./src",
         "outDir": "lib",
         "target": "ES2018",
         "moduleResolution": "node",
@@ -12,5 +12,9 @@
         "types": [
             "node"
         ]
-    }
+    },
+    "include": [
+        "src",
+        "test"
+    ],
 }

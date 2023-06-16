@@ -17,6 +17,20 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Run Plugin",
+      "cwd": "${workspaceFolder}/packages/babel-plugin-jsx",
+      "console": "integratedTerminal",
+      "args": "./test/run.ts",
+      "runtimeArgs": [
+        "--nolazy",
+        "-r", "ts-node/register",
+        "-r", "tsconfig-paths/register", 
+        "-r", "source-map-support/register"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "XJS -> JSX",
       "program": "${workspaceFolder}/packages/develop/bin/debug.js",
       "cwd": "${workspaceRoot}/packages/develop",
