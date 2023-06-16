@@ -1,8 +1,35 @@
-declare namespace RuntimeStyle {
-  interface PutOptions {
+const REGISTER = new Map<string, RuntimeStyle>();
+
+declare namespace css {
+  interface Options {
     module?: string;
     refreshToken?: string;
   }
+}
+
+export function css(
+  stylesheet: string,
+  options: css.Options = {}){
+
+  const { module: name = "" } = options;
+  const { body } = window.document;
+
+  let group = REGISTER.get(name);
+
+  if(!group){
+    group = new RuntimeStyle(name);
+
+    if(name && REGISTER.size){
+      const value = Array.from(REGISTER.values()).pop()!
+
+      body.insertBefore(group.styleElement, value.styleElement);
+    }
+    else
+      body.appendChild(group.styleElement);
+
+  }
+
+  group.put(stylesheet, options.refreshToken);
 }
 
 class RuntimeStyle {
@@ -20,6 +47,8 @@ class RuntimeStyle {
 
     if(name)
       style.setAttribute("module", name);
+
+    REGISTER.set(name, this);
   }
 
   /** Current aggregate of styles. */
@@ -75,7 +104,7 @@ class RuntimeStyle {
   }
 
   accept(css: string, priority: number, sourceKey?: string){
-    let register = this.chunks[priority] || (
+    const register = this.chunks[priority] || (
       this.chunks[priority] = new Map()
     )
 
@@ -90,5 +119,3 @@ class RuntimeStyle {
     register.set(css, sourceKey || true);
   }
 }
-
-export { RuntimeStyle }
