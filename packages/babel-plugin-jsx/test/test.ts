@@ -24,8 +24,7 @@ function build(content: string){
           output: "jsx",
           printStyle: "pretty",
           modifiers: [
-            require("@expressive/macro-css"),
-            require("@expressive/macro-gradient")
+            require("@expressive/macro-css")
           ]
         }]
       ]

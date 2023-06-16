@@ -28,7 +28,9 @@
     "prepare": "yarn build"
   },
   "dependencies": {
-    "@babel/types": "7.10.3"
+    "@babel/types": "7.10.3",
+    "chroma-js": "^2.0.3",
+    "easing-coordinates": "^2.0.2"
   },
   "devDependencies": {
     "esbuild": "^0.14.27"
