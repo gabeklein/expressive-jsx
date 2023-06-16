@@ -10,24 +10,12 @@ import * as $ from 'syntax';
 type SelectorContent = [ string, ExplicitStyle[] ][];
 type MediaGroups = SelectorContent[];
 
-export function styleDeclaration(context: StackFrame){
-  const {
-    filename,
-    modifiersDeclared,
-    module,
-    program,
-    opts
-  } = context;
+export function styleDeclaration(css: string, context: StackFrame){
+  const { filename, module, program, opts } = context;
 
-  const pretty = opts.printStyle == "pretty";
   const hot = opts.hot !== false;
-
-  if(!modifiersDeclared.size)
-    return;
-
   const args: t.Expression[] = [];
   const options: any = {};
-  const styles = serialize(modifiersDeclared, pretty)
 
   if(hot)
     options.refreshToken = $.literal(hash(filename, 10));
@@ -46,17 +34,24 @@ export function styleDeclaration(context: StackFrame){
     $.statement(
       $.call(
         program.ensure("$runtime", "default", "css"),
-        $.template("\n" + styles + "\n"),
+        $.template(`\n${css.replace(/^(.)/gm, "\t$1")}\n`),
         ...args
       )
     )
   );
 }
 
-function serialize(source: Set<Define>, pretty?: boolean){
+export function generateCSS(context: StackFrame){
+  const { modifiersDeclared, opts } = context;
+
+  if(modifiersDeclared.size == 0)
+    return "";
+  
+  const pretty = opts.printStyle == "pretty";
+
   const media: BunchOf<MediaGroups> = { default: [] };
 
-  for(const item of source){
+  for(const item of modifiersDeclared){
     let { priority = 0 } = item;
 
     for(let x=item.container; x;)
@@ -116,7 +111,7 @@ function serialize(source: Set<Define>, pretty?: boolean){
     }
   }
 
-  return lines.map(x => "\t" + x).join("\n");
+  return lines.join("\n");
 }
 
 function printStyles(groups: [string, ExplicitStyle[]], pretty?: boolean){

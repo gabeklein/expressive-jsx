@@ -2,7 +2,7 @@ import { PluginObj } from '@babel/core';
 import { getContext, StackFrame } from 'context';
 import { Status } from 'errors';
 import { OUTPUT_NODE } from 'generate/jsx';
-import { styleDeclaration } from 'generate/styles';
+import { generateCSS, styleDeclaration } from 'generate/styles';
 import { ElementInline } from 'handle/definition';
 import { parse } from 'parse/body';
 import { parseJSX } from 'parse/jsx';
@@ -28,10 +28,12 @@ const Program: Visitor<t.Program> = {
     state.context = new StackFrame(path, state);
   },
   exit(path, { context }){
-    const styleBlock = styleDeclaration(context);
+    const stylesheet = generateCSS(context);
 
-    if(styleBlock)
-      path.pushContainer("body", [ styleBlock ]);
+    if(stylesheet)
+      path.pushContainer("body", [ 
+        styleDeclaration(stylesheet, context)
+       ]);
 
     context.program.close();
   }
