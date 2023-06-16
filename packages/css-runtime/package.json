@@ -19,8 +19,7 @@
   "scripts": {
     "build": "esbuild ./src --bundle --outfile=lib/index.js --platform=node --target=node10",
     "watch": "npm run build -- --sourcemap --watch",
-    "prebuild": "rm -rf ./lib",
-    "prepare": "yarn build"
+    "prebuild": "rm -rf ./lib"
   },
   "devDependencies": {
     "esbuild": "^0.14.27"

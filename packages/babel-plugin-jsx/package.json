@@ -26,8 +26,7 @@
     "build": "esbuild ./src --bundle --outfile=lib/index.js --platform=node --target=node10",
     "watch": "npm run build -- --sourcemap --watch",
     "test": "jest",
-    "prebuild": "rm -rf lib",
-    "prepare": "npm run build"
+    "prebuild": "rm -rf lib"
   },
   "dependencies": {
     "@expressive/css": "^1.1.0"
