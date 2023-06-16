@@ -1,12 +1,6 @@
 .DS_Store
-.rpt2_cache
-node_modules/
-tests/input/
-tests/output/
-/packages/*/lib/
 *.log
-*.cache
+node_modules
 package-lock.json
+packages/*/lib/
 yarn.lock
-**/.reference
-tests/.env
