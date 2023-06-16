@@ -26,7 +26,6 @@ export function css(
     }
     else
       body.appendChild(group.styleElement);
-
   }
 
   group.put(stylesheet, options.refreshToken);
