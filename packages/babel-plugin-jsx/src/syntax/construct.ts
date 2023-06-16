@@ -155,7 +155,7 @@ export function call(
   })
 }
 
-export function require(from: string){
+export function requires(from: string){
   return call("require", literal(from))
 }
 

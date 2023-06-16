@@ -108,7 +108,7 @@ export class ModifyDelegate {
 
 function propertyModifierDefault(this: ModifyDelegate){
   const args = this.arguments.map(arg =>
-    arg.value || arg.requires ? $.require(arg.requires) : arg
+    arg.value || arg.requires ? $.requires(arg.requires) : arg
   )
 
   const output =

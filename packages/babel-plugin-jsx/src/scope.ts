@@ -278,7 +278,7 @@ export class RequireManager extends FileManager {
     const list = this.imports[name].items;
 
     if(list.length){
-      const target = this.importTargets[name] || $.require(name);
+      const target = this.importTargets[name] || $.requires(name);
       return $.declare("const", $.pattern(list), target);
     }
   }

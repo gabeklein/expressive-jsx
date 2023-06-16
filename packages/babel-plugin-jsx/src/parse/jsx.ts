@@ -185,7 +185,7 @@ function applyAttribute(
 
       case "StringLiteral":
         if(name == "src" && /^\.\//.test(expression.value))
-          value = $.require(expression.value)
+          value = $.requires(expression.value)
         else
           value = expression;
       break;
