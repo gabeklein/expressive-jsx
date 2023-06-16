@@ -1,4 +1,3 @@
-import { PluginObj } from '@babel/core';
 import { getContext, StackFrame } from 'context';
 import { Status } from 'errors';
 import { OUTPUT_NODE } from 'generate/jsx';
@@ -8,6 +7,7 @@ import { parse } from 'parse/body';
 import { parseJSX } from 'parse/jsx';
 import * as $ from 'syntax';
 
+import type { PluginObj } from '@babel/core';
 import type { Visitor } from 'types';
 import type * as t from 'syntax/types';
 
