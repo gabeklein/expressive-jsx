@@ -1,15 +1,15 @@
-import { transform } from "@babel/core";
-import fs from "fs";
-import { resolve } from "path";
-import { format } from "prettier";
+import { transform } from '@babel/core';
+import { readFileSync, watch, writeFileSync } from 'fs';
+import { resolve } from 'path';
+import { format } from 'prettier';
 
-const file = resolve("./tests/input.js");
-const outFile = resolve("./tests/output.js");
+const file = resolve("./test/input.js");
+const outFile = resolve("./test/output.js");
 
 let last = "";
 
 function check(){
-  const content = fs.readFileSync(file, "utf8");
+  const content = readFileSync(file, "utf8");
 
   if(content !== last)
     build(last = content);
@@ -42,7 +42,7 @@ function build(content: string){
       built.code as string
     );
   
-    fs.writeFileSync(outFile, output, {
+    writeFileSync(outFile, output, {
       encoding: "utf8"
     });
     
@@ -77,5 +77,5 @@ const spaceOutBlocks = (input: string) =>
 const spaceAfterImports = (input: string) =>
   input.replace(/(from '.+";?)([\t \r]*\n)([^\ni])/g, "$1$2\n$3");
 
-fs.watch(file, check);
+watch(file, check);
 check();
