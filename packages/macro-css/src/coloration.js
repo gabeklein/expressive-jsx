@@ -2,7 +2,7 @@ import { rgba, hsla } from './colors';
 
 export function bg(a){
   if(Array.isArray(a)){
-    let attrs = {};
+    let style = {};
 
     const [ head, ...tail ] = a;
 
@@ -10,26 +10,24 @@ export function bg(a){
       case "rgb":
       case "rgba": {
         const { value } = rgba(...tail);
-        attrs = { backgroundColor: value };
+        style = { backgroundColor: value };
         break;
       }
 
       case "hsl":
       case "hsla": {
         const { value } = hsla(...tail);
-        attrs = { backgroundColor: value };
+        style = { backgroundColor: value };
         break;
       }
     }
 
-    return {
-      style: attrs
-    }
+    return { style }
   }
 
   return {
     attrs: {
-      background: this.arguments
+      background: Array.from(arguments)
     }
   }
 }

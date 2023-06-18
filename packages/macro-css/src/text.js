@@ -13,7 +13,7 @@ export function font(...args){
 }
 
 export function fontFamily(){
-  const fonts = this.arguments.map(quoteOnWhitespace).join(", ")
+  const fonts = Array.from(arguments).map(quoteOnWhitespace).join(", ")
 
   return {
     style: {

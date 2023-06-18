@@ -16,7 +16,6 @@ const Oops = ParseErrors({
 })
 
 export class ModifyDelegate {
-  arguments: Array<any>;
   body?: t.Path<t.Statement>;
   inlineOnly: boolean;
   done?: true;
@@ -46,7 +45,6 @@ export class ModifyDelegate {
       args.pop();
     }
 
-    this.arguments = args;
     this.inlineOnly = target.context.opts.styleMode == "inline";
 
     if(!transform)
@@ -99,7 +97,7 @@ export class ModifyDelegate {
 }
 
 function propertyModifierDefault(this: ModifyDelegate){
-  const args = this.arguments.map(arg =>
+  const args = Array.from(arguments).map(arg =>
     arg.value || arg.requires ? $.requires(arg.requires) : arg
   )
 

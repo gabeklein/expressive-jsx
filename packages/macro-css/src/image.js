@@ -68,7 +68,7 @@ export function backgroundImage(from){
     
   return {
     attrs: {
-      backgroundImage: this.arguments
+      backgroundImage: Array.from(arguments)
     }
   }
 }

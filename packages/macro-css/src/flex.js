@@ -14,7 +14,7 @@ export function flexAlign(){
     display: "flex"
   }
 
-  for(const arg of this.arguments){
+  for(const arg of arguments){
     if(arg in DIRECTIONS){
       style.flexDirection = DIRECTIONS[arg] || arg;
     }
