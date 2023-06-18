@@ -13,7 +13,7 @@ import type * as t from 'syntax/types';
 
 export default () => <PluginObj>({
   manipulateOptions(options, parse){
-    parse.plugins.push("doExpressions", "jsx");
+    parse.plugins.push("jsx");
   },
   visitor: {
     Program,
