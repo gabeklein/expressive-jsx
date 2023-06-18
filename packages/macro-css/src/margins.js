@@ -1,4 +1,3 @@
-import { rect } from './util';
 import { appendUnitToN } from './units';
 
 const EXPORT = exports;
@@ -24,7 +23,11 @@ for (const kind of [
   for(const side of ["Top", "Left", "Right", "Bottom"]){
     EXPORT[kind + side] =
     EXPORT[kind + side[0]] =
-      handleUnits(kind + side)
+      (...args) => ({
+        style: {
+          [kind + side]: appendUnitToN(...args)
+        }
+      })
   }
 
   EXPORT[kind] =
@@ -40,14 +43,4 @@ for (const kind of [
         style: { [kind]: value }
       }
     }
-}
-
-function handleUnits(name) {
-  return function(){
-    return {
-      style: {
-        [name]: appendUnitToN.apply(this, arguments)
-      }
-    }
   }
-}
