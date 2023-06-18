@@ -102,6 +102,6 @@ function handleIfStatement(
 
   const item = new ComponentIf();
 
-  item.setup(target.context, path);
+  item.setup(target.context, path as t.Path);
   target.adopt(item);
 }
