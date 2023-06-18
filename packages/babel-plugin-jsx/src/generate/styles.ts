@@ -124,12 +124,12 @@ function printStyles(groups: [string, ExplicitStyle[]], pretty?: boolean){
     if(typeof styleKey == "string")
       styleKey = styleKey.replace(/([A-Z]+)/g, "-$1").toLowerCase();
 
-    let line = `\t${styleKey}: ${style.value}`;
+    let line = `${styleKey}: ${style.value}`;
 
     if(style.important)
       line += " !important";
     
-    return line + ';';
+    return line;
   });
 
   if(pretty){
@@ -139,7 +139,11 @@ function printStyles(groups: [string, ExplicitStyle[]], pretty?: boolean){
     for(const alternate of selects)
       lines.push(alternate + ",");
 
-    lines.push(final + " { ", ...rules, "}");
+    lines.push(
+      final + " {",
+      ...rules.map(x => `\t${x};`),
+      "}"
+    );
   }
   else {
     const block = rules.join("; ");

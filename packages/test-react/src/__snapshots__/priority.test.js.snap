@@ -2,9 +2,8 @@
 
 exports[`competing style priority 1`] = `
 "() => create(Foo, {}, create(Bar, {
-  className: \\"Bar_lt8 Bar_1nq\\"
+  className: "Bar_lt8 Bar_1nq"
 }));
-
 css(\`
 	/* 2 */
 	.Bar_1nq { color: blue }
@@ -14,8 +13,7 @@ css(\`
 `;
 
 exports[`competing style priority 2`] = `
-"() => <Foo><Bar className=\\"Bar_lt8 Bar_1nq\\" /></Foo>;
-
+"() => <Foo><Bar className="Bar_lt8 Bar_1nq" /></Foo>;
 css(\`
 	/* 2 */
 	.Bar_1nq { color: blue }
@@ -25,12 +23,11 @@ css(\`
 `;
 
 exports[`conditional priority should be higher 1`] = `
-"() => create(\\"div\\", {
-  className: !!checked && \\"element_3ld\\"
-}, create(\\"div\\", {
-  className: \\"test_7au test_1gc\\"
+"() => create("div", {
+  className: !!checked && "element_3ld"
+}, create("div", {
+  className: "test_7au test_1gc"
 }));
-
 css(\`
 	/* 1 */
 	.test_7au { color: green }
@@ -40,8 +37,7 @@ css(\`
 `;
 
 exports[`conditional priority should be higher 2`] = `
-"() => <div className={!!checked && \\"element_3ld\\"}><div className=\\"test_7au test_1gc\\" /></div>;
-
+"() => <div className={!!checked && "element_3ld"}><div className="test_7au test_1gc" /></div>;
 css(\`
 	/* 1 */
 	.test_7au { color: green }
@@ -53,14 +49,12 @@ css(\`
 exports[`prioritize external (capital-letter) define 1`] = `
 "const Foo = ({
   className
-}) => create(\\"div\\", {
-  className: use(\\"Foo_2t4\\", className)
-}, \\"Hello\\");
-
+}) => create("div", {
+  className: classNames("Foo_2t4", className)
+}, "Hello");
 const Bar = () => create(Foo, {
-  className: \\"Foo_55p\\"
+  className: "Foo_55p"
 });
-
 css(\`
 	/* 2 */
 	.Foo_2t4 { color: red }
@@ -71,10 +65,8 @@ css(\`
 exports[`prioritize external (capital-letter) define 2`] = `
 "const Foo = ({
   className
-}) => <div className={use(\\"Foo_2t4\\", className)}>Hello</div>;
-
-const Bar = () => <Foo className=\\"Foo_55p\\" />;
-
+}) => <div className={classNames("Foo_2t4", className)}>Hello</div>;
+const Bar = () => <Foo className="Foo_55p" />;
 css(\`
 	/* 2 */
 	.Foo_2t4 { color: red }

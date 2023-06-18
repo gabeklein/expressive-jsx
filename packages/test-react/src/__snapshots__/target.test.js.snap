@@ -2,9 +2,8 @@
 
 exports[`Attribute-based modifier 1`] = `
 "() => create(Foo, {
-  className: \\"Foo_krj hasWhiteText_3j6\\"
+  className: "Foo_krj hasWhiteText_3j6"
 });
-
 css(\`
 	/* 2 */
 	.Foo_krj { background: red }
@@ -14,8 +13,7 @@ css(\`
 `;
 
 exports[`Attribute-based modifier 2`] = `
-"() => <Foo className=\\"Foo_krj hasWhiteText_3j6\\" />;
-
+"() => <Foo className="Foo_krj hasWhiteText_3j6" />;
 css(\`
 	/* 2 */
 	.Foo_krj { background: red }
@@ -26,11 +24,10 @@ css(\`
 
 exports[`Explicitly use modifier 1`] = `
 "() => create(Fragment, {}, create(Baz, {
-  className: \\"Baz_6sh Foo_krj\\"
+  className: "Baz_6sh Foo_krj"
 }), create(Foo, {
-  className: \\"Foo_krj\\"
+  className: "Foo_krj"
 }));
-
 css(\`
 	/* 2 */
 	.Baz_6sh { color: red }
@@ -39,8 +36,7 @@ css(\`
 `;
 
 exports[`Explicitly use modifier 2`] = `
-"() => <Fragment><Baz className=\\"Baz_6sh Foo_krj\\" /><Foo className=\\"Foo_krj\\" /></Fragment>;
-
+"() => <Fragment><Baz className="Baz_6sh Foo_krj" /><Foo className="Foo_krj" /></Fragment>;
 css(\`
 	/* 2 */
 	.Baz_6sh { color: red }
@@ -50,11 +46,10 @@ css(\`
 
 exports[`Nested modifier 1`] = `
 "() => create(Fragment, {}, create(Foo, {
-  className: \\"Foo_krj\\"
+  className: "Foo_krj"
 }), create(Bar, {}, create(Foo, {
-  className: \\"Foo_52k Foo_krj\\"
+  className: "Foo_52k Foo_krj"
 })));
-
 css(\`
 	/* 2 */
 	.Foo_krj { color: red }
@@ -64,8 +59,7 @@ css(\`
 `;
 
 exports[`Nested modifier 2`] = `
-"() => <Fragment><Foo className=\\"Foo_krj\\" /><Bar><Foo className=\\"Foo_52k Foo_krj\\" /></Bar></Fragment>;
-
+"() => <Fragment><Foo className="Foo_krj" /><Bar><Foo className="Foo_52k Foo_krj" /></Bar></Fragment>;
 css(\`
 	/* 2 */
 	.Foo_krj { color: red }
@@ -76,9 +70,8 @@ css(\`
 
 exports[`Simple modifier 1`] = `
 "() => create(Foo, {
-  className: \\"Foo_krj\\"
+  className: "Foo_krj"
 });
-
 css(\`
 	/* 2 */
 	.Foo_krj { color: red }
@@ -86,8 +79,7 @@ css(\`
 `;
 
 exports[`Simple modifier 2`] = `
-"() => <Foo className=\\"Foo_krj\\" />;
-
+"() => <Foo className="Foo_krj" />;
 css(\`
 	/* 2 */
 	.Foo_krj { color: red }

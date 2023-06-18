@@ -3,10 +3,9 @@
 exports[`alternate consequent types 1`] = `
 "({
   foo
-}) => create(\\"div\\", {
-  className: !!foo && \\"element_3ld\\"
-}, !foo && create(\\"div\\", {}, \\"Foo is false\\"));
-
+}) => create("div", {
+  className: !!foo && "element_3ld"
+}, !foo && create("div", {}, "Foo is false"));
 css(\`
 	/* 5 */
 	.element_3ld { color: red }
@@ -16,8 +15,7 @@ css(\`
 exports[`alternate consequent types 2`] = `
 "({
   foo
-}) => <div className={!!foo && \\"element_3ld\\"}>{!foo && <div>Foo is false</div>}</div>;
-
+}) => <div className={!!foo && "element_3ld"}>{!foo && <div>Foo is false</div>}</div>;
 css(\`
 	/* 5 */
 	.element_3ld { color: red }
@@ -27,7 +25,7 @@ css(\`
 exports[`basic switch 1`] = `
 "({
   hello
-}) => hello ? create(\\"div\\", {}, \\"Hello World\\") : create(\\"div\\", {}, \\"Goodbye World\\");"
+}) => hello ? create("div", {}, "Hello World") : create("div", {}, "Goodbye World");"
 `;
 
 exports[`basic switch 2`] = `
@@ -39,11 +37,10 @@ exports[`basic switch 2`] = `
 exports[`handle both children and styles 1`] = `
 "() => {
   <conatiner />;
-  return create(\\"div\\", {
-    className: use(\\"element_7nq\\", !true && \\"element_58b\\")
-  }, true ? create(\\"switch-true\\", {}) : create(\\"switch-false\\", {}), create(\\"div\\", {}));
+  return create("div", {
+    className: classNames("element_7nq", !true && "element_58b")
+  }, true ? create("switch-true", {}) : create("switch-false", {}), create("div", {}));
 };
-
 css(\`
 	/* 1 */
 	.element_7nq { color: red }
@@ -55,9 +52,8 @@ css(\`
 exports[`handle both children and styles 2`] = `
 "() => {
   <conatiner />;
-  return <div className={use(\\"element_7nq\\", !true && \\"element_58b\\")}>{true ? <switch-true /> : <switch-false />}<div /></div>;
+  return <div className={classNames("element_7nq", !true && "element_58b")}>{true ? <switch-true /> : <switch-false />}<div /></div>;
 };
-
 css(\`
 	/* 1 */
 	.element_7nq { color: red }
@@ -69,10 +65,9 @@ css(\`
 exports[`inverse consequent types 1`] = `
 "({
   foo
-}) => create(\\"div\\", {
-  className: !foo && \\"element_58b\\"
-}, !!foo && create(\\"div\\", {}, \\"Foo is true\\"));
-
+}) => create("div", {
+  className: !foo && "element_58b"
+}, !!foo && create("div", {}, "Foo is true"));
 css(\`
 	/* 5 */
 	.element_58b { color: red }
@@ -82,8 +77,7 @@ css(\`
 exports[`inverse consequent types 2`] = `
 "({
   foo
-}) => <div className={!foo && \\"element_58b\\"}>{!!foo && <div>Foo is true</div>}</div>;
-
+}) => <div className={!foo && "element_58b"}>{!!foo && <div>Foo is true</div>}</div>;
 css(\`
 	/* 5 */
 	.element_58b { color: red }
@@ -93,10 +87,9 @@ css(\`
 exports[`nested elements may have conditional 1`] = `
 "const BuyButton = ({
   active
-}) => create(\\"div\\", {}, create(\\"div\\", {}, create(\\"div\\", {
-  className: active ? \\"inner_sds\\" : \\"inner_1nj\\"
+}) => create("div", {}, create("div", {}, create("div", {
+  className: active ? "inner_sds" : "inner_1nj"
 })));
-
 css(\`
 	/* 5 */
 	.inner_1nj { color: green }
@@ -107,8 +100,7 @@ css(\`
 exports[`nested elements may have conditional 2`] = `
 "const BuyButton = ({
   active
-}) => <div><div><div className={active ? \\"inner_sds\\" : \\"inner_1nj\\"} /></div></div>;
-
+}) => <div><div><div className={active ? "inner_sds" : "inner_1nj"} /></div></div>;
 css(\`
 	/* 5 */
 	.inner_1nj { color: green }
@@ -120,10 +112,9 @@ exports[`supports complex else-if 1`] = `
 "({
   foo,
   bar
-}) => create(\\"div\\", {
-  className: !foo && !bar && \\"element_2l4\\"
-}, foo ? create(\\"div\\", {}, \\"Foo is true\\") : !!bar && create(\\"div\\", {}, \\"Bar is true\\"));
-
+}) => create("div", {
+  className: !foo && !bar && "element_2l4"
+}, foo ? create("div", {}, "Foo is true") : !!bar && create("div", {}, "Bar is true"));
 css(\`
 	/* 5 */
 	.element_2l4 { color: red }
@@ -134,8 +125,7 @@ exports[`supports complex else-if 2`] = `
 "({
   foo,
   bar
-}) => <div className={!foo && !bar && \\"element_2l4\\"}>{foo ? <div>Foo is true</div> : !!bar && <div>Bar is true</div>}</div>;
-
+}) => <div className={!foo && !bar && "element_2l4"}>{foo ? <div>Foo is true</div> : !!bar && <div>Bar is true</div>}</div>;
 css(\`
 	/* 5 */
 	.element_2l4 { color: red }
@@ -146,10 +136,9 @@ exports[`supports inverse else-if 1`] = `
 "({
   foo,
   bar
-}) => create(\\"div\\", {
-  className: foo ? \\"element_3ld\\" : !!bar && \\"element_58b\\"
-}, !foo && !bar && create(\\"div\\", {}, \\"Foo & Bar are false\\"));
-
+}) => create("div", {
+  className: foo ? "element_3ld" : !!bar && "element_58b"
+}, !foo && !bar && create("div", {}, "Foo & Bar are false"));
 css(\`
 	/* 5 */
 	.element_58b { color: blue }
@@ -161,8 +150,7 @@ exports[`supports inverse else-if 2`] = `
 "({
   foo,
   bar
-}) => <div className={foo ? \\"element_3ld\\" : !!bar && \\"element_58b\\"}>{!foo && !bar && <div>Foo & Bar are false</div>}</div>;
-
+}) => <div className={foo ? "element_3ld" : !!bar && "element_58b"}>{!foo && !bar && <div>Foo & Bar are false</div>}</div>;
 css(\`
 	/* 5 */
 	.element_58b { color: blue }
@@ -171,14 +159,13 @@ css(\`
 `;
 
 exports[`switch can provide style downstream 1`] = `
-"() => create(\\"div\\", {
-  className: !!true && \\"element_3ld\\"
-}, create(\\"div\\", {
-  className: \\"foo_7ku\\"
-}), create(\\"div\\", {
-  className: \\"bar_31q\\"
+"() => create("div", {
+  className: !!true && "element_3ld"
+}, create("div", {
+  className: "foo_7ku"
+}), create("div", {
+  className: "bar_31q"
 }));
-
 css(\`
 	/* 5 */
 	.element_3ld .foo_7ku { color: red }
@@ -187,8 +174,7 @@ css(\`
 `;
 
 exports[`switch can provide style downstream 2`] = `
-"() => <div className={!!true && \\"element_3ld\\"}><div className=\\"foo_7ku\\" /><div className=\\"bar_31q\\" /></div>;
-
+"() => <div className={!!true && "element_3ld"}><div className="foo_7ku" /><div className="bar_31q" /></div>;
 css(\`
 	/* 5 */
 	.element_3ld .foo_7ku { color: red }

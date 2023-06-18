@@ -1,10 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`basic style 1`] = `
-"() => create(\\"div\\", {
-  className: \\"element_7nq\\"
-}, \\"Hello World\\");
-
+"() => create("div", {
+  className: "element_7nq"
+}, "Hello World");
 css(\`
 	/* 1 */
 	.element_7nq { color: green }
@@ -12,8 +11,7 @@ css(\`
 `;
 
 exports[`basic style 2`] = `
-"() => <div className=\\"element_7nq\\">Hello World</div>;
-
+"() => <div className="element_7nq">Hello World</div>;
 css(\`
 	/* 1 */
 	.element_7nq { color: green }
