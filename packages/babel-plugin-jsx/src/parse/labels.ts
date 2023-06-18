@@ -1,7 +1,7 @@
-import * as $ from 'syntax';
 import { ParseErrors } from 'errors';
 import { Define } from 'handle/definition';
 import { ModifyDelegate } from 'parse/modifiers';
+import * as $ from 'syntax';
 import { doUntilEmpty } from 'utility';
 
 import { parse } from './body';
@@ -11,7 +11,6 @@ import type { ExplicitStyle } from 'handle/attributes';
 import type { BunchOf, DefineBodyCompat, ModifyAction } from 'types';
 
 export const Oops = ParseErrors({
-  BadInputModifier: "Modifier input of type {1} not supported here!",
   BadModifierName: "Modifier name cannot start with _ symbol!",
   DollarSignDeprecated: "$ modifiers are deprecated. Did you mean to use a namespace?"
 });
@@ -34,38 +33,23 @@ export function handleDefine(
   target: Define,
   path: t.Path<t.LabeledStatement>){
 
-  const key = getName(path);
-  const body = path.get('body') as t.Path<t.Statement>;
+  let key = getName(path);
+  let body = path.get('body') as t.Path<t.Statement>;
 
-  switch(body.type){
-    case "BlockStatement": {
-      const mod = new Define(target.context, key);
+  if(body.isBlockStatement()){
+    const mod = new Define(target.context, key);
 
-      target.provide(mod);
-      parse(mod, body);
-    }
-    break;
-    
-    case "ExpressionStatement":
-    case "LabeledStatement":
-    case "IfStatement":
-      handleModifier(target, key, body);
-    break;
-
-    default:
-      Oops.BadInputModifier(body, body.type)
+    target.provide(mod);
+    parse(mod, body);
+    return;
   }
-}
-
-export function handleModifier(
-  target: Define, key: string, body: t.Path<any>){
 
   const { context } = target;
   const output = {} as BunchOf<ExplicitStyle>;
 
   while($.is(body, "LabeledStatement")){
     key = `${key}.${body.node.label.name}`;
-    body = body.get("body") as t.Path;
+    body = body.get("body") as t.Path<t.Statement>;
   }
 
   if($.is(body, "IfStatement"))
@@ -78,8 +62,7 @@ export function handleModifier(
     [string, ModifyAction, DefineBodyCompat];
 
   doUntilEmpty(initial, (next, enqueue) => {
-    const { styles, attrs } =
-      new ModifyDelegate(target, ...next);
+    const { styles, attrs } = new ModifyDelegate(target, ...next);
 
     Object.assign(output, styles);
     Object.entries(attrs).forEach(([name, value]) => {
