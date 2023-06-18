@@ -28,9 +28,7 @@ export abstract class Attribute {
   }
 }
 
-export class Prop extends Attribute {}
-
-export class ExplicitStyle extends Attribute {
+export class Style extends Attribute {
   important: boolean;
 
   /** Is a static value. May be hoisted and/or baked. */
@@ -52,3 +50,5 @@ export class ExplicitStyle extends Attribute {
       this.invariant = true
   }
 }
+
+export class Prop extends Attribute {}

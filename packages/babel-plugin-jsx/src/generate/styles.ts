@@ -1,4 +1,4 @@
-import { ExplicitStyle } from 'handle/attributes';
+import { Style } from 'handle/attributes';
 import { hash } from 'utility';
 
 import type * as t from 'syntax/types';
@@ -7,7 +7,7 @@ import type { Define } from 'handle/definition';
 import type { BunchOf } from 'types';
 import * as $ from 'syntax';
 
-type SelectorContent = [ string, ExplicitStyle[] ][];
+type SelectorContent = [ string, Style[] ][];
 type MediaGroups = SelectorContent[];
 
 export function styleDeclaration(css: string, context: StackFrame){
@@ -69,10 +69,10 @@ export function generateCSS(context: StackFrame){
       return selection.join(" ");
     });
 
-    const styles = [] as ExplicitStyle[];
+    const styles = [] as Style[];
 
     for(const style of item.sequence)
-      if(style instanceof ExplicitStyle && style.invariant)
+      if(style instanceof Style && style.invariant)
         styles.push(style);
 
     const targetQuery: MediaGroups =
@@ -114,7 +114,7 @@ export function generateCSS(context: StackFrame){
   return lines.join("\n");
 }
 
-function printStyles(groups: [string, ExplicitStyle[]], pretty?: boolean){
+function printStyles(groups: [string, Style[]], pretty?: boolean){
   const [ select, styles ] = groups;
   const lines: string[] = [];
 

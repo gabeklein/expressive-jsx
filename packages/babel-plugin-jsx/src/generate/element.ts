@@ -1,5 +1,5 @@
 import { AttributeStack } from 'generate/attributes';
-import { ExplicitStyle, Prop } from 'handle/attributes';
+import { Style, Prop } from 'handle/attributes';
 import { Define, DefineLocal, DefineVariant, ElementInline } from 'handle/definition';
 import * as $ from 'syntax';
 
@@ -62,7 +62,7 @@ export class Generator {
   }
 
   add(item: SequenceItem){
-    if(item instanceof ExplicitStyle)
+    if(item instanceof Style)
       this.style.insert(item, this.inline_only);
 
     else if(item instanceof Prop)
@@ -90,7 +90,7 @@ export class Generator {
     const { name } = item;
 
     if(name === "style"){
-      const style = new ExplicitStyle(false, item.expression);
+      const style = new Style(false, item.expression);
       this.style.push(style);
       return;
     }
@@ -138,7 +138,7 @@ export class Generator {
     const using_css = this.useClass(mod);
 
     for(const prop of mod.sequence)
-      if(prop instanceof ExplicitStyle){
+      if(prop instanceof Style){
         const { name, invariant } = prop;
 
         if(!name || invariant && using_css)

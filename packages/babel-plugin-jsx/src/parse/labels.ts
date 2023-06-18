@@ -7,7 +7,7 @@ import { doUntilEmpty } from 'utility';
 import { parse } from './body';
 
 import type * as t from 'syntax/types';
-import type { ExplicitStyle } from 'handle/attributes';
+import type { Style } from 'handle/attributes';
 import type { BunchOf, DefineBodyCompat, ModifyAction } from 'types';
 
 export const Oops = ParseErrors({
@@ -45,7 +45,7 @@ export function handleDefine(
   }
 
   const { context } = target;
-  const output = {} as BunchOf<ExplicitStyle>;
+  const output = {} as BunchOf<Style>;
 
   while($.is(body, "LabeledStatement")){
     key = `${key}.${body.node.label.name}`;

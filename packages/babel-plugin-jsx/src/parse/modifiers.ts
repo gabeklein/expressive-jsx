@@ -1,5 +1,5 @@
 import { ParseErrors } from 'errors';
-import { ExplicitStyle } from 'handle/attributes';
+import { Style } from 'handle/attributes';
 import { DefineVariant } from 'handle/definition';
 import * as $ from 'syntax';
 
@@ -20,7 +20,7 @@ export class ModifyDelegate {
   inlineOnly: boolean;
 
   attrs = {} as BunchOf<any[]>;
-  styles = {} as BunchOf<ExplicitStyle>;
+  styles = {} as BunchOf<Style>;
   props = {} as BunchOf<Prop>;
 
   constructor(
@@ -59,7 +59,7 @@ export class ModifyDelegate {
     if(style)
       for(const name in style)
         this.styles[name] = 
-          new ExplicitStyle(name, style[name], important);
+          new Style(name, style[name], important);
 
     if(attrs)
       for(const name in attrs){

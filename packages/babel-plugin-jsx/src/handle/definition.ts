@@ -2,7 +2,7 @@ import { Generator } from 'generate/element';
 import { recombineProps } from 'generate/es5';
 import { doUntilEmpty } from 'utility';
 
-import { ExplicitStyle } from './attributes';
+import { Style } from './attributes';
 import { AttributeBody } from './object';
 
 import type * as t from 'syntax/types';
@@ -97,7 +97,7 @@ export class Define extends AttributeBody {
   }
 
   addStyle(name: string, value: any){
-    this.add(new ExplicitStyle(name, value));
+    this.add(new Style(name, value));
   }
   
   setActive(withPriority?: number){
@@ -110,11 +110,11 @@ export class Define extends AttributeBody {
     this.context.modifiersDeclared.add(this);
   }
 
-  containsStyle(staticOnly?: boolean): ExplicitStyle | undefined;
-  containsStyle(named: string): ExplicitStyle | undefined;
+  containsStyle(staticOnly?: boolean): Style | undefined;
+  containsStyle(named: string): Style | undefined;
   containsStyle(arg?: boolean | string){
     return this.sequence.find(style => {
-      if(style instanceof ExplicitStyle){
+      if(style instanceof Style){
         if(typeof arg == "string")
           return arg == style.name;
         else
@@ -127,7 +127,7 @@ export class Define extends AttributeBody {
 export class DefineLocal extends Define {
   constructor(
     private parent: ElementInline,
-    styles: Set<ExplicitStyle>
+    styles: Set<Style>
   ){
     super(parent.context);
     this.sequence = Array.from(styles);

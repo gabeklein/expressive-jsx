@@ -1,15 +1,15 @@
-import { ExplicitStyle } from 'handle/attributes';
+import { Style } from 'handle/attributes';
 import { ArrayStack } from 'utility';
 import * as $ from 'syntax';
 
 import type * as t from 'syntax/types';
 
-export class AttributeStack extends ArrayStack<ExplicitStyle> {
+export class AttributeStack extends ArrayStack<Style> {
   exists = new Set<string>();
-  invariant = new Set<ExplicitStyle>();
+  invariant = new Set<Style>();
 
   insert(
-    item: ExplicitStyle,
+    item: Style,
     inline_only?: boolean){
 
     const { name } = item;
@@ -35,13 +35,13 @@ export class AttributeStack extends ArrayStack<ExplicitStyle> {
     if(!this.length)
       return;
 
-    if(this.length == 1 && this[0] instanceof ExplicitStyle)
+    if(this.length == 1 && this[0] instanceof Style)
       return this[0].expression;
 
     const chunks = [] as (t.ObjectProperty | t.SpreadElement)[];
 
     for(const item of this)
-      if(item instanceof ExplicitStyle)
+      if(item instanceof Style)
         chunks.push($.spread(item.expression))
       else
         chunks.push(...item.map(style =>
