@@ -48,7 +48,7 @@ export class ComponentIf {
 
   setup(context: StackFrame, path: t.Path<any>){
     do {
-      if(!$.is(path, "IfStatement")){
+      if(!path.isIfStatement()){
         this.include(context, path);
         break;
       }

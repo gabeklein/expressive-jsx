@@ -23,7 +23,7 @@ export function addElementFromJSX(
 
   let target = parent as Element;
 
-  if($.is(path, "JSXElement")){
+  if(path.isJSXElement()){
     const tag = (path as t.Path<t.JSXElement>).get("openingElement").get("name");
   
     if(!$.is(tag, "JSXIdentifier", { name: "this" })){
@@ -47,7 +47,7 @@ export function parseJSX(
   for(const [element, path] of queue){
     const children = path.get("children");
 
-    if($.is(path, "JSXElement")){
+    if(path.isJSXElement()){
       const { name: tag, selfClosing } = path.node.openingElement;
       const attributes = path.get("openingElement").get("attributes");
 
@@ -70,13 +70,13 @@ function applyChild(
   path: t.Path<JSXChild>,
   queue: (readonly [Element, t.Path<t.JSXElement>])[]
 ){
-  if($.is(path, "JSXElement")){
+  if(path.isJSXElement()){
     const child = new ElementInline(element.context);
 
     element.adopt(child);
     queue.push([child, path as t.Path<t.JSXElement>]);
   }
-  else if($.is(path, "JSXText")){
+  else if(path.isJSXText()){
     const { value } = path.node;
 
     if(/^\n+ *$/.test(value))
@@ -88,7 +88,7 @@ function applyChild(
 
     element.adopt($.literal(text));
   }
-  else if($.is(path, "JSXExpressionContainer")){
+  else if(path.isJSXExpressionContainer()){
     const { expression } = path.node;
 
     if(!$.is(expression, "JSXEmptyExpression"))

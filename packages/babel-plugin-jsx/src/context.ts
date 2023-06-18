@@ -2,7 +2,6 @@ import { Define } from 'handle/definition';
 import { builtIn } from 'modifier/builtIn';
 import { containerName } from 'parse/entry';
 import { FileManager } from 'scope';
-import * as $ from 'syntax';
 import { hash } from 'utility';
 
 import type * as t from 'syntax/types';
@@ -30,7 +29,7 @@ export function getContext(
     if(scope)
       return scope;
 
-    if(!$.is(path, "BlockStatement") || !create)
+    if(!path.isBlockStatement() || !create)
       continue;
 
     const parentContext = getContext(path);

@@ -46,7 +46,7 @@ const JSXElement: Visitor<t.JSXElement | t.JSXFragment> = {
     if(OUTPUT_NODE.has(path.node))
       return;
 
-    if(!$.is(path.parentPath, "ExpressionStatement")){
+    if(!path.parentPath.isExpressionStatement()){
       const context = getContext(path, true);
       const target = new ElementInline(context);
       parseJSX(target, path);
