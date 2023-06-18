@@ -114,6 +114,8 @@ export function applyTagName(
     if(name === "this")
       return;
 
+    element.name = name;
+
     let explicit = /^[A-Z]/.test(name);
 
     if(/^(html|svg)-.+/.test(name)){
