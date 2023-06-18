@@ -71,12 +71,11 @@ export function doUntilEmpty<T, R>(
     if(output !== undefined)
       return output;
 
-    if(!pending.length)
-      i++;
-    else {
+    if(pending.length){
       queue = [ ...pending, ...queue.slice(i+1) ];
       i = 0;
     }
+    else i++;
   }
   while(i in queue)
 }

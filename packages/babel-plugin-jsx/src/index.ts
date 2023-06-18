@@ -33,7 +33,7 @@ const Program: Visitor<t.Program> = {
     if(stylesheet)
       path.pushContainer("body", [ 
         styleDeclaration(stylesheet, context)
-       ]);
+      ]);
 
     context.program.close();
   }

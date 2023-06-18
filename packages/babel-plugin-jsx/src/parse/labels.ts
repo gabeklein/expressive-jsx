@@ -86,8 +86,7 @@ export function handleModifier(
       if(!value)
         return;
       
-      const useNext = name === key;
-      const handler = context.getHandler(name, useNext);
+      const handler = context.getHandler(name, name === key);
 
       enqueue([name, handler, value as any]);
     });

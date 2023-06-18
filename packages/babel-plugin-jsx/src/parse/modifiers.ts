@@ -9,7 +9,7 @@ import { parse } from './body';
 import type * as t from 'syntax/types';
 import type { Define } from 'handle/definition';
 import type { Prop } from 'handle/attributes';
-import type { BunchOf, DefineBodyCompat, ModifyAction, Options } from 'types';
+import type { BunchOf, DefineBodyCompat, ModifyAction } from 'types';
 
 const Oops = ParseErrors({
   InlineModeNoVariants: "Cannot attach a CSS variant while styleMode is set to inline."
@@ -18,7 +18,7 @@ const Oops = ParseErrors({
 export class ModifyDelegate {
   arguments: Array<any>;
   body?: t.Path<t.Statement>;
-  options: Options;
+  inlineOnly: boolean;
   done?: true;
 
   attrs = {} as BunchOf<any[]>;
@@ -47,15 +47,7 @@ export class ModifyDelegate {
     }
 
     this.arguments = args;
-    this.options = target.context.opts;
-    this.applyTransform(transform, important)
-  }
-
-  applyTransform(
-    transform: ModifyAction,
-    important: boolean){
-
-    const args = this.arguments;
+    this.inlineOnly = target.context.opts.styleMode == "inline";
 
     if(!transform)
       transform = propertyModifierDefault;
@@ -94,7 +86,7 @@ export class ModifyDelegate {
     const { target } = this;
     const body = usingBody || this.body!;
 
-    if(this.options.styleMode == "inline")
+    if(this.inlineOnly)
       throw Oops.InlineModeNoVariants(body.parentPath);
 
     const mod = new DefineVariant(target, select, priority);
