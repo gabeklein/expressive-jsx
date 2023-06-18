@@ -95,7 +95,7 @@ function UnaryExpression(e: t.UnaryExpression){
   if(operator == "-" && $.is(argument, "NumericLiteral"))
     return NumericLiteral(argument, true);
 
-  if(operator == "!" && $.is(argument, "Identifier", { name: "Important" }))
+  if(operator == "!" && $.is(argument, "Identifier", { name: "important" }))
     return "!important";
 
   throw Oops.UnaryUseless(e)
