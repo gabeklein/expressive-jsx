@@ -18,7 +18,6 @@ const Oops = ParseErrors({
 export class ModifyDelegate {
   body?: t.Path<t.Statement>;
   inlineOnly: boolean;
-  done?: true;
 
   attrs = {} as BunchOf<any[]>;
   styles = {} as BunchOf<ExplicitStyle>;
@@ -52,7 +51,7 @@ export class ModifyDelegate {
 
     const output = transform.apply(this, args);
 
-    if(!output || this.done)
+    if(!output)
       return;
 
     const { attrs, style } = output;
