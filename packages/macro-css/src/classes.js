@@ -46,7 +46,7 @@ for(const name of SPECIFIC){
     const innerBody = this.body.node.body;
     let specifier;
 
-    let i = innerBody.findIndex(x => x.label.name === "select");
+    const i = innerBody.findIndex(x => x.label.name === "select");
 
     if(i >= 0){
       specifier = innerBody[i].body.expression.value;
