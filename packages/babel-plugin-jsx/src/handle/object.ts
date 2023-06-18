@@ -16,15 +16,6 @@ export abstract class AttributeBody {
   /** Other definitions applicable to this one. */
   includes = new Set<Define>();
 
-  path(salt?: string | number){
-    let path = "";
-
-    for(let ctx = this.context; ctx; ctx = ctx.parent)
-      path += ctx.name;
-
-    return hash(path + salt);
-  }
-
   get uid(){
     return this.name + "_" + this.path();
   }
@@ -37,6 +28,15 @@ export abstract class AttributeBody {
       context.name = this.name = name;
 
     this.context = context;
+  }
+
+  path(salt?: string | number){
+    let path = "";
+
+    for(let ctx = this.context; ctx; ctx = ctx.parent)
+      path += ctx.name;
+
+    return hash(path + salt);
   }
 
   getModifier(name: string): Define | undefined {

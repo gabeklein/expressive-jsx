@@ -76,7 +76,7 @@ const JSXElement: Visitor<t.JSXElement | t.JSXFragment> = {
     const functionNode = containerFunction.node;
     const block = containerFunction.get("body") as t.Path<t.BlockStatement>;
     const context = getContext(path, true);
-    const ambient = context.ambient;
+    const { ambient } = context;
 
     parse(ambient, block);
 
