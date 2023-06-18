@@ -21,6 +21,9 @@
       "cwd": "${workspaceFolder}/packages/babel-plugin-jsx",
       "console": "integratedTerminal",
       "args": "./test/run.ts",
+      "env": {
+        "TS_NODE_TRANSPILE_ONLY": "true"
+      },
       "runtimeArgs": [
         "--nolazy",
         "-r", "ts-node/register",
