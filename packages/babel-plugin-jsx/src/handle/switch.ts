@@ -46,7 +46,7 @@ class DefineConsequent extends Define {
 export class ComponentIf {
   private forks = [] as [Define, t.Expression?][];
 
-  setup(context: StackFrame, path: t.Path<any>){
+  setup(context: StackFrame, path: t.Path){
     do {
       if(!path.isIfStatement()){
         this.include(context, path);
@@ -54,11 +54,11 @@ export class ComponentIf {
       }
 
       const test = path.get("test") as t.Path<t.Expression>;
-      const consequent = path.get("consequent") as t.Path<t.Statement>;
+      const consequent = path.get("consequent") as t.Path;
 
       this.include(context, consequent, test);
 
-      path = path.get("alternate") as t.Path<t.Statement>;
+      path = path.get("alternate") as t.Path;
     }
     while(path.type)
   }
@@ -88,7 +88,7 @@ export class ComponentIf {
 
   include(
     context: StackFrame,
-    body: t.Path<any>,
+    body: t.Path,
     test?: t.Path<t.Expression>){
 
     const { forks } = this;
