@@ -17,14 +17,13 @@ const DEFAULTS: Options = {
   modifiers: []
 };
 
-const REGISTER = new WeakMap<t.Node, StackFrame>();
 const AMBIENT = new WeakMap<StackFrame, Define>();
 
 export function getContext(
   path: t.Path<any>, create?: boolean): StackFrame {
 
   while(path = path.parentPath){
-    const scope = REGISTER.get(path.node);
+    const scope = path.data as StackFrame | undefined;
 
     if(scope)
       return scope;
@@ -42,7 +41,7 @@ export function getContext(
     const { context } = define;
 
     if(path.node)
-      REGISTER.set(path.node, context);
+      path.data = context;
   
     context.name = containerName(path);
   
@@ -93,7 +92,7 @@ export class StackFrame {
     this.module = (state.file as any).opts.configFile;
     this.program = FileManager.create(this, path, options);
   
-    REGISTER.set(path.node, this);
+    path.data = this;
     Object.assign(this.handlers, builtIn, ...options.modifiers);
   }
 
