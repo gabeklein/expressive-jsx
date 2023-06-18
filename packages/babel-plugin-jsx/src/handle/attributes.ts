@@ -41,11 +41,8 @@ export class ExplicitStyle extends Attribute {
     value: FlatValue | FlatValue[] | t.Expression,
     important?: boolean){
 
-    if(Array.isArray(value)){
-      const [ callee, ...args ] = value;
-
-      value = `${callee}(${args.join(" ")})`;
-    }
+    if(Array.isArray(value))
+      value = `${value[0]}(${value.slice(1).join(" ")})`;
 
     super(name, value);
 
