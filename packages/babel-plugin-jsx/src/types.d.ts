@@ -28,7 +28,7 @@ export interface Options {
   pragma: "react";
   runtime: string;
   styleMode: "compile" | "inline";
-  modifiers: BunchOf<(...args: any[]) => any>[];
+  macros: BunchOf<(...args: any[]) => any>[];
   module?: true | string;
 
   // optional

@@ -4,7 +4,7 @@ const DEV_MODE = process.env.NODE_ENV == "development";
 
 module.exports = (compiler, options = {}) => {
   let {
-    modifiers = [],
+    macros = [],
     hot = DEV_MODE,
     ...opts
   } = options;
@@ -15,9 +15,9 @@ module.exports = (compiler, options = {}) => {
         hot,
         output: "js",
         ...opts,
-        modifiers: [
+        macros: [
           css,
-          ...modifiers
+          ...macros
         ]
       }]
     ]

@@ -13,7 +13,7 @@ const DEFAULTS: Options = {
   runtime: "@expressive/css",
   pragma: "react",
   output: "js",
-  modifiers: []
+  macros: []
 };
 
 export class Context {
@@ -26,7 +26,7 @@ export class Context {
 
   declared = new Set<Define>();
   modifiers = {} as BunchOf<Define>;
-  handlers: BunchOf<ModifyAction>;
+  macros: BunchOf<ModifyAction>;
   ambient: Define;
 
   get parent(){
@@ -39,14 +39,14 @@ export class Context {
 
     path.data = this;
 
-    const { module, modifiers } = state.opts;
+    const { module, macros } = state.opts;
 
     this.name = hash(state.filename);
     this.filename = state.filename;
     this.options = { ...DEFAULTS, ...state.opts };
     this.program = FileManager.create(this, path);
     this.ambient = new Define(this, this.name);
-    this.handlers = Object.assign({}, builtIn, ...modifiers);
+    this.macros = Object.assign({}, builtIn, ...macros);
     this.module = module && (
       typeof module == "string" ? module :
         (state.file as any).opts.configFile?.name || true
@@ -63,7 +63,7 @@ export class Context {
       }
 
     const [key, ...path] = named.split(".");
-    let handler = this.handlers[key];
+    let handler = this.macros[key];
 
     for(const key of path)
       handler = (handler as any)[key];

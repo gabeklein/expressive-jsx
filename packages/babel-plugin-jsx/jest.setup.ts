@@ -13,7 +13,7 @@ expect.addSnapshotSerializer({
           output: "jsx",
           printStyle: "pretty",
           externals: false,
-          modifiers: [
+          macros: [
             require("@expressive/macro-css")
           ]
         }]

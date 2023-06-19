@@ -12,7 +12,7 @@ import type { BunchOf, DefineBodyCompat, ModifyAction } from 'types';
 
 export const Oops = ParseErrors({
   BadModifierName: "Modifier name cannot start with _ symbol!",
-  DollarSignDeprecated: "$ modifiers are deprecated. Did you mean to use a namespace?"
+  DollarSignDeprecated: "Dollar-sign macros are deprecated. Did you mean to use a namespace?"
 });
 
 export function getName(
