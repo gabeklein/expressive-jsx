@@ -6,7 +6,7 @@ import * as $ from 'syntax';
 import type * as t from 'syntax/types';
 import type { FileManager } from 'scope';
 import type { PropData, SequenceItem } from 'types';
-import type { StackFrame } from 'context';
+import type { Context } from 'context';
 
 const byPriority = (x: any, y: any) => x.priority - y.priority;
 
@@ -18,7 +18,7 @@ export class Generator {
   style = new AttributeStack();
   classList = new Set<string | t.Expression>();
 
-  context: StackFrame;
+  context: Context;
 
   get inline_only(){
     return this.context.opts.styleMode === "inline";

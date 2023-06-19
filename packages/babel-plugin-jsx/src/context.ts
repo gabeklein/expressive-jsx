@@ -16,7 +16,7 @@ const DEFAULTS: Options = {
   modifiers: []
 };
 
-export class StackFrame {
+export class Context {
   name: string;
   filename: string;
   module: any;
@@ -70,10 +70,10 @@ export class StackFrame {
 }
 
 export function getContext(
-  path: t.Path<any>, create?: boolean): StackFrame {
+  path: t.Path<any>, create?: boolean): Context {
 
   while(path = path.parentPath){
-    const scope = path.data as StackFrame | undefined;
+    const scope = path.data as Context | undefined;
 
     if(scope)
       return scope;

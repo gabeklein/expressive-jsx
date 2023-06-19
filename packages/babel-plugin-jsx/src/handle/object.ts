@@ -1,4 +1,4 @@
-import type { StackFrame } from 'context';
+import type { Context } from 'context';
 import type { Define } from 'handle/definition';
 import type * as t from 'syntax/types';
 import type { InnerContent, SequenceItem } from 'types';
@@ -7,7 +7,7 @@ import { hash } from 'utility';
 export abstract class AttributeBody {
   name?: string;
   tagName?: string | t.JSXMemberExpression;
-  context!: StackFrame;
+  context!: Context;
 
   sequence = [] as SequenceItem[];
   statements = [] as t.Statement[];
@@ -20,7 +20,7 @@ export abstract class AttributeBody {
     return this.name + "_" + this.path();
   }
 
-  constructor(context: StackFrame, name?: string){
+  constructor(context: Context, name?: string){
     context = Object.create(context);
     context.modifiers = Object.create(context.modifiers);
 

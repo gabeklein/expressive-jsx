@@ -2,7 +2,7 @@ import { Style } from 'handle/attributes';
 import { hash } from 'utility';
 
 import type * as t from 'syntax/types';
-import type { StackFrame } from 'context';
+import type { Context } from 'context';
 import type { Define } from 'handle/definition';
 import type { BunchOf } from 'types';
 import * as $ from 'syntax';
@@ -10,7 +10,7 @@ import * as $ from 'syntax';
 type SelectorContent = [ string, Style[] ][];
 type MediaGroups = SelectorContent[];
 
-export function styleDeclaration(css: string, context: StackFrame){
+export function styleDeclaration(css: string, context: Context){
   const { filename, module, program, opts } = context;
 
   const hot = opts.hot !== false;
@@ -41,7 +41,7 @@ export function styleDeclaration(css: string, context: StackFrame){
   );
 }
 
-export function generateCSS(context: StackFrame){
+export function generateCSS(context: Context){
   const { modifiersDeclared, opts } = context;
 
   if(modifiersDeclared.size == 0)

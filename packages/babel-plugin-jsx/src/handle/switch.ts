@@ -5,7 +5,7 @@ import { ensureArray } from 'utility';
 import { Define } from './definition';
 
 import type * as t from 'syntax/types';
-import type { StackFrame } from 'context';
+import type { Context } from 'context';
 
 /** Number of consequents existing for a given parent Define. */
 const conseqentsExist = new Map<Define, number>();
@@ -46,7 +46,7 @@ class DefineConsequent extends Define {
 export class ComponentIf {
   private forks = [] as [Define, t.Expression?][];
 
-  setup(context: StackFrame, path: t.Path){
+  setup(context: Context, path: t.Path){
     do {
       if(!path.isIfStatement()){
         this.include(context, path);
@@ -87,7 +87,7 @@ export class ComponentIf {
   }
 
   include(
-    context: StackFrame,
+    context: Context,
     body: t.Path,
     test?: t.Path<t.Expression>){
 

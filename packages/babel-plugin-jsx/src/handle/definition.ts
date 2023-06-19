@@ -6,7 +6,7 @@ import { Style } from './attributes';
 import { AttributeBody } from './object';
 
 import type * as t from 'syntax/types';
-import type { StackFrame } from 'context';
+import type { Context } from 'context';
 import { InnerContent } from 'types';
 
 export class ElementInline extends AttributeBody {
@@ -26,7 +26,7 @@ export class ElementInline extends AttributeBody {
 }
 
 export class Define extends AttributeBody {
-  constructor(context: StackFrame, name?: string){
+  constructor(context: Context, name?: string){
     super(context, name);
 
     this.context.ambient = this;

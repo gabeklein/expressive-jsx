@@ -2,7 +2,7 @@ import { createElement as createJS } from './generate/es5';
 import { createElement as createJSX } from './generate/jsx';
 
 import type * as t from 'syntax/types';
-import type { StackFrame } from 'context';
+import type { Context } from 'context';
 import type { BunchOf, Options, PropData } from 'types';
 import * as $ from 'syntax';
 
@@ -30,7 +30,7 @@ export abstract class FileManager {
   protected importIndices = {} as BunchOf<number>;
 
   static create(
-    parent: StackFrame,
+    parent: Context,
     path: t.Path<t.BabelProgram>,
     options: Options
   ){
@@ -49,7 +49,7 @@ export abstract class FileManager {
 
   constructor(
     path: t.Path<t.BabelProgram>,
-    context: StackFrame){
+    context: Context){
 
     const create = context.opts.output === "js" ? createJS : createJSX;
 

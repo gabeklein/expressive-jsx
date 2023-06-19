@@ -1,4 +1,4 @@
-import { getContext, StackFrame } from 'context';
+import { getContext, Context } from 'context';
 import { Status } from 'errors';
 import { OUTPUT_NODE } from 'generate/jsx';
 import { generateCSS, styleDeclaration } from 'generate/styles';
@@ -25,7 +25,7 @@ export default () => <PluginObj>({
 const Program: Visitor<t.Program> = {
   enter(path, state){
     Status.currentFile = state.file as any;
-    state.context = new StackFrame(path, state);
+    state.context = new Context(path, state);
   },
   exit(path, { context }){
     const stylesheet = generateCSS(context);

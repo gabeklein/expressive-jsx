@@ -1,4 +1,4 @@
-import type { StackFrame } from 'context';
+import type { Context } from 'context';
 import type { Style, Prop } from 'handle/attributes';
 import type { ModifyDelegate } from 'parse/modifiers';
 import type { ElementInline } from 'handle/definition';
@@ -6,7 +6,7 @@ import type { ComponentFor } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';
 import type * as t from 'syntax/types';
 
-type Visitor<T extends t.Node, S extends StackFrame = StackFrame> =
+type Visitor<T extends t.Node, S extends Context = Context> =
   t.VisitNodeObject<BabelState<S>, T>;
 
 export interface BunchOf<T> {
@@ -37,7 +37,7 @@ export interface Options {
   externals?: "require" | "import" | false;
 }
 
-export interface BabelState<S extends StackFrame = StackFrame> {
+export interface BabelState<S extends Context = Context> {
   file: File;
   filename: string;
   cwd: string;
