@@ -34,7 +34,7 @@ export function styleDeclaration(css: string, context: Context){
     $.statement(
       $.call(
         program.ensure("$runtime", "default", "css"),
-        $.template(`\n${css.replace(/^(.)/gm, "\t$1")}\n`),
+        $.template(`\n${css.replace(/^/gm, "\t")}\n`),
         ...args
       )
     )
