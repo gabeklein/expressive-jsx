@@ -20,12 +20,8 @@ export function styleDeclaration(css: string, context: Context){
   if(hot)
     options.refreshToken = $.literal(hash(filename, 10));
 
-  if(opts.module)
-    options.module = $.literal(
-      typeof opts.module == "string"
-        ? opts.module
-        : module && module.name || true
-    );
+  if(module)
+    options.module = $.literal(module);
 
   if(Object.keys(options).length)
     args.push($.object(options));

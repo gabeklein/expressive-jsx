@@ -37,14 +37,21 @@ export class Context {
     path: t.Path<t.BabelProgram>,
     state: BabelState){
 
-    const options = { ...DEFAULTS, ...state.opts };
+    const options = this.opts = {
+      ...DEFAULTS,
+      ...state.opts
+    };
 
-    this.opts = options;
     this.name = hash(state.filename);
     this.filename = state.filename;
-    this.module = (state.file as any).opts.configFile;
     this.program = FileManager.create(this, path, options);
     this.ambient = new Define(this, this.name);
+
+    this.module = options.module && (
+      typeof options.module == "string"
+        ? options.module
+        : (state.file as any).opts.configFile?.name || true
+    )
   
     path.data = this;
     Object.assign(this.handlers, builtIn, ...options.modifiers);
