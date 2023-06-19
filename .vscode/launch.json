@@ -5,11 +5,11 @@
       "type": "node",
       "request": "launch",
       "name": "Jest Tests",
+      "cwd": "${workspaceFolder}/packages/babel-plugin-jsx",
       "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
       "args": [
         "--watchAll",
         "--runInBand",
-        "--config=jest.config.js",
         "${input:testName}"
       ],
       "console": "integratedTerminal",
