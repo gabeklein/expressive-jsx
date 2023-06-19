@@ -1,6 +1,4 @@
-const test = require("./_adapter");
-
-test("basic style", `
+transform("basic style", `
   () => {
     color: green;
 

@@ -1,7 +1,5 @@
-const test = require("./_adapter");
-
 describe("pseudo", () => {
-  test("before/after", `
+  transform("before/after", `
     () => {
       css: before: {
         content: "This is content"
@@ -17,7 +15,7 @@ describe("pseudo", () => {
     }
   `);
 
-  test("nthOfType", `
+  transform("nthOfType", `
     () => {
       css: nthOfType: {
         select: "2n"
@@ -35,7 +33,7 @@ describe("pseudo", () => {
 });
 
 describe("css", () => {
-  test("directive", `
+  transform("directive", `
     () => {
       color: blue;
       
@@ -49,7 +47,7 @@ describe("css", () => {
     }
   `);
 
-  test("multiple directives", `
+  transform("multiple directives", `
     () => {
       color: blue;
       

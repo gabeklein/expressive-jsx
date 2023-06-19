@@ -1,7 +1,5 @@
-const test = require("./_adapter");
-
 describe("forward", () => {
-  test("className", `
+  transform("className", `
     () => {
       forward: className;
 
@@ -9,7 +7,7 @@ describe("forward", () => {
     }
   `);
 
-  test("will join with existing styles", `
+  transform("will join with existing styles", `
     () => {
       forward: className;
       color: red;
@@ -18,7 +16,7 @@ describe("forward", () => {
     }
   `);
 
-  test("will pull className from existing props", `
+  transform("will pull className from existing props", `
     (props) => {
       forward: className;
 
@@ -26,7 +24,7 @@ describe("forward", () => {
     }
   `);
 
-  test("will pull className from existing destructure", `
+  transform("will pull className from existing destructure", `
     ({ name }) => {
       forward: className;
 
@@ -34,7 +32,7 @@ describe("forward", () => {
     }
   `);
 
-  test("will pull className from declared destructure", `
+  transform("will pull className from declared destructure", `
     (props) => {
       const { name } = props;
 
@@ -44,7 +42,7 @@ describe("forward", () => {
     }
   `);
 
-  test("will not break where ...rest exists", `
+  transform("will not break where ...rest exists", `
     ({ name, ...rest }) => {
       forward: className;
 
@@ -54,7 +52,7 @@ describe("forward", () => {
     }
   `);
 
-  test("react ref", `
+  transform("react ref", `
     ({ active }) => {
       input: {
         disabled = !active;

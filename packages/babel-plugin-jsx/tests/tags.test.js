@@ -1,18 +1,16 @@
-const test = require("./_adapter");
-
-test("strip tag; emit default", `
+transform("strip tag; emit default", `
   () => {
     <hello>Hello World</hello>
   }
 `);
 
-test("pass-though capital (component) tags", `
+transform("pass-though capital (component) tags", `
   () => {
     <Hello>Hello World</Hello>
   }
 `);
 
-test("pass-through HTML tags", `
+transform("pass-through HTML tags", `
   () => {
     <div>
       <uncommon />
@@ -42,13 +40,13 @@ test("pass-through HTML tags", `
   }
 `);
 
-test("Handle member-type tags", `
+transform("Handle member-type tags", `
   () => {
     <Foo.Bar />
   }
 `);
 
-test("Member property implemented as name", `
+transform("Member property implemented as name", `
   () => {
     Bar: {
       color: blue;

@@ -1,0 +1,142 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`alternate consequent types 1`] = `
+  ({ foo }) => (
+    <div className={!!foo && "element_3ld"}>
+      {!foo && <div>Foo is false</div>}
+    </div>
+  );
+  
+  css(\`
+  	.element_3ld {
+  		color: red;
+  	}
+  \`);
+`;
+
+exports[`basic switch 1`] = `
+  ({ hello }) =>
+    hello ? <div>Hello World</div> : <div>Goodbye World</div>;
+`;
+
+exports[`handle both children and styles 1`] = `
+  () => {
+    <conatiner />;
+  
+    return (
+      <div
+        className={classNames(
+          "element_7nq",
+          !true && "element_58b"
+        )}>
+        {true ? <switch-true /> : <switch-false />}
+        <div />
+      </div>
+    );
+  };
+  
+  css(\`
+  	.element_7nq {
+  		color: red;
+  	}
+  	.element_58b {
+  		color: green;
+  	}
+  \`);
+`;
+
+exports[`inverse consequent types 1`] = `
+  ({ foo }) => (
+    <div className={!foo && "element_58b"}>
+      {!!foo && <div>Foo is true</div>}
+    </div>
+  );
+  
+  css(\`
+  	.element_58b {
+  		color: red;
+  	}
+  \`);
+`;
+
+exports[`nested elements may have conditional 1`] = `
+  const BuyButton = ({ active }) => (
+    <div>
+      <div>
+        <div className={active ? "inner_sds" : "inner_1nj"} />
+      </div>
+    </div>
+  );
+  
+  css(\`
+  	.inner_1nj {
+  		color: green;
+  	}
+  	.inner_sds {
+  		color: red;
+  	}
+  \`);
+`;
+
+exports[`supports complex else-if 1`] = `
+  ({ foo, bar }) => (
+    <div className={!foo && !bar && "element_2l4"}>
+      {foo ? (
+        <div>Foo is true</div>
+      ) : (
+        !!bar && <div>Bar is true</div>
+      )}
+    </div>
+  );
+  
+  css(\`
+  	.element_2l4 {
+  		color: red;
+  	}
+  \`);
+`;
+
+exports[`supports inverse else-if 1`] = `
+  ({ foo, bar }) => (
+    <div
+      className={
+        foo ? "element_3ld" : !!bar && "element_58b"
+      }>
+      {!foo && !bar && <div>Foo & Bar are false</div>}
+    </div>
+  );
+  
+  css(\`
+  	.element_58b {
+  		color: blue;
+  	}
+  	.element_3ld {
+  		color: red;
+  	}
+  \`);
+`;
+
+exports[`switch can provide style downstream 1`] = `
+  () => (
+    <div className={!!true && "element_3ld"}>
+      <div className="foo_7ku" />
+      <div className="bar_31q" />
+    </div>
+  );
+  
+  css(\`
+  	.element_3ld .foo_7ku {
+  		color: red;
+  	}
+  	.element_3ld .bar_31q {
+  		color: blue;
+  	}
+  \`);
+`;
+
+exports[`switch styles 1`] = `
+  ({ foo }) => {
+    if (foo) color: red;
+    else color: blue;
+  };
+`;

@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`component 1`] = `  () => <div>Hello World</div>;`;
+
+exports[`multiple 1`] = `
+  () => (
+    <Fragment>
+      <div>Foo</div>
+      <div>Bar</div>
+    </Fragment>
+  );
+`;
+
+exports[`statement pass-thru 1`] = `
+  () => {
+    const [x, setX] = useState();
+    useEffect(() => {
+      void x;
+      setX();
+    }, []);
+  
+    return <div />;
+  };
+`;

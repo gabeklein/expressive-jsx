@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Handle member-type tags 1`] = `  () => <Foo.Bar />;`;
+
+exports[`Member property implemented as name 1`] = `
+  () => <Foo.Bar className="Bar_1nq" />;
+  css(\`
+  	.Bar_1nq {
+  		color: blue;
+  	}
+  \`);
+`;
+
+exports[`pass-though capital (component) tags 1`] = `  () => <Hello>Hello World</Hello>;`;
+
+exports[`pass-through HTML tags 1`] = `
+  () => (
+    <div>
+      <div />
+      <blockquote />
+      <input />
+      <h1 />
+      <h2 />
+      <h3 />
+      <h4 />
+      <h5 />
+      <h6 />
+      <p />
+      <a />
+      <ul />
+      <ol />
+      <li />
+      <i />
+      <b />
+      <em />
+      <strong />
+      <span />
+      <hr />
+      <img />
+      <div />
+      <br />
+    </div>
+  );
+`;
+
+exports[`strip tag; emit default 1`] = `  () => <div>Hello World</div>;`;

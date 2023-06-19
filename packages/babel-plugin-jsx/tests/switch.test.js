@@ -1,6 +1,4 @@
-const test = require("./_adapter");
-
-test("basic switch", `
+transform("basic switch", `
   ({ hello }) => {
     if(hello)
       <div>Hello World</div>
@@ -9,7 +7,7 @@ test("basic switch", `
   }
 `);
 
-test("switch styles", `
+transform("switch styles", `
   ({ foo }) => {
     if(foo)
       color: red;
@@ -18,7 +16,7 @@ test("switch styles", `
   }
 `);
 
-test("alternate consequent types", `
+transform("alternate consequent types", `
   ({ foo }) => {
     if(foo)
       color: red;
@@ -27,7 +25,7 @@ test("alternate consequent types", `
   }
 `);
 
-test("inverse consequent types", `
+transform("inverse consequent types", `
   ({ foo }) => {
     if(foo)
       <div>Foo is true</div>
@@ -36,7 +34,7 @@ test("inverse consequent types", `
   }
 `);
 
-test("supports complex else-if", `
+transform("supports complex else-if", `
   ({ foo, bar }) => {
     if(foo)
       <div>Foo is true</div>
@@ -47,7 +45,7 @@ test("supports complex else-if", `
   }
 `);
 
-test("supports inverse else-if", `
+transform("supports inverse else-if", `
   ({ foo, bar }) => {
     if(foo)
       color: red;
@@ -58,7 +56,7 @@ test("supports inverse else-if", `
   }
 `);
 
-test("nested elements may have conditional", `
+transform("nested elements may have conditional", `
   const BuyButton = ({ active }) => {
     inner: {
       if(active)
@@ -75,7 +73,7 @@ test("nested elements may have conditional", `
   }
 `)
 
-test("switch can provide style downstream", `
+transform("switch can provide style downstream", `
   () => {
     if(true){
       foo: { color: red }
@@ -89,7 +87,7 @@ test("switch can provide style downstream", `
   }
 `)
 
-test("handle both children and styles", `
+transform("handle both children and styles", `
   () => {
     color: red;
 
@@ -105,7 +103,7 @@ test("handle both children and styles", `
   }
 `)
 
-// test("delegates definition via use", `
+// transform("delegates definition via use", `
 //   example: {
 //     color: black;
 //   }
@@ -126,7 +124,7 @@ test("handle both children and styles", `
 //   }
 // `)
 
-// test("delegated variant may still contain style", `
+// transform("delegated variant may still contain style", `
 //   exampleActive: {
 //     color: blue;
 //   }

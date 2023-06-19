@@ -1,7 +1,4 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
@@ -9,34 +6,21 @@
       "request": "launch",
       "name": "Jest Tests",
       "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
-      "cwd": "${workspaceFolder}/packages/test-react",
-      "args": ["--watchAll", "--runInBand", "--config=jest.config.js", "${input:testName}"],
+      "args": [
+        "--watchAll",
+        "--runInBand",
+        "--config=jest.config.js",
+        "${input:testName}"
+      ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Run Plugin",
-      "cwd": "${workspaceFolder}/packages/babel-plugin-jsx",
-      "console": "integratedTerminal",
-      "args": "./test/run.ts",
-      "env": {
-        "TS_NODE_TRANSPILE_ONLY": "true"
-      },
-      "runtimeArgs": [
-        "--nolazy",
-        "-r", "ts-node/register",
-        "-r", "tsconfig-paths/register", 
-        "-r", "source-map-support/register"
-      ]
     }
   ],
   "inputs": [
     {
       "id": "testName",
       "type": "promptString",
-      "description": "Test you wish to run a debug session for."
+      "description": "Test suite to run a debug session for."
     }
   ]
 }

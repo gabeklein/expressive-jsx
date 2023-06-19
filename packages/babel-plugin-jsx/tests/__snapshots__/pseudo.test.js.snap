@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`css directive 1`] = `
+  () => (
+    <div className="element_7nq">
+      <div>Hello</div>
+    </div>
+  );
+  
+  css(\`
+  	.element_7nq {
+  		color: blue;
+  	}
+  	.element_7nq.isRed {
+  		color: red;
+  	}
+  \`);
+`;
+
+exports[`css multiple directives 1`] = `
+  () => (
+    <div className="element_7nq">
+      <div>Hello</div>
+    </div>
+  );
+  
+  css(\`
+  	.element_7nq {
+  		color: blue;
+  	}
+  	.element_7nq.isRed {
+  		color: red;
+  	}
+  	.element_7nq.isGreen {
+  		color: green;
+  	}
+  \`);
+`;
+
+exports[`pseudo before/after 1`] = `
+  () => (
+    <div className="element_7nq">
+      <div>Hello</div>
+    </div>
+  );
+  
+  css(\`
+  	.element_7nq::before {
+  		content: "This is content";
+  		color: blue;
+  	}
+  	.element_7nq::after {
+  		background: red;
+  		color: white;
+  		content: "";
+  	}
+  \`);
+`;
+
+exports[`pseudo nthOfType 1`] = `
+  () => (
+    <div className="element_7nq">
+      <div>Hello</div>
+    </div>
+  );
+  
+  css(\`
+  	.element_7nq:nth-of-type(2n) {
+  		color: blue;
+  	}
+  	.element_7nq:nth-of-type(3n+2) {
+  		color: red;
+  	}
+  \`);
+`;
