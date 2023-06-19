@@ -82,7 +82,9 @@ export function pattern(
   properties: (t.RestElement | t.ObjectProperty)[]){
 
   return node("ObjectPattern", {
-    properties, decorators: [], typeAnnotation: null
+    properties,
+    decorators: [],
+    typeAnnotation: null
   });
 }
 

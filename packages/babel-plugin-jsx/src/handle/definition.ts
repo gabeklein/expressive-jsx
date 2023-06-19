@@ -114,12 +114,10 @@ export class Define extends AttributeBody {
   containsStyle(named: string): Style | undefined;
   containsStyle(arg?: boolean | string){
     return this.sequence.find(style => {
-      if(style instanceof Style){
-        if(typeof arg == "string")
-          return arg == style.name;
-        else
-          return !arg || style.invariant;
-      }
+      if(style instanceof Style)
+        return typeof arg == "string"
+          ? arg == style.name
+          : !arg || style.invariant;
     });
   }
 }

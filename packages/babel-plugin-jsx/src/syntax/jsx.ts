@@ -11,7 +11,6 @@ export type JSXChild =
   | t.JSXSpreadChild
   | t.JSXText;
 
-
 export const HTML_TAGS = [
   "a",
   "abbr",
