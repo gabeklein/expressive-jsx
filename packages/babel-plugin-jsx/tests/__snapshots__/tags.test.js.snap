@@ -44,3 +44,11 @@ exports[`pass-through HTML tags 1`] = `
 `;
 
 exports[`strip tag; emit default 1`] = `  () => <div>Hello World</div>;`;
+
+exports[`will convert \`./../file.ext\` to require 1`] = `
+  () => (
+    <img src={require("./logo.svg")}>
+      This should be a require-sourced file!
+    </img>
+  );
+`;

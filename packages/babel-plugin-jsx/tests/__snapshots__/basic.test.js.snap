@@ -1,8 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`basic style 1`] = `
+  () => <div className="element_7nq">Hello World</div>;
+  css(\`
+  	.element_7nq {
+  		color: green;
+  	}
+  \`);
+`;
+
 exports[`component 1`] = `  () => <div>Hello World</div>;`;
 
-exports[`multiple 1`] = `
+exports[`multiple children 1`] = `
   () => (
     <Fragment>
       <div>Foo</div>

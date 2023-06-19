@@ -4,7 +4,7 @@ transform("component", `
   }
 `);
 
-transform("multiple", `
+transform("multiple children", `
   () => {
     <this>
       <div>Foo</div>
@@ -25,3 +25,11 @@ transform("statement pass-thru", `
     <div />
   }
 `)
+
+transform("basic style", `
+  () => {
+    color: green;
+
+    <this>Hello World</this>
+  };
+`);

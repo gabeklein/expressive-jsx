@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`will convert \`./../file.ext\` to require 1`] = `
-  () => (
-    <img src={require("./logo.svg")}>
-      This should be a require-sourced file!
-    </img>
-  );
-`;
