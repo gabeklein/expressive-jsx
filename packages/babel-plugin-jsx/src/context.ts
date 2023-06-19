@@ -26,7 +26,7 @@ export class Context {
 
   declared = new Set<Define>();
   modifiers = {} as BunchOf<Define>;
-  handlers = {} as BunchOf<ModifyAction>;
+  handlers: BunchOf<ModifyAction>;
   ambient: Define;
 
   get parent(){
@@ -37,24 +37,20 @@ export class Context {
     path: t.Path<t.BabelProgram>,
     state: BabelState){
 
-    const options = this.options = {
-      ...DEFAULTS,
-      ...state.opts
-    };
+    path.data = this;
+
+    const { module, modifiers } = state.opts;
 
     this.name = hash(state.filename);
     this.filename = state.filename;
+    this.options = { ...DEFAULTS, ...state.opts };
     this.program = FileManager.create(this, path);
     this.ambient = new Define(this, this.name);
-
-    this.module = options.module && (
-      typeof options.module == "string"
-        ? options.module
-        : (state.file as any).opts.configFile?.name || true
+    this.handlers = Object.assign({}, builtIn, ...modifiers);
+    this.module = module && (
+      typeof module == "string" ? module :
+        (state.file as any).opts.configFile?.name || true
     )
-  
-    path.data = this;
-    Object.assign(this.handlers, builtIn, ...options.modifiers);
   }
 
   getHandler(named: string, ignoreOwn = false){
