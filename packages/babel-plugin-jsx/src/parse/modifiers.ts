@@ -44,10 +44,21 @@ export class ModifyDelegate {
       args.pop();
     }
 
-    this.inlineOnly = target.context.options.styleMode == "inline";
+    this.inlineOnly = false; //target.context.opts.styleMode == "inline";
 
-    if(!transform)
-      transform = propertyModifierDefault;
+    if(!transform){
+      const parsed: any[] = args.map(arg => (
+        arg.value || arg.requires ? $.requires(arg.requires) : arg
+      ))
+    
+      const output = parsed.length == 1 || typeof parsed[0] == "object"
+        ? parsed[0] : Array.from(parsed).join(" ");
+  
+      this.styles[name] =
+        new Style(name, output, important);
+
+      return;
+    }
 
     const output = transform.apply(this, args);
 
@@ -55,11 +66,6 @@ export class ModifyDelegate {
       return;
 
     const { attrs, style } = output;
-
-    if(style)
-      for(const name in style)
-        this.styles[name] = 
-          new Style(name, style[name], important);
 
     if(attrs)
       for(const name in attrs){
@@ -73,6 +79,11 @@ export class ModifyDelegate {
           
         this.attrs[name] = args;
       }
+
+    if(style)
+      for(const name in style)
+        this.styles[name] = 
+          new Style(name, style[name], important);
   }
 
   setContingent(
@@ -92,22 +103,5 @@ export class ModifyDelegate {
     target.use(mod);
 
     return mod;
-  }
-}
-
-function propertyModifierDefault(this: ModifyDelegate){
-  const args = Array.from(arguments).map(arg =>
-    arg.value || arg.requires ? $.requires(arg.requires) : arg
-  )
-
-  const output =
-    args.length == 1 || typeof args[0] == "object"
-      ? args[0]
-      : Array.from(args).join(" ")
-
-  return {
-    style: {
-      [this.name]: output
-    }
   }
 }
