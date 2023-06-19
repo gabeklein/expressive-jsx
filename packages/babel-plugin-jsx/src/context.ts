@@ -6,7 +6,6 @@ import { hash } from 'utility';
 
 import type * as t from 'syntax/types';
 import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
-import type { Element } from "parse/jsx";
 
 const DEFAULTS: Options = {
   env: "web",
@@ -113,35 +112,4 @@ export class StackFrame {
 
     return handler;
   }
-}
-
-export function applyModifier(
-  target: Element, from: string | Define){
-
-  const apply = [] as Define[];
-  let modify = typeof from == "string"
-    ? target.getModifier(from)
-    : from;
-
-  while(modify){
-    apply.push(modify);
-
-    for(const use of [modify, ...modify.includes]){
-      target.includes.add(use);
-      use.targets.add(target);
-    }
-
-    const context = modify.context.modifiers;
-
-    Object.getOwnPropertyNames(context).map(name => {
-      target.setModifier(name, context[name]);
-    })
-
-    if(modify !== modify.then)
-      modify = modify.then;
-    else
-      break;
-  }
-
-  return apply;
 }

@@ -1,4 +1,3 @@
-import { applyModifier } from 'context';
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { ElementInline } from 'handle/definition';
@@ -147,7 +146,7 @@ export function applyTagName(
   else
     throw Oops.NonJSXIdentifier(tag);
 
-  applyModifier(element, name);
+  element.modify(name);
 }
 
 function applyAttribute(
@@ -167,7 +166,7 @@ function applyAttribute(
     name = attr.node.name.name as string;
 
     if(expression === null){
-      const applied = applyModifier(parent, name);
+      const applied = parent.modify(name);
 
       if(!applied.length)
         value = $.node("BooleanLiteral", { value: true });

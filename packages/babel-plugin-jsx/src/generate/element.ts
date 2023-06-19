@@ -46,7 +46,26 @@ export class Generator {
 
     Array.from(element.includes)
       .sort(byPriority)
-      .forEach(this.applyModifier, this);
+      .forEach(mod => {
+        if(this.inline_only && mod instanceof DefineVariant){
+          console.warn(`Cannot include CSS for ${mod.selector} with inline_only mode. Skipping.`);
+          return;
+        }
+
+        const using_css = this.useClass(mod);
+
+        for(const prop of mod.sequence)
+          if(prop instanceof Style){
+            const { name, invariant } = prop;
+
+            if(!name || invariant && using_css)
+              continue;
+
+            this.style.insert(prop);
+          }
+          else
+            this.add(prop);
+      });
   
     element.sequence.forEach(this.add, this);
   
@@ -127,27 +146,6 @@ export class Generator {
       this.classList.add(from.uid);
 
     return true;
-  }
-
-  applyModifier(mod: Define){
-    if(this.inline_only && mod instanceof DefineVariant){
-      console.warn(`Cannot include CSS for ${mod.selector} with inline_only mode. Skipping.`);
-      return;
-    }
-
-    const using_css = this.useClass(mod);
-
-    for(const prop of mod.sequence)
-      if(prop instanceof Style){
-        const { name, invariant } = prop;
-
-        if(!name || invariant && using_css)
-          continue;
-
-        this.style.insert(prop);
-      }
-      else
-        this.add(prop);
   }
 }
 

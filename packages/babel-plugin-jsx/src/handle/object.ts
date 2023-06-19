@@ -39,6 +39,35 @@ export abstract class AttributeBody {
     return hash(path + salt);
   }
 
+  modify(from: string | Define){
+    const applied = [] as Define[];
+    let modify = typeof from == "string"
+      ? this.getModifier(from)
+      : from;
+  
+    while(modify){
+      applied.push(modify);
+  
+      for(const use of [modify, ...modify.includes]){
+        this.includes.add(use);
+        use.targets.add(this as any);
+      }
+  
+      const context = modify.context.modifiers;
+  
+      Object.getOwnPropertyNames(context).map(name => {
+        this.setModifier(name, context[name]);
+      })
+  
+      if(modify !== modify.then)
+        modify = modify.then;
+      else
+        break;
+    }
+  
+    return applied;
+  }
+
   getModifier(name: string): Define | undefined {
     return this.context.modifiers[name];
   }
