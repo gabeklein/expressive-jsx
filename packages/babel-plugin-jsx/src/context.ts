@@ -16,7 +16,58 @@ const DEFAULTS: Options = {
   modifiers: []
 };
 
-const AMBIENT = new WeakMap<StackFrame, Define>();
+export class StackFrame {
+  name: string;
+  filename: string;
+  module: any;
+
+  opts: Options;
+  program: FileManager;
+
+  modifiersDeclared = new Set<Define>();
+  modifiers = {} as BunchOf<Define>;
+  handlers = {} as BunchOf<ModifyAction>;
+  ambient: Define;
+
+  get parent(){
+    return Object.getPrototypeOf(this);
+  }
+
+  constructor(
+    path: t.Path<t.BabelProgram>,
+    state: BabelState){
+
+    const options = { ...DEFAULTS, ...state.opts };
+
+    this.opts = options;
+    this.name = hash(state.filename);
+    this.filename = state.filename;
+    this.module = (state.file as any).opts.configFile;
+    this.program = FileManager.create(this, path, options);
+    this.ambient = new Define(this, this.name);
+  
+    path.data = this;
+    Object.assign(this.handlers, builtIn, ...options.modifiers);
+  }
+
+  getHandler(named: string, ignoreOwn = false){
+    let context = this as any;
+
+    if(ignoreOwn)
+      for(let found; !found;){
+        found = context.handlers.has(named);
+        context = context.parent;
+      }
+
+    const [key, ...path] = named.split(".");
+    let handler = this.handlers[key];
+
+    for(const key of path)
+      handler = (handler as any)[key];
+
+    return handler;
+  }
+}
 
 export function getContext(
   path: t.Path<any>, create?: boolean): StackFrame {
@@ -48,68 +99,4 @@ export function getContext(
   }
 
   throw new Error("Scope not found!");
-}
-
-export class StackFrame {
-  name: string;
-  filename: string;
-  module: any;
-
-  opts: Options;
-  program: FileManager;
-
-  modifiersDeclared = new Set<Define>();
-  modifiers = {} as BunchOf<Define>;
-  handlers = {} as BunchOf<ModifyAction>;
-
-  get parent(){
-    return Object.getPrototypeOf(this);
-  }
-
-  get ambient(){
-    const ambient = AMBIENT.get(this);
-
-    if(ambient)
-      return ambient;
-
-    return new Define(this, this.name);
-  }
-
-  set ambient(item: Define){
-    AMBIENT.set(this, item);
-  }
-
-  constructor(
-    path: t.Path<t.BabelProgram>,
-    state: BabelState){
-
-    const options = { ...DEFAULTS, ...state.opts };
-
-    this.opts = options;
-    this.name = hash(state.filename);
-    this.filename = state.filename;
-    this.module = (state.file as any).opts.configFile;
-    this.program = FileManager.create(this, path, options);
-  
-    path.data = this;
-    Object.assign(this.handlers, builtIn, ...options.modifiers);
-  }
-
-  getHandler(named: string, ignoreOwn = false){
-    let context = this as any;
-
-    if(ignoreOwn)
-      for(let found; !found;){
-        found = context.handlers.has(named);
-        context = context.parent;
-      }
-
-    const [key, ...path] = named.split(".");
-    let handler = this.handlers[key];
-
-    for(const key of path)
-      handler = (handler as any)[key];
-
-    return handler;
-  }
 }
