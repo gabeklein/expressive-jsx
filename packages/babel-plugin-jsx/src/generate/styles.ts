@@ -38,7 +38,7 @@ export function styleDeclaration(css: string, context: Context){
 }
 
 export function generateCSS(context: Context){
-  const { modifiersDeclared, opts } = context;
+  const { declared: modifiersDeclared, opts } = context;
 
   if(modifiersDeclared.size == 0)
     return "";

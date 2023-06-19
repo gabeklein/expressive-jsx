@@ -53,7 +53,7 @@ export class Define extends AttributeBody {
   }
 
   get isUsed(): boolean | void {
-    if(this.context.modifiersDeclared.has(this))
+    if(this.context.declared.has(this))
       return true;
 
     if(this.targets.size)
@@ -107,7 +107,7 @@ export class Define extends AttributeBody {
     if(withPriority! > this.priority)
       this.priority = withPriority!;
 
-    this.context.modifiersDeclared.add(this);
+    this.context.declared.add(this);
   }
 
   containsStyle(staticOnly?: boolean): Style | undefined;

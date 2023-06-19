@@ -24,7 +24,7 @@ export class Context {
   opts: Options;
   program: FileManager;
 
-  modifiersDeclared = new Set<Define>();
+  declared = new Set<Define>();
   modifiers = {} as BunchOf<Define>;
   handlers = {} as BunchOf<ModifyAction>;
   ambient: Define;
