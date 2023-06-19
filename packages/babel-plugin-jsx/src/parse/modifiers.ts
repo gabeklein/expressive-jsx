@@ -44,7 +44,7 @@ export class ModifyDelegate {
       args.pop();
     }
 
-    this.inlineOnly = target.context.opts.styleMode == "inline";
+    this.inlineOnly = target.context.options.styleMode == "inline";
 
     if(!transform)
       transform = propertyModifierDefault;

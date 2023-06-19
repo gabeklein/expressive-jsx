@@ -21,7 +21,7 @@ export class Generator {
   context: Context;
 
   get inline_only(){
-    return this.context.opts.styleMode === "inline";
+    return this.context.options.styleMode === "inline";
   }
 
   get info(){

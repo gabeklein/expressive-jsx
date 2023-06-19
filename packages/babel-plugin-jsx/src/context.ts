@@ -21,7 +21,7 @@ export class Context {
   filename: string;
   module: any;
 
-  opts: Options;
+  options: Options;
   program: FileManager;
 
   declared = new Set<Define>();
@@ -37,14 +37,14 @@ export class Context {
     path: t.Path<t.BabelProgram>,
     state: BabelState){
 
-    const options = this.opts = {
+    const options = this.options = {
       ...DEFAULTS,
       ...state.opts
     };
 
     this.name = hash(state.filename);
     this.filename = state.filename;
-    this.program = FileManager.create(this, path, options);
+    this.program = FileManager.create(this, path);
     this.ambient = new Define(this, this.name);
 
     this.module = options.module && (

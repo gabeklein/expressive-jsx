@@ -31,10 +31,9 @@ export abstract class FileManager {
 
   static create(
     parent: Context,
-    path: t.Path<t.BabelProgram>,
-    options: Options
+    path: t.Path<t.BabelProgram>
   ){
-    const { externals, output } = options;
+    const { externals, output } = parent.options;
     const Type =
       externals == "require"
         ? RequireManager :
@@ -51,11 +50,11 @@ export abstract class FileManager {
     path: t.Path<t.BabelProgram>,
     context: Context){
 
-    const create = context.opts.output === "js" ? createJS : createJSX;
+    const create = context.options.output === "js" ? createJS : createJSX;
 
     this.body = path.node.body;
     this.createElement = create.bind(this);
-    this.opts = context.opts;
+    this.opts = context.options;
     this.scope = path.scope;
   }
 

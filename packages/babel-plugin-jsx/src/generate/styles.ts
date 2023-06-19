@@ -11,20 +11,20 @@ type SelectorContent = [ string, Style[] ][];
 type MediaGroups = SelectorContent[];
 
 export function styleDeclaration(css: string, context: Context){
-  const { filename, module, program, opts } = context;
+  const { filename, module, program, options } = context;
 
-  const hot = opts.hot !== false;
+  const hot = options.hot !== false;
   const args: t.Expression[] = [];
-  const options: any = {};
+  const config: any = {};
 
   if(hot)
-    options.refreshToken = $.literal(hash(filename, 10));
+    config.refreshToken = $.literal(hash(filename, 10));
 
   if(module)
-    options.module = $.literal(module);
+    config.module = $.literal(module);
 
-  if(Object.keys(options).length)
-    args.push($.object(options));
+  if(Object.keys(config).length)
+    args.push($.object(config));
 
   return (
     $.statement(
@@ -38,16 +38,16 @@ export function styleDeclaration(css: string, context: Context){
 }
 
 export function generateCSS(context: Context){
-  const { declared: modifiersDeclared, opts } = context;
+  const { declared, options } = context;
 
-  if(modifiersDeclared.size == 0)
+  if(declared.size == 0)
     return "";
   
-  const pretty = opts.printStyle == "pretty";
+  const pretty = options.printStyle == "pretty";
 
   const media: BunchOf<MediaGroups> = { default: [] };
 
-  for(const item of modifiersDeclared){
+  for(const item of declared){
     let { priority = 0 } = item;
 
     for(let x=item.container; x;)
