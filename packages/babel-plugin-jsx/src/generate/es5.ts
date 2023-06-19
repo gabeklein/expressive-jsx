@@ -18,12 +18,11 @@ export function createElement(
     tag = this.ensure("$pragma", "Fragment").name;
 
   const props = recombineProps(properties);
-  const type =
-    typeof tag === "string"
-      ? /^[A-Z]/.test(tag)
-        ? $.identifier(tag)
-        : $.literal(tag)
-      : stripJSX(tag);
+  const type = typeof tag === "string"
+    ? /^[A-Z]/.test(tag)
+      ? $.identifier(tag)
+      : $.literal(tag)
+    : stripJSX(tag);
 
   return $.call(create, type, props, ...children);
 }
