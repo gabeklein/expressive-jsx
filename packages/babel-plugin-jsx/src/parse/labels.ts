@@ -56,16 +56,17 @@ export function handleDefine(
     key = `${key}.if`;
   
   const handler = context.getHandler(key);
+  const initial = [key, handler, body] as [
+    key: string,
+    action: ModifyAction | undefined,
+    body: DefineBodyCompat
+  ];
 
-  const initial =
-    [key, handler, body] as
-    [string, ModifyAction, DefineBodyCompat];
-
-  doUntilEmpty(initial, ([name, transform, input], enqueue) => {
+  doUntilEmpty(initial, ([name, transform, body], enqueue) => {
     const attrs = {} as BunchOf<any[]>;
 
     let important = false;
-    const args = parseArguments(input.node);
+    const args = parseArguments(body.node);
 
     if(args[args.length - 1] == "!important"){
       important = true;
@@ -87,7 +88,7 @@ export function handleDefine(
       return;
     }
 
-    const mod = new ModifyDelegate(target, name, input);
+    const mod = new ModifyDelegate(target, name, body);
     const output = transform.apply(mod, args);
 
     if(!output)

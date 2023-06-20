@@ -68,7 +68,7 @@ export class Context {
     for(const key of path)
       handler = (handler as any)[key];
 
-    return handler;
+    return handler as ModifyAction | undefined;
   }
 }
 

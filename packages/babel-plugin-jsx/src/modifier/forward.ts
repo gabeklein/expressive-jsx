@@ -10,7 +10,7 @@ export function forwardProp(
   ...propNames: any[]){
 
   const target = this.target;
-  const exec = this.body!
+  const exec = (this.body as t.Path<t.Statement>)
     .getAncestry()
     .find(x => x.isFunction()) as t.Path<t.Function>;
 
