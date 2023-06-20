@@ -1,4 +1,4 @@
-import { getContext, Context } from 'context';
+import { Context, getContext } from 'context';
 import { Status } from 'errors';
 import { OUTPUT_NODE } from 'generate/jsx';
 import { generateCSS, styleDeclaration } from 'generate/styles';

@@ -5,9 +5,9 @@ import { doUntilEmpty } from 'utility';
 import { Style } from './attributes';
 import { AttributeBody } from './object';
 
+import type { InnerContent } from 'types';
 import type * as t from 'syntax/types';
 import type { Context } from 'context';
-import { InnerContent } from 'types';
 
 export class ElementInline extends AttributeBody {
   selfClosing?: boolean;

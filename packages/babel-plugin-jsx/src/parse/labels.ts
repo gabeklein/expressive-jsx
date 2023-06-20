@@ -1,4 +1,5 @@
 import { ParseErrors } from 'errors';
+import { Style } from 'handle/attributes';
 import { Define } from 'handle/definition';
 import { ModifyDelegate } from 'parse/modifiers';
 import * as $ from 'syntax';
@@ -9,7 +10,6 @@ import { parse } from './body';
 
 import type * as t from 'syntax/types';
 import type { BunchOf, DefineBodyCompat, ModifyAction } from 'types';
-import { Style } from 'handle/attributes';
 
 export const Oops = ParseErrors({
   BadModifierName: "Modifier name cannot start with _ symbol!",

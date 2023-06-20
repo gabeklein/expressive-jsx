@@ -1,6 +1,6 @@
-import * as $ from 'syntax';
 import { forElement, forXElement } from 'generate/iterate';
 import { parse } from 'parse/body';
+import * as $ from 'syntax';
 
 import { Define } from './definition';
 
