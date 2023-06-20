@@ -11,6 +11,12 @@ function selectChild(){
   })
 }
 
+export {
+  selectAlso as self,
+  selectAlso as if,
+  selectChild as child
+}
+
 function forEachChild(body, callbackfn){
   if(!body)
     return;
@@ -47,10 +53,4 @@ function forEachChild(body, callbackfn){
       default: 
         throw new Error("css modifier blew up");
     }
-}
-
-export {
-  selectAlso as self,
-  selectAlso as if,
-  selectChild as child
 }
