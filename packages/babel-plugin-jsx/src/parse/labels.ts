@@ -62,7 +62,7 @@ export function handleDefine(
     body: DefineBodyCompat | any[]
   ];
 
-  doUntilEmpty(initial, ([name, transform, body], enqueue) => {
+  doUntilEmpty(initial, ([key, transform, body], enqueue) => {
     let important = false;
     const args = Array.isArray(body) ? body : parseArguments(body.node);
 
@@ -85,7 +85,7 @@ export function handleDefine(
     }
 
     if(!transform){
-      addStyle(name, ...args);
+      addStyle(key, ...args);
       return;
     }
 
@@ -107,7 +107,7 @@ export function handleDefine(
     const output = transform.apply({
       setContingent,
       target,
-      name,
+      name: key,
       body: body as any
     }, args);
 
