@@ -103,7 +103,7 @@ export class ComponentIf {
         body = inner[0];
     }
 
-    const define = new DefineConsequent(context.ambient);
+    const define = new DefineConsequent(context.define);
 
     define.context.name = String(forks.length);
 

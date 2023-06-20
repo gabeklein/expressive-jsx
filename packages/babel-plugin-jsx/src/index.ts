@@ -76,11 +76,11 @@ const JSXElement: Visitor<t.JSXElement | t.JSXFragment> = {
     const functionNode = containerFunction.node;
     const block = containerFunction.get("body") as t.Path<t.BlockStatement>;
     const context = getContext(path, true);
-    const { ambient } = context;
+    const { define } = context;
 
-    parse(ambient, block);
+    parse(define, block);
 
-    const output = ambient.toExpression();
+    const output = define.toExpression();
     
     if(!output)
       return;

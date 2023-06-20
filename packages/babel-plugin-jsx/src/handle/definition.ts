@@ -29,7 +29,7 @@ export class Define extends AttributeBody {
   constructor(context: Context, name?: string){
     super(context, name);
 
-    this.context.ambient = this;
+    this.context.define = this;
 
     if(name && /^[A-Z]/.test(name))
       this.priority = 2;

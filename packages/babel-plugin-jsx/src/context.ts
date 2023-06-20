@@ -27,7 +27,7 @@ export class Context {
   declared = new Set<Define>();
   modifiers = {} as BunchOf<Define>;
   macros: BunchOf<ModifyAction>;
-  ambient: Define;
+  define: Define;
 
   get parent(){
     return Object.getPrototypeOf(this);
@@ -45,7 +45,7 @@ export class Context {
     this.filename = state.filename;
     this.options = { ...DEFAULTS, ...state.opts };
     this.program = FileManager.create(this, path);
-    this.ambient = new Define(this, this.name);
+    this.define = new Define(this, this.name);
     this.macros = Object.assign({}, builtIn, ...macros);
     this.module = module && (
       typeof module == "string" ? module :
