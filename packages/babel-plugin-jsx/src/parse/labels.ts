@@ -4,11 +4,12 @@ import { ModifyDelegate } from 'parse/modifiers';
 import * as $ from 'syntax';
 import { doUntilEmpty } from 'utility';
 
+import { parse as parseArguments } from './arguments';
 import { parse } from './body';
 
 import type * as t from 'syntax/types';
-import type { Style } from 'handle/attributes';
 import type { BunchOf, DefineBodyCompat, ModifyAction } from 'types';
+import { Style } from 'handle/attributes';
 
 export const Oops = ParseErrors({
   BadModifierName: "Modifier name cannot start with _ symbol!",
@@ -45,7 +46,6 @@ export function handleDefine(
   }
 
   const { context } = target;
-  const output = {} as BunchOf<Style>;
 
   while($.is(body, "LabeledStatement")){
     key = `${key}.${body.node.label.name}`;
@@ -61,10 +61,58 @@ export function handleDefine(
     [key, handler, body] as
     [string, ModifyAction, DefineBodyCompat];
 
-  doUntilEmpty(initial, (next, enqueue) => {
-    const { styles, attrs } = new ModifyDelegate(target, ...next);
+  doUntilEmpty(initial, ([name, transform, input], enqueue) => {
+    const attrs = {} as BunchOf<any[]>;
 
-    Object.assign(output, styles);
+    let important = false;
+    const args = parseArguments(input.node);
+
+    if(args[args.length - 1] == "!important"){
+      important = true;
+      args.pop();
+    }
+
+    if(!transform){
+      const parsed: any[] = args.map(arg => (
+        arg.value || arg.requires ? $.requires(arg.requires) : arg
+      ))
+    
+      const output = parsed.length == 1 || typeof parsed[0] == "object"
+        ? parsed[0] : Array.from(parsed).join(" ");
+  
+      target.add(
+        new Style(name, output, important)
+      )
+
+      return;
+    }
+
+    const mod = new ModifyDelegate(target, name, input);
+    const output = transform.apply(mod, args);
+
+    if(!output)
+      return;
+
+    const { style } = output;
+
+    for(const name in attrs){
+      let args: any[] = attrs[name];
+
+      if(!Array.isArray(args))
+        args = [args];
+
+      if(important)
+        args.push("!important");
+        
+      attrs[name] = args;
+    }
+
+    if(style)
+      for(const name in style)
+        target.add(
+          new Style(name, style[name], important)
+        ) 
+
     Object.entries(attrs).forEach(([name, value]) => {
       if(!value)
         return;
@@ -74,7 +122,4 @@ export function handleDefine(
       enqueue([name, handler, value as any]);
     });
   });
-
-  for(const name in output)
-    target.add(output[name]);
 }
