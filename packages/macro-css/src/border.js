@@ -10,14 +10,11 @@ for(const kind of [
   "borderBottom",
 ]){
   function handler(color, width, borderStyle){
-    const style = {};
-
-    if(!width && color.indexOf(" ") > 0)
-      style[kind] = color;
-    else
-      style[kind] = border(color, width, borderStyle);
-
-    return style;
+    return {
+      [kind]: !width && color.indexOf(" ") > 0
+        ? color
+        : border(color, width, borderStyle)
+    }
   }
 
   EXPORT[kind] = handler;

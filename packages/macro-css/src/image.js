@@ -42,12 +42,18 @@ export function backgroundImage(from){
         quasis: [
           {
             type: "TemplateElement",
-            value: { raw: "url(", cooked: "url(" },
+            value: {
+              raw: "url(",
+              cooked: "url("
+            },
             tail: false
           },
           {
             type: "TemplateElement",
-            value: { raw: ")", cooked: ")" },
+            value: {
+              raw: ")",
+              cooked: ")"
+            },
             tail: true
           }
         ]
