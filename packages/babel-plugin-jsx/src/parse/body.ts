@@ -39,26 +39,25 @@ export function parse(
         handleIfStatement(target, item);
       break;
 
-      case "ExpressionStatement": {
-        const expr = item.get("expression") as t.Path<t.Expression>;
-
-        if($.is(expr, ["JSXElement", "JSXFragment"])){
-          OUTPUT_NODE.add(expr.node)
-          addElementFromJSX(target, expr as any);
-          continue;
-        }
-        else if($.is(expr, "AssignmentExpression", { operator: "=" }))
-          handlePropAssignment(target, expr);
-        else
-          continue;
-      }
-      break;
-
       case "ForInStatement":
       case "ForOfStatement":
       case "ForStatement":
         new ComponentFor(item, target);
       break;
+
+      case "ExpressionStatement": {
+        const expr = item.get("expression") as t.Path<t.Expression>;
+
+        if($.is(expr, "AssignmentExpression", { operator: "=" })){
+          handlePropAssignment(target, expr);
+          break;
+        }
+
+        if($.is(expr, ["JSXElement", "JSXFragment"])){
+          OUTPUT_NODE.add(expr.node)
+          addElementFromJSX(target, expr as any);
+        }
+      }
 
       default:
         continue;
