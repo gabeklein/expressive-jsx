@@ -27,9 +27,8 @@ export function isParenthesized(node: t.Expression){
 export function isBinaryAssertion(
   exp: t.Expression | undefined): exp is t.BinaryExpression {
 
-  if(is(exp, "BinaryExpression"))
-    if(ASSERT_OP.has(exp.operator))
-      return true;
+  if(is(exp, "BinaryExpression") && ASSERT_OP.has(exp.operator))
+    return true;
 
   return false;
 }
@@ -54,12 +53,11 @@ export function isFalsy(
 }
 
 export function falsy(exp: t.Expression){
-  if(isBinaryAssertion(exp))
-    return inverseExpression(exp);
-  else
-    return node("UnaryExpression", {
+  return isBinaryAssertion(exp)
+    ? inverseExpression(exp)
+    : node("UnaryExpression", {
       operator: "!", prefix: true, argument: exp
-    })
+    });
 }
 
 export function and(a: t.Expression, b: t.Expression){
@@ -69,17 +67,11 @@ export function and(a: t.Expression, b: t.Expression){
 }
 
 export function anti(exp: t.Expression){
-  if(isFalsy(exp))
-    return exp.argument;
-  else
-    return falsy(exp);
+  return isFalsy(exp) ? exp.argument : falsy(exp);
 }
 
 export function truthy(a: t.Expression){
-  if(isFalsy(a) || isBinaryAssertion(a))
-    return a;
-  else
-    return falsy(falsy(a));
+  return isFalsy(a) || isBinaryAssertion(a) ? a : falsy(falsy(a));
 }
 
 export function ternary(
