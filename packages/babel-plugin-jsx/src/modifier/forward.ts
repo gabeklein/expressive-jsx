@@ -2,7 +2,7 @@ import { Prop } from 'handle/attributes';
 import * as $ from 'syntax';
 
 import type * as t from 'syntax/types';
-import type { ModifyDelegate } from 'parse/modifiers';
+import type { ModifyDelegate } from 'parse/labels';
 import type { Define } from 'handle/definition';
 
 export function forwardProp(
@@ -35,8 +35,8 @@ export function forwardProp(
 
 function forwardRef(
   target: Define,
-  component: t.Path<t.Function>
-){
+  component: t.Path<t.Function>){
+
   const { node } = component as t.Path<any>;
   const { program } = target.context;
 

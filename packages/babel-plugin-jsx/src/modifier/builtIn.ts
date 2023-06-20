@@ -1,11 +1,8 @@
 import { forwardProp } from './forward';
 
-import type { ModifyDelegate } from 'parse/modifiers';
+import type { ModifyDelegate } from 'parse/labels';
 
-function applyAlso(
-  this: ModifyDelegate,
-  ...names: any[]){
-
+function applyAlso(this: ModifyDelegate, ...names: any[]){
   const { target } = this;
 
   for(const name of names)
@@ -17,10 +14,7 @@ function applyAlso(
     }
 }
 
-function setPriority(
-  this: ModifyDelegate,
-  priority: number){
-
+function setPriority(this: ModifyDelegate, priority: number){
   this.target.priority = priority;
 }
 

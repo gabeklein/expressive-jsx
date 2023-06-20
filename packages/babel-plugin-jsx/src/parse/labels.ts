@@ -1,7 +1,6 @@
 import { ParseErrors } from 'errors';
 import { Style } from 'handle/attributes';
 import { Define } from 'handle/definition';
-import { ModifyDelegate } from 'parse/modifiers';
 import * as $ from 'syntax';
 import { doUntilEmpty } from 'utility';
 
@@ -9,10 +8,11 @@ import { parse as parseArguments } from './arguments';
 import { parse } from './body';
 
 import type * as t from 'syntax/types';
-import type { BunchOf, DefineBodyCompat, ModifyAction } from 'types';
+import type { DefineBodyCompat, ModifyAction } from 'types';
 
 export const Oops = ParseErrors({
   BadModifierName: "Modifier name cannot start with _ symbol!",
+  InlineModeNoVariants: "Cannot attach a CSS variant while styleMode is set to inline.",
   DollarSignDeprecated: "Dollar-sign macros are deprecated. Did you mean to use a namespace?"
 });
 
@@ -63,8 +63,6 @@ export function handleDefine(
   ];
 
   doUntilEmpty(initial, ([name, transform, body], enqueue) => {
-    const attrs = {} as BunchOf<any[]>;
-
     let important = false;
     const args = parseArguments(body.node);
 
@@ -94,7 +92,7 @@ export function handleDefine(
     if(!output)
       return;
 
-    const { style } = output;
+    const { style, attrs } = output;
 
     for(const name in attrs){
       let args: any[] = attrs[name];
@@ -114,13 +112,42 @@ export function handleDefine(
           new Style(name, style[name], important)
         ) 
 
-    Object.entries(attrs).forEach(([name, value]) => {
-      if(!value)
-        return;
-      
-      const handler = context.getHandler(name, name === key);
+    if(attrs)
+      Object.entries(attrs).forEach(([name, value]) => {
+        if(!value)
+          return;
+        
+        const handler = context.getHandler(name, name === key);
 
-      enqueue([name, handler, value as any]);
-    });
+        enqueue([name, handler, value]);
+      });
   });
+}
+
+export class ModifyDelegate {
+  //target.context.opts.styleMode == "inline";
+  inlineOnly = false;
+
+  constructor(
+    public target: Define,
+    public name: string,
+    public body: DefineBodyCompat){
+  }
+
+  setContingent(
+    select: string | string[],
+    priority: number,
+    usingBody?: t.Path<t.Statement>){
+
+    const body = usingBody || this.body!;
+
+    if(this.inlineOnly)
+      throw Oops.InlineModeNoVariants(body.parentPath);
+
+    const mod = this.target.variant(select, priority);
+
+    parse(mod, body);
+
+    return mod;
+  }
 }

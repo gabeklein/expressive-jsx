@@ -1,6 +1,6 @@
 import type { Context } from 'context';
 import type { Style, Prop } from 'handle/attributes';
-import type { ModifyDelegate } from 'parse/modifiers';
+import type { ModifyDelegate } from 'parse/labels';
 import type { ElementInline } from 'handle/definition';
 import type { ComponentFor } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';
