@@ -34,18 +34,18 @@ export function handleDefine(
   target: Define,
   path: t.Path<t.LabeledStatement>){
 
+  const { context } = target;
+
   let key = getName(path);
   let body = path.get('body') as t.Path<t.Statement>;
 
   if(body.isBlockStatement()){
-    const mod = new Define(target.context, key);
+    const mod = new Define(context, key);
 
     target.provide(mod);
     parse(mod, body);
     return;
   }
-
-  const { context } = target;
 
   while($.is(body, "LabeledStatement")){
     key = `${key}.${body.node.label.name}`;
@@ -59,19 +59,19 @@ export function handleDefine(
   const initial = [key, handler, body] as [
     key: string,
     action: ModifyAction | undefined,
-    body: DefineBodyCompat
+    body: DefineBodyCompat | any[]
   ];
 
   doUntilEmpty(initial, ([name, transform, body], enqueue) => {
     let important = false;
-    const args = parseArguments(body.node);
+    const args = Array.isArray(body) ? body : parseArguments(body.node);
 
     if(args[args.length - 1] == "!important"){
       important = true;
       args.pop();
     }
 
-    if(!transform){
+    function addStyle(name: string, ...args: any[]){
       const parsed: any[] = args.map(arg => (
         arg.value || arg.requires ? $.requires(arg.requires) : arg
       ))
@@ -82,12 +82,34 @@ export function handleDefine(
       target.add(
         new Style(name, output, important)
       )
+    }
 
+    if(!transform){
+      addStyle(name, ...args);
       return;
     }
 
-    const mod = new ModifyDelegate(target, name, body);
-    const output = transform.apply(mod, args);
+    function setContingent(
+      select: string | string[],
+      priority: number,
+      usingBody?: DefineBodyCompat){
+
+      if(!usingBody)
+        usingBody = body as DefineBodyCompat;
+
+      const mod = target.variant(select, priority);
+  
+      parse(mod, usingBody);
+  
+      return mod;
+    }
+
+    const output = transform.apply({
+      setContingent,
+      target,
+      name,
+      body: body as any
+    }, args);
 
     if(!output)
       return;
@@ -116,38 +138,27 @@ export function handleDefine(
       Object.entries(attrs).forEach(([name, value]) => {
         if(!value)
           return;
+
+        if(name === key){
+          addStyle(name, ...value);
+          return;
+        }
         
-        const handler = context.getHandler(name, name === key);
+        const handler = context.getHandler(name);
 
         enqueue([name, handler, value]);
       });
   });
 }
 
-export class ModifyDelegate {
-  //target.context.opts.styleMode == "inline";
-  inlineOnly = false;
-
-  constructor(
-    public target: Define,
-    public name: string,
-    public body: DefineBodyCompat){
-  }
+export interface ModifyDelegate {
+  target: Define;
+  name: string;
+  body: DefineBodyCompat;
 
   setContingent(
     select: string | string[],
     priority: number,
-    usingBody?: t.Path<t.Statement>){
-
-    const body = usingBody || this.body!;
-
-    if(this.inlineOnly)
-      throw Oops.InlineModeNoVariants(body.parentPath);
-
-    const mod = this.target.variant(select, priority);
-
-    parse(mod, body);
-
-    return mod;
-  }
+    usingBody?: DefineBodyCompat
+  ): Define;
 }
