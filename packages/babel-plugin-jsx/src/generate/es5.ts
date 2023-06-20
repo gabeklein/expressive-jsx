@@ -65,6 +65,6 @@ function stripJSX(
     case "JSXMemberExpression":
       return $.member(stripJSX(exp.object), stripJSX(exp.property));
     default:
-      throw new Error("Bad MemeberExpression");
+      throw new Error("Bad MemberExpression");
   }
 }
