@@ -1,5 +1,4 @@
 import { ParseErrors } from 'errors';
-import { DefineVariant } from 'handle/definition';
 
 import { parse } from './body';
 
@@ -26,16 +25,14 @@ export class ModifyDelegate {
     priority: number,
     usingBody?: t.Path<t.Statement>){
 
-    const { target } = this;
     const body = usingBody || this.body!;
 
     if(this.inlineOnly)
       throw Oops.InlineModeNoVariants(body.parentPath);
 
-    const mod = new DefineVariant(target, select, priority);
+    const mod = this.target.variant(select, priority);
 
     parse(mod, body);
-    target.use(mod);
 
     return mod;
   }
