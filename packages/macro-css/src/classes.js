@@ -33,14 +33,13 @@ const SPECIFIC = [
   "nthLastOfType"
 ]
 
-for(const name of [ ...STATE, ...POSITION ]){
+for(const name of [ ...STATE, ...POSITION ])
   EXPORT[name] = function(){
     const select = ":" + pascalToDash(name);
     this.setContingent(select, 6);
   }
-}
 
-for(const name of SPECIFIC){
+for(const name of SPECIFIC)
   EXPORT[name] = function(){
     const select = ":" + pascalToDash(name);
     const innerBody = this.body.node.body;
@@ -53,6 +52,5 @@ for(const name of SPECIFIC){
       innerBody.splice(i, 1);
     }
 
-    this.setContingent(`${select}(${specifier || "0"})`, 6);
+    this.setContingent(select + `(${specifier || "0"})`, 6);
   }
-}
