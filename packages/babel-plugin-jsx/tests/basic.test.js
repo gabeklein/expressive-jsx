@@ -24,11 +24,19 @@ transform("statement pass-thru", `
     
     <div />
   }
-`)
+`);
 
 transform("basic style", `
   () => {
     color: green;
+
+    <this>Hello World</this>
+  };
+`);
+
+transform("multi-argument style", `
+  () => {
+    value: foo, bar, baz;
 
     <this>Hello World</this>
   };

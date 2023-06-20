@@ -11,6 +11,15 @@ exports[`basic style 1`] = `
 
 exports[`component 1`] = `  () => <div>Hello World</div>;`;
 
+exports[`multi-argument style 1`] = `
+  () => <div className="element_7nq">Hello World</div>;
+  css(\`
+  	.element_7nq {
+  		value: foo bar baz;
+  	}
+  \`);
+`;
+
 exports[`multiple children 1`] = `
   () => (
     <Fragment>
