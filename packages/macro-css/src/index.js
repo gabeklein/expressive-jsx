@@ -13,7 +13,6 @@ export * from './shadow'
 export * from './size'
 export * from './text'
 
-import * as Color from './colors'
 import * as contingent from './contingent';
 import * as elements from './elements';
 import * as classes from './classes';
@@ -25,5 +24,3 @@ export const css = {
   ...classes,
   ...media
 }
-
-export { Color }
