@@ -26,6 +26,6 @@ export function flexAlign(){
       style.justifyContent = arg;
   }
 
-  return { style };
+  return style;
 }
 

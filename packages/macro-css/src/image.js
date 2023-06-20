@@ -1,8 +1,6 @@
 export function image(a){
   return {
-    style: {
-      backgroundImage: `url("${a}")`
-    }
+    backgroundImage: `url("${a}")`
   }
 }
 
@@ -17,74 +15,67 @@ function requireExpression(value){
 }
 
 export function background(value, size, position){
-  const attrs = {};
-  const style = {};
+  const output = {};
 
   if(/^\.\.?\//.test(value))
-    attrs.backgroundImage = value;
+    output.backgroundImage = value;
   else
-    style.background = value;
+    output.background = value;
 
   if(size)
-    attrs.backgroundSize = size;
+    output.backgroundSize = size;
 
   if(position)
-    attrs.backgroundPosition = position;
+    output.backgroundPosition = position;
 
-  return { attrs, style };
+  return output
 }
 
 export function backgroundImage(from){
   if(/^\.\.?\//.test(from))
     return {
-      style: {
-        backgroundImage: {
-          type: "TemplateLiteral",
-          expressions: [
-            requireExpression(from)
-          ],
-          quasis: [
-            {
-              type: "TemplateElement",
-              value: { raw: "url(", cooked: "url(" },
-              tail: false
-            },
-            {
-              type: "TemplateElement",
-              value: { raw: ")", cooked: ")" },
-              tail: true
-            }
-          ]
-        }
+      backgroundImage: {
+        type: "TemplateLiteral",
+        expressions: [
+          requireExpression(from)
+        ],
+        quasis: [
+          {
+            type: "TemplateElement",
+            value: { raw: "url(", cooked: "url(" },
+            tail: false
+          },
+          {
+            type: "TemplateElement",
+            value: { raw: ")", cooked: ")" },
+            tail: true
+          }
+        ]
       }
     }
 
   if(typeof from == "object" && !from.named)
     return {
-      style: {
-        backgroundImage: from
-      }
+      backgroundImage: from
     }
     
   return {
-    attrs: {
-      backgroundImage: Array.from(arguments)
-    }
+    backgroundImage: Array.from(arguments)
   }
 }
 
 export function icon(mask, color){
   if(!mask) return;
 
-  if(mask.indexOf(".svg") < 0)
+  if(!mask.includes(".svg"))
     mask = mask.concat(".svg")
 
-  const attrs = {
+  const output = {
     WebkitMaskImage: `url(\"${mask}\")`
   }
 
   if(color)
-    attrs.bg = color;
+    output.bg = color;
 
-  return { attrs }
+  return output;
 }

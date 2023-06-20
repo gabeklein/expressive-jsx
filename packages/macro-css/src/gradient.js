@@ -35,9 +35,7 @@ export function easingGradient(direction, from, timing, to, stops = 13){
   }
 
   return {
-    style: {
-      backgroundImage: `linear-gradient(${ output.join(", ") })`
-    }
+    backgroundImage: `linear-gradient(${ output.join(", ") })`
   }
 }
 

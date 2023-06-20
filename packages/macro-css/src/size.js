@@ -12,10 +12,8 @@ for(const type of ["min", "max", ""]){
     }
 
     return {
-      attrs: {
-        [width]: [x, unit],
-        [height]: [y || x, unit]
-      }
+      [width]: [x, unit],
+      [height]: [y || x, unit]
     }
   }
 }
@@ -32,9 +30,7 @@ export function aspectSize(x, y, unit){
     }
 
   return {
-    attrs: {
-      width: [x, unit],
-      height: [y || x, unit]
-    }
+    width: [x, unit],
+    height: [y || x, unit]
   }
 }

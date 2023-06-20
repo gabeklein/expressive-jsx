@@ -7,8 +7,6 @@ export function shadow(color, radius = 10, x = 2, y = x){
     value = `${x}px ${y}px ${radius}px ${color}`;
 
   return {
-    style: {
-      boxShadow: value
-    }
+    boxShadow: value
   }
 }

@@ -33,9 +33,7 @@ function nToNUnits(value, unit) {
     value = value.inner[0]
   }
   return {
-    style: {
-      [this.name]: appendUnitToN(value, unit)
-    }
+    [this.name]: appendUnitToN(value, unit)
   }
 }
 

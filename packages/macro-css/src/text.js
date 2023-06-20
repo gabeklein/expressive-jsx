@@ -16,9 +16,7 @@ export function fontFamily(){
   const fonts = Array.from(arguments).map(quoteOnWhitespace).join(", ")
 
   return {
-    style: {
-      fontFamily: fonts
-    }
+    fontFamily: fonts
   }
 }
 

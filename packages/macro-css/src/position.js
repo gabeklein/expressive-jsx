@@ -9,28 +9,28 @@ const INVERSE = {
 
 export function absolute(...args){
   return {
-    style: { position: "absolute" },
-    attrs: computePosition(...args)
+    position: "absolute",
+    ...computePosition(...args)
   }
 }
 
 export function fixed(...args){
   return {
-    style: { position: "fixed" },
-    attrs: computePosition(...args)
+    position: "fixed",
+    ...computePosition(...args)
   }
 }
 
 export function relative(){
   return {
-    style: { position: "relative" }
+    position: "relative"
   };
 }
 
 function computePosition(...args){
   const [ a, b = 0, c = b ] = args;
 
-  let out = {
+  const out = {
     top: b,
     left: c,
     right: c,

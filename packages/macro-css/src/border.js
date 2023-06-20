@@ -17,7 +17,7 @@ for(const kind of [
     else
       style[kind] = border(color, width, borderStyle);
 
-    return { style };
+    return style;
   }
 
   EXPORT[kind] = handler;
@@ -43,16 +43,14 @@ function border(
 
 export function outline(a, b){
   if(a == "none")
-    return { style: { outline: "none" }}
+    return { outline: "none" }
 
-  if(b == undefined )
-    return { style: { outline: `1px dashed ${a || "green"}` }}
+  if(b == undefined)
+    return { outline: `1px dashed ${a || "green"}` }
 
-  else {
-    const outline = Array.from(arguments)
-      .map(x => typeof x == "number" ? `${x}px` : x)
-      .join(" ");
-
-    return { style: { outline }}
+  return {
+    outline: Array.from(arguments)
+    .map(x => typeof x == "number" ? `${x}px` : x)
+    .join(" ")
   }
 }

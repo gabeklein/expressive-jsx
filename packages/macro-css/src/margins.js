@@ -13,10 +13,8 @@ for (const kind of [
     EXPORT[kind + direction] = // marginHorizontal
     EXPORT[kind + direction[0]] = // marginH
       (aIn, bIn) => ({
-        attrs: {
-          [kind + a]: aIn,
-          [kind + b]: bIn || aIn
-        }
+        [kind + a]: aIn,
+        [kind + b]: bIn || aIn
       })
   }
 
@@ -24,9 +22,7 @@ for (const kind of [
     EXPORT[kind + side] =
     EXPORT[kind + side[0]] =
       (...args) => ({
-        style: {
-          [kind + side]: appendUnitToN(...args)
-        }
+        [kind + side]: appendUnitToN(...args)
       })
   }
 
@@ -40,7 +36,7 @@ for (const kind of [
         value = Array.from(arguments).map(x => appendUnitToN(x)).join(" ")
 
       return {
-        style: { [kind]: value }
+        [kind]: value
       }
     }
   }

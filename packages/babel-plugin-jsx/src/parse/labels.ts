@@ -114,30 +114,17 @@ export function handleDefine(
     if(!output)
       return;
 
-    const { style, attrs } = output;
-
-    for(const name in attrs){
-      let args: any[] = attrs[name];
-
-      if(!Array.isArray(args))
-        args = [args];
-
-      if(important)
-        args.push("!important");
-        
-      attrs[name] = args;
-    }
-
-    if(style)
-      for(const name in style)
-        target.add(
-          new Style(name, style[name], important)
-        ) 
-
-    if(attrs)
-      Object.entries(attrs).forEach(([name, value]) => {
+    Object
+      .entries(output)
+      .forEach(([name, value]) => {
         if(!value)
           return;
+
+        if(!Array.isArray(value))
+          value = [value];
+
+        if(important)
+          args.push("!important");
 
         if(name === key){
           addStyle(name, ...value);

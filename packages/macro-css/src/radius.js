@@ -33,17 +33,13 @@ export function radius(dir, r1, r2){
   }
 
   return {
-    attrs: {
-      borderRadius: addUnit(value)
-    }
+    borderRadius: addUnit(value)
   }
 }
 
 export function circle(a){
   return {
-    attrs: {
-      borderRadius: a / 2,
-      size: a
-    }
+    borderRadius: a / 2,
+    size: a
   }
 }

@@ -68,14 +68,8 @@ export type InnerContent =
   | ComponentIf
   | ComponentFor;
 
-interface ModifierOutput {
-  attrs?: BunchOf<any>
-  style?: BunchOf<any>
-  props?: BunchOf<any>
-}
-
 export type ModifyAction =
-  (this: ModifyDelegate, ...args: any[]) => ModifierOutput | void;
+  (this: ModifyDelegate, ...args: any[]) => Record<string, any> | void;
 
 export type DefineBodyCompat =
   | t.Path<t.ExpressionStatement>

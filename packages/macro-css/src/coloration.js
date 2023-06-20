@@ -22,12 +22,10 @@ export function bg(a){
       }
     }
 
-    return { style }
+    return style;
   }
 
   return {
-    attrs: {
-      background: Array.from(arguments)
-    }
+    background: Array.from(arguments)
   }
 }

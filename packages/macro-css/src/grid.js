@@ -1,44 +1,34 @@
 export function gridArea(...args){
   if(args.length == 2)
     return {
-      style: {
-        gridRow: recombineSlash(args[0]),
-        gridColumn: recombineSlash(args[1])
-      }
+      gridRow: recombineSlash(args[0]),
+      gridColumn: recombineSlash(args[1])
     }
 }
 
 export function gridRow(...args){
   return {
-    style: {
-      gridRow: recombineSlash(args)
-    }
+    gridRow: recombineSlash(args)
   }
 }
 
 export function gridColumn(...args){
   return {
-    style: {
-      gridColumn: recombineSlash(args)
-    }
+    gridColumn: recombineSlash(args)
   }
 }
 
 export function gridRows(...args){
   return {
-    style: {
-      display: "grid",
-      gridTemplateRows: recombineTemplate(args)
-    }
+    display: "grid",
+    gridTemplateRows: recombineTemplate(args)
   }
 }
 
 export function gridColumns(...args){
   return {
-    style: {
-      display: "grid",
-      gridTemplateColumns: recombineTemplate(args)
-    }
+    display: "grid",
+    gridTemplateColumns: recombineTemplate(args)
   }
 }
 
