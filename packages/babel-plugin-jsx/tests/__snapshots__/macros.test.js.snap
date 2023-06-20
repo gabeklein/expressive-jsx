@@ -8,3 +8,13 @@ exports[`output attributes 1`] = `
   	}
   \`);
 `;
+
+exports[`output style of same name 1`] = `
+  () => <div className="element_7nq">Hello World</div>;
+  css(\`
+  	.element_7nq {
+  		margin-left: 20px;
+  		margin-right: 20px;
+  	}
+  \`);
+`;
