@@ -1,6 +1,5 @@
 import { Generator } from 'generate/element';
 import { recombineProps } from 'generate/es5';
-import { doUntilEmpty } from 'utility';
 
 import { Style } from './attributes';
 import { AttributeBody } from './object';
@@ -63,15 +62,15 @@ export class Define extends AttributeBody {
         return true;
   }
 
-  get isDeclared(){
-    return doUntilEmpty<Define, boolean>(this,
-      (x, add) => {
-        if(x.hasStyle(true))
-          return true;
+  get isDeclared(): boolean | undefined {
+    const queue = new Set<Define>([ this ]);
 
-        add(...x.dependant);
-      }
-    )
+    for(const x of queue){
+      if(x.hasStyle(true))
+        return true;
+
+      x.dependant.forEach(x => queue.add(x));
+    }
   }
 
   use(mod: Define){

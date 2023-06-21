@@ -2,7 +2,6 @@ import { ParseErrors } from 'errors';
 import { Style } from 'handle/attributes';
 import { Define } from 'handle/definition';
 import * as $ from 'syntax';
-import { doUntilEmpty } from 'utility';
 
 import { parse as parseArguments } from './arguments';
 import { parse as parseBlock } from './block';
@@ -64,13 +63,15 @@ export function handleDefine(
     key = `${key}.if`;
   
   const handler = context.getHandler(key);
-  const initial = [key, handler, body] as [
+  const queue = [[key, handler, body]] as [
     key: string,
     action: ModifyAction | undefined,
     body: DefineBodyCompat | any[]
-  ];
+  ][];
 
-  doUntilEmpty(initial, ([key, transform, body], enqueue) => {
+  while(queue.length){
+    const [key, transform, body] = queue.pop()!;
+
     let important = false;
     const args = Array.isArray(body) ? body : parseArguments(body.node);
 
@@ -124,6 +125,7 @@ export function handleDefine(
 
     Object
       .entries(output)
+      .reverse()
       .forEach(([name, value]) => {
         if(!value)
           return;
@@ -141,9 +143,9 @@ export function handleDefine(
         
         const handler = context.getHandler(name);
 
-        enqueue([name, handler, value]);
+        queue.push([name, handler, value]);
       });
-  });
+  }
 }
 
 export interface ModifyDelegate {

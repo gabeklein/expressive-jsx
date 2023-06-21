@@ -48,34 +48,3 @@ export class ArrayStack<T = any, I = T>
     return super.push(x);
   }
 }
-
-/**
- * Put starting value into a queue and then iterate that queue.
- * Each step receives next item in queue, and opportunity to add more.
- * Use `enqueue` callback to push new item to stack for processing.
- * If a step returns, will break the loop and return that value.
-*/
-export function doUntilEmpty<T, R>(
-  startingData: T,
-  step: (next: T, enqueue: (...data: T[]) => void) => R | void
-): R | undefined {
-  let i = 0;
-  let queue = [ startingData ];
-
-  do {
-    const pending: T[] = [];
-    const output = step(queue[i], 
-      (...next) => pending.push(...next)  
-    );
-
-    if(output !== undefined)
-      return output;
-
-    if(pending.length){
-      queue = [ ...pending, ...queue.slice(i+1) ];
-      i = 0;
-    }
-    else i++;
-  }
-  while(i in queue)
-}
