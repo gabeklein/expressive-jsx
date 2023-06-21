@@ -37,7 +37,6 @@ export class Define extends AttributeBody {
 
   then?: Define;
   container?: Define;
-
   within?: Define;
   
   priority = 1;

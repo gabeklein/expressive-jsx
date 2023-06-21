@@ -3,7 +3,7 @@ import { Status } from 'errors';
 import { OUTPUT_NODE } from 'generate/jsx';
 import { generateCSS, styleDeclaration } from 'generate/styles';
 import { ElementInline } from 'handle/definition';
-import { parse } from 'parse/body';
+import { parse } from 'parse/block';
 import { parseJSX } from 'parse/jsx';
 import * as $ from 'syntax';
 

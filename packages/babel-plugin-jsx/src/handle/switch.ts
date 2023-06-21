@@ -1,4 +1,4 @@
-import { parse } from 'parse/body';
+import { parse } from 'parse/block';
 import * as $ from 'syntax';
 import { ensureArray } from 'utility';
 

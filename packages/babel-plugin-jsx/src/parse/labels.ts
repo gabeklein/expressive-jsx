@@ -5,7 +5,7 @@ import * as $ from 'syntax';
 import { doUntilEmpty } from 'utility';
 
 import { parse as parseArguments } from './arguments';
-import { parse } from './body';
+import { parse as parseBlock } from './block';
 
 import type * as t from 'syntax/types';
 
@@ -51,7 +51,7 @@ export function handleDefine(
     const mod = new Define(context, key);
 
     target.provide(mod);
-    parse(mod, body);
+    parseBlock(mod, body);
     return;
   }
 
@@ -107,7 +107,7 @@ export function handleDefine(
 
       const mod = target.variant(select, priority);
   
-      parse(mod, usingBody);
+      parseBlock(mod, usingBody);
   
       return mod;
     }
