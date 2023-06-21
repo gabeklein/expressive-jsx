@@ -5,7 +5,8 @@ import { FileManager } from 'scope';
 import { hash } from 'utility';
 
 import type * as t from 'syntax/types';
-import type { BabelState, BunchOf, ModifyAction, Options } from 'types';
+import type { ModifyAction } from 'parse/labels';
+import type { BabelState, BunchOf, Options } from 'types';
 
 const DEFAULTS: Options = {
   env: "web",
