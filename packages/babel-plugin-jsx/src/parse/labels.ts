@@ -8,7 +8,15 @@ import { parse as parseArguments } from './arguments';
 import { parse } from './body';
 
 import type * as t from 'syntax/types';
-import type { DefineBodyCompat, ModifyAction } from 'types';
+
+export type DefineBodyCompat =
+  | t.Path<t.ExpressionStatement>
+  | t.Path<t.BlockStatement>
+  | t.Path<t.LabeledStatement>
+  | t.Path<t.IfStatement>;
+
+export type ModifyAction =
+  (this: ModifyDelegate, ...args: any[]) => Record<string, any> | void;
 
 export const Oops = ParseErrors({
   BadModifierName: "Modifier name cannot start with _ symbol!",

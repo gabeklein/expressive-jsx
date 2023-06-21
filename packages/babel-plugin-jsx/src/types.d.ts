@@ -67,12 +67,3 @@ export type InnerContent =
   | ElementInline
   | ComponentIf
   | ComponentFor;
-
-export type ModifyAction =
-  (this: ModifyDelegate, ...args: any[]) => Record<string, any> | void;
-
-export type DefineBodyCompat =
-  | t.Path<t.ExpressionStatement>
-  | t.Path<t.BlockStatement>
-  | t.Path<t.LabeledStatement>
-  | t.Path<t.IfStatement>;
