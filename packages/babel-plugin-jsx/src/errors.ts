@@ -1,5 +1,5 @@
 import type * as t from 'syntax/types';
-import type { BabelFile, BunchOf, FlatValue } from 'types';
+import type { BabelFile, FlatValue } from 'types';
 
 type ParseError = <T extends t.Node>(node: t.Path<T> | T, ...args: FlatValue[]) => Error;
 
@@ -7,8 +7,8 @@ export const Status = {
   currentFile: undefined as unknown as BabelFile
 }
 
-export function ParseErrors<O extends BunchOf<string>> (register: O) {
-  const Errors = {} as BunchOf<ParseError>
+export function ParseErrors<O extends Record<string, string>> (register: O) {
+  const Errors = {} as Record<string, ParseError>
 
   for(const error in register){
     const message = [] as FlatValue[];

@@ -1,7 +1,7 @@
 import { is, node } from './nodes';
 
 import type * as t from './types';
-import type { BunchOf, FlatValue } from 'types';
+import type { FlatValue } from 'types';
 
 const IdentifierType = /(Expression|Literal|Identifier|JSXElement|JSXFragment|Import|Super|MetaProperty|TSTypeAssertion)$/;
 
@@ -89,7 +89,7 @@ export function pattern(
 }
 
 export function object(
-  obj: (t.ObjectProperty | t.SpreadElement)[] | BunchOf<t.Expression | false | undefined> = {}){
+  obj: (t.ObjectProperty | t.SpreadElement)[] | Record<string, t.Expression | false | undefined> = {}){
 
   let properties = [];
 

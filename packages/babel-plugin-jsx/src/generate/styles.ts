@@ -4,7 +4,6 @@ import { hash } from 'utility';
 import type * as t from 'syntax/types';
 import type { Context } from 'context';
 import type { Define } from 'handle/definition';
-import type { BunchOf } from 'types';
 import * as $ from 'syntax';
 
 type SelectorContent = [ string, Style[] ][];
@@ -45,7 +44,7 @@ export function generateCSS(context: Context){
   
   const pretty = options.printStyle == "pretty";
 
-  const media: BunchOf<MediaGroups> = { default: [] };
+  const media: Record<string, MediaGroups> = { default: [] };
 
   for(const item of declared){
     let { priority = 0 } = item;

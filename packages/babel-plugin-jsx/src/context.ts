@@ -6,7 +6,7 @@ import { hash } from 'utility';
 
 import type * as t from 'syntax/types';
 import type { ModifyAction } from 'parse/labels';
-import type { BabelState, BunchOf, Options } from 'types';
+import type { BabelState, Options } from 'types';
 
 const DEFAULTS: Options = {
   env: "web",
@@ -26,8 +26,8 @@ export class Context {
   program: FileManager;
 
   declared = new Set<Define>();
-  modifiers = {} as BunchOf<Define>;
-  macros: BunchOf<ModifyAction>;
+  modifiers: Record<string, Define> = {};
+  macros: Record<string, ModifyAction>;
   define: Define;
 
   get parent(){

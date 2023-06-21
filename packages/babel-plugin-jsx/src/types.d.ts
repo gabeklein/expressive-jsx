@@ -9,10 +9,6 @@ import type * as t from 'syntax/types';
 type Visitor<T extends t.Node, S extends Context = Context> =
   t.VisitNodeObject<BabelState<S>, T>;
 
-export interface BunchOf<T> {
-  [key: string]: T
-}
-
 export interface BabelFile extends File {
   buildCodeFrameError<TError extends Error>(
     node: t.Node,
@@ -28,7 +24,7 @@ export interface Options {
   pragma: "react";
   runtime: string;
   styleMode: "compile" | "inline";
-  macros: BunchOf<(...args: any[]) => any>[];
+  macros: Record<string, (...args: any[]) => any>[];
   module?: true | string;
 
   // optional

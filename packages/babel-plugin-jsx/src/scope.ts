@@ -3,7 +3,7 @@ import { createElement as createJSX } from './generate/jsx';
 
 import type * as t from 'syntax/types';
 import type { Context } from 'context';
-import type { BunchOf, Options, PropData } from 'types';
+import type { Options, PropData } from 'types';
 import * as $ from 'syntax';
 
 type ImportSpecific =
@@ -26,8 +26,8 @@ export abstract class FileManager {
   protected scope: t.Scope;
   protected opts: Options;
 
-  protected imports = {} as BunchOf<External<any>>;
-  protected importIndices = {} as BunchOf<number>;
+  protected imports: Record<string, External<any>> = {};
+  protected importIndices: Record<string, number> = {};
 
   static create(
     parent: Context,
@@ -156,7 +156,7 @@ export abstract class FileManager {
 }
 
 export class ImportManager extends FileManager {
-  imports = {} as BunchOf<External<ImportSpecific>>
+  imports = {} as Record<string, External<ImportSpecific>>
 
   ensure(from: string, name: string, alt = name){
     from = this.replaceAlias(from);
@@ -225,8 +225,8 @@ export class ImportManager extends FileManager {
 }
 
 export class RequireManager extends FileManager {
-  imports = {} as BunchOf<External<t.ObjectProperty>>
-  importTargets = {} as BunchOf<t.Expression | false>
+  imports = {} as Record<string, External<t.ObjectProperty>>
+  importTargets = {} as Record<string, t.Expression | false>
 
   ensure(from: string, name: string, alt = name){
     const source = this.ensureImported(from).items;

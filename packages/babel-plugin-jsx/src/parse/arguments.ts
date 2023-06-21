@@ -2,7 +2,6 @@ import { ParseErrors } from 'errors';
 import * as $ from 'syntax';
 
 import type * as t from 'syntax/types';
-import type { BunchOf } from 'types';
 
 const Oops = ParseErrors({
   UnaryUseless: "Unary operator here doesn't do anything",
@@ -214,7 +213,7 @@ function LabeledStatement(stat: t.LabeledStatement){
 }
 
 function BlockStatement(statement: t.BlockStatement){
-  const map = {} as BunchOf<any>
+  const map = {} as Record<string, any>
 
   for(const item of statement.body)
     if($.is(item, "LabeledStatement"))
