@@ -5,7 +5,7 @@ import type * as t from 'syntax/types';
 import type { ModifyDelegate } from 'parse/labels';
 import type { Define } from 'handle/definition';
 
-export function forwardProp(
+function forwardProp(
   this: ModifyDelegate,
   ...propNames: any[]){
 
@@ -90,4 +90,26 @@ function getProps(exec: t.Path<t.Function>){
   }
 
   return (props as t.ObjectPattern).properties;
+}
+
+function applyAlso(this: ModifyDelegate, ...names: any[]){
+  const { target } = this;
+
+  for(const name of names)
+    if(typeof name == "string"){
+      const mod = target.getModifier(name);
+
+      if(mod)
+        target.use(mod);
+    }
+}
+
+function setPriority(this: ModifyDelegate, priority: number){
+  this.target.priority = priority;
+}
+
+export const builtIn = {
+  forward: forwardProp,
+  priority: setPriority,
+  use: applyAlso
 }

@@ -1,5 +1,5 @@
 import { Define } from 'handle/definition';
-import { builtIn } from 'modifier/builtIn';
+import { builtIn } from 'handle/macros';
 import { containerName } from 'parse/entry';
 import { FileManager } from 'scope';
 import { hash } from 'utility';
