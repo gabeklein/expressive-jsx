@@ -80,8 +80,8 @@ export function handleDefine(
     }
 
     function addStyle(name: string, ...args: any[]){
-      const parsed: any[] = args.map(arg => (
-        arg.value || arg.requires ? $.requires(arg.requires) : arg
+      const parsed: any[] = args.map(arg => arg.value || (
+        arg.requires ? $.requires(arg.requires) : arg
       ))
     
       const output = parsed.length == 1 || typeof parsed[0] == "object"
