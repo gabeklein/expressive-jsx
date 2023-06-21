@@ -66,7 +66,7 @@ export class Define extends AttributeBody {
   get isDeclared(){
     return doUntilEmpty<Define, boolean>(this,
       (x, add) => {
-        if(x.containsStyle(true))
+        if(x.hasStyle(true))
           return true;
 
         add(...x.dependant);
@@ -100,7 +100,7 @@ export class Define extends AttributeBody {
   }
   
   setActive(withPriority?: number){
-    if(!this.containsStyle(true))
+    if(!this.hasStyle(true))
       return;
 
     if(withPriority! > this.priority)
@@ -109,9 +109,9 @@ export class Define extends AttributeBody {
     this.context.declared.add(this);
   }
 
-  containsStyle(staticOnly?: boolean): Style | undefined;
-  containsStyle(named: string): Style | undefined;
-  containsStyle(arg?: boolean | string){
+  hasStyle(staticOnly?: boolean): Style | undefined;
+  hasStyle(named: string): Style | undefined;
+  hasStyle(arg?: boolean | string){
     return this.sequence.find(style => {
       if(style instanceof Style)
         return typeof arg == "string"
