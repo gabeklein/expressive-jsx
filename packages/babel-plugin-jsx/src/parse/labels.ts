@@ -77,8 +77,8 @@ function handleModifier(
   ][];
 
   while(queue.length){
-    const [key, body] = queue.pop()!;
-    const transform = context.getHandler(key);
+    const [name, body] = queue.pop()!;
+    const transform = context.getHandler(name);
 
     let important = false;
     const args = Array.isArray(body) ? body : parseArguments(body.node);
@@ -102,7 +102,7 @@ function handleModifier(
     }
 
     if(!transform){
-      addStyle(key, ...args);
+      addStyle(name, ...args);
       return;
     }
 
@@ -124,7 +124,7 @@ function handleModifier(
     const output = transform.apply({
       setContingent,
       target,
-      name: key,
+      name,
       body: body as any
     }, args);
 
@@ -134,7 +134,7 @@ function handleModifier(
     Object
       .entries(output)
       .reverse()
-      .forEach(([name, value]) => {
+      .forEach(([key, value]) => {
         if(!value)
           return;
 
@@ -144,10 +144,10 @@ function handleModifier(
         if(important)
           args.push("!important");
 
-        if(name === key)
-          addStyle(name, ...value);
+        if(key === name)
+          addStyle(key, ...value);
         else
-          queue.push([name, value]);
+          queue.push([key, value]);
       });
   }
 }
