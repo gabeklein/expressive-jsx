@@ -61,16 +61,24 @@ export function handleDefine(
 
   if($.is(body, "IfStatement"))
     key = `${key}.if`;
-  
-  const handler = context.getHandler(key);
-  const queue = [[key, handler, body]] as [
+
+  handleModifier(key, target, body);
+}
+
+function handleModifier(
+  key: string,
+  target: Define,
+  body: t.Path<t.Statement>
+){
+  const { context } = target;
+  const queue = [[key, body]] as [
     key: string,
-    action: ModifyAction | undefined,
     body: DefineBodyCompat | any[]
   ][];
 
   while(queue.length){
-    const [key, transform, body] = queue.pop()!;
+    const [key, body] = queue.pop()!;
+    const transform = context.getHandler(key);
 
     let important = false;
     const args = Array.isArray(body) ? body : parseArguments(body.node);
@@ -136,14 +144,10 @@ export function handleDefine(
         if(important)
           args.push("!important");
 
-        if(name === key){
+        if(name === key)
           addStyle(name, ...value);
-          return;
-        }
-        
-        const handler = context.getHandler(name);
-
-        queue.push([name, handler, value]);
+        else
+          queue.push([name, value]);
       });
   }
 }
