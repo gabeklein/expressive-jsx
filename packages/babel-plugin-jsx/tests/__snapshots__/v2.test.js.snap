@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`whatever 1`] = `
+  const App = () => {
+    return <div className="File_2qh">Hello World</div>;
+  };
+  
+  css(\`
+  	.File_2qh {
+  		margin: 20px;
+  	}
+  \`);
+`;
