@@ -177,9 +177,9 @@ export class ImportManager extends FileManager {
 
     for(const spec of list)
       if("imported" in spec){
-        const { type, name: input } = spec.imported;
+        const { imported } = spec;
 
-        if(type == "Identifier" && input == name){
+        if(imported.type == "Identifier" && imported.name == name){
           uid = $.identifier(spec.local.name);
           break;
         }

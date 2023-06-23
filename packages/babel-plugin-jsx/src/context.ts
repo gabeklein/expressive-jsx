@@ -38,7 +38,7 @@ export class Context {
     path: t.Path<t.BabelProgram>,
     state: BabelState){
 
-    path.data = this;
+    path.data = { context: this };
 
     const { module, macros } = state.opts;
 
@@ -76,8 +76,8 @@ export class Context {
 export function getContext(
   path: t.Path<any>, create?: boolean): Context {
 
-  while(path = path.parentPath){
-    const scope = path.data as Context | undefined;
+  while(path = path.parentPath!){
+    const scope = path.data?.context as Context | undefined;
 
     if(scope)
       return scope;
@@ -95,7 +95,7 @@ export function getContext(
     const { context } = define;
 
     if(path.node)
-      path.data = context;
+      path.data = { context };
   
     context.name = containerName(path);
   
