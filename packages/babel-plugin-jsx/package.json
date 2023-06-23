@@ -30,8 +30,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.22.5",
-    "@babel/types": "7.10.3",
-    "@types/babel__traverse": "^7.11.0",
+    "@babel/types": "7.22.5",
+    "@types/babel__traverse": "^7.20.1",
     "prettier": "^2.8.8"
   }
 }
