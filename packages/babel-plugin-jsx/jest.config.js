@@ -1,6 +1,10 @@
 /** @type {import("jest").Config} */
 module.exports = {
-  "preset": "ts-jest",
+  "transform": {
+    "^.+\\.[tj]sx?$": ["ts-jest", {
+      "isolatedModules": true,
+    }],
+  },
   "testTimeout": 1000,
   "moduleDirectories": [
     './src',
