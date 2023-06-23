@@ -6,6 +6,8 @@ import * as $ from 'syntax';
 import { parse as parseArguments } from './arguments';
 import { parse as parseBlock } from './block';
 
+import type { NodePath } from '@babel/traverse';
+import type { Statement } from '@babel/types';
 import type * as t from 'syntax/types';
 
 export type DefineBodyCompat =
@@ -66,22 +68,26 @@ export function handleDefine(
 }
 
 function handleModifier(
-  key: string,
+  name: string,
   target: Define,
   body: t.Path<t.Statement>
 ){
   const { context } = target;
-  const queue = [[key, body]] as [
-    key: string,
-    body: DefineBodyCompat | any[]
-  ][];
+  const queue = [{
+    name,
+    body,
+    args: parseArguments(body.node)
+  } as {
+    name: string,
+    body?: t.Path<t.Statement>,
+    args: any[]
+  }];
 
   while(queue.length){
-    const [name, body] = queue.pop()!;
+    const { name, body, args } = queue.pop()!;
     const transform = context.getHandler(name);
 
     let important = false;
-    const args = Array.isArray(body) ? body : parseArguments(body.node);
 
     if(args[args.length - 1] == "!important"){
       important = true;
@@ -125,7 +131,7 @@ function handleModifier(
       setContingent,
       target,
       name,
-      body: body as any
+      body
     }, args);
 
     if(!output)
@@ -147,7 +153,10 @@ function handleModifier(
         if(key === name)
           addStyle(key, ...value);
         else
-          queue.push([key, value]);
+          queue.push({
+            name: key,
+            args: value
+          });
       });
   }
 }
@@ -155,7 +164,7 @@ function handleModifier(
 export interface ModifyDelegate {
   target: Define;
   name: string;
-  body: DefineBodyCompat;
+  body?: NodePath<Statement>;
 
   setContingent(
     select: string | string[],
