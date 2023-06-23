@@ -4,7 +4,7 @@ import { Node, Program } from '@babel/types';
 import { Define } from './define';
 import { ModifyAction } from './modify';
 import { hash } from 'utility';
-import { getLocalFilename } from 'parse/entry';
+import { getName, getLocalFilename } from 'parse/entry';
 import { PluginPass } from '@babel/core';
 import { Options } from 'types';
 import { FileManager } from './scope';
@@ -27,8 +27,8 @@ export class Context {
     this.root.modifiersDeclared.add(value);
 
     Object.defineProperty(this, "define", {
-      value,
-      configurable: true
+      configurable: true,
+      value
     });
     
     return value;
@@ -76,25 +76,23 @@ export class Context {
 
   static get(path: NodePath<Node>): Context {
     do {
-      if(!path.data)
+      if(path.data){
+        const { context } = path.data;
+  
+        if(context instanceof Context)
+          return context;
+
         continue;
-
-      const { context } = path.data;
-
-      if(context instanceof Context)
-        return context;
+      }
 
       if(path.isFunction()){
-        const parent = this.get(path);
-        const context = new Context("File", parent);
+        const parent = this.get(path.parentPath);
+        const context = new Context(getName(path), parent);
 
         path.data = { context };
 
         return context;
       }
-
-      if(path.isIfStatement())
-        throw new Error("If statements are not supported.");
     }
     while(path = path.parentPath!);
 

@@ -2,11 +2,11 @@
 
 exports[`whatever 1`] = `
   const App = () => {
-    return <div className="File_2qh">Hello World</div>;
+    return <div className="App_8dv">Hello World</div>;
   };
   
   css(\`
-  	.File_2qh {
+  	.App_8dv {
   		margin: 20px;
   	}
   \`);
