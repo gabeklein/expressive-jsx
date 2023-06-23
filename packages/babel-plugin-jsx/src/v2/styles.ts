@@ -67,11 +67,7 @@ export function generateCSS(context: RootContext){
     Object.entries(item.styles).forEach(([ name, value ]) => {
       if(value)
         styles.push({ name, value });
-    })
-
-    // for(const style of item.sequence)
-    //   if(style instanceof Style && style.invariant)
-    //     styles.push(style);
+    });
 
     const targetQuery: MediaGroups =
       query in media ?

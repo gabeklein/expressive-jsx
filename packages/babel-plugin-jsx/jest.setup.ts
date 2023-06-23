@@ -3,7 +3,7 @@ import { format,  } from 'prettier';
 
 
 const { default: PluginJSX } = require(
-  process.env.V2 ? "./src/index_v2" : "./src/index"
+  process.env.V2 ? "./src/v2" : "./src"
 );
 
 expect.addSnapshotSerializer({
