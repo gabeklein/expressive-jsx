@@ -1,6 +1,6 @@
 import { Define } from 'handle/definition';
 import { builtIn } from 'handle/macros';
-import { containerName } from 'parse/entry';
+import { getName } from 'parse/entry';
 import { FileManager } from 'scope';
 import { hash } from 'utility';
 
@@ -90,14 +90,14 @@ export function getContext(
     if(!parentContext)
       throw new Error("well that's awkward.");
 
-    const name = containerName(path);
+    const name = getName(path.parentPath);
     const define = new Define(parentContext, name);
     const { context } = define;
 
     if(path.node)
       path.data = { context };
   
-    context.name = containerName(path);
+    context.name = getName(path.parentPath);
   
     return context;
   }

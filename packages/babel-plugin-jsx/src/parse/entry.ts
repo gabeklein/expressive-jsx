@@ -9,33 +9,32 @@ type FunctionPath =
   | t.Path<t.FunctionDeclaration>
   | t.Path<t.FunctionExpression>
 
-export function containerName(path: t.Path): string {
-  let parent = path.parentPath;
+export function getName(path: t.Path): string {
   let encounteredReturn;
 
-  while(true)
-  switch(parent.type){
+  while(path)
+  switch(path.type){
     case "VariableDeclarator": {
-      const { id } = parent.node as t.VariableDeclarator;
+      const { id } = path.node as t.VariableDeclarator;
       return $.is(id, "Identifier")
         ? id.name
-        : (<t.VariableDeclaration>parent.parentPath.node).kind
+        : (<t.VariableDeclaration>path.parentPath!.node).kind
     }
 
     case "AssignmentExpression":
     case "AssignmentPattern": {
-      const { left } = parent.node as t.AssignmentExpression;
+      const { left } = path.node as t.AssignmentExpression;
       return $.is(left, "Identifier") ? left.name : "assignment"
     }
 
     case "FunctionDeclaration":
-      return (<t.FunctionDeclaration>parent.node).id!.name;
+      return (<t.FunctionDeclaration>path.node).id!.name;
 
     case "ExportDefaultDeclaration":
       return getLocalFilename(path.hub);
 
     case "ArrowFunctionExpression": {
-      parent = parent.parentPath;
+      path = path.parentPath!;
       continue;
     }
 
@@ -55,7 +54,7 @@ export function containerName(path: t.Path): string {
         return node.id.name;
 
       if($.is(node, "ObjectMethod")){
-        parent = within.getAncestry()[2];
+        path = within.getAncestry()[2];
         continue
       }
 
@@ -68,19 +67,19 @@ export function containerName(path: t.Path): string {
           if(owner.node.id)
             return owner.node.id.name;
 
-          parent = owner.parentPath;
+          path = owner.parentPath;
           continue;
         }
         else
           return node.key.name;
       }
 
-      parent = within.parentPath;
+      path = within.parentPath;
       continue;
     }
 
     case "ObjectProperty": {
-      const { key } = parent.node as t.ObjectProperty;
+      const { key } = path.node as t.ObjectProperty;
       return (
         $.is(key, "Identifier") ? key.name : 
         $.is(key, "StringLiteral") ? key.value : 
@@ -91,6 +90,8 @@ export function containerName(path: t.Path): string {
     default:
       return "element";
   }
+
+  return "element";
 }
 
 export function getLocalFilename(hub: Hub){
