@@ -91,6 +91,9 @@ export default () => <PluginObj>({
   visitor: {
     Program,
     LabeledStatement,
-    JSXElement
+    JSXElement,
+    JSXFragment(path){
+      isImplicitReturn(path as any);
+    }
   }
 });

@@ -11,7 +11,7 @@ export function applyModifier(context: Context, element: t.JSXElement){
   )
 }
 
-export function isImplicitReturn(path: t.Path<t.JSXElement>){
+export function isImplicitReturn(path: t.Path<t.JSXElement> | t.Path<t.JSXFragment>){
   const parent = path.parentPath;
 
   if(!parent.isExpressionStatement() || !parent.parentPath!.parentPath!.isFunction())
