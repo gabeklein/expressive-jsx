@@ -5,6 +5,8 @@ import { Context, RootContext } from 'v2/context';
 import { handleModifier } from 'v2/modify';
 import { generateCSS, styleDeclaration } from 'v2/styles';
 
+import { applyModifier, isImplicitReturn } from './jsx';
+
 import type { VisitNode } from '@babel/traverse';
 
 type Visit<T extends t.Node> = VisitNode<PluginPass, T>;
@@ -78,11 +80,7 @@ const JSXElement: Visit<t.JSXElement> = {
 
     const context = Context.get(path);
 
-    path.node.openingElement.attributes.push(
-      t.jsxAttribute(t.jsxIdentifier("className"), t.literal(context.define.uid))
-    )
-
-
+    applyModifier(context, path.node);
   }
 }
 
@@ -96,15 +94,3 @@ export default () => <PluginObj>({
     JSXElement
   }
 });
-
-function isImplicitReturn(path: t.Path<JSXElement>){
-  const parent = path.parentPath;
-
-  if(!parent.isExpressionStatement() || !parent.parentPath!.parentPath!.isFunction())
-    return false;
-
-  parent.replaceWith(t.returns(path.node));
-  path.skip();
-
-  return true;
-}
