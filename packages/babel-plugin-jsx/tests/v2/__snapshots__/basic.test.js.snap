@@ -2,24 +2,24 @@
 
 exports[`nested style 1`] = `
   const App = () => {
-    return <div className="child_510">Hello World</div>;
+    return <div className="element_52j">Hello World</div>;
   };
   
   css(\`
-  	.child_510 {
-  		margin: 20px;
+  	.element_52j {
+  		color: red;
   	}
   \`);
 `;
 
-exports[`whatever 1`] = `
+exports[`style 1`] = `
   const App = () => {
     return <div className="App_8dv">Hello World</div>;
   };
   
   css(\`
   	.App_8dv {
-  		margin: 20px;
+  		color: red;
   	}
   \`);
 `;

@@ -1,6 +1,6 @@
-transform("whatever", `
+transform("style", `
   const App = () => {
-    margin: 20;
+    color: red;
 
     <this>Hello World</this>
   }
@@ -8,10 +8,10 @@ transform("whatever", `
 
 transform("nested style", `
   const App = () => {
-    child: {
-      margin: 20;
+    element: {
+      color: red;
     }
 
-    <child>Hello World</child>
+    <element>Hello World</element>
   }
 `)
