@@ -1,3 +1,11 @@
+transform("multi-argument style", `
+  () => {
+    value: foo, bar, baz;
+
+    <this>Hello World</this>
+  };
+`);
+
 transform("output attributes", `
   () => {
     bg: red;
