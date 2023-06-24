@@ -2,7 +2,7 @@ import { Style } from 'handle/attributes';
 import { ArrayStack } from 'utility';
 import * as $ from 'syntax';
 
-import type * as t from 'syntax/types';
+import * as t from 'syntax/types';
 
 export class AttributeStack extends ArrayStack<Style> {
   exists = new Set<string>();
@@ -42,7 +42,7 @@ export class AttributeStack extends ArrayStack<Style> {
 
     for(const item of this)
       if(item instanceof Style)
-        chunks.push($.spread(item.expression))
+        chunks.push(t.spreadElement(item.expression))
       else
         chunks.push(...item.map(style =>
           $.property(style.name!, style.expression)

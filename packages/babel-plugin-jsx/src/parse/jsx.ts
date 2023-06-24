@@ -3,10 +3,10 @@ import { Prop } from 'handle/attributes';
 import { ElementInline } from 'handle/definition';
 import * as $ from 'syntax';
 import { HTML_TAGS, SVG_TAGS } from 'syntax/jsx';
+import * as t from 'syntax/types';
 
 import type { Define } from 'handle/definition';
 import type { JSXChild } from 'syntax/jsx';
-import type * as t from 'syntax/types';
 
 export type Element = ElementInline | Define;
 
@@ -25,7 +25,7 @@ export function addElementFromJSX(
   if(path.isJSXElement()){
     const tag = (path as t.Path<t.JSXElement>).get("openingElement").get("name");
   
-    if(!$.is(tag, "JSXIdentifier", { name: "this" })){
+    if(!tag.isJSXIdentifier({ name: "this" })){
       const child = new ElementInline(target.context);
   
       applyTagName(child, tag.node);
@@ -90,7 +90,7 @@ function applyChild(
   else if(path.isJSXExpressionContainer()){
     const { expression } = path.node;
 
-    if(!$.is(expression, "JSXEmptyExpression"))
+    if(!t.isJSXEmptyExpression(expression))
       element.adopt(path.node.expression as t.Expression);
   }
   else
@@ -103,11 +103,11 @@ export function applyTagName(
 
   let name;
 
-  if($.is(tag, "JSXMemberExpression")){
+  if(t.isJSXMemberExpression(tag)){
     name = tag.property.name;
     element.tagName = tag;
   }
-  else if($.is(tag, "JSXIdentifier")){
+  else if(t.isJSXIdentifier(tag)){
     name = tag.name;
 
     if(name === "this")
@@ -157,7 +157,7 @@ function applyAttribute(
   let name: string | false;
   let value: t.Expression | undefined;
 
-  if($.is(attr, "JSXSpreadAttribute")){
+  if(attr.isJSXSpreadAttribute()){
     name = false;
     value = attr.node.argument;
   }
@@ -165,12 +165,12 @@ function applyAttribute(
     const expression = attr.node.value;
     name = attr.node.name.name as string;
 
-    if(expression === null){
+    if(!expression){
       const applied = parent.modify(name);
 
       if(!applied.length)
-        value = $.node("BooleanLiteral", { value: true });
-
+        value = t.booleanLiteral(true);
+        
       else {
         if(/^[A-Z]/.test(parent.name!))
           for(const define of applied)

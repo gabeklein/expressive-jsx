@@ -2,8 +2,8 @@ import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { ElementInline } from 'handle/definition';
 import * as $ from 'syntax';
+import * as t from 'syntax/types';
 
-import type * as t from 'syntax/types';
 import type { Define } from 'handle/definition';
 
 const Oops = ParseErrors({
@@ -37,7 +37,7 @@ export function forElement(
   node.body = body;
 
   return $.call(collect, 
-    $.arrow([accumulator], $.block(node))  
+    t.arrowFunctionExpression([accumulator], $.block(node))  
   )
 }
 
@@ -58,18 +58,18 @@ export function forXElement(
   if(define.statements.length)
     body = $.block(...define.statements, $.returns(body));
   
-  if($.is(node, "ForOfStatement")){
+  if(t.isForOfStatement(node)){
     const params = key ? [left, key] : [left];
 
     return $.call(
       $.get(right, "map"),
-      $.arrow(params, body)
+      t.arrowFunctionExpression(params, body)
     )
   }
 
   return $.call(
     $.get($.objectKeys(right), "map"),
-    $.arrow([left], body)
+    t.arrowFunctionExpression([left], body)
   )
 }
 
@@ -77,7 +77,7 @@ function getReferences(node: t.ForXStatement){
   let { left, right } = node;
   let key: t.Identifier | undefined;
 
-  if($.is(left, "VariableDeclaration"))
+  if(t.isVariableDeclaration(left))
     left = left.declarations[0].id;
 
   switch(left.type){
@@ -90,13 +90,13 @@ function getReferences(node: t.ForXStatement){
       throw Oops.BadForOfAssignment(left);
   }
 
-  if($.is(right, "BinaryExpression", { operator: "in" })){
+  if(t.isBinaryExpression(right, { operator: "in" })){
     key = right.left as t.Identifier;
     right = right.right;
   }
 
-  if($.is(node, "ForInStatement"))
-    if($.is(left, "Identifier"))
+  if(t.isForInStatement(node))
+    if(t.isIdentifier(left))
       key = left;
     else
       throw Oops.BadForInAssignment(left);

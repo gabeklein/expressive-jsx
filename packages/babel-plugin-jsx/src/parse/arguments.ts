@@ -1,7 +1,7 @@
 import { ParseErrors } from 'errors';
 import * as $ from 'syntax';
 
-import type * as t from 'syntax/types';
+import * as t from 'syntax/types';
 
 const Oops = ParseErrors({
   UnaryUseless: "Unary operator here doesn't do anything",
@@ -36,11 +36,11 @@ const types: any = {
 }
 
 export function parse(element: t.Expression | t.Statement): any[] {
-  if($.is(element, "ExpressionStatement"))
+  if(t.isExpressionStatement(element))
     element = element.expression;
 
   return [].concat(
-    $.isExpression(element)
+    t.isExpression(element)
       ? Expression(element)
       : Extract(element)
   )
@@ -91,10 +91,10 @@ function TemplateLiteral(e: t.TemplateLiteral) {
 function UnaryExpression(e: t.UnaryExpression){
   const { argument, operator } = e;
 
-  if(operator == "-" && $.is(argument, "NumericLiteral"))
+  if(operator == "-" && t.isNumericLiteral(argument))
     return NumericLiteral(argument, true);
 
-  if(operator == "!" && $.is(argument, "Identifier", { name: "important" }))
+  if(operator == "!" && t.isIdentifier(argument, { name: "important" }))
     return "!important";
 
   throw Oops.UnaryUseless(e)
@@ -127,8 +127,8 @@ function NullLiteral(){
 function BinaryExpression(binary: t.BinaryExpression){
   const {left, right, operator} = binary;
   if(operator == "-"
-  && $.is(left, "Identifier")
-  && $.is(right, "Identifier", { start: left.end! + 1 }))
+  && t.isIdentifier(left)
+  && t.isIdentifier(right, { start: left.end! + 1 }))
     return left.name + "-" + right.name
   else
     return [
@@ -167,9 +167,9 @@ function CallExpression(e: t.CallExpression){
     throw Oops.MustBeIdentifier(callee);
 
   for(const item of e.arguments){
-    if($.isExpression(item))
+    if(t.isExpression(item))
       args.push(Expression(item));
-    else if($.is(item, "SpreadElement"))
+    else if(t.isSpreadElement(item))
       throw Oops.ArgumentSpread(item)
     else
       throw Oops.UnknownArgument(item)
@@ -216,7 +216,7 @@ function BlockStatement(statement: t.BlockStatement){
   const map = {} as Record<string, any>
 
   for(const item of statement.body)
-    if($.is(item, "LabeledStatement"))
+    if(t.isLabeledStatement(item))
       map[item.label.name] = parse(item.body);
     else if(item.type !== "IfStatement")
       throw Oops.ModiferCantParse(statement);

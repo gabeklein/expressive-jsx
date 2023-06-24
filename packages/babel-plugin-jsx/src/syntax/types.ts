@@ -1,5 +1,5 @@
 import type * as r from "@babel/traverse";
-import type * as t from "@babel/types";
+import * as t from "@babel/types";
 
 export type { NodePath as Path, Scope, VisitNodeObject } from '@babel/traverse';
 export type { Program as BabelProgram } from '@babel/types';

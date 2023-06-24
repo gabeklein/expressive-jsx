@@ -1,6 +1,4 @@
-import { is, node } from './nodes';
-
-import type * as t from './types';
+import * as t from './types';
 
 type JSXReference = t.JSXIdentifier | t.JSXMemberExpression;
 
@@ -206,7 +204,7 @@ function jsxIdentifier(name: string): t.JSXIdentifier;
 function jsxIdentifier(name: string | JSXReference): JSXReference;
 function jsxIdentifier(name: string | JSXReference){
   return typeof name == "string"
-    ? node("JSXIdentifier", { name })
+    ? t.jsxIdentifier(name)
     : name;
 }
 
@@ -219,49 +217,37 @@ export function jsxElement(
   const content = children.map(jsxContent);
   const contains = content.length > 0;
 
-  const openingElement = node("JSXOpeningElement", {
-    name: type,
-    attributes: props,
-    selfClosing: !contains,
-    typeParameters: null
-  });
+  const openingElement = t.jsxOpeningElement(type, props, !contains);
+  const closingElement = contains ? t.jsxClosingElement(type) : null;
 
-  const closingElement = contains
-    ? node("JSXClosingElement", { name: type })
-    : null;
-
-  return node("JSXElement", {
-    openingElement,
-    closingElement,
-    children: content,
-    selfClosing: !contains
-  });
+  return t.jsxElement(openingElement, closingElement, content, !contains);
 }
 
 function jsxContent(child: t.Expression){
-  if(is(child, "JSXElement"))
+  if(t.isJSXElement(child))
     return child;
 
-  if(is(child, "StringLiteral") && !/\{/.test(child.value))
-    return node("JSXText", { value: child.value });
+  if(t.isStringLiteral(child) && !/\{/.test(child.value))
+    return t.jsxText(child.value);
 
-  return node("JSXExpressionContainer", { expression: child });
+  return t.jsxExpressionContainer(child);
 }
 
 const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;
 
 export function jsxAttribute(value: t.Expression, name?: string | false){
   if(typeof name !== "string")
-    return node("JSXSpreadAttribute", { argument: value });
+    return t.jsxSpreadAttribute(value);
 
   if(IsLegalAttribute.test(name) == false)
     throw new Error(`Illegal characters in prop named ${name}`)
 
-  const jsxValue = is(value, "StringLiteral")
+  const jsxValue = t.isStringLiteral(value)
     ? value.value === "true" ? null : value
-    : node("JSXExpressionContainer", { expression: value })
+    : t.jsxExpressionContainer(value);
 
-  return node("JSXAttribute", {
-    name: jsxIdentifier(name), value: jsxValue
-  });
+  return t.jsxAttribute(
+    t.jsxIdentifier(name),
+    jsxValue
+  );
 }

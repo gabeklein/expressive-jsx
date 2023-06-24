@@ -4,7 +4,7 @@ import { ensureArray } from 'utility';
 
 import { Define } from './definition';
 
-import type * as t from 'syntax/types';
+import * as t from 'syntax/types';
 import type { Context } from 'context';
 
 /** Number of consequents existing for a given parent Define. */
@@ -93,10 +93,10 @@ export class ComponentIf {
 
     const { forks } = this;
 
-    if($.is(body, "IfStatement"))
+    if(body.isIfStatement())
       throw new Error("Nested if statements are not supported.");
 
-    if($.is(body, "BlockStatement")){
+    if(body.isBlockStatement()){
       const inner = ensureArray(body.get("body"));
 
       if(inner.length == 1)
@@ -138,10 +138,10 @@ export class ComponentIf {
     if(!test)
       return false;
   
-    if($.isFalsy(test) && $.is(test.argument, "Identifier"))
+    if($.isFalsy(test) && t.isIdentifier(test.argument))
       return `not_${test.argument.name}`;
   
-    if($.is(test, "Identifier"))
+    if(t.isIdentifier(test))
       return test.name;
   }
 }

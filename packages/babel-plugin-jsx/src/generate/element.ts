@@ -3,7 +3,7 @@ import { Style, Prop } from 'handle/attributes';
 import { Define, DefineLocal, DefineVariant, ElementInline } from 'handle/definition';
 import * as $ from 'syntax';
 
-import type * as t from 'syntax/types';
+import * as t from 'syntax/types';
 import type { FileManager } from 'scope';
 import type { PropData, SequenceItem } from 'types';
 import type { Context } from 'context';
@@ -101,7 +101,7 @@ export class Generator {
       }
     }
 
-    else if($.isExpression(item))
+    else if(t.isExpression(item))
       this.children.push(item);
   }
 
@@ -120,9 +120,9 @@ export class Generator {
       if(value && typeof value == "object")
         if("toExpression" in value)
           return; 
-        else if($.is(value, "StringLiteral"))
+        else if(t.isStringLiteral(value))
           ({ value } = value);
-        else if($.isExpression(value)){
+        else if(t.isExpression(value)){
           this.classList.add(value);
           return;
         }

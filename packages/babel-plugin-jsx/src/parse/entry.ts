@@ -1,7 +1,5 @@
-import * as $ from 'syntax';
-
 import type { Hub } from '@babel/traverse';
-import type * as t from 'syntax/types';
+import * as t from 'syntax/types';
 
 type FunctionPath =
   | t.Path<t.ClassMethod>
@@ -16,7 +14,7 @@ export function getName(path: t.Path): string {
   switch(path.type){
     case "VariableDeclarator": {
       const { id } = path.node as t.VariableDeclarator;
-      return $.is(id, "Identifier")
+      return t.isIdentifier(id)
         ? id.name
         : (<t.VariableDeclaration>path.parentPath!.node).kind
     }
@@ -24,7 +22,7 @@ export function getName(path: t.Path): string {
     case "AssignmentExpression":
     case "AssignmentPattern": {
       const { left } = path.node as t.AssignmentExpression;
-      return $.is(left, "Identifier") ? left.name : "assignment"
+      return t.isIdentifier(left) ? left.name : "assignment"
     }
 
     case "FunctionDeclaration":
@@ -53,12 +51,12 @@ export function getName(path: t.Path): string {
       if("id" in node && node.id)
         return node.id.name;
 
-      if($.is(node, "ObjectMethod")){
+      if(t.isObjectMethod(node)){
         path = within.getAncestry()[2];
         continue
       }
 
-      if($.is(node, "ClassMethod")){
+      if(t.isClassMethod(node)){
         if(node.key.type !== "Identifier")
           return "ClassMethod";
         if(node.key.name == "render"){
@@ -81,8 +79,8 @@ export function getName(path: t.Path): string {
     case "ObjectProperty": {
       const { key } = path.node as t.ObjectProperty;
       return (
-        $.is(key, "Identifier") ? key.name : 
-        $.is(key, "StringLiteral") ? key.value : 
+        t.isIdentifier(key) ? key.name : 
+        t.isStringLiteral(key) ? key.value : 
         "property"
       )
     }

@@ -1,7 +1,8 @@
-import type * as t from 'syntax/types';
+import * as $ from 'syntax';
+import * as t from 'syntax/types';
+
 import type { RootContext } from './context';
 import type { Options } from 'types';
-import * as $ from 'syntax';
 
 type ImportSpecific =
   | t.ImportSpecifier 
@@ -82,7 +83,7 @@ export abstract class FileManager {
   }
 
   ensureUIDIdentifier(name: string){
-    return $.identifier(this.ensureUID(name));
+    return t.identifier(this.ensureUID(name));
   }
 
   close(){
@@ -116,11 +117,11 @@ export class ImportManager extends FileManager {
     if(name == "default"){
       const [ spec ] = list;
 
-      if($.is(spec, "ImportDefaultSpecifier"))
+      if(t.isImportDefaultSpecifier(spec))
         return spec.local;
 
       uid = this.ensureUIDIdentifier(alt);
-      list.unshift($.importDefaultSpecifier(uid));
+      list.unshift(t.importDefaultSpecifier(uid));
       return uid;
     }
 
@@ -129,7 +130,7 @@ export class ImportManager extends FileManager {
         const { imported } = spec;
 
         if(imported.type == "Identifier" && imported.name == name){
-          uid = $.identifier(spec.local.name);
+          uid = t.identifier(spec.local.name);
           break;
         }
       }
@@ -137,7 +138,7 @@ export class ImportManager extends FileManager {
     if(!uid){
       uid = this.ensureUIDIdentifier(alt || name);
       list.push(
-        $.importSpecifier(uid, $.identifier(name))
+        t.importSpecifier(uid, t.identifier(name))
       )
     }
 
@@ -153,7 +154,7 @@ export class ImportManager extends FileManager {
       return imports[name];
 
     for(const stat of this.body)
-      if($.is(stat, "ImportDeclaration") && stat.source.value == name)
+      if(t.isImportDeclaration(stat) && stat.source.value == name)
         return imports[name] = {
           exists: true,
           items: stat.specifiers
@@ -181,8 +182,7 @@ export class RequireManager extends FileManager {
     const source = this.ensureImported(from).items;
 
     for(const { key, value } of source)
-      if($.is(value, "Identifier")
-      && $.is(key, "Identifier", { name }))
+      if(t.isIdentifier(value) && t.isIdentifier(key, { name }))
         return value;
 
     const ref = this.ensureUIDIdentifier(alt);
@@ -204,10 +204,10 @@ export class RequireManager extends FileManager {
     let list;
 
     for(let i = 0, stat; stat = body[i]; i++)
-      if($.is(stat, "VariableDeclaration"))
+      if(t.isVariableDeclaration(stat))
         target = requireResultFrom(name, stat);
 
-    if($.is(target, "ObjectPattern"))
+    if(t.isObjectPattern(target))
       list = imports[name] = {
         exists: true,
         items: target.properties as t.ObjectProperty[]
@@ -227,7 +227,7 @@ export class RequireManager extends FileManager {
 
     if(list.length){
       const target = this.importTargets[name] || $.requires(name);
-      return $.declare("const", $.pattern(list), target);
+      return $.declare("const", t.objectPattern(list), target);
     }
   }
 }
@@ -237,11 +237,11 @@ function requireResultFrom(
   statement: t.VariableDeclaration){
 
   for(const { init, id } of statement.declarations)
-    if($.is(init, "CallExpression")){
+    if(t.isCallExpression(init)){
       const { callee, arguments: [ arg ] } = init;
 
-      if($.is(callee, "Identifier", { name: "require" })
-      && $.is(arg, "StringLiteral", { value: name }))
+      if(t.isIdentifier(callee, { name: "require" }) 
+      && t.isStringLiteral(arg, { value: name }))
         return id;
     } 
 }

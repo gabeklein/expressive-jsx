@@ -1,6 +1,6 @@
 import * as $ from 'syntax';
 
-import type * as t from 'syntax/types';
+import * as t from 'syntax/types';
 import type { FileManager } from 'scope';
 import type { PropData } from 'types';
 

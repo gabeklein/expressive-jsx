@@ -1,7 +1,7 @@
 import * as $ from 'syntax';
 import { ArrayStack } from 'utility';
 
-import type * as t from 'syntax/types';
+import * as t from 'syntax/types';
 import type { FileManager } from 'scope';
 import type { PropData } from 'types';
 
@@ -20,7 +20,7 @@ export function createElement(
   const props = recombineProps(properties);
   const type = typeof tag === "string"
     ? /^[A-Z]/.test(tag)
-      ? $.identifier(tag)
+      ? t.identifier(tag)
       : $.literal(tag)
     : stripJSX(tag);
 
@@ -61,7 +61,7 @@ function stripJSX(
     case "Identifier":
       return exp;
     case "JSXIdentifier":
-      return $.identifier(exp.name);
+      return t.identifier(exp.name);
     case "JSXMemberExpression":
       return $.member(stripJSX(exp.object), stripJSX(exp.property));
     default:

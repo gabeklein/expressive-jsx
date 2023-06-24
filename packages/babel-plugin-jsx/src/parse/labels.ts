@@ -56,12 +56,12 @@ export function handleDefine(
     return;
   }
 
-  while($.is(body, "LabeledStatement")){
+  while(body.isLabeledStatement()){
     key = `${key}.${body.node.label.name}`;
     body = body.get("body") as t.Path<t.Statement>;
   }
 
-  if($.is(body, "IfStatement"))
+  if(body.isIfStatement())
     key = `${key}.if`;
 
   handleModifier(key, target, body);

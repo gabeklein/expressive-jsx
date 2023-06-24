@@ -44,7 +44,7 @@ const LabeledStatement: Visit<LabeledStatement> = {
       body = body.get("body");
     }
 
-    if($.is(body, "IfStatement"))
+    if(body.isIfStatement())
       key += "if";
 
     if(body.isBlockStatement()){

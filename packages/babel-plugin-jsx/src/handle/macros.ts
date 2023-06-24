@@ -1,7 +1,7 @@
 import { Prop } from 'handle/attributes';
 import * as $ from 'syntax';
 
-import type * as t from 'syntax/types';
+import * as t from 'syntax/types';
 import type { ModifyDelegate } from 'parse/labels';
 import type { Define } from 'handle/definition';
 
@@ -40,8 +40,8 @@ function forwardRef(
   const { node } = component as t.Path<any>;
   const { program } = target.context;
 
-  if($.is(node, "FunctionDeclaration"))
-    node.type = "FunctionExpression";
+  if(t.isFunctionDeclaration(node))
+    (node as any).type = "FunctionExpression";
 
   const _ref = uniqueWithin(component.scope, "ref");
   const _forwardRef = program.ensure("$pragma", "forwardRef");
@@ -56,30 +56,30 @@ function forwardRef(
 function uniqueWithin(scope: t.Scope, name: string){
   return scope.hasBinding(name)
     ? scope.generateUidIdentifier(name)
-    : $.identifier(name);
+    : t.identifier(name);
 }
 
 function getProps(exec: t.Path<t.Function>){
   const { node } = exec;
   let props = node.params[0];
   
-  if(!$.is(props, "ObjectPattern")){
+  if(!t.isObjectPattern(props)){
     const existing = props;
-    props = $.pattern([]);
+    props = t.objectPattern([]);
 
     if(!existing)
       node.params[0] = props;
 
-    else if($.is(existing, "Identifier")){
+    else if(t.isIdentifier(existing)){
       const { body } = node.body as t.BlockStatement;
 
       for(const stat of body){
-        if(!$.is(stat, "VariableDeclaration"))
+        if(!t.isVariableDeclaration(stat))
           break;
 
         for(const { id, init } of stat.declarations)
-          if($.is(init, "Identifier", { name: existing.name })
-          && $.is(id, "ObjectPattern"))
+          if(t.isIdentifier(init, { name: existing.name })
+          && t.isObjectPattern(id))
             return id.properties;
       }
 
@@ -89,7 +89,7 @@ function getProps(exec: t.Path<t.Function>){
     }
   }
 
-  return (props as t.ObjectPattern).properties;
+  return props.properties;
 }
 
 function applyAlso(this: ModifyDelegate, ...names: any[]){

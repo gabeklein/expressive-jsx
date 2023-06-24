@@ -4,13 +4,12 @@ import { Prop } from 'handle/attributes';
 import { DefineVariant } from 'handle/definition';
 import { ComponentFor } from 'handle/iterate';
 import { ComponentIf } from 'handle/switch';
-import * as $ from 'syntax';
+import * as t from 'syntax/types';
 import { ensureArray } from 'utility';
 
 import { addElementFromJSX } from './jsx';
 import { handleDefine } from './labels';
 
-import type * as t from 'syntax/types';
 import type { Define } from 'handle/definition';
 
 const Oops = ParseErrors({
@@ -25,7 +24,7 @@ export function parse(
   if(key)
     block = block.get(key) as any;
 
-  const body = $.is(block, "BlockStatement")
+  const body = block.isBlockStatement()
     ? ensureArray(block.get("body"))
     : [block];
 
@@ -48,12 +47,12 @@ export function parse(
       case "ExpressionStatement": {
         const expr = item.get("expression") as t.Path<t.Expression>;
 
-        if($.is(expr, "AssignmentExpression", { operator: "=" })){
+        if(expr.isAssignmentExpression({ operator: "=" })){
           handlePropAssignment(target, expr);
           break;
         }
 
-        if($.is(expr, ["JSXElement", "JSXFragment"])){
+        if(expr.isJSXElement() || expr.isJSXFragment()){
           OUTPUT_NODE.add(expr.node)
           addElementFromJSX(target, expr as any);
         }
@@ -72,7 +71,7 @@ function handlePropAssignment(
 
   const { left, right } = expr.node;
 
-  if(!$.is(left, "Identifier"))
+  if(!t.isIdentifier(left))
     throw Oops.PropNotIdentifier(left)
 
   const prop = new Prop(left.name, right);
@@ -85,7 +84,7 @@ function handleIfStatement(
 
   const test = path.node.test;
 
-  if($.is(test, "StringLiteral")){
+  if(t.isStringLiteral(test)){
     let select = test.value;
 
     if(/^\w+$/.test(select))
