@@ -39,11 +39,23 @@ expect.addSnapshotSerializer({
   }
 });
 
-(global as any).transform = (name: string, code: string) => {
+const test: any = (name: string, code: string) => {
   it(name, () => {
     expect(code).toMatchSnapshot();
   });
 }
+
+test.only = (name: string, code: string) => {
+  it.only(name, () => {
+    expect(code).toMatchSnapshot();
+  });
+}
+
+test.skip = (name: string, code: string) => {
+  it.skip(name, () => void code);
+}
+
+(global as any).transform = test;
 
 const reformat: Record<string, [RegExp, string]> = {
   statementLineSpacing: [/^(.+?)\n(export|const|let)/gm, "$1\n\n$2"],
