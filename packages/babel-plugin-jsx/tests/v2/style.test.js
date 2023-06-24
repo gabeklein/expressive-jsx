@@ -36,3 +36,16 @@ transform("nested element", `
     </foo>
   }
 `);
+
+transform("competing style priority", `
+  () => {
+    Bar: { color: blue }
+    Foo: {
+      Bar: { color: orange }
+    }
+
+    <Foo>
+      <Bar />
+    </Foo>
+  };
+`);
