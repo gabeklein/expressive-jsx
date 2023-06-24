@@ -30,7 +30,7 @@ export abstract class FileManager {
 
   static create(
     parent: Context,
-    path: t.Path<t.BabelProgram>
+    path: t.Path<t.Program>
   ){
     const { externals, output } = parent.options;
     const Type =
@@ -46,7 +46,7 @@ export abstract class FileManager {
   }
 
   constructor(
-    path: t.Path<t.BabelProgram>,
+    path: t.Path<t.Program>,
     context: Context){
 
     const create = context.options.output === "js" ? createJS : createJSX;

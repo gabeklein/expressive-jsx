@@ -6,11 +6,10 @@ import { handleModifier } from 'v2/modify';
 import { generateCSS, styleDeclaration } from 'v2/styles';
 
 import type { VisitNode } from '@babel/traverse';
-import type { Node, JSXElement, LabeledStatement, Program } from '@babel/types';
 
-type Visit<T extends Node> = VisitNode<PluginPass, T>;
+type Visit<T extends t.Node> = VisitNode<PluginPass, T>;
 
-const Program: Visit<Program> = {
+const Program: Visit<t.Program> = {
   enter(path, state){
     path.data = {
       context: new RootContext(path, state)
@@ -27,7 +26,7 @@ const Program: Visit<Program> = {
   }
 };
 
-const LabeledStatement: Visit<LabeledStatement> = {
+const LabeledStatement: Visit<t.LabeledStatement> = {
   enter(path){
     let body = path.get("body");
 
@@ -72,7 +71,7 @@ const LabeledStatement: Visit<LabeledStatement> = {
   }
 }
 
-const JSXElement: Visit<JSXElement> = {
+const JSXElement: Visit<t.JSXElement> = {
   enter(path){
     if(isImplicitReturn(path))
       return;

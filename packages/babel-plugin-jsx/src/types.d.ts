@@ -1,10 +1,10 @@
+import * as t from 'syntax';
+
 import type { Context } from 'context';
 import type { Style, Prop } from 'handle/attributes';
-import type { ModifyDelegate } from 'parse/labels';
 import type { ElementInline } from 'handle/definition';
 import type { ComponentFor } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';
-import * as t from 'syntax';
 
 type Visitor<T extends t.Node, S extends Context = Context> =
   t.VisitNodeObject<BabelState<S>, T>;

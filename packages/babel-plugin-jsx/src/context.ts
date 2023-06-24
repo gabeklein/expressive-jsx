@@ -35,7 +35,7 @@ export class Context {
   }
 
   constructor(
-    path: t.Path<t.BabelProgram>,
+    path: t.Path<t.Program>,
     state: BabelState){
 
     path.data = { context: this };
