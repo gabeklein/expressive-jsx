@@ -20,3 +20,23 @@ exports[`hoisted 1`] = `
   	}
   \`);
 `;
+
+exports[`nested element 1`] = `
+  () => (
+    <div>
+      <div />
+      <div className="bar_l7l">
+        <div className="baz_5fk">Hello World</div>
+      </div>
+    </div>
+  );
+  
+  css(\`
+  	.bar_l7l {
+  		color: red;
+  	}
+  	.baz_5fk {
+  		color: blue;
+  	}
+  \`);
+`;

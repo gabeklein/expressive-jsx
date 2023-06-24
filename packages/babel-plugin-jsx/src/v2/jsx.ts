@@ -2,22 +2,29 @@ import * as t from 'syntax';
 
 import { Context } from './context';
 
-export function applyModifier(context: Context, element: t.JSXElement){
-  const name = getTagName(element);
+export function applyModifier(
+  context: Context, element: t.Path<t.JSXElement>){
+
+  const name = getTagName(element.node);
   const explicit = /(?:html|svg)-([a-zA-Z-]+)/.exec(name);
 
   context = context.using[name] || context;
 
-  applyTagName(element,
-    explicit ? explicit[1] : "div"
-  );
+  applyTagName(element.node, explicit ? explicit[1] : "div");
 
   if(context){
     const { className } = context.define;
   
     if(className)
-      applyClassName(element, className);
+      applyClassName(element.node, className);
   }
+
+  element.get("children").forEach(child => {
+    if(child.type !== "JSXElement")
+      return;
+
+    child.data = { context };
+  })
 }
 
 function applyTagName(element: t.JSXElement, name: string){

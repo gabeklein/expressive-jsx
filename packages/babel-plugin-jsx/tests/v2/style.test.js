@@ -15,3 +15,26 @@ transform("element", `
     <element>Hello World</element>
   }
 `)
+
+transform("nested element", `
+  () => {
+    foo: {
+      bar: {
+        color: red;
+
+        baz: {
+          color: blue;
+        }
+      }
+    }
+
+    <foo>
+      <baz />
+      <bar>
+        <baz>
+          Hello World
+        </baz>
+      </bar>
+    </foo>
+  }
+`);

@@ -80,7 +80,7 @@ const JSXElement: Visit<t.JSXElement> = {
 
     const context = Context.get(path);
 
-    applyModifier(context, path.node);
+    applyModifier(context, path);
   }
 }
 
