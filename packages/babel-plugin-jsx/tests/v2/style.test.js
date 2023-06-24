@@ -31,9 +31,7 @@ transform("nested element", `
     <foo>
       <baz />
       <bar>
-        <baz>
-          Hello World
-        </baz>
+        <baz />
       </bar>
     </foo>
   }
