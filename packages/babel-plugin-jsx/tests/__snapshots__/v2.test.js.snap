@@ -1,5 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`nested style 1`] = `
+  const App = () => {
+    return <div className="child_510">Hello World</div>;
+  };
+  
+  css(\`
+  	.child_510 {
+  		margin: 20px;
+  	}
+  \`);
+`;
+
 exports[`whatever 1`] = `
   const App = () => {
     return <div className="App_8dv">Hello World</div>;

@@ -14,7 +14,9 @@ export class Context {
   root!: RootContext;
 
   /** Used to supply JSX child components with nested defintion. */
-  children: Record<string, Context> = {};
+  using: Record<string, Context> = {
+    "this": this
+  };
 
   /** Macros functions available for this scope. */
   macros: Record<string, ModifyAction> = {};
@@ -40,7 +42,7 @@ export class Context {
     if(parent){
       this.root = parent.root;
       this.macros = create(parent.macros);
-      parent.children[name] = this;
+      parent.using[name] = this;
     }
   }
 
@@ -51,7 +53,7 @@ export class Context {
 
     if(ignoreOwn)
       for(let found; !found && context;){
-        found = context.children.hasOwnProperty(named);
+        found = context.using.hasOwnProperty(named);
         context = context.parent; 
       }
 
