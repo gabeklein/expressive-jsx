@@ -5,13 +5,9 @@ import { Context } from './context';
 export function applyModifier(
   context: Context, element: t.Path<t.JSXElement>){
 
-  const name = getTagName(element.node);
-  const explicit = /(?:html|svg)-([a-zA-Z-]+)/.exec(name);
+  const name = applyTagName(element);
 
   context = context.using[name] || context;
-
-  if(!element.isJSXMemberExpression() && !/[A-Z]/.test(name))
-    applyTagName(element.node, explicit ? explicit[1] : "div");
 
   if(context){
     const { className } = context.define;
@@ -28,13 +24,41 @@ export function applyModifier(
   })
 }
 
-function applyTagName(element: t.JSXElement, name: string){
-  const { openingElement, closingElement } = element;
+function applyTagName(element: t.Path<t.JSXElement>){
+  const { openingElement, closingElement } = element.node;
 
-  openingElement.name = t.jsxIdentifier(name);
+  let tagName = openingElement.name;
+  let isMemberExpression = false;
+
+  while(tagName.type === "JSXMemberExpression"){
+    tagName = tagName.property;
+    isMemberExpression = true;
+  }
+
+  if(tagName.type !== "JSXIdentifier")
+    throw new Error("Invalid tag type");
+
+  let name = tagName.name;
+
+  if(isMemberExpression || t.HTML_TAGS.includes(name) || /[A-Z]/.test(name[0]))
+    return name;
+
+  if(t.SVG_TAGS.includes(name))
+    for(const item of element.getAncestry())
+      if(!item.isJSXElement())
+        break;
+      else if(item.get("openingElement").get("name").isJSXIdentifier({ name: "svg" }))
+        return name;
+
+  const explicit = /(?:html|svg)-([a-zA-Z-]+)/.exec(name);
+  const replaced = t.jsxIdentifier(explicit ? name = explicit[1] : "div");
+
+  openingElement.name = replaced;
 
   if(closingElement)
-    closingElement.name = t.jsxIdentifier(name);
+    closingElement.name = replaced;
+
+  return name;
 }
 
 function applyClassName(element: t.JSXElement, name: string){
@@ -51,18 +75,6 @@ function applyClassName(element: t.JSXElement, name: string){
         t.literal(name)
       )
     )
-}
-
-function getTagName(node: t.JSXElement){
-  let tag = node.openingElement.name;
-
-  while(tag.type === "JSXMemberExpression")
-    tag = tag.property;
-
-  if(tag.type !== "JSXIdentifier")
-    throw new Error("Invalid tag type");
-
-  return tag.name;
 }
 
 export function isImplicitReturn(

@@ -1,16 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`MemberExpression tags will apply modifiers 1`] = `
-  () => <Foo.Bar className="Bar_6b5" />;
-  css(\`
-  	.Bar_6b5 {
-  		color: red;
-  	}
-  \`);
-`;
-
-exports[`MemberExpression tags will passthru 1`] = `  () => <Foo.Bar />;`;
-
 exports[`children fragment 1`] = `
   () => (
     <>
@@ -27,6 +16,101 @@ exports[`children multiple 1`] = `
       <div>Bar</div>
     </div>
   );
+`;
+
+exports[`explicit tag only pass svg tags within svg 1`] = `
+  () => (
+    <div>
+      <div />
+    </div>
+  );
+`;
+
+exports[`explicit tag pass svg tags 1`] = `
+  () => (
+    <svg>
+      <path />
+      <circle />
+      <rect />
+      <g />
+      <defs />
+      <clipPath />
+      <linearGradient />
+      <stop />
+      <radialGradient />
+      <text />
+      <tspan />
+      <textPath />
+      <image />
+      <pattern />
+      <marker />
+      <use />
+      <symbol />
+      <polyline />
+      <polygon />
+      <line />
+      <ellipse />
+      <foreignObject />
+    </svg>
+  );
+`;
+
+exports[`explicit tag pass-through HTML tags 1`] = `
+  () => (
+    <div>
+      <div />
+      <blockquote />
+      <input />
+      <h1 />
+      <h2 />
+      <h3 />
+      <h4 />
+      <h5 />
+      <h6 />
+      <p />
+      <a />
+      <ul />
+      <ol />
+      <li />
+      <i />
+      <b />
+      <em />
+      <strong />
+      <span />
+      <hr />
+      <img />
+      <div />
+      <br />
+    </div>
+  );
+`;
+
+exports[`explicit tag pass-through MemberExpression tags 1`] = `
+  () => (
+    <div>
+      <Foo.Bar />
+      <Foo.Bar.Baz />
+    </div>
+  );
+`;
+
+exports[`explicit tag pass-through capital (component) tags 1`] = `  () => <Hello>Hello World</Hello>;`;
+
+exports[`explicit tag pass-through lowercase MemberExpression tags 1`] = `  () => <foo.bar />;`;
+
+exports[`explicit tag will apply modifier for property-name 1`] = `
+  () => (
+    <>
+      <Foo.Baz.Bar className="Bar_6b5" />
+      <Foo.Bar className="Bar_6b5" />
+    </>
+  );
+  
+  css(\`
+  	.Bar_6b5 {
+  		color: red;
+  	}
+  \`);
 `;
 
 exports[`implicit return arrow function 1`] = `  () => <div>Hello World</div>;`;
