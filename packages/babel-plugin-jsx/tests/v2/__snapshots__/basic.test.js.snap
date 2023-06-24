@@ -1,21 +1,51 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`multiple children 1`] = `
-  () => {
-    return (
-      <div>
-        <div>Foo</div>
-        <div>Bar</div>
-      </div>
-    );
+exports[`children fragment 1`] = `
+  () => (
+    <>
+      <div>Foo</div>
+      <div>Bar</div>
+    </>
+  );
+`;
+
+exports[`children multiple 1`] = `
+  () => (
+    <div>
+      <div>Foo</div>
+      <div>Bar</div>
+    </div>
+  );
+`;
+
+exports[`implicit return arrow function 1`] = `  () => <div>Hello World</div>;`;
+
+exports[`implicit return function declaration 1`] = `
+  function App() {
+    return <div>Hello World</div>;
+  }
+`;
+
+exports[`implicit return function expression 1`] = `
+  const App = function () {
+    return <div>Hello World</div>;
   };
 `;
 
-exports[`nested style 1`] = `
+exports[`implicit return with statements 1`] = `
   () => {
-    return <div className="element_5ae">Hello World</div>;
-  };
+    const [x, setX] = useState();
+    useEffect(() => {
+      void x;
+      setX();
+    }, []);
   
+    return <div />;
+  };
+`;
+
+exports[`style element 1`] = `
+  () => <div className="element_5ae">Hello World</div>;
   css(\`
   	.element_5ae {
   		color: red;
@@ -23,10 +53,10 @@ exports[`nested style 1`] = `
   \`);
 `;
 
-exports[`style 1`] = `
-  const App = () => {
-    return <div className="App_8dv">Hello World</div>;
-  };
+exports[`style hoisted 1`] = `
+  const App = () => (
+    <div className="App_8dv">Hello World</div>
+  );
   
   css(\`
   	.App_8dv {

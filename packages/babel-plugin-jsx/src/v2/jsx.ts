@@ -57,13 +57,22 @@ function getTagName(node: t.JSXElement){
   return tag.name;
 }
 
-export function isImplicitReturn(path: t.Path<t.JSXElement> | t.Path<t.JSXFragment>){
-  const parent = path.parentPath;
+export function isImplicitReturn(
+  path: t.Path<t.JSXElement> | t.Path<t.JSXFragment>){
 
-  if(!parent.isExpressionStatement() || !parent.parentPath!.parentPath!.isFunction())
+  const statement = path.parentPath;
+  const block = statement.parentPath!;
+  const within = block.parentPath!;
+
+  if(!statement.isExpressionStatement() || !within.isFunction())
     return false;
 
-  parent.replaceWith(t.returns(path.node));
+  if((block.node as t.BlockStatement).body.length === 1
+  && within.isArrowFunctionExpression())
+    block.replaceWith(path.node);
+  else
+    statement.replaceWith(t.returns(path.node));
+
   path.skip();
 
   return true;
