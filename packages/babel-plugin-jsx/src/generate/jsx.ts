@@ -15,13 +15,23 @@ export function createElement(
   if(!tag)
     tag = this.ensure("$pragma", "Fragment").name;
 
-  const props = properties.map(prop => (
-    $.jsxAttribute(prop.value, prop.name)
-  ));
+  const props = properties.map(({ name, value }) => {
+    if(typeof name !== "string")
+      return t.jsxSpreadAttribute(value);
+  
+    const jsxValue = t.isStringLiteral(value)
+      ? value.value === "true" ? null : value
+      : t.jsxExpressionContainer(value);
+  
+    return t.jsxAttribute(
+      t.jsxIdentifier(name),
+      jsxValue
+    );
+  });
 
   this.ensure("$pragma", "default", "React");
 
-  const element = $.jsxElement(tag, props, content);
+  const element = $.jsxTag(tag, props, content);
 
   OUTPUT_NODE.add(element);
 

@@ -171,7 +171,7 @@ export class ImportManager extends FileManager {
         return spec.local;
 
       uid = this.ensureUIDIdentifier(alt);
-      list.unshift($.importDefaultSpecifier(uid));
+      list.unshift(t.importDefaultSpecifier(uid));
       return uid;
     }
 
@@ -188,7 +188,7 @@ export class ImportManager extends FileManager {
     if(!uid){
       uid = this.ensureUIDIdentifier(alt || name);
       list.push(
-        $.importSpecifier(uid, t.identifier(name))
+        t.importSpecifier(uid, t.identifier(name))
       )
     }
 
@@ -220,7 +220,7 @@ export class ImportManager extends FileManager {
     const list = this.imports[name].items;
 
     if(list.length)
-      return $.importDeclaration(list, $.literal(name));
+      return t.importDeclaration(list, $.literal(name));
   }
 }
 

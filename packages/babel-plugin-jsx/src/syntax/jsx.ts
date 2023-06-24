@@ -208,7 +208,7 @@ function jsxIdentifier(name: string | JSXReference){
     : name;
 }
 
-export function jsxElement(
+export function jsxTag(
   tag: string | t.JSXMemberExpression,
   props: (t.JSXSpreadAttribute | t.JSXAttribute)[],
   children: t.Expression[]
@@ -231,23 +231,4 @@ function jsxContent(child: t.Expression){
     return t.jsxText(child.value);
 
   return t.jsxExpressionContainer(child);
-}
-
-const IsLegalAttribute = /^[a-zA-Z_][\w-]*$/;
-
-export function jsxAttribute(value: t.Expression, name?: string | false){
-  if(typeof name !== "string")
-    return t.jsxSpreadAttribute(value);
-
-  if(IsLegalAttribute.test(name) == false)
-    throw new Error(`Illegal characters in prop named ${name}`)
-
-  const jsxValue = t.isStringLiteral(value)
-    ? value.value === "true" ? null : value
-    : t.jsxExpressionContainer(value);
-
-  return t.jsxAttribute(
-    t.jsxIdentifier(name),
-    jsxValue
-  );
 }

@@ -1,6 +1,7 @@
 import { PluginObj, PluginPass } from '@babel/core';
 import { getName } from 'parse/labels';
 import * as $ from 'syntax';
+import * as t from 'syntax/types';
 import { Context, RootContext } from 'v2/context';
 import { handleModifier } from 'v2/modify';
 
@@ -80,7 +81,7 @@ const JSXElement: Visit<JSXElement> = {
     const context = Context.get(path);
 
     path.node.openingElement.attributes.push(
-      $.jsxAttribute($.literal(context.define.uid), "className")
+      t.jsxAttribute(t.jsxIdentifier("className"), $.literal(context.define.uid))
     )
 
 

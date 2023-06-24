@@ -2,12 +2,6 @@ import * as t from './types';
 
 import type { FlatValue } from 'types';
 
-const IdentifierType = /(Expression|Literal|Identifier|JSXElement|JSXFragment|Import|Super|MetaProperty|TSTypeAssertion)$/;
-
-export function isExpression(node: any): node is t.Expression {
-  return typeof node == "object" && IdentifierType.test(node.type);
-}
-
 export function expression(value?: FlatValue | t.Expression){
   try {
     return literal(value as any);
@@ -88,13 +82,13 @@ export function get(object: string | t.Expression, ...path: (string | number | t
   for(const x of path){
     let select;
 
-    if(isExpression(x))
-      select = x;    
-    else if(typeof x == "number")
+    if(typeof x == "number")
       select = literal(x);
     else if(typeof x == "string")
       select = keyIdentifier(x);
-    else
+    else if(t.isExpression(x))
+      select = x;    
+    else 
       throw new Error("Bad member id, only strings and numbers are allowed")
 
     object = typeof object == "object"
@@ -153,7 +147,7 @@ export function template(text: string){
 }
 
 export function statement(from: t.Statement | t.Expression){
-  return isExpression(from) ? t.expressionStatement(from) : from;
+  return t.isExpression(from) ? t.expressionStatement(from) : from;
 }
 
 export function block(
@@ -162,21 +156,4 @@ export function block(
   const stats = statements.map(statement);
 
   return t.blockStatement(stats);
-}
-
-export function importDeclaration(
-  specifiers: Array<t.ImportSpecifier | t.ImportDefaultSpecifier | t.ImportNamespaceSpecifier>,
-  source: t.StringLiteral){
-
-  return t.importDeclaration(specifiers, source);
-}
-
-export function importSpecifier(
-  local: t.Identifier, imported: t.Identifier){
-
-  return t.importSpecifier(local, imported);
-}
-
-export function importDefaultSpecifier(local: t.Identifier){
-  return t.importDefaultSpecifier(local);
 }
