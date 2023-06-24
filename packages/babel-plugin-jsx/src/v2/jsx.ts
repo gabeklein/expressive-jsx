@@ -69,13 +69,13 @@ export function isImplicitReturn(
   path: t.Path<t.JSXElement> | t.Path<t.JSXFragment>){
 
   const statement = path.parentPath;
-  const block = statement.parentPath!;
-  const within = block.parentPath!;
+  const block = statement.parentPath as t.Path<t.BlockStatement>;
+  const within = block.parentPath as t.Path;
 
   if(!statement.isExpressionStatement() || !within.isFunction())
     return false;
 
-  if((block.node as t.BlockStatement).body.length === 1
+  if(block.node.body.length === 1
   && within.isArrowFunctionExpression())
     block.replaceWith(path.node);
   else
