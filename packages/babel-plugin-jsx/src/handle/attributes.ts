@@ -1,6 +1,5 @@
-import * as $ from 'syntax';
 
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 import type { FlatValue } from 'types';
 import type { ElementInline } from './definition';
 
@@ -22,9 +21,9 @@ export abstract class Attribute {
     const { value } = this;
 
     if(value && typeof value == "object" && "toExpression" in value)
-      return value.toExpression() || $.expression();
+      return value.toExpression() || t.expression();
 
-    return $.expression(value)
+    return t.expression(value)
   }
 }
 

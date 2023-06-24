@@ -1,13 +1,13 @@
-import { NodePath } from "@babel/traverse";
-import { ExpressionStatement } from "@babel/types";
-import { Define } from "./define";
-import { parse } from "parse/arguments";
-import * as $ from 'syntax';
+import { ExpressionStatement } from '@babel/types';
+import { parse } from 'parse/arguments';
+import * as t from 'syntax';
+
+import { Define } from './define';
 
 export interface ModifyDelegate {
   target: Define;
   name: string;
-  body?: NodePath<ExpressionStatement>;
+  body?: t.Path<ExpressionStatement>;
 }
 
 export type ModifyAction =
@@ -16,7 +16,7 @@ export type ModifyAction =
 export function handleModifier(
   name: string,
   target: Define,
-  body: NodePath<ExpressionStatement>){
+  body: t.Path<ExpressionStatement>){
 
   const { context } = target;
   const queue = [{
@@ -25,7 +25,7 @@ export function handleModifier(
     args: parse(body.node)
   } as {
     name: string,
-    body?: NodePath<ExpressionStatement>,
+    body?: t.Path<ExpressionStatement>,
     args: any[]
   }];
 
@@ -35,7 +35,7 @@ export function handleModifier(
 
     function addStyle(name: string, ...args: any[]){
       const parsed: any[] = args.map(arg => arg.value || (
-        arg.requires ? $.requires(arg.requires) : arg
+        arg.requires ? t.requires(arg.requires) : arg
       ))
     
       target.styles[name] =

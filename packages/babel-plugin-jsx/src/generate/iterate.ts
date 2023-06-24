@@ -1,8 +1,7 @@
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { ElementInline } from 'handle/definition';
-import * as $ from 'syntax';
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 
 import type { Define } from 'handle/definition';
 
@@ -27,17 +26,17 @@ export function forElement(
   const collect = program.ensure("$runtime", "collect");
 
   let body: t.Statement | t.Expression =
-    $.statement(
-      $.call(accumulator, output)
+    t.statement(
+      t.call(accumulator, output)
     );
 
   if(statements.length)
-    body = $.block(...statements, body);
+    body = t.block(...statements, body);
 
   node.body = body;
 
-  return $.call(collect, 
-    t.arrowFunctionExpression([accumulator], $.block(node))  
+  return t.call(collect, 
+    t.arrowFunctionExpression([accumulator], t.block(node))  
   )
 }
 
@@ -56,19 +55,19 @@ export function forXElement(
     return;
 
   if(define.statements.length)
-    body = $.block(...define.statements, $.returns(body));
+    body = t.block(...define.statements, t.returns(body));
   
   if(t.isForOfStatement(node)){
     const params = key ? [left, key] : [left];
 
-    return $.call(
-      $.get(right, "map"),
+    return t.call(
+      t.get(right, "map"),
       t.arrowFunctionExpression(params, body)
     )
   }
 
-  return $.call(
-    $.get($.objectKeys(right), "map"),
+  return t.call(
+    t.get(t.objectKeys(right), "map"),
     t.arrowFunctionExpression([left], body)
   )
 }

@@ -1,6 +1,6 @@
 import type { Context } from 'context';
 import type { Define } from 'handle/definition';
-import type * as t from 'syntax/types';
+import type * as t from 'syntax';
 import type { InnerContent, SequenceItem } from 'types';
 import { hash } from 'utility';
 

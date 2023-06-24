@@ -1,10 +1,9 @@
 import { Style } from 'handle/attributes';
+import * as t from 'syntax';
 import { hash } from 'utility';
 
-import type * as t from 'syntax/types';
 import type { Context } from 'context';
 import type { Define } from 'handle/definition';
-import * as $ from 'syntax';
 
 type SelectorContent = [ string, Style[] ][];
 type MediaGroups = SelectorContent[];
@@ -17,19 +16,19 @@ export function styleDeclaration(css: string, context: Context){
   const config: any = {};
 
   if(hot)
-    config.refreshToken = $.literal(hash(filename, 10));
+    config.refreshToken = t.literal(hash(filename, 10));
 
   if(module)
-    config.module = $.literal(module);
+    config.module = t.literal(module);
 
   if(Object.keys(config).length)
-    args.push($.object(config));
+    args.push(t.object(config));
 
   return (
-    $.statement(
-      $.call(
+    t.statement(
+      t.call(
         program.ensure("$runtime", "default", "css"),
-        $.template(`\n${css.replace(/^/gm, "\t")}\n`),
+        t.template(`\n${css.replace(/^/gm, "\t")}\n`),
         ...args
       )
     )

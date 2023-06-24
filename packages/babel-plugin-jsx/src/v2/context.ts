@@ -1,12 +1,11 @@
-import { NodePath } from '@babel/traverse';
-import { Node, Program } from '@babel/types';
+import { PluginPass } from '@babel/core';
+import { getLocalFilename, getName } from 'parse/entry';
+import * as t from 'syntax';
+import { Options } from 'types';
+import { hash } from 'utility';
 
 import { Define } from './define';
 import { ModifyAction } from './modify';
-import { hash } from 'utility';
-import { getName, getLocalFilename } from 'parse/entry';
-import { PluginPass } from '@babel/core';
-import { Options } from 'types';
 import { FileManager } from './scope';
 
 const { create } = Object;
@@ -74,7 +73,7 @@ export class Context {
     return hash(path + salt);
   }
 
-  static get(path: NodePath<Node>): Context {
+  static get(path: t.Path<t.Node>): Context {
     do {
       if(path.data){
         const { context } = path.data;
@@ -115,7 +114,7 @@ export class RootContext extends Context {
   filename: string;
   options: Options;
 
-  constructor(path: NodePath<Program>, state: PluginPass){
+  constructor(path: t.Path<t.Program>, state: PluginPass){
     const { macros } = state.opts as Options;
 
     super(getLocalFilename(path.hub));

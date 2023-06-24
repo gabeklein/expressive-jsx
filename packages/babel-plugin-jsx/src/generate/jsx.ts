@@ -1,6 +1,5 @@
-import * as $ from 'syntax';
 
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 import type { FileManager } from 'scope';
 import type { PropData } from 'types';
 
@@ -31,7 +30,7 @@ export function createElement(
 
   this.ensure("$pragma", "default", "React");
 
-  const element = $.jsxTag(tag, props, content);
+  const element = t.jsxTag(tag, props, content);
 
   OUTPUT_NODE.add(element);
 

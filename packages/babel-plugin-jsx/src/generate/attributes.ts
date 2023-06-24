@@ -1,8 +1,7 @@
 import { Style } from 'handle/attributes';
 import { ArrayStack } from 'utility';
-import * as $ from 'syntax';
 
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 
 export class AttributeStack extends ArrayStack<Style> {
   exists = new Set<string>();
@@ -45,9 +44,9 @@ export class AttributeStack extends ArrayStack<Style> {
         chunks.push(t.spreadElement(item.expression))
       else
         chunks.push(...item.map(style =>
-          $.property(style.name!, style.expression)
+          t.property(style.name!, style.expression)
         ));
 
-    return $.object(chunks)
+    return t.object(chunks)
   }
 }

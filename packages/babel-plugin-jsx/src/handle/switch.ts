@@ -1,10 +1,9 @@
 import { parse } from 'parse/block';
-import * as $ from 'syntax';
 import { ensureArray } from 'utility';
 
 import { Define } from './definition';
 
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 import type { Context } from 'context';
 
 /** Number of consequents existing for a given parent Define. */
@@ -82,7 +81,7 @@ export class ComponentIf {
       }
         
       if(segments.length)
-        return $.literal(segments.join(" "));
+        return t.literal(segments.join(" "));
     });
   }
 
@@ -123,11 +122,11 @@ export class ComponentIf {
   
       if(sum && test)
         sum = product
-          ? $.ternary(test, product, sum)
-          : $.and($.anti(test), sum)
+          ? t.ternary(test, product, sum)
+          : t.and(t.anti(test), sum)
       else if(product)
         sum = test
-          ? $.and($.truthy(test), product)
+          ? t.and(t.truthy(test), product)
           : product
     }
   
@@ -138,7 +137,7 @@ export class ComponentIf {
     if(!test)
       return false;
   
-    if($.isFalsy(test) && t.isIdentifier(test.argument))
+    if(t.isFalsy(test) && t.isIdentifier(test.argument))
       return `not_${test.argument.name}`;
   
     if(t.isIdentifier(test))

@@ -1,5 +1,4 @@
-import * as $ from 'syntax';
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 
 import type { RootContext } from './context';
 import type { Options } from 'types';
@@ -170,7 +169,7 @@ export class ImportManager extends FileManager {
     const list = this.imports[name].items;
 
     if(list.length)
-      return $.importDeclaration(list, $.literal(name));
+      return t.importDeclaration(list, t.literal(name));
   }
 }
 
@@ -187,7 +186,7 @@ export class RequireManager extends FileManager {
 
     const ref = this.ensureUIDIdentifier(alt);
 
-    source.push($.property(name, ref));
+    source.push(t.property(name, ref));
 
     return ref;
   }
@@ -226,8 +225,8 @@ export class RequireManager extends FileManager {
     const list = this.imports[name].items;
 
     if(list.length){
-      const target = this.importTargets[name] || $.requires(name);
-      return $.declare("const", t.objectPattern(list), target);
+      const target = this.importTargets[name] || t.requires(name);
+      return t.declare("const", t.objectPattern(list), target);
     }
   }
 }

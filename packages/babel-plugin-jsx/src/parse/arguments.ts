@@ -1,7 +1,6 @@
 import { ParseErrors } from 'errors';
-import * as $ from 'syntax';
 
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 
 const Oops = ParseErrors({
   UnaryUseless: "Unary operator here doesn't do anything",
@@ -53,7 +52,7 @@ function Expression<T extends t.Expression>(
   if(childKey)
     element = element[childKey] as unknown as T;
 
-  if($.isParenthesized(element))
+  if(t.isParenthesized(element))
     return element;
 
   return Extract(element)
@@ -107,7 +106,7 @@ function BooleanLiteral(bool: t.BooleanLiteral){
 function NumericLiteral(number: t.NumericLiteral, negative?: boolean){
   let { extra: { rawValue, raw } } = number as any;
 
-  if($.isParenthesized(number) || !/^0x/.test(raw)){
+  if(t.isParenthesized(number) || !/^0x/.test(raw)){
     if(raw.indexOf(".") > 0)
       return negative ? "-" + raw : raw;
 

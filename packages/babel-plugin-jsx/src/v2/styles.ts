@@ -1,9 +1,8 @@
+import * as t from 'syntax';
 import { hash } from 'utility';
 
-import type * as t from 'syntax/types';
 import type { RootContext } from './context';
 import type { Define } from './define';
-import * as $ from 'syntax';
 
 type Style = { name: string, value: string };
 
@@ -18,16 +17,16 @@ export function styleDeclaration(css: string, context: RootContext){
   const config: any = {};
 
   if(hot)
-    config.refreshToken = $.literal(hash(filename, 10));
+    config.refreshToken = t.literal(hash(filename, 10));
 
   if(Object.keys(config).length)
-    args.push($.object(config));
+    args.push(t.object(config));
 
   return (
-    $.statement(
-      $.call(
+    t.statement(
+      t.call(
         file.ensure("$runtime", "default", "css"),
-        $.template(`\n${css.replace(/^/gm, "\t")}\n`),
+        t.template(`\n${css.replace(/^/gm, "\t")}\n`),
         ...args
       )
     )

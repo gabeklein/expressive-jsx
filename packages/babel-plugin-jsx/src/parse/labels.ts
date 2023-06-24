@@ -1,16 +1,12 @@
 import { ParseErrors } from 'errors';
 import { Style } from 'handle/attributes';
 import { Define } from 'handle/definition';
-import * as $ from 'syntax';
+import * as t from 'syntax';
 
 import { parse as parseArguments } from './arguments';
 import { parse as parseBlock } from './block';
 
-import type { NodePath } from '@babel/traverse';
-import type { Statement } from '@babel/types';
-import type * as t from 'syntax/types';
-
-export type DefineBodyCompat =
+export type DefineBodyCompat = 
   | t.Path<t.ExpressionStatement>
   | t.Path<t.BlockStatement>
   | t.Path<t.LabeledStatement>
@@ -96,7 +92,7 @@ function handleModifier(
 
     function addStyle(name: string, ...args: any[]){
       const parsed: any[] = args.map(arg => arg.value || (
-        arg.requires ? $.requires(arg.requires) : arg
+        arg.requires ? t.requires(arg.requires) : arg
       ))
     
       const output = parsed.length == 1 || typeof parsed[0] == "object"
@@ -164,7 +160,7 @@ function handleModifier(
 export interface ModifyDelegate {
   target: Define;
   name: string;
-  body?: NodePath<Statement>;
+  body?: t.Path<t.Statement>;
 
   setContingent(
     select: string | string[],

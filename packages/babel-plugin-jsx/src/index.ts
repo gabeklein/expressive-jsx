@@ -5,11 +5,10 @@ import { generateCSS, styleDeclaration } from 'generate/styles';
 import { ElementInline } from 'handle/definition';
 import { parse } from 'parse/block';
 import { parseJSX } from 'parse/jsx';
-import * as $ from 'syntax';
+import * as t from 'syntax';
 
 import type { PluginObj } from '@babel/core';
 import type { Visitor } from 'types';
-import type * as t from 'syntax/types';
 
 export default () => <PluginObj>({
   manipulateOptions(options, parse){
@@ -90,7 +89,7 @@ const JSXElement: Visitor<t.JSXElement | t.JSXFragment> = {
     if(path.parentPath.node == body[0] || !body[0])
       functionNode.body = output;
     else 
-      block.node.body.push($.returns(output));
+      block.node.body.push(t.returns(output));
 
     NODE_HANDLED.add(block.node);
   },

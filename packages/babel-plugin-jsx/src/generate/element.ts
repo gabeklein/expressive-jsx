@@ -1,9 +1,8 @@
 import { AttributeStack } from 'generate/attributes';
 import { Style, Prop } from 'handle/attributes';
 import { Define, DefineLocal, DefineVariant, ElementInline } from 'handle/definition';
-import * as $ from 'syntax';
 
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 import type { FileManager } from 'scope';
 import type { PropData, SequenceItem } from 'types';
 import type { Context } from 'context';
@@ -167,12 +166,12 @@ function classValue(
 
   if(className)
     selectors.unshift(
-      $.literal(className.slice(1))
+      t.literal(className.slice(1))
     )
 
   if(selectors.length > 1){
     const _use = program.ensure("$runtime", "classNames");
-    return $.call(_use, ...selectors)
+    return t.call(_use, ...selectors)
   }
   
   return selectors[0];

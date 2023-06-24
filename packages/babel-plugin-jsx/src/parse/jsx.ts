@@ -1,9 +1,8 @@
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { ElementInline } from 'handle/definition';
-import * as $ from 'syntax';
 import { HTML_TAGS, SVG_TAGS } from 'syntax/jsx';
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 
 import type { Define } from 'handle/definition';
 import type { JSXChild } from 'syntax/jsx';
@@ -85,7 +84,7 @@ function applyChild(
       .replace(/ +/g, " ")
       .replace(/\n\s*/g, "");
 
-    element.adopt($.literal(text));
+    element.adopt(t.literal(text));
   }
   else if(path.isJSXExpressionContainer()){
     const { expression } = path.node;
@@ -186,7 +185,7 @@ function applyAttribute(
 
       case "StringLiteral":
         if(name == "src" && /^\.\//.test(expression.value))
-          value = $.requires(expression.value)
+          value = t.requires(expression.value)
         else
           value = expression;
       break;

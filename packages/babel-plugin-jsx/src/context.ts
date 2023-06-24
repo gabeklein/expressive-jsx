@@ -4,7 +4,7 @@ import { getName } from 'parse/entry';
 import { FileManager } from 'scope';
 import { hash } from 'utility';
 
-import type * as t from 'syntax/types';
+import type * as t from 'syntax';
 import type { ModifyAction } from 'parse/labels';
 import type { BabelState, Options } from 'types';
 

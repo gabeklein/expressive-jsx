@@ -1,7 +1,6 @@
 import { Prop } from 'handle/attributes';
-import * as $ from 'syntax';
 
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 import type { ModifyDelegate } from 'parse/labels';
 import type { Define } from 'handle/definition';
 
@@ -25,7 +24,7 @@ function forwardProp(
       forwardRef(target, exec);
     else {
       const _local = uniqueWithin(scope, key);
-      const property = $.property(key, _local);
+      const property = t.property(key, _local);
       const prop = new Prop(key, _local);
   
       properties.unshift(property);
@@ -45,7 +44,7 @@ function forwardRef(
 
   const _ref = uniqueWithin(component.scope, "ref");
   const _forwardRef = program.ensure("$pragma", "forwardRef");
-  const _wrapped = $.call(_forwardRef, node);
+  const _wrapped = t.call(_forwardRef, node);
 
   component.pushContainer("params", _ref);
   component.replaceWith(_wrapped);
@@ -84,7 +83,7 @@ function getProps(exec: t.Path<t.Function>){
       }
 
       body.unshift(
-        $.declare("const", props, existing)
+        t.declare("const", props, existing)
       );
     }
   }

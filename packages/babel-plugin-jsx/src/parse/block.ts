@@ -4,7 +4,7 @@ import { Prop } from 'handle/attributes';
 import { DefineVariant } from 'handle/definition';
 import { ComponentFor } from 'handle/iterate';
 import { ComponentIf } from 'handle/switch';
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 import { ensureArray } from 'utility';
 
 import { addElementFromJSX } from './jsx';

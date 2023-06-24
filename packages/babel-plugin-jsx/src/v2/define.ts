@@ -1,5 +1,4 @@
-import { NodePath } from '@babel/traverse';
-import { JSXElement, LabeledStatement } from '@babel/types';
+import * as t from 'syntax';
 
 import { Context } from './context';
 
@@ -29,11 +28,11 @@ export class Define {
     public name?: string){
   }
 
-  apply(element: NodePath<JSXElement>){
+  apply(element: t.Path<t.JSXElement>){
     
   }
 
-  add(key: string, body: NodePath<LabeledStatement>){
+  add(key: string, body: t.Path<t.LabeledStatement>){
     
   }
 

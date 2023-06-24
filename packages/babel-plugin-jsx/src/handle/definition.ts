@@ -5,7 +5,7 @@ import { Style } from './attributes';
 import { AttributeBody } from './object';
 
 import type { InnerContent } from 'types';
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 import type { Context } from 'context';
 
 export class ElementInline extends AttributeBody {

@@ -3,7 +3,7 @@ import { parse } from 'parse/block';
 
 import { Define } from './definition';
 
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 
 export class ComponentFor {
   definition: Define;

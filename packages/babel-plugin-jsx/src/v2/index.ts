@@ -1,13 +1,12 @@
 import { PluginObj, PluginPass } from '@babel/core';
 import { getName } from 'parse/labels';
-import * as $ from 'syntax';
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 import { Context, RootContext } from 'v2/context';
 import { handleModifier } from 'v2/modify';
-
-import type { NodePath, VisitNode } from '@babel/traverse';
-import type { Node, JSXElement, LabeledStatement, Program } from '@babel/types';
 import { generateCSS, styleDeclaration } from 'v2/styles';
+
+import type { VisitNode } from '@babel/traverse';
+import type { Node, JSXElement, LabeledStatement, Program } from '@babel/types';
 
 type Visit<T extends Node> = VisitNode<PluginPass, T>;
 
@@ -81,7 +80,7 @@ const JSXElement: Visit<JSXElement> = {
     const context = Context.get(path);
 
     path.node.openingElement.attributes.push(
-      t.jsxAttribute(t.jsxIdentifier("className"), $.literal(context.define.uid))
+      t.jsxAttribute(t.jsxIdentifier("className"), t.literal(context.define.uid))
     )
 
 
@@ -99,13 +98,13 @@ export default () => <PluginObj>({
   }
 });
 
-function isImplicitReturn(path: NodePath<JSXElement>){
+function isImplicitReturn(path: t.Path<JSXElement>){
   const parent = path.parentPath;
 
   if(!parent.isExpressionStatement() || !parent.parentPath!.parentPath!.isFunction())
     return false;
 
-  parent.replaceWith($.returns(path.node));
+  parent.replaceWith(t.returns(path.node));
   path.skip();
 
   return true;

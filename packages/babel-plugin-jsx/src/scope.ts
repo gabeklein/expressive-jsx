@@ -1,10 +1,9 @@
 import { createElement as createJS } from './generate/es5';
 import { createElement as createJSX } from './generate/jsx';
 
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 import type { Context } from 'context';
 import type { Options, PropData } from 'types';
-import * as $ from 'syntax';
 
 type ImportSpecific =
   | t.ImportSpecifier 
@@ -99,7 +98,7 @@ export abstract class FileManager {
       return this.createElement(null, props, children)
     }
 
-    return children[0] || $.literal(false);
+    return children[0] || t.literal(false);
   }
 
   replaceAlias(value: string){
@@ -220,7 +219,7 @@ export class ImportManager extends FileManager {
     const list = this.imports[name].items;
 
     if(list.length)
-      return t.importDeclaration(list, $.literal(name));
+      return t.importDeclaration(list, t.literal(name));
   }
 }
 
@@ -237,7 +236,7 @@ export class RequireManager extends FileManager {
 
     const ref = this.ensureUIDIdentifier(alt);
 
-    source.push($.property(name, ref));
+    source.push(t.property(name, ref));
 
     return ref;
   }
@@ -276,8 +275,8 @@ export class RequireManager extends FileManager {
     const list = this.imports[name].items;
 
     if(list.length){
-      const target = this.importTargets[name] || $.requires(name);
-      return $.declare("const", t.objectPattern(list), target);
+      const target = this.importTargets[name] || t.requires(name);
+      return t.declare("const", t.objectPattern(list), target);
     }
   }
 }

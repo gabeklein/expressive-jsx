@@ -1,5 +1,5 @@
 import type { Hub } from '@babel/traverse';
-import * as t from 'syntax/types';
+import * as t from 'syntax';
 
 type FunctionPath =
   | t.Path<t.ClassMethod>
