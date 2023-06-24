@@ -10,7 +10,8 @@ export function applyModifier(
 
   context = context.using[name] || context;
 
-  applyTagName(element.node, explicit ? explicit[1] : "div");
+  if(!element.isJSXMemberExpression() && !/[A-Z]/.test(name))
+    applyTagName(element.node, explicit ? explicit[1] : "div");
 
   if(context){
     const { className } = context.define;

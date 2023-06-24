@@ -1,5 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`MemberExpression tags will apply modifiers 1`] = `
+  () => <Foo.Bar className="Bar_6b5" />;
+  css(\`
+  	.Bar_6b5 {
+  		color: red;
+  	}
+  \`);
+`;
+
+exports[`MemberExpression tags will passthru 1`] = `  () => <Foo.Bar />;`;
+
 exports[`children fragment 1`] = `
   () => (
     <>

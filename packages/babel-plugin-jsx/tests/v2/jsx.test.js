@@ -50,3 +50,21 @@ describe("children", () => {
     }
   `)
 })
+
+describe("MemberExpression tags", () => {
+  transform("will passthru", `
+    () => {
+      <Foo.Bar />
+    }
+  `);
+
+  transform("will apply modifiers", `
+    () => {
+      Bar: {
+        color: red;
+      }
+      
+      <Foo.Bar />
+    }
+  `)
+})
