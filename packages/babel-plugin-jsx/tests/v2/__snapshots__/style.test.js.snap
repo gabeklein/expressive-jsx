@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`element 1`] = `
+  () => <div className="element_5ae">Hello World</div>;
+  css(\`
+  	.element_5ae {
+  		color: red;
+  	}
+  \`);
+`;
+
+exports[`hoisted 1`] = `
+  const App = () => (
+    <div className="App_8dv">Hello World</div>
+  );
+  
+  css(\`
+  	.App_8dv {
+  		color: red;
+  	}
+  \`);
+`;

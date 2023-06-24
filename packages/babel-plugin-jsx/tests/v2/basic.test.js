@@ -31,26 +31,6 @@ describe("implicit return", () => {
   `)
 });
 
-describe("style", () => {
-  transform("hoisted", `
-    const App = () => {
-      color: red;
-
-      <this>Hello World</this>
-    }
-  `)
-
-  transform("element", `
-    () => {
-      element: {
-        color: red;
-      }
-
-      <element>Hello World</element>
-    }
-  `)
-})
-
 describe("children", () => {
   transform("fragment", `
     () => {

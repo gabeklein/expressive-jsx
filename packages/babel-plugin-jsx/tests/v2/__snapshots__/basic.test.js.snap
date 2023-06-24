@@ -43,24 +43,3 @@ exports[`implicit return with statements 1`] = `
     return <div />;
   };
 `;
-
-exports[`style element 1`] = `
-  () => <div className="element_5ae">Hello World</div>;
-  css(\`
-  	.element_5ae {
-  		color: red;
-  	}
-  \`);
-`;
-
-exports[`style hoisted 1`] = `
-  const App = () => (
-    <div className="App_8dv">Hello World</div>
-  );
-  
-  css(\`
-  	.App_8dv {
-  		color: red;
-  	}
-  \`);
-`;
