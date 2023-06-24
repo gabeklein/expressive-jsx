@@ -10,10 +10,14 @@ export class Define {
   props = {} as Record<string, string>;
   
   priority = 1;
-  isUsed = false;
 
   /** Modifiers based upon this one. */
   dependant = new Set<Define>();
+  
+  get className(){
+    if(Object.keys(this.styles).length)
+      return this.uid;
+  };
 
   get uid(){
     return this.name + "_" + this.context.path();

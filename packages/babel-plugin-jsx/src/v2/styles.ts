@@ -34,17 +34,21 @@ export function styleDeclaration(css: string, context: RootContext){
 }
 
 export function generateCSS(context: RootContext){
-  const { modifiersDeclared } = context;
+  const declared = Array
+    .from(context.modifiersDeclared)
+    .filter(item => item.className);
 
-  if(modifiersDeclared.size == 0)
+  if(declared.length == 0)
     return "";
   
   const pretty = true;
-
   const media: Record<string, MediaGroups> = { default: [] };
 
-  for(const item of modifiersDeclared){
-    let { priority = 0 } = item;
+  for(const item of declared){
+    let { priority = 0, className } = item;
+
+    if(!className)
+      continue;
 
     for(let x=item.container; x;)
       if(x = x.container)

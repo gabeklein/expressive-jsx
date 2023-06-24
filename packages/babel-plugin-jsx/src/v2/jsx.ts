@@ -3,11 +3,12 @@ import * as t from 'syntax';
 import { Context } from './context';
 
 export function applyModifier(context: Context, element: t.JSXElement){
-  const { define } = context;
+  const { className } = context.define;
 
+  if(className)
   element.openingElement.attributes.push(
     t.jsxAttribute(t.jsxIdentifier("className"),
-    t.literal(define.uid))
+    t.literal(className))
   )
 }
 
