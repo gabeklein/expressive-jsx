@@ -6,10 +6,10 @@ export function applyModifier(context: Context, element: t.JSXElement){
   const name = getTagName(element);
   const explicit = /(?:html|svg)-([a-zA-Z-]+)/.exec(name);
 
-  context = context.using[name];
+  context = context.using[name] || context;
 
   applyTagName(element,
-    explicit ? explicit[1] : context.define.tagName || "div"
+    explicit ? explicit[1] : "div"
   );
 
   if(context){

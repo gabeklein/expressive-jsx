@@ -1,12 +1,23 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`multiple children 1`] = `
+  () => {
+    return (
+      <div>
+        <div>Foo</div>
+        <div>Bar</div>
+      </div>
+    );
+  };
+`;
+
 exports[`nested style 1`] = `
-  const App = () => {
-    return <div className="element_52j">Hello World</div>;
+  () => {
+    return <div className="element_5ae">Hello World</div>;
   };
   
   css(\`
-  	.element_52j {
+  	.element_5ae {
   		color: red;
   	}
   \`);

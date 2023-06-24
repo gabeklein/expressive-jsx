@@ -7,11 +7,20 @@ transform("style", `
 `)
 
 transform("nested style", `
-  const App = () => {
+  () => {
     element: {
       color: red;
     }
 
     <element>Hello World</element>
+  }
+`)
+
+transform("multiple children", `
+  () => {
+    <this>
+      <div>Foo</div>
+      <div>Bar</div>
+    </this>
   }
 `)
