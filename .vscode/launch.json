@@ -9,6 +9,7 @@
       "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
       "args": [
         "--testPathIgnorePatterns", "v2",
+        "--watchAll",
         "--runInBand",
         "${input:testName}"
       ],
