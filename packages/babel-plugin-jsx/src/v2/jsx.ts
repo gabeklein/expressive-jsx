@@ -7,6 +7,11 @@ export function applyModifier(
 
   const name = applyTagName(element);
 
+  const apply = context.applicable(name);
+
+  for(const context of apply)
+    applyClassName(element.node, context);
+
   for(const attr of element.get("openingElement").get("attributes")){
     if(!attr.isJSXAttribute({ value: null }))
       continue;
@@ -21,11 +26,6 @@ export function applyModifier(
       applyClassName(element.node, context);
     });
   }
-
-  const apply = context.applicable(name);
-
-  for(const context of apply)
-    applyClassName(element.node, context);
 
   if(apply.size == 1){
     context = apply.values().next().value;

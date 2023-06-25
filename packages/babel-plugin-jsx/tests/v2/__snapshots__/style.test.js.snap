@@ -63,9 +63,9 @@ exports[`triple modifiers 1`] = `
     <Foo>
       <Bar
         className={classNames(
-          "baz_638",
           "Bar_6dv",
-          "Bar_6b5"
+          "Bar_6b5",
+          "baz_638"
         )}
       />
     </Foo>
