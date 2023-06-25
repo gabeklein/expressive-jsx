@@ -6,6 +6,22 @@ export function applyModifier(
   context: Context, element: t.Path<t.JSXElement>){
 
   const name = applyTagName(element);
+
+  for(const attr of element.get("openingElement").get("attributes")){
+    if(!attr.isJSXAttribute({ value: null }))
+      continue;
+
+    const apply = context.applicable(attr.node.name.name as string);
+
+    if(!apply.size)
+      continue
+
+    attr.remove();
+    apply.forEach(context => {
+      applyClassName(element.node, context);
+    });
+  }
+
   const apply = context.applicable(name);
 
   for(const context of apply)
@@ -93,8 +109,8 @@ function applyClassName(element: t.JSXElement, context: Context){
   
     if(t.isCallExpression(existing) && t.isIdentifier(existing.callee, { name: cx.name }))
       existing.arguments.push(t.literal(name));
-  
-    value.expression = t.call(cx, existing, t.literal(name));
+    else
+      value.expression = t.call(cx, existing, t.literal(name));
   }
 }
 

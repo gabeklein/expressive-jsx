@@ -59,3 +59,23 @@ transform("competing style priority", `
     </Foo>
   };
 `);
+
+transform("triple modifiers", `
+  () => {
+    baz: {
+      color: red;
+    }
+    Bar: {
+      color: blue
+    }
+    Foo: {
+      Bar: {
+        color: orange
+      }
+    }
+
+    <Foo>
+      <Bar baz />
+    </Foo>
+  };
+`);

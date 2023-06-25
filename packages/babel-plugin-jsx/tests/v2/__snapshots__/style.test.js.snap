@@ -58,6 +58,32 @@ exports[`nested element 1`] = `
   \`);
 `;
 
+exports[`triple modifiers 1`] = `
+  () => (
+    <Foo>
+      <Bar
+        className={classNames(
+          "baz_638",
+          "Bar_6dv",
+          "Bar_6b5"
+        )}
+      />
+    </Foo>
+  );
+  
+  css(\`
+  	.baz_638 {
+  		color: red;
+  	}
+  	.Bar_6b5 {
+  		color: blue;
+  	}
+  	.Bar_6dv {
+  		color: orange;
+  	}
+  \`);
+`;
+
 exports[`with existing className prop 1`] = `
   () => (
     <div className={classNames("foo", "element_5ae")}>
