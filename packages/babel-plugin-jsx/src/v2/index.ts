@@ -1,13 +1,11 @@
 import { PluginObj, PluginPass } from '@babel/core';
-import { getName } from 'parse/labels';
+import { VisitNode } from '@babel/traverse';
 import * as t from 'syntax';
-import { Context, RootContext } from 'v2/context';
-import { handleModifier } from 'v2/modify';
-import { generateCSS, styleDeclaration } from 'v2/styles';
 
+import { Context, RootContext } from './context';
 import { applyModifier, isImplicitReturn } from './jsx';
-
-import type { VisitNode } from '@babel/traverse';
+import { handleLabel } from './modify';
+import { generateCSS, styleDeclaration } from './styles';
 
 type Visit<T extends t.Node> = VisitNode<PluginPass, T>;
 
@@ -32,35 +30,10 @@ const Program: Visit<t.Program> = {
 
 const LabeledStatement: Visit<t.LabeledStatement> = {
   enter(path){
-    let body = path.get("body");
-
-    if(body.isFor() || path.data)
+    if(path.get("body").isFor() || path.data)
       return;
 
-    const context = Context.get(path);
-
-    let key = getName(path);
-
-    while(body.isLabeledStatement()){
-      key += body.node.label.name;
-      body.data = {};
-      body = body.get("body");
-    }
-
-    if(body.isIfStatement())
-      key += "if";
-
-    if(body.isBlockStatement()){
-      path.data = {
-        context: new Context(key, context)
-      };
-      return;
-    }
-    
-    if(body.isExpressionStatement()){
-      path.data = { context };
-      handleModifier(key, context.define, body);
-    }
+    handleLabel(path);
   },
   exit(path){
     const context = path.data?.context as Context;
@@ -94,8 +67,6 @@ export default () => <PluginObj>({
     Program,
     LabeledStatement,
     JSXElement,
-    JSXFragment(path){
-      isImplicitReturn(path as any);
-    }
+    JSXFragment: isImplicitReturn
   }
 });
