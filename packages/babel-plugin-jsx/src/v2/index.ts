@@ -25,6 +25,8 @@ const Program: Visit<t.Program> = {
       path.pushContainer("body", [ 
         styleDeclaration(stylesheet, context)
       ]);
+
+    context.file.close();
   }
 };
 

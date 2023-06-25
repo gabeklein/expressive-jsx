@@ -3,7 +3,7 @@
 exports[`competing style priority 1`] = `
   () => (
     <Foo>
-      <Bar className={cx("Bar_6dv", "Bar_6b5")} />
+      <Bar className={classNames("Bar_6dv", "Bar_6b5")} />
     </Foo>
   );
   
@@ -60,7 +60,7 @@ exports[`nested element 1`] = `
 
 exports[`with existing className prop 1`] = `
   () => (
-    <div className={cx("foo", "element_5ae")}>
+    <div className={classNames("foo", "element_5ae")}>
       Hello World
     </div>
   );

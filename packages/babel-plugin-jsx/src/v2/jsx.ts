@@ -8,12 +8,8 @@ export function applyModifier(
   const name = applyTagName(element);
   const apply = context.applicable(name);
 
-  for(const context of apply){
-    const { className } = context.define;
-  
-    if(className)
-      applyClassName(element.node, className);
-  }
+  for(const context of apply)
+    applyClassName(element.node, context);
 
   if(apply.size == 1){
     context = apply.values().next().value;
@@ -63,36 +59,43 @@ function applyTagName(element: t.Path<t.JSXElement>){
   return name;
 }
 
-function applyClassName(element: t.JSXElement, name: string){
+function applyClassName(element: t.JSXElement, context: Context){
+  const name = context.define.className;
+
+  if(!name)
+    return;
+
   const { attributes } = element.openingElement;
 
   const className = attributes.find(attr => (
     attr.type === "JSXAttribute" && attr.name.name === "className"
   )) as t.JSXAttribute | undefined;
 
-  if(className){
-    const { value } = className;
-  
-    if(t.isStringLiteral(value))
-      className.value = t.jsxExpressionContainer(
-        t.call("cx", value, t.literal(name))
-      )
-    else if(t.isJSXExpressionContainer(value)){
-      const existing = value.expression as t.Expression;
-  
-      if(t.isCallExpression(existing) && t.isIdentifier(existing.callee, { name: "cx" }))
-        existing.arguments.push(t.literal(name));
-  
-      value.expression = t.call("cx", existing, t.literal(name));
-    }
-  }
-  else 
+  if(!className){
     attributes.push(
       t.jsxAttribute(
         t.jsxIdentifier("className"),
         t.literal(name)
       )
     )
+    return;
+  }
+
+  const cx = context.root.file.ensure("$runtime", "classNames");
+  const { value } = className;
+  
+  if(t.isStringLiteral(value))
+    className.value = t.jsxExpressionContainer(
+      t.call(cx, value, t.literal(name))
+    )
+  else if(t.isJSXExpressionContainer(value)){
+    const existing = value.expression as t.Expression;
+  
+    if(t.isCallExpression(existing) && t.isIdentifier(existing.callee, { name: cx.name }))
+      existing.arguments.push(t.literal(name));
+  
+    value.expression = t.call(cx, existing, t.literal(name));
+  }
 }
 
 export function isImplicitReturn(
