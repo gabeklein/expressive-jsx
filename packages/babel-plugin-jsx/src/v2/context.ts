@@ -42,11 +42,27 @@ export class Context {
     if(parent){
       this.root = parent.root;
       this.macros = create(parent.macros);
+      this.using = create(parent.using);
+      this.using.this = this;
+
       parent.using[name] = this;
     }
   }
 
   exit?(): void;
+
+  applicable(name: string){
+    const list = new Set<Context>();
+    let ctx: Context = this;
+
+    do {
+      if(ctx.using.hasOwnProperty(name))
+        list.add(ctx.using[name]);
+    }
+    while(ctx = ctx.parent!);
+
+    return list;
+  }
 
   getHandler(named: string, ignoreOwn = false){
     let context: Context | undefined = this;

@@ -6,22 +6,24 @@ export function applyModifier(
   context: Context, element: t.Path<t.JSXElement>){
 
   const name = applyTagName(element);
+  const apply = context.applicable(name);
 
-  context = context.using[name] || context;
-
-  if(context){
+  for(const context of apply){
     const { className } = context.define;
   
     if(className)
       applyClassName(element.node, className);
   }
 
-  element.get("children").forEach(child => {
-    if(child.type !== "JSXElement")
-      return;
-
-    child.data = { context };
-  })
+  if(apply.size == 1){
+    context = apply.values().next().value;
+    element.get("children").forEach(child => {
+      if(child.type !== "JSXElement")
+        return;
+  
+      child.data = { context };
+    })
+  }
 }
 
 function applyTagName(element: t.Path<t.JSXElement>){
@@ -64,11 +66,27 @@ function applyTagName(element: t.Path<t.JSXElement>){
 function applyClassName(element: t.JSXElement, name: string){
   const { attributes } = element.openingElement;
 
-  const hasClassName = attributes.some(attr => (
+  const className = attributes.find(attr => (
     attr.type === "JSXAttribute" && attr.name.name === "className"
-  ));
+  )) as t.JSXAttribute | undefined;
 
-  if(!hasClassName)
+  if(className){
+    const { value } = className;
+  
+    if(t.isStringLiteral(value))
+      className.value = t.jsxExpressionContainer(
+        t.call("cx", value, t.literal(name))
+      )
+    else if(t.isJSXExpressionContainer(value)){
+      const existing = value.expression as t.Expression;
+  
+      if(t.isCallExpression(existing) && t.isIdentifier(existing.callee, { name: "cx" }))
+        existing.arguments.push(t.literal(name));
+  
+      value.expression = t.call("cx", existing, t.literal(name));
+    }
+  }
+  else 
     attributes.push(
       t.jsxAttribute(
         t.jsxIdentifier("className"),

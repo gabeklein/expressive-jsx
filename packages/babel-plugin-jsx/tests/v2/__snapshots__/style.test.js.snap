@@ -3,13 +3,16 @@
 exports[`competing style priority 1`] = `
   () => (
     <Foo>
-      <Bar className="Bar_6b5" />
+      <Bar className={cx("Bar_6dv", "Bar_6b5")} />
     </Foo>
   );
   
   css(\`
   	.Bar_6b5 {
   		color: blue;
+  	}
+  	.Bar_6dv {
+  		color: orange;
   	}
   \`);
 `;
@@ -51,6 +54,20 @@ exports[`nested element 1`] = `
   	}
   	.baz_5fk {
   		color: blue;
+  	}
+  \`);
+`;
+
+exports[`with existing className prop 1`] = `
+  () => (
+    <div className={cx("foo", "element_5ae")}>
+      Hello World
+    </div>
+  );
+  
+  css(\`
+  	.element_5ae {
+  		color: red;
   	}
   \`);
 `;

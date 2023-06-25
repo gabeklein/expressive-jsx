@@ -16,6 +16,16 @@ transform("element", `
   }
 `)
 
+transform("with existing className prop", `
+  () => {
+    element: {
+      color: red;
+    }
+
+    <element className="foo">Hello World</element>
+  }
+`)
+
 transform("nested element", `
   () => {
     foo: {
