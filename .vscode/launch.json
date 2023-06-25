@@ -26,9 +26,10 @@
         "V2": "true"
       },
       "args": [
+        "--testPathIgnorePatterns", "v1",
         "--watchAll",
         "--runInBand",
-        "v2"
+        "${input:testName}"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
