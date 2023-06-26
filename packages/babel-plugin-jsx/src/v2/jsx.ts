@@ -84,7 +84,8 @@ function applyClassName(element: t.JSXElement, context: Context){
   const { attributes } = element.openingElement;
 
   const className = attributes.find(attr => (
-    attr.type === "JSXAttribute" && attr.name.name === "className"
+    attr.type === "JSXAttribute" &&
+    attr.name.name === "className"
   )) as t.JSXAttribute | undefined;
 
   if(!className){

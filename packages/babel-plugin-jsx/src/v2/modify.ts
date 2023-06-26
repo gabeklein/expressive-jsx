@@ -78,11 +78,7 @@ function handleModifier(
       return;
     }
 
-    const output = transform.apply({
-      target,
-      name,
-      body
-    }, args);
+    const output = transform.apply({ target, name, body }, args);
 
     if(!output)
       return;
