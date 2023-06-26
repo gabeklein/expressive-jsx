@@ -1,5 +1,3 @@
-import * as t from 'syntax';
-
 import { Context } from './context';
 
 export class Define {
@@ -19,9 +17,7 @@ export class Define {
       return this.uid;
   };
 
-  get uid(){
-    return this.name + "_" + this.context.path();
-  }
+  uid: string;
 
   get selector(){
     return [ `.${this.uid}` ];
@@ -30,14 +26,8 @@ export class Define {
   constructor(
     public context: Context,
     public name?: string){
-  }
 
-  apply(element: t.Path<t.JSXElement>){
-    
-  }
-
-  add(key: string, body: t.Path<t.LabeledStatement>){
-    
+    this.uid = name + "_" + context.path();
   }
 
   variant(select: string | string[], priority: number){
@@ -56,6 +46,8 @@ export class DefineVariant extends Define {
     public priority: number){
 
     super(parent.context);
+
+    this.uid = parent.uid;
     this.within = parent.within;
     parent.dependant.add(this);
   }
@@ -69,10 +61,6 @@ export class DefineVariant extends Define {
     return suffix.map(select => (
       this.parent.selector + select
     ))
-  }
-
-  get uid(){
-    return this.parent.uid;
   }
 
   provide(define: Define){
