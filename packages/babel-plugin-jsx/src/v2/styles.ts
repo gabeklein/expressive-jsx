@@ -45,10 +45,7 @@ export function generateCSS(context: RootContext){
   const media: Record<string, MediaGroups> = { default: [] };
 
   for(const item of declared){
-    let { priority = 0, className } = item;
-
-    if(!className)
-      continue;
+    let { priority = 0 } = item;
 
     for(let x=item.container; x;)
       if(x = x.container)
