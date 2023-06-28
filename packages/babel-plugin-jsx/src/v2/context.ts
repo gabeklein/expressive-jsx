@@ -34,10 +34,13 @@ export class Context {
   }
 
   constructor(
-    public name: string,
-    within: Context | File){
+    within: Context | File,
+    public name: string){
 
-    if(within instanceof Context){
+    if(within instanceof File){
+      this.file = within;
+    }
+    else if(within instanceof Context){
       this.macros = create(within.macros);
       this.using = create(within.using);
   
@@ -46,9 +49,6 @@ export class Context {
       this.using.this = this;
 
       within.using[name] = this;
-    }
-    else if(within instanceof File){
-      this.file = within;
     }
   }
 
@@ -107,7 +107,7 @@ export class Context {
 
       if(path.isFunction()){
         const parent = this.get(path.parentPath);
-        const context = new Context(getName(path), parent);
+        const context = new Context(parent, getName(path));
 
         path.data = { context };
 

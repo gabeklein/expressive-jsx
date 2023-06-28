@@ -32,7 +32,7 @@ export function handleLabel(path: t.Path<t.LabeledStatement>){
 
   if(body.isBlockStatement()){
     path.data = {
-      context: new Context(key, context)
+      context: new Context(context, key)
     };
     return;
   }

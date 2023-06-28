@@ -27,7 +27,7 @@ const Program: Visit<t.Program> = {
     const opts = { ...DEFAULTS, ...state.opts };
     const file = File.create(opts, path);
     const name = getLocalFilename(path.hub);
-    const context = new Context(name, file);
+    const context = new Context(file, name);
 
     Object.assign(context.macros, ...opts.macros);
     path.data = { context };
