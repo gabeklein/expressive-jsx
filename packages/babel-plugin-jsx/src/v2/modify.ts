@@ -19,34 +19,28 @@ export function handleLabel(path: t.Path<t.LabeledStatement>){
   const context = Context.get(path);
   let body = path.get("body");
 
-  let key = getName(path);
+  let name = getName(path);
 
   while(body.isLabeledStatement()){
-    key += body.node.label.name;
+    name += body.node.label.name;
     body.data = {};
     body = body.get("body");
   }
 
   if(body.isIfStatement())
-    key += "if";
+    name += "if";
 
   if(body.isBlockStatement()){
     path.data = {
-      context: new Context(context, key)
+      context: new Context(context, name)
     };
     return;
   }
-  
-  if(body.isExpressionStatement()){
-    path.data = { context };
-    handleModifier(key, context, body);
-  }
-}
 
-function handleModifier(
-  name: string,
-  context: Context,
-  body: t.Path<ExpressionStatement>){
+  if(!body.isExpressionStatement())
+    throw new Error("Invalid label");
+
+  path.data = { context };
 
   const { define, macros } = context;
   const queue = [{
