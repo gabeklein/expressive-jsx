@@ -1,6 +1,7 @@
 import * as t from 'syntax';
 
 import { Context } from './context';
+import { Define } from './define';
 
 export function applyModifier(
   context: Context, element: t.Path<t.JSXElement>){
@@ -10,7 +11,7 @@ export function applyModifier(
   const apply = context.applicable(name);
 
   for(const context of apply)
-    applyClassName(element.node, context);
+    applyClassName(element.node, context.define);
 
   for(const attr of element.get("openingElement").get("attributes")){
     if(!attr.isJSXAttribute({ value: null }))
@@ -23,7 +24,7 @@ export function applyModifier(
 
     attr.remove();
     apply.forEach(context => {
-      applyClassName(element.node, context);
+      applyClassName(element.node, context.define);
     });
   }
 
@@ -75,8 +76,8 @@ function applyTagName(element: t.Path<t.JSXElement>){
   return name;
 }
 
-function applyClassName(element: t.JSXElement, context: Context){
-  const name = context.define.className;
+function applyClassName(element: t.JSXElement, define: Define){
+  const name = define.className;
 
   if(!name)
     return;
@@ -98,7 +99,7 @@ function applyClassName(element: t.JSXElement, context: Context){
     return;
   }
 
-  const cx = context.root.file.ensure("$runtime", "classNames");
+  const cx = define.context.root.file.ensure("$runtime", "classNames");
   const { value } = className;
   
   if(t.isStringLiteral(value))

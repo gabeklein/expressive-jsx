@@ -1,6 +1,6 @@
 import * as t from 'syntax';
 
-import type { RootContext } from './context';
+import type { File } from './context';
 import type { Options } from 'types';
 
 type ImportSpecific =
@@ -22,7 +22,7 @@ export abstract class FileManager {
   protected importIndices: Record<string, number> = {};
 
   static create(
-    parent: RootContext,
+    parent: File,
     path: t.Path<t.Program>
   ){
     const { externals, output } = parent.options;
@@ -40,7 +40,7 @@ export abstract class FileManager {
 
   constructor(
     path: t.Path<t.Program>,
-    context: RootContext){
+    context: File){
 
     this.body = path.node.body;
     this.opts = context.options;

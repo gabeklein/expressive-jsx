@@ -1,5 +1,5 @@
 import { PluginPass } from '@babel/core';
-import { getLocalFilename, getName } from 'parse/entry';
+import { getName } from 'parse/entry';
 import * as t from 'syntax';
 import { Options } from 'types';
 import { hash } from 'utility';
@@ -11,7 +11,7 @@ import { FileManager } from './scope';
 const { create } = Object;
 
 export class Context {
-  root!: RootContext;
+  root!: File;
 
   /** Used to supply JSX child components with nested defintion. */
   using: Record<string, Context> = {
@@ -20,6 +20,8 @@ export class Context {
 
   /** Macros functions available for this scope. */
   macros: Record<string, ModifyAction> = {};
+
+  parent?: Context;
 
   /** Modifiers applicable to JSX elements with this scope. */
   get define(){
@@ -37,15 +39,23 @@ export class Context {
 
   constructor(
     public name: string,
-    public parent?: Context){
+    parent?: Context | File){
 
     if(parent){
-      this.root = parent.root;
       this.macros = create(parent.macros);
       this.using = create(parent.using);
+    }
+
+    if(parent instanceof Context){
+      this.parent = parent;
+      this.root = parent.root;
       this.using.this = this;
 
       parent.using[name] = this;
+    }
+
+    else if(parent instanceof File){
+      this.root = parent;
     }
   }
 
@@ -126,21 +136,23 @@ const DEFAULTS: Options = {
   macros: []
 };
 
-export class RootContext extends Context {
+export class File {
   modifiersDeclared = new Set<Define>();
   file: FileManager;
   filename: string;
   options: Options;
 
+  using: Record<string, Define> = {};
+
+  /** Macros functions available for this scope. */
+  macros: Record<string, ModifyAction> = {};
+
   constructor(path: t.Path<t.Program>, state: PluginPass){
     const { macros } = state.opts as Options;
-
-    super(getLocalFilename(path.hub));
 
     this.options = { ...DEFAULTS, ...state.opts };
     this.file = FileManager.create(this, path);
     this.filename = state.filename!;
     this.macros = Object.assign({}, ...macros);
-    this.root = this;
   }
 }

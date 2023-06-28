@@ -1,7 +1,7 @@
 import * as t from 'syntax';
 import { hash } from 'utility';
 
-import type { RootContext } from './context';
+import type { File } from './context';
 import type { Define } from './define';
 
 type Style = { name: string, value: string };
@@ -9,7 +9,7 @@ type Style = { name: string, value: string };
 type SelectorContent = [ string, Style[] ][];
 type MediaGroups = SelectorContent[];
 
-export function styleDeclaration(css: string, context: RootContext){
+export function styleDeclaration(css: string, context: File){
   const { filename, file, options } = context;
 
   const hot = options.hot !== false;
@@ -33,7 +33,7 @@ export function styleDeclaration(css: string, context: RootContext){
   );
 }
 
-export function generateCSS(context: RootContext){
+export function generateCSS(context: File){
   const declared = Array
     .from(context.modifiersDeclared)
     .filter(item => item.className);
