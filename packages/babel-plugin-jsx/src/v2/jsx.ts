@@ -29,10 +29,8 @@ export function applyModifier(
   if(apply.size == 1){
     context = apply.values().next().value;
     element.get("children").forEach(child => {
-      if(child.type !== "JSXElement")
-        return;
-  
-      child.data = { context };
+      if(child.type === "JSXElement")
+        child.data = { context };
     })
   }
 }
@@ -124,8 +122,7 @@ export function isImplicitReturn(
   if(!statement.isExpressionStatement() || !within.isFunction())
     return false;
 
-  if(block.node.body.length === 1
-  && within.isArrowFunctionExpression())
+  if(block.node.body.length === 1 && within.isArrowFunctionExpression())
     block.replaceWith(path.node);
   else
     statement.replaceWith(t.returns(path.node));
