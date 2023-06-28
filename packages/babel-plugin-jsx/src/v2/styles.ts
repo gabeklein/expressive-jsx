@@ -1,8 +1,8 @@
 import * as t from 'syntax';
 import { hash } from 'utility';
 
-import type { File } from './context';
 import type { Define } from './define';
+import type { File } from './scope';
 
 type Style = { name: string, value: string };
 

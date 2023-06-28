@@ -1,12 +1,10 @@
-import { PluginPass } from '@babel/core';
 import { getName } from 'parse/entry';
 import * as t from 'syntax';
-import { Options } from 'types';
 import { hash } from 'utility';
 
 import { Define } from './define';
 import { ModifyAction } from './modify';
-import { FileManager } from './scope';
+import { File } from './scope';
 
 const { create } = Object;
 
@@ -124,35 +122,5 @@ export class Context {
     while(path = path.parentPath!);
 
     throw new Error("No context found.");
-  }
-}
-
-const DEFAULTS: Options = {
-  env: "web",
-  styleMode: "compile",
-  runtime: "@expressive/css",
-  pragma: "react",
-  output: "js",
-  macros: []
-};
-
-export class File {
-  modifiersDeclared = new Set<Define>();
-  file: FileManager;
-  filename: string;
-  options: Options;
-
-  using: Record<string, Define> = {};
-
-  /** Macros functions available for this scope. */
-  macros: Record<string, ModifyAction> = {};
-
-  constructor(path: t.Path<t.Program>, state: PluginPass){
-    const { macros } = state.opts as Options;
-
-    this.options = { ...DEFAULTS, ...state.opts };
-    this.file = FileManager.create(this, path);
-    this.filename = state.filename!;
-    this.macros = Object.assign({}, ...macros);
   }
 }

@@ -3,9 +3,10 @@ import { VisitNode } from '@babel/traverse';
 import { getLocalFilename } from 'parse/entry';
 import * as t from 'syntax';
 
-import { Context, File } from './context';
+import { Context } from './context';
 import { applyModifier, isImplicitReturn } from './jsx';
 import { handleLabel } from './modify';
+import { File } from './scope';
 import { generateCSS, styleDeclaration } from './styles';
 
 type Visit<T extends t.Node> = VisitNode<PluginPass, T>;
