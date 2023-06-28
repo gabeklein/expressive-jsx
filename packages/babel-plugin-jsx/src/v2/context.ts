@@ -67,24 +67,6 @@ export class Context {
     return list;
   }
 
-  getHandler(named: string, ignoreOwn = false){
-    let context: Context | undefined = this;
-
-    if(ignoreOwn)
-      for(let found; !found && context;){
-        found = context.using.hasOwnProperty(named);
-        context = context.parent; 
-      }
-
-    const [key, ...path] = named.split(".");
-    let handler = this.macros[key] as ModifyAction | undefined;
-
-    for(const key of path)
-      handler = (handler as any)[key];
-
-    return handler;
-  }
-
   path(salt?: string | number){
     let path = "";
 

@@ -7,26 +7,24 @@ export function applyModifier(
   context: Context, element: t.Path<t.JSXElement>){
 
   const name = applyTagName(element);
-
   const apply = context.applicable(name);
 
   for(const context of apply)
     applyClassName(element.node, context.define);
 
-  for(const attr of element.get("openingElement").get("attributes")){
+  element.get("openingElement").get("attributes").forEach((attr) => {
     if(!attr.isJSXAttribute({ value: null }))
-      continue;
+      return;
 
-    const apply = context.applicable(attr.node.name.name as string);
+    const { name } = attr.node.name as t.JSXIdentifier;
+    const apply = context.applicable(name);
 
-    if(!apply.size)
-      continue
-
-    attr.remove();
-    apply.forEach(context => {
+    for(const context of apply)
       applyClassName(element.node, context.define);
-    });
-  }
+
+    if(apply.size)
+      attr.remove();
+  });
 
   if(apply.size == 1){
     context = apply.values().next().value;

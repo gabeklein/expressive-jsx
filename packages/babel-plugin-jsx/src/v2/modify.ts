@@ -61,7 +61,16 @@ function handleModifier(
 
   while(queue.length){
     const { name, body, args } = queue.pop()!;
-    const transform = context.getHandler(name);
+
+    const [key, ...path] = name.split(".");
+    let transform = context.macros[key] as ModifyAction | undefined;
+
+    for(const key of path){
+      if(!transform)
+        break;
+
+      transform = (transform as any)[key];
+    }
 
     function addStyle(name: string, ...args: any[]){
       const parsed: any[] = args.map(arg => arg.value || (
