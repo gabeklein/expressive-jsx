@@ -39,16 +39,16 @@ export function handleLabel(path: t.Path<t.LabeledStatement>){
   
   if(body.isExpressionStatement()){
     path.data = { context };
-    handleModifier(key, context.define, body);
+    handleModifier(key, context, body);
   }
 }
 
 function handleModifier(
   name: string,
-  target: Define,
+  context: Context,
   body: t.Path<ExpressionStatement>){
 
-  const { context } = target;
+  const { define, macros } = context;
   const queue = [{
     name,
     body,
@@ -61,9 +61,9 @@ function handleModifier(
 
   while(queue.length){
     const { name, body, args } = queue.pop()!;
-
     const [key, ...path] = name.split(".");
-    let transform = context.macros[key] as ModifyAction | undefined;
+
+    let transform = macros[key] as ModifyAction | undefined;
 
     for(const key of path){
       if(!transform)
@@ -77,7 +77,7 @@ function handleModifier(
         arg.requires ? t.requires(arg.requires) : arg
       ))
     
-      target.styles[name] =
+      define.styles[name] =
         parsed.length == 1 || typeof parsed[0] == "object"
           ? parsed[0] : Array.from(parsed).join(" ");
     }
@@ -87,7 +87,7 @@ function handleModifier(
       return;
     }
 
-    const output = transform.apply({ target, name, body }, args);
+    const output = transform.apply({ target: define, name, body }, args);
 
     if(!output)
       return;
