@@ -99,7 +99,7 @@ function applyClassName(element: t.JSXElement, define: Define){
     return;
   }
 
-  const cx = define.context.root.file.ensure("$runtime", "classNames");
+  const cx = define.context.file.ensure("$runtime", "classNames");
   const { value } = className;
   
   if(t.isStringLiteral(value))

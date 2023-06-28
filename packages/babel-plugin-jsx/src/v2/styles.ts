@@ -10,7 +10,7 @@ type MediaGroups = SelectorContent[];
 
 export function styleDeclaration(
   css: string,
-  context: File,
+  file: File,
   token?: string | false){
 
   const args: t.Expression[] = [];
@@ -25,7 +25,7 @@ export function styleDeclaration(
   return (
     t.statement(
       t.call(
-        context.file.ensure("$runtime", "default", "css"),
+        file.ensure("$runtime", "default", "css"),
         t.template(`\n${css.replace(/^/gm, "\t")}\n`),
         ...args
       )
@@ -33,9 +33,9 @@ export function styleDeclaration(
   );
 }
 
-export function generateCSS(context: File){
+export function generateCSS(modifiers: Set<Define>){
   const declared = Array
-    .from(context.modifiers)
+    .from(modifiers)
     .filter(item => item.className);
 
   if(declared.length == 0)

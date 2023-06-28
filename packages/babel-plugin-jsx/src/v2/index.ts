@@ -25,7 +25,7 @@ const DEFAULTS: Options = {
 const Program: Visit<t.Program> = {
   enter(path, state){
     const opts = { ...DEFAULTS, ...state.opts };
-    const file = new File(path, opts);
+    const file = File.create(opts, path);
     const name = getLocalFilename(path.hub);
     const context = new Context(name, file);
 
@@ -34,16 +34,16 @@ const Program: Visit<t.Program> = {
   },
   exit(path, { opts, filename }){
     const { hot } = opts as Options;
-    const { root } = path.data!.context as Context;
+    const { file } = path.data!.context as Context;
     const token = hot === false ? undefined : hash(filename, 10);
-    const stylesheet = generateCSS(root);
+    const stylesheet = generateCSS(file.declared);
 
     if(stylesheet)
       path.pushContainer("body", [ 
-        styleDeclaration(stylesheet, root, token)
+        styleDeclaration(stylesheet, file, token)
       ]);
 
-    root.file.close();
+    file.close();
   }
 };
 

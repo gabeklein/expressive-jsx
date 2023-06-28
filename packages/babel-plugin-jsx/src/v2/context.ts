@@ -9,7 +9,7 @@ import { File } from './scope';
 const { create } = Object;
 
 export class Context {
-  root!: File;
+  file!: File;
 
   /** Used to supply JSX child components with nested defintion. */
   using: Record<string, Context> = {
@@ -25,8 +25,6 @@ export class Context {
   get define(){
     const value = new Define(this, this.name);
 
-    this.root.modifiers.add(value);
-
     Object.defineProperty(this, "define", {
       configurable: true,
       value
@@ -37,21 +35,20 @@ export class Context {
 
   constructor(
     public name: string,
-    parent: Context | File){
+    within: Context | File){
 
-    if(parent instanceof Context){
-      this.macros = create(parent.macros);
-      this.using = create(parent.using);
+    if(within instanceof Context){
+      this.macros = create(within.macros);
+      this.using = create(within.using);
   
-      this.parent = parent;
-      this.root = parent.root;
+      this.parent = within;
+      this.file = within.file;
       this.using.this = this;
 
-      parent.using[name] = this;
+      within.using[name] = this;
     }
-
-    else if(parent instanceof File){
-      this.root = parent;
+    else if(within instanceof File){
+      this.file = within;
     }
   }
 

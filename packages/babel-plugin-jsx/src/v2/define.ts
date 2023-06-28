@@ -27,6 +27,7 @@ export class Define {
     public context: Context,
     public name?: string){
 
+    context.file.declared.add(this);
     this.uid = name + "_" + context.path();
   }
 

@@ -4,17 +4,6 @@ import { Define } from './define';
 
 import type { Options } from 'types';
 
-export class File {
-  modifiers = new Set<Define>();
-  file: FileManager;
-  options: Options;
-
-  constructor(path: t.Path<t.Program>, options: Options){
-    this.options = options;
-    this.file = FileManager.create(this, path);
-  }
-}
-
 type ImportSpecific =
   | t.ImportSpecifier 
   | t.ImportDefaultSpecifier 
@@ -25,19 +14,21 @@ interface External<T> {
   exists?: boolean;
 }
 
-export abstract class FileManager {
-  protected body: t.Statement[];
-  protected scope: t.Scope;
-  protected opts: Options;
+export abstract class File {
+  declared = new Set<Define>();
 
-  protected imports: Record<string, External<any>> = {};
-  protected importIndices: Record<string, number> = {};
+  body: t.Statement[];
+  scope: t.Scope;
+  options: Options;
+
+  imports: Record<string, External<any>> = {};
+  importIndices: Record<string, number> = {};
 
   static create(
-    parent: File,
+    options: Options,
     path: t.Path<t.Program>
   ){
-    const { externals, output } = parent.options;
+    const { externals, output } = options;
     const Type =
       externals == "require"
         ? RequireManager :
@@ -47,15 +38,15 @@ export abstract class FileManager {
         ? RequireManager
         : ImportManager;
 
-    return new Type(path, parent);
+    return new Type(path, options);
   }
 
   constructor(
     path: t.Path<t.Program>,
-    context: File){
+    options: Options){
 
     this.body = path.node.body;
-    this.opts = context.options;
+    this.options = options;
     this.scope = path.scope;
   }
 
@@ -68,7 +59,7 @@ export abstract class FileManager {
       return value;
 
     const name = value.slice(1) as keyof Options;
-    return this.opts[name] as string;
+    return this.options[name] as string;
   }
 
   ensureUID(name = "temp"){
@@ -98,7 +89,7 @@ export abstract class FileManager {
   }
 
   close(){
-    if(this.opts.externals === false)
+    if(this.options.externals === false)
       return;
 
     Object.entries(this.imports).forEach(([name, external]) => {
@@ -116,7 +107,7 @@ export abstract class FileManager {
   }
 }
 
-export class ImportManager extends FileManager {
+export class ImportManager extends File {
   imports = {} as Record<string, External<ImportSpecific>>
 
   ensure(from: string, name: string, alt = name){
@@ -185,7 +176,7 @@ export class ImportManager extends FileManager {
   }
 }
 
-export class RequireManager extends FileManager {
+export class RequireManager extends File {
   imports = {} as Record<string, External<t.ObjectProperty>>
   importTargets = {} as Record<string, t.Expression | false>
 
