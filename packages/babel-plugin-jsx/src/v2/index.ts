@@ -8,25 +8,39 @@ import { applyModifier, isImplicitReturn } from './jsx';
 import { handleLabel } from './modify';
 import { File } from './scope';
 import { generateCSS, styleDeclaration } from './styles';
+import { Options } from 'types';
+import { hash } from 'utility';
 
 type Visit<T extends t.Node> = VisitNode<PluginPass, T>;
 
+const DEFAULTS: Options = {
+  env: "web",
+  styleMode: "compile",
+  runtime: "@expressive/css",
+  pragma: "react",
+  output: "js",
+  macros: []
+};
+
 const Program: Visit<t.Program> = {
   enter(path, state){
-    path.data = {
-      context: new Context(
-        getLocalFilename(path.hub),
-        new File(path, state)
-      )
-    };
+    const opts = { ...DEFAULTS, ...state.opts };
+    const file = new File(path, opts);
+    const name = getLocalFilename(path.hub);
+    const context = new Context(name, file);
+
+    Object.assign(context.macros, ...opts.macros);
+    path.data = { context };
   },
-  exit(path){
+  exit(path, { opts, filename }){
+    const { hot } = opts as Options;
     const { root } = path.data!.context as Context;
+    const token = hot === false ? undefined : hash(filename, 10);
     const stylesheet = generateCSS(root);
 
     if(stylesheet)
       path.pushContainer("body", [ 
-        styleDeclaration(stylesheet, root)
+        styleDeclaration(stylesheet, root, token)
       ]);
 
     root.file.close();

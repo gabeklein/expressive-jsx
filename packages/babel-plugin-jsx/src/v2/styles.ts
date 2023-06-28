@@ -1,5 +1,4 @@
 import * as t from 'syntax';
-import { hash } from 'utility';
 
 import type { Define } from './define';
 import type { File } from './scope';
@@ -9,15 +8,16 @@ type Style = { name: string, value: string };
 type SelectorContent = [ string, Style[] ][];
 type MediaGroups = SelectorContent[];
 
-export function styleDeclaration(css: string, context: File){
-  const { filename, file, options } = context;
+export function styleDeclaration(
+  css: string,
+  context: File,
+  token?: string | false){
 
-  const hot = options.hot !== false;
   const args: t.Expression[] = [];
   const config: any = {};
 
-  if(hot)
-    config.refreshToken = t.literal(hash(filename, 10));
+  if(token)
+    config.refreshToken = t.stringLiteral(token);
 
   if(Object.keys(config).length)
     args.push(t.object(config));
@@ -25,7 +25,7 @@ export function styleDeclaration(css: string, context: File){
   return (
     t.statement(
       t.call(
-        file.ensure("$runtime", "default", "css"),
+        context.file.ensure("$runtime", "default", "css"),
         t.template(`\n${css.replace(/^/gm, "\t")}\n`),
         ...args
       )

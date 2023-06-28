@@ -37,14 +37,12 @@ export class Context {
 
   constructor(
     public name: string,
-    parent?: Context | File){
-
-    if(parent){
-      this.macros = create(parent.macros);
-      this.using = create(parent.using);
-    }
+    parent: Context | File){
 
     if(parent instanceof Context){
+      this.macros = create(parent.macros);
+      this.using = create(parent.using);
+  
       this.parent = parent;
       this.root = parent.root;
       this.using.this = this;
