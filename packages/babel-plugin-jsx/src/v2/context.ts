@@ -47,19 +47,6 @@ export class Context {
 
   exit?(): void;
 
-  applicable(name: string){
-    const list = new Set<Context>();
-    let ctx: Context = this;
-
-    do {
-      if(ctx.using.hasOwnProperty(name))
-        list.add(ctx.using[name]);
-    }
-    while(ctx = ctx.parent!);
-
-    return list;
-  }
-
   path(salt?: string | number){
     let path = "";
 

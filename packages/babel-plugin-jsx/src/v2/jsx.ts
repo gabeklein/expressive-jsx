@@ -6,8 +6,19 @@ import { Define } from './define';
 export function applyModifier(
   context: Context, element: t.Path<t.JSXElement>){
 
+  function applicable(ctx: Context, name: string){
+    const list = new Set<Context>();
+    do {
+      if(ctx.using.hasOwnProperty(name))
+        list.add(ctx.using[name]);
+    }
+    while(ctx = ctx.parent!);
+
+    return list;
+  }
+
   const name = applyTagName(element);
-  const apply = context.applicable(name);
+  const apply = applicable(context, name);
 
   for(const context of apply)
     applyClassName(element.node, context.define);
@@ -17,7 +28,7 @@ export function applyModifier(
       return;
 
     const { name } = attr.node.name as t.JSXIdentifier;
-    const apply = context.applicable(name);
+    const apply = applicable(context, name);
 
     for(const context of apply)
       applyClassName(element.node, context.define);
