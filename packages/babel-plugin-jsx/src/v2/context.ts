@@ -22,16 +22,7 @@ export class Context {
   parent?: Context;
 
   /** Modifiers applicable to JSX elements with this scope. */
-  get define(){
-    const value = new Define(this, this.name);
-
-    Object.defineProperty(this, "define", {
-      configurable: true,
-      value
-    });
-    
-    return value;
-  }
+  define: Define;
 
   constructor(
     within: Context | File,
@@ -50,6 +41,8 @@ export class Context {
 
       within.using[name] = this;
     }
+
+    this.define = new Define(this, this.name);
   }
 
   exit?(): void;
