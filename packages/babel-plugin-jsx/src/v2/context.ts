@@ -45,8 +45,6 @@ export class Context {
     this.define = new Define(this, this.name);
   }
 
-  exit?(): void;
-
   path(salt?: string | number){
     let path = "";
 

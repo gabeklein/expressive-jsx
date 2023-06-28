@@ -60,9 +60,6 @@ const LabeledStatement: Visit<t.LabeledStatement> = {
     if(!context)
       return;
 
-    if(context.exit)
-      context.exit();
-
     path.remove();
   }
 }
