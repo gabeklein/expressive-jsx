@@ -5,7 +5,7 @@ import { Define } from './define';
 import type { Options } from 'types';
 
 export class File {
-  modifiersDeclared = new Set<Define>();
+  modifiers = new Set<Define>();
   file: FileManager;
   options: Options;
 

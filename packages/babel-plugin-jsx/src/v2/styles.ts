@@ -35,7 +35,7 @@ export function styleDeclaration(
 
 export function generateCSS(context: File){
   const declared = Array
-    .from(context.modifiersDeclared)
+    .from(context.modifiers)
     .filter(item => item.className);
 
   if(declared.length == 0)

@@ -25,7 +25,7 @@ export class Context {
   get define(){
     const value = new Define(this, this.name);
 
-    this.root.modifiersDeclared.add(value);
+    this.root.modifiers.add(value);
 
     Object.defineProperty(this, "define", {
       configurable: true,
