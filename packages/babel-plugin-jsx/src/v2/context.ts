@@ -42,7 +42,7 @@ export class Context {
       within.using[name] = this;
     }
 
-    this.define = new Define(this, this.name);
+    this.define = new Define(this);
   }
 
   path(salt?: string | number){
