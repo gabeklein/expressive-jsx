@@ -18,7 +18,6 @@ export type ModifyAction =
 export function handleLabel(path: t.Path<t.LabeledStatement>){
   const context = Context.get(path);
   let body = path.get("body");
-
   let name = getName(path);
 
   while(body.isLabeledStatement()){

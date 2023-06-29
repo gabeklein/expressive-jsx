@@ -1,6 +1,8 @@
 import { Context } from './context';
 
 export class Define {
+  name?: string;
+
   within?: Define;
   container?: Define;
 
@@ -14,6 +16,8 @@ export class Define {
 
   uid: string;
 
+  context: Context;
+
   get isUsed(){
     return Object.keys(this.styles).length > 0;
   }
@@ -23,10 +27,13 @@ export class Define {
   }
 
   constructor(
-    public context: Context,
-    public name = context.name){
+    context: Context,
+    name = context.name){
 
     context.file.declared.add(this);
+
+    this.name = name;
+    this.context = context;
     this.uid = name + "_" + context.path();
   }
 

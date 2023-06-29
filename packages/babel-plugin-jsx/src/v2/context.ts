@@ -9,15 +9,13 @@ import { File } from './scope';
 const { create } = Object;
 
 export class Context {
-  file!: File;
+  file: File;
 
   /** Used to supply JSX child components with nested defintion. */
-  using: Record<string, Context> = {
-    "this": this
-  };
+  using: Record<string, Context>;
 
   /** Macros functions available for this scope. */
-  macros: Record<string, ModifyAction> = {};
+  macros: Record<string, ModifyAction>;
 
   parent?: Context;
 
@@ -30,8 +28,9 @@ export class Context {
 
     if(within instanceof File){
       this.file = within;
+      this.macros = {};
     }
-    else if(within instanceof Context){
+    else {
       this.macros = create(within.macros);
       this.using = create(within.using);
   
@@ -43,6 +42,7 @@ export class Context {
     }
 
     this.define = new Define(this);
+    this.using = { "this": this };
   }
 
   path(salt?: string | number){
