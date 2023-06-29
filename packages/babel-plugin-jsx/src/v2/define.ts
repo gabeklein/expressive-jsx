@@ -30,8 +30,6 @@ export class Define {
     context: Context,
     name = context.name){
 
-    context.file.declared.add(this);
-
     this.name = name;
     this.context = context;
     this.uid = name + "_" + context.path();

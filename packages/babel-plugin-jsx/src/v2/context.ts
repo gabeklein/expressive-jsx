@@ -9,38 +9,37 @@ import { File } from './scope';
 const { create } = Object;
 
 export class Context {
-  file: File;
+  file!: File;
 
   /** Used to supply JSX child components with nested defintion. */
   using: Record<string, Context>;
 
   /** Macros functions available for this scope. */
-  macros: Record<string, ModifyAction>;
+  macros: Record<string, ModifyAction> = {};
 
   parent?: Context;
 
   /** Modifiers applicable to JSX elements with this scope. */
   define: Define;
 
-  constructor(
-    within: Context | File,
-    public name: string){
+  name?: string;
 
-    if(within instanceof File){
-      this.file = within;
-      this.macros = {};
-    }
-    else {
-      this.macros = create(within.macros);
-      this.using = create(within.using);
-  
-      this.parent = within;
-      this.file = within.file;
+  constructor(
+    parent?: Context,
+    name?: string){
+
+    if(parent){
+      this.macros = create(parent.macros);
+      this.using = create(parent.using);
+      this.file = parent.file;
       this.using.this = this;
 
-      within.using[name] = this;
+      if(name)
+        parent.using[name] = this;
     }
 
+    this.name = name;
+    this.parent = parent;
     this.define = new Define(this);
     this.using = { "this": this };
   }

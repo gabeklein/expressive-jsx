@@ -1,5 +1,8 @@
+import { PluginPass } from '@babel/core';
+import { getLocalFilename } from 'parse/entry';
 import * as t from 'syntax';
 
+import { Context } from './context';
 import { Define } from './define';
 
 import type { Options } from 'types';
@@ -12,6 +15,33 @@ type ImportSpecific =
 interface External<T> {
   items: T[];
   exists?: boolean;
+}
+
+const DEFAULTS: Options = {
+  env: "web",
+  styleMode: "compile",
+  runtime: "@expressive/css",
+  pragma: "react",
+  output: "js",
+  macros: []
+};
+
+export class FileContext extends Context {
+  filename?: string;
+  options: Options;
+
+  constructor(path: t.Path<t.Program>, state: PluginPass){
+    const opts = { ...DEFAULTS, ...state.opts };
+    const name = getLocalFilename(path.hub);
+    const file = File.create(opts, path);
+
+    super(undefined, name);
+
+    this.options = opts;
+    this.file = file;
+    this.filename = state.filename;
+    Object.assign(this.macros, ...opts.macros);
+  }
 }
 
 export abstract class File {
