@@ -84,11 +84,10 @@ function applyTagName(element: t.Path<t.JSXElement>){
 }
 
 function applyClassName(element: t.JSXElement, define: Define){
-  const name = define.className;
-
-  if(!name)
+  if(!define.isUsed)
     return;
 
+  const name = define.uid;
   const { attributes } = element.openingElement;
 
   const className = attributes.find(attr => (

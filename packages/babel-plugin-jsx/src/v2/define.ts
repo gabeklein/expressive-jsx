@@ -11,13 +11,12 @@ export class Define {
 
   /** Modifiers based upon this one. */
   dependant = new Set<Define>();
-  
-  get className(){
-    if(Object.keys(this.styles).length)
-      return this.uid;
-  };
 
   uid: string;
+
+  get isUsed(){
+    return Object.keys(this.styles).length > 0;
+  }
 
   get selector(){
     return [ `.${this.uid}` ];

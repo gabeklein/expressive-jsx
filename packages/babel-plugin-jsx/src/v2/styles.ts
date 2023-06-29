@@ -36,7 +36,7 @@ export function styleDeclaration(
 export function generateCSS(modifiers: Set<Define>){
   const declared = Array
     .from(modifiers)
-    .filter(item => item.className);
+    .filter(item => item.isUsed);
 
   if(declared.length == 0)
     return "";
