@@ -3,7 +3,7 @@ import { parse } from 'parse/arguments';
 import { getName } from 'parse/labels';
 import * as t from 'syntax';
 
-import { Context } from './context';
+import { DefineContext } from './context';
 import { Define } from './define';
 
 export interface ModifyDelegate {
@@ -16,7 +16,7 @@ export type ModifyAction =
   (this: ModifyDelegate, ...args: any[]) => Record<string, any> | void;
 
 export function handleLabel(path: t.Path<t.LabeledStatement>){
-  const context = Context.get(path);
+  const context = DefineContext.get(path);
 
   context.file.declared.add(context.define);
 
@@ -34,7 +34,7 @@ export function handleLabel(path: t.Path<t.LabeledStatement>){
 
   if(body.isBlockStatement()){
     path.data = {
-      context: new Context(context, name)
+      context: new DefineContext(context, name)
     };
     return;
   }

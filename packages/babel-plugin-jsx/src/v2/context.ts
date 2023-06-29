@@ -12,15 +12,12 @@ export class Context {
   file!: File;
 
   /** Used to supply JSX child components with nested defintion. */
-  using: Record<string, Context>;
+  using: Record<string, DefineContext>;
 
   /** Macros functions available for this scope. */
   macros: Record<string, ModifyAction> = {};
 
   parent?: Context;
-
-  /** Modifiers applicable to JSX elements with this scope. */
-  define: Define;
 
   name?: string;
 
@@ -28,20 +25,15 @@ export class Context {
     parent?: Context,
     name?: string){
 
+    this.name = name;
+    this.parent = parent;
+    this.using = {};
+
     if(parent){
       this.macros = create(parent.macros);
       this.using = create(parent.using);
       this.file = parent.file;
-      this.using.this = this;
-
-      if(name)
-        parent.using[name] = this;
     }
-
-    this.name = name;
-    this.parent = parent;
-    this.define = new Define(this);
-    this.using = { "this": this };
   }
 
   path(salt?: string | number){
@@ -53,7 +45,7 @@ export class Context {
     return hash(path + salt);
   }
 
-  static get(path: t.Path<t.Node>): Context {
+  static get(path: t.Path<t.Node>){
     do {
       if(path.data){
         const { context } = path.data;
@@ -61,9 +53,40 @@ export class Context {
         if(context instanceof Context)
           return context;
       }
+    }
+    while(path = path.parentPath!);
+
+    throw new Error("No context found.");
+  }
+}
+
+export class DefineContext extends Context {
+  /** Modifiers applicable to JSX elements with this scope. */
+  define: Define;
+
+  constructor(
+    parent: Context,
+    name: string){
+
+    super(parent, name);
+    this.define = new Define(this);
+    this.using.this = this;
+
+    if(name)
+      parent.using[name] = this;
+  }
+
+  static get(path: t.Path<t.Node>){
+    do {
+      if(path.data){
+        const { context } = path.data;
+  
+        if(context instanceof DefineContext)
+          return context;
+      }
       else if(path.isFunction()){
-        const parent = this.get(path.parentPath);
-        const context = new Context(parent, getName(path));
+        const parent = Context.get(path.parentPath);
+        const context = new DefineContext(parent, getName(path));
 
         path.data = { context };
 

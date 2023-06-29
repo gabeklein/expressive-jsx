@@ -1,13 +1,13 @@
 import * as t from 'syntax';
 
-import { Context } from './context';
+import { Context, DefineContext } from './context';
 import { Define } from './define';
 
 export function applyModifier(
-  context: Context, element: t.Path<t.JSXElement>){
+  context: DefineContext, element: t.Path<t.JSXElement>){
 
   function applicable(ctx: Context, name: string){
-    const list = new Set<Context>();
+    const list = new Set<DefineContext>();
     do {
       if(ctx.using.hasOwnProperty(name))
         list.add(ctx.using[name]);
