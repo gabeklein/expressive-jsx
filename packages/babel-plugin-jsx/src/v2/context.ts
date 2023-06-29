@@ -61,11 +61,8 @@ export class Context {
   
         if(context instanceof Context)
           return context;
-
-        continue;
       }
-
-      if(path.isFunction()){
+      else if(path.isFunction()){
         const parent = this.get(path.parentPath);
         const context = new Context(parent, getName(path));
 
