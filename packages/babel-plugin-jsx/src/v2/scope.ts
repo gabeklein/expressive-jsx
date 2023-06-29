@@ -30,10 +30,8 @@ export abstract class File {
   ){
     const { externals, output } = options;
     const Type =
-      externals == "require"
-        ? RequireManager :
-      externals == "import"
-        ? ImportManager :
+      externals == "require" ? RequireManager :
+      externals == "import" ? ImportManager :
       output == "js"
         ? RequireManager
         : ImportManager;
