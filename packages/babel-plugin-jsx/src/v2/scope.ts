@@ -54,6 +54,10 @@ export abstract class File {
   imports: Record<string, External<any>> = {};
   importIndices: Record<string, number> = {};
 
+  abstract ensure(from: string, name: string, alt?: string): t.Identifier;
+  abstract ensureImported(from: string): void;
+  abstract createImport(name: string): t.Statement | undefined;
+
   static create(
     options: Options,
     path: t.Path<t.Program>
@@ -77,10 +81,6 @@ export abstract class File {
     this.options = options;
     this.scope = path.scope;
   }
-
-  abstract ensure(from: string, name: string, alt?: string): t.Identifier;
-  abstract ensureImported(from: string): void;
-  abstract createImport(name: string): t.Statement | undefined;
 
   replaceAlias(value: string){
     if(!value.startsWith("$"))
