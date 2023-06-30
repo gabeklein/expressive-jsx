@@ -1,7 +1,10 @@
+import { getName } from 'parse/entry';
+import * as t from 'syntax';
+
 import { Context } from './context';
 
-export class Define {
-  name?: string;
+export class Define extends Context {
+  uid: string;
 
   within?: Define;
   container?: Define;
@@ -14,10 +17,6 @@ export class Define {
   /** Modifiers based upon this one. */
   dependant = new Set<Define>();
 
-  uid: string;
-
-  context: Context;
-
   get isUsed(){
     return Object.keys(this.styles).length > 0;
   }
@@ -27,11 +26,36 @@ export class Define {
   }
 
   constructor(
-    context: Context,
-    name = context.name){
+    parent: Context,
+    name: string){
 
-    this.name = name;
-    this.context = context;
-    this.uid = name + "_" + context.path();
+    super(parent, name);
+    this.uid = name + "_" + this.path();
+    this.using.this = this;
+
+    if(name)
+      parent.using[name] = this;
+  }
+
+  static get(path: t.Path<t.Node>){
+    do {
+      if(path.data){
+        const { context } = path.data;
+  
+        if(context instanceof Define)
+          return context;
+      }
+      else if(path.isFunction()){
+        const parent = Context.get(path.parentPath);
+        const context = new Define(parent, getName(path));
+
+        path.data = { context };
+
+        return context;
+      }
+    }
+    while(path = path.parentPath!);
+
+    throw new Error("No context found.");
   }
 }

@@ -3,7 +3,6 @@ import { parse } from 'parse/arguments';
 import { getName } from 'parse/labels';
 import * as t from 'syntax';
 
-import { DefineContext } from './context';
 import { Define } from './define';
 
 export interface ModifyDelegate {
@@ -16,9 +15,9 @@ export type ModifyAction =
   (this: ModifyDelegate, ...args: any[]) => Record<string, any> | void;
 
 export function handleLabel(path: t.Path<t.LabeledStatement>){
-  const context = DefineContext.get(path);
+  const context = Define.get(path);
 
-  context.file.declared.add(context.define);
+  context.file.declared.add(context);
 
   let body = path.get("body");
   let name = getName(path);
@@ -34,7 +33,7 @@ export function handleLabel(path: t.Path<t.LabeledStatement>){
 
   if(body.isBlockStatement()){
     path.data = {
-      context: new DefineContext(context, name)
+      context: new Define(context, name)
     };
     return;
   }
@@ -44,7 +43,7 @@ export function handleLabel(path: t.Path<t.LabeledStatement>){
 
   path.data = { context };
 
-  const { define, macros } = context;
+  const { macros } = context;
   const queue = [{
     name,
     body,
@@ -73,7 +72,7 @@ export function handleLabel(path: t.Path<t.LabeledStatement>){
         arg.requires ? t.requires(arg.requires) : arg
       ))
     
-      define.styles[name] =
+      context.styles[name] =
         parsed.length == 1 || typeof parsed[0] == "object"
           ? parsed[0] : Array.from(parsed).join(" ");
     }
@@ -83,7 +82,7 @@ export function handleLabel(path: t.Path<t.LabeledStatement>){
       return;
     }
 
-    const output = transform.apply({ target: define, name, body }, args);
+    const output = transform.apply({ target: context, name, body }, args);
 
     if(!output)
       return;

@@ -3,9 +3,9 @@ import { getLocalFilename } from 'parse/entry';
 import * as t from 'syntax';
 
 import { Context } from './context';
-import { Define } from './define';
 
 import type { Options } from 'types';
+import { Define } from './define';
 
 type ImportSpecific =
   | t.ImportSpecifier 

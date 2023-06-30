@@ -1,4 +1,3 @@
-import { getName } from 'parse/entry';
 import * as t from 'syntax';
 import { hash } from 'utility';
 
@@ -12,7 +11,7 @@ export class Context {
   file!: File;
 
   /** Used to supply JSX child components with nested defintion. */
-  using: Record<string, DefineContext>;
+  using: Record<string, Define>;
 
   /** Macros functions available for this scope. */
   macros: Record<string, ModifyAction> = {};
@@ -52,45 +51,6 @@ export class Context {
   
         if(context instanceof Context)
           return context;
-      }
-    }
-    while(path = path.parentPath!);
-
-    throw new Error("No context found.");
-  }
-}
-
-export class DefineContext extends Context {
-  /** Modifiers applicable to JSX elements with this scope. */
-  define: Define;
-
-  constructor(
-    parent: Context,
-    name: string){
-
-    super(parent, name);
-    this.define = new Define(this);
-    this.using.this = this;
-
-    if(name)
-      parent.using[name] = this;
-  }
-
-  static get(path: t.Path<t.Node>){
-    do {
-      if(path.data){
-        const { context } = path.data;
-  
-        if(context instanceof DefineContext)
-          return context;
-      }
-      else if(path.isFunction()){
-        const parent = Context.get(path.parentPath);
-        const context = new DefineContext(parent, getName(path));
-
-        path.data = { context };
-
-        return context;
       }
     }
     while(path = path.parentPath!);

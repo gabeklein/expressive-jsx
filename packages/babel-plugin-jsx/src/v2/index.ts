@@ -9,9 +9,9 @@ import { applyModifier, isImplicitReturn } from './jsx';
 import { handleLabel } from './modify';
 import { FileContext } from './scope';
 import { generateCSS, styleDeclaration } from './styles';
+import { Define } from './define';
 
 type Visit<T extends t.Node> = VisitNode<PluginPass, T>;
-
 
 const Program: Visit<t.Program> = {
   enter(path, state){
@@ -56,7 +56,7 @@ const JSXElement: Visit<t.JSXElement> = {
     if(isImplicitReturn(path))
       return;
 
-    const context = Context.get(path);
+    const context = Define.get(path);
 
     applyModifier(context, path);
   }

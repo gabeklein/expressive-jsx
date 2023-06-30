@@ -1,8 +1,8 @@
 import * as t from 'syntax';
 
-import type { Define } from './define';
-import type { File } from './scope';
+import { Define } from './define';
 
+import type { File } from './scope';
 type Style = { name: string, value: string };
 
 type SelectorContent = [ string, Style[] ][];

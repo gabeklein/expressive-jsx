@@ -1,13 +1,13 @@
 import * as t from 'syntax';
 
-import { Context, DefineContext } from './context';
+import { Context } from './context';
 import { Define } from './define';
 
 export function applyModifier(
-  context: DefineContext, element: t.Path<t.JSXElement>){
+  context: Define, element: t.Path<t.JSXElement>){
 
   function applicable(ctx: Context, name: string){
-    const list = new Set<DefineContext>();
+    const list = new Set<Define>();
     do {
       if(ctx.using.hasOwnProperty(name))
         list.add(ctx.using[name]);
@@ -21,7 +21,7 @@ export function applyModifier(
   const apply = applicable(context, name);
 
   for(const context of apply)
-    applyClassName(element.node, context.define);
+    applyClassName(element.node, context);
 
   element.get("openingElement").get("attributes").forEach((attr) => {
     if(!attr.isJSXAttribute({ value: null }))
@@ -31,7 +31,7 @@ export function applyModifier(
     const apply = applicable(context, name);
 
     for(const context of apply)
-      applyClassName(element.node, context.define);
+      applyClassName(element.node, context);
 
     if(apply.size)
       attr.remove();
@@ -105,7 +105,7 @@ function applyClassName(element: t.JSXElement, define: Define){
     return;
   }
 
-  const cx = define.context.file.ensure("$runtime", "classNames");
+  const cx = define.file.ensure("$runtime", "classNames");
   const { value } = className;
   
   if(t.isStringLiteral(value))
