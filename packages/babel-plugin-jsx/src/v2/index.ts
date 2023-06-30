@@ -3,7 +3,7 @@ import { VisitNode } from '@babel/traverse';
 import * as t from 'syntax';
 
 import { Context } from './context';
-import { Define } from './define';
+import { DefineContext } from './define';
 import { applyModifier, isImplicitReturn } from './jsx';
 import { handleLabel } from './modify';
 import { FileContext } from './scope';
@@ -49,7 +49,7 @@ const JSXElement: Visit<t.JSXElement> = {
     if(isImplicitReturn(path))
       return;
 
-    const context = Define.get(path);
+    const context = DefineContext.get(path);
 
     applyModifier(context, path);
   }

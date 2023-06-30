@@ -1,7 +1,7 @@
 import * as t from 'syntax';
 import { hash } from 'utility';
 
-import { Define } from './define';
+import { DefineContext } from './define';
 import { ModifyAction } from './modify';
 import { File } from './scope';
 
@@ -11,7 +11,7 @@ export class Context {
   file!: File;
 
   /** Used to supply JSX child components with nested defintion. */
-  using: Record<string, Define>;
+  using: Record<string, DefineContext>;
 
   /** Macros functions available for this scope. */
   macros: Record<string, ModifyAction> = {};

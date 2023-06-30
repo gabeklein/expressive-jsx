@@ -1,6 +1,6 @@
 import * as t from 'syntax';
 
-import { Define } from './define';
+import { DefineContext } from './define';
 
 import type { File } from './scope';
 type Style = { name: string, value: string };
@@ -33,7 +33,7 @@ export function styleDeclaration(
   );
 }
 
-export function generateCSS(modifiers: Set<Define>){
+export function generateCSS(modifiers: Set<DefineContext>){
   const declared = Array
     .from(modifiers)
     .filter(item => item.isUsed);
@@ -54,7 +54,7 @@ export function generateCSS(modifiers: Set<Define>){
     const query = "default";
     const selector = item.selector.map(select => {
       const selection = [select];
-      let source: Define | undefined = item;
+      let source: DefineContext | undefined = item;
 
       while(source = source.within)
         selection.unshift(source.selector[0]);

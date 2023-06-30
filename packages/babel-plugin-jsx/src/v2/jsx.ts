@@ -1,13 +1,13 @@
 import * as t from 'syntax';
 
 import { Context } from './context';
-import { Define } from './define';
+import { DefineContext } from './define';
 
 export function applyModifier(
-  context: Define, element: t.Path<t.JSXElement>){
+  context: DefineContext, element: t.Path<t.JSXElement>){
 
   function applicable(ctx: Context, name: string){
-    const list = new Set<Define>();
+    const list = new Set<DefineContext>();
     do {
       if(ctx.using.hasOwnProperty(name))
         list.add(ctx.using[name]);
@@ -83,7 +83,7 @@ function applyTagName(element: t.Path<t.JSXElement>){
   return name;
 }
 
-function applyClassName(element: t.JSXElement, define: Define){
+function applyClassName(element: t.JSXElement, define: DefineContext){
   if(!define.isUsed)
     return;
 

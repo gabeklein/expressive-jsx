@@ -5,7 +5,7 @@ import { Options } from 'types';
 import { hash } from 'utility';
 
 import { Context } from './context';
-import { Define } from './define';
+import { DefineContext } from './define';
 import { generateCSS, styleDeclaration } from './styles';
 
 type ImportSpecific =
@@ -55,7 +55,7 @@ export class FileContext extends Context {
 }
 
 export abstract class File {
-  declared = new Set<Define>();
+  declared = new Set<DefineContext>();
 
   body: t.Statement[];
   scope: t.Scope;

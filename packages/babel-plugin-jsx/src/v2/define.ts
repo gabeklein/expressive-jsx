@@ -3,11 +3,11 @@ import * as t from 'syntax';
 
 import { Context } from './context';
 
-export class Define extends Context {
+export class DefineContext extends Context {
   uid: string;
 
-  within?: Define;
-  container?: Define;
+  within?: DefineContext;
+  container?: DefineContext;
 
   styles = {} as Record<string, string>;
   props = {} as Record<string, string>;
@@ -15,7 +15,7 @@ export class Define extends Context {
   priority = 1;
 
   /** Modifiers based upon this one. */
-  dependant = new Set<Define>();
+  dependant = new Set<DefineContext>();
 
   get isUsed(){
     return Object.keys(this.styles).length > 0;
@@ -42,12 +42,12 @@ export class Define extends Context {
       if(path.data){
         const { context } = path.data;
   
-        if(context instanceof Define)
+        if(context instanceof DefineContext)
           return context;
       }
       else if(path.isFunction()){
         const parent = Context.get(path.parentPath);
-        const context = new Define(parent, getName(path));
+        const context = new DefineContext(parent, getName(path));
 
         path.data = { context };
 
