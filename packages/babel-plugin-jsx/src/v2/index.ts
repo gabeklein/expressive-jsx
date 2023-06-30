@@ -33,12 +33,8 @@ const LabeledStatement: Visit<t.LabeledStatement> = {
     handleLabel(path);
   },
   exit(path){
-    const context = path.data?.context as Context;
-
-    if(!context)
-      return;
-
-    path.remove();
+    if(path.data?.context as Context)
+      path.remove();
   }
 }
 
