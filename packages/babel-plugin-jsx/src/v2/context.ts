@@ -3,12 +3,12 @@ import { hash } from 'utility';
 
 import { DefineContext } from './define';
 import { ModifyAction } from './modify';
-import { File } from './scope';
+import { FileContext } from './scope';
 
 const { create } = Object;
 
 export class Context {
-  file!: File;
+  file!: FileContext;
 
   /** Used to supply JSX child components with nested defintion. */
   using: Record<string, DefineContext>;

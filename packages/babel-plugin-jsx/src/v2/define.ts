@@ -2,6 +2,7 @@ import { getName } from 'parse/entry';
 import * as t from 'syntax';
 
 import { Context } from './context';
+import { applyModifier } from './jsx';
 
 export class DefineContext extends Context {
   uid: string;
@@ -35,6 +36,10 @@ export class DefineContext extends Context {
 
     if(name)
       parent.using[name] = this;
+  }
+
+  static apply(path: t.Path<t.JSXElement>){
+    applyModifier(this.get(path), path);
   }
 
   static get(path: t.Path<t.Node>){

@@ -1,8 +1,8 @@
 import * as t from 'syntax';
 
 import { DefineContext } from './define';
+import { FileContext } from './scope';
 
-import type { File } from './scope';
 type Style = { name: string, value: string };
 
 type SelectorContent = [ string, Style[] ][];
@@ -10,7 +10,7 @@ type MediaGroups = SelectorContent[];
 
 export function styleDeclaration(
   css: string,
-  file: File,
+  file: FileContext,
   token?: string | false){
 
   const args: t.Expression[] = [];

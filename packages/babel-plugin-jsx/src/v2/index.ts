@@ -4,7 +4,7 @@ import * as t from 'syntax';
 
 import { Context } from './context';
 import { DefineContext } from './define';
-import { applyModifier, isImplicitReturn } from './jsx';
+import { isImplicitReturn } from './jsx';
 import { handleLabel } from './modify';
 import { FileContext } from './scope';
 
@@ -12,9 +12,7 @@ type Visit<T extends t.Node> = VisitNode<PluginPass, T>;
 
 const Program: Visit<t.Program> = {
   enter(path, state){
-    path.data = {
-      context: new FileContext(path, state)
-    };
+    FileContext.create(path, state);
   },
   exit(path){
     const context = path.data!.context as FileContext;
@@ -49,9 +47,7 @@ const JSXElement: Visit<t.JSXElement> = {
     if(isImplicitReturn(path))
       return;
 
-    const context = DefineContext.get(path);
-
-    applyModifier(context, path);
+    DefineContext.apply(path);
   }
 }
 

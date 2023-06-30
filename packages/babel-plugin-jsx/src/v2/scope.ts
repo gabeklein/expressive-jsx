@@ -27,19 +27,49 @@ const DEFAULTS: Options = {
   macros: []
 };
 
-export class FileContext extends Context {
+export abstract class FileContext extends Context {
+  file = this;
   filename?: string;
   options: Options;
+  body: t.Statement[];
+  scope: t.Scope;
+
+  declared = new Set<DefineContext>();
+  imports: Record<string, External<any>> = {};
+  importIndices: Record<string, number> = {};
+
+  abstract ensure(from: string, name: string, alt?: string): t.Identifier;
+  abstract ensureImported(from: string): void;
+  abstract createImport(name: string): t.Statement | undefined;
+
+  static create(
+    path: t.Path<t.Program>,
+    state: PluginPass
+  ){
+    const { externals, output } = state.opts as Options;
+    const Type =
+      externals == "require" ? RequireManager :
+      externals == "import" ? ImportManager :
+      output == "js"
+        ? RequireManager
+        : ImportManager;
+
+    const context = new Type(path, state);
+
+    path.data = { context };
+
+    return context;
+  }
 
   constructor(path: t.Path<t.Program>, state: PluginPass){
     const opts = { ...DEFAULTS, ...state.opts };
     const name = getLocalFilename(path.hub);
-    const file = File.create(opts, path);
 
     super(undefined, name);
 
     this.options = opts;
-    this.file = file;
+    this.body = path.node.body;
+    this.scope = path.scope;
     this.filename = state.filename;
     Object.assign(this.macros, ...opts.macros);
   }
@@ -51,45 +81,6 @@ export class FileContext extends Context {
 
     if(stylesheet)
       return styleDeclaration(stylesheet, file, token)
-  }
-}
-
-export abstract class File {
-  declared = new Set<DefineContext>();
-
-  body: t.Statement[];
-  scope: t.Scope;
-  options: Options;
-
-  imports: Record<string, External<any>> = {};
-  importIndices: Record<string, number> = {};
-
-  abstract ensure(from: string, name: string, alt?: string): t.Identifier;
-  abstract ensureImported(from: string): void;
-  abstract createImport(name: string): t.Statement | undefined;
-
-  static create(
-    options: Options,
-    path: t.Path<t.Program>
-  ){
-    const { externals, output } = options;
-    const Type =
-      externals == "require" ? RequireManager :
-      externals == "import" ? ImportManager :
-      output == "js"
-        ? RequireManager
-        : ImportManager;
-
-    return new Type(path, options);
-  }
-
-  constructor(
-    path: t.Path<t.Program>,
-    options: Options){
-
-    this.body = path.node.body;
-    this.options = options;
-    this.scope = path.scope;
   }
 
   replaceAlias(value: string){
@@ -145,7 +136,7 @@ export abstract class File {
   }
 }
 
-export class ImportManager extends File {
+export class ImportManager extends FileContext {
   imports = {} as Record<string, External<ImportSpecific>>
 
   ensure(from: string, name: string, alt = name){
@@ -214,7 +205,7 @@ export class ImportManager extends File {
   }
 }
 
-export class RequireManager extends File {
+export class RequireManager extends FileContext {
   imports = {} as Record<string, External<t.ObjectProperty>>
   importTargets = {} as Record<string, t.Expression | false>
 
