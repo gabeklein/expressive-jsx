@@ -8,7 +8,7 @@ import { FileContext } from './scope';
 const { create } = Object;
 
 export class Context {
-  file!: FileContext;
+  root!: FileContext;
 
   /** Used to supply JSX child components with nested defintion. */
   using: Record<string, DefineContext>;
@@ -31,7 +31,7 @@ export class Context {
     if(parent){
       this.macros = create(parent.macros);
       this.using = create(parent.using);
-      this.file = parent.file;
+      this.root = parent.root;
     }
   }
 

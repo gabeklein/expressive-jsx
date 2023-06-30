@@ -21,7 +21,7 @@ const Program: Visit<t.Program> = {
     if(styles)
       path.pushContainer("body", [ styles ]);
 
-    context.file.close();
+    context.root.close();
   }
 };
 

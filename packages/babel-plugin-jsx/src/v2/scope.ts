@@ -28,7 +28,7 @@ const DEFAULTS: Options = {
 };
 
 export abstract class FileContext extends Context {
-  file = this;
+  root = this;
   filename?: string;
   options: Options;
   body: t.Statement[];
@@ -75,7 +75,7 @@ export abstract class FileContext extends Context {
   }
 
   runtimeStyle(){
-    const { file, filename, options } = this;
+    const { root: file, filename, options } = this;
     const token = options.hot !== false && hash(filename, 10);
     const stylesheet = generateCSS(file.declared);
 
