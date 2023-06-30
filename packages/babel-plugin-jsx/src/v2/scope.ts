@@ -1,11 +1,12 @@
 import { PluginPass } from '@babel/core';
 import { getLocalFilename } from 'parse/entry';
 import * as t from 'syntax';
+import { Options } from 'types';
+import { hash } from 'utility';
 
 import { Context } from './context';
-
-import type { Options } from 'types';
 import { Define } from './define';
+import { generateCSS, styleDeclaration } from './styles';
 
 type ImportSpecific =
   | t.ImportSpecifier 
@@ -41,6 +42,15 @@ export class FileContext extends Context {
     this.file = file;
     this.filename = state.filename;
     Object.assign(this.macros, ...opts.macros);
+  }
+
+  runtimeStyle(){
+    const { file, filename, options } = this;
+    const token = options.hot !== false && hash(filename, 10);
+    const stylesheet = generateCSS(file.declared);
+
+    if(stylesheet)
+      return styleDeclaration(stylesheet, file, token)
   }
 }
 

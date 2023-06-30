@@ -1,15 +1,12 @@
 import { PluginObj, PluginPass } from '@babel/core';
 import { VisitNode } from '@babel/traverse';
 import * as t from 'syntax';
-import { Options } from 'types';
-import { hash } from 'utility';
 
 import { Context } from './context';
+import { Define } from './define';
 import { applyModifier, isImplicitReturn } from './jsx';
 import { handleLabel } from './modify';
 import { FileContext } from './scope';
-import { generateCSS, styleDeclaration } from './styles';
-import { Define } from './define';
 
 type Visit<T extends t.Node> = VisitNode<PluginPass, T>;
 
@@ -19,18 +16,14 @@ const Program: Visit<t.Program> = {
       context: new FileContext(path, state)
     };
   },
-  exit(path, { opts, filename }){
-    const { hot } = opts as Options;
-    const { file } = path.data!.context as FileContext;
-    const token = hot === false ? undefined : hash(filename, 10);
-    const stylesheet = generateCSS(file.declared);
+  exit(path){
+    const context = path.data!.context as FileContext;
+    const styles = context.runtimeStyle();
 
-    if(stylesheet)
-      path.pushContainer("body", [ 
-        styleDeclaration(stylesheet, file, token)
-      ]);
+    if(styles)
+      path.pushContainer("body", [ styles ]);
 
-    file.close();
+    context.file.close();
   }
 };
 
