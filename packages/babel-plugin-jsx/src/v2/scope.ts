@@ -27,7 +27,7 @@ const DEFAULTS: Options = {
   macros: []
 };
 
-export abstract class FileContext extends Context {
+export class FileContext extends Context {
   root = this;
   filename?: string;
   options: Options;
@@ -35,31 +35,8 @@ export abstract class FileContext extends Context {
   scope: t.Scope;
 
   declared = new Set<DefineContext>();
-  imports: Record<string, External<any>> = {};
   importIndices: Record<string, number> = {};
-
-  abstract ensure(from: string, name: string, alt?: string): t.Identifier;
-  abstract ensureImported(from: string): void;
-  abstract createImport(name: string): t.Statement | undefined;
-
-  static create(
-    path: t.Path<t.Program>,
-    state: PluginPass
-  ){
-    const { externals, output } = state.opts as Options;
-    const Type =
-      externals == "require" ? RequireManager :
-      externals == "import" ? ImportManager :
-      output == "js"
-        ? RequireManager
-        : ImportManager;
-
-    const context = new Type(path, state);
-
-    path.data = { context };
-
-    return context;
-  }
+  imports = {} as Record<string, External<ImportSpecific>>
 
   constructor(path: t.Path<t.Program>, state: PluginPass){
     const opts = { ...DEFAULTS, ...state.opts };
@@ -67,77 +44,14 @@ export abstract class FileContext extends Context {
 
     super(undefined, name);
 
+    path.data = { context: this };
+
     this.options = opts;
     this.body = path.node.body;
     this.scope = path.scope;
     this.filename = state.filename;
     Object.assign(this.macros, ...opts.macros);
   }
-
-  runtimeStyle(){
-    const { root: file, filename, options } = this;
-    const token = options.hot !== false && hash(filename, 10);
-    const stylesheet = generateCSS(file.declared);
-
-    if(stylesheet)
-      return styleDeclaration(stylesheet, file, token)
-  }
-
-  replaceAlias(value: string){
-    if(!value.startsWith("$"))
-      return value;
-
-    const name = value.slice(1) as keyof Options;
-    return this.options[name] as string;
-  }
-
-  ensureUID(name = "temp"){
-    const { scope } = this;
-
-    let uid = name = name
-      .replace(/^_+/, "")
-      .replace(/[0-9]+$/g, "");
-
-    for(let i = 2;
-      scope.hasBinding(uid) ||
-      scope.hasGlobal(uid) ||
-      scope.hasReference(uid);
-      i++
-    ){
-      uid = name + i;
-    }
-
-    const program = scope.getProgramParent() as any;
-    program.references[uid] = true;
-    program.uids[uid] = true;
-    return uid;
-  }
-
-  ensureUIDIdentifier(name: string){
-    return t.identifier(this.ensureUID(name));
-  }
-
-  close(){
-    if(this.options.externals === false)
-      return;
-
-    Object.entries(this.imports).forEach(([name, external]) => {
-      if(external.exists)
-        return;
-      
-      const importStatement = this.createImport(name);
-
-      if(importStatement){
-        const index = this.importIndices[name];
-        
-        this.body.splice(index, 0, importStatement);
-      }
-    })
-  }
-}
-
-export class ImportManager extends FileContext {
-  imports = {} as Record<string, External<ImportSpecific>>
 
   ensure(from: string, name: string, alt = name){
     from = this.replaceAlias(from);
@@ -203,76 +117,65 @@ export class ImportManager extends FileContext {
     if(list.length)
       return t.importDeclaration(list, t.literal(name));
   }
-}
 
-export class RequireManager extends FileContext {
-  imports = {} as Record<string, External<t.ObjectProperty>>
-  importTargets = {} as Record<string, t.Expression | false>
+  runtimeStyle(){
+    const { root: file, filename, options } = this;
+    const token = options.hot !== false && hash(filename, 10);
+    const stylesheet = generateCSS(file.declared);
 
-  ensure(from: string, name: string, alt = name){
-    const source = this.ensureImported(from).items;
-
-    for(const { key, value } of source)
-      if(t.isIdentifier(value) && t.isIdentifier(key, { name }))
-        return value;
-
-    const ref = this.ensureUIDIdentifier(alt);
-
-    source.push(t.property(name, ref));
-
-    return ref;
+    if(stylesheet)
+      return styleDeclaration(stylesheet, file, token)
   }
 
-  ensureImported(name: string){
-    const { body, imports, importTargets } = this;
-    
-    name = this.replaceAlias(name);
+  replaceAlias(value: string){
+    if(!value.startsWith("$"))
+      return value;
 
-    if(name in imports)
-      return imports[name];
+    const name = value.slice(1) as keyof Options;
+    return this.options[name] as string;
+  }
 
-    let target;
-    let list;
+  ensureUID(name = "temp"){
+    const { scope } = this;
 
-    for(let i = 0, stat; stat = body[i]; i++)
-      if(t.isVariableDeclaration(stat))
-        target = requireResultFrom(name, stat);
+    let uid = name = name
+      .replace(/^_+/, "")
+      .replace(/[0-9]+$/g, "");
 
-    if(t.isObjectPattern(target))
-      list = imports[name] = {
-        exists: true,
-        items: target.properties as t.ObjectProperty[]
+    for(let i = 2;
+      scope.hasBinding(uid) ||
+      scope.hasGlobal(uid) ||
+      scope.hasReference(uid);
+      i++
+    ){
+      uid = name + i;
+    }
+
+    const program = scope.getProgramParent() as any;
+    program.references[uid] = true;
+    program.uids[uid] = true;
+    return uid;
+  }
+
+  ensureUIDIdentifier(name: string){
+    return t.identifier(this.ensureUID(name));
+  }
+
+  close(){
+    if(this.options.externals === false)
+      return;
+
+    Object.entries(this.imports).forEach(([name, external]) => {
+      if(external.exists)
+        return;
+      
+      const importStatement = this.createImport(name);
+
+      if(importStatement){
+        const index = this.importIndices[name];
+        
+        this.body.splice(index, 0, importStatement);
       }
-    else {
-      list = imports[name] = { items: [] };
-
-      if(target && target.type === "Identifier")
-        importTargets[name] = target;
-    }
-
-    return list;
+    })
   }
-
-  createImport(name: string){
-    const list = this.imports[name].items;
-
-    if(list.length){
-      const target = this.importTargets[name] || t.requires(name);
-      return t.declare("const", t.objectPattern(list), target);
-    }
-  }
-}
-
-function requireResultFrom(
-  name: string,
-  statement: t.VariableDeclaration){
-
-  for(const { init, id } of statement.declarations)
-    if(t.isCallExpression(init)){
-      const { callee, arguments: [ arg ] } = init;
-
-      if(t.isIdentifier(callee, { name: "require" }) 
-      && t.isStringLiteral(arg, { value: name }))
-        return id;
-    } 
 }

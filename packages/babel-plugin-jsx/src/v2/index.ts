@@ -12,7 +12,7 @@ type Visit<T extends t.Node> = VisitNode<PluginPass, T>;
 
 const Program: Visit<t.Program> = {
   enter(path, state){
-    FileContext.create(path, state);
+    new FileContext(path, state);
   },
   exit(path){
     const context = path.data!.context as FileContext;
