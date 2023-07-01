@@ -27,13 +27,16 @@ const Program: Visitor<t.Program> = {
     Status.currentFile = state.file as any;
     state.context = new StackFrame(path, state);
   },
-  exit(path, { context }){
+  exit(path, { context, opts }){
+    const { extractCss } = opts as any;
     const stylesheet = generateCSS(context);
 
     if(stylesheet)
-      path.pushContainer("body", [ 
-        styleDeclaration(stylesheet, context)
-       ]);
+      path.pushContainer("body", [
+        extractCss
+          ? $.statement($.requires(extractCss(stylesheet)))
+          : styleDeclaration(stylesheet, context)
+      ]);
 
     context.program.close();
   }
