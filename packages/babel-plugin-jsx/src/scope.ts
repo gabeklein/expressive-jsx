@@ -2,8 +2,8 @@ import { createElement as createJS } from './generate/es5';
 import { createElement as createJSX } from './generate/jsx';
 
 import * as t from 'syntax';
-import type { Context } from 'context';
 import type { Options, PropData } from 'types';
+import { ensureUID } from 'syntax/uid';
 
 type ImportSpecific =
   | t.ImportSpecifier 
@@ -21,18 +21,16 @@ interface External<T> {
 }
 
 export abstract class FileManager {
-  protected body: t.Statement[];
-  protected scope: t.Scope;
-  protected opts: Options;
+  protected options: Options;
 
   protected imports: Record<string, External<any>> = {};
   protected importIndices: Record<string, number> = {};
 
   static create(
-    parent: Context,
+    options: Options,
     path: t.Path<t.Program>
   ){
-    const { externals, output } = parent.options;
+    const { externals, output } = options;
     const Type =
       externals == "require"
         ? RequireManager :
@@ -42,19 +40,17 @@ export abstract class FileManager {
         ? RequireManager
         : ImportManager;
 
-    return new Type(path, parent);
+    return new Type(path, options);
   }
 
   constructor(
-    path: t.Path<t.Program>,
-    context: Context){
+    protected path: t.Path<t.Program>,
+    options: Options){
 
-    const create = context.options.output === "js" ? createJS : createJSX;
-
-    this.body = path.node.body;
-    this.createElement = create.bind(this);
-    this.opts = context.options;
-    this.scope = path.scope;
+    this.options = options;
+    this.createElement = options.output === "js"
+      ? createJS
+      : createJSX;
   }
 
   abstract ensure(from: string, name: string, alt?: string): t.Identifier;
@@ -75,7 +71,9 @@ export abstract class FileManager {
     const { children, props } = src;
 
     const tag = tagName || (
-      props.length || !collapsable || !children.length ? "div" : null
+      props.length ||
+      !collapsable ||
+      !children.length ? "div" : null
     )
 
     if(!tag && children.length === 1)
@@ -106,37 +104,15 @@ export abstract class FileManager {
       return value;
 
     const name = value.slice(1) as keyof Options;
-    return this.opts[name] as string;
-  }
-
-  ensureUID(name = "temp"){
-    const { scope } = this;
-
-    let uid = name = name
-      .replace(/^_+/, "")
-      .replace(/[0-9]+$/g, "");
-
-    for(let i = 2;
-      scope.hasBinding(uid) ||
-      scope.hasGlobal(uid) ||
-      scope.hasReference(uid);
-      i++
-    ){
-      uid = name + i;
-    }
-
-    const program = scope.getProgramParent() as any;
-    program.references[uid] = true;
-    program.uids[uid] = true;
-    return uid;
+    return this.options[name] as string;
   }
 
   ensureUIDIdentifier(name: string){
-    return t.identifier(this.ensureUID(name));
+    return t.identifier(ensureUID(this.path, name));
   }
 
   close(){
-    if(this.opts.externals === false)
+    if(this.options.externals === false)
       return;
 
     Object.entries(this.imports).forEach(([name, external]) => {
@@ -148,7 +124,7 @@ export abstract class FileManager {
       if(importStatement){
         const index = this.importIndices[name];
         
-        this.body.splice(index, 0, importStatement);
+        this.path.node.body.splice(index, 0, importStatement);
       }
     })
   }
@@ -202,7 +178,7 @@ export class ImportManager extends FileManager {
     if(imports[name])
       return imports[name];
 
-    for(const stat of this.body)
+    for(const stat of this.path.node.body)
       if(t.isImportDeclaration(stat) && stat.source.value == name)
         return imports[name] = {
           exists: true,
@@ -242,7 +218,7 @@ export class RequireManager extends FileManager {
   }
 
   ensureImported(name: string){
-    const { body, imports, importTargets } = this;
+    const { imports, importTargets } = this;
     
     name = this.replaceAlias(name);
 
@@ -252,7 +228,7 @@ export class RequireManager extends FileManager {
     let target;
     let list;
 
-    for(let i = 0, stat; stat = body[i]; i++)
+    for(let i = 0, stat; stat = this.path.node.body[i]; i++)
       if(t.isVariableDeclaration(stat))
         target = requireResultFrom(name, stat);
 

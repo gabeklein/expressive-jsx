@@ -45,7 +45,7 @@ export class Context {
     this.name = hash(state.filename);
     this.filename = state.filename;
     this.options = { ...DEFAULTS, ...state.opts };
-    this.program = FileManager.create(this, path);
+    this.program = FileManager.create(this.options, path);
     this.define = new Define(this, this.name);
     this.macros = Object.assign({}, builtIn, ...macros);
     this.module = module && (
