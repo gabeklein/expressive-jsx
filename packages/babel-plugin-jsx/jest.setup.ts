@@ -1,10 +1,6 @@
 import { transform } from '@babel/core';
-import { format,  } from 'prettier';
-
-
-const { default: PluginJSX } = require(
-  process.env.V2 ? "./src/v2" : "./src"
-);
+import { format } from 'prettier';
+import PluginJSX from "./src";
 
 expect.addSnapshotSerializer({
   test: () => true,

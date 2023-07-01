@@ -8,25 +8,6 @@
       "cwd": "${workspaceFolder}/packages/babel-plugin-jsx",
       "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
       "args": [
-        "--testPathIgnorePatterns", "v2",
-        "--watchAll",
-        "--runInBand",
-        "${input:testName}"
-      ],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "V2 Jest Tests",
-      "cwd": "${workspaceFolder}/packages/babel-plugin-jsx",
-      "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
-      "env": {
-        "V2": "true"
-      },
-      "args": [
-        "--testPathIgnorePatterns", "v1",
         "--watchAll",
         "--runInBand",
         "${input:testName}"
