@@ -1,0 +1,30 @@
+{
+  "name": "@expressive/webpack-plugin",
+  "version": "1.1.0",
+  "description": "Webpack plugin for Expressive JSX",
+  "repository": "https://github.com/gabeklein/expressive-dsl",
+  "author": {
+    "name": "Gabe Klein",
+    "email": "me@gabeklein.dev",
+    "url": "https://github.com/gabeklein"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "webpack",
+    "expressive",
+    "jsx"
+  ],
+  "main": "/index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js"
+  ],
+  "dependencies": {
+    "@expressive/babel-preset-react": "^1.0.2",
+    "babel-loader": "^9.1.2",
+    "webpack-virtual-modules": "^0.5.0"
+  }
+}
