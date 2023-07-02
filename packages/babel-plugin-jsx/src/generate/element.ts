@@ -38,7 +38,7 @@ export class Generator {
 
   className(){
     const { classList: list, context } = this;
-    const { program } = context;
+    const { file } = context;
   
     if(!list.size)
       return;
@@ -58,7 +58,7 @@ export class Generator {
       )
   
     if(selectors.length > 1){
-      const _use = program.ensure("$runtime", "classNames");
+      const _use = file.ensure("$runtime", "classNames");
       return t.call(_use, ...selectors)
     }
     
@@ -104,7 +104,7 @@ export class Generator {
   }
 
   element(collapsable?: boolean){
-    return this.context.program.element(this.info, this.tag, collapsable);
+    return this.context.file.element(this.info, this.tag, collapsable);
   }
 
   add(item: SequenceItem){

@@ -9,7 +9,7 @@ type SelectorContent = [ string, Style[] ][];
 type MediaGroups = SelectorContent[];
 
 export function styleDeclaration(css: string, context: Context){
-  const { filename, module, program, options } = context;
+  const { filename, module, file, options } = context;
 
   const hot = options.hot !== false;
   const args: t.Expression[] = [];
@@ -27,7 +27,7 @@ export function styleDeclaration(css: string, context: Context){
   return (
     t.statement(
       t.call(
-        program.ensure("$runtime", "default", "css"),
+        file.ensure("$runtime", "default", "css"),
         t.template(`\n${css.replace(/^/gm, "\t")}\n`),
         ...args
       )

@@ -91,7 +91,7 @@ export class Define extends AttributeBody {
     if(maybeProps && info.children.length === 0)
       return recombineProps(info.props);
 
-    return this.context.program.container(info);
+    return this.context.file.container(info);
   }
 
   addStyle(name: string, value: any){

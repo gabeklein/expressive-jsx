@@ -34,7 +34,7 @@ const Program: Visitor<t.Program> = {
         styleDeclaration(stylesheet, context)
       ]);
 
-    context.program.close();
+    context.file.close();
   }
 }
 

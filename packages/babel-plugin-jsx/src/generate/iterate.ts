@@ -15,15 +15,15 @@ export function forElement(
   define: Define){
 
   const { statements } = define;
-  const { program } = define.context;
+  const { file } = define.context;
 
   const output = define.toExpression();
 
   if(!output)
     return;
 
-  const accumulator = program.ensureUIDIdentifier("add");
-  const collect = program.ensure("$runtime", "collect");
+  const accumulator = file.ensureUIDIdentifier("add");
+  const collect = file.ensure("$runtime", "collect");
 
   let body: t.Statement | t.Expression =
     t.statement(
@@ -128,7 +128,7 @@ function ensureKeyProp(
   }
 
   if(!used)
-    used = from.context.program.ensureUIDIdentifier("i");
+    used = from.context.file.ensureUIDIdentifier("i");
 
   sequence.push(new Prop("key", used));
 

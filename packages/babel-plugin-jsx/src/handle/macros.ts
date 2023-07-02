@@ -37,13 +37,13 @@ function forwardRef(
   component: t.Path<t.Function>){
 
   const { node } = component as t.Path<any>;
-  const { program } = target.context;
+  const { file } = target.context;
 
   if(t.isFunctionDeclaration(node))
     (node as any).type = "FunctionExpression";
 
   const _ref = uniqueWithin(component.scope, "ref");
-  const _forwardRef = program.ensure("$pragma", "forwardRef");
+  const _forwardRef = file.ensure("$pragma", "forwardRef");
   const _wrapped = t.call(_forwardRef, node);
 
   component.pushContainer("params", _ref);
