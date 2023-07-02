@@ -3,7 +3,6 @@ import { Style, Prop } from 'handle/attributes';
 import { Define, DefineLocal, DefineVariant, ElementInline } from 'handle/definition';
 
 import * as t from 'syntax';
-import type { FileManager } from 'scope';
 import type { PropData, SequenceItem } from 'types';
 import type { Context } from 'context';
 
@@ -25,7 +24,7 @@ export class Generator {
 
   get info(){
     const { props, children } = this;
-    const className = classValue(this.classList, this.context.program);
+    const className = this.className();
     const stylesProp = this.style.flatten();
   
     if(className)
@@ -35,6 +34,35 @@ export class Generator {
       props.push({ name: "style", value: stylesProp });
   
     return { props, children };
+  }
+
+  className(){
+    const { classList: list, context } = this;
+    const { program } = context;
+  
+    if(!list.size)
+      return;
+  
+    const selectors = [] as t.Expression[];
+    let className = "";
+  
+    for(const item of list)
+      if(typeof item == "string")
+        className += " " + item;
+      else
+        selectors.push(item);
+  
+    if(className)
+      selectors.unshift(
+        t.literal(className.slice(1))
+      )
+  
+    if(selectors.length > 1){
+      const _use = program.ensure("$runtime", "classNames");
+      return t.call(_use, ...selectors)
+    }
+    
+    return selectors[0];
   }
 
   constructor(element: ElementInline | Define){
@@ -146,33 +174,4 @@ export class Generator {
 
     return true;
   }
-}
-
-function classValue(
-  list: Set<t.Expression | string>,
-  program: FileManager){
-
-  if(!list.size)
-    return;
-
-  const selectors = [] as t.Expression[];
-  let className = "";
-
-  for(const item of list)
-    if(typeof item == "string")
-      className += " " + item;
-    else
-      selectors.push(item);
-
-  if(className)
-    selectors.unshift(
-      t.literal(className.slice(1))
-    )
-
-  if(selectors.length > 1){
-    const _use = program.ensure("$runtime", "classNames");
-    return t.call(_use, ...selectors)
-  }
-  
-  return selectors[0];
 }
