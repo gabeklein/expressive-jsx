@@ -2,6 +2,16 @@ import { transform } from '@babel/core';
 import { format } from 'prettier';
 import PluginJSX from "./src";
 
+const FORMAT: Record<string, [RegExp, string]> = {
+  statementLineSpacing: [/^(.+?)\n(export|const|let)/gm, "$1\n\n$2"],
+  jsxReturnSpacing: [/^(.+?[^{])\n(\s+return (?=\(|<))/gm, "$1\n\n$2"],
+  removeDoubleLines: [/\n{3,}/g, "\n\n"],
+  spaceOutBlocks: [/([\t \r]*\n)([\)\}\]]+;?)([\t \r]*\n{1})(\s*[^\ni])/g, "$1$2$3\n$4"],
+  spaceAfterImports: [/^(from '.+";?)([\t \r]*\n)([^\ni])/g, "$1$2\n$3"],
+  removeTrailingWhitespace: [/[\s\n]+$/, ""],
+  indent: [/^/gm, "  "],
+}
+
 expect.addSnapshotSerializer({
   test: input => typeof input == "string",
   print(content: unknown){
@@ -13,7 +23,7 @@ expect.addSnapshotSerializer({
       parser: "babel"
     });
   
-    Object.values(reformat).forEach(args => (
+    Object.values(FORMAT).forEach(args => (
       output = output.replace(...args)
     ));
   
@@ -55,13 +65,3 @@ test.skip = (name: string, code: string) => {
 }
 
 (global as any).transform = test;
-
-const reformat: Record<string, [RegExp, string]> = {
-  statementLineSpacing: [/^(.+?)\n(export|const|let)/gm, "$1\n\n$2"],
-  jsxReturnSpacing: [/^(.+?[^{])\n(\s+return (?=\(|<))/gm, "$1\n\n$2"],
-  removeDoubleLines: [/\n{3,}/g, "\n\n"],
-  spaceOutBlocks: [/([\t \r]*\n)([\)\}\]]+;?)([\t \r]*\n{1})(\s*[^\ni])/g, "$1$2$3\n$4"],
-  spaceAfterImports: [/^(from '.+";?)([\t \r]*\n)([^\ni])/g, "$1$2\n$3"],
-  removeTrailingWhitespace: [/[\s\n]+$/, ""],
-  indent: [/^/gm, "  "],
-}
