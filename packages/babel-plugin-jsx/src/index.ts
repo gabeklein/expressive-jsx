@@ -1,7 +1,6 @@
 import { Context, getContext } from 'context';
 import { Status } from 'errors';
 import { OUTPUT_NODE } from 'generate/jsx';
-import { generateCSS, styleDeclaration } from 'generate/styles';
 import { ElementInline } from 'handle/definition';
 import { parse } from 'parse/block';
 import { parseJSX } from 'parse/jsx';
@@ -26,15 +25,8 @@ const Program: Visitor<t.Program> = {
     Status.currentFile = state.file as any;
     state.context = new Context(path, state);
   },
-  exit(path, { context }){
-    const stylesheet = generateCSS(context);
-
-    if(stylesheet)
-      path.pushContainer("body", [ 
-        styleDeclaration(stylesheet, context)
-      ]);
-
-    context.file.close();
+  exit(path, state){
+    state.context.close();
   }
 }
 

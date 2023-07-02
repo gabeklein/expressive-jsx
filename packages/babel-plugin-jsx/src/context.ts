@@ -1,10 +1,11 @@
+import { generateCSS, styleDeclaration } from 'generate/styles';
 import { Define } from 'handle/definition';
 import { builtIn } from 'handle/macros';
 import { getName } from 'parse/entry';
 import { FileManager } from 'scope';
+import * as t from 'syntax';
 import { hash } from 'utility';
 
-import type * as t from 'syntax';
 import type { ModifyAction } from 'parse/labels';
 import type { BabelState, Options } from 'types';
 
@@ -30,6 +31,8 @@ export class Context {
   macros: Record<string, ModifyAction>;
   define: Define;
 
+  program: t.Path<t.Program>;
+
   get parent(){
     return Object.getPrototypeOf(this);
   }
@@ -42,6 +45,7 @@ export class Context {
 
     const { module, macros } = state.opts;
 
+    this.program = path;
     this.name = hash(state.filename);
     this.filename = state.filename;
     this.options = { ...DEFAULTS, ...state.opts };
@@ -52,6 +56,18 @@ export class Context {
       typeof module == "string" ? module :
         (state.file as any).opts.configFile?.name || true
     )
+  }
+
+  close(){
+    const { program } = this;
+    const stylesheet = generateCSS(this);
+
+    if(stylesheet)
+      program.pushContainer("body", [
+        styleDeclaration(stylesheet, this)
+      ]);
+
+    this.file.close();
   }
 
   getHandler(named: string, ignoreOwn = false){
