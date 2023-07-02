@@ -1,19 +1,7 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 
-const { ExtractCSSPlugin } = require("./bin/ExtractCSSPlugin")
-
-const BABEL = {
-  plugins: [
-    "react-refresh/babel"
-  ],
-  presets: [
-    "@babel/preset-typescript",
-    ["@expressive/babel-preset-react", {
-      hot: true
-    }]
-  ]
-}
+const ExpressivePlugin = require("./bin/ExtractCSSPlugin")
 
 /** @type {import("webpack").Configuration} */
 module.exports = {
@@ -31,7 +19,14 @@ module.exports = {
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
-          options: BABEL
+          options: {
+            plugins: [
+              "react-refresh/babel"
+            ],
+            presets: [
+              "@babel/preset-typescript"
+            ]
+          }
         }
       },
       {
@@ -44,7 +39,7 @@ module.exports = {
     ]
   },
   plugins: [
-    new ExtractCSSPlugin(),
+    new ExpressivePlugin(),
     new ReactRefreshWebpackPlugin(),
     new HtmlWebpackPlugin({
       filename: "index.html",
