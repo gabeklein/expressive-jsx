@@ -3,23 +3,9 @@ import { format } from 'prettier';
 import PluginJSX from "./src";
 
 expect.addSnapshotSerializer({
-  test: () => true,
-  print(content){
-    const built = transform(content as string, {
-      plugins: [
-        [PluginJSX, {
-          hot: false, 
-          output: "jsx",
-          printStyle: "pretty",
-          externals: false,
-          macros: [
-            require("@expressive/macro-css")
-          ]
-        }]
-      ]
-    })!;
-  
-    let output = format(built.code as string, {
+  test: input => typeof input == "string",
+  print(content: unknown){
+    let output = format(content as string, {
       singleQuote: false,
       trailingComma: "none",
       jsxBracketSameLine: true,
@@ -35,15 +21,32 @@ expect.addSnapshotSerializer({
   }
 });
 
-const test: any = (name: string, code: string) => {
+function transformJSX(input: string, options?: {}){
+  return transform(input, {
+    plugins: [
+      [PluginJSX, {
+        hot: false, 
+        output: "jsx",
+        printStyle: "pretty",
+        externals: false,
+        macros: [
+          require("@expressive/macro-css")
+        ],
+        ...options
+      }]
+    ]
+  })!.code;
+}
+
+const test: any = (name: string, code: string, options?: {}) => {
   it(name, () => {
-    expect(code).toMatchSnapshot();
+    expect(transformJSX(code, options)).toMatchSnapshot();
   });
 }
 
-test.only = (name: string, code: string) => {
+test.only = (name: string, code: string, options?: {}) => {
   it.only(name, () => {
-    expect(code).toMatchSnapshot();
+    expect(transformJSX(code, options)).toMatchSnapshot();
   });
 }
 
