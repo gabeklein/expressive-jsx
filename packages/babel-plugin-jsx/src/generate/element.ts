@@ -37,16 +37,16 @@ export class Generator {
   }
 
   className(){
-    const { classList: list, context } = this;
+    const { classList, context } = this;
     const { file } = context;
   
-    if(!list.size)
+    if(!classList.size)
       return;
   
     const selectors = [] as t.Expression[];
     let className = "";
   
-    for(const item of list)
+    for(const item of classList)
       if(typeof item == "string")
         className += " " + item;
       else
