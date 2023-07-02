@@ -58,14 +58,36 @@ export class Context {
     )
   }
 
+  declaredUIDIdentifiers: Record<string, t.Identifier> = {};
+
+  ensureUIDIdentifier(name: string){
+    const exist = this.declaredUIDIdentifiers;
+
+    return exist[name] || (
+      exist[name] = this.file.ensureUIDIdentifier(name)
+    );
+  }
+
   close(){
-    const { program } = this;
+    const {
+      program,
+      options: {
+        extractCss
+      }
+    } = this;
+
     const stylesheet = generateCSS(this);
 
     if(stylesheet)
-      program.pushContainer("body", [
-        styleDeclaration(stylesheet, this)
-      ]);
+      if(extractCss){
+        const cssModulePath = extractCss(stylesheet);
+        const style = this.ensureUIDIdentifier("css");
+        this.file.ensure(cssModulePath, "default", style);
+      }
+      else
+        program.pushContainer("body", [
+          styleDeclaration(stylesheet, this)
+        ]);
 
     this.file.close();
   }

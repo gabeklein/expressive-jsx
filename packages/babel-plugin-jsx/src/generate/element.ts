@@ -169,8 +169,18 @@ export class Generator {
 
     from.setActive();
 
-    if(from.isDeclared && from.isUsed)
-      this.classList.add(from.uid);
+    if(from.isDeclared && from.isUsed){
+      const { context } = this;
+      let className: string | t.Expression = from.uid;
+
+      if("extractCss" in context.options)
+        className = t.member(
+          context.ensureUIDIdentifier("css"),
+          t.identifier(className)
+        )
+      
+      this.classList.add(className);
+    }
 
     return true;
   }

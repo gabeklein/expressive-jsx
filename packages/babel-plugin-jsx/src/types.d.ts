@@ -26,6 +26,7 @@ export interface Options {
   styleMode: "compile" | "inline";
   macros: Record<string, (...args: any[]) => any>[];
   module?: true | string;
+  extractCss?: (css: string) => string;
 
   // optional
   hot?: boolean;
