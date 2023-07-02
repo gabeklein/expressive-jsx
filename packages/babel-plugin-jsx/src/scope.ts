@@ -53,7 +53,7 @@ export abstract class FileManager {
       : createJSX;
   }
 
-  abstract ensure(from: string, name: string, alt?: string): t.Identifier;
+  abstract ensure(from: string, name: string, alt?: string | t.Identifier): t.Identifier;
   abstract ensureImported(from: string): void;
   abstract createImport(name: string): t.Statement | undefined;
 
@@ -133,7 +133,7 @@ export abstract class FileManager {
 export class ImportManager extends FileManager {
   imports = {} as Record<string, External<ImportSpecific>>
 
-  ensure(from: string, name: string, alt = name){
+  ensure(from: string, name: string, alt: t.Identifier | string = name){
     from = this.replaceAlias(from);
 
     let uid;
@@ -145,7 +145,7 @@ export class ImportManager extends FileManager {
       if(t.isImportDefaultSpecifier(spec))
         return spec.local;
 
-      uid = this.ensureUIDIdentifier(alt);
+      uid = typeof alt == "string" ? this.ensureUIDIdentifier(alt) : alt;
       list.unshift(t.importDefaultSpecifier(uid));
       return uid;
     }
@@ -161,7 +161,7 @@ export class ImportManager extends FileManager {
       }
 
     if(!uid){
-      uid = this.ensureUIDIdentifier(alt || name);
+      uid = typeof alt == "object" ? alt : this.ensureUIDIdentifier(alt || name);
       list.push(
         t.importSpecifier(uid, t.identifier(name))
       )
