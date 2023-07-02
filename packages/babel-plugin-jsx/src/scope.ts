@@ -210,7 +210,7 @@ export class RequireManager extends FileManager {
       if(t.isIdentifier(value) && t.isIdentifier(key, { name }))
         return value;
 
-    const ref = this.ensureUIDIdentifier(alt);
+    const ref = typeof alt == "string" ? this.ensureUIDIdentifier(alt) : alt;
 
     source.push(t.property(name, ref));
 
