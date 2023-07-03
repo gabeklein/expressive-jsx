@@ -11,6 +11,5 @@ export default nextra({
     config.plugins.push(
       new ExpressivePlugin()
     );
-    return config;
   }
 });
