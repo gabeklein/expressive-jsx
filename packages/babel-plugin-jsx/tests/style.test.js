@@ -10,3 +10,11 @@ transform("css module styles", `
     return "./somefile.module.css"
   },
 })
+
+transform("absolute macro", `
+  () => {
+    absolute: fill;
+
+    <this />
+  }
+`)

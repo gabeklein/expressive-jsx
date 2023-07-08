@@ -105,7 +105,7 @@ function handleModifier(
 
     if(!transform){
       addStyle(name, ...args);
-      return;
+      continue;
     }
 
     function setContingent(
@@ -137,7 +137,7 @@ function handleModifier(
       .entries(output)
       .reverse()
       .forEach(([key, value]) => {
-        if(!value)
+        if(value === undefined)
           return;
 
         if(!Array.isArray(value))

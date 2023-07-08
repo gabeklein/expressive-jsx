@@ -1,5 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`absolute macro 1`] = `
+  () => <div className="element_7nq" />;
+  css(\`
+  	.element_7nq {
+  		position: absolute;
+  		top: 0;
+  		left: 0;
+  		right: 0;
+  		bottom: 0;
+  	}
+  \`);
+`;
+
 exports[`css module styles 1`] = `
   import css from "./somefile.module.css";
   import React from "react";
