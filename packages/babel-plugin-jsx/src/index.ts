@@ -14,12 +14,12 @@ type Visitor<T extends t.Node, S extends Context = Context> =
 
 export interface Options {
   // expected
-  env: "native" | "web";
-  output: "js" | "jsx";
-  pragma: "react";
-  runtime: string;
-  styleMode: "compile" | "inline";
-  macros: Record<string, (...args: any[]) => any>[];
+  env?: "native" | "web";
+  output?: "js" | "jsx";
+  pragma?: "react";
+  runtime?: string;
+  styleMode?: "compile" | "inline";
+  macros?: Record<string, (...args: any[]) => any>[];
   module?: true | string;
   extractCss?: (css: string) => string;
   cssModule?: boolean;
