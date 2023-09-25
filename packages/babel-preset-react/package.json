@@ -17,8 +17,10 @@
     "xjs"
   ],
   "main": "index.js",
+  "types": "index.d.ts",
   "files": [
-    "/index.js"
+    "index.js",
+    "index.d.ts"
   ],
   "dependencies": {
     "@expressive/babel-plugin-jsx": "^1.2.3",
