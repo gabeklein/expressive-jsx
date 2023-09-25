@@ -17,13 +17,13 @@
     "xjs",
     "modifier"
   ],
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "files": [
-    "/lib"
+    "dist"
   ],
   "scripts": {
-    "build": "esbuild ./src --bundle --outfile=lib/index.js --platform=node --target=node10",
-    "watch": "npm run build -- --sourcemap --watch",
+    "build": "tsup src/index.js",
+    "watch": "tsup src/index.js --watch --sourcemap inline",
     "prebuild": "rm -rf ./lib"
   },
   "dependencies": {
@@ -32,6 +32,6 @@
     "easing-coordinates": "^2.0.2"
   },
   "devDependencies": {
-    "esbuild": "^0.14.27"
+    "tsup": "^7.2.0"
   }
 }
