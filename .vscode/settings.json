@@ -5,6 +5,7 @@
         "**/.rpt2_cache": true,
         "**/rollup.config.js": true,
         "**/tsconfig.json": true,
+        "packages/*/dist": true,
         "packages/*/lib": true,
         ".gitignore": true,
         ".vscode": true,
