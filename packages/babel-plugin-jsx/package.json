@@ -17,21 +17,25 @@
     "expressive",
     "jsx"
   ],
-  "main": "lib/index.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
-    "/lib"
+    "/dist"
   ],
   "scripts": {
-    "build": "esbuild ./src --bundle --outfile=lib/index.js --platform=node --target=node10",
-    "watch": "npm run build -- --sourcemap --watch",
+    "build": "tsup src/index.ts --dts",
+    "watch": "tsup src/index.ts --watch --sourcemap inline",
     "test": "jest",
     "prebuild": "rm -rf lib"
   },
-  "devDependencies": {
+  "dependencies": {
     "@babel/core": "^7.22.5",
     "@babel/types": "7.22.5",
-    "@types/babel__traverse": "^7.20.1",
-    "prettier": "^2.8.8"
+    "@babel/traverse": "^7.22.5"
+  },
+  "devDependencies": {
+    "@types/babel__traverse": "^7.20.2",
+    "prettier": "^2.8.8",
+    "tsup": "^7.2.0"
   }
 }
