@@ -2,8 +2,8 @@
   "name": "@expressive/css",
   "version": "1.2.0",
   "description": "Expressive css accumulator",
-  "main": "lib/index.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "author": {
     "name": "Gabe Klein",
     "email": "me@gabeklein.dev"
@@ -13,15 +13,14 @@
     "access": "public"
   },
   "files": [
-    "/lib",
-    "index.d.ts"
+    "dist"
   ],
   "scripts": {
-    "build": "esbuild ./src --bundle --outfile=lib/index.js --platform=node --target=node10",
-    "watch": "npm run build -- --sourcemap --watch",
+    "build": "tsup src/index.ts --dts",
+    "watch": "tsup src/index.ts --watch --sourcemap inline",
     "prebuild": "rm -rf ./lib"
   },
   "devDependencies": {
-    "esbuild": "^0.14.27"
+    "tsup": "^7.2.0"
   }
 }
