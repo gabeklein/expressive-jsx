@@ -7,7 +7,27 @@ import { parseJSX } from 'parse/jsx';
 import * as t from 'syntax';
 
 import type { PluginObj } from '@babel/core';
-import type { Visitor } from 'types';
+import type { BabelState } from 'context';
+
+type Visitor<T extends t.Node, S extends Context = Context> =
+  t.VisitNodeObject<BabelState<S>, T>;
+
+export interface Options {
+  // expected
+  env: "native" | "web";
+  output: "js" | "jsx";
+  pragma: "react";
+  runtime: string;
+  styleMode: "compile" | "inline";
+  macros: Record<string, (...args: any[]) => any>[];
+  module?: true | string;
+  extractCss?: (css: string) => string;
+
+  // optional
+  hot?: boolean;
+  printStyle?: "pretty";
+  externals?: "require" | "import" | false;
+}
 
 export default () => <PluginObj>({
   manipulateOptions(options, parse){

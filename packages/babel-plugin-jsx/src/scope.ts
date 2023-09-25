@@ -1,9 +1,11 @@
+import * as t from 'syntax';
+import { ensureUID } from 'syntax/uid';
+
 import { createElement as createJS } from './generate/es5';
 import { createElement as createJSX } from './generate/jsx';
 
-import * as t from 'syntax';
-import type { Options, PropData } from 'types';
-import { ensureUID } from 'syntax/uid';
+import type { Options } from 'index';
+import type { PropData } from 'types';
 
 type ImportSpecific =
   | t.ImportSpecifier 

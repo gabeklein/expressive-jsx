@@ -7,7 +7,15 @@ import * as t from 'syntax';
 import { hash } from 'utility';
 
 import type { ModifyAction } from 'parse/labels';
-import type { BabelState, Options } from 'types';
+import type { Options } from 'index';
+
+export interface BabelState<S extends Context = Context> {
+  file: File;
+  filename: string;
+  cwd: string;
+  context: S;
+  opts: Options;
+}
 
 const DEFAULTS: Options = {
   env: "web",

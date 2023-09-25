@@ -1,13 +1,9 @@
 import * as t from 'syntax';
 
-import type { Context } from 'context';
 import type { Style, Prop } from 'handle/attributes';
 import type { ElementInline } from 'handle/definition';
 import type { ComponentFor } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';
-
-type Visitor<T extends t.Node, S extends Context = Context> =
-  t.VisitNodeObject<BabelState<S>, T>;
 
 export interface BabelFile extends File {
   buildCodeFrameError<TError extends Error>(
@@ -15,31 +11,6 @@ export interface BabelFile extends File {
     msg: string,
     Error?: new (msg: string) => TError
   ): TError;
-}
-
-export interface Options {
-  // expected
-  env: "native" | "web";
-  output: "js" | "jsx";
-  pragma: "react";
-  runtime: string;
-  styleMode: "compile" | "inline";
-  macros: Record<string, (...args: any[]) => any>[];
-  module?: true | string;
-  extractCss?: (css: string) => string;
-
-  // optional
-  hot?: boolean;
-  printStyle?: "pretty";
-  externals?: "require" | "import" | false;
-}
-
-export interface BabelState<S extends Context = Context> {
-  file: File;
-  filename: string;
-  cwd: string;
-  context: S;
-  opts: Options;
 }
 
 export interface PropData {
