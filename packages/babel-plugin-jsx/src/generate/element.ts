@@ -171,9 +171,10 @@ export class Generator {
 
     if(from.isDeclared && from.isUsed){
       const { context } = this;
+      const { extractCss, cssModule } = context.options;
       let className: string | t.Expression = from.uid;
 
-      if("extractCss" in context.options)
+      if(extractCss && cssModule !== false)
         className = t.member(
           context.ensureUIDIdentifier("css"),
           t.identifier(className)

@@ -22,6 +22,7 @@ export interface Options {
   macros: Record<string, (...args: any[]) => any>[];
   module?: true | string;
   extractCss?: (css: string) => string;
+  cssModule?: boolean;
 
   // optional
   hot?: boolean;

@@ -59,7 +59,7 @@ export class Context {
     this.options = { ...DEFAULTS, ...state.opts };
     this.file = FileManager.create(this.options, path);
     this.define = new Define(this, this.name);
-    this.macros = Object.assign({}, builtIn, ...macros);
+    this.macros = Object.assign({}, builtIn, ...macros || []);
     this.module = module && (
       typeof module == "string" ? module :
         (state.file as any).opts.configFile?.name || true
@@ -80,7 +80,8 @@ export class Context {
     const {
       program,
       options: {
-        extractCss
+        extractCss,
+        cssModule
       }
     } = this;
 
@@ -88,9 +89,13 @@ export class Context {
 
     if(stylesheet)
       if(extractCss){
-        const cssModulePath = extractCss(stylesheet);
-        const style = this.ensureUIDIdentifier("css");
-        this.file.ensure(cssModulePath, "default", style);
+        if(cssModule === false)
+          extractCss(stylesheet);
+        else {
+          const cssModulePath = extractCss(stylesheet);
+          const style = this.ensureUIDIdentifier("css");
+          this.file.ensure(cssModulePath, "default", style);
+        }
       }
       else
         program.pushContainer("body", [
