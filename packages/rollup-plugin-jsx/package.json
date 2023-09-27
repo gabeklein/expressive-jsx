@@ -31,6 +31,7 @@
     "@expressive/macro-css": "^1.3.1"
   },
   "devDependencies": {
+    "@types/node": "^20.7.0",
     "rollup": "^3.29.3"
   },
   "peerDependencies": {

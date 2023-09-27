@@ -1,7 +1,10 @@
 import { Options as TransformOptions } from "@expressive/babel-preset-react"
 import * as babel from '@babel/core';
-import { relative } from 'path';
+import * as path from 'path';
 import { Plugin } from "rollup";
+
+const CWD = process.cwd();
+const relative = path.relative.bind(path, CWD);
 
 /**
  * Rollup plugin but also may be used in
@@ -13,6 +16,7 @@ interface PluginCompat extends Plugin {
   name: string;
   enforce?: "pre" | "post";
   configureServer?(server: any): void;
+  handleHotUpdate?(ctx: any): void;
 }
 
 export interface Options extends TransformOptions {
@@ -30,7 +34,8 @@ function jsxPlugin(options?: Options): PluginCompat {
   }
 
   const shouldTransform = test;
-  const files = new Map();
+  const CHECKSUM = new Map<string, number>();
+  const STYLESHEET = new Map();
 
   /**
    * In the event a vite development server is running, we
@@ -47,35 +52,42 @@ function jsxPlugin(options?: Options): PluginCompat {
       server = _server;
     },
     resolveId(id){
-      if(files.has(id))
+      if(STYLESHEET.has(id))
         return '\0' + id;
     },
     load(id: string) {
       if(id.startsWith('\0'))
-        return files.get(id.slice(1));
+        return STYLESHEET.get(id.slice(1));
     },
-    async transform(code, id){
-      if(/node_modules/.test(id) || !shouldTransform(id, code))
+    async transform(source, id){
+      if(/node_modules/.test(id) || !shouldTransform(id, source))
         return;
 
-      const result = await transform(id, code, options);
-
-      if(!result)
-        return;
-
-      const { uri, css } = result;
+      const result = await transform(id, source, options);
+      const { uri, code, css } = result;
 
       if(server){
-        const module = server.moduleGraph.getModuleById("\0" + uri);
+        id = relative(id);
+        const hash = cheapHash(code)
 
-        if(module && css !== files.get(uri))
-          server.reloadModule(module);
+        if(!CHECKSUM.has(id))
+          CHECKSUM.set(id, hash);
+
+        else if(CHECKSUM.get(id) === hash)
+          CHECKSUM.delete(id);
+
+        if(css !== STYLESHEET.get(uri)){
+          const module = server.moduleGraph.getModuleById("\0" + uri);
+  
+          if(module)
+            server.reloadModule(module);
+        }
       }
 
-      files.set(uri, css);
+      STYLESHEET.set(uri, css);
 
       return {
-        code: result.code,
+        code,
         map: result.map
       };
     }
@@ -85,12 +97,10 @@ function jsxPlugin(options?: Options): PluginCompat {
 export default jsxPlugin;
 
 async function transform(id: string, code: string, options?: Options){
-  const root = process.cwd();
-  const uri = "virtual:" + relative(root, id) + ".css";
-  let cssText = "";
+  let stylesheet = "";
 
   const result = await babel.transformAsync(code, {
-    root,
+    root: CWD,
     filename: id,
     sourceFileName: id.split("?")[0],
     sourceMaps: true,
@@ -108,17 +118,32 @@ async function transform(id: string, code: string, options?: Options){
         printStyle: "pretty",
         ...options,
         extractCss(css: string){
-          cssText = css;
+          stylesheet = css;
         }
       }]
     ]
   });
 
-  if(result)
-    return {
-      code: result.code + `\nimport "${uri}";`,
-      map: result.map,
-      css: cssText,
-      uri
-    }
+  if(!result)
+    throw new Error("No result");
+
+  const virtual = "virtual:" + relative(id) + ".css";
+
+  return {
+    code: result.code + `\nimport "${virtual}";`,
+    map: result.map,
+    css: stylesheet,
+    uri: virtual
+  }
+}
+
+function cheapHash(input: string){
+  let hash = 0;
+
+  for(let i = 0; i < input.length; i++){
+    hash = ((hash << 5) - hash) + input.charCodeAt(i);
+    hash |= 0;
+  }
+
+  return hash;
 }
