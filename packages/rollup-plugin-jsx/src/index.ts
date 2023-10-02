@@ -1,9 +1,12 @@
 import { Options as TransformOptions } from "@expressive/babel-preset-react"
 import * as babel from '@babel/core';
-import * as path from 'path';
+import path from 'path';
+import fs from 'fs/promises';
 import { Plugin } from "rollup";
+// import { ModuleNode, ViteDevServer } from "vite";
 
 const CWD = process.cwd();
+const PREFIX = "\0virtual:";
 const relative = path.relative.bind(path, CWD);
 
 /**
@@ -20,7 +23,7 @@ interface PluginCompat extends Plugin {
 }
 
 export interface Options extends TransformOptions {
-  test?: RegExp | ((uri: string, code: string) => boolean);
+  test?: RegExp | ((uri: string) => boolean);
 }
 
 function jsxPlugin(options?: Options): PluginCompat {
@@ -34,14 +37,11 @@ function jsxPlugin(options?: Options): PluginCompat {
   }
 
   const shouldTransform = test;
-  const CHECKSUM = new Map<string, number>();
-  const STYLESHEET = new Map();
+  const CACHE = new Map<string, TransformResult>();
 
   /**
    * In the event a vite development server is running, we
    * can use it to reload the module when the CSS changes.
-   *  
-   * @type {import('vite').ViteDevServer}
    */
   let server: any;
 
@@ -51,55 +51,74 @@ function jsxPlugin(options?: Options): PluginCompat {
     configureServer(_server){
       server = _server;
     },
-    resolveId(id){
-      if(STYLESHEET.has(id))
-        return '\0' + id;
+    resolveId(id, importer){
+      if(id === "__EXPRESSIVE_CSS__")
+        return '\0virtual:' + relative(importer!) + ".css";
     },
-    load(id: string) {
-      if(id.startsWith('\0'))
-        return STYLESHEET.get(id.slice(1));
-    },
-    async transform(source, id){
-      if(/node_modules/.test(id) || !shouldTransform(id, source))
+    async load(path: string) {
+      if(path.startsWith(PREFIX))
+        return CACHE.get(path.slice(9, -4))!.css;
+
+      if(/node_modules/.test(path))
         return;
 
+      const id = relative(path);
+
+      if(CACHE.has(id))
+        return CACHE.get(id);
+
+      if(!shouldTransform(id))
+        return;
+
+      const source = await fs.readFile(path, "utf8");
       const result = await transform(id, source, options);
-      const { uri, code, css } = result;
 
-      if(server){
-        id = relative(id);
-        const hash = cheapHash(code)
+      CACHE.set(id, result);
 
-        if(!CHECKSUM.has(id))
-          CHECKSUM.set(id, hash);
+      return result.code;
+    },
+    async handleHotUpdate(context){
+      const { file } = context;
+      const id = relative(file);
+      const cached = CACHE.get(id);
 
-        else if(CHECKSUM.get(id) === hash)
-          CHECKSUM.delete(id);
+      if(!cached)
+        return;
 
-        if(css !== STYLESHEET.get(uri)){
-          const module = server.moduleGraph.getModuleById("\0" + uri);
-  
-          if(module)
-            server.reloadModule(module);
-        }
+      const { moduleGraph } = server;
+      const source = await context.read();
+      const result = await transform(file, source, options);
+      const invalidate: any[] = [];
+
+      CACHE.set(id, result);
+
+      if(cached.code !== result.code){
+        const module = moduleGraph.getModuleById(file);
+        invalidate.push(module!);
       }
 
-      STYLESHEET.set(uri, css);
+      if(cached.css !== result.css){
+        const module = moduleGraph.getModuleById("\0virtual:" + id + ".css");
+        invalidate.push(module!);
+      }
 
-      return {
-        code,
-        map: result.map
-      };
+      return invalidate;
     }
   }
 }
 
 export default jsxPlugin;
 
-async function transform(id: string, code: string, options?: Options){
-  let stylesheet = "";
+interface TransformResult {
+  code: string;
+  map: any;
+  css: string;
+}
 
-  const result = await babel.transformAsync(code, {
+async function transform(id: string, input: string, options?: Options){
+  let css = "";
+
+  const result = await babel.transformAsync(input, {
     root: CWD,
     filename: id,
     sourceFileName: id.split("?")[0],
@@ -117,8 +136,8 @@ async function transform(id: string, code: string, options?: Options){
         cssModule: false,
         printStyle: "pretty",
         ...options,
-        extractCss(css: string){
-          stylesheet = css;
+        extractCss(text: string){
+          css = text;
         }
       }]
     ]
@@ -127,23 +146,14 @@ async function transform(id: string, code: string, options?: Options){
   if(!result)
     throw new Error("No result");
 
-  const virtual = "virtual:" + relative(id) + ".css";
+  let { code } = result;
 
-  return {
-    code: result.code + `\nimport "${virtual}";`,
-    map: result.map,
-    css: stylesheet,
-    uri: virtual
+  if(css)
+    code += `\nimport "__EXPRESSIVE_CSS__";`;
+
+  return <TransformResult> {
+    code,
+    css,
+    map: result.map
   }
-}
-
-function cheapHash(input: string){
-  let hash = 0;
-
-  for(let i = 0; i < input.length; i++){
-    hash = ((hash << 5) - hash) + input.charCodeAt(i);
-    hash |= 0;
-  }
-
-  return hash;
 }
