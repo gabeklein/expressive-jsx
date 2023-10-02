@@ -1,7 +1,7 @@
 {
-  "name": "@expressive/rollup-plugin-jsx",
+  "name": "@expressive/vite-plugin-jsx",
   "version": "1.4.0",
-  "description": "Expressive JSX Rollup Plugin",
+  "description": "Expressive JSX Vite Plugin",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
     "name": "Gabe Klein",
@@ -32,9 +32,9 @@
   },
   "devDependencies": {
     "@types/node": "^20.7.0",
-    "rollup": "^3.29.3"
+    "vite": "^4.0.0"
   },
   "peerDependencies": {
-    "rollup": ">=3.0.0<4.0.0"
+    "vite": "^4.0.0"
   }
 }
