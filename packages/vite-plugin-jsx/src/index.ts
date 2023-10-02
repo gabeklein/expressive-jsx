@@ -90,6 +90,9 @@ function jsxPlugin(options?: Options): Plugin {
   }
 }
 
+module.exports = jsxPlugin;
+module.exports.default = jsxPlugin;
+
 export default jsxPlugin;
 
 interface TransformResult {
