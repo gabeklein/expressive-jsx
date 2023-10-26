@@ -1,4 +1,4 @@
-import { Node, NodePath } from "@babel/traverse";
+import type { Node, NodePath } from "@babel/traverse";
 
 export function ensureUID(path: NodePath<Node>, name = "temp"){
   const { scope } = path;
