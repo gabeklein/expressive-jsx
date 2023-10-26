@@ -36,35 +36,6 @@ export class Generator {
     return { props, children };
   }
 
-  className(){
-    const { classList, context } = this;
-    const { file } = context;
-  
-    if(!classList.size)
-      return;
-  
-    const selectors = [] as t.Expression[];
-    let className = "";
-  
-    for(const item of classList)
-      if(typeof item == "string")
-        className += " " + item;
-      else
-        selectors.push(item);
-  
-    if(className)
-      selectors.unshift(
-        t.literal(className.slice(1))
-      )
-  
-    if(selectors.length > 1){
-      const _use = file.ensure("$runtime", "classNames");
-      return t.call(_use, ...selectors)
-    }
-    
-    return selectors[0];
-  }
-
   constructor(element: ElementInline | Define){
     const { invariant } = this.style;
 
@@ -101,6 +72,35 @@ export class Generator {
   
     if(element instanceof Define)
       this.useClass(element);
+  }
+
+  className(){
+    const { classList, context } = this;
+    const { file } = context;
+  
+    if(!classList.size)
+      return;
+  
+    const selectors = [] as t.Expression[];
+    let className = "";
+  
+    for(const item of classList)
+      if(typeof item == "string")
+        className += " " + item;
+      else
+        selectors.push(item);
+  
+    if(className)
+      selectors.unshift(
+        t.literal(className.slice(1))
+      )
+  
+    if(selectors.length > 1){
+      const _use = file.ensure("$runtime", "classNames");
+      return t.call(_use, ...selectors)
+    }
+    
+    return selectors[0];
   }
 
   element(collapsable?: boolean){
