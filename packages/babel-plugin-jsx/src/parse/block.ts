@@ -71,7 +71,7 @@ function handlePropAssignment(
 
   const { left, right } = expr.node;
 
-  if(!t.isIdentifier(left))
+  if(!t.is(left, "Identifier"))
     throw Oops.PropNotIdentifier(left)
 
   const prop = new Prop(left.name, right);
@@ -84,7 +84,7 @@ function handleIfStatement(
 
   const test = path.node.test;
 
-  if(t.isStringLiteral(test)){
+  if(t.is(test, "StringLiteral")){
     let select = test.value;
 
     if(/^\w+$/.test(select))

@@ -144,7 +144,7 @@ export class ImportManager extends FileManager {
     if(name == "default"){
       const [ spec ] = list;
 
-      if(t.isImportDefaultSpecifier(spec))
+      if(t.is(spec, "ImportDefaultSpecifier"))
         return spec.local;
 
       uid = typeof alt == "string" ? this.ensureUIDIdentifier(alt) : alt;
@@ -181,7 +181,7 @@ export class ImportManager extends FileManager {
       return imports[name];
 
     for(const stat of this.path.node.body)
-      if(t.isImportDeclaration(stat) && stat.source.value == name)
+      if(t.is(stat, "ImportDeclaration") && stat.source.value == name)
         return imports[name] = {
           exists: true,
           items: stat.specifiers
@@ -209,7 +209,7 @@ export class RequireManager extends FileManager {
     const source = this.ensureImported(from).items;
 
     for(const { key, value } of source)
-      if(t.isIdentifier(value) && t.isIdentifier(key, { name }))
+      if(t.is(value, "Identifier") && t.is(key, "Identifier", { name }))
         return value;
 
     const ref = typeof alt == "string" ? this.ensureUIDIdentifier(alt) : alt;
@@ -231,10 +231,10 @@ export class RequireManager extends FileManager {
     let list;
 
     for(let i = 0, stat; stat = this.path.node.body[i]; i++)
-      if(t.isVariableDeclaration(stat))
+      if(t.is(stat, "VariableDeclaration"))
         target = requireResultFrom(name, stat);
 
-    if(t.isObjectPattern(target))
+    if(t.is(target, "ObjectPattern"))
       list = imports[name] = {
         exists: true,
         items: target.properties as t.ObjectProperty[]
@@ -264,11 +264,11 @@ function requireResultFrom(
   statement: t.VariableDeclaration){
 
   for(const { init, id } of statement.declarations)
-    if(t.isCallExpression(init)){
+    if(t.is(init, "CallExpression")){
       const { callee, arguments: [ arg ] } = init;
 
-      if(t.isIdentifier(callee, { name: "require" })
-      && t.isStringLiteral(arg, { value: name }))
+      if(t.is(callee, "Identifier", { name: "require" })
+      && t.is(arg, "StringLiteral", { value: name }))
         return id;
     } 
 }

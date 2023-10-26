@@ -33,3 +33,8 @@ export {
   HTML_TAGS,
   SVG_TAGS
 } from './jsx';
+
+export {
+  is,
+  node
+} from './nodes'

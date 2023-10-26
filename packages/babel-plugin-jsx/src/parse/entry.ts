@@ -14,7 +14,7 @@ export function getName(path: t.Path): string {
   switch(path.type){
     case "VariableDeclarator": {
       const { id } = path.node as t.VariableDeclarator;
-      return t.isIdentifier(id)
+      return t.is(id, "Identifier")
         ? id.name
         : (<t.VariableDeclaration>path.parentPath!.node).kind
     }
@@ -22,7 +22,7 @@ export function getName(path: t.Path): string {
     case "AssignmentExpression":
     case "AssignmentPattern": {
       const { left } = path.node as t.AssignmentExpression;
-      return t.isIdentifier(left) ? left.name : "assignment"
+      return t.is(left, "Identifier") ? left.name : "assignment"
     }
 
     case "FunctionDeclaration":
@@ -51,12 +51,12 @@ export function getName(path: t.Path): string {
       if("id" in node && node.id)
         return node.id.name;
 
-      if(t.isObjectMethod(node)){
+      if(t.is(node, "ObjectMethod")){
         path = within.getAncestry()[2];
         continue
       }
 
-      if(t.isClassMethod(node)){
+      if(t.is(node, "ClassMethod")){
         if(node.key.type !== "Identifier")
           return "ClassMethod";
         if(node.key.name == "render"){
@@ -79,8 +79,8 @@ export function getName(path: t.Path): string {
     case "ObjectProperty": {
       const { key } = path.node as t.ObjectProperty;
       return (
-        t.isIdentifier(key) ? key.name : 
-        t.isStringLiteral(key) ? key.value : 
+        t.is(key, "Identifier") ? key.name : 
+        t.is(key, "StringLiteral") ? key.value : 
         "property"
       )
     }

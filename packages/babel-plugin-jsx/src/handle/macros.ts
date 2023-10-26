@@ -39,7 +39,7 @@ function forwardRef(
   const { node } = component as t.Path<any>;
   const { file } = target.context;
 
-  if(t.isFunctionDeclaration(node))
+  if(t.is(node, "FunctionDeclaration"))
     (node as any).type = "FunctionExpression";
 
   const _ref = uniqueWithin(component.scope, "ref");
@@ -62,23 +62,23 @@ function getProps(exec: t.Path<t.Function>){
   const { node } = exec;
   let props = node.params[0];
   
-  if(!t.isObjectPattern(props)){
+  if(!t.is(props, "ObjectPattern")){
     const existing = props;
     props = t.objectPattern([]);
 
     if(!existing)
       node.params[0] = props;
 
-    else if(t.isIdentifier(existing)){
+    else if(t.is(existing, "Identifier")){
       const { body } = node.body as t.BlockStatement;
 
       for(const stat of body){
-        if(!t.isVariableDeclaration(stat))
+        if(!t.is(stat, "VariableDeclaration"))
           break;
 
         for(const { id, init } of stat.declarations)
-          if(t.isIdentifier(init, { name: existing.name })
-          && t.isObjectPattern(id))
+          if(t.is(init, "Identifier", { name: existing.name })
+          && t.is(id, "ObjectPattern"))
             return id.properties;
       }
 

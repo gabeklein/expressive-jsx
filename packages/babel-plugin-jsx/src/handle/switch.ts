@@ -140,7 +140,7 @@ export class ComponentIf {
     if(t.isFalsy(test) && t.isIdentifier(test.argument))
       return `not_${test.argument.name}`;
   
-    if(t.isIdentifier(test))
+    if(t.is(test, "Identifier"))
       return test.name;
   }
 }

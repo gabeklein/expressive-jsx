@@ -89,7 +89,7 @@ function applyChild(
   else if(path.isJSXExpressionContainer()){
     const { expression } = path.node;
 
-    if(!t.isJSXEmptyExpression(expression))
+    if(!t.is(expression, "JSXEmptyExpression"))
       element.adopt(path.node.expression as t.Expression);
   }
   else
@@ -102,11 +102,11 @@ export function applyTagName(
 
   let name;
 
-  if(t.isJSXMemberExpression(tag)){
+  if(t.is(tag, "JSXMemberExpression")){
     name = tag.property.name;
     element.tagName = tag;
   }
-  else if(t.isJSXIdentifier(tag)){
+  else if(t.is(tag, "JSXIdentifier")){
     name = tag.name;
 
     if(name === "this")

@@ -147,7 +147,7 @@ export class Generator {
       if(value && typeof value == "object")
         if("toExpression" in value)
           return; 
-        else if(t.isStringLiteral(value))
+        else if(t.is(value, "StringLiteral"))
           ({ value } = value);
         else if(t.isExpression(value)){
           this.classList.add(value);

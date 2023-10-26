@@ -35,7 +35,7 @@ const types: any = {
 }
 
 export function parse(element: t.Expression | t.Statement): any[] {
-  if(t.isExpressionStatement(element))
+  if(t.is(element, "ExpressionStatement"))
     element = element.expression;
 
   return [].concat(
@@ -90,10 +90,10 @@ function TemplateLiteral(e: t.TemplateLiteral) {
 function UnaryExpression(e: t.UnaryExpression){
   const { argument, operator } = e;
 
-  if(operator == "-" && t.isNumericLiteral(argument))
+  if(operator == "-" && t.is(argument, "NumericLiteral"))
     return NumericLiteral(argument, true);
 
-  if(operator == "!" && t.isIdentifier(argument, { name: "important" }))
+  if(operator == "!" && t.is(argument, "Identifier", { name: "important" }))
     return "!important";
 
   throw Oops.UnaryUseless(e)
@@ -126,8 +126,8 @@ function NullLiteral(){
 function BinaryExpression(binary: t.BinaryExpression){
   const {left, right, operator} = binary;
   if(operator == "-"
-  && t.isIdentifier(left)
-  && t.isIdentifier(right, { start: left.end! + 1 }))
+  && t.is(left, "Identifier")
+  && t.is(right, "Identifier", { start: left.end! + 1 }))
     return left.name + "-" + right.name
   else
     return [
@@ -168,7 +168,7 @@ function CallExpression(e: t.CallExpression){
   for(const item of e.arguments){
     if(t.isExpression(item))
       args.push(Expression(item));
-    else if(t.isSpreadElement(item))
+    else if(t.is(item, "SpreadElement"))
       throw Oops.ArgumentSpread(item)
     else
       throw Oops.UnknownArgument(item)
@@ -215,7 +215,7 @@ function BlockStatement(statement: t.BlockStatement){
   const map = {} as Record<string, any>
 
   for(const item of statement.body)
-    if(t.isLabeledStatement(item))
+    if(t.is(item, "LabeledStatement"))
       map[item.label.name] = parse(item.body);
     else if(item.type !== "IfStatement")
       throw Oops.ModiferCantParse(statement);

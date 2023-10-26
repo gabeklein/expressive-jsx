@@ -18,7 +18,7 @@ export function createElement(
     if(typeof name !== "string")
       return t.jsxSpreadAttribute(value);
   
-    const jsxValue = t.isStringLiteral(value)
+    const jsxValue = t.is(value, "StringLiteral")
       ? value.value === "true" ? null : value
       : t.jsxExpressionContainer(value);
   
