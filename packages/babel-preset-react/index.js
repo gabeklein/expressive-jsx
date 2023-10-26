@@ -1,18 +1,15 @@
 const css = require("@expressive/macro-css");
+const plugin = require("@expressive/babel-plugin-jsx");
 
-const DEV_MODE = process.env.NODE_ENV == "development";
-
-module.exports = (compiler, options = {}) => {
+module.exports = (_compiler, options = {}) => {
   let {
     macros = [],
-    hot = DEV_MODE,
     ...opts
   } = options;
 
   return {
     plugins: [
-      ["@expressive/babel-plugin-jsx", {
-        hot,
+      [plugin, {
         output: "js",
         ...opts,
         macros: [
