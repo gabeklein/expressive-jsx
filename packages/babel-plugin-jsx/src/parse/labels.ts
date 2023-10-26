@@ -92,7 +92,7 @@ function handleModifier(
 
     function addStyle(name: string, ...args: any[]){
       const parsed: any[] = args.map(arg => arg.value || (
-        arg.requires ? t.requires(arg.requires) : arg
+        arg.requires ? t.require(arg.requires) : arg
       ))
     
       const output = parsed.length == 1 || typeof parsed[0] == "object"

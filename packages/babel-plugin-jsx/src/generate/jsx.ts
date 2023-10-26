@@ -30,7 +30,7 @@ export function createElement(
 
   this.ensure("$pragma", "default", "React");
 
-  const element = t.jsxTag(tag, props, content);
+  const element = t.jsxElement(tag, props, content);
 
   OUTPUT_NODE.add(element);
 

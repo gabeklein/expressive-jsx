@@ -1,4 +1,5 @@
-import * as t from '@babel/types';
+import type * as t from '@babel/types';
+import { is, node } from './nodes';
 
 type JSXReference = t.JSXIdentifier | t.JSXMemberExpression;
 
@@ -204,11 +205,11 @@ function jsxIdentifier(name: string): t.JSXIdentifier;
 function jsxIdentifier(name: string | JSXReference): JSXReference;
 function jsxIdentifier(name: string | JSXReference){
   return typeof name == "string"
-    ? t.jsxIdentifier(name)
+    ? node("JSXIdentifier", { name })
     : name;
 }
 
-export function jsxTag(
+export function jsxElement(
   tag: string | t.JSXMemberExpression,
   props: (t.JSXSpreadAttribute | t.JSXAttribute)[],
   children: t.Expression[]
@@ -217,18 +218,31 @@ export function jsxTag(
   const content = children.map(jsxContent);
   const contains = content.length > 0;
 
-  const openingElement = t.jsxOpeningElement(type, props, !contains);
-  const closingElement = contains ? t.jsxClosingElement(type) : null;
+  const openingElement = node("JSXOpeningElement", {
+    name: type,
+    attributes: props,
+    selfClosing: !contains,
+    typeParameters: null
+  });
 
-  return t.jsxElement(openingElement, closingElement, content, !contains);
+  const closingElement = contains
+    ? node("JSXClosingElement", { name: type })
+    : null;
+
+  return node("JSXElement", {
+    openingElement,
+    closingElement,
+    children: content,
+    selfClosing: !contains
+  });
 }
 
 function jsxContent(child: t.Expression){
-  if(t.isJSXElement(child))
+  if(is(child, "JSXElement"))
     return child;
 
-  if(t.isStringLiteral(child) && !/\{/.test(child.value))
-    return t.jsxText(child.value);
+  if(is(child, "StringLiteral") && !/\{/.test(child.value))
+    return node("JSXText", { value: child.value });
 
-  return t.jsxExpressionContainer(child);
+  return node("JSXExpressionContainer", { expression: child });
 }

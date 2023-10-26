@@ -1,4 +1,5 @@
-import * as t from '@babel/types';
+import type * as t from '@babel/types';
+import { is, node } from './nodes';
 
 const ASSERT_OP = new Set([
   "in", "instanceof", 
@@ -26,7 +27,7 @@ export function isParenthesized(node: t.Expression){
 export function isBinaryAssertion(
   exp: t.Expression | undefined): exp is t.BinaryExpression {
 
-  if(t.isBinaryExpression(exp) && ASSERT_OP.has(exp.operator))
+  if(is(exp, "BinaryExpression") && ASSERT_OP.has(exp.operator))
     return true;
 
   return false;
@@ -36,23 +37,35 @@ export function inverseExpression(exp: t.BinaryExpression){
   const inverse = INVERSE_OP.get(exp.operator) as any;
   
   if(inverse)
-    return t.binaryExpression(inverse, exp.left, exp.right);
+    return node("BinaryExpression", {
+      operator: inverse,
+      left: exp.left,
+      right: exp.right
+    });
 
   throw new Error(`Can't invert binary comparison ${exp.operator}.`);
 }
 
 export function isFalsy(exp: t.Expression): exp is t.UnaryExpression {
-  return t.isUnaryExpression(exp, { operator: "!" })
+  return is(exp, "UnaryExpression", { operator: "!" })
 }
 
 export function falsy(exp: t.Expression){
   return isBinaryAssertion(exp)
     ? inverseExpression(exp)
-    : t.unaryExpression("!", exp, true);
+    : node("UnaryExpression", {
+        operator: "!",
+        argument: exp,
+        prefix: true
+      });
 }
 
 export function and(a: t.Expression, b: t.Expression){
-  return t.logicalExpression("&&", a, b);
+  return node("LogicalExpression", {
+    operator: "&&",
+    left: a,
+    right: b
+  });
 }
 
 export function anti(exp: t.Expression){
@@ -68,5 +81,7 @@ export function ternary(
   consequent: t.Expression,
   alternate: t.Expression){
 
-  return t.conditionalExpression(test, consequent, alternate);
+  return node("ConditionalExpression", {
+    test, consequent, alternate
+  });
 }

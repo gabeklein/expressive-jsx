@@ -1,6 +1,13 @@
-import * as t from '@babel/types';
+import { is, node } from './nodes';
 
+import type * as t from '@babel/types';
 import type { FlatValue } from 'types';
+
+const IdentifierType = /(Expression|Literal|Identifier|JSXElement|JSXFragment|Import|Super|MetaProperty|TSTypeAssertion)$/;
+
+export function isExpression(node: any): node is t.Expression {
+  return typeof node == "object" && IdentifierType.test(node.type);
+}
 
 export function expression(value?: FlatValue | t.Expression){
   try {
@@ -19,25 +26,34 @@ export function literal(value: undefined): t.Identifier;
 export function literal(value: string | number | boolean | null | undefined){
   switch(typeof value){
     case "string":
-      return t.stringLiteral(value)//no;
+      return node("StringLiteral", { value });
     case "number":
-      return t.numericLiteral(value);
+      return node("NumericLiteral", { value });
     case "boolean":
-      return t.booleanLiteral(value);
+      return node("BooleanLiteral", { value });
     case "undefined":
-      return t.identifier("undefined");
+      return identifier("undefined");
     case "object":
       if(value === null)
-        return t.nullLiteral();
+        return node("NullLiteral", {});
     default:
       throw new Error("Not a literal type");
   }
 }
 
+export function identifier(name: string): t.Identifier {
+  return node("Identifier", {
+    name,
+    decorators: null,
+    typeAnnotation: null,
+    optional: false
+  });
+}
+
 export function keyIdentifier(name: string){
   return /^[A-Za-z0-9$_]+$/.test(name)
-    ? t.identifier(name)
-    : t.stringLiteral(name);
+    ? identifier(name)
+    : node("StringLiteral", { value: name })
 }
 
 export function property(
@@ -47,12 +63,30 @@ export function property(
   let shorthand = false;
 
   if(typeof key == "string"){
-    shorthand = t.isIdentifier(value, { name: key });
+    shorthand = is(value, "Identifier", { name: key })
     key = keyIdentifier(key);
   }
 
-  return t.objectProperty(key, value, false, shorthand);
+  return node("ObjectProperty", { 
+    key, value, shorthand,
+    computed: false,
+    decorators: []
+  });
 }
+
+export function spread(argument: t.Expression){
+  return node("SpreadElement", { argument });
+}
+
+// export function pattern(
+//   properties: (t.RestElement | t.ObjectProperty)[]){
+
+//   return node("ObjectPattern", {
+//     properties,
+//     decorators: [],
+//     typeAnnotation: null
+//   });
+// }
 
 export function object(
   obj: (t.ObjectProperty | t.SpreadElement)[] | Record<string, t.Expression | false | undefined> = {}){
@@ -66,7 +100,7 @@ export function object(
       if(value)
         properties.push(property(key, value))
 
-  return t.objectExpression(properties);
+  return node("ObjectExpression", { properties });
 }
 
 export function get(object: "this"): t.ThisExpression;
@@ -74,7 +108,7 @@ export function get<T extends t.Expression> (object: T): T;
 export function get(object: string | t.Expression, ...path: (string | number | t.Expression)[]): t.MemberExpression;
 export function get(object: string | t.Expression, ...path: (string | number | t.Expression)[]){
   if(object == "this")
-    object = t.thisExpression();
+    object = node("ThisExpression")
 
   if(typeof object == "string")
     path = [...object.split("."), ...path]
@@ -82,13 +116,13 @@ export function get(object: string | t.Expression, ...path: (string | number | t
   for(const x of path){
     let select;
 
-    if(typeof x == "number")
+    if(isExpression(x))
+      select = x;    
+    else if(typeof x == "number")
       select = literal(x);
     else if(typeof x == "string")
       select = keyIdentifier(x);
-    else if(t.isExpression(x))
-      select = x;    
-    else 
+    else
       throw new Error("Bad member id, only strings and numbers are allowed")
 
     object = typeof object == "object"
@@ -100,7 +134,12 @@ export function get(object: string | t.Expression, ...path: (string | number | t
 }
 
 export function member(object: t.Expression, property: t.Expression){
-  return t.memberExpression(object, property, !t.isIdentifier(property));
+  return node("MemberExpression", {
+    object,
+    property,
+    optional: false,
+    computed: !is(property, "Identifier")
+  })
 }
 
 export function call(
@@ -109,17 +148,21 @@ export function call(
   if(typeof callee == "string")
     callee = get(callee);
 
-  return t.callExpression(callee, args);
+  return node("CallExpression", {
+    callee,
+    arguments: args,
+    optional: false,
+    typeArguments: null,
+    typeParameters: null
+  })
 }
 
-export function requires(from: string){
+export function require(from: string){
   return call("require", literal(from))
 }
 
-export function returns(argument: t.Expression, parenthesized = false){
-  const statement = t.returnStatement(argument);
-  statement.extra = { parenthesized };
-  return statement;
+export function returns(argument: t.Expression){
+  return node("ReturnStatement", { argument });
 }
 
 export function declare(
@@ -127,9 +170,15 @@ export function declare(
   id: t.LVal,
   init?: t.Expression ){
 
-  return t.variableDeclaration(kind, [
-    t.variableDeclarator(id, init || null)
-  ]);
+  return node("VariableDeclaration", {
+    kind,
+    declare: false,
+    declarations: [
+      node("VariableDeclarator", {
+        id, init: init || null, definite: null
+      })
+    ]
+  })
 }
 
 export function objectAssign(...objects: t.Expression[]){
@@ -141,19 +190,66 @@ export function objectKeys(object: t.Expression){
 }
 
 export function template(text: string){
-  return t.templateLiteral([
-    t.templateElement({ raw: text, cooked: text }, false)
-  ], []);
+  return node("TemplateLiteral", {
+    expressions: [],
+    quasis: [
+      node("TemplateElement", {
+        value: { raw: text, cooked: text },
+        tail: false
+      })
+    ]
+  })
 }
 
 export function statement(from: t.Statement | t.Expression){
-  return t.isExpression(from) ? t.expressionStatement(from) : from;
+  return isExpression(from)
+    ? node("ExpressionStatement", { expression: from })
+    : from;
 }
 
 export function block(
   ...statements: (t.Statement | t.Expression)[]): t.BlockStatement {
 
   const stats = statements.map(statement);
+  
+  return node("BlockStatement", {
+    body: stats, directives: []
+  });
+}
 
-  return t.blockStatement(stats);
+// export function arrow(
+//   params: (t.Identifier | t.Pattern | t.RestElement)[],
+//   body: t.BlockStatement | t.Expression,
+//   async = false){
+
+//   return node("ArrowFunctionExpression", {
+//     async,
+//     body,
+//     typeParameters: null,
+//     generator: false,
+//     params,
+//     returnType: null,
+//     expression: isExpression(body)
+//   });
+// }
+
+// export function importDeclaration(
+//   specifiers: Array<t.ImportSpecifier | t.ImportDefaultSpecifier | t.ImportNamespaceSpecifier>,
+//   source: t.StringLiteral){
+
+//   return node("ImportDeclaration", {
+//     specifiers, source, importKind: null
+//   })
+// }
+
+export function importSpecifier(
+  local: t.Identifier, imported: t.Identifier){
+
+  return node("ImportSpecifier", {
+    local, imported, importKind: null
+  })
+}
+
+export function importDefaultSpecifier(local: t.Identifier){
+  return node("ImportDefaultSpecifier", { local })
 }
