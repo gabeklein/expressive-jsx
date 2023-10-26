@@ -1,4 +1,4 @@
-import * as t from './';
+import * as t from '@babel/types';
 
 type JSXReference = t.JSXIdentifier | t.JSXMemberExpression;
 

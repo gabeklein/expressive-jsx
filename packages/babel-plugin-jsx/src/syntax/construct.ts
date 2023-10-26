@@ -1,4 +1,4 @@
-import * as t from './';
+import * as t from '@babel/types';
 
 import type { FlatValue } from 'types';
 

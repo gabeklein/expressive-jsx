@@ -1,4 +1,4 @@
-import * as t from '.';
+import * as t from '@babel/types';
 
 const ASSERT_OP = new Set([
   "in", "instanceof", 
