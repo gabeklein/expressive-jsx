@@ -1,16 +1,17 @@
 import { forElement, forXElement } from 'generate/iterate';
 import { parse } from 'parse/block';
+import * as t from 'syntax';
 
 import { Define } from './definition';
 
-import * as t from 'syntax';
+import type * as $ from 'types';
 
 export class ComponentFor {
   definition: Define;
-  node: t.For;
+  node: $.For;
 
   constructor(
-    path: t.Path<t.For>,
+    path: $.Path<$.For>,
     parent: Define){
 
     const name = path.type.replace("Statement", "Loop");

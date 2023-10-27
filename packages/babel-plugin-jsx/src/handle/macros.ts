@@ -1,6 +1,7 @@
 import { Prop } from 'handle/attributes';
-
 import * as t from 'syntax';
+
+import type * as $ from 'types';
 import type { ModifyDelegate } from 'parse/labels';
 import type { Define } from 'handle/definition';
 
@@ -9,9 +10,9 @@ function forwardProp(
   ...propNames: any[]){
 
   const target = this.target;
-  const exec = (this.body as t.Path<t.Statement>)
+  const exec = (this.body as $.Path<$.Statement>)
     .getAncestry()
-    .find(x => x.isFunction()) as t.Path<t.Function>;
+    .find(x => x.isFunction()) as $.Path<$.Function>;
 
   if(!exec)
     throw new Error("No function-component found in hierarchy");
@@ -34,9 +35,9 @@ function forwardProp(
 
 function forwardRef(
   target: Define,
-  component: t.Path<t.Function>){
+  component: $.Path<$.Function>){
 
-  const { node } = component as t.Path<any>;
+  const { node } = component as $.Path<any>;
   const { file } = target.context;
 
   if(t.isFunctionDeclaration(node))
@@ -52,13 +53,13 @@ function forwardRef(
   target.add(new Prop("ref", _ref));
 }
 
-function uniqueWithin(scope: t.Scope, name: string){
+function uniqueWithin(scope: $.Scope, name: string){
   return scope.hasBinding(name)
     ? scope.generateUidIdentifier(name)
     : t.identifier(name);
 }
 
-function getProps(exec: t.Path<t.Function>){
+function getProps(exec: $.Path<$.Function>){
   const { node } = exec;
   let props = node.params[0];
   
@@ -70,7 +71,7 @@ function getProps(exec: t.Path<t.Function>){
       node.params[0] = props;
 
     else if(t.isIdentifier(existing)){
-      const { body } = node.body as t.BlockStatement;
+      const { body } = node.body as $.BlockStatement;
 
       for(const stat of body){
         if(!t.isVariableDeclaration(stat))

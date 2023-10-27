@@ -4,6 +4,7 @@ import { ElementInline } from 'handle/definition';
 import { HTML_TAGS, SVG_TAGS } from 'syntax/jsx';
 import * as t from 'syntax';
 
+import type * as $ from 'types';
 import type { Define } from 'handle/definition';
 import type { JSXChild } from 'syntax/jsx';
 
@@ -17,12 +18,12 @@ const Oops = ParseErrors({
 });
 
 export function addElementFromJSX(
-  parent: Define, path: t.Path<t.JSXElement | t.JSXFragment>){
+  parent: Define, path: $.Path<$.JSXElement | $.JSXFragment>){
 
   let target = parent as Element;
 
   if(path.isJSXElement()){
-    const tag = (path as t.Path<t.JSXElement>).get("openingElement").get("name");
+    const tag = (path as $.Path<$.JSXElement>).get("openingElement").get("name");
   
     if(!tag.isJSXIdentifier({ name: "this" })){
       const child = new ElementInline(target.context);
@@ -38,9 +39,9 @@ export function addElementFromJSX(
 
 export function parseJSX(
   into: ElementInline | Define,
-  element: t.Path<t.JSXElement | t.JSXFragment>){
+  element: $.Path<$.JSXElement | $.JSXFragment>){
 
-  const queue = [[into, element as t.Path<t.JSXElement>] as const];
+  const queue = [[into, element as $.Path<$.JSXElement>] as const];
 
   for(const [element, path] of queue){
     const children = path.get("children");
@@ -65,14 +66,14 @@ export function parseJSX(
 
 function applyChild(
   element: Element,
-  path: t.Path<JSXChild>,
-  queue: (readonly [Element, t.Path<t.JSXElement>])[]
+  path: $.Path<JSXChild>,
+  queue: (readonly [Element, $.Path<$.JSXElement>])[]
 ){
   if(path.isJSXElement()){
     const child = new ElementInline(element.context);
 
     element.adopt(child);
-    queue.push([child, path as t.Path<t.JSXElement>]);
+    queue.push([child, path as $.Path<$.JSXElement>]);
   }
   else if(path.isJSXText()){
     const { value } = path.node;
@@ -90,7 +91,7 @@ function applyChild(
     const { expression } = path.node;
 
     if(!t.isJSXEmptyExpression(expression))
-      element.adopt(path.node.expression as t.Expression);
+      element.adopt(path.node.expression as $.Expression);
   }
   else
     Oops.UnhandledChild(path, path.type);
@@ -98,7 +99,7 @@ function applyChild(
 
 export function applyTagName(
   element: ElementInline | Define,
-  tag: t.JSXIdentifier | t.JSXMemberExpression | t.JSXNamespacedName){
+  tag: $.JSXIdentifier | $.JSXMemberExpression | $.JSXNamespacedName){
 
   let name;
 
@@ -150,11 +151,11 @@ export function applyTagName(
 
 function applyAttribute(
   parent: Element,
-  attr: t.Path<t.JSXAttribute> | t.Path<t.JSXSpreadAttribute>,
-  queue: (readonly [Element, t.Path<t.JSXElement>])[]){
+  attr: $.Path<$.JSXAttribute> | $.Path<$.JSXSpreadAttribute>,
+  queue: (readonly [Element, $.Path<$.JSXElement>])[]){
 
   let name: string | false;
-  let value: t.Expression | undefined;
+  let value: $.Expression | undefined;
 
   if(attr.isJSXSpreadAttribute()){
     name = false;
@@ -180,7 +181,7 @@ function applyAttribute(
     }
     else switch(expression.type){
       case "JSXExpressionContainer":
-        value = expression.expression as t.Expression;
+        value = expression.expression as $.Expression;
       break;
 
       case "StringLiteral":
@@ -196,7 +197,7 @@ function applyAttribute(
   }
 
   if(value.type == "JSXElement"){
-    const path = attr.get("value.expression") as t.Path<t.JSXElement>;
+    const path = attr.get("value.expression") as $.Path<$.JSXElement>;
     const child = new ElementInline(parent.context);
     const prop = new Prop(name, child);
 

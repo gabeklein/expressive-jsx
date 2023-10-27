@@ -5,16 +5,16 @@ import { createElement as createJS } from './generate/es5';
 import { createElement as createJSX } from './generate/jsx';
 
 import type { Options } from 'index';
-import type { PropData } from 'types';
+import type * as $ from 'types';
 
 type ImportSpecific =
-  | t.ImportSpecifier 
-  | t.ImportDefaultSpecifier 
-  | t.ImportNamespaceSpecifier;
+  | $.ImportSpecifier 
+  | $.ImportDefaultSpecifier 
+  | $.ImportNamespaceSpecifier;
 
 interface ElementReact {
-  props: PropData[];
-  children: t.Expression[];
+  props: $.PropData[];
+  children: $.Expression[];
 }
 
 interface External<T> {
@@ -30,7 +30,7 @@ export abstract class FileManager {
 
   static create(
     options: Options,
-    path: t.Path<t.Program>
+    path: $.Path<$.Program>
   ){
     const { externals, output } = options;
     const Type =
@@ -46,7 +46,7 @@ export abstract class FileManager {
   }
 
   constructor(
-    protected path: t.Path<t.Program>,
+    protected path: $.Path<$.Program>,
     options: Options){
 
     this.options = options;
@@ -55,19 +55,19 @@ export abstract class FileManager {
       : createJSX;
   }
 
-  abstract ensure(from: string, name: string, alt?: string | t.Identifier): t.Identifier;
+  abstract ensure(from: string, name: string, alt?: string | $.Identifier): $.Identifier;
   abstract ensureImported(from: string): void;
-  abstract createImport(name: string): t.Statement | undefined;
+  abstract createImport(name: string): $.Statement | undefined;
 
   private createElement: (
-    tag: null | string | t.JSXMemberExpression,
-    properties?: PropData[],
-    content?: t.Expression[]
-  ) => t.CallExpression | t.JSXElement;
+    tag: null | string | $.JSXMemberExpression,
+    properties?: $.PropData[],
+    content?: $.Expression[]
+  ) => $.CallExpression | $.JSXElement;
 
   element(
     src: ElementReact,
-    tagName?: string | t.JSXMemberExpression,
+    tagName?: string | $.JSXMemberExpression,
     collapsable?: boolean){
 
     const { children, props } = src;
@@ -86,7 +86,7 @@ export abstract class FileManager {
 
   container(
     src: ElementReact,
-    key?: t.Identifier){
+    key?: $.Identifier){
 
     let { children } = src;
 
@@ -135,7 +135,7 @@ export abstract class FileManager {
 export class ImportManager extends FileManager {
   imports = {} as Record<string, External<ImportSpecific>>
 
-  ensure(from: string, name: string, alt: t.Identifier | string = name){
+  ensure(from: string, name: string, alt: $.Identifier | string = name){
     from = this.replaceAlias(from);
 
     let uid;
@@ -202,8 +202,8 @@ export class ImportManager extends FileManager {
 }
 
 export class RequireManager extends FileManager {
-  imports = {} as Record<string, External<t.ObjectProperty>>
-  importTargets = {} as Record<string, t.Expression | false>
+  imports = {} as Record<string, External<$.ObjectProperty>>
+  importTargets = {} as Record<string, $.Expression | false>
 
   ensure(from: string, name: string, alt = name){
     const source = this.ensureImported(from).items;
@@ -237,7 +237,7 @@ export class RequireManager extends FileManager {
     if(t.isObjectPattern(target))
       list = imports[name] = {
         exists: true,
-        items: target.properties as t.ObjectProperty[]
+        items: target.properties as $.ObjectProperty[]
       }
     else {
       list = imports[name] = { items: [] };
@@ -261,7 +261,7 @@ export class RequireManager extends FileManager {
 
 function requireResultFrom(
   name: string,
-  statement: t.VariableDeclaration){
+  statement: $.VariableDeclaration){
 
   for(const { init, id } of statement.declarations)
     if(t.isCallExpression(init)){

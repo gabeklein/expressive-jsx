@@ -3,6 +3,7 @@ import { Prop } from 'handle/attributes';
 import { ElementInline } from 'handle/definition';
 import * as t from 'syntax';
 
+import type * as $ from 'types';
 import type { Define } from 'handle/definition';
 
 const Oops = ParseErrors({
@@ -11,7 +12,7 @@ const Oops = ParseErrors({
 });
 
 export function forElement(
-  node: t.ForStatement,
+  node: $.ForStatement,
   define: Define){
 
   const { statements } = define;
@@ -25,7 +26,7 @@ export function forElement(
   const accumulator = file.ensureUIDIdentifier("add");
   const collect = file.ensure("$runtime", "collect");
 
-  let body: t.Statement | t.Expression =
+  let body: $.Statement | $.Expression =
     t.statement(
       t.call(accumulator, output)
     );
@@ -41,14 +42,14 @@ export function forElement(
 }
 
 export function forXElement(
-  node: t.ForXStatement,
+  node: $.ForXStatement,
   define: Define){
 
   let { left, right, key } = getReferences(node);
 
   key = ensureKeyProp(define, key);
 
-  let body: t.Expression | t.BlockStatement | undefined = 
+  let body: $.Expression | $.BlockStatement | undefined = 
     define.toExpression();
 
   if(!body)
@@ -72,9 +73,9 @@ export function forXElement(
   )
 }
 
-function getReferences(node: t.ForXStatement){
+function getReferences(node: $.ForXStatement){
   let { left, right } = node;
-  let key: t.Identifier | undefined;
+  let key: $.Identifier | undefined;
 
   if(t.isVariableDeclaration(left))
     left = left.declarations[0].id;
@@ -90,7 +91,7 @@ function getReferences(node: t.ForXStatement){
   }
 
   if(t.isBinaryExpression(right, { operator: "in" })){
-    key = right.left as t.Identifier;
+    key = right.left as $.Identifier;
     right = right.right;
   }
 
@@ -105,7 +106,7 @@ function getReferences(node: t.ForXStatement){
 
 function ensureKeyProp(
   from: Define,
-  used?: t.Identifier){
+  used?: $.Identifier){
 
   let { sequence, children } = from;
 

@@ -4,15 +4,14 @@ import { recombineProps } from 'generate/es5';
 import { Style } from './attributes';
 import { AttributeBody } from './object';
 
-import type { InnerContent } from 'types';
-import * as t from 'syntax';
+import type * as $ from 'types';
 import type { Context } from 'context';
 
 export class ElementInline extends AttributeBody {
   selfClosing?: boolean;
   parent?: ElementInline;
 
-  adopt(child: InnerContent): void {
+  adopt(child: $.InnerContent): void {
     if(child instanceof ElementInline)
       child.parent = this;
 
@@ -85,7 +84,7 @@ export class Define extends AttributeBody {
     this.setModifier(define.name!, define);
   }
 
-  toExpression(maybeProps?: boolean): t.Expression {
+  toExpression(maybeProps?: boolean): $.Expression {
     const { info } = new Generator(this);
 
     if(maybeProps && info.children.length === 0)

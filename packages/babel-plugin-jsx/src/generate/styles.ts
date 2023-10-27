@@ -2,6 +2,7 @@ import { Style } from 'handle/attributes';
 import * as t from 'syntax';
 import { hash } from 'utility';
 
+import type * as $ from 'types';
 import type { Context } from 'context';
 import type { Define } from 'handle/definition';
 
@@ -12,7 +13,7 @@ export function styleDeclaration(css: string, context: Context){
   const { filename, module, file, options } = context;
 
   const hot = options.hot !== false;
-  const args: t.Expression[] = [];
+  const args: $.Expression[] = [];
   const config: any = {};
 
   if(hot)

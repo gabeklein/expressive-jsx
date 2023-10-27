@@ -1,32 +1,33 @@
-import type { Hub } from '@babel/traverse';
 import * as t from 'syntax';
 
-type FunctionPath =
-  | t.Path<t.ClassMethod>
-  | t.Path<t.ObjectMethod>
-  | t.Path<t.FunctionDeclaration>
-  | t.Path<t.FunctionExpression>
+import type * as $ from 'types';
 
-export function getName(path: t.Path): string {
+type FunctionPath =
+  | $.Path<$.ClassMethod>
+  | $.Path<$.ObjectMethod>
+  | $.Path<$.FunctionDeclaration>
+  | $.Path<$.FunctionExpression>
+
+export function getName(path: $.Path): string {
   let encounteredReturn;
 
   while(path)
   switch(path.type){
     case "VariableDeclarator": {
-      const { id } = path.node as t.VariableDeclarator;
+      const { id } = path.node as $.VariableDeclarator;
       return t.isIdentifier(id)
         ? id.name
-        : (<t.VariableDeclaration>path.parentPath!.node).kind
+        : (<$.VariableDeclaration>path.parentPath!.node).kind
     }
 
     case "AssignmentExpression":
     case "AssignmentPattern": {
-      const { left } = path.node as t.AssignmentExpression;
+      const { left } = path.node as $.AssignmentExpression;
       return t.isIdentifier(left) ? left.name : "assignment"
     }
 
     case "FunctionDeclaration":
-      return (<t.FunctionDeclaration>path.node).id!.name;
+      return (<$.FunctionDeclaration>path.node).id!.name;
 
     case "ExportDefaultDeclaration":
       return getLocalFilename(path.hub);
@@ -60,7 +61,7 @@ export function getName(path: t.Path): string {
         if(node.key.type !== "Identifier")
           return "ClassMethod";
         if(node.key.name == "render"){
-          const owner = within.parentPath.parentPath as t.Path<t.Class>;
+          const owner = within.parentPath.parentPath as $.Path<$.Class>;
 
           if(owner.node.id)
             return owner.node.id.name;
@@ -77,7 +78,7 @@ export function getName(path: t.Path): string {
     }
 
     case "ObjectProperty": {
-      const { key } = path.node as t.ObjectProperty;
+      const { key } = path.node as $.ObjectProperty;
       return (
         t.isIdentifier(key) ? key.name : 
         t.isStringLiteral(key) ? key.value : 
@@ -92,7 +93,7 @@ export function getName(path: t.Path): string {
   return "element";
 }
 
-export function getLocalFilename(hub: Hub){
+export function getLocalFilename(hub: $.Hub){
   try {
     const { basename, dirname, sep: separator } = require('path');
 

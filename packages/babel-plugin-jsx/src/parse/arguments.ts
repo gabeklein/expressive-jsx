@@ -1,6 +1,7 @@
 import { ParseErrors } from 'errors';
-
 import * as t from 'syntax';
+
+import type * as $ from 'types';
 
 const Oops = ParseErrors({
   UnaryUseless: "Unary operator here doesn't do anything",
@@ -34,7 +35,7 @@ const types: any = {
   BlockStatement
 }
 
-export function parse(element: t.Expression | t.Statement): any[] {
+export function parse(element: $.Expression | $.Statement): any[] {
   if(t.isExpressionStatement(element))
     element = element.expression;
 
@@ -45,7 +46,7 @@ export function parse(element: t.Expression | t.Statement): any[] {
   )
 }
 
-function Expression<T extends t.Expression>(
+function Expression<T extends $.Expression>(
   element: T,
   childKey?: keyof T): any {
 
@@ -58,14 +59,14 @@ function Expression<T extends t.Expression>(
   return Extract(element)
 }
 
-function Extract(element: t.Expression | t.Statement){
+function Extract(element: $.Expression | $.Statement){
   if(element.type in types)
     return types[element.type](element);
 
   throw Oops.UnknownArgument(element)
 }
 
-function Identifier({ name }: t.Identifier){
+function Identifier({ name }: $.Identifier){
   if(name.startsWith("$")){
     name = toDashCase(name.slice(1));
 
@@ -75,11 +76,11 @@ function Identifier({ name }: t.Identifier){
   return name;
 }
 
-function StringLiteral(e: t.StringLiteral){
+function StringLiteral(e: $.StringLiteral){
   return e.value;
 }
 
-function TemplateLiteral(e: t.TemplateLiteral) {
+function TemplateLiteral(e: $.TemplateLiteral) {
   const { quasis } = e;
 
   return quasis.length == 1
@@ -87,7 +88,7 @@ function TemplateLiteral(e: t.TemplateLiteral) {
     : e;
 }
 
-function UnaryExpression(e: t.UnaryExpression){
+function UnaryExpression(e: $.UnaryExpression){
   const { argument, operator } = e;
 
   if(operator == "-" && t.isNumericLiteral(argument))
@@ -99,11 +100,11 @@ function UnaryExpression(e: t.UnaryExpression){
   throw Oops.UnaryUseless(e)
 }
 
-function BooleanLiteral(bool: t.BooleanLiteral){
+function BooleanLiteral(bool: $.BooleanLiteral){
   return bool.value;
 }
 
-function NumericLiteral(number: t.NumericLiteral, negative?: boolean){
+function NumericLiteral(number: $.NumericLiteral, negative?: boolean){
   let { extra: { rawValue, raw } } = number as any;
 
   if(t.isParenthesized(number) || !/^0x/.test(raw)){
@@ -123,7 +124,7 @@ function NullLiteral(){
   return null;
 }
 
-function BinaryExpression(binary: t.BinaryExpression){
+function BinaryExpression(binary: $.BinaryExpression){
   const {left, right, operator} = binary;
   if(operator == "-"
   && t.isIdentifier(left)
@@ -137,7 +138,7 @@ function BinaryExpression(binary: t.BinaryExpression){
     ]
 }
 
-function SequenceExpression(sequence: t.SequenceExpression){
+function SequenceExpression(sequence: $.SequenceExpression){
   return sequence.expressions.map(x => Expression(x))
 }
 
@@ -158,7 +159,7 @@ const CSS_UNITS = new Set([
   "vw",
 ])
 
-function CallExpression(e: t.CallExpression){
+function CallExpression(e: $.CallExpression){
   const callee = e.callee;
   const args = [] as string[];
 
@@ -182,11 +183,11 @@ function CallExpression(e: t.CallExpression){
   return toDashCase(callee.name) + `(${args.join(", ")})`;
 }
 
-function ArrowFunctionExpression(e: t.ArrowFunctionExpression): never {
+function ArrowFunctionExpression(e: $.ArrowFunctionExpression): never {
   throw Oops.ArrowNotImplemented(e);
 }
 
-function IfStatement(statement: t.IfStatement){
+function IfStatement(statement: $.IfStatement){
   const alt = statement.alternate;
   const test = statement.test;
   const body = statement.consequent;
@@ -205,13 +206,13 @@ function IfStatement(statement: t.IfStatement){
   }
 }
 
-function LabeledStatement(stat: t.LabeledStatement){
+function LabeledStatement(stat: $.LabeledStatement){
   return {
     [stat.label.name]: parse(stat.body)
   }
 }
 
-function BlockStatement(statement: t.BlockStatement){
+function BlockStatement(statement: $.BlockStatement){
   const map = {} as Record<string, any>
 
   for(const item of statement.body)

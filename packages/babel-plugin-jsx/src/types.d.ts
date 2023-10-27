@@ -1,13 +1,22 @@
-import * as t from 'syntax';
+import type * as $ from '@babel/types';
 
 import type { Style, Prop } from 'handle/attributes';
 import type { ElementInline } from 'handle/definition';
 import type { ComponentFor } from 'handle/iterate';
 import type { ComponentIf } from 'handle/switch';
 
+export type * from '@babel/types';
+export type {
+  Hub,
+  NodePath as Path,
+  Scope,
+  VisitNodeObject,
+  VisitNode
+} from '@babel/traverse';
+
 export interface BabelFile extends File {
   buildCodeFrameError<TError extends Error>(
-    node: t.Node,
+    node: $.Node,
     msg: string,
     Error?: new (msg: string) => TError
   ): TError;
@@ -15,7 +24,7 @@ export interface BabelFile extends File {
 
 export interface PropData {
   name: string | false | undefined
-  value: t.Expression
+  value: $.Expression
 }
 
 export type FlatValue =
@@ -28,10 +37,10 @@ export type SequenceItem =
   | Style
   | Prop
   | InnerContent
-  | t.Statement;
+  | $.Statement;
 
 export type InnerContent =
-  | t.Expression
+  | $.Expression
   | ElementInline
   | ComponentIf
   | ComponentFor;

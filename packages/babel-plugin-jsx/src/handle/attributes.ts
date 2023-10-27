@@ -1,15 +1,15 @@
-
 import * as t from 'syntax';
-import type { FlatValue } from 'types';
+
+import type * as $ from 'types';
 import type { ElementInline } from './definition';
 
 export abstract class Attribute {
   name?: string;
-  value?: FlatValue | t.Expression | ElementInline;
+  value?: $.FlatValue | $.Expression | ElementInline;
 
   constructor(
     name: string | false,
-    value: FlatValue | t.Expression | ElementInline){
+    value: $.FlatValue | $.Expression | ElementInline){
 
     if(name)
       this.name = name;
@@ -35,7 +35,7 @@ export class Style extends Attribute {
 
   constructor(
     name: string | false,
-    value: FlatValue | FlatValue[] | t.Expression,
+    value: $.FlatValue | $.FlatValue[] | $.Expression,
     important?: boolean){
 
     if(Array.isArray(value))

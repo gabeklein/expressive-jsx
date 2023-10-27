@@ -3,18 +3,18 @@ import { Prop, Style } from 'handle/attributes';
 import { Define, DefineLocal, DefineVariant, ElementInline } from 'handle/definition';
 import * as t from 'syntax';
 
-import type { PropData, SequenceItem } from 'types';
+import type * as $ from 'types';
 import type { Context } from 'context';
 
 const byPriority = (x: any, y: any) => x.priority - y.priority;
 
 export class Generator {
-  tag: string | t.JSXMemberExpression | undefined;
-  props = [] as PropData[];
-  children = [] as t.Expression[];
+  tag: string | $.JSXMemberExpression | undefined;
+  props = [] as $.PropData[];
+  children = [] as $.Expression[];
 
   style = new AttributeStack();
-  classList = new Set<string | t.Expression>();
+  classList = new Set<string | $.Expression>();
 
   context: Context;
 
@@ -81,7 +81,7 @@ export class Generator {
     if(!classList.size)
       return;
   
-    const selectors = [] as t.Expression[];
+    const selectors = [] as $.Expression[];
     let className = "";
   
     for(const item of classList)
@@ -107,7 +107,7 @@ export class Generator {
     return this.context.file.element(this.info, this.tag, collapsable);
   }
 
-  add(item: SequenceItem){
+  add(item: $.SequenceItem){
     if(item instanceof Style)
       this.style.insert(item, this.inline_only);
 
@@ -172,7 +172,7 @@ export class Generator {
     if(from.isDeclared && from.isUsed){
       const { context } = this;
       const { extractCss, cssModule } = context.options;
-      let className: string | t.Expression = from.uid;
+      let className: string | $.Expression = from.uid;
 
       if(extractCss && cssModule !== false)
         className = t.member(

@@ -3,9 +3,9 @@ import { Define } from 'handle/definition';
 import { builtIn } from 'handle/macros';
 import { getName } from 'parse/entry';
 import { FileManager } from 'scope';
-import * as t from 'syntax';
 import { hash } from 'utility';
 
+import type * as $ from 'types';
 import type { ModifyAction } from 'parse/labels';
 import type { Options } from 'index';
 
@@ -39,14 +39,14 @@ export class Context {
   macros: Record<string, ModifyAction>;
   define: Define;
 
-  program: t.Path<t.Program>;
+  program: $.Path<$.Program>;
 
   get parent(){
     return Object.getPrototypeOf(this);
   }
 
   constructor(
-    path: t.Path<t.Program>,
+    path: $.Path<$.Program>,
     state: BabelState){
 
     path.data = { context: this };
@@ -66,7 +66,7 @@ export class Context {
     )
   }
 
-  declaredUIDIdentifiers: Record<string, t.Identifier> = {};
+  declaredUIDIdentifiers: Record<string, $.Identifier> = {};
 
   ensureUIDIdentifier(name: string){
     const exist = this.declaredUIDIdentifiers;
@@ -125,7 +125,7 @@ export class Context {
 }
 
 export function getContext(
-  path: t.Path<any>, create?: boolean): Context {
+  path: $.Path<any>, create?: boolean): Context {
 
   while(path = path.parentPath!){
     const scope = path.data?.context as Context | undefined;

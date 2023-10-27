@@ -6,11 +6,12 @@ import { parse } from 'parse/block';
 import { parseJSX } from 'parse/jsx';
 import * as t from 'syntax';
 
+import type * as $ from 'types';
 import type { PluginObj } from '@babel/core';
 import type { BabelState } from 'context';
 
-type Visitor<T extends t.Node, S extends Context = Context> =
-  t.VisitNodeObject<BabelState<S>, T>;
+type Visitor<T extends $.Node, S extends Context = Context> =
+  $.VisitNodeObject<BabelState<S>, T>;
 
 export interface Options {
   // expected
@@ -30,18 +31,21 @@ export interface Options {
   externals?: "require" | "import" | false;
 }
 
-export default () => <PluginObj>({
-  manipulateOptions(options, parse){
-    parse.plugins.push("jsx");
-  },
-  visitor: {
-    Program,
-    JSXElement,
-    JSXFragment: JSXElement
-  }
-})
+export default (babel: any) => {
+  Object.assign(t, babel.types)
+  return <PluginObj>({
+    manipulateOptions(options, parse){
+      parse.plugins.push("jsx");
+    },
+    visitor: {
+      Program,
+      JSXElement,
+      JSXFragment: JSXElement
+    }
+  })
+}
 
-const Program: Visitor<t.Program> = {
+const Program: Visitor<$.Program> = {
   enter(path, state){
     Status.currentFile = state.file as any;
     state.context = new Context(path, state);
@@ -53,7 +57,7 @@ const Program: Visitor<t.Program> = {
 
 const NODE_HANDLED = new WeakSet<any>();
 
-const JSXElement: Visitor<t.JSXElement | t.JSXFragment> = {
+const JSXElement: Visitor<$.JSXElement | $.JSXFragment> = {
   enter(path){
     if(OUTPUT_NODE.has(path.node))
       return;
@@ -86,7 +90,7 @@ const JSXElement: Visitor<t.JSXElement | t.JSXFragment> = {
     NODE_HANDLED.add(path.node);
 
     const functionNode = containerFunction.node;
-    const block = containerFunction.get("body") as t.Path<t.BlockStatement>;
+    const block = containerFunction.get("body") as $.Path<$.BlockStatement>;
     const context = getContext(path, true);
     const { define } = context;
 

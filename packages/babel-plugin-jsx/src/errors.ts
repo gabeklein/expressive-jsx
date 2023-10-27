@@ -1,17 +1,16 @@
-import type * as t from 'syntax';
-import type { BabelFile, FlatValue } from 'types';
+import type * as $ from 'types';
 
-type ParseError = <T extends t.Node>(node: t.Path<T> | T, ...args: FlatValue[]) => Error;
+type ParseError = <T extends $.Node>(node: $.Path<T> | T, ...args: $.FlatValue[]) => Error;
 
 export const Status = {
-  currentFile: undefined as unknown as BabelFile
+  currentFile: undefined as unknown as $.BabelFile
 }
 
 export function ParseErrors<O extends Record<string, string>> (register: O) {
   const Errors = {} as Record<string, ParseError>
 
   for(const error in register){
-    const message = [] as FlatValue[];
+    const message = [] as $.FlatValue[];
 
     for(const segment of register[error].split(/\{(?=\d+\})/)){
       const ammend = /(\d+)\}(.*)/.exec(segment);

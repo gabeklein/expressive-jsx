@@ -1,21 +1,21 @@
 import * as t from '.';
 
-import type { FlatValue } from 'types';
+import type * as $ from 'types';
 
-export function expression(value?: FlatValue | t.Expression){
+export function expression(value?: $.FlatValue | $.Expression){
   try {
     return literal(value as any);
   }
   catch(err){
-    return value as t.Expression;
+    return value as $.Expression;
   }
 }
 
-export function literal(value: string): t.StringLiteral;
-export function literal(value: number): t.NumericLiteral;
-export function literal(value: boolean): t.BooleanLiteral;
-export function literal(value: null): t.NullLiteral;
-export function literal(value: undefined): t.Identifier;
+export function literal(value: string): $.StringLiteral;
+export function literal(value: number): $.NumericLiteral;
+export function literal(value: boolean): $.BooleanLiteral;
+export function literal(value: null): $.NullLiteral;
+export function literal(value: undefined): $.Identifier;
 export function literal(value: string | number | boolean | null | undefined){
   switch(typeof value){
     case "string":
@@ -41,8 +41,8 @@ export function keyIdentifier(name: string){
 }
 
 export function property(
-  key: string | t.StringLiteral | t.Identifier,
-  value: t.Expression){
+  key: string | $.StringLiteral | $.Identifier,
+  value: $.Expression){
 
   let shorthand = false;
 
@@ -55,7 +55,7 @@ export function property(
 }
 
 export function object(
-  obj: (t.ObjectProperty | t.SpreadElement)[] | Record<string, t.Expression | false | undefined> = {}){
+  obj: ($.ObjectProperty | $.SpreadElement)[] | Record<string, $.Expression | false | undefined> = {}){
 
   let properties = [];
 
@@ -69,10 +69,10 @@ export function object(
   return t.objectExpression(properties);
 }
 
-export function get(object: "this"): t.ThisExpression;
-export function get<T extends t.Expression> (object: T): T;
-export function get(object: string | t.Expression, ...path: (string | number | t.Expression)[]): t.MemberExpression;
-export function get(object: string | t.Expression, ...path: (string | number | t.Expression)[]){
+export function get(object: "this"): $.ThisExpression;
+export function get<T extends $.Expression> (object: T): T;
+export function get(object: string | $.Expression, ...path: (string | number | $.Expression)[]): $.MemberExpression;
+export function get(object: string | $.Expression, ...path: (string | number | $.Expression)[]){
   if(object == "this")
     object = t.thisExpression();
 
@@ -96,15 +96,15 @@ export function get(object: string | t.Expression, ...path: (string | number | t
       : select;
   }
 
-  return object as t.Expression;
+  return object as $.Expression;
 }
 
-export function member(object: t.Expression, property: t.Expression){
+export function member(object: $.Expression, property: $.Expression){
   return t.memberExpression(object, property, !t.isIdentifier(property));
 }
 
 export function call(
-  callee: t.Expression | string, ...args: t.Expression[]){
+  callee: $.Expression | string, ...args: $.Expression[]){
 
   if(typeof callee == "string")
     callee = get(callee);
@@ -116,7 +116,7 @@ export function requires(from: string){
   return call("require", literal(from))
 }
 
-export function returns(argument: t.Expression, parenthesized = false){
+export function returns(argument: $.Expression, parenthesized = false){
   const statement = t.returnStatement(argument);
   statement.extra = { parenthesized };
   return statement;
@@ -124,19 +124,19 @@ export function returns(argument: t.Expression, parenthesized = false){
 
 export function declare(
   kind: "const" | "let" | "var",
-  id: t.LVal,
-  init?: t.Expression ){
+  id: $.LVal,
+  init?: $.Expression ){
 
   return t.variableDeclaration(kind, [
     t.variableDeclarator(id, init || null)
   ]);
 }
 
-export function objectAssign(...objects: t.Expression[]){
+export function objectAssign(...objects: $.Expression[]){
   return call("Object.assign", ...objects)
 }
 
-export function objectKeys(object: t.Expression){
+export function objectKeys(object: $.Expression){
   return call("Object.keys", object)
 }
 
@@ -146,12 +146,12 @@ export function template(text: string){
   ], []);
 }
 
-export function statement(from: t.Statement | t.Expression){
+export function statement(from: $.Statement | $.Expression){
   return t.isExpression(from) ? t.expressionStatement(from) : from;
 }
 
 export function block(
-  ...statements: (t.Statement | t.Expression)[]): t.BlockStatement {
+  ...statements: ($.Statement | $.Expression)[]): $.BlockStatement {
 
   const stats = statements.map(statement);
 

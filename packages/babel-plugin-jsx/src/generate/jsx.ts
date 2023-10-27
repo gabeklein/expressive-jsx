@@ -1,15 +1,15 @@
 
 import * as t from 'syntax';
 import type { FileManager } from 'scope';
-import type { PropData } from 'types';
+import type * as $ from 'types';
 
 export const OUTPUT_NODE = new WeakSet();
 
 export function createElement(
   this: FileManager,
-  tag: null | string | t.JSXMemberExpression,
-  properties: PropData[] = [],
-  content: t.Expression[] = []
+  tag: null | string | $.JSXMemberExpression,
+  properties: $.PropData[] = [],
+  content: $.Expression[] = []
 ){
   if(!tag)
     tag = this.ensure("$pragma", "Fragment").name;

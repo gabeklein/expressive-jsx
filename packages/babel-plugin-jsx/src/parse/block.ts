@@ -10,6 +10,7 @@ import { ensureArray } from 'utility';
 import { addElementFromJSX } from './jsx';
 import { handleDefine } from './labels';
 
+import type * as $ from 'types';
 import type { Define } from 'handle/definition';
 
 const Oops = ParseErrors({
@@ -18,7 +19,7 @@ const Oops = ParseErrors({
 
 export function parse(
   target: Define,
-  block: t.Path<any>,
+  block: $.Path<any>,
   key?: string){
 
   if(key)
@@ -45,7 +46,7 @@ export function parse(
       break;
 
       case "ExpressionStatement": {
-        const expr = item.get("expression") as t.Path<t.Expression>;
+        const expr = item.get("expression") as $.Path<$.Expression>;
 
         if(expr.isAssignmentExpression({ operator: "=" })){
           handlePropAssignment(target, expr);
@@ -67,7 +68,7 @@ export function parse(
 }
 
 function handlePropAssignment(
-  target: Define, expr: t.Path<t.AssignmentExpression>){
+  target: Define, expr: $.Path<$.AssignmentExpression>){
 
   const { left, right } = expr.node;
 
@@ -80,7 +81,7 @@ function handlePropAssignment(
 }
 
 function handleIfStatement(
-  target: Define, path: t.Path<t.IfStatement>){
+  target: Define, path: $.Path<$.IfStatement>){
 
   const test = path.node.test;
 
@@ -100,6 +101,6 @@ function handleIfStatement(
 
   const item = new ComponentIf();
 
-  item.setup(target.context, path as t.Path);
+  item.setup(target.context, path as $.Path);
   target.adopt(item);
 }

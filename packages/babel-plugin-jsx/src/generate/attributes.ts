@@ -1,7 +1,8 @@
 import { Style } from 'handle/attributes';
+import * as t from 'syntax';
 import { ArrayStack } from 'utility';
 
-import * as t from 'syntax';
+import type * as $ from 'types';
 
 export class AttributeStack extends ArrayStack<Style> {
   exists = new Set<string>();
@@ -37,7 +38,7 @@ export class AttributeStack extends ArrayStack<Style> {
     if(this.length == 1 && this[0] instanceof Style)
       return this[0].expression;
 
-    const chunks = [] as (t.ObjectProperty | t.SpreadElement)[];
+    const chunks = [] as ($.ObjectProperty | $.SpreadElement)[];
 
     for(const item of this)
       if(item instanceof Style)

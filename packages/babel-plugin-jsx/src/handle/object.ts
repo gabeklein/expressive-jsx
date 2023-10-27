@@ -1,17 +1,17 @@
+import { hash } from 'utility';
+
 import type { Context } from 'context';
 import type { Define } from 'handle/definition';
-import type * as t from 'syntax';
-import type { InnerContent, SequenceItem } from 'types';
-import { hash } from 'utility';
+import type * as $ from 'types';
 
 export abstract class AttributeBody {
   name?: string;
-  tagName?: string | t.JSXMemberExpression;
+  tagName?: string | $.JSXMemberExpression;
   context!: Context;
 
-  sequence = [] as SequenceItem[];
-  statements = [] as t.Statement[];
-  children = [] as InnerContent[];
+  sequence = [] as $.SequenceItem[];
+  statements = [] as $.Statement[];
+  children = [] as $.InnerContent[];
 
   /** Other definitions applicable to this one. */
   includes = new Set<Define>();
@@ -87,11 +87,11 @@ export abstract class AttributeBody {
     return mod;
   }
 
-  add(item: SequenceItem){
+  add(item: $.SequenceItem){
     this.sequence.push(item);
   }
 
-  adopt(child: InnerContent){
+  adopt(child: $.InnerContent){
     const index = this.children.push(child);
 
     if("context" in child)

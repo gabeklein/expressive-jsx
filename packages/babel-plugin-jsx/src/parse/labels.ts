@@ -6,11 +6,13 @@ import * as t from 'syntax';
 import { parse as parseArguments } from './arguments';
 import { parse as parseBlock } from './block';
 
+import type * as $ from 'types';
+
 export type DefineBodyCompat = 
-  | t.Path<t.ExpressionStatement>
-  | t.Path<t.BlockStatement>
-  | t.Path<t.LabeledStatement>
-  | t.Path<t.IfStatement>;
+  | $.Path<$.ExpressionStatement>
+  | $.Path<$.BlockStatement>
+  | $.Path<$.LabeledStatement>
+  | $.Path<$.IfStatement>;
 
 export type ModifyAction =
   (this: ModifyDelegate, ...args: any[]) => Record<string, any> | void;
@@ -22,7 +24,7 @@ export const Oops = ParseErrors({
 });
 
 export function getName(
-  path: t.Path<t.LabeledStatement>){
+  path: $.Path<$.LabeledStatement>){
 
   const { name } = path.get("label").node;
 
@@ -37,12 +39,12 @@ export function getName(
 
 export function handleDefine(
   target: Define,
-  path: t.Path<t.LabeledStatement>){
+  path: $.Path<$.LabeledStatement>){
 
   const { context } = target;
 
   let key = getName(path);
-  let body = path.get('body') as t.Path<t.Statement>;
+  let body = path.get('body') as $.Path<$.Statement>;
 
   if(body.isBlockStatement()){
     const mod = new Define(context, key);
@@ -54,7 +56,7 @@ export function handleDefine(
 
   while(body.isLabeledStatement()){
     key = `${key}.${body.node.label.name}`;
-    body = body.get("body") as t.Path<t.Statement>;
+    body = body.get("body") as $.Path<$.Statement>;
   }
 
   if(body.isIfStatement())
@@ -66,7 +68,7 @@ export function handleDefine(
 function handleModifier(
   name: string,
   target: Define,
-  body: t.Path<t.Statement>
+  body: $.Path<$.Statement>
 ){
   const { context } = target;
   const queue = [{
@@ -75,7 +77,7 @@ function handleModifier(
     args: parseArguments(body.node)
   } as {
     name: string,
-    body?: t.Path<t.Statement>,
+    body?: $.Path<$.Statement>,
     args: any[]
   }];
 
@@ -160,7 +162,7 @@ function handleModifier(
 export interface ModifyDelegate {
   target: Define;
   name: string;
-  body?: t.Path<t.Statement>;
+  body?: $.Path<$.Statement>;
 
   setContingent(
     select: string | string[],

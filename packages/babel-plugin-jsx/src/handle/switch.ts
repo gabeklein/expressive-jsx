@@ -1,9 +1,10 @@
 import { parse } from 'parse/block';
+import * as t from 'syntax';
 import { ensureArray } from 'utility';
 
 import { Define } from './definition';
 
-import * as t from 'syntax';
+import type * as $ from 'types';
 import type { Context } from 'context';
 
 /** Number of consequents existing for a given parent Define. */
@@ -43,33 +44,33 @@ class DefineConsequent extends Define {
 }
 
 export class ComponentIf {
-  private forks = [] as [Define, t.Expression?][];
+  private forks = [] as [Define, $.Expression?][];
 
-  setup(context: Context, path: t.Path){
+  setup(context: Context, path: $.Path){
     do {
       if(!path.isIfStatement()){
         this.include(context, path);
         break;
       }
 
-      const test = path.get("test") as t.Path<t.Expression>;
-      const consequent = path.get("consequent") as t.Path;
+      const test = path.get("test") as $.Path<$.Expression>;
+      const consequent = path.get("consequent") as $.Path;
 
       this.include(context, consequent, test);
 
-      path = path.get("alternate") as t.Path;
+      path = path.get("alternate") as $.Path;
     }
     while(path.type)
   }
 
-  toExpression(): t.Expression | undefined {
+  toExpression(): $.Expression | undefined {
     return this.reduce(cond => {
       if(cond.children.length)
         return cond.toExpression();
     });
   }
 
-  toClassName(): t.Expression | undefined {
+  toClassName(): $.Expression | undefined {
     return this.reduce(cond => {
       const segments = [];
 
@@ -87,8 +88,8 @@ export class ComponentIf {
 
   include(
     context: Context,
-    body: t.Path,
-    test?: t.Path<t.Expression>){
+    body: $.Path,
+    test?: $.Path<$.Expression>){
 
     const { forks } = this;
 
@@ -113,9 +114,9 @@ export class ComponentIf {
     return define;
   }
 
-  reduce(predicate: (fork: Define) => t.Expression | undefined){
+  reduce(predicate: (fork: Define) => $.Expression | undefined){
     const forks = this.forks.slice().reverse();
-    let sum: t.Expression | undefined;
+    let sum: $.Expression | undefined;
   
     for(const [ cond, test ] of forks){
       const product = predicate(cond);
@@ -133,7 +134,7 @@ export class ComponentIf {
     return sum;
   }
 
-  specify(test?: t.Expression){
+  specify(test?: $.Expression){
     if(!test)
       return false;
   
