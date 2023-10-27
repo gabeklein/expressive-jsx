@@ -4,7 +4,7 @@ import { OUTPUT_NODE } from 'generate/jsx';
 import { ElementInline } from 'handle/definition';
 import { parse } from 'parse/block';
 import { parseJSX } from 'parse/jsx';
-import * as t from 'syntax';
+import { t } from 'syntax';
 
 import type * as $ from 'types';
 import type { PluginObj } from '@babel/core';
@@ -32,7 +32,8 @@ export interface Options {
 }
 
 export default (babel: any) => {
-  Object.assign(t, babel.types)
+  Object.assign(t, babel.types);
+
   return <PluginObj>({
     manipulateOptions(options, parse){
       parse.plugins.push("jsx");

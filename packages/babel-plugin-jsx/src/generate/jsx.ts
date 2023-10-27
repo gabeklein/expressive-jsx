@@ -1,5 +1,5 @@
+import { t } from 'syntax';
 
-import * as t from 'syntax';
 import type { FileManager } from 'scope';
 import type * as $ from 'types';
 

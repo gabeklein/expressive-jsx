@@ -1,5 +1,5 @@
 import { parse } from 'parse/block';
-import * as t from 'syntax';
+import { t } from 'syntax';
 import { ensureArray } from 'utility';
 
 import { Define } from './definition';

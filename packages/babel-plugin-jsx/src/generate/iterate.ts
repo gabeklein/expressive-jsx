@@ -1,7 +1,7 @@
 import { ParseErrors } from 'errors';
 import { Prop } from 'handle/attributes';
 import { ElementInline } from 'handle/definition';
-import * as t from 'syntax';
+import { t } from 'syntax';
 
 import type * as $ from 'types';
 import type { Define } from 'handle/definition';

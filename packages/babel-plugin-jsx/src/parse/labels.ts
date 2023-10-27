@@ -1,7 +1,7 @@
 import { ParseErrors } from 'errors';
 import { Style } from 'handle/attributes';
 import { Define } from 'handle/definition';
-import * as t from 'syntax';
+import { t } from 'syntax';
 
 import { parse as parseArguments } from './arguments';
 import { parse as parseBlock } from './block';

@@ -1,4 +1,4 @@
-import * as t from '.';
+import { t } from 'syntax';
 
 import type * as $ from 'types';
 

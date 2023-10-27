@@ -1,4 +1,4 @@
-import * as t from 'syntax';
+import { t } from 'syntax';
 import { ensureUID } from 'syntax/uid';
 
 import { createElement as createJS } from './generate/es5';

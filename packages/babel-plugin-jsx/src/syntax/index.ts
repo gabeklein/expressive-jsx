@@ -1,5 +1,14 @@
-export type * from '@babel/types';
+import type * as types from '@babel/types';
 
-export * from './assert';
-export * from './construct';
-export * from './jsx';
+import * as assert from './assert';
+import * as construct from './construct';
+import * as jsx from './jsx';
+
+const babel = {} as typeof types;
+
+export const t = {
+  ...babel,
+  ...assert,
+  ...construct,
+  ...jsx,
+}

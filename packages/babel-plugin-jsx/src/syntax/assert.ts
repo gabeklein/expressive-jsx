@@ -1,5 +1,5 @@
 import * as $ from 'types';
-import * as t from 'syntax';
+import { t } from 'syntax';
 
 const ASSERT_OP = new Set([
   "in", "instanceof", 

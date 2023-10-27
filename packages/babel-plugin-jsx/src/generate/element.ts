@@ -1,7 +1,7 @@
 import { AttributeStack } from 'generate/attributes';
 import { Prop, Style } from 'handle/attributes';
 import { Define, DefineLocal, DefineVariant, ElementInline } from 'handle/definition';
-import * as t from 'syntax';
+import { t } from 'syntax';
 
 import type * as $ from 'types';
 import type { Context } from 'context';

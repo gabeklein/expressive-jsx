@@ -1,5 +1,5 @@
 import { Style } from 'handle/attributes';
-import * as t from 'syntax';
+import { t } from 'syntax';
 import { ArrayStack } from 'utility';
 
 import type * as $ from 'types';

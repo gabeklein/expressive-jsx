@@ -1,4 +1,4 @@
-import * as t from 'syntax';
+import { t } from 'syntax';
 
 import type * as $ from 'types';
 import type { ElementInline } from './definition';
