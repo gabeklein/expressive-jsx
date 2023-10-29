@@ -1,7 +1,7 @@
 const css = require("@expressive/macro-css");
 const plugin = require("@expressive/babel-plugin-jsx");
 
-module.exports = (_compiler, options = {}) => {
+const Preset = (_compiler, options = {}) => {
   let {
     macros = [],
     ...opts
@@ -20,3 +20,14 @@ module.exports = (_compiler, options = {}) => {
     ]
   }
 }
+
+module.exports = Preset;
+
+Object.defineProperty(module.exports, "default", {
+  enumerable: true,
+  get: () => Preset
+});
+
+Object.defineProperty(module.exports, "__esModule", {
+  value: true
+});
