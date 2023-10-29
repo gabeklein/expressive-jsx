@@ -1,27 +1,16 @@
 import { appendUnitToN } from './units';
 
-const EXPORT = exports;
+function factory(dir){
+  const key = dir
+    ? "border" + dir[0].toUpperCase() + dir.slice(1)
+    : "border";
 
-for(const kind of [
-  "border",
-  "borderTop",
-  "borderLeft",
-  "borderRight",
-  "borderBottom",
-]){
-  function handler(color, width, borderStyle){
+  return function handler(color, width, borderStyle){
     return {
-      [kind]: !width && color.indexOf(" ") > 0
+      [key]: !width && color.indexOf(" ") > 0
         ? color
         : _border(color, width, borderStyle)
     }
-  }
-
-  EXPORT[kind] = handler;
-
-  if(kind[6]){
-    const shortName = kind.slice(0, 7);
-    EXPORT[shortName] = handler;
   }
 }
 
@@ -38,7 +27,13 @@ function _border(
   }
 }
 
-export function outline(a, b){
+const border = factory();
+const borderTop = factory("top");
+const borderLeft = factory("left");
+const borderRight = factory("right");
+const borderBottom = factory("bottom");
+
+function outline(a, b){
   if(a == "none")
     return {
       outline: "none"
@@ -49,9 +44,24 @@ export function outline(a, b){
       outline: `1px dashed ${a || "green"}`
     }
 
-  return {
-    outline: Array.from(arguments)
+  const outline = Array.from(arguments)
     .map(x => typeof x == "number" ? `${x}px` : x)
-    .join(" ")
+    .join(" ");
+
+  return {
+    outline
   }
+}
+
+export {
+  border,
+  borderTop,
+  borderLeft,
+  borderRight,
+  borderBottom,
+  borderTop as borderT,
+  borderLeft as borderL,
+  borderRight as borderR,
+  borderBottom as borderB,
+  outline
 }

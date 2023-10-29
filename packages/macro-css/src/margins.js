@@ -1,42 +1,109 @@
 import { appendUnitToN } from './units';
 
-const EXPORT = exports;
+function margin(a1){
+  let margin;
 
-for (const kind of [
-  "margin",
-  "padding"
-]) {
-  for (const [direction, a, b] of [
-    ["Vertical", "Top", "Bottom"],
-    ["Horizontal", "Left", "Right"]
-  ]){
-    EXPORT[kind + direction] = // marginHorizontal
-    EXPORT[kind + direction[0]] = // marginH
-      (aIn, bIn) => ({
-        [kind + a]: aIn,
-        [kind + b]: bIn || aIn
-      })
+  if(arguments.length == 1 && a1 == "auto" || a1 == "none" || / /.test(a1))
+    margin = a1
+  else
+    margin = Array.from(arguments).map(x => appendUnitToN(x)).join(" ")
+
+  return {
+    margin
   }
+}
 
-  for(const side of ["Top", "Left", "Right", "Bottom"]){
-    EXPORT[kind + side] =
-    EXPORT[kind + side[0]] =
-      (...args) => ({
-        [kind + side]: appendUnitToN(...args)
-      })
+function padding(a1){
+  let padding;
+
+  if(arguments.length == 1 && a1 == "auto" || a1 == "none" || / /.test(a1))
+    padding = a1
+  else
+    padding = Array.from(arguments).map(x => appendUnitToN(x)).join(" ")
+
+  return {
+    padding
   }
+}
 
-  EXPORT[kind] =
-    function(keyword){
-      let value;
+function marginTop(...args) {
+  return {
+    marginTop: appendUnitToN(...args)
+  };
+}
 
-      if(arguments.length == 1 && keyword == "auto" || keyword == "none" || / /.test(keyword))
-        value = keyword
-      else
-        value = Array.from(arguments).map(x => appendUnitToN(x)).join(" ")
+function marginLeft(...args) {
+  return {
+    marginLeft: appendUnitToN(...args)
+  };
+}
 
-      return {
-        [kind]: value
-      }
-    }
-  }
+function marginRight(...args) {
+  return {
+    marginRight: appendUnitToN(...args)
+  };
+}
+
+function marginBottom(...args) {
+  return {
+    marginBottom: appendUnitToN(...args)
+  };
+}
+
+function paddingHorizontal(a, b){
+  return {
+    paddingLeft: a,
+    paddingRight: b || a
+  };
+}
+
+function paddingVertical(a, b){
+  return {
+    paddingTop: a,
+    paddingBottom: b || a
+  };
+}
+
+function marginHorizontal(a, b){
+  return {
+    marginLeft: a,
+    marginRight: b || a
+  };
+}
+
+function marginVertical(a, b){
+  return {
+    marginTop: a,
+    marginBottom: b || a
+  };
+}
+
+export {
+  margin,
+  padding
+}
+
+export {
+  marginTop,
+  marginLeft,
+  marginRight,
+  marginBottom,
+  marginTop as marginT,
+  marginLeft as marginL,
+  marginRight as marginR,
+  marginBottom as marginB,
+}
+
+export {
+  paddingHorizontal as paddingH,
+  paddingHorizontal,
+  paddingVertical as paddingV,
+  paddingVertical
+}
+
+export {
+  marginHorizontal as marginH,
+  marginHorizontal,
+  marginVertical as marginV,
+  marginVertical,
+}
