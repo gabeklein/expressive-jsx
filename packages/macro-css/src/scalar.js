@@ -1,4 +1,4 @@
-import { appendUnitToN } from './units';
+import { appendUnitToN } from './util';
 
 function nToNUnits(value, unit) {
   if(value == "fill")

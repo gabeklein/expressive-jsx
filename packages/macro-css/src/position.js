@@ -1,5 +1,3 @@
-import { rect } from './util'
-
 function absolute(...args){
   return position("absolute", ...args);
 }
