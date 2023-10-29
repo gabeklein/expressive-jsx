@@ -1,29 +1,5 @@
 import { appendUnitToN } from './units';
 
-const EXPORT = exports;
-
-const EXPECTS_AUTO = [
-  "gap",
-  "top",
-  "left",
-  "right",
-  "bottom",
-  "width",
-  "height",
-  "maxWidth",
-  "maxHeight",
-  "minWidth",
-  "minHeight",
-  "fontSize",
-  "lineHeight",
-  "outlineWidth",
-  "borderRadius",
-  "backgroundSize"
-];
-
-for(const key of EXPECTS_AUTO)
-  EXPORT[key] = nToNUnits;
-
 function nToNUnits(value, unit) {
   if(value == "fill")
     value = "100%";
@@ -37,3 +13,19 @@ function nToNUnits(value, unit) {
   }
 }
 
+export const gap = nToNUnits;
+export const top = nToNUnits;
+export const left = nToNUnits;
+export const right = nToNUnits;
+export const bottom = nToNUnits;
+export const width = nToNUnits;
+export const height = nToNUnits;
+export const maxWidth = nToNUnits;
+export const maxHeight = nToNUnits;
+export const minWidth = nToNUnits;
+export const minHeight = nToNUnits;
+export const fontSize = nToNUnits;
+export const lineHeight = nToNUnits;
+export const outlineWidth = nToNUnits;
+export const borderRadius = nToNUnits;
+export const backgroundSize = nToNUnits;
