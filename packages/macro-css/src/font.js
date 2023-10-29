@@ -13,18 +13,13 @@ export function font(...args){
 }
 
 export function fontFamily(){
-  const fonts = Array.from(arguments).map(quoteOnWhitespace).join(", ")
-
   return {
-    fontFamily: fonts
+    fontFamily: Array.from(arguments).map(quoteIfWhitespace).join(", ")
   }
 }
 
-function quoteOnWhitespace(font){
-  if(~font.indexOf(" "))
-    return `"${font}"`
-
-  return font
+function quoteIfWhitespace(font){
+  return ~font.indexOf(" ") ? `"${font}"` : font;
 }
 
 export { fontFamily as family }
