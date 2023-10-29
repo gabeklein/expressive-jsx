@@ -1,22 +1,23 @@
-const EXPORT = exports;
+function withPrefix(prefix){
+  const width = prefix ? `${prefix}Width` : "width";
+  const height = prefix ? `${prefix}Height` : "height";
 
-for(const type of ["min", "max", ""]){
-  const size = type ? `${type}Size` : "size";
-  const width = type ? `${type}Width` : "width";
-  const height = type ? `${type}Height` : "height";
-
-  EXPORT[size] = (x, y, unit) => {
+  return function size(x, y, unit){
     if(typeof y == "string" && typeof x == "number"){
       unit = y;
       y = null;
     }
-
+  
     return {
       [width]: [x, unit],
       [height]: [y || x, unit]
     }
   }
 }
+
+export const size = withPrefix();
+export const minSize = withPrefix("min");
+export const maxSize = withPrefix("max");
 
 export function aspectSize(x, y, unit){
   const y2 = Math.abs(y);
