@@ -1,5 +1,25 @@
 import { rect } from './util'
 
+function absolute(...args){
+  return position("absolute", ...args);
+}
+
+function fixed(...args){
+  return position("fixed", ...args);
+}
+
+function relative(){
+  return {
+    position: "relative"
+  };
+}
+
+export {
+  absolute,
+  fixed,
+  relative
+};
+
 const INVERSE = {
   top: "bottom",
   left: "right",
@@ -7,30 +27,9 @@ const INVERSE = {
   bottom: "top"
 }
 
-export function absolute(...args){
-  return {
-    position: "absolute",
-    ...computePosition(...args)
-  }
-}
-
-export function fixed(...args){
-  return {
-    position: "fixed",
-    ...computePosition(...args)
-  }
-}
-
-export function relative(){
-  return {
-    position: "relative"
-  };
-}
-
-function computePosition(...args){
-  const [ a, b = 0, c = b ] = args;
-
+function position(kind, a, b = 0, c = b){
   const out = {
+    position: kind,
     top: b,
     left: c,
     right: c,
@@ -56,10 +55,6 @@ function computePosition(...args){
     }
   }
 
-  return position(...args)
-}
-
-function position(...args){
   let data = {};
 
   if(typeof a != "number")
@@ -71,10 +66,41 @@ function position(...args){
         break;
       }
 
-  if(!data){
-    const [ top, right, bottom, left ] = rect(...args);
-    return { top, right, bottom, left };
+  if(data)
+    return data;
+  
+  let [ a, b, c ] = args;
+  let top;
+  let left;
+  let right;
+  let bottom;
+
+  switch(args.length){
+    case 0:
+      a = 0
+    case 1:
+      top = left = right = bottom = a;
+      break;
+    case 2:
+      top = bottom = a
+      left = right = b
+      break;
+    case 3:
+      top = a
+      bottom = c
+      left = right = b
+      break
+    case 4:
+      return args;
+    default:
+      throw new Error("Too many arguments for css 4-way value.")
   }
 
-  return data;
+  return {
+    position: kind,
+    top,
+    right,
+    bottom,
+    left
+  }
 }
