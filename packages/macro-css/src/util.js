@@ -5,12 +5,14 @@ export function pascalToDash(x){
 export function addUnit(n){
   if(isNaN(n))
     return n;
+
   if(n == 0)
     return 0;
+
   if(parseInt(n) === n)
     return n + "px";
-  else
-    return n + "em";
+  
+  return n + "em";
 }
 
 export function appendUnitToN(val, unit) {

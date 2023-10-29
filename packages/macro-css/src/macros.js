@@ -14,9 +14,7 @@ export function select(a){
 }
 
 export function centered(maxWidth, padding){
-  const attrs = {
-    marginH: "auto"
-  };
+  const attrs = { marginH: "auto" };
 
   if(maxWidth)
     attrs.maxWidth = maxWidth;

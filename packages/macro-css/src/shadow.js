@@ -1,12 +1,9 @@
 export function shadow(color, radius = 10, x = 2, y = x){
-  let value;
-
-  if(color == "intial" || color == "none")
-    value = color;
-  else
-    value = `${x}px ${y}px ${radius}px ${color}`;
+  const boxShadow = color == "intial" || color == "none"
+    ? color
+    : `${x}px ${y}px ${radius}px ${color}`;
 
   return {
-    boxShadow: value
+    boxShadow
   }
 }

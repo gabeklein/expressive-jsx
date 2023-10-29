@@ -6,6 +6,7 @@ function background(a){
       case "rgb":
       case "rgba": {
         const { value } = rgba(...tail);
+      
         return {
           backgroundColor: value
         };
@@ -37,6 +38,7 @@ function rgba(r, g, b, a = 1){
       throw new Error("malformed arguments in rgb statement")
 
   const rgb = [r,g,b].join(",");
+
   return {
     value: a == 1 ? `rgb(${rgb})` : `rgba(${rgb},${a})`
   }
@@ -48,6 +50,7 @@ function hsla(h, s, l, a = 1){
       throw new Error("malformed arguments in hsl statement")
 
   const hsl = [ h, s+"%", l+"%" ].join(",");
+
   return {
     value: a == 1 ? `hsl(${hsl})` : `hsla(${hsl},${a})`
   }

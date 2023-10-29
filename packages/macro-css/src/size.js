@@ -27,7 +27,7 @@ export function aspectSize(x, y, unit){
       y = x * y2;
     else {
       y = x;
-      x = x * y2;
+      x *= y2;
     }
 
   return {

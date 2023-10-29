@@ -53,19 +53,20 @@ function roundHslAlpha(color){
   const prefix = getBeforeParenthesisMaybe(color)
   const values = getParenthesisInsides(color)
   .split(',')
-  .map(
-    string =>
-    string.indexOf('%') === -1 ? string.length > 4 ? Number(string).toFixed(3) : string : string.trim()
-  )
+  .map(string => (
+    string.includes('%')
+      ? string.trim() 
+      : string.length > 4
+        ? Number(string).toFixed(3)
+        : string
+  ))
   return `${ prefix }(${ values.join(', ') })`
 }
 
 function normalize(...colors){
   return colors.map((color, i) => (
-    color !== 'transparent'
-      ? color
-      : chroma(colors[Math.abs(i - 1)])
-        .alpha(0)
-        .css('rgb')
+    color === 'transparent'
+      ? chroma(colors[Math.abs(i - 1)]).alpha(0).css('rgb')
+      : color
   ))
 }
