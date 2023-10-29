@@ -1,3 +1,36 @@
+function background(a){
+  if(Array.isArray(a)){
+    const [ head, ...tail ] = a;
+
+    switch(head){
+      case "rgb":
+      case "rgba": {
+        const { value } = rgba(...tail);
+        return {
+          backgroundColor: value
+        };
+      }
+
+      case "hsl":
+      case "hsla": {
+        const { value } = hsla(...tail);
+        return {
+          backgroundColor: value
+        };
+      }
+    }
+  }
+
+  return {
+    background: Array.from(arguments)
+  }
+}
+
+export {
+  background,
+  background as bg
+}
+
 function rgba(r, g, b, a = 1){
   for(const x of [r,g,b])
     if(typeof x != "number")
@@ -18,11 +51,4 @@ function hsla(h, s, l, a = 1){
   return {
     value: a == 1 ? `hsl(${hsl})` : `hsla(${hsl},${a})`
   }
-}
-
-export {
-  rgba,
-  hsla,
-  rgba as rgb,
-  hsla as hsl,
 }
