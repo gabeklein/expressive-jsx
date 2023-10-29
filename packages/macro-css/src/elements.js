@@ -1,6 +1,6 @@
 import { pascalToDash } from './util';
 
-const EXPORT = exports;
+const css = {};
 
 const PSEUDO_ELEMENTS = [
   "selection",
@@ -10,7 +10,7 @@ const PSEUDO_ELEMENTS = [
 ]
 
 for(const name of PSEUDO_ELEMENTS){
-  EXPORT[name] = function(){
+  css[name] = function(){
     const select = "::" + pascalToDash(name);
     const mod = this.setContingent(select, 6);
     const content = mod.hasStyle("content");
@@ -22,3 +22,4 @@ for(const name of PSEUDO_ELEMENTS){
   }
 }
 
+export default css;

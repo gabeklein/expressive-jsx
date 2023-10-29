@@ -1,6 +1,6 @@
 import { pascalToDash } from './util';
 
-const EXPORT = exports;
+const css = {};
 
 const STATE = [
   "hover",
@@ -34,13 +34,13 @@ const SPECIFIC = [
 ]
 
 for(const name of [ ...STATE, ...POSITION ])
-  EXPORT[name] = function(){
+  css[name] = function(){
     const select = ":" + pascalToDash(name);
     this.setContingent(select, 6);
   }
 
 for(const name of SPECIFIC)
-  EXPORT[name] = function(){
+  css[name] = function(){
     const select = ":" + pascalToDash(name);
     const innerBody = this.body.node.body;
     let specifier;
@@ -54,3 +54,5 @@ for(const name of SPECIFIC)
 
     this.setContingent(select + `(${specifier || "0"})`, 6);
   }
+
+export default css;

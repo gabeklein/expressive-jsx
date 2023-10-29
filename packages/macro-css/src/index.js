@@ -13,10 +13,10 @@ export * from './shadow'
 export * from './size'
 export * from './text'
 
-import * as contingent from './contingent';
-import * as elements from './elements';
-import * as classes from './classes';
-import * as media from './media';
+import contingent from './contingent';
+import elements from './elements';
+import classes from './classes';
+import media from './media';
 
 export const css = {
   ...contingent,

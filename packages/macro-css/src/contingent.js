@@ -11,10 +11,10 @@ function selectChild(){
   })
 }
 
-export {
-  selectAlso as self,
-  selectAlso as if,
-  selectChild as child
+export default {
+  if: selectAlso,
+  self: selectAlso,
+  child: selectChild
 }
 
 function forEachChild(body, callbackfn){

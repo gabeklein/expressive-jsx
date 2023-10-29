@@ -48,7 +48,7 @@ function handleQuery(e){
     return `(${op}${key}: ${right})`
 }
 
-export function screen(){
+function screen(){
   let { body } = this;
 
   body = body.type == "BlockStatement"
@@ -71,9 +71,14 @@ export function screen(){
     }
 }
 
-export function mobile(){
+function mobile(){
   this.declareMediaQuery(
     "only screen and (max-width: 800px)",
     this.body
   );
+}
+
+export default {
+  screen,
+  mobile
 }
