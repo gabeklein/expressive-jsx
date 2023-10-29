@@ -13,7 +13,7 @@ for(const kind of [
     return {
       [kind]: !width && color.indexOf(" ") > 0
         ? color
-        : border(color, width, borderStyle)
+        : _border(color, width, borderStyle)
     }
   }
 
@@ -25,7 +25,7 @@ for(const kind of [
   }
 }
 
-function border(
+function _border(
   color = "black",
   width = 1,
   style = "solid"){
@@ -40,10 +40,14 @@ function border(
 
 export function outline(a, b){
   if(a == "none")
-    return { outline: "none" }
+    return {
+      outline: "none"
+    }
 
   if(b == undefined)
-    return { outline: `1px dashed ${a || "green"}` }
+    return {
+      outline: `1px dashed ${a || "green"}`
+    }
 
   return {
     outline: Array.from(arguments)

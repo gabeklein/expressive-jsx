@@ -25,6 +25,12 @@ const POSITION = [
   "onlyOfType"
 ]
 
+for(const name of [ ...STATE, ...POSITION ])
+  css[name] = function(){
+    const select = ":" + pascalToDash(name);
+    this.setContingent(select, 6);
+  }
+
 const SPECIFIC = [
   "not",
   "nthChild",
@@ -32,12 +38,6 @@ const SPECIFIC = [
   "nthOfType",
   "nthLastOfType"
 ]
-
-for(const name of [ ...STATE, ...POSITION ])
-  css[name] = function(){
-    const select = ":" + pascalToDash(name);
-    this.setContingent(select, 6);
-  }
 
 for(const name of SPECIFIC)
   css[name] = function(){
