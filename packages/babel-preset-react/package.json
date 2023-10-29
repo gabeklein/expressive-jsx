@@ -25,5 +25,8 @@
   "dependencies": {
     "@expressive/babel-plugin-jsx": "^1.4.0",
     "@expressive/macro-css": "^1.3.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.2"
   }
 }
