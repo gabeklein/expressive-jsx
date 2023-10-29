@@ -1,6 +1,9 @@
 export function rect(...args){
   let [ a, b, c ] = args;
-  let top, left, right, bottom;
+  let top;
+  let left;
+  let right;
+  let bottom;
 
   switch(args.length){
     case 0:
