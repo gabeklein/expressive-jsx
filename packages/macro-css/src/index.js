@@ -1,5 +1,5 @@
 export * from './border'
-export * from './coloration'
+export * from './color'
 export * from './flex'
 export * from './gradient'
 export * from './grid'
