@@ -1,19 +1,13 @@
 /** @type {import("jest").Config} */
 module.exports = {
-  "transform": {
-    "^.+\\.[tj]sx?$": ["ts-jest", {
-      "isolatedModules": true,
-    }],
+  transform: {
+    "^.+\\.[tj]s$": "ts-jest",
   },
-  "testTimeout": 1000,
   "moduleDirectories": [
     './src',
     './node_modules'
   ],
   "coveragePathIgnorePatterns": [
     "./src/index.ts"
-  ],
-  "setupFilesAfterEnv": [
-    "./jest.setup.ts"
   ]
 }

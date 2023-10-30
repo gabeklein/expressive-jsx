@@ -25,7 +25,7 @@ const INVERSE = {
   bottom: "top"
 }
 
-function position(kind, a, b = 0, c = b){
+function position(kind, a, b = 0, c = b, d){
   const out = {
     position: kind,
     top: b,
@@ -52,26 +52,26 @@ function position(kind, a, b = 0, c = b){
     }
   }
 
-  let data = {};
+  // let data = {};
 
-  if(typeof a != "number")
-    for(const item of [a, b, c, d])
-      if(item.named)
-        data[item.named] = item.inner[0];
-      else {
-        data = null;
-        break;
-      }
+  // if(typeof a != "number")
+  //   for(const item of [a,b,c,d])
+  //     if(item.named)
+  //       data[item.named] = item.inner[0];
+  //     else {
+  //       data = null;
+  //       break;
+  //     }
 
-  if(data)
-    return data;
+  // if(data)
+  //   return data;
 
   let top;
   let left;
   let right;
   let bottom;
 
-  switch(args.length){
+  switch(arguments.length - 1){
     case 0:
       a = 0
     case 1:

@@ -24,6 +24,7 @@
   "scripts": {
     "build": "tsup src/index.js",
     "watch": "tsup src/index.js --watch --sourcemap inline",
+    "test": "jest",
     "prebuild": "rm -rf ./lib"
   },
   "dependencies": {
@@ -32,6 +33,8 @@
     "easing-coordinates": "^2.0.2"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.0",
     "tsup": "^7.2.0"
   }
 }

@@ -18,10 +18,24 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "ts-node",
+      "name": "Babel Preset",
       "runtimeArgs": ["-r", "ts-node/register"],
       "args": ["${workspaceFolder}/packages/babel-preset-react/debug/script.ts"],
       "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Macro Tests",
+      "cwd": "${workspaceFolder}/packages/macro-css",
+      "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
+      "args": [
+        "--watchAll",
+        "--runInBand",
+        "${input:testName}"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
     }
   ],
   "inputs": [
