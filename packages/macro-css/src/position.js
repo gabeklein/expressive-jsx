@@ -44,10 +44,9 @@ function position(kind, a, b = 0, c = b){
       if(k1 == "fill")
         delete out[INVERSE[k2]]
 
-      else {
+      else
         for(const dir of [k1, k2])
           delete out[INVERSE[dir]]
-      }
 
       return out
     }
@@ -56,9 +55,9 @@ function position(kind, a, b = 0, c = b){
   let data = {};
 
   if(typeof a != "number")
-    for(const item of args)
+    for(const item of [a, b, c, d])
       if(item.named)
-        data[item.named] = item.inner[0]
+        data[item.named] = item.inner[0];
       else {
         data = null;
         break;
@@ -66,8 +65,7 @@ function position(kind, a, b = 0, c = b){
 
   if(data)
     return data;
-  
-  let [ a, b, c ] = args;
+
   let top;
   let left;
   let right;
@@ -77,19 +75,27 @@ function position(kind, a, b = 0, c = b){
     case 0:
       a = 0
     case 1:
-      top = left = right = bottom = a;
-      break;
+      top = right = bottom = left = a;
+    break;
+
     case 2:
       top = bottom = a
       left = right = b
-      break;
+    break;
+
     case 3:
       top = a
       bottom = c
       left = right = b
-      break
+    break;
+
     case 4:
-      return args;
+      top = a
+      right = b
+      bottom = c
+      left = d
+    break;
+
     default:
       throw new Error("Too many arguments for css 4-way value.")
   }
