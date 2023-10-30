@@ -16,7 +16,7 @@ const STATE = [
   "outOfRange"
 ];
 
-const POSITION = [
+const INDEX = [
   "firstChild",
   "lastChild",
   "onlyChild",
@@ -25,7 +25,7 @@ const POSITION = [
   "onlyOfType"
 ]
 
-for(const name of [ ...STATE, ...POSITION ])
+for(const name of [ ...STATE, ...INDEX ])
   css[name] = function(){
     const select = ":" + pascalToDash(name);
     this.setContingent(select, 6);
@@ -54,5 +54,25 @@ for(const name of SPECIFIC)
 
     this.setContingent(select + `(${specifier || "0"})`, 6);
   }
+
+const PSEUDO = [
+  "selection",
+  "after",
+  "before",
+  "placeholder"
+]
+
+for(const name of PSEUDO){
+  css[name] = function(){
+    const select = "::" + pascalToDash(name);
+    const mod = this.setContingent(select, 6);
+    const content = mod.hasStyle("content");
+
+    if(content)
+      content.value = `"${content.value}"`;
+    else
+      mod.addStyle("content", `""`);
+  }
+}
 
 export default css;

@@ -14,13 +14,11 @@ export * from './size'
 export * from './text'
 
 import contingent from './contingent';
-import elements from './elements';
-import classes from './classes';
+import pseudo from './pseudo';
 import media from './media';
 
 export const css = {
   ...contingent,
-  ...elements,
-  ...classes,
+  ...pseudo,
   ...media
 }
