@@ -11,7 +11,7 @@ export * from './radius'
 export * from './scalar'
 export * from './shadow'
 export * from './size'
-export * from './text'
+export * from './font'
 
 import contingent from './contingent';
 import pseudo from './pseudo';
