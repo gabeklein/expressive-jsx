@@ -80,12 +80,11 @@ function StringLiteral(e: $.StringLiteral){
   return e.value;
 }
 
-function TemplateLiteral(e: $.TemplateLiteral) {
-  const { quasis } = e;
+function TemplateLiteral(temp: $.TemplateLiteral) {
+  if(temp.quasis.length == 1)
+    return temp.quasis[0].value.raw;
 
-  return quasis.length == 1
-    ? e.quasis[0].value.raw
-    : e;
+  return temp;
 }
 
 function UnaryExpression(e: $.UnaryExpression){
@@ -125,17 +124,18 @@ function NullLiteral(){
 }
 
 function BinaryExpression(binary: $.BinaryExpression){
-  const {left, right, operator} = binary;
+  const { left, right, operator } = binary;
+
   if(operator == "-"
   && t.isIdentifier(left)
   && t.isIdentifier(right, { start: left.end! + 1 }))
     return left.name + "-" + right.name
-  else
-    return [
-      operator,
-      Expression(binary, "left"),
-      Expression(binary, "right")
-    ]
+
+  return [
+    operator,
+    Expression(binary, "left"),
+    Expression(binary, "right")
+  ]
 }
 
 function SequenceExpression(sequence: $.SequenceExpression){

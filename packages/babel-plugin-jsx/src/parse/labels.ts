@@ -70,15 +70,17 @@ function handleModifier(
   target: Define,
   body: $.Path<$.Statement>
 ){
-  const { context } = target;
-  const queue = [{
-    name,
-    body,
-    args: parseArguments(body.node)
-  } as {
+  type ModifierItem = {
     name: string,
     body?: $.Path<$.Statement>,
     args: any[]
+  }[]
+
+  const { context } = target;
+  const queue: ModifierItem = [{
+    name,
+    body,
+    args: parseArguments(body.node)
   }];
 
   while(queue.length){
