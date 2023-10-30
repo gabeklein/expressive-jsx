@@ -1,17 +1,4 @@
-import { appendUnitToN } from './util';
-
-function nToNUnits(value, unit) {
-  if(value == "fill")
-    value = "100%";
-
-  if(value.named){
-    unit = value.named;
-    value = value.inner[0]
-  }
-  return {
-    [this.name]: appendUnitToN(value, unit)
-  }
-}
+import { nToNUnits } from './util';
 
 export const gap = nToNUnits;
 export const top = nToNUnits;
