@@ -1,4 +1,4 @@
-import { Context, getContext } from 'context';
+import { Context } from 'context';
 import { Status } from 'errors';
 import { OUTPUT_NODE } from 'generate/jsx';
 import { ElementInline } from 'handle/definition';
@@ -64,7 +64,7 @@ const JSXElement: Visitor<$.JSXElement | $.JSXFragment> = {
       return;
 
     if(!path.parentPath.isExpressionStatement()){
-      const context = getContext(path, true);
+      const context = Context.get(path, true);
       const target = new ElementInline(context);
       parseJSX(target, path);
       path.replaceWith(
@@ -92,7 +92,7 @@ const JSXElement: Visitor<$.JSXElement | $.JSXFragment> = {
 
     const functionNode = containerFunction.node;
     const block = containerFunction.get("body") as $.Path<$.BlockStatement>;
-    const context = getContext(path, true);
+    const context = Context.get(path, true);
     const { define } = context;
 
     parse(define, block);

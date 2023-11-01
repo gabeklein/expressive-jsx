@@ -98,36 +98,34 @@ export class Context {
 
     return handler as ModifyAction | undefined;
   }
-}
 
-export function getContext(
-  path: $.Path<any>, create?: boolean): Context {
-
-  while(path = path.parentPath!){
-    const scope = path.data?.context as Context | undefined;
-
-    if(scope)
-      return scope;
-
-    if(!path.isBlockStatement() || !create)
-      continue;
-
-    const parentContext = getContext(path);
-
-    if(!parentContext)
-      throw new Error("well that's awkward.");
-
-    const name = getName(path.parentPath);
-    const define = new Define(parentContext, name);
-    const { context } = define;
-
-    if(path.node)
-      path.data = { context };
+  static get(path: $.Path<any>, create?: boolean): Context {
+    while(path = path.parentPath!){
+      const scope = path.data?.context as Context | undefined;
   
-    context.name = getName(path.parentPath);
+      if(scope)
+        return scope;
   
-    return context;
+      if(!path.isBlockStatement() || !create)
+        continue;
+  
+      const parentContext = this.get(path);
+  
+      if(!parentContext)
+        throw new Error("well that's awkward.");
+  
+      const name = getName(path.parentPath);
+      const define = new Define(parentContext, name);
+      const { context } = define;
+  
+      if(path.node)
+        path.data = { context };
+    
+      context.name = getName(path.parentPath);
+    
+      return context;
+    }
+  
+    throw new Error("Scope not found!");
   }
-
-  throw new Error("Scope not found!");
 }
