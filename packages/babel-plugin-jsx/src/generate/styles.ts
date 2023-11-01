@@ -9,7 +9,35 @@ import type { Define } from 'handle/definition';
 type SelectorContent = [ string, Style[] ][];
 type MediaGroups = SelectorContent[];
 
-export function styleDeclaration(css: string, context: Context){
+export function applyCSS(context: Context){
+  const {
+    file,
+    program,
+    options: {
+      extractCss,
+      cssModule
+    }
+  } = context;
+
+  const stylesheet = generateCSS(context);
+
+  if(stylesheet)
+    if(extractCss){
+      if(cssModule === false)
+        extractCss(stylesheet);
+      else {
+        const cssModulePath = extractCss(stylesheet);
+        const style = context.ensureUIDIdentifier("css");
+        file.ensure(cssModulePath, "default", style);
+      }
+    }
+    else
+      program.pushContainer("body", [
+        styleDeclaration(stylesheet, context)
+      ]);
+}
+
+function styleDeclaration(css: string, context: Context){
   const { filename, module, file, options } = context;
 
   const hot = options.hot !== false;
@@ -36,7 +64,7 @@ export function styleDeclaration(css: string, context: Context){
   );
 }
 
-export function generateCSS(context: Context){
+function generateCSS(context: Context){
   const { declared, options } = context;
 
   if(declared.size == 0)

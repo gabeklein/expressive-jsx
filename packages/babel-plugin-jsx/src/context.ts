@@ -1,4 +1,4 @@
-import { generateCSS, styleDeclaration } from 'generate/styles';
+import { applyCSS } from 'generate/styles';
 import { Define } from 'handle/definition';
 import { builtIn } from 'handle/macros';
 import { getName } from 'parse/entry';
@@ -77,31 +77,7 @@ export class Context {
   }
 
   close(){
-    const {
-      program,
-      options: {
-        extractCss,
-        cssModule
-      }
-    } = this;
-
-    const stylesheet = generateCSS(this);
-
-    if(stylesheet)
-      if(extractCss){
-        if(cssModule === false)
-          extractCss(stylesheet);
-        else {
-          const cssModulePath = extractCss(stylesheet);
-          const style = this.ensureUIDIdentifier("css");
-          this.file.ensure(cssModulePath, "default", style);
-        }
-      }
-      else
-        program.pushContainer("body", [
-          styleDeclaration(stylesheet, this)
-        ]);
-
+    applyCSS(this);
     this.file.close();
   }
 
