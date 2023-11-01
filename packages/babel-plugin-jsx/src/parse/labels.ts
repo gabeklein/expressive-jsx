@@ -84,39 +84,11 @@ export function handleDefine(
       args.pop();
     }
 
-    function addStyle(name: string, ...args: any[]){
-      const parsed: any[] = args.map(arg => arg.value || (
-        arg.requires ? t.requires(arg.requires) : arg
-      ))
-    
-      const output = parsed.length == 1 || typeof parsed[0] == "object"
-        ? parsed[0] : Array.from(parsed).join(" ");
-  
-      target.add(
-        new Style(name, output, important)
-      )
-    }
-
     const transform = context.getHandler(name);
 
     if(!transform){
       addStyle(name, ...args);
       continue;
-    }
-
-    function setContingent(
-      select: string | string[],
-      priority: number,
-      usingBody?: DefineBodyCompat){
-
-      if(!usingBody)
-        usingBody = body as DefineBodyCompat;
-
-      const mod = target.variant(select, priority);
-  
-      parseBlock(mod, usingBody);
-  
-      return mod;
     }
 
     const output = transform.apply({
@@ -133,7 +105,7 @@ export function handleDefine(
       let value = output[key];
 
       if(value === undefined)
-        return;
+        continue;
 
       if(!Array.isArray(value))
         value = [value];
@@ -148,6 +120,34 @@ export function handleDefine(
           name: key,
           args: value
         });
+    }
+
+    function addStyle(name: string, ...args: any[]){
+      const parsed: any[] = args.map(arg => arg.value || (
+        arg.requires ? t.requires(arg.requires) : arg
+      ))
+    
+      const output = parsed.length == 1 || typeof parsed[0] == "object"
+        ? parsed[0] : Array.from(parsed).join(" ");
+  
+      target.add(
+        new Style(name, output, important)
+      )
+    }
+
+    function setContingent(
+      select: string | string[],
+      priority: number,
+      usingBody?: DefineBodyCompat){
+
+      if(!usingBody)
+        usingBody = body as DefineBodyCompat;
+
+      const mod = target.variant(select, priority);
+  
+      parseBlock(mod, usingBody);
+  
+      return mod;
     }
   }
 }
