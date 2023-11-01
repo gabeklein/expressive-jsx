@@ -4,11 +4,11 @@ exports[`absolute macro 1`] = `
   () => <div className="element_7nq" />;
   css(\`
   	.element_7nq {
-  		position: absolute;
-  		top: 0;
-  		left: 0;
-  		right: 0;
   		bottom: 0;
+  		right: 0;
+  		left: 0;
+  		top: 0;
+  		position: absolute;
   	}
   \`);
 `;

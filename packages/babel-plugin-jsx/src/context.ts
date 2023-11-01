@@ -41,6 +41,8 @@ export class Context {
 
   program: $.Path<$.Program>;
 
+  declaredUIDIdentifiers: Record<string, $.Identifier> = {};
+
   get parent(){
     return Object.getPrototypeOf(this);
   }
@@ -49,24 +51,23 @@ export class Context {
     path: $.Path<$.Program>,
     state: BabelState){
 
+    const { module, macros } = state.opts;
+
     path.data = { context: this };
 
-    const { module, macros } = state.opts;
+    this.options = { ...DEFAULTS, ...state.opts };
+    this.macros = Object.assign({}, builtIn, ...macros || []);
+    this.file = FileManager.create(this.options, path);
 
     this.program = path;
     this.name = hash(state.filename);
     this.filename = state.filename;
-    this.options = { ...DEFAULTS, ...state.opts };
-    this.file = FileManager.create(this.options, path);
     this.define = new Define(this, this.name);
-    this.macros = Object.assign({}, builtIn, ...macros || []);
     this.module = module && (
       typeof module == "string" ? module :
         (state.file as any).opts.configFile?.name || true
     )
   }
-
-  declaredUIDIdentifiers: Record<string, $.Identifier> = {};
 
   ensureUIDIdentifier(name: string){
     const exist = this.declaredUIDIdentifiers;

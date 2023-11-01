@@ -37,6 +37,12 @@ export function getName(
   return name;
 }
 
+type ModifierItem = {
+  name: string,
+  body?: $.Path<$.Statement>,
+  args: any[]
+}[];
+
 export function handleDefine(
   target: Define,
   path: $.Path<$.LabeledStatement>){
@@ -62,30 +68,14 @@ export function handleDefine(
   if(body.isIfStatement())
     key = `${key}.if`;
 
-  handleModifier(key, target, body);
-}
-
-function handleModifier(
-  name: string,
-  target: Define,
-  body: $.Path<$.Statement>
-){
-  type ModifierItem = {
-    name: string,
-    body?: $.Path<$.Statement>,
-    args: any[]
-  }[]
-
-  const { context } = target;
   const queue: ModifierItem = [{
-    name,
+    name: key,
     body,
     args: parseArguments(body.node)
   }];
 
   while(queue.length){
     const { name, body, args } = queue.pop()!;
-    const transform = context.getHandler(name);
 
     let important = false;
 
@@ -106,6 +96,8 @@ function handleModifier(
         new Style(name, output, important)
       )
     }
+
+    const transform = context.getHandler(name);
 
     if(!transform){
       addStyle(name, ...args);
@@ -135,29 +127,28 @@ function handleModifier(
     }, args);
 
     if(!output)
-      return;
+      continue;
 
-    Object
-      .entries(output)
-      .reverse()
-      .forEach(([key, value]) => {
-        if(value === undefined)
-          return;
+    for(const key in output){
+      let value = output[key];
 
-        if(!Array.isArray(value))
-          value = [value];
+      if(value === undefined)
+        return;
 
-        if(important)
-          args.push("!important");
+      if(!Array.isArray(value))
+        value = [value];
 
-        if(key === name)
-          addStyle(key, ...value);
-        else
-          queue.push({
-            name: key,
-            args: value
-          });
-      });
+      if(important)
+        args.push("!important");
+
+      if(key === name)
+        addStyle(key, ...value);
+      else
+        queue.push({
+          name: key,
+          args: value
+        });
+    }
   }
 }
 
