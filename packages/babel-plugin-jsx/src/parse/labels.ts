@@ -69,6 +69,14 @@ export function handleDefine(
   if(body.isIfStatement())
     key = `${key}.if`;
 
+  let important = false;
+  const args = parseArguments(body.node);
+
+  if(args[args.length - 1] == "!important"){
+    important = true;
+    args.pop();
+  }
+
   const queue: ModifierItem = [{
     name: key,
     args: parseArguments(body.node),
@@ -80,13 +88,6 @@ export function handleDefine(
 
     const transform = context.getHandler(name);
     const modifier = new ModifyDelegate(target, name, body);
-
-    let important = false;
-
-    if(args[args.length - 1] == "!important"){
-      important = true;
-      args.pop();
-    }
 
     const output = transform 
       ? transform.apply(modifier, args)
