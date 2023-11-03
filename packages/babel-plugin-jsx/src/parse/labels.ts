@@ -1,6 +1,7 @@
+import { Context } from 'context';
 import { ParseErrors } from 'errors';
 import { Style } from 'handle/attributes';
-import { Define } from 'handle/definition';
+import { Define, DefineVariant } from 'handle/definition';
 import { t } from 'syntax';
 
 import { parse as parseArguments } from './arguments';
@@ -70,12 +71,15 @@ export function handleDefine(
 
   const queue: ModifierItem = [{
     name: key,
-    body,
-    args: parseArguments(body.node)
+    args: parseArguments(body.node),
+    body
   }];
 
   while(queue.length){
     const { name, body, args } = queue.pop()!;
+
+    const transform = context.getHandler(name);
+    const modifier = new ModifyDelegate(target, name, body);
 
     let important = false;
 
@@ -84,82 +88,69 @@ export function handleDefine(
       args.pop();
     }
 
-    const transform = context.getHandler(name);
-
-    if(!transform){
-      addStyle(name, ...args);
-      continue;
-    }
-
-    const output = transform.apply({
-      setContingent,
-      target,
-      name,
-      body
-    }, args);
+    const output = transform 
+      ? transform.apply(modifier, args)
+      : { [name]: args };
 
     if(!output)
       continue;
 
     for(const key in output){
-      let value = output[key];
+      let args = output[key];
 
-      if(value === undefined)
+      if(args === undefined)
         continue;
 
-      if(!Array.isArray(value))
-        value = [value];
+      if(!Array.isArray(args))
+        args = [args];
 
       if(important)
         args.push("!important");
 
       if(key === name)
-        addStyle(key, ...value);
+        modifier.addStyle(key, ...args);
       else
-        queue.push({
-          name: key,
-          args: value
-        });
-    }
-
-    function addStyle(name: string, ...args: any[]){
-      const parsed: any[] = args.map(arg => arg.value || (
-        arg.requires ? t.requires(arg.requires) : arg
-      ))
-    
-      const output = parsed.length == 1 || typeof parsed[0] == "object"
-        ? parsed[0] : Array.from(parsed).join(" ");
-  
-      target.add(
-        new Style(name, output, important)
-      )
-    }
-
-    function setContingent(
-      select: string | string[],
-      priority: number,
-      usingBody?: DefineBodyCompat){
-
-      if(!usingBody)
-        usingBody = body as DefineBodyCompat;
-
-      const mod = target.variant(select, priority);
-  
-      parseBlock(mod, usingBody);
-  
-      return mod;
+        queue.push({ name: key, args });
     }
   }
 }
 
-export interface ModifyDelegate {
-  target: Define;
-  name: string;
-  body?: $.Path<$.Statement>;
+export class ModifyDelegate {
+  public context: Context;
+
+  constructor(
+    public readonly target: Define,
+    public readonly name: string,
+    public readonly body?: $.Path<$.Statement>
+  ){
+    this.context = target.context;
+  }
+
+  addStyle(name: string, ...args: any[]){
+    const parsed = args.map<any>(arg => arg.value || (
+      arg.requires ? t.requires(arg.requires) : arg
+    ))
+  
+    const output = parsed.length == 1 || typeof parsed[0] == "object"
+      ? parsed[0] : Array.from(parsed).join(" ");
+
+    this.target.add(
+      new Style(name, output)
+    )
+  }
 
   setContingent(
     select: string | string[],
     priority: number,
-    usingBody?: DefineBodyCompat
-  ): Define;
+    usingBody?: DefineBodyCompat){
+
+    if(!usingBody)
+      usingBody = this.body as DefineBodyCompat;
+
+    const mod = new DefineVariant(this.target, select, priority || 1);
+
+    parseBlock(mod, usingBody);
+
+    return mod;
+  }
 }

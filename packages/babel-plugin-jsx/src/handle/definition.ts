@@ -117,10 +117,6 @@ export class Define extends AttributeBody {
           : !arg || style.invariant;
     });
   }
-
-  variant(select: string | string[], priority: number){
-    return new DefineVariant(this, select, priority || 1);
-  }
 }
 
 export class DefineLocal extends Define {
