@@ -50,11 +50,11 @@ export function handleDefine(
 
   const { context } = target;
 
-  let key = getName(path);
+  let name = getName(path);
   let body = path.get('body') as $.Path<$.Statement>;
 
   if(body.isBlockStatement()){
-    const mod = new Define(context, key);
+    const mod = new Define(context, name);
 
     target.provide(mod);
     parseBlock(mod, body);
@@ -62,12 +62,12 @@ export function handleDefine(
   }
 
   while(body.isLabeledStatement()){
-    key = `${key}.${body.node.label.name}`;
+    name = `${name}.${body.node.label.name}`;
     body = body.get("body") as $.Path<$.Statement>;
   }
 
   if(body.isIfStatement())
-    key = `${key}.if`;
+    name = `${name}.if`;
 
   let important = false;
   const args = parseArguments(body.node);
@@ -77,11 +77,7 @@ export function handleDefine(
     args.pop();
   }
 
-  const queue: ModifierItem = [{
-    name: key,
-    args: parseArguments(body.node),
-    body
-  }];
+  const queue: ModifierItem = [{ name, args, body }];
 
   while(queue.length){
     const { name, body, args } = queue.pop()!;
