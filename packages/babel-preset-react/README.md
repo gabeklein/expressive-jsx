@@ -1,21 +1,19 @@
 # babel-expressive-react-expression-syntax
 
-> Babel preset for full functionality of [Expressive-React](https://github.com/gabeklein/expressive-react) build system.
+> Babel preset for full functionality of [Expressive JSX](https://github.com/gabeklein/expressive-dsl) build system.
 
 # Install
 
 ```
-yarn install @expressive-react/babel-preset-web
+yarn install @expressive/babel-preset-react
 ```
 
 **.babelrc**
 
-> Note that babel infers `babel-preset`
-
 ```
 {
     "presets": [
-        "@expressive-react/web"
+        "@expressive/babel-preset-react"
     ]
 }
 ```
