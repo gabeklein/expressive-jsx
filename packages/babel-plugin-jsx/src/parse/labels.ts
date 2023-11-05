@@ -96,6 +96,9 @@ export function handleDefine(
       modifier.addStyle(name, ...output);
       continue;
     }
+    
+    if(typeof output != "object")
+      throw new Error("Invalid modifier output.");
 
     for(const key in output){
       let args = output[key];
