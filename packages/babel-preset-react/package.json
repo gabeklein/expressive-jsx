@@ -23,9 +23,16 @@
     "index.d.ts",
     "macros"
   ],
+  "scripts": {
+    "test": "jest"
+  },
   "dependencies": {
     "@expressive/babel-plugin-jsx": "^1.5.2",
     "chroma-js": "^2.0.3",
     "easing-coordinates": "^2.0.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.0"
   }
 }
