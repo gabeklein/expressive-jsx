@@ -48,3 +48,7 @@ export class ArrayStack<T = any, I = T>
     return super.push(x);
   }
 }
+
+export function pascalToDash(x: string){
+  return x.replace(/([A-Z]+)/g, "-$1").toLowerCase();
+}

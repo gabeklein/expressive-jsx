@@ -1,6 +1,6 @@
 import { Style } from 'handle/attributes';
 import { t } from 'syntax';
-import { hash } from 'utility';
+import { hash, pascalToDash } from 'utility';
 
 import type * as $ from 'types';
 import type { Context } from 'context';
@@ -145,7 +145,7 @@ function printStyles(groups: [string, Style[]], pretty?: boolean){
     let styleKey = style.name;
 
     if(typeof styleKey == "string")
-      styleKey = styleKey.replace(/([A-Z]+)/g, "-$1").toLowerCase();
+      styleKey = pascalToDash(styleKey);
 
     let line = `${styleKey}: ${style.value}`;
 

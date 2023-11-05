@@ -2,6 +2,7 @@ import { ParseErrors } from 'errors';
 import { t } from 'syntax';
 
 import type * as $ from 'types';
+import { pascalToDash } from 'utility';
 
 const Oops = ParseErrors({
   UnaryUseless: "Unary operator here doesn't do anything",
@@ -13,10 +14,6 @@ const Oops = ParseErrors({
   ModiferCantParse: "Illegal value in modifier",
   ElseNotSupported: "An else statement in an if modifier is not yet supported"
 });
-
-function toDashCase(text: string){
-  return text.replace(/([A-Z]+)/g, "-$1").toLowerCase();
-}
 
 const types: any = {
   Identifier,
@@ -68,7 +65,7 @@ function Extract(element: $.Expression | $.Statement){
 
 function Identifier({ name }: $.Identifier){
   if(name.startsWith("$")){
-    name = toDashCase(name.slice(1));
+    name = pascalToDash(name.slice(1));
 
     return `var(--${name})`;
   }
@@ -180,7 +177,7 @@ function CallExpression(e: $.CallExpression){
   if(CSS_UNITS.has(name))
     return args.map(x => String(x) + name).join(" ");
 
-  return toDashCase(callee.name) + `(${args.join(", ")})`;
+  return pascalToDash(callee.name) + `(${args.join(", ")})`;
 }
 
 function ArrowFunctionExpression(e: $.ArrowFunctionExpression): never {
