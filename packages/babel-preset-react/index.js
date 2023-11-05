@@ -1,19 +1,16 @@
-const css = require("@expressive/macro-css");
-const plugin = require("@expressive/babel-plugin-jsx");
+const JSX = require("@expressive/babel-plugin-jsx");
+const CSS = require("./macros");
 
 const Preset = (_compiler, options = {}) => {
-  let {
-    macros = [],
-    ...opts
-  } = options;
+  let { macros = [], output = "js", ...opts } = options;
 
   return {
     plugins: [
-      [plugin, {
-        output: "js",
+      [JSX, {
         ...opts,
+        output,
         macros: [
-          css,
+          CSS,
           ...macros
         ]
       }]

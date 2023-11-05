@@ -27,7 +27,8 @@ async function stuff(){
 
   const output = result!.code!;
 
-  debugger;
+  console.log("\n" + output + "\n");
+  console.log(css.replace(/\t/g, "  "));
 }
 
 stuff();

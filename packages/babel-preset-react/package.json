@@ -20,13 +20,12 @@
   "types": "index.d.ts",
   "files": [
     "index.js",
-    "index.d.ts"
+    "index.d.ts",
+    "macros"
   ],
   "dependencies": {
     "@expressive/babel-plugin-jsx": "^1.5.2",
-    "@expressive/macro-css": "^1.5.2"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.23.2"
+    "chroma-js": "^2.0.3",
+    "easing-coordinates": "^2.0.2"
   }
 }
