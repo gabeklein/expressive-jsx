@@ -69,8 +69,8 @@ export function handleDefine(
   if(body.isIfStatement())
     name = `${name}.if`;
 
-  let important = false;
   const args = parseArguments(body.node);
+  let important = false;
 
   if(args[args.length - 1] == "!important"){
     important = true;
@@ -82,15 +82,20 @@ export function handleDefine(
   while(queue.length){
     const { name, body, args } = queue.pop()!;
 
-    const transform = context.getHandler(name);
     const modifier = new ModifyDelegate(target, name, body);
+    const transform = context.getHandler(name);
 
     const output = transform 
       ? transform.apply(modifier, args)
-      : { [name]: args };
+      : args;
 
     if(!output)
       continue;
+
+    if(Array.isArray(output)){
+      modifier.addStyle(name, ...output);
+      continue;
+    }
 
     for(const key in output){
       let args = output[key];

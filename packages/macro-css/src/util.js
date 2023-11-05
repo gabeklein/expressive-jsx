@@ -39,7 +39,6 @@ export function nToNUnits(value, unit) {
     unit = value.named;
     value = value.inner[0]
   }
-  return {
-    [this.name]: appendUnitToN(value, unit)
-  }
+
+  return appendUnitToN(value, unit);
 }
