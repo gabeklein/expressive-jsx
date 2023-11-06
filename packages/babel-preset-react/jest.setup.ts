@@ -1,5 +1,5 @@
 import { transform } from '@babel/core';
-import PresetReact from ".";
+import PresetReact from '.';
 
 const { format } = require("prettier");
 
@@ -16,14 +16,14 @@ const FORMAT: Record<string, [RegExp, string]> = {
 expect.addSnapshotSerializer({
   test: input => typeof input == "string",
   print(content: unknown){
-    let output = format(content as string, {
+    let output: string = format(content as string, {
       singleQuote: false,
       trailingComma: "none",
       jsxBracketSameLine: true,
       printWidth: 60,
       parser: "babel"
     });
-  
+
     Object.values(FORMAT).forEach(args => (
       output = output.replace(...args)
     ));
