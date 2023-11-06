@@ -1,4 +1,3 @@
-import { applyCSS } from 'generate/styles';
 import { Define } from 'handle/definition';
 import { builtIn } from 'handle/macros';
 import { getName } from 'parse/entry';
@@ -78,7 +77,6 @@ export class Context {
   }
 
   close(){
-    applyCSS(this);
     this.file.close();
   }
 

@@ -1,6 +1,6 @@
 import JSX, { Options } from '@expressive/babel-plugin-jsx';
 
-import { addStyle } from './css';
+import { addStyle, CSS } from './css';
 import * as Macros from './macros';
 import * as Pseudo from './pseudo';
 
@@ -9,6 +9,7 @@ const Preset = (_compiler: any, options: Options = {}) => {
 
   return {
     plugins: [
+      [CSS, opts],
       [JSX, <Options>{
         ...opts,
         output,

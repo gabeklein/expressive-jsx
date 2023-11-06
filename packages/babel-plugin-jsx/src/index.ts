@@ -14,6 +14,12 @@ type Visitor<T extends $.Node, S extends Context = Context> =
   $.VisitNodeObject<BabelState<S>, T>;
 
 export type { ModifyDelegate } from 'parse/labels';
+export type { Context } from 'context';
+
+export { t } from 'syntax';
+export { hash, pascalToDash } from 'utility';
+export { Style, Prop } from 'handle/attributes';
+export { Define, DefineLocal, DefineVariant } from 'handle/definition';
 
 export interface Options {
   // expected
@@ -53,7 +59,7 @@ const Program: Visitor<$.Program> = {
     Status.currentFile = state.file as any;
     state.context = new Context(path, state);
   },
-  exit(path, state){
+  exit(_path, state){
     state.context.close();
   }
 }
