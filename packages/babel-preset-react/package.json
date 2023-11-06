@@ -16,15 +16,13 @@
     "react",
     "xjs"
   ],
-  "main": "index.js",
-  "types": "index.d.ts",
-  "files": [
-    "index.js",
-    "index.d.ts",
-    "macros"
-  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [ "dist" ],
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsup src/index.ts --dts",
+    "watch": "tsup src/index.ts --watch --sourcemap"
   },
   "dependencies": {
     "@expressive/babel-plugin-jsx": "^1.5.2",
@@ -34,6 +32,7 @@
   "devDependencies": {
     "jest": "^29.7.0",
     "prettier": "^2.8.8",
-    "ts-jest": "^29.1.0"
+    "ts-jest": "^29.1.0",
+    "tsup": "^7.2.0"
   }
 }

@@ -1,5 +1,5 @@
 import { transform } from '@babel/core';
-import PresetReact from '.';
+import PresetReact from './src';
 
 const { format } = require("prettier");
 

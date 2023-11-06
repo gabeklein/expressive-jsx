@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "rootDir": ".",
     "noEmit": true,
     "target": "ES2018",
     "moduleResolution": "node",
