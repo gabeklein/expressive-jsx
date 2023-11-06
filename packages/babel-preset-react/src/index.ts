@@ -1,8 +1,8 @@
 import JSX, { Options } from '@expressive/babel-plugin-jsx';
 
-import * as CSS from './macros';
-import * as PSEUDO from './pseudo';
 import { addStyle } from './css';
+import * as Macros from './macros';
+import * as Pseudo from './pseudo';
 
 const Preset = (_compiler: any, options: Options = {}) => {
   let { macros = [], output = "js", ...opts } = options;
@@ -13,8 +13,8 @@ const Preset = (_compiler: any, options: Options = {}) => {
         ...opts,
         output,
         macros: [
-          CSS,
-          PSEUDO,
+          Macros,
+          Pseudo,
           ...macros,
           { default: addStyle }
         ]
