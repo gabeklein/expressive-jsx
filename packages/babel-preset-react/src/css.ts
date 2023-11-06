@@ -19,11 +19,10 @@ export const CSS = (_compiler: any, options: Options = {}): PluginObj => {
       Program: {
         exit(path: any){
           const {
+            declared,
             file,
             filename,
-            module,
-            program,
-            declared
+            module
           } = path.data.context;
         
           const stylesheet = generateCSS(declared, printStyle == "pretty");
@@ -51,7 +50,7 @@ export const CSS = (_compiler: any, options: Options = {}): PluginObj => {
               if(Object.keys(config).length)
                 args.push(t.object(config));
         
-              program.pushContainer("body", [
+              path.pushContainer("body", [
                 t.statement(
                   t.call(
                     file.ensure("$runtime", "default", "css"),

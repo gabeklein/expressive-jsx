@@ -38,8 +38,6 @@ export class Context {
   macros: Record<string, ModifyAction>;
   define: Define;
 
-  program: $.Path<$.Program>;
-
   get parent(){
     return Object.getPrototypeOf(this);
   }
@@ -56,7 +54,6 @@ export class Context {
     this.macros = Object.assign({}, builtIn, ...macros || []);
     this.file = FileManager.create(this.options, path);
 
-    this.program = path;
     this.name = hash(state.filename);
     this.filename = state.filename;
     this.define = new Define(this, this.name);
