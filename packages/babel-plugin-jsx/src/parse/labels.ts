@@ -1,6 +1,5 @@
 import { Context } from 'context';
 import { ParseErrors } from 'errors';
-import { Style } from 'handle/attributes';
 import { Define, DefineVariant } from 'handle/definition';
 import { t } from 'syntax';
 
@@ -70,6 +69,7 @@ export function handleDefine(
     name = `${name}.if`;
 
   const args = parseArguments(body.node);
+  const include = context.getHandler("default") || defaultModifier;
   let important = false;
 
   if(args[args.length - 1] == "!important"){
@@ -83,7 +83,7 @@ export function handleDefine(
     const { name, body, args } = queue.pop()!;
 
     const modifier = new ModifyDelegate(target, name, body);
-    const transform = context.getHandler(name);
+    const transform = context.getHandler(name) || include;
 
     const output = transform 
       ? transform.apply(modifier, args)
@@ -93,7 +93,7 @@ export function handleDefine(
       continue;
 
     if(Array.isArray(output)){
-      modifier.addStyle(name, ...output);
+      defaultModifier.apply(modifier, output);
       continue;
     }
     
@@ -113,11 +113,15 @@ export function handleDefine(
         args.push("!important");
 
       if(key === name)
-        modifier.addStyle(key, ...args);
+        defaultModifier.apply(modifier, args);
       else
         queue.push({ name: key, args });
     }
   }
+}
+
+const defaultModifier: ModifyAction = function(){
+  this.addStyle(this.name, ...arguments);
 }
 
 export class ModifyDelegate {
@@ -139,9 +143,7 @@ export class ModifyDelegate {
     const output = parsed.length == 1 || typeof parsed[0] == "object"
       ? parsed[0] : Array.from(parsed).join(" ");
 
-    this.target.add(
-      new Style(name, output)
-    )
+    this.target.addStyle(name, output);
   }
 
   setContingent(
