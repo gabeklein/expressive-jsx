@@ -1,4 +1,4 @@
-import { pascalToDash } from '../util';
+import { pascalToDash } from '../macros/util';
 
 const css = {};
 
