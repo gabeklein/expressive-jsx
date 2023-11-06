@@ -13,6 +13,8 @@ import type { BabelState } from 'context';
 type Visitor<T extends $.Node, S extends Context = Context> =
   $.VisitNodeObject<BabelState<S>, T>;
 
+export type { ModifyDelegate } from 'parse/labels';
+
 export interface Options {
   // expected
   env?: "native" | "web";

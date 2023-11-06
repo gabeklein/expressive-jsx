@@ -84,10 +84,7 @@ export function handleDefine(
 
     const modifier = new ModifyDelegate(target, name, body);
     const transform = context.getHandler(name) || include;
-
-    const output = transform 
-      ? transform.apply(modifier, args)
-      : args;
+    const output = transform.apply(modifier, args);
 
     if(!output)
       continue;
