@@ -1,4 +1,4 @@
-import { Context, Define, hash, ModifyDelegate, Options, pascalToDash, Style, t } from '@expressive/babel-plugin-jsx';
+import { Define, hash, ModifyDelegate, Options, pascalToDash, Style, t } from '@expressive/babel-plugin-jsx';
 
 import type { PluginObj, types as $ } from '@babel/core';
 
@@ -7,11 +7,60 @@ export function addStyle(this: ModifyDelegate, ...args: any[]){
 }
 
 export const CSS = (_compiler: any, options: Options = {}): PluginObj => {
+  const {
+    hot = true,
+    extractCss,
+    cssModule,
+    printStyle
+  } = options;
+  
   return {
     visitor: {
       Program: {
         exit(path: any){
-          applyCSS(path.data.context);
+          const {
+            file,
+            filename,
+            module,
+            program,
+            declared
+          } = path.data.context;
+        
+          const stylesheet = generateCSS(declared, printStyle == "pretty");
+        
+          if(stylesheet)
+            if(extractCss){
+              if(cssModule === false)
+                extractCss(stylesheet);
+              else {
+                const cssModulePath = extractCss(stylesheet);
+                const style = file.ensureUIDIdentifier("css");
+                file.ensure(cssModulePath, "default", style);
+              }
+            }
+            else {
+              const args: $.Expression[] = [];
+              const config: any = {};
+            
+              if(hot)
+                config.refreshToken = t.literal(hash(filename, 10));
+            
+              if(module)
+                config.module = t.literal(module);
+            
+              if(Object.keys(config).length)
+                args.push(t.object(config));
+        
+              program.pushContainer("body", [
+                t.statement(
+                  t.call(
+                    file.ensure("$runtime", "default", "css"),
+                    t.template(`\n${stylesheet.replace(/^/gm, "\t")}\n`),
+                    ...args
+                  )
+                )
+              ]);
+            }
         }
       }
     }
@@ -21,68 +70,10 @@ export const CSS = (_compiler: any, options: Options = {}): PluginObj => {
 type SelectorContent = [string[], Style[]][];
 type MediaGroups = SelectorContent[];
 
-export function applyCSS(context: Context){
-  const {
-    file,
-    program,
-    options: {
-      extractCss,
-      cssModule
-    }
-  } = context;
-
-  const stylesheet = generateCSS(context);
-
-  if(stylesheet)
-    if(extractCss){
-      if(cssModule === false)
-        extractCss(stylesheet);
-      else {
-        const cssModulePath = extractCss(stylesheet);
-        const style = context.ensureUIDIdentifier("css");
-        file.ensure(cssModulePath, "default", style);
-      }
-    }
-    else
-      program.pushContainer("body", [
-        runtimeStyle(stylesheet, context)
-      ]);
-}
-
-function runtimeStyle(css: string, context: Context){
-  const { filename, module, file, options } = context;
-
-  const hot = options.hot !== false;
-  const args: $.Expression[] = [];
-  const config: any = {};
-
-  if(hot)
-    config.refreshToken = t.literal(hash(filename, 10));
-
-  if(module)
-    config.module = t.literal(module);
-
-  if(Object.keys(config).length)
-    args.push(t.object(config));
-
-  return (
-    t.statement(
-      t.call(
-        file.ensure("$runtime", "default", "css"),
-        t.template(`\n${css.replace(/^/gm, "\t")}\n`),
-        ...args
-      )
-    )
-  );
-}
-
-function generateCSS(context: Context){
-  const { declared, options } = context;
-
+function generateCSS(declared: Set<Define>, pretty?: boolean){
   if(declared.size == 0)
     return "";
   
-  const pretty = options.printStyle == "pretty";
   const media: Record<string, MediaGroups> = { default: [] };
 
   for(const item of declared){
