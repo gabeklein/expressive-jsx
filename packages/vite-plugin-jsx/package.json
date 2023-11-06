@@ -27,12 +27,9 @@
   ],
   "dependencies": {
     "@babel/core": "^7.22.20",
-    "@expressive/babel-preset-react": "^1.5.2",
-    "@expressive/macro-css": "^1.5.2"
+    "@expressive/babel-preset-react": "^1.5.2"
   },
   "devDependencies": {
-    "@types/node": "^20.7.0",
-    "typescript": "^5.2.2",
     "vite": "^4.0.0"
   },
   "peerDependencies": {
