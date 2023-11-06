@@ -60,7 +60,7 @@ const Program: Visitor<$.Program> = {
     state.context = new Context(path, state);
   },
   exit(_path, state){
-    state.context.close();
+    state.context.file.close();
   }
 }
 

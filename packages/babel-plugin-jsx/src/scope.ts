@@ -25,6 +25,8 @@ interface External<T> {
 export abstract class FileManager {
   protected options: Options;
 
+  protected declaredUIDIdentifiers: Record<string, $.Identifier> = {};
+
   protected imports: Record<string, External<any>> = {};
   protected importIndices: Record<string, number> = {};
 
@@ -110,7 +112,11 @@ export abstract class FileManager {
   }
 
   ensureUIDIdentifier(name: string){
-    return t.identifier(ensureUID(this.path, name));
+    const exist = this.declaredUIDIdentifiers;
+
+    return exist[name] || (
+      exist[name] = t.identifier(ensureUID(this.path, name))
+    );
   }
 
   close(){

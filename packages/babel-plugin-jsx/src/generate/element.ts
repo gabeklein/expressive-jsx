@@ -176,7 +176,7 @@ export class Generator {
 
       if(extractCss && cssModule !== false)
         className = t.member(
-          context.ensureUIDIdentifier("css"),
+          context.file.ensureUIDIdentifier("css"),
           t.identifier(className)
         )
       

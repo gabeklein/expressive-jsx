@@ -40,8 +40,6 @@ export class Context {
 
   program: $.Path<$.Program>;
 
-  declaredUIDIdentifiers: Record<string, $.Identifier> = {};
-
   get parent(){
     return Object.getPrototypeOf(this);
   }
@@ -66,18 +64,6 @@ export class Context {
       typeof module == "string" ? module :
         (state.file as any).opts.configFile?.name || true
     )
-  }
-
-  ensureUIDIdentifier(name: string){
-    const exist = this.declaredUIDIdentifiers;
-
-    return exist[name] || (
-      exist[name] = this.file.ensureUIDIdentifier(name)
-    );
-  }
-
-  close(){
-    this.file.close();
   }
 
   getHandler(named: string, ignoreOwn = false){
