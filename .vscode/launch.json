@@ -5,7 +5,7 @@
       "type": "node",
       "request": "launch",
       "name": "Jest Tests",
-      "cwd": "${workspaceFolder}/packages/babel-plugin-jsx",
+      "cwd": "${workspaceFolder}/packages/babel-preset-react",
       "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
       "args": [
         "--watchAll",
@@ -22,20 +22,6 @@
       "runtimeArgs": ["-r", "ts-node/register"],
       "args": ["${workspaceFolder}/packages/babel-preset-react/debug/script.ts"],
       "cwd": "${workspaceFolder}/packages/babel-preset-react",
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Macro Tests",
-      "cwd": "${workspaceFolder}/packages/macro-css",
-      "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
-      "args": [
-        "--watchAll",
-        "--runInBand",
-        "${input:testName}"
-      ],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
     }
   ],
   "inputs": [

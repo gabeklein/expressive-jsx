@@ -1,6 +1,7 @@
 import { transform } from '@babel/core';
-import { format } from 'prettier';
-import PluginJSX from "./src";
+import PresetReact from ".";
+
+const { format } = require("prettier");
 
 const FORMAT: Record<string, [RegExp, string]> = {
   statementLineSpacing: [/^(.+?)\n(export|const|let)/gm, "$1\n\n$2"],
@@ -33,15 +34,12 @@ expect.addSnapshotSerializer({
 
 function transformJSX(input: string, options?: {}){
   return transform(input, {
-    plugins: [
-      [PluginJSX, {
+    presets: [
+      [PresetReact, {
         hot: false, 
         output: "jsx",
         printStyle: "pretty",
         externals: false,
-        macros: [
-          require("@expressive/macro-css")
-        ],
         ...options
       }]
     ]
