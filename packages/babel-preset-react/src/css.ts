@@ -66,7 +66,7 @@ export const CSS = (_compiler: any, options: Options = {}): PluginObj => {
   }
 }
 
-type SelectorContent = [string[], Style[]][];
+type SelectorContent = Define[];
 type MediaGroups = SelectorContent[];
 
 function generateCSS(declared: Set<Define>, pretty?: boolean){
@@ -76,7 +76,7 @@ function generateCSS(declared: Set<Define>, pretty?: boolean){
   const media: Record<string, MediaGroups> = { default: [] };
 
   for(const item of declared){
-    let { priority = 0, sequence, selector } = item;
+    let { priority = 0 } = item;
 
     for(let x=item.container; x;)
       if(x = x.container)
@@ -88,17 +88,7 @@ function generateCSS(declared: Set<Define>, pretty?: boolean){
         query[priority] :
         query[priority] = [];
 
-    const styles = sequence.filter(x => x instanceof Style && x.invariant) as Style[];
-    const select = selector.map(select => {
-      const selection = [select];
-
-      for(let x: Define | undefined = item; x = x.within;)
-        selection.unshift(x.selector[0]);
-
-      return selection.join(" ");
-    });
-
-    group.push([select, styles]);
+    group.push(item);
   }
 
   const lines: string[] = [];
@@ -113,16 +103,28 @@ function generateCSS(declared: Set<Define>, pretty?: boolean){
           priority.toFixed(1).replace(/\.0$/, "")
         } */`);
 
-      for(const [select, styles] of group[priority])
-        lines.push(...printStyles(select, styles, pretty));
+      for(const item of group[priority])
+        lines.push(...printStyles(item, pretty));
     }
   }
 
   return lines.join("\n");
 }
 
-function printStyles(select: string[], styles: Style[], pretty?: boolean){
+function printStyles(item: Define, pretty?: boolean){
   const lines: string[] = [];
+
+  const select = item.selector.map(select => {
+    const selection = [select];
+
+    for(let x: Define | undefined = item; x = x.within;)
+      selection.unshift(x.selector[0]);
+
+    return selection.join(" ");
+  });
+  
+  const styles = item.sequence
+    .filter(x => x instanceof Style && x.invariant) as Style[];
 
   const rules = styles.map(style => {
     let styleKey = style.name;
@@ -134,6 +136,9 @@ function printStyles(select: string[], styles: Style[], pretty?: boolean){
 
     if(style.important)
       line += " !important";
+
+    if(pretty)
+      line = '\t' + line;
     
     return `${line};`;
   });
@@ -144,14 +149,10 @@ function printStyles(select: string[], styles: Style[], pretty?: boolean){
     for(const alternate of select)
       lines.push(alternate + ",");
 
-    lines.push(
-      `${final} {`,
-      ...rules.map(x => '\t' + x),
-      "}"
-    );
+    lines.push(`${final} {`, ...rules, "}");
   }
   else
-    lines.push(`${select} { ${rules.join(' ')} }`)
+    lines.push(`${select} { ${rules.join(' ')} }`);
 
   return lines;
 }

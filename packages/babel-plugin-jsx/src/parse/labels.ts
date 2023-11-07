@@ -17,31 +17,17 @@ export type DefineBodyCompat =
 export type ModifyAction =
   (this: ModifyDelegate, ...args: any[]) => Record<string, any> | void;
 
+type ModifierItem = {
+  name: string,
+  args: any[],
+  body?: $.Path<$.Statement>
+}[];
+
 export const Oops = ParseErrors({
   BadModifierName: "Modifier name cannot start with _ symbol!",
   InlineModeNoVariants: "Cannot attach a CSS variant while styleMode is set to inline.",
   DollarSignDeprecated: "Dollar-sign macros are deprecated. Did you mean to use a namespace?"
 });
-
-export function getName(
-  path: $.Path<$.LabeledStatement>){
-
-  const { name } = path.get("label").node;
-
-  if(name.startsWith("_"))
-    throw Oops.BadModifierName(path);
-
-  if(name.startsWith("$"))
-    return name.replace(/^\$/, "--");
-
-  return name;
-}
-
-type ModifierItem = {
-  name: string,
-  body?: $.Path<$.Statement>,
-  args: any[]
-}[];
 
 export function handleDefine(
   target: Define,
@@ -115,6 +101,20 @@ export function handleDefine(
         queue.push({ name: key, args });
     }
   }
+}
+
+export function getName(
+  path: $.Path<$.LabeledStatement>){
+
+  const { name } = path.get("label").node;
+
+  if(name.startsWith("_"))
+    throw Oops.BadModifierName(path);
+
+  if(name.startsWith("$"))
+    return name.replace(/^\$/, "--");
+
+  return name;
 }
 
 const defaultModifier: ModifyAction = function(){
