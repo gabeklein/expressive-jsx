@@ -1,6 +1,6 @@
 {
   "name": "@expressive/babel-preset-react",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "An alternative syntax for feature rich components using less code",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
@@ -18,14 +18,16 @@
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [ "dist" ],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "jest",
     "build": "tsup src/index.ts --dts",
     "watch": "tsup src/index.ts --watch --sourcemap"
   },
   "dependencies": {
-    "@expressive/babel-plugin-jsx": "^1.5.2",
+    "@expressive/babel-plugin-jsx": "^1.6.0",
     "chroma-js": "^2.0.3",
     "easing-coordinates": "^2.0.2"
   },
