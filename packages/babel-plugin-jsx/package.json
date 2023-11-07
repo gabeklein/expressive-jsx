@@ -25,6 +25,7 @@
   "scripts": {
     "build": "tsup src/index.ts --dts",
     "watch": "tsup src/index.ts --watch --sourcemap inline",
+    "prepublish": "npm run build",
     "test": "jest",
     "prebuild": "rm -rf lib"
   },

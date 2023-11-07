@@ -9,7 +9,8 @@
     "url": "https://github.com/gabeklein"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepublish": "npm run build"
   },
   "license": "MIT",
   "publishConfig": {
