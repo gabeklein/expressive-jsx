@@ -1,6 +1,6 @@
 {
   "name": "@expressive/vite-plugin-jsx",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "Expressive JSX Vite Plugin",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
