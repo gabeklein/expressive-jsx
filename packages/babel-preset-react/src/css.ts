@@ -2,6 +2,8 @@ import { Define, hash, ModifyDelegate, Options, pascalToDash, Style, t } from '@
 
 import type { PluginObj, types as $ } from '@babel/core';
 
+const RUNTIME = "@expressive/babel-preset-react/polyfill";
+
 export function addStyle(this: ModifyDelegate, ...args: any[]){
   this.addStyle(this.name, ...args);
 }
@@ -53,7 +55,7 @@ export const CSS = (_compiler: any, options: Options = {}): PluginObj => {
               path.pushContainer("body", [
                 t.statement(
                   t.call(
-                    file.ensure("$runtime", "default", "css"),
+                    file.ensure(RUNTIME, "css"),
                     t.template(`\n${stylesheet.replace(/^/gm, "\t")}\n`),
                     ...args
                   )

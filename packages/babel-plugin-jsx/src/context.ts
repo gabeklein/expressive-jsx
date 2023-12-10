@@ -19,7 +19,6 @@ export interface BabelState<S extends Context = Context> {
 const DEFAULTS: Options = {
   env: "web",
   styleMode: "compile",
-  runtime: "@expressive/css",
   pragma: "react",
   output: "js",
   macros: []

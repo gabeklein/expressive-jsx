@@ -26,7 +26,6 @@ export interface Options {
   env?: "native" | "web";
   output?: "js" | "jsx";
   pragma?: "react";
-  runtime?: string;
   styleMode?: "compile" | "inline";
   macros?: Record<string, (...args: any[]) => any>[];
   module?: true | string;

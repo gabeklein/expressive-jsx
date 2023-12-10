@@ -29,8 +29,7 @@
   ],
   "dependencies": {
     "@babel/core": "^7.22.20",
-    "@expressive/babel-preset-react": "^1.6.1",
-    "@expressive/css": "^1.6.1"
+    "@expressive/babel-preset-react": "^1.6.1"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.2",

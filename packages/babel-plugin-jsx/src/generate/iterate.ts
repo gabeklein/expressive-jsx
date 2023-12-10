@@ -6,6 +6,8 @@ import { t } from 'syntax';
 import type * as $ from 'types';
 import type { Define } from 'handle/definition';
 
+const POLYFILL = "@expressive/babel-plugin-jsx/polyfill";
+
 const Oops = ParseErrors({
   BadForOfAssignment: "Assignment of variable left of \"of\" must be Identifier or Destruture",
   BadForInAssignment: "Left of ForInStatement must be an Identifier here!",
@@ -24,7 +26,7 @@ export function forElement(
     return;
 
   const accumulator = file.ensureUIDIdentifier("add");
-  const collect = file.ensure("$runtime", "collect");
+  const collect = file.ensure(POLYFILL, "collect");
 
   let body: $.Statement | $.Expression =
     t.statement(

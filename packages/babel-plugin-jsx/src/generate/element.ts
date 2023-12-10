@@ -6,6 +6,7 @@ import { t } from 'syntax';
 import type * as $ from 'types';
 import type { Context } from 'context';
 
+const POLYFILL = "@expressive/babel-plugin-jsx/polyfill";
 const byPriority = (x: any, y: any) => x.priority - y.priority;
 
 export class Generator {
@@ -96,7 +97,7 @@ export class Generator {
       )
   
     if(selectors.length > 1){
-      const _use = file.ensure("$runtime", "classNames");
+      const _use = file.ensure(POLYFILL, "classNames");
       return t.call(_use, ...selectors)
     }
     
