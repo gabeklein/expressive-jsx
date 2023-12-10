@@ -6,7 +6,7 @@ import { t } from 'syntax';
 import type * as $ from 'types';
 import type { Context } from 'context';
 
-const POLYFILL = "@expressive/babel-plugin-jsx/polyfill";
+const POLYFILL = require.resolve("@expressive/babel-plugin-jsx/polyfill");
 const byPriority = (x: any, y: any) => x.priority - y.priority;
 
 export class Generator {

@@ -6,7 +6,7 @@ import { t } from 'syntax';
 import type * as $ from 'types';
 import type { Define } from 'handle/definition';
 
-const POLYFILL = "@expressive/babel-plugin-jsx/polyfill";
+const POLYFILL = require.resolve("@expressive/babel-plugin-jsx/polyfill");
 
 const Oops = ParseErrors({
   BadForOfAssignment: "Assignment of variable left of \"of\" must be Identifier or Destruture",
