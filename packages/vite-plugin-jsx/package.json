@@ -9,7 +9,8 @@
     "url": "https://github.com/gabeklein"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsup src/index.ts --dts",
+    "prebuild": "rm -rf ./dist",
     "prepublish": "npm run build"
   },
   "license": "MIT",
@@ -32,6 +33,8 @@
     "@expressive/css": "^1.6.1"
   },
   "devDependencies": {
+    "@types/babel__core": "^7.20.2",
+    "tsup": "^8.0.1",
     "vite": "^5.0.0"
   },
   "peerDependencies": {

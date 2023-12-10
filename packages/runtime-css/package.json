@@ -18,10 +18,9 @@
   "scripts": {
     "build": "tsup src/index.ts --dts",
     "watch": "tsup src/index.ts --watch --sourcemap inline",
-    "prepublish": "npm run build",
-    "prebuild": "rm -rf ./lib"
+    "prepublish": "npm run build"
   },
   "devDependencies": {
-    "tsup": "^7.2.0"
+    "tsup": "^8.0.1"
   }
 }
