@@ -1,16 +1,13 @@
 {
     "files.exclude": {
-        "**/.DS_Store": true,
-        "**/node_modules": true,
-        "**/.rpt2_cache": true,
-        "**/rollup.config.js": true,
-        "**/tsconfig.json": true,
-        "packages/*/dist": true,
-        "packages/*/lib": true,
+        ".git": true,
         ".gitignore": true,
         ".vscode": true,
-        ".git": true,
-        "package-lock.json": true,
-        "LICENSE": true
+        "**/.DS_Store": true,
+        "**/node_modules": true,
+        "**/tsconfig.json": true,
+        "packages/*/dist": true,
+        "pnpm-lock.yaml": true,
+        "pnpm-workspace.yaml": true,
     }
 }
