@@ -20,10 +20,10 @@ class DefineConsequent extends Define {
 
     this.within = parent.within;
     this.priority = 5;
-    this.rank = (conseqentsExist.get(this) || 0) + 1;
+    this.rank = (conseqentsExist.get(parent) || 0) + 1;
     this.name = this.parent.name;
 
-    conseqentsExist.set(this, this.rank);
+    conseqentsExist.set(parent, this.rank);
   }
 
   get isDeclared(){
