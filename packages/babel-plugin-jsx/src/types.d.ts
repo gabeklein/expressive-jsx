@@ -1,4 +1,4 @@
-import type * as $ from '@babel/types';
+import type { Node, Expression, Statement } from '@babel/types';
 
 import type { Style, Prop } from 'handle/attributes';
 import type { ElementInline } from 'handle/definition';
@@ -16,7 +16,7 @@ export type {
 
 export interface BabelFile extends File {
   buildCodeFrameError<TError extends Error>(
-    node: $.Node,
+    node: Node,
     msg: string,
     Error?: new (msg: string) => TError
   ): TError;
@@ -24,7 +24,7 @@ export interface BabelFile extends File {
 
 export interface PropData {
   name: string | false | undefined
-  value: $.Expression
+  value: Expression
 }
 
 export type FlatValue =
@@ -37,10 +37,10 @@ export type SequenceItem =
   | Style
   | Prop
   | InnerContent
-  | $.Statement;
+  | Statement;
 
 export type InnerContent =
-  | $.Expression
+  | Expression
   | ElementInline
   | ComponentIf
   | ComponentFor;

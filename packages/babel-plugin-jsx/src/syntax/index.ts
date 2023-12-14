@@ -1,4 +1,4 @@
-import type * as types from '@babel/types';
+import * as types from '@babel/types';
 
 import * as assert from './assert';
 import * as construct from './construct';
