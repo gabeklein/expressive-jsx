@@ -19,9 +19,9 @@
       "type": "node",
       "request": "launch",
       "name": "Babel Preset",
-      "runtimeArgs": ["-r", "ts-node/register"],
-      "args": ["${workspaceFolder}/packages/babel-preset-react/debug/script.ts"],
       "cwd": "${workspaceFolder}/packages/babel-preset-react",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["debug/script.ts"],
     }
   ],
   "inputs": [
