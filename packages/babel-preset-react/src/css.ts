@@ -2,7 +2,7 @@ import { Define, hash, ModifyDelegate, Options, pascalToDash, Style, t } from '@
 
 import type { PluginObj, types as $ } from '@babel/core';
 
-const RUNTIME = require.resolve("@expressive/babel-preset-react/polyfill");
+const RUNTIME = require.resolve("../polyfill");
 
 export function addStyle(this: ModifyDelegate, ...args: any[]){
   this.addStyle(this.name, ...args);

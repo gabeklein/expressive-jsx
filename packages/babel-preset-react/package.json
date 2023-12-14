@@ -42,7 +42,7 @@
   },
   "tsup": {
     "external": [
-      "@expressive/babel-preset-react"
+      "../polyfill"
     ]
   }
 }

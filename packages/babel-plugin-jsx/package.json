@@ -43,7 +43,7 @@
   },
   "tsup": {
     "external": [
-      "@expressive/babel-plugin-jsx"
+      "../polyfill"
     ]
   }
 }
