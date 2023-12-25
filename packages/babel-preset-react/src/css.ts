@@ -29,39 +29,40 @@ export const CSS = (_compiler: any, options: Options = {}): PluginObj => {
         
           const stylesheet = generateCSS(declared, printStyle == "pretty");
         
-          if(stylesheet)
-            if(extractCss){
-              if(cssModule === false)
-                extractCss(stylesheet);
-              else {
-                const cssModulePath = extractCss(stylesheet);
-                const style = file.ensureUIDIdentifier("css");
-                file.ensure(cssModulePath, "default", style);
-              }
+          if(!stylesheet)
+            return;
+
+          if(extractCss){
+            const cssModulePath = extractCss(stylesheet);
+
+            if(cssModule !== false){
+              const style = file.ensureUIDIdentifier("css");
+              file.ensure(cssModulePath, "default", style);
             }
-            else {
-              const args: $.Expression[] = [];
-              const config: any = {};
-            
-              if(hot)
-                config.refreshToken = t.literal(hash(filename, 10));
-            
-              if(module)
-                config.module = t.literal(module);
-            
-              if(Object.keys(config).length)
-                args.push(t.object(config));
-        
-              path.pushContainer("body", [
-                t.statement(
-                  t.call(
-                    file.ensure(RUNTIME, "css"),
-                    t.template(`\n${stylesheet.replace(/^/gm, "\t")}\n`),
-                    ...args
-                  )
+          }
+          else {
+            const args: $.Expression[] = [];
+            const config: any = {};
+          
+            if(hot)
+              config.refreshToken = t.literal(hash(filename, 10));
+          
+            if(module)
+              config.module = t.literal(module);
+          
+            if(Object.keys(config).length)
+              args.push(t.object(config));
+      
+            path.pushContainer("body", [
+              t.statement(
+                t.call(
+                  file.ensure(RUNTIME, "css"),
+                  t.template(`\n${stylesheet.replace(/^/gm, "\t")}\n`),
+                  ...args
                 )
-              ]);
-            }
+              )
+            ]);
+          }
         }
       }
     }
