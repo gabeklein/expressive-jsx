@@ -9,7 +9,7 @@ export function font(...args){
     else if(typeof x === "string")
       attrs.fontFamily = x
 
-  return { attrs }
+  return attrs;
 }
 
 export function fontFamily(){
