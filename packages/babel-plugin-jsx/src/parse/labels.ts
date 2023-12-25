@@ -30,8 +30,7 @@ export const Oops = ParseErrors({
 });
 
 export function handleDefine(
-  target: Define,
-  path: $.Path<$.LabeledStatement>){
+  target: Define, path: $.Path<$.LabeledStatement>){
 
   const { context } = target;
 
@@ -68,37 +67,53 @@ export function handleDefine(
   while(queue.length){
     const { name, body, args } = queue.pop()!;
 
-    const modifier = new ModifyDelegate(target, name, body);
-    const transform = context.getHandler(name) || include;
-    const output = transform.apply(modifier, args);
+    try {
+      const modifier = new ModifyDelegate(target, name, body);
+      const transform = context.getHandler(name) || include;
+      const output = transform.apply(modifier, args);
 
-    if(!output)
-      continue;
-
-    if(Array.isArray(output)){
-      defaultModifier.apply(modifier, output);
-      continue;
-    }
-    
-    if(typeof output != "object")
-      throw new Error("Invalid modifier output.");
-
-    for(const key in output){
-      let args = output[key];
-
-      if(args === undefined)
+      if(!output)
         continue;
 
-      if(!Array.isArray(args))
-        args = [args];
+      if(Array.isArray(output)){
+        defaultModifier.apply(modifier, output);
+        continue;
+      }
+      
+      if(typeof output != "object")
+        throw new Error("Invalid modifier output.");
 
-      if(important)
-        args.push("!important");
+      for(const key in output){
+        let args = output[key];
 
-      if(key === name)
-        defaultModifier.apply(modifier, args);
-      else
-        queue.push({ name: key, args });
+        if(args === undefined)
+          continue;
+
+        if(!Array.isArray(args))
+          args = [args];
+
+        if(important)
+          args.push("!important");
+
+        if(key === name)
+          defaultModifier.apply(modifier, args);
+        else
+          queue.push({ name: key, args });
+      }
+    }
+    catch(err: unknown){
+      if(!(err instanceof Error))
+        throw path.hub.buildError(path.node, `Modifier "${name}" failed: ${err}`);
+
+      const stack = err.stack!.split("\n    at ");
+
+      const error = path.hub.buildError(path.node, `Modifier "${name}" failed: ${
+        err instanceof Error ? err.message : err
+      }`)
+
+      error.stack = stack.slice(0, stack.findIndex(line => /^parse/.test(line)) + 1).join("\n    at ");
+      
+      throw error;
     }
   }
 }
