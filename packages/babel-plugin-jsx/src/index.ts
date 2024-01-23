@@ -19,7 +19,7 @@ export type { Context } from 'context';
 export { t } from 'syntax';
 export { hash, pascalToDash } from 'utility';
 export { Style, Prop } from 'handle/attributes';
-export { Define, DefineLocal, DefineVariant } from 'handle/definition';
+export { Define, DefineVariant } from 'handle/definition';
 
 export interface Options {
   // expected

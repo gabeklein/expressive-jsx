@@ -32,8 +32,16 @@ export class AttributeStack extends ArrayStack<Style> {
   }
 
   flatten(){
-    if(!this.length)
-      return;
+    if(!this.length){
+      if(!this.invariant.size)
+        return;
+      
+      return t.object(
+        Array.from(this.invariant).map(style =>
+          t.property(style.name!, style.expression)
+        )
+      );
+    }
 
     if(this.length == 1 && this[0] instanceof Style)
       return this[0].expression;

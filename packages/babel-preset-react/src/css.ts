@@ -39,30 +39,31 @@ export const CSS = (_compiler: any, options: Options = {}): PluginObj => {
               const style = file.ensureUIDIdentifier("css");
               file.ensure(cssModulePath, "default", style);
             }
+
+            return;
           }
-          else {
-            const args: $.Expression[] = [];
-            const config: any = {};
+
+          const args: $.Expression[] = [];
+          const config: any = {};
           
-            if(hot)
-              config.refreshToken = t.literal(hash(filename, 10));
+          if(hot)
+          config.refreshToken = t.literal(hash(filename, 10));
           
-            if(module)
-              config.module = t.literal(module);
+          if(module)
+          config.module = t.literal(module);
           
-            if(Object.keys(config).length)
-              args.push(t.object(config));
+          if(Object.keys(config).length)
+          args.push(t.object(config));
       
-            path.pushContainer("body", [
-              t.statement(
-                t.call(
-                  file.ensure(RUNTIME, "css"),
-                  t.template(`\n${stylesheet.replace(/^/gm, "\t")}\n`),
-                  ...args
-                )
+          path.pushContainer("body", [
+            t.statement(
+              t.call(
+                file.ensure(RUNTIME, "css"),
+                t.template(`\n${stylesheet.replace(/^/gm, "\t")}\n`),
+                ...args
               )
-            ]);
-          }
+            )
+          ]);
         }
       }
     }
