@@ -23,8 +23,8 @@ export function addElementFromJSX(
   let target = parent as Element;
 
   if(path.isJSXElement()){
-    const tag = (path as $.Path<$.JSXElement>).get("openingElement").get("name");
-  
+    const tag = path.get("openingElement").get("name");
+
     if(!tag.isJSXIdentifier({ name: "this" })){
       const child = new ElementInline(target.context);
   
@@ -41,7 +41,10 @@ export function parseJSX(
   into: ElementInline | Define,
   element: $.Path<$.JSXElement | $.JSXFragment>){
 
-  const queue = [[into, element as $.Path<$.JSXElement>] as const];
+  const queue = [[
+    into,
+    element as $.Path<$.JSXElement>
+  ] as const];
 
   for(const [element, path] of queue){
     const children = path.get("children");
