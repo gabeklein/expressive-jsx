@@ -2,7 +2,7 @@ import { transformAsync } from '@babel/core';
 import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 
-import Preset from '..';
+import Preset from '../src';
 
 const file = (path: string) => resolve(__dirname, path);
 

@@ -7,6 +7,11 @@
     "noUnusedLocals": true,
     "sourceMap": true,
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "@expressive/babel-plugin-jsx": [
+        "../../babel-plugin-jsx/src/index.ts"
+      ]
+    }
   }
 }
