@@ -31,10 +31,6 @@ export interface Options {
   module?: true | string;
   extractCss?: (css: string) => string;
   cssModule?: boolean;
-
-  // optional
-  hot?: boolean;
-  printStyle?: "pretty";
   externals?: "require" | "import" | false;
 }
 
