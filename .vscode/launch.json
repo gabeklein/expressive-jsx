@@ -4,8 +4,31 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Jest Tests",
+      "name": "Preset Tests",
       "cwd": "${workspaceFolder}/packages/babel-preset-react",
+      "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
+      "args": [
+        "--watchAll",
+        "--runInBand",
+        "${input:testName}"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Plugin v2",
+      "cwd": "${workspaceFolder}/packages/babel-plugin-jsx-v2",
+      "console": "integratedTerminal",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["debug/script.ts"],
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Plugin v2 Tests",
+      "cwd": "${workspaceFolder}/packages/babel-plugin-jsx-v2",
       "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
       "args": [
         "--watchAll",
@@ -20,6 +43,7 @@
       "request": "launch",
       "name": "Babel Preset",
       "cwd": "${workspaceFolder}/packages/babel-preset-react",
+      "console": "integratedTerminal",
       "runtimeArgs": ["-r", "ts-node/register"],
       "args": ["debug/script.ts"],
     }
