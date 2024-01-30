@@ -32,6 +32,7 @@ export function handleLabel(
   const args = parse(body.node);
   const queue: ModifierItem = [{ name, args, body }];
 
+  try {
   while(queue.length){
     const { name, args } = queue.pop()!;
     const apply = (...args: any[]) => {
@@ -45,7 +46,6 @@ export function handleLabel(
       parent.styles[name] = output;
     }
 
-    try {
       const macro = parent.macros[name] || apply;
       const output = macro(...args);
 
@@ -74,14 +74,14 @@ export function handleLabel(
         else
           queue.push({ name: key, args });
       }
+      }
     }
     catch(err: unknown){
-      throw buildError(body, err, name);
-    }
+    throw parseError(body, err, name);
   }
 }
 
-function buildError(path: NodePath, err: unknown, modiferName: string){
+function parseError(path: NodePath, err: unknown, modiferName: string){
   if(!(err instanceof Error))
     return path.hub.buildError(path.node, `Modifier "${modiferName}" failed: ${err}`);
 
