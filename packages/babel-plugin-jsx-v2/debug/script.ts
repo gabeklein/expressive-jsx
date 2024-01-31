@@ -12,13 +12,27 @@ async function stuff(){
   const result = await transformAsync(source, {
     filename: '/REPL.js',
     plugins: [
-      [Plugin, {}]
+      [Plugin, {
+        macros: [{
+          absolute
+        }]
+      }]
     ]
   });
 
   const output = result!.code!;
 
   console.log("\n" + output + "\n");
+}
+
+function absolute(offset: number){
+  return {
+    position: "absolute",
+    top: offset,
+    left: offset,
+    right: offset,
+    bottom: offset
+  }
 }
 
 stuff();
