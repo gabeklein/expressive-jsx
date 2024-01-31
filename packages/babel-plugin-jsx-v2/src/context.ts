@@ -8,12 +8,12 @@ export class Context {
   define: Record<string, DefineContext> = {};
   macros: Record<string, Macro> = {};
 
-  constructor(context?: Context){
-    if(!context)
+  constructor(public parent?: Context){
+    if(!parent)
       return;
 
-    this.define = Object.create(context.define);
-    this.macros = Object.create(context.macros);
+    this.define = Object.create(parent.define);
+    this.macros = Object.create(parent.macros);
   }
 
   assignTo(path: NodePath){
