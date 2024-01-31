@@ -13,128 +13,136 @@ const Oops = ParseErrors({
   ElseNotSupported: "An else statement in an if modifier is not yet supported"
 });
 
-const types: any = {
-  Identifier,
-  StringLiteral,
-  TemplateLiteral,
-  UnaryExpression,
-  BooleanLiteral,
-  NumericLiteral,
-  NullLiteral,
-  BinaryExpression,
-  SequenceExpression,
-  CallExpression,
-  ArrowFunctionExpression,
-  IfStatement,
-  LabeledStatement,
-  BlockStatement
-}
+export class Parser {
+  expression: t.Expression;
 
-export function parse(element: t.Expression | t.Statement): any[] {
-  if(t.isExpressionStatement(element))
-    element = element.expression;
-
-  return [].concat(
-    t.isExpression(element)
-      ? Expression(element)
-      : Extract(element)
-  )
-}
-
-function Expression<T extends t.Expression>(
-  element: T,
-  childKey?: keyof T): any {
-
-  if(childKey)
-    element = element[childKey] as unknown as T;
-
-  if(isParenthesized(element))
-    return element;
-
-  return Extract(element)
-}
-
-function Extract(element: t.Expression | t.Statement){
-  if(element.type in types)
-    return types[element.type](element);
-
-  throw Oops.UnknownArgument(element)
-}
-
-function Identifier({ name }: t.Identifier){
-  if(name.startsWith("$")){
-    name = camelToDash(name.slice(1));
-
-    return `var(--${name})`;
+  constructor(node: t.Expression | t.ExpressionStatement){
+    this.expression = t.isExpressionStatement(node)
+      ? node.expression : node;
   }
 
-  return name;
-}
-
-function StringLiteral(e: t.StringLiteral){
-  return e.value;
-}
-
-function TemplateLiteral(temp: t.TemplateLiteral) {
-  if(temp.quasis.length == 1)
-    return temp.quasis[0].value.raw;
-
-  return temp;
-}
-
-function UnaryExpression(e: t.UnaryExpression){
-  const { argument, operator } = e;
-
-  if(operator == "-" && t.isNumericLiteral(argument))
-    return NumericLiteral(argument, true);
-
-  if(operator == "!" && t.isIdentifier(argument, { name: "important" }))
-    return "!important";
-
-  throw Oops.UnaryUseless(e)
-}
-
-function BooleanLiteral(bool: t.BooleanLiteral){
-  return bool.value;
-}
-
-function NumericLiteral(number: t.NumericLiteral, negative?: boolean){
-  let { extra: { rawValue, raw } } = number as any;
-
-  if(isParenthesized(number) || !/^0x/.test(raw)){
-    if(raw.indexOf(".") > 0)
-      return negative ? "-" + raw : raw;
-
-    return negative ? -rawValue : rawValue;
+  get arguments(){
+    return [].concat(this.Expression(this.expression));
   }
 
-  if(negative)
-    throw Oops.HexNoNegative(number, rawValue);
+  Expression<T extends t.Expression>(
+    element: T,
+    childKey?: keyof T): any {
+  
+    if(childKey)
+      element = element[childKey] as unknown as T;
+  
+    if(isParenthesized(element))
+      return element;
 
-  return HEXColor(raw);
-}
+    if(element.type in this)
+      return (this as any)[element.type](element);
+  
+    throw Oops.UnknownArgument(element);
+  }
+  
+  Identifier({ name }: t.Identifier){
+    if(name.startsWith("$")){
+      name = camelToDash(name.slice(1));
+      return `var(--${name})`;
+    }
+  
+    return name;
+  }
+  
+  BooleanLiteral(bool: t.BooleanLiteral){
+    return bool.value;
+  }
+  
+  StringLiteral(e: t.StringLiteral){
+    return e.value;
+  }
+  
+  NullLiteral(){
+    return null;
+  }
+  
+  TemplateLiteral(temp: t.TemplateLiteral) {
+    if(temp.quasis.length == 1)
+      return temp.quasis[0].value.raw;
+  
+    return temp;
+  }
+  
+  NumericLiteral(number: t.NumericLiteral, negative?: boolean){
+    let { extra: { rawValue, raw } } = number as any;
+  
+    if(isParenthesized(number) || !/^0x/.test(raw)){
+      if(raw.indexOf(".") > 0)
+        return negative ? "-" + raw : raw;
+  
+      return negative ? -rawValue : rawValue;
+    }
+  
+    if(negative)
+      throw Oops.HexNoNegative(number, rawValue);
+  
+    return HEXColor(raw);
+  }
+  
+  UnaryExpression(e: t.UnaryExpression){
+    const { argument, operator } = e;
+  
+    if(operator == "-" && t.isNumericLiteral(argument))
+      return this.NumericLiteral(argument, true);
+  
+    if(operator == "!" && t.isIdentifier(argument, { name: "important" }))
+      return "!important";
+  
+    throw Oops.UnaryUseless(e)
+  }
+  
+  BinaryExpression(binary: t.BinaryExpression){
+    const { left, right, operator } = binary;
+  
+    if(operator == "-"
+    && t.isIdentifier(left)
+    && t.isIdentifier(right, { start: left.end! + 1 }))
+      return left.name + "-" + right.name
+  
+    return [
+      operator,
+      this.Expression(binary, "left"),
+      this.Expression(binary, "right")
+    ]
+  }
+  
+  SequenceExpression(sequence: t.SequenceExpression){
+    return sequence.expressions.map(x => this.Expression(x))
+  }
 
-function NullLiteral(){
-  return null;
-}
+  CallExpression(e: t.CallExpression){
+    const callee = e.callee;
+    const args = [] as string[];
+  
+    if(callee.type !== "Identifier")
+      throw Oops.MustBeIdentifier(callee);
+  
+    for(const item of e.arguments){
+      if(t.isExpression(item))
+        args.push(this.Expression(item));
+      else if(t.isSpreadElement(item))
+        throw Oops.ArgumentSpread(item)
+      else
+        throw Oops.UnknownArgument(item)
+    }
+  
+    const { name } = callee;
+  
+    if(CSS_UNITS.has(name))
+      return args.map(x => String(x) + name).join(" ");
+  
+    return camelToDash(callee.name) + `(${args.join(", ")})`;
+  }
 
-function BinaryExpression(binary: t.BinaryExpression){
-  const { left, right, operator } = binary;
-
-  if(operator == "-"
-  && t.isIdentifier(left)
-  && t.isIdentifier(right, { start: left.end! + 1 }))
-    return left.name + "-" + right.name
-
-  return [
-    operator,
-    Expression(binary, "left"),
-    Expression(binary, "right")
-  ]
-}
-
-function SequenceExpression(sequence: t.SequenceExpression){
-  return sequence.expressions.map(x => Expression(x))
+  ArrowFunctionExpression(e: t.ArrowFunctionExpression): never {
+    throw Oops.ArrowNotImplemented(e);
+  }
 }
 
 const CSS_UNITS = new Set([
@@ -153,71 +161,6 @@ const CSS_UNITS = new Set([
   "vmin",
   "vw",
 ])
-
-function CallExpression(e: t.CallExpression){
-  const callee = e.callee;
-  const args = [] as string[];
-
-  if(callee.type !== "Identifier")
-    throw Oops.MustBeIdentifier(callee);
-
-  for(const item of e.arguments){
-    if(t.isExpression(item))
-      args.push(Expression(item));
-    else if(t.isSpreadElement(item))
-      throw Oops.ArgumentSpread(item)
-    else
-      throw Oops.UnknownArgument(item)
-  }
-
-  const { name } = callee;
-
-  if(CSS_UNITS.has(name))
-    return args.map(x => String(x) + name).join(" ");
-
-  return camelToDash(callee.name) + `(${args.join(", ")})`;
-}
-
-function ArrowFunctionExpression(e: t.ArrowFunctionExpression): never {
-  throw Oops.ArrowNotImplemented(e);
-}
-
-function IfStatement(statement: t.IfStatement){
-  const alt = statement.alternate;
-  const test = statement.test;
-  const body = statement.consequent;
-
-  if(alt)
-    throw Oops.ElseNotSupported(test);
-
-  const info =
-    body.type == "BlockStatement" ? BlockStatement(body) :
-    body.type == "LabeledStatement" ? LabeledStatement(body) :
-    body.type == "ExpressionStatement" ? Expression(body.expression) : {};
-
-  return {
-    test: Expression(test),
-    ...info
-  }
-}
-
-function LabeledStatement(stat: t.LabeledStatement){
-  return {
-    [stat.label.name]: parse(stat.body)
-  }
-}
-
-function BlockStatement(statement: t.BlockStatement){
-  const map = {} as Record<string, any>
-
-  for(const item of statement.body)
-    if(t.isLabeledStatement(item))
-      map[item.label.name] = parse(item.body);
-    else if(item.type !== "IfStatement")
-      throw Oops.ModiferCantParse(statement);
-
-  return map;
-}
 
 function HEXColor(raw: string){
   raw = raw.substring(2);

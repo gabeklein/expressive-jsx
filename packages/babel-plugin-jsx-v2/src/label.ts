@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/traverse';
 
 import { t } from './';
-import { parse } from './arguments';
+import { Parser } from './arguments';
 import { requires } from './construct';
 import { Context, DefineContext } from './context';
 
@@ -29,22 +29,22 @@ export function handleLabel(
   if(!(parent instanceof DefineContext))
     throw new Error("Invalid modifier");
 
-  const args = parse(body.node);
+  const args = new Parser(body.node).arguments;
   const queue: ModifierItem = [{ name, args, body }];
 
   try {
-  while(queue.length){
-    const { name, args } = queue.pop()!;
-    const apply = (...args: any[]) => {
-      const parsed = args.map<any>(arg => arg.value || (
-        arg.requires ? requires(arg.requires) : arg
-      ));
-    
-      const output = parsed.length == 1 || typeof parsed[0] == "object"
-        ? parsed[0] : Array.from(parsed).join(" ");
+    while(queue.length){
+      const { name, args } = queue.pop()!;
+      const apply = (...args: any[]) => {
+        const parsed = args.map<any>(arg => arg.value || (
+          arg.requires ? requires(arg.requires) : arg
+        ));
+      
+        const output = parsed.length == 1 || typeof parsed[0] == "object"
+          ? parsed[0] : Array.from(parsed).join(" ");
 
-      parent.styles[name] = output;
-    }
+        parent.styles[name] = output;
+      }
 
       const macro = parent.macros[name] || apply;
       const output = macro(...args);
@@ -74,9 +74,9 @@ export function handleLabel(
         else
           queue.push({ name: key, args });
       }
-      }
     }
-    catch(err: unknown){
+  }
+  catch(err: unknown){
     throw parseError(body, err, name);
   }
 }
