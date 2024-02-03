@@ -1,6 +1,5 @@
-import { t } from './';
-import { isParenthesized } from './assert';
 import { ParseErrors } from './errors';
+import * as t from './types';
 
 const Oops = ParseErrors({
   UnaryUseless: "Unary operator here doesn't do anything",
@@ -32,7 +31,7 @@ export class Parser {
     if(childKey)
       element = element[childKey] as unknown as T;
   
-    if(isParenthesized(element))
+    if(t.isParenthesized(element))
       return element;
 
     if(element.type in this)
@@ -72,7 +71,7 @@ export class Parser {
   NumericLiteral(number: t.NumericLiteral, negative?: boolean){
     let { extra: { rawValue, raw } } = number as any;
   
-    if(isParenthesized(number) || !/^0x/.test(raw)){
+    if(t.isParenthesized(number) || !/^0x/.test(raw)){
       if(raw.indexOf(".") > 0)
         return negative ? "-" + raw : raw;
   

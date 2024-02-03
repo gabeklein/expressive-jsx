@@ -1,21 +1,8 @@
-import * as t from '@babel/types';
-
 import { CONTEXT, Context, FunctionContext, getContext, ModuleContext } from './context';
 import { applyElement, isImplicitReturn } from './elements';
 import { handleLabel } from './label';
+import * as t from './types';
 
-export type {
-  Hub,
-  NodePath as Path,
-  Scope,
-  VisitNodeObject,
-  VisitNode
-} from '@babel/traverse';
-
-export { t };
-
-import type { PluginObj, PluginPass } from '@babel/core';
-import type { NodePath, VisitNodeObject } from '@babel/traverse';
 export interface Options {
   macros?: Record<string, (...args: any[]) => any>[];
 }
@@ -23,10 +10,10 @@ export interface Options {
 export type Macro = (...args: any[]) => Record<string, any>;
 
 type Visitor<T extends t.Node> =
-  VisitNodeObject<PluginPass & { context: Context }, T>;
+  t.VisitNodeObject<t.PluginPass & { context: Context }, T>;
 
 export default (babel: any) => {
-  return <PluginObj>({
+  return <t.PluginObj>({
     manipulateOptions(options, parse){
       parse.plugins.push("jsx");
     },
@@ -60,6 +47,7 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
 
     let parent = path.parentPath;
     let context = CONTEXT.get(parent);
+    let { name } = path.get("label").node;
 
     if(!context){
       parent = parent.parentPath!;
@@ -69,8 +57,6 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
       else
         throw new Error("Context not found");
     }
-
-    let { name } = path.get("label").node;
 
     handleLabel(context, name, body);
   },
@@ -87,9 +73,7 @@ const JSXElement: Visitor<t.JSXElement> = {
     
     const context = getContext(path, false);
 
-    if(!context)
-      return;
-
-    applyElement(context, path);
+    if(context)
+      applyElement(context, path);
   }
 }

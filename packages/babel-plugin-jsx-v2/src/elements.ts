@@ -1,15 +1,12 @@
-import { NodePath } from '@babel/traverse';
-import * as t from '@babel/types';
-
-import { returns } from './construct';
 import { DefineContext } from './context';
+import * as t from './types';
 
 export function isImplicitReturn(
-  path: NodePath<t.JSXElement> | NodePath<t.JSXFragment>){
+  path: t.NodePath<t.JSXElement> | t.NodePath<t.JSXFragment>){
 
   const statement = path.parentPath;
-  const block = statement.parentPath as NodePath<t.BlockStatement>;
-  const within = block.parentPath as NodePath;
+  const block = statement.parentPath as t.NodePath<t.BlockStatement>;
+  const within = block.parentPath as t.NodePath;
 
   if(!statement.isExpressionStatement() || !within.isFunction())
     return false;
@@ -17,7 +14,7 @@ export function isImplicitReturn(
   if(block.node.body.length === 1 && within.isArrowFunctionExpression())
     block.replaceWith(t.parenthesizedExpression(path.node));
   else
-    statement.replaceWith(returns(path.node));
+    statement.replaceWith(t.returns(path.node));
 
   path.skip();
 
@@ -26,7 +23,7 @@ export function isImplicitReturn(
 
 export function applyElement(
   context: DefineContext,
-  path: NodePath<t.JSXElement>){
+  path: t.NodePath<t.JSXElement>){
 
   const attrs = path.get("openingElement").get("attributes");
   const define = new Set<DefineContext>();

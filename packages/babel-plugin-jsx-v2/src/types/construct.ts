@@ -1,15 +1,6 @@
-import { t } from './';
+import * as t from '.';
 
 export type FlatValue = string | number | boolean | null;
-
-export function expression(value?: FlatValue | t.Expression){
-  try {
-    return literal(value as any);
-  }
-  catch(err){
-    return value as t.Expression;
-  }
-}
 
 export function literal(value: string): t.StringLiteral;
 export function literal(value: number): t.NumericLiteral;
@@ -19,7 +10,7 @@ export function literal(value: undefined): t.Identifier;
 export function literal(value: string | number | boolean | null | undefined){
   switch(typeof value){
     case "string":
-      return t.stringLiteral(value)//no;
+      return t.stringLiteral(value);
     case "number":
       return t.numericLiteral(value);
     case "boolean":
@@ -140,7 +131,7 @@ export function objectKeys(object: t.Expression){
   return call("Object.keys", object)
 }
 
-export function template(text: string){
+export function templateExpression(text: string){
   return t.templateLiteral([
     t.templateElement({ raw: text, cooked: text }, false)
   ], []);

@@ -1,11 +1,8 @@
-import * as t from '@babel/types';
-
 import { Macro } from '.';
 import { getName } from './entry';
+import * as t from './types';
 
-export const CONTEXT = new WeakMap<NodePath, Context>();
-
-import type { NodePath } from '@babel/traverse';
+export const CONTEXT = new WeakMap<t.NodePath, Context>();
 
 export class Context {
   define: Record<string, DefineContext> = {};
@@ -19,13 +16,13 @@ export class Context {
     this.macros = Object.create(parent.macros);
   }
 
-  assignTo(path: NodePath){
+  assignTo(path: t.NodePath){
     CONTEXT.set(path, this);
   }
 }
 
 export class ModuleContext extends Context {
-  constructor(path: NodePath){
+  constructor(path: t.NodePath){
     super();
     this.assignTo(path);
   }
@@ -35,8 +32,8 @@ export class DefineContext extends Context {
   name = "";
   styles: Record<string, string> = {};
 
-  apply(path: NodePath<t.JSXElement>){
-
+  apply(path: t.NodePath<t.JSXElement>){
+    
   }
 
   get(name: string): DefineContext[] {
@@ -62,16 +59,16 @@ export class DefineContext extends Context {
 }
 
 export class FunctionContext extends DefineContext {
-  constructor(public path: NodePath<t.Function>){
-    super(getContext(path));
+  constructor(public path: t.NodePath<t.Function>){
+    super(getContext(path, false));
     this.assignTo(path);
     this.name = getName(path);
   }
 }
 
-export function getContext(path: NodePath, required?: true): DefineContext;
-export function getContext(path: NodePath, required: boolean): DefineContext | undefined;
-export function getContext(path: NodePath, required?: boolean){
+export function getContext(path: t.NodePath, required?: true): DefineContext;
+export function getContext(path: t.NodePath, required: boolean): DefineContext | undefined;
+export function getContext(path: t.NodePath, required?: boolean){
   while (path) {
     const context = CONTEXT.get(path);
 

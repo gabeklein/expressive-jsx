@@ -1,13 +1,12 @@
-import { Hub, NodePath } from '@babel/traverse';
-import { t } from '.';
+import * as t from './types';
 
 type FunctionPath =
-  | NodePath<t.ClassMethod>
-  | NodePath<t.ObjectMethod>
-  | NodePath<t.FunctionDeclaration>
-  | NodePath<t.FunctionExpression>
+  | t.NodePath<t.ClassMethod>
+  | t.NodePath<t.ObjectMethod>
+  | t.NodePath<t.FunctionDeclaration>
+  | t.NodePath<t.FunctionExpression>
 
-export function getName(path: NodePath): string {
+export function getName(path: t.NodePath): string {
   let encounteredReturn;
 
   while(path)
@@ -60,7 +59,7 @@ export function getName(path: NodePath): string {
           if(node.key.type !== "Identifier")
             return "ClassMethod";
           if(node.key.name == "render"){
-            const owner = within.parentPath.parentPath as NodePath<t.Class>;
+            const owner = within.parentPath.parentPath as t.NodePath<t.Class>;
 
             if(owner.node.id)
               return owner.node.id.name;
@@ -92,7 +91,7 @@ export function getName(path: NodePath): string {
   return "element";
 }
 
-export function getLocalFilename(hub: Hub){
+export function getLocalFilename(hub: t.Hub){
   try {
     const { basename, dirname, sep: separator } = require('path');
 

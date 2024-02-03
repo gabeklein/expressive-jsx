@@ -1,14 +1,11 @@
-import { NodePath, Node } from '@babel/traverse';
-
-import type { t } from './';
+import * as t from './types';
 
 type FlatValue = string | number | boolean | null;
-
-type ParseError = <T extends t.Node>(node: NodePath<T> | T, ...args: FlatValue[]) => Error;
+type ParseError = <T extends t.Node>(node: t.NodePath<T> | T, ...args: FlatValue[]) => Error;
 
 export interface BabelFile extends File {
   buildCodeFrameError<TError extends Error>(
-    node: Node,
+    node: t.Node,
     msg: string,
     Error?: new (msg: string) => TError
   ): TError;

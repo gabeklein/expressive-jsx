@@ -1,20 +1,17 @@
-import { NodePath } from '@babel/traverse';
-
-import { t } from './';
 import { Parser } from './arguments';
-import { requires } from './construct';
 import { Context, DefineContext } from './context';
+import * as t from './types';
 
 type ModifierItem = {
   name: string,
   args: any[],
-  body?: NodePath<t.Statement>
+  body?: t.NodePath<t.Statement>
 }[];
 
 export function handleLabel(
   parent: Context,
   name: string,
-  body: NodePath){
+  body: t.NodePath){
 
   if(name.startsWith("$"))
     name = name.replace(/^\$/, "--");
@@ -40,7 +37,7 @@ export function handleLabel(
       const { name, args } = queue.pop()!;
       const apply = (...args: any[]) => {
         const parsed = args.map<any>(arg => arg.value || (
-          arg.requires ? requires(arg.requires) : arg
+          arg.requires ? t.requires(arg.requires) : arg
         ));
       
         const output = parsed.length == 1 || typeof parsed[0] == "object"
@@ -84,7 +81,7 @@ export function handleLabel(
   }
 }
 
-function parseError(path: NodePath, err: unknown, modiferName: string){
+function parseError(path: t.NodePath, err: unknown, modiferName: string){
   if(!(err instanceof Error))
     return path.hub.buildError(path.node, `Modifier "${modiferName}" failed: ${err}`);
 
