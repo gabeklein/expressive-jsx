@@ -61,8 +61,10 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
     handleLabel(context, name, body);
   },
   exit(path){
-    if(!IGNORE.has(path))
-      path.remove();
+    if(IGNORE.has(path))
+      return;
+
+    path.remove();
   }
 }
 
