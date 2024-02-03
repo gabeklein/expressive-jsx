@@ -16,10 +16,13 @@ export function handleLabel(
   name: string,
   body: NodePath){
 
+  if(name.startsWith("$"))
+    name = name.replace(/^\$/, "--");
+
   if(body.isBlockStatement()){
     const mod = new DefineContext(parent);
     mod.assignTo(body);
-    mod.define[name] = mod;
+    parent.define[name] = mod;
     return;
   }
 

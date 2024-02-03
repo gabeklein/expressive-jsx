@@ -6,9 +6,13 @@ const Component = () => {
     color: red;
   }
 
+  something: {
+    color: green;
+  }
+
   <this>
     Hello World
-    <div>
+    <div something>
       Hello World
     </div>
   </this>

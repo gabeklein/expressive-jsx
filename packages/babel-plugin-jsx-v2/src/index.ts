@@ -1,6 +1,7 @@
 import * as t from '@babel/types';
 
-import { CONTEXT, Context, FunctionContext, ProgramContext } from './context';
+import { CONTEXT, Context, FunctionContext, getContext, ModuleContext } from './context';
+import { applyElement, isImplicitReturn } from './elements';
 import { handleLabel } from './label';
 
 export type {
@@ -15,7 +16,6 @@ export { t };
 
 import type { PluginObj, PluginPass } from '@babel/core';
 import type { NodePath, VisitNodeObject } from '@babel/traverse';
-
 export interface Options {
   macros?: Record<string, (...args: any[]) => any>[];
 }
@@ -41,7 +41,7 @@ export default (babel: any) => {
 const Program: Visitor<t.Program> = {
   enter(path, state){
     const { macros } = state.opts as Options; 
-    const context = new ProgramContext(path);
+    const context = new ModuleContext(path);
 
     context.macros = Object.assign({}, ...macros || []);
   }
@@ -70,7 +70,9 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
         throw new Error("Context not found");
     }
 
-    handleLabel(context, getName(path), body);
+    let { name } = path.get("label").node;
+
+    handleLabel(context, name, body);
   },
   exit(path){
     if(!IGNORE.has(path))
@@ -79,21 +81,15 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
 }
 
 const JSXElement: Visitor<t.JSXElement> = {
-  enter(path, state){
-    // debugger;
+  enter(path){
+    if(isImplicitReturn(path))
+      return;
+    
+    const context = getContext(path, false);
+
+    if(!context)
+      return;
+
+    applyElement(context, path);
   }
-}
-
-function getName(
-  path: NodePath<t.LabeledStatement>){
-
-  const { name } = path.get("label").node;
-
-  // if(name.startsWith("_"))
-  //   throw Oops.BadModifierName(path);
-
-  if(name.startsWith("$"))
-    return name.replace(/^\$/, "--");
-
-  return name;
 }
