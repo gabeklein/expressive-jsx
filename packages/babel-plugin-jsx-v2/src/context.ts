@@ -32,10 +32,6 @@ export class DefineContext extends Context {
   name = "";
   styles: Record<string, string> = {};
 
-  apply(path: t.NodePath<t.JSXElement>){
-    
-  }
-
   get(name: string): DefineContext[] {
     if(name === "this"){
       let ctx: Context = this;

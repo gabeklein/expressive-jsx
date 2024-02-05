@@ -46,8 +46,11 @@ export function handleLabel(
         parent.styles[name] = output;
       }
 
+      if(!(parent instanceof DefineContext))
+        throw new Error("Invalid modifier");
+
       const macro = parent.macros[name] || apply;
-      const output = macro(...args);
+      const output = macro.apply(parent as DefineContext, args);
 
       if(!output)
         continue;
