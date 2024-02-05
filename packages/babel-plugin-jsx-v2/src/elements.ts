@@ -11,11 +11,7 @@ export function isImplicitReturn(
   if(!statement.isExpressionStatement() || !within.isFunction())
     return false;
 
-  if(block.node.body.length === 1 && within.isArrowFunctionExpression())
-    block.replaceWith(t.parenthesizedExpression(path.node));
-  else
     statement.replaceWith(t.returns(path.node));
-
   path.skip();
 
   return true;
