@@ -1,13 +1,14 @@
-import { CONTEXT, Context, FunctionContext, getContext, ModuleContext } from './context';
-import { applyElement, isImplicitReturn } from './elements';
+import { CONTEXT, Context, DefineContext, FunctionContext, getContext, ModuleContext } from './context';
+import { handleElement, isImplicitReturn } from './elements';
 import { handleLabel } from './label';
 import * as t from './types';
 
-export interface Options {
-  macros?: Record<string, (...args: any[]) => any>[];
-}
+export type Macro = (this: DefineContext, ...args: any[]) => Record<string, any> | void;
 
-export type Macro = (...args: any[]) => Record<string, any>;
+export interface Options {
+  macros?: Record<string, Macro>[];
+  define?: Record<string, DefineContext>[];
+}
 
 type Visitor<T extends t.Node> =
   t.VisitNodeObject<t.PluginPass & { context: Context }, T>;
@@ -27,10 +28,11 @@ export default (babel: any) => {
 
 const Program: Visitor<t.Program> = {
   enter(path, state){
-    const { macros } = state.opts as Options; 
+    const { macros, define } = state.opts as Options; 
     const context = new ModuleContext(path);
 
     context.macros = Object.assign({}, ...macros || []);
+    context.define = Object.assign({}, ...define || []);
   }
 }
 
@@ -76,6 +78,6 @@ const JSXElement: Visitor<t.JSXElement> = {
     const context = getContext(path, false);
 
     if(context)
-      applyElement(context, path);
+      handleElement(context, path);
   }
 }
