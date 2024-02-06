@@ -68,11 +68,19 @@ export function handleElement(
 function applyModifiers(
   path: t.NodePath<t.JSXElement>,
   define: Set<DefineContext>){
+
+  let forward: t.NodePath<t.Function> | undefined;
+  const classNames: t.Expression[] = [];
     
   for(const def of define){
     if(def instanceof FunctionContext)
-      forwardProps(def.path, path);
+      forward = def.path;
+
+    classNames.push(def.className);
   }
+
+  if(forward)
+    forwardProps(forward, path);
 }
 
 function setTagName(
@@ -91,14 +99,12 @@ function setTagName(
     closingElement.name = tag;
 }
 
-function generateUidIdentifier(scope: t.Scope, name = "temp") {
-  name = name.replace(/[0-9]+$/g, "");
+function uniqueIdentifier(scope: t.Scope, name = "temp") {
   let uid = name;
   let i = 0;
-  do {
-    if(i > 0)
-      uid = name + i;
 
+  do {
+    if(i > 0) uid = name + i;
     i++;
   } while (
     scope.hasLabel(uid) ||
@@ -106,9 +112,7 @@ function generateUidIdentifier(scope: t.Scope, name = "temp") {
     scope.hasGlobal(uid) ||
     scope.hasReference(uid)
   );
-  const program = scope.getProgramParent();
-  program.references[uid] = true;
-  program.uids[uid] = true;
+
   return t.identifier(uid);
 }
 
@@ -119,12 +123,12 @@ function forwardProps(
   let [ _props ] = parent.node.params;
 
   if(!_props){
-    _props = generateUidIdentifier(jsxElement.scope, "props");
+    _props = uniqueIdentifier(jsxElement.scope, "props");
     parent.node.params.unshift(_props);
   }
   else if(t.isObjectPattern(_props)){
     const props = _props;
-    _props = generateUidIdentifier(jsxElement.scope, "rest");
+    _props = uniqueIdentifier(jsxElement.scope, "rest");
     props.properties.push(t.restElement(_props));
   }
 
