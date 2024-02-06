@@ -1,5 +1,7 @@
 import { DefineContext, FunctionContext } from './context';
+import { setClassNames } from './syntax/className';
 import { forwardProps, hasProperTagName, setTagName } from './syntax/element';
+import { uniqueIdentifier } from './syntax/unique';
 import * as t from './types';
 
 export function isImplicitReturn(
@@ -69,8 +71,8 @@ function applyModifiers(
   path: t.NodePath<t.JSXElement>,
   define: Set<DefineContext>){
 
-  let forward: t.NodePath<t.Function> | undefined;
   const classNames: t.Expression[] = [];
+  let forward: t.NodePath<t.Function> | undefined;
     
   for(const def of define){
     if(def instanceof FunctionContext)
@@ -79,6 +81,34 @@ function applyModifiers(
     classNames.push(def.className);
   }
 
-  if(forward)
-    forwardProps(forward, path);
+  if(forward){
+    const props = forwardProps(forward, path);
+
+    if(classNames.length)
+      if(t.isIdentifier(props))
+        classNames.unshift(
+          t.memberExpression(props, t.identifier("className"))
+        );
+      else if(t.isObjectPattern(props)){
+        let className = props.properties.find(x => (
+          t.isObjectProperty(x) &&
+          t.isIdentifier(x.key, { name: "className" })
+        )) as t.ObjectProperty | undefined;
+
+        if(!className){
+          const id = uniqueIdentifier(path.scope, "className");
+
+          className = id.name === "className"
+            ? t.objectProperty(id, id, false, true)
+            : t.objectProperty(t.identifier("className"), id);
+          
+          props.properties.unshift(className);
+        }
+        
+        classNames.unshift(className.value as t.Expression);
+      }
+  }
+
+  if(classNames.length > 0)
+    setClassNames(path, classNames);  
 }
