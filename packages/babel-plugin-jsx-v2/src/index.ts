@@ -48,19 +48,21 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
     }
 
     let parent = path.parentPath;
-    let context = CONTEXT.get(parent);
     let { name } = path.get("label").node;
 
-    if(!context){
+    if(parent.isBlockStatement())
       parent = parent.parentPath!;
 
+    let context = CONTEXT.get(parent);
+
+    if(!context){
       if(parent.isFunction())
         context = new FunctionContext(parent);
       else
         throw new Error("Context not found");
     }
 
-    handleLabel(context, name, body);
+    handleLabel(context, name, path);
   },
   exit(path){
     if(IGNORE.has(path))
@@ -77,7 +79,7 @@ const JSXElement: Visitor<t.JSXElement> = {
     
     const context = getContext(path, false);
 
-    if(context)
+    if(context instanceof DefineContext)
       handleElement(context, path);
   }
 }

@@ -11,14 +11,16 @@ type ModifierItem = {
 export function handleLabel(
   parent: Context,
   name: string,
-  body: t.NodePath){
+  path: t.NodePath<t.LabeledStatement>){
+
+  const body = path.get("body");
 
   if(name.startsWith("$"))
     name = name.replace(/^\$/, "--");
 
   if(body.isBlockStatement()){
     const mod = new DefineContext(parent);
-    mod.assignTo(body);
+    mod.assignTo(path);
     parent.define[name] = mod;
     mod.name = name;
     return;

@@ -31,12 +31,10 @@ export class Context {
 
 export class ModuleContext extends Context {
   constructor(path: t.NodePath){
-    const filename = (path.hub as any).file.opts.filename;
-
     super();
     this.assignTo(path);
     Object.defineProperty(this, "uid", {
-      value: simpleHash(filename)
+      value: (path.hub as any).file.opts.filename
     });
   }
 }
@@ -79,13 +77,13 @@ export class FunctionContext extends DefineContext {
   }
 }
 
-export function getContext(path: t.NodePath, required?: true): DefineContext;
-export function getContext(path: t.NodePath, required: boolean): DefineContext | undefined;
+export function getContext(path: t.NodePath, required?: true): Context;
+export function getContext(path: t.NodePath, required: boolean): Context | undefined;
 export function getContext(path: t.NodePath, required?: boolean){
   while (path) {
     const context = CONTEXT.get(path);
 
-    if(context instanceof DefineContext)
+    if(context instanceof Context)
       return context;
 
     path = path.parentPath!;
