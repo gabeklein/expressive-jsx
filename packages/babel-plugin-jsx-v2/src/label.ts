@@ -20,6 +20,7 @@ export function handleLabel(
     const mod = new DefineContext(parent);
     mod.assignTo(body);
     parent.define[name] = mod;
+    mod.name = name;
     return;
   }
 

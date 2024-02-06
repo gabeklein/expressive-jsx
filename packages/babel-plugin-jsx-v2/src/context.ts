@@ -1,12 +1,20 @@
 import { Macro } from '.';
 import { getName } from './entry';
+import { simpleHash } from './helper/simpleHash';
 import * as t from './types';
 
 export const CONTEXT = new WeakMap<t.NodePath, Context>();
 
 export class Context {
+  name = "";
   define: Record<string, DefineContext> = {};
   macros: Record<string, Macro> = {};
+
+  get uid(): string {
+    const uid = this.name + "_" + simpleHash(this.parent?.uid);
+    Object.defineProperty(this, "uid", { value: uid });
+    return uid;
+  }
 
   constructor(public parent?: Context){
     if(!parent)
@@ -23,14 +31,23 @@ export class Context {
 
 export class ModuleContext extends Context {
   constructor(path: t.NodePath){
+    const filename = (path.hub as any).file.opts.filename;
+
     super();
     this.assignTo(path);
+    Object.defineProperty(this, "uid", {
+      value: simpleHash(filename)
+    });
   }
 }
 
 export class DefineContext extends Context {
   name = "";
   styles: Record<string, string> = {};
+  
+  get className(){
+    return t.stringLiteral(this.uid);
+  }
 
   get(name: string): DefineContext[] {
     if(name === "this"){
