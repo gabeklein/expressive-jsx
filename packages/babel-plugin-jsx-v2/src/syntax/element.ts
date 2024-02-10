@@ -114,10 +114,9 @@ export function fixImplicitReturn(
   const within = block.parentPath as t.NodePath;
 
   if(!statement.isExpressionStatement() || !within.isFunction())
-    return false;
+    return;
 
-  statement.replaceWith(t.returns(path.node));
-  path.skip();
+  const [ output ] = statement.replaceWith(t.returns(path.node));
 
-  return true;
+  output.skip();
 }

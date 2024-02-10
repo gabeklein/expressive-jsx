@@ -83,12 +83,12 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
 
 const JSXElement: Visitor<t.JSXElement> = {
   enter(path){
-    if(fixImplicitReturn(path))
-      return;
-    
     const context = getContext(path, false);
 
     if(context instanceof DefineContext)
       handleElement(context, path);
+  },
+  exit(path){
+    fixImplicitReturn(path);
   }
 }
