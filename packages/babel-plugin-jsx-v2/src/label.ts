@@ -9,26 +9,26 @@ type ModifierItem = {
 }[];
 
 export function handleLabel(
-  parent: Context,
+  context: Context,
   path: t.NodePath<t.LabeledStatement>){
 
   const body = path.get("body");
 
   if(body.isBlockStatement()){
-    new DefineContext(parent, path);
+    new DefineContext(context, path);
     return;
   }
 
   if(!body.isExpressionStatement())
     return;
 
-  if(!(parent instanceof DefineContext))
+  if(!(context instanceof DefineContext))
     throw new Error("Invalid modifier");
 
   let { name } = path.node.label;
 
   try {
-    applyMacros(parent, name, body);
+    applyMacros(context, name, body);
   }
   catch(err: unknown){
     throw parseError(body, err, name);

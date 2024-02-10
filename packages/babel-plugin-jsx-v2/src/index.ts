@@ -84,18 +84,19 @@ const JSXElement: Visitor<t.JSXElement> = {
   enter(path){
     const context = getContext(path, false);
 
-    if(context instanceof DefineContext){
-      const element = new AbstractJSX(path, context);
-      let tag = path.node.openingElement.name;
+    if(!(context instanceof DefineContext))
+      return;
+    
+    const element = new AbstractJSX(path, context);
+    let tag = path.node.openingElement.name;
 
-      while(t.isJSXMemberExpression(tag)){
-        element.use(tag.property.name);
-        tag = tag.object;
-      }
-  
-      if(t.isJSXIdentifier(tag))
-        element.use(tag.name);
+    while(t.isJSXMemberExpression(tag)){
+      element.use(tag.property.name);
+      tag = tag.object;
     }
+
+    if(t.isJSXIdentifier(tag))
+      element.use(tag.name);
   },
   exit(path){
     const statement = path.parentPath;

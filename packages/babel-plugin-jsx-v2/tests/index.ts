@@ -1,8 +1,10 @@
 import { transformAsync } from '@babel/core';
 
-import Plugin, { Options } from '../src';
+import Plugin from '../src';
 
-export async function parse(source: string, options: Options){
+export async function parse(
+  source: string, options: Plugin.Options){
+
   return transformAsync(source, {
     filename: '/test.js',
     plugins: [
