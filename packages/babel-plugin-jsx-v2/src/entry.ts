@@ -1,11 +1,5 @@
 import * as t from './types';
 
-type FunctionPath =
-  | t.NodePath<t.ClassMethod>
-  | t.NodePath<t.ObjectMethod>
-  | t.NodePath<t.FunctionDeclaration>
-  | t.NodePath<t.FunctionExpression>
-
 export function getName(path: t.NodePath): string {
   let encounteredReturn;
 
@@ -21,7 +15,7 @@ export function getName(path: t.NodePath): string {
       case "AssignmentExpression":
       case "AssignmentPattern": {
         const { left } = path.node as t.AssignmentExpression;
-        return t.isIdentifier(left) ? left.name : "assignment"
+        return t.isIdentifier(left) ? left.name : "assignment";
       }
 
       case "FunctionDeclaration":
@@ -40,35 +34,34 @@ export function getName(path: t.NodePath): string {
           return "return";
 
         encounteredReturn = path;
-        const ancestry = path.getAncestry();
-        const within = ancestry.find((x)=> x.isFunction()) as FunctionPath | undefined;
 
-        if(!within)
-          throw new Error("wat");
+        const ancestry = path.getAncestry();
+        const within = ancestry.find((x)=> x.isFunction()) as t.NodePath<t.Function>;
 
         const { node } = within;
+
         if("id" in node && node.id)
           return node.id.name;
 
         if(t.isObjectMethod(node)){
           path = within.getAncestry()[2];
-          continue
+          continue;
         }
 
         if(t.isClassMethod(node)){
           if(node.key.type !== "Identifier")
             return "ClassMethod";
-          if(node.key.name == "render"){
-            const owner = within.parentPath.parentPath as t.NodePath<t.Class>;
 
-            if(owner.node.id)
-              return owner.node.id.name;
-
-            path = owner.parentPath;
-            continue;
-          }
-          else
+          if(node.key.name != "render")
             return node.key.name;
+
+          const owner = within.parentPath.parentPath as t.NodePath<t.Class>;
+
+          if(owner.node.id)
+            return owner.node.id.name;
+
+          path = owner.parentPath;
+          continue;
         }
 
         path = within.parentPath;
