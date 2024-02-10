@@ -52,6 +52,15 @@ export class JSXElement {
           value
         } = attr.node;
 
+        if(name === "className"){
+          const className = t.isJSXExpressionContainer(value)
+            ? value.expression
+            : value;
+
+          if(t.isExpression(className))
+            this.classNames.push(className);
+        }
+
         if(value)
           continue;
       
