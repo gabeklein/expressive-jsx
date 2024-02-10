@@ -24,6 +24,10 @@ export function importClassNamesHelper(path: t.NodePath) {
   }
 
   const id = uniqueIdentifier(path.scope, "classNames");
+
+  if(Options.polyfill === false)
+    return id;
+
   const importStatement = t.importDeclaration(
     [t.importSpecifier(id, t.identifier("classNames"))],
     t.stringLiteral(Options.polyfill || POLYFILL)

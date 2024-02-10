@@ -10,7 +10,7 @@ export interface Options {
   define?: Record<string, DefineContext>[];
   assign?(this: DefineContext, ...args: any[]): void;
   apply?(this: DefineContext, path: t.NodePath<t.JSXElement>): void;
-  polyfill?: string;
+  polyfill?: string | false;
 }
 
 export const Options: Options = {};
