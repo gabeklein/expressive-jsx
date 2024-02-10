@@ -48,7 +48,6 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
     }
 
     let parent = path.parentPath;
-    let { name } = path.get("label").node;
 
     if(parent.isBlockStatement())
       parent = parent.parentPath!;
@@ -62,7 +61,7 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
         throw new Error("Context not found");
     }
 
-    handleLabel(context, name, path);
+    handleLabel(context, path);
   },
   exit(path){
     if(IGNORE.has(path))

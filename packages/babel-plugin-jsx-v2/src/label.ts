@@ -10,10 +10,10 @@ type ModifierItem = {
 
 export function handleLabel(
   parent: Context,
-  name: string,
   path: t.NodePath<t.LabeledStatement>){
 
   const body = path.get("body");
+  let name = path.node.label.name;
 
   if(name.startsWith("$"))
     name = name.replace(/^\$/, "--");
