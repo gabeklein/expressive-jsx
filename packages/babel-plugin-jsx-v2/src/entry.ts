@@ -5,6 +5,9 @@ export function getName(path: t.NodePath): string {
 
   while(path)
     switch(path.type){
+      case "LabeledStatement":
+        return (<t.LabeledStatement>path.node).label.name;
+
       case "VariableDeclarator": {
         const { id } = path.node as t.VariableDeclarator;
         return t.isIdentifier(id)

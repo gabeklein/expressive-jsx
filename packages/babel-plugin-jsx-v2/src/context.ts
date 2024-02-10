@@ -45,8 +45,18 @@ export class ModuleContext extends Context {
 }
 
 export class DefineContext extends Context {
-  name = "";
+  name: string;
   styles: Record<string, string> = {};
+
+  constructor(parent: Context | undefined, public path: t.NodePath){
+    super(parent);
+
+    const name = this.name = getName(path);
+    this.assignTo(path);
+
+    if(parent)
+      parent.define[name] = this;
+  }
   
   get className(){
     return t.stringLiteral(this.uid);
@@ -75,9 +85,7 @@ export class DefineContext extends Context {
 
 export class FunctionContext extends DefineContext {
   constructor(public path: t.NodePath<t.Function>){
-    super(getContext(path, false));
-    this.assignTo(path);
-    this.name = getName(path);
+    super(getContext(path, false), path);
   }
 }
 

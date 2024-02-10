@@ -13,16 +13,9 @@ export function handleLabel(
   path: t.NodePath<t.LabeledStatement>){
 
   const body = path.get("body");
-  let { name } = path.node.label;
-
-  if(name.startsWith("$"))
-    name = name.replace(/^\$/, "--");
 
   if(body.isBlockStatement()){
-    const mod = new DefineContext(parent);
-    mod.assignTo(path);
-    mod.name = name;
-    parent.define[name] = mod;
+    new DefineContext(parent, path);
     return;
   }
 
@@ -31,6 +24,8 @@ export function handleLabel(
 
   if(!(parent instanceof DefineContext))
     throw new Error("Invalid modifier");
+
+  let { name } = path.node.label;
 
   try {
     applyMacros(parent, name, body);
