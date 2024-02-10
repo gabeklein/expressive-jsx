@@ -3,22 +3,6 @@ import { setClassNames } from './syntax/className';
 import { extractClassName, forwardProps, hasProperTagName, setTagName } from './syntax/element';
 import * as t from './types';
 
-export function isImplicitReturn(
-  path: t.NodePath<t.JSXElement> | t.NodePath<t.JSXFragment>){
-
-  const statement = path.parentPath;
-  const block = statement.parentPath as t.NodePath<t.BlockStatement>;
-  const within = block.parentPath as t.NodePath;
-
-  if(!statement.isExpressionStatement() || !within.isFunction())
-    return false;
-
-  statement.replaceWith(t.returns(path.node));
-  path.skip();
-
-  return true;
-}
-
 export function handleElement(
   context: DefineContext,
   path: t.NodePath<t.JSXElement>){

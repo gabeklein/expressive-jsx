@@ -1,6 +1,7 @@
 import { CONTEXT, Context, DefineContext, FunctionContext, getContext, ModuleContext } from './context';
-import { handleElement, isImplicitReturn } from './elements';
+import { handleElement } from './elements';
 import { handleLabel } from './label';
+import { fixImplicitReturn } from './syntax/element';
 import * as t from './types';
 
 export type Macro = (this: DefineContext, ...args: any[]) => Record<string, any> | void;
@@ -86,7 +87,7 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
 
 const JSXElement: Visitor<t.JSXElement> = {
   enter(path){
-    if(isImplicitReturn(path))
+    if(fixImplicitReturn(path))
       return;
     
     const context = getContext(path, false);
