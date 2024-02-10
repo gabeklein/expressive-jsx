@@ -1,5 +1,5 @@
 import { CONTEXT, Context, DefineContext, FunctionContext, getContext, ModuleContext } from './context';
-import { handleElement } from './elements';
+import { AbstractJSX } from './elements';
 import { handleLabel } from './label';
 import { Macro, Options } from './options';
 import { fixImplicitReturn } from './syntax/element';
@@ -85,8 +85,18 @@ const JSXElement: Visitor<t.JSXElement> = {
   enter(path){
     const context = getContext(path, false);
 
-    if(context instanceof DefineContext)
-      handleElement(context, path);
+    if(context instanceof DefineContext){
+      const element = new AbstractJSX(path, context);
+      let tag = path.node.openingElement.name;
+
+      while(t.isJSXMemberExpression(tag)){
+        element.use(tag.property.name);
+        tag = tag.object;
+      }
+  
+      if(t.isJSXIdentifier(tag))
+        element.use(tag.name);
+    }
   },
   exit(path){
     fixImplicitReturn(path);

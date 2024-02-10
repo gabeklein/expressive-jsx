@@ -3,15 +3,8 @@ import { setClassNames } from './syntax/className';
 import { extractClassName, forwardProps, hasProperTagName, setTagName } from './syntax/element';
 import * as t from './types';
 
-export function handleElement(
-  context: DefineContext,
-  path: t.NodePath<t.JSXElement>){
-
-  new JSXElement(path, context)
-}
-
-export class JSXElement {
-  forward = false;
+export class AbstractJSX {
+  forwardProps = false;
   using = new Set<DefineContext>();
 
   props: Record<string, t.Expression> = {};
@@ -33,7 +26,8 @@ export class JSXElement {
   }
 
   protected parse(){
-    let tag = this.path.node.openingElement.name;
+    const opening = this.path.get("openingElement");
+    let tag = opening.node.name;
 
     while(t.isJSXMemberExpression(tag)){
       this.use(tag.property.name);
@@ -43,37 +37,34 @@ export class JSXElement {
     if(t.isJSXIdentifier(tag))
       this.use(tag.name);
 
-    const attrs = this.path.get("openingElement").get("attributes");
+    for(const attr of opening.get("attributes")){
+      if(!attr.isJSXAttribute())
+        continue;
 
-    for(const attr of attrs)
-      if(attr.isJSXAttribute()){
-        let {
-          name: { name },
-          value
-        } = attr.node;
+      let { name: { name }, value } = attr.node;
 
-        if(name === "className"){
-          const className = t.isJSXExpressionContainer(value)
-            ? value.expression
-            : value;
+      if(name === "className"){
+        const className = t.isJSXExpressionContainer(value)
+          ? value.expression
+          : value;
 
-          if(t.isExpression(className))
-            this.classNames.push(className);
-        }
-
-        if(value)
-          continue;
-      
-        if(typeof name !== "string")
-          name = name.name;
-        
-        if(this.use(name))
-          attr.remove();
+        if(t.isExpression(className))
+          this.classNames.push(className);
       }
+
+      if(value)
+        continue;
+    
+      if(typeof name !== "string")
+        name = name.name;
+      
+      if(this.use(name))
+        attr.remove();
+    }
 
     for(const def of this.using){
       if(def instanceof FunctionContext)
-        this.forward = true;
+        this.forwardProps = true;
 
       this.classNames.push(def.className);
     }
@@ -82,7 +73,7 @@ export class JSXElement {
   protected apply(){
     const { classNames, path } = this;
 
-    if(this.forward){
+    if(this.forwardProps){
       const props = forwardProps(path);
 
       if(classNames.length)
