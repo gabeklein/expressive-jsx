@@ -105,18 +105,3 @@ export function extractClassName(
 
   return value;
 }
-
-export function fixImplicitReturn(
-  path: t.NodePath<t.JSXElement> | t.NodePath<t.JSXFragment>){
-
-  const statement = path.parentPath;
-  const block = statement.parentPath as t.NodePath<t.BlockStatement>;
-  const within = block.parentPath as t.NodePath;
-
-  if(!statement.isExpressionStatement() || !within.isFunction())
-    return;
-
-  const [ output ] = statement.replaceWith(t.returns(path.node));
-
-  output.skip();
-}

@@ -2,7 +2,6 @@ import { CONTEXT, Context, DefineContext, FunctionContext, getContext, ModuleCon
 import { AbstractJSX } from './elements';
 import { handleLabel } from './label';
 import { Macro, Options } from './options';
-import { fixImplicitReturn } from './syntax/element';
 import * as t from './types';
 
 type Visitor<T extends t.Node> =
@@ -99,6 +98,9 @@ const JSXElement: Visitor<t.JSXElement> = {
     }
   },
   exit(path){
-    fixImplicitReturn(path);
+    const statement = path.parentPath;
+
+    if(statement.isExpressionStatement())
+      statement.replaceWith(t.returns(path.node))[0].skip();
   }
 }
