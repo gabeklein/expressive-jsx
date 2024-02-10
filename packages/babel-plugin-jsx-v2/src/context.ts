@@ -1,6 +1,6 @@
-import { Macro } from '.';
 import { getName } from './entry';
 import { simpleHash } from './helper/simpleHash';
+import { Macro } from './options';
 import * as t from './types';
 
 export const CONTEXT = new WeakMap<t.NodePath, Context>();

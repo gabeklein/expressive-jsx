@@ -1,3 +1,4 @@
+import { Options } from '../options';
 import * as t from '../types';
 import { uniqueIdentifier } from './unique';
 
@@ -25,7 +26,7 @@ export function importClassNamesHelper(path: t.NodePath) {
   const id = uniqueIdentifier(path.scope, "classNames");
   const importStatement = t.importDeclaration(
     [t.importSpecifier(id, t.identifier("classNames"))],
-    t.stringLiteral(POLYFILL)
+    t.stringLiteral(Options.polyfill || POLYFILL)
   );
 
   program.node.body.unshift(importStatement);

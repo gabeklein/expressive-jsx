@@ -16,7 +16,8 @@ async function stuff(){
     plugins: [
       [Plugin, <Plugin.Options>{
         assign: assignStyle,
-        macros: [{ absolute }]
+        macros: [{ absolute }],
+        polyfill: "POLYFILL"
       }]
     ]
   });

@@ -1,28 +1,21 @@
 import { CONTEXT, Context, DefineContext, FunctionContext, getContext, ModuleContext } from './context';
 import { handleElement } from './elements';
 import { handleLabel } from './label';
+import { Macro, Options } from './options';
 import { fixImplicitReturn } from './syntax/element';
 import * as t from './types';
-
-export type Macro = (this: DefineContext, ...args: any[]) => Record<string, any> | void;
-
-export interface Options {
-  macros?: Record<string, Macro>[];
-  define?: Record<string, DefineContext>[];
-  assign?(this: DefineContext, ...args: any[]): void;
-  apply?(this: DefineContext, path: t.NodePath<t.JSXElement>): void;
-}
 
 type Visitor<T extends t.Node> =
   t.VisitNodeObject<t.PluginPass & { context: Context }, T>;
 
 declare namespace Plugin {
-  export { Options }
+  export { Options };
+  export { Macro };
 }
-  
-const Plugin = (babel: any) => {
+
+function Plugin(){
   return <t.PluginObj>({
-    manipulateOptions(options, parse){
+    manipulateOptions(_options, parse){
       parse.plugins.push("jsx");
     },
     visitor: {
@@ -37,7 +30,10 @@ export default Plugin;
 
 const Program: Visitor<t.Program> = {
   enter(path, state){
-    const { macros, define, assign } = state.opts as Options; 
+    const options = state.opts as Options;
+    const { macros, define, assign } = options; 
+
+    Object.assign(Options, options);
 
     if(!assign)
       throw new Error(`Plugin has not defined an assign method.`);
