@@ -24,10 +24,12 @@ export function setClassNames(
 
   classNames = optimizeClassNames(classNames);
 
-  const helper = importClassNamesHelper(path);
   const classNameValue = classNames.length == 1
     ? classNames[0]
-    : t.callExpression(helper, classNames);
+    : t.callExpression(
+      importClassNamesHelper(path),
+      classNames
+    );
   
   const classNamePropValue = t.isStringLiteral(classNameValue)
     ? classNameValue
