@@ -19,9 +19,9 @@ export function setTagName(
 }
 
 export function forwardProps(
-  parent: t.NodePath<t.Function>,
   jsxElement: t.NodePath<t.JSXElement>){
 
+  const parent = jsxElement.findParent(x => x.isFunction()) as t.NodePath<t.Function>;
   let [ props ] = parent.node.params;
   let spreadProps;
 
@@ -71,4 +71,37 @@ export function hasProperTagName(element: t.NodePath<t.JSXElement>){
   }
 
   return false;
+}
+
+export function extractClassName(
+  props: t.Node,
+  path: t.NodePath<t.JSXElement>){
+
+  if(t.isIdentifier(props))
+    return t.memberExpression(props, t.identifier("className"));
+
+  if(!t.isObjectPattern(props))
+    throw new Error(`Expected an ObjectPattern or Identifier, got ${props.type}`);
+
+  let classNameProp = props.properties.find(x => (
+    t.isObjectProperty(x) &&
+    t.isIdentifier(x.key, { name: "className" })
+  )) as t.ObjectProperty | undefined;
+
+  if(!classNameProp){
+    const id = uniqueIdentifier(path.scope, "className");
+
+    classNameProp = id.name === "className"
+      ? t.objectProperty(id, id, false, true)
+      : t.objectProperty(t.identifier("className"), id);
+      
+    props.properties.unshift(classNameProp);
+  }
+
+  const { value } = classNameProp;
+
+  if(!t.isExpression(value))
+    throw new Error(`Cannot get className from ${value.type}`);
+
+  return value;
 }

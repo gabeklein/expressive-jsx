@@ -8,12 +8,18 @@ export type Macro = (this: DefineContext, ...args: any[]) => Record<string, any>
 export interface Options {
   macros?: Record<string, Macro>[];
   define?: Record<string, DefineContext>[];
+  assign?(this: DefineContext, ...args: any[]): void;
+  apply?(this: DefineContext, path: t.NodePath<t.JSXElement>): void;
 }
 
 type Visitor<T extends t.Node> =
   t.VisitNodeObject<t.PluginPass & { context: Context }, T>;
 
-export default (babel: any) => {
+declare namespace Plugin {
+  export { Options }
+}
+  
+const Plugin = (babel: any) => {
   return <t.PluginObj>({
     manipulateOptions(options, parse){
       parse.plugins.push("jsx");
@@ -26,13 +32,20 @@ export default (babel: any) => {
   })
 }
 
+export default Plugin;
+
 const Program: Visitor<t.Program> = {
   enter(path, state){
-    const { macros, define } = state.opts as Options; 
+    const { macros, define, assign } = state.opts as Options; 
+
+    if(!assign)
+      throw new Error(`Plugin has not defined an assign method.`);
+
     const context = new ModuleContext(path);
 
     context.macros = Object.assign({}, ...macros || []);
     context.define = Object.assign({}, ...define || []);
+    context.assign = assign;
   }
 }
 

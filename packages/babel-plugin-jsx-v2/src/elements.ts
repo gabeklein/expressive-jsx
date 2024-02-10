@@ -1,7 +1,6 @@
 import { DefineContext, FunctionContext } from './context';
 import { setClassNames } from './syntax/className';
-import { forwardProps, hasProperTagName, setTagName } from './syntax/element';
-import { uniqueIdentifier } from './syntax/unique';
+import { extractClassName, forwardProps, hasProperTagName, setTagName } from './syntax/element';
 import * as t from './types';
 
 export function isImplicitReturn(
@@ -24,91 +23,83 @@ export function handleElement(
   context: DefineContext,
   path: t.NodePath<t.JSXElement>){
 
-  const attrs = path.get("openingElement").get("attributes");
-  const define = new Set<DefineContext>();
-  const using = (name: string) => {
-    const apply = context.get(name);
-    apply.forEach(x => define.add(x));
-    return apply.length > 0;
-  }
-  
-  let tag = path.node.openingElement.name;
-
-  while(t.isJSXMemberExpression(tag)){
-    using(tag.property.name);
-    tag = tag.object;
-  }
-
-  if(t.isJSXIdentifier(tag))
-    using(tag.name);
-
-  if(!hasProperTagName(path))
-    setTagName(path, "div");
-
-  for(const attr of attrs){
-    if(attr.isJSXSpreadAttribute())
-      continue;
-
-    let {
-      name: { name },
-      value
-    } = attr.node as t.JSXAttribute;
-
-    if(value)
-      continue;
-  
-    if(typeof name !== "string")
-      name = name.name;
-    
-    if(using(name))
-      attr.remove();
-  }
-
-  applyModifiers(path, define);
+  new JSXElement(path, context)
 }
 
-function applyModifiers(
-  path: t.NodePath<t.JSXElement>,
-  define: Set<DefineContext>){
+export class JSXElement {
+  forward = false;
+  using = new Set<DefineContext>();
 
-  const classNames: t.Expression[] = [];
-  let forward: t.NodePath<t.Function> | undefined;
-    
-  for(const def of define){
-    if(def instanceof FunctionContext)
-      forward = def.path;
+  props: Record<string, t.Expression> = {};
+  styles: Record<string, t.Expression | string> = {};
+  classNames: t.Expression[] = [];
 
-    classNames.push(def.className);
+  constructor(
+    public path: t.NodePath<t.JSXElement>,
+    public context: DefineContext){
+
+    this.parse();
+    this.apply();
   }
 
-  if(forward){
-    const props = forwardProps(forward, path);
+  use(name: string){
+    const apply = this.context.get(name);
+    apply.forEach(x => this.using.add(x));
+    return apply.length > 0;
+  }
 
-    if(classNames.length)
-      if(t.isIdentifier(props))
-        classNames.unshift(
-          t.memberExpression(props, t.identifier("className"))
-        );
-      else if(t.isObjectPattern(props)){
-        let className = props.properties.find(x => (
-          t.isObjectProperty(x) &&
-          t.isIdentifier(x.key, { name: "className" })
-        )) as t.ObjectProperty | undefined;
+  protected parse(){
+    let tag = this.path.node.openingElement.name;
 
-        if(!className){
-          const id = uniqueIdentifier(path.scope, "className");
+    while(t.isJSXMemberExpression(tag)){
+      this.use(tag.property.name);
+      tag = tag.object;
+    }
 
-          className = id.name === "className"
-            ? t.objectProperty(id, id, false, true)
-            : t.objectProperty(t.identifier("className"), id);
-          
-          props.properties.unshift(className);
-        }
+    if(t.isJSXIdentifier(tag))
+      this.use(tag.name);
+
+    const attrs = this.path.get("openingElement").get("attributes");
+
+    for(const attr of attrs)
+      if(attr.isJSXAttribute()){
+        let {
+          name: { name },
+          value
+        } = attr.node;
+
+        if(value)
+          continue;
+      
+        if(typeof name !== "string")
+          name = name.name;
         
-        classNames.unshift(className.value as t.Expression);
+        if(this.use(name))
+          attr.remove();
       }
+
+    for(const def of this.using){
+      if(def instanceof FunctionContext)
+        this.forward = true;
+
+      this.classNames.push(def.className);
+    }
   }
 
-  if(classNames.length > 0)
-    setClassNames(path, classNames);  
+  protected apply(){
+    const { classNames, path } = this;
+
+    if(this.forward){
+      const props = forwardProps(path);
+
+      if(classNames.length)
+        classNames.unshift(extractClassName(props, path))
+    }
+
+    if(!hasProperTagName(path))
+      setTagName(path, "div");
+
+    if(this.classNames.length > 0)
+      setClassNames(this.path, this.classNames);
+  }
 }

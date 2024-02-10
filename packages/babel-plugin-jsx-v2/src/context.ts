@@ -5,7 +5,7 @@ import * as t from './types';
 
 export const CONTEXT = new WeakMap<t.NodePath, Context>();
 
-export class Context {
+export abstract class Context {
   name = "";
   define: Record<string, DefineContext> = {};
   macros: Record<string, Macro> = {};
@@ -16,12 +16,17 @@ export class Context {
     return uid;
   }
 
+  assign!: (...args: any[]) => void;
+  apply?(path: t.NodePath<t.JSXElement>): void;
+
   constructor(public parent?: Context){
     if(!parent)
       return;
 
     this.define = Object.create(parent.define);
     this.macros = Object.create(parent.macros);
+    this.assign = parent.assign;
+    this.apply = parent.apply;
   }
 
   assignTo(path: t.NodePath){

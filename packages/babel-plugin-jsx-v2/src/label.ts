@@ -21,8 +21,8 @@ export function handleLabel(
   if(body.isBlockStatement()){
     const mod = new DefineContext(parent);
     mod.assignTo(path);
-    parent.define[name] = mod;
     mod.name = name;
+    parent.define[name] = mod;
     return;
   }
 
@@ -38,28 +38,28 @@ export function handleLabel(
   try {
     while(queue.length){
       const { name, args } = queue.pop()!;
-      const apply = (...args: any[]) => {
-        const parsed = args.map<any>(arg => arg.value || (
-          arg.requires ? t.requires(arg.requires) : arg
-        ));
-      
-        const output = parsed.length == 1 || typeof parsed[0] == "object"
-          ? parsed[0] : Array.from(parsed).join(" ");
+      const apply = (args: any[]) => {
 
-        parent.styles[name] = output;
+        parent.assign(name, ...args);
       }
 
       if(!(parent instanceof DefineContext))
         throw new Error("Invalid modifier");
 
-      const macro = parent.macros[name] || apply;
+      const macro = parent.macros[name];
+
+      if(!macro){
+        apply(args);
+        continue;
+      }
+
       const output = macro.apply(parent as DefineContext, args);
 
       if(!output)
         continue;
 
       if(Array.isArray(output)){
-        apply(...output);
+        apply(output);
         continue;
       }
       

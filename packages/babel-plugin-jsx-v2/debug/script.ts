@@ -4,19 +4,19 @@ import { resolve } from 'path';
 import { format } from 'prettier';
 
 import Plugin from '../src';
+import { DefineContext } from '../src/context';
 
 const file = (path: string) => resolve(__dirname, path);
+const CSS = new Map<DefineContext, Record<string, string>>();
 
 async function stuff(){
   const source = await readFile(file("input.jsx"), "utf-8");
-
   const result = await transformAsync(source, {
     filename: '/REPL.js',
     plugins: [
-      [Plugin, {
-        macros: [{
-          absolute
-        }]
+      [Plugin, <Plugin.Options>{
+        assign: assignStyle,
+        macros: [{ absolute }]
       }]
     ]
   });
@@ -31,6 +31,17 @@ async function stuff(){
 
   console.clear();
   console.log("\n" + output + "\n");
+}
+
+function assignStyle(this: DefineContext, ...args: any[]){
+  let styles = CSS.get(this);
+  const output = args.length == 1 || typeof args[0] == "object"
+    ? args[0] : Array.from(args).join(" ");
+
+  if(!styles)
+    CSS.set(this, styles = {});
+
+  styles["assign"] = output;
 }
 
 function absolute(offset: number){
