@@ -38,7 +38,7 @@ function generateCss(){
   let css = "<style>\n";
 
   for(const [context, styles] of CSS){
-    css += `  ${context.selector} {\n`;
+    css += `  .${context.uid} {\n`;
 
     for(const [name, value] of Object.entries(styles))
       css += `    ${name}: ${value};\n`;

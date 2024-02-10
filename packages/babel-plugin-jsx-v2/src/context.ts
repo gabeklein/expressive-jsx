@@ -52,17 +52,12 @@ export class DefineContext extends Context {
     return t.stringLiteral(this.uid);
   }
 
-  get selector(){
-    return "." + this.uid;
-  }
-
   get(name: string): DefineContext[] {
     if(name === "this"){
       let ctx: Context = this;
   
-      do {
-        if(ctx instanceof FunctionContext)
-          return [ctx];
+      do if(ctx instanceof FunctionContext){
+        return [ctx];
       }
       while(ctx = ctx.parent!);
       
