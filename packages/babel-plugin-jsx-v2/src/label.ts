@@ -13,7 +13,7 @@ export function handleLabel(
   path: t.NodePath<t.LabeledStatement>){
 
   const body = path.get("body");
-  let name = path.node.label.name;
+  let { name } = path.node.label;
 
   if(name.startsWith("$"))
     name = name.replace(/^\$/, "--");
@@ -51,7 +51,6 @@ function applyMacros(
   while(queue.length){
     const { name, args } = queue.pop()!;
     const apply = (args: any[]) => {
-
       parent.assign(name, ...args);
     }
 
