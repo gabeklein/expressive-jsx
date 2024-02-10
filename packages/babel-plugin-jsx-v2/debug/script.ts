@@ -30,10 +30,26 @@ async function stuff(){
   });
 
   console.clear();
-  console.log("\n" + output + "\n");
+  console.log(output);
+  console.log(generateCss());
 }
 
-function assignStyle(this: DefineContext, ...args: any[]){
+function generateCss(){
+  let css = "<style>\n";
+
+  for(const [context, styles] of CSS){
+    css += `  ${context.selector} {\n`;
+
+    for(const [name, value] of Object.entries(styles))
+      css += `    ${name}: ${value};\n`;
+    
+    css += "  }\n";
+  }
+
+  return css + "</style>\n";
+}
+
+function assignStyle(this: DefineContext, name: string, ...args: any[]){
   let styles = CSS.get(this);
   const output = args.length == 1 || typeof args[0] == "object"
     ? args[0] : Array.from(args).join(" ");
@@ -41,7 +57,7 @@ function assignStyle(this: DefineContext, ...args: any[]){
   if(!styles)
     CSS.set(this, styles = {});
 
-  styles["assign"] = output;
+  styles[name] = output;
 }
 
 function absolute(offset: number){

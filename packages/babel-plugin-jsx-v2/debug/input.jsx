@@ -1,6 +1,6 @@
 const Component = () => {
   color: blue;
-  absolute: fill;
+  absolute: 0;
 
   div: {
     color: red;
