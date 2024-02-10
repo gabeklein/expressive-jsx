@@ -1,6 +1,7 @@
 import { transformAsync } from '@babel/core';
 import { readFile } from 'fs/promises';
 import { resolve } from 'path';
+import { format } from 'prettier';
 
 import Plugin from '../src';
 
@@ -20,8 +21,15 @@ async function stuff(){
     ]
   });
 
-  const output = result!.code!;
+  const output = await format(result!.code!, {
+    singleQuote: true,
+    trailingComma: "none",
+    jsxBracketSameLine: true,
+    printWidth: process.stdout.columns,
+    parser: "babel"
+  });
 
+  console.clear();
   console.log("\n" + output + "\n");
 }
 
