@@ -30,7 +30,7 @@ export class Parser {
   
     if(childKey)
       element = element[childKey] as unknown as T;
-  
+
     if(t.isParenthesized(element))
       return element;
 

@@ -2,8 +2,8 @@ import { DefineContext } from './context';
 import * as t from './types';
 
 export type Macro =
-    (this: DefineContext, ...args: any[]) =>
-      Record<string, any> | void;
+  (this: DefineContext, ...args: any[]) =>
+    Record<string, any> | void;
 
 export interface Options {
   macros?: Record<string, Macro>[];
