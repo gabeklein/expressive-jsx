@@ -103,6 +103,9 @@ const JSXElement: Visitor<t.JSXElement> = {
     const block = statement.parentPath as t.NodePath<t.BlockStatement>;
     const within = block.parentPath as t.NodePath;
 
+    if(!block.isBlockStatement())
+      return;
+
     const inserted = block.node.body.length === 1 && within.isArrowFunctionExpression()
       ? block.replaceWith(t.parenthesizedExpression(path.node))
       : statement.replaceWith(t.returns(path.node));
