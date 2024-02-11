@@ -1,6 +1,7 @@
 import { DefineContext, FocusContext, FunctionContext, getContext } from './context';
 import { setClassNames } from './syntax/className';
-import { extractClassName, forwardProps, hasProperTagName, setTagName } from './syntax/element';
+import { extractClassName, forwardProps, setTagName } from './syntax/element';
+import { hasProperTagName } from './syntax/tags';
 import * as t from './types';
 
 export function handleElement(
