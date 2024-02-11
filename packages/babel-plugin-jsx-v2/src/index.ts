@@ -82,12 +82,7 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
 
 const JSXElement: Visitor<t.JSXElement> = {
   enter(path){
-    const context = getContext(path, false);
-
-    if(!(context instanceof DefineContext))
-      return;
-    
-    const element = new AbstractJSX(path, context);
+    const element = new AbstractJSX(path);
     let tag = path.node.openingElement.name;
 
     while(t.isJSXMemberExpression(tag)){
@@ -106,9 +101,11 @@ const JSXElement: Visitor<t.JSXElement> = {
     if(!block.isBlockStatement())
       return;
 
-    const inserted = block.node.body.length === 1 && within.isArrowFunctionExpression()
-      ? block.replaceWith(t.parenthesizedExpression(path.node))
-      : statement.replaceWith(t.returns(path.node));
+    const inserted =
+      block.node.body.length === 1 &&
+      within.isArrowFunctionExpression()
+        ? block.replaceWith(t.parenthesizedExpression(path.node))
+        : statement.replaceWith(t.returns(path.node));
 
     inserted[0].skip();
   }

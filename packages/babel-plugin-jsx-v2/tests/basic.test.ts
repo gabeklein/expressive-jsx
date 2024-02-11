@@ -58,3 +58,40 @@ it("will apply style to this", async () => {
     }
   `);
 });
+
+it("will apply nested styles", async () => {
+  const output = await parser(`
+    const Component = () => {
+      container: {
+        color: blue;
+        fontSize: "1.5em";
+
+        inner: {
+          color: red;
+        }
+      }
+    
+      <container>
+        Hello <inner>World</inner>
+      </container>
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(`
+    const Component = () => (
+      <div className="container_tl9">
+        Hello <div className="inner_wj9">World</div>
+      </div>
+    );
+  `);
+
+  expect(output.css).toMatchInlineSnapshot(`
+    .container_tl9 {
+      color: blue;
+      fontSize: 1.5em;
+    }
+    .inner_wj9 {
+      color: red;
+    }
+  `);
+});

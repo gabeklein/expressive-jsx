@@ -1,4 +1,4 @@
-import { DefineContext, FunctionContext } from './context';
+import { Context, DefineContext, FocusContext, FunctionContext, getContext } from './context';
 import { setClassNames } from './syntax/className';
 import { extractClassName, forwardProps, hasProperTagName, setTagName } from './syntax/element';
 import * as t from './types';
@@ -10,11 +10,12 @@ export class AbstractJSX {
   props: Record<string, t.Expression> = {};
   styles: Record<string, t.Expression | string> = {};
   classNames: t.Expression[] = [];
+  context: Context;
 
   constructor(
-    public path: t.NodePath<t.JSXElement>,
-    public context: DefineContext){
+    public path: t.NodePath<t.JSXElement>){
 
+    this.context = getContext(path);
     this.parse();
     this.apply();
   }
@@ -61,6 +62,10 @@ export class AbstractJSX {
       if(this.use(name))
         attr.remove();
     }
+
+    const focus = new FocusContext(this.using);
+
+    focus.assignTo(this.path);
 
     for(const def of this.using){
       if(def instanceof FunctionContext)

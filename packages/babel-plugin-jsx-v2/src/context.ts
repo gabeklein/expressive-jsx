@@ -32,6 +32,15 @@ export abstract class Context {
   assignTo(path: t.NodePath){
     CONTEXT.set(path, this);
   }
+  
+  get(name: string){
+    const defines = [] as DefineContext[];
+
+    for(let { define } = this; define[name]; define = Object.getPrototypeOf(define))
+      defines.push(define[name]);
+
+    return defines.reverse();
+  }
 }
 
 export class ModuleContext extends Context {
@@ -74,24 +83,35 @@ export class DefineContext extends Context {
       return [];
     }
 
-    const defines = [] as DefineContext[];
+    return super.get(name);
+  }
+}
 
-    for(let { define } = this; define[name]; define = Object.getPrototypeOf(define))
-      defines.push(define[name]);
+export class FocusContext extends Context {
+  using: DefineContext[];
 
-    return defines.reverse();
+  constructor(using: Set<DefineContext>){
+    super();
+    this.using = Array.from(using);
+  }
+
+  get(name: string){
+    const mods = new Set<DefineContext>();
+    
+    for(const def of this.using)
+      def.get(name).forEach(x => mods.add(x));
+
+    return Array.from(mods);
   }
 }
 
 export class FunctionContext extends DefineContext {
   constructor(public path: t.NodePath<t.Function>){
-    super(getContext(path, false), path);
+    super(getContext(path), path);
   }
 }
 
-export function getContext(path: t.NodePath, required?: true): Context;
-export function getContext(path: t.NodePath, required: boolean): Context | undefined;
-export function getContext(path: t.NodePath, required?: boolean){
+export function getContext(path: t.NodePath){
   while (path) {
     const context = CONTEXT.get(path);
 
@@ -101,6 +121,5 @@ export function getContext(path: t.NodePath, required?: boolean){
     path = path.parentPath!;
   }
 
-  if(required !== false)
-    throw new Error("Context not found");
+  throw new Error("Context not found");
 }
