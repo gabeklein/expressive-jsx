@@ -12,8 +12,5 @@ module.exports = {
   ],
   "coveragePathIgnorePatterns": [
     "./src/index.ts"
-  ],
-  "setupFilesAfterEnv": [
-    "./jest.setup.ts"
   ]
 }
