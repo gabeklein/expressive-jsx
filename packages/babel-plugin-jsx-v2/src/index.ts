@@ -1,8 +1,8 @@
-import { CONTEXT, Context, DefineContext, FunctionContext, getContext, ModuleContext } from './context';
+import { CONTEXT, Context, FunctionContext, ModuleContext } from './context';
 import { AbstractJSX } from './elements';
 import { handleLabel } from './label';
 import { Macro, Options } from './options';
-import { fixImplicitReturn } from './syntax/return';
+import { fixImplicitReturn } from './syntax/element';
 import * as t from './types';
 
 type Visitor<T extends t.Node> =
