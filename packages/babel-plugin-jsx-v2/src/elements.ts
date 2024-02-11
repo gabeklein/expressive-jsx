@@ -10,19 +10,31 @@ export class AbstractJSX {
   props: Record<string, t.Expression> = {};
   styles: Record<string, t.Expression | string> = {};
   classNames: t.Expression[] = [];
-  context: Context;
+  context = new FocusContext();
 
   constructor(
     public path: t.NodePath<t.JSXElement>){
 
-    this.context = getContext(path);
+    const parent = getContext(path);
+    const { context } = this;
+
+    if(parent instanceof DefineContext)
+      context.using.add(parent);
+    else if(parent instanceof FocusContext)
+      parent.using.forEach(x => context.using.add(x));
+
+    context.assignTo(path);
+
     this.parse();
     this.apply();
   }
 
   use(name: string){
     const apply = this.context.get(name);
-    apply.forEach(x => this.using.add(x));
+    apply.forEach(x => {
+      this.using.add(x);
+      this.context.using.add(x);
+    });
     return apply.length > 0;
   }
 
@@ -62,10 +74,6 @@ export class AbstractJSX {
       if(this.use(name))
         attr.remove();
     }
-
-    const focus = new FocusContext(this.using);
-
-    focus.assignTo(this.path);
 
     for(const def of this.using){
       if(def instanceof FunctionContext)

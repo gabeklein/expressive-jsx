@@ -88,12 +88,7 @@ export class DefineContext extends Context {
 }
 
 export class FocusContext extends Context {
-  using: Set<DefineContext>;
-
-  constructor(using: Set<DefineContext>){
-    super();
-    this.using = using;
-  }
+  using = new Set<DefineContext>();
 
   get(name: string){
     const mods = new Set<DefineContext>();
