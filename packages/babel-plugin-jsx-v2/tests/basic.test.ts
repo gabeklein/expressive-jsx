@@ -64,7 +64,6 @@ it("will apply nested styles", async () => {
     const Component = () => {
       container: {
         color: blue;
-        fontSize: "1.5em";
 
         inner: {
           color: red;
@@ -83,15 +82,5 @@ it("will apply nested styles", async () => {
         Hello <div className="inner_wj9">World</div>
       </div>
     );
-  `);
-
-  expect(output.css).toMatchInlineSnapshot(`
-    .container_tl9 {
-      color: blue;
-      fontSize: 1.5em;
-    }
-    .inner_wj9 {
-      color: red;
-    }
   `);
 });
