@@ -48,24 +48,20 @@ function parser(argument?: Plugin.Options | string){
       parser: "babel"
     }).replace(/\n$/gm, '');
 
-    let css = "";
+    const css = [];
 
     for(const selector in styles){
       const style = Object
         .entries(styles[selector])
-        .map(([name, value]) => `  ${name}: ${value};`);
+        .map(([name, value]) => `  ${name}: ${value};`)
+        .join("\n");
 
-      css += `${selector} {\n`;
-
-      for(const line of style)
-        css += line + "\n";
-
-      css += "}";
+      css.push(selector + ` {\n` + style + "\n}");
     }
 
     return <Output> {
       code,
-      css,
+      css: css.join("\n"),
       styles
     };
   }
