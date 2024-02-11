@@ -1,4 +1,4 @@
-import { CONTEXT, Context, FunctionContext, ModuleContext } from './context';
+import { Context, ModuleContext } from './context';
 import { AbstractJSX } from './elements';
 import { handleLabel } from './label';
 import { Macro, Options } from './options';
@@ -57,21 +57,7 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
       return;
     }
 
-    let parent = path.parentPath;
-
-    if(parent.isBlockStatement())
-      parent = parent.parentPath!;
-
-    let context = CONTEXT.get(parent);
-
-    if(!context){
-      if(parent.isFunction())
-        context = new FunctionContext(parent);
-      else
-        throw new Error("Context not found");
-    }
-
-    handleLabel(context, path);
+    handleLabel(path);
   },
   exit(path){
     if(IGNORE.has(path))

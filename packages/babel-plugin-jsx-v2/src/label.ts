@@ -1,5 +1,5 @@
 import { Parser } from './arguments';
-import { Context, DefineContext } from './context';
+import { CONTEXT, Context, DefineContext, FunctionContext } from './context';
 import * as t from './types';
 
 type ModifierItem = {
@@ -9,8 +9,21 @@ type ModifierItem = {
 }[];
 
 export function handleLabel(
-  context: Context,
   path: t.NodePath<t.LabeledStatement>){
+
+  let parent = path.parentPath;
+
+  if(parent.isBlockStatement())
+    parent = parent.parentPath!;
+
+  let context = CONTEXT.get(parent);
+
+  if(!context){
+    if(parent.isFunction())
+      context = new FunctionContext(parent);
+    else
+      throw new Error("Context not found");
+  }
 
   const body = path.get("body");
 
