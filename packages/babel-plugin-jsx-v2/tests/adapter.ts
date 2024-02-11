@@ -3,6 +3,9 @@ import { format } from 'prettier';
 
 import Plugin from '../src';
 
+// forces babel to initialize saving time on first run
+beforeAll(() => parser(`<div />`));
+
 // drop quotes from string snapshot
 expect.addSnapshotSerializer({
   test: x => typeof x == "string",
@@ -17,13 +20,19 @@ export type Output = {
   css: string
 }
 
+const defaultParser = createParser();
+
 function parser(code: string): Promise<Output>;
 function parser(options: Plugin.Options): (code: string) => Promise<Output>;
 function parser(argument?: Plugin.Options | string){
-  async function parse(source: string){
-    const opts = typeof argument === 'object' && argument;
-    const styles: Styles = {};
+  return typeof argument === 'string'
+    ? defaultParser(argument)
+    : createParser(argument);
+}
 
+function createParser(options?: Options){
+  return async function parse(source: string){
+    const styles: Styles = {};
     const result = await transformAsync(source, {
       filename: '/test.js',
       plugins: [
@@ -35,11 +44,12 @@ function parser(argument?: Plugin.Options | string){
 
             block[name] = value;
           },
-          ...opts
+          ...options
         }]
       ]
     });
 
+    const css = [];
     const code = format(result!.code!, {
       singleQuote: true,
       trailingComma: "none",
@@ -47,8 +57,6 @@ function parser(argument?: Plugin.Options | string){
       printWidth: 65,
       parser: "babel"
     }).replace(/\n$/gm, '');
-
-    const css = [];
 
     for(const selector in styles){
       const style = Object
@@ -65,11 +73,6 @@ function parser(argument?: Plugin.Options | string){
       styles
     };
   }
-
-  if(typeof argument === 'string')
-    return parse(argument);
-
-  return parse;
 }
 
 export { parser }
