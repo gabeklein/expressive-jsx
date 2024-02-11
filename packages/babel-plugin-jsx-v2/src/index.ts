@@ -1,5 +1,5 @@
 import { Context, ModuleContext } from './context';
-import { AbstractJSX } from './elements';
+import { handleElement } from './elements';
 import { handleLabel } from './label';
 import { Macro, Options } from './options';
 import { fixImplicitReturn } from './syntax/element';
@@ -31,18 +31,9 @@ export default Plugin;
 const Program: Visitor<t.Program> = {
   enter(path, state){
     const options = state.opts as Options;
-    const { macros, define, assign } = options; 
 
     Object.assign(Options, options);
-
-    if(!assign)
-      throw new Error(`Plugin has not defined an assign method.`);
-
-    const context = new ModuleContext(path);
-
-    context.macros = Object.assign({}, ...macros || []);
-    context.define = Object.assign({}, ...define || []);
-    context.assign = assign;
+    new ModuleContext(path, options);
   }
 }
 
@@ -69,16 +60,7 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
 
 const JSXElement: Visitor<t.JSXElement> = {
   enter(path){
-    const element = new AbstractJSX(path);
-    let tag = path.node.openingElement.name;
-
-    while(t.isJSXMemberExpression(tag)){
-      element.use(tag.property.name);
-      tag = tag.object;
-    }
-
-    if(t.isJSXIdentifier(tag))
-      element.use(tag.name);
+    handleElement(path);
   },
   exit(path){
     fixImplicitReturn(path);

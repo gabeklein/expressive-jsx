@@ -1,6 +1,6 @@
 import { getName } from './entry';
 import { simpleHash } from './helper/simpleHash';
-import { Macro } from './options';
+import { Macro, Options } from './options';
 import * as t from './types';
 
 export const CONTEXT = new WeakMap<t.NodePath, Context>();
@@ -44,9 +44,19 @@ export abstract class Context {
 }
 
 export class ModuleContext extends Context {
-  constructor(path: t.NodePath){
+  constructor(path: t.NodePath, options: Options){
     super();
+
+    const { macros, define, assign } = options; 
+
+    if(!assign)
+      throw new Error(`Plugin has not defined an assign method.`);
+
     this.assignTo(path);
+    this.assign = assign;
+    this.macros = Object.assign({}, ...macros || []);
+    this.define = Object.assign({}, ...define || []);
+
     Object.defineProperty(this, "uid", {
       value: (path.hub as any).file.opts.filename
     });
@@ -74,12 +84,12 @@ export class DefineContext extends Context {
   get(name: string): DefineContext[] {
     if(name !== "this")
       return super.get(name);
-  
+
     for(let ctx: Context = this; ctx; ctx = ctx.parent!)
       if(ctx instanceof FunctionContext)
         return [ctx];
-      
-      return [];
+    
+    return [];
   }
 }
 

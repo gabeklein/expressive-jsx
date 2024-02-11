@@ -1,5 +1,5 @@
 import { Parser } from './arguments';
-import { CONTEXT, Context, DefineContext, FunctionContext } from './context';
+import { CONTEXT, DefineContext, FunctionContext } from './context';
 import * as t from './types';
 
 type ModifierItem = {

@@ -1,7 +1,22 @@
-import { Context, DefineContext, FocusContext, FunctionContext, getContext } from './context';
+import { DefineContext, FocusContext, FunctionContext, getContext } from './context';
 import { setClassNames } from './syntax/className';
 import { extractClassName, forwardProps, hasProperTagName, setTagName } from './syntax/element';
 import * as t from './types';
+
+export function handleElement(
+  path: t.NodePath<t.JSXElement>){
+  
+  const element = new AbstractJSX(path);
+  let tag = path.node.openingElement.name;
+
+  while(t.isJSXMemberExpression(tag)){
+    element.use(tag.property.name);
+    tag = tag.object;
+  }
+
+  if(t.isJSXIdentifier(tag))
+    element.use(tag.name);
+}
 
 export class AbstractJSX {
   forwardProps = false;
