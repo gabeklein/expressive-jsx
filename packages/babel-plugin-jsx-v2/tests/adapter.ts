@@ -44,7 +44,7 @@ function parser(argument?: Plugin.Options | string){
       singleQuote: true,
       trailingComma: "none",
       jsxBracketSameLine: true,
-      printWidth: 60,
+      printWidth: 65,
       parser: "babel"
     }).replace(/\n$/gm, '');
 

@@ -43,10 +43,7 @@ it("will apply style to this", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(
-          props.className,
-          'Component_ifp'
-        )}>
+        className={classNames(props.className, 'Component_ifp')}>
         Hello World
       </div>
     );
