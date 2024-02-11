@@ -88,11 +88,11 @@ export class DefineContext extends Context {
 }
 
 export class FocusContext extends Context {
-  using: DefineContext[];
+  using: Set<DefineContext>;
 
   constructor(using: Set<DefineContext>){
     super();
-    this.using = Array.from(using);
+    this.using = using;
   }
 
   get(name: string){
