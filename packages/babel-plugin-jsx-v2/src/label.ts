@@ -87,7 +87,6 @@ function applyMacros(
         queue.push({ name: key, args });
     }
   }
-
 }
 
 function parseError(path: t.NodePath, err: unknown, modiferName: string){
