@@ -1,4 +1,4 @@
-import { Parser } from './arguments';
+import { Parser } from './syntax/arguments';
 import { CONTEXT, DefineContext, FunctionContext } from './context';
 import * as t from './types';
 

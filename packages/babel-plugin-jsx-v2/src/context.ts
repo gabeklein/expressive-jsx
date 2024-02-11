@@ -1,4 +1,4 @@
-import { getName } from './entry';
+import { getName } from './syntax/entry';
 import { simpleHash } from './helper/simpleHash';
 import { Macro, Options } from './options';
 import * as t from './types';

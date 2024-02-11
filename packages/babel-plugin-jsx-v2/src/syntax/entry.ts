@@ -1,4 +1,4 @@
-import * as t from './types';
+import * as t from '../types';
 
 export function getName(path: t.NodePath): string {
   let encounteredReturn;

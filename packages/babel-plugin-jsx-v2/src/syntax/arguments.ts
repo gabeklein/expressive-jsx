@@ -1,5 +1,5 @@
-import { ParseErrors } from './errors';
-import * as t from './types';
+import { ParseErrors } from '../errors';
+import * as t from '../types';
 
 const Oops = ParseErrors({
   UnaryUseless: "Unary operator here doesn't do anything",
