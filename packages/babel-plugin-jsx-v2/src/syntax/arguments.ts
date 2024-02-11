@@ -1,4 +1,4 @@
-import { ParseErrors } from '../errors';
+import { ParseErrors } from '../helper/errors';
 import * as t from '../types';
 
 const Oops = ParseErrors({

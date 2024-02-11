@@ -1,6 +1,6 @@
 import { Context, ModuleContext } from './context';
 import { handleElement } from './elements';
-import { handleLabel } from './label';
+import { handleLabel } from './helper/label';
 import { Macro, Options } from './options';
 import { fixImplicitReturn } from './syntax/element';
 import * as t from './types';

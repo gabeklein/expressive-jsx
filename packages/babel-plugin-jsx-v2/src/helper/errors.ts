@@ -1,4 +1,4 @@
-import * as t from './types';
+import * as t from '../types';
 
 type FlatValue = string | number | boolean | null;
 type ParseError = <T extends t.Node>(node: t.NodePath<T> | T, ...args: FlatValue[]) => Error;
