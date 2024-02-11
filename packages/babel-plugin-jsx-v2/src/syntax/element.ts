@@ -74,6 +74,7 @@ export function extractClassName(
 
   return value;
 }
+
 export function fixImplicitReturn(path: t.NodePath<t.Expression>) {
   const statement = path.parentPath;
   const block = statement.parentPath!;

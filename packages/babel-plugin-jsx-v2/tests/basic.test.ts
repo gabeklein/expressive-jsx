@@ -7,16 +7,24 @@ it("will apply styles", async () => {
         color: blue;
         fontSize: "1.5em";
       }
+
+      inner: {
+        color: red;
+      }
     
       <div>
-        Hello World
+        Hello
+        <div inner>World</div>
       </div>
     }
   `);
 
   expect(output.code).toMatchInlineSnapshot(`
     const Component = () => (
-      <div className="div_tl9">Hello World</div>
+      <div className="div_tl9">
+        Hello
+        <div className="div_tl9 inner_tl9">World</div>
+      </div>
     );
   `);
 
@@ -24,6 +32,9 @@ it("will apply styles", async () => {
     .div_tl9 {
       color: blue;
       fontSize: 1.5em;
+    }
+    .inner_tl9 {
+      color: red;
     }
   `);
 });
