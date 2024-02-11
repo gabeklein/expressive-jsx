@@ -72,18 +72,14 @@ export class DefineContext extends Context {
   }
 
   get(name: string): DefineContext[] {
-    if(name === "this"){
-      let ctx: Context = this;
+    if(name !== "this")
+      return super.get(name);
   
-      do if(ctx instanceof FunctionContext){
+    for(let ctx: Context = this; ctx; ctx = ctx.parent!)
+      if(ctx instanceof FunctionContext)
         return [ctx];
-      }
-      while(ctx = ctx.parent!);
       
       return [];
-    }
-
-    return super.get(name);
   }
 }
 
