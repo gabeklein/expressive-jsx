@@ -2,6 +2,7 @@ import { CONTEXT, Context, DefineContext, FunctionContext, getContext, ModuleCon
 import { AbstractJSX } from './elements';
 import { handleLabel } from './label';
 import { Macro, Options } from './options';
+import { fixImplicitReturn } from './syntax/return';
 import * as t from './types';
 
 type Visitor<T extends t.Node> =
@@ -94,19 +95,6 @@ const JSXElement: Visitor<t.JSXElement> = {
       element.use(tag.name);
   },
   exit(path){
-    const statement = path.parentPath;
-    const block = statement.parentPath as t.NodePath<t.BlockStatement>;
-    const within = block.parentPath as t.NodePath;
-
-    if(!block.isBlockStatement())
-      return;
-
-    const inserted =
-      block.node.body.length === 1 &&
-      within.isArrowFunctionExpression()
-        ? block.replaceWith(t.parenthesizedExpression(path.node))
-        : statement.replaceWith(t.returns(path.node));
-
-    inserted[0].skip();
+    fixImplicitReturn(path);
   }
 }
