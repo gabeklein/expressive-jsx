@@ -84,3 +84,40 @@ it("will apply nested styles", async () => {
     );
   `);
 });
+
+it("will apply nested styles to attributes", async () => {
+  const output = await parser(`
+    const Component = () => {
+      item: {
+        color: blue;
+
+        red: {
+          color: red;
+        }
+      }
+    
+      <div>
+        <item />
+        <item red />
+      </div>
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(`
+    const Component = () => (
+      <div>
+        <div className="item_tl9" />
+        <div className="item_tl9 red_jh9" />
+      </div>
+    );
+  `);
+
+  expect(output.css).toMatchInlineSnapshot(`
+    .item_tl9 {
+      color: blue;
+    }
+    .red_jh9 {
+      color: red;
+    }
+  `);
+});
