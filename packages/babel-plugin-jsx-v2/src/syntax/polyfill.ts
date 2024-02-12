@@ -5,6 +5,7 @@ import { uniqueIdentifier } from './unique';
 const POLYFILL =  require.resolve("../../polyfill");
 
 export function importClassNamesHelper(path: t.NodePath) {
+  let { polyfill } = Options;
   const program = path.find(x => x.isProgram()) as t.NodePath<t.Program>;
   const body = program.get("body");
 
@@ -25,12 +26,15 @@ export function importClassNamesHelper(path: t.NodePath) {
 
   const id = uniqueIdentifier(path.scope, "classNames");
 
-  if(Options.polyfill === false)
+  if(polyfill === false)
     return id;
+
+  if(typeof polyfill !== "string")
+    polyfill = POLYFILL;
 
   const importStatement = t.importDeclaration(
     [t.importSpecifier(id, t.identifier("classNames"))],
-    t.stringLiteral(Options.polyfill || POLYFILL)
+    t.stringLiteral(polyfill)
   );
 
   program.node.body.unshift(importStatement);
