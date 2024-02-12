@@ -26,22 +26,10 @@ export function handleElement(
     element.use(tag.name);
 
   opening.get("attributes").forEach((attr) => {
-    if(!attr.isJSXAttribute())
+    if(!attr.isJSXAttribute() || attr.node.value)
       return;
 
-    let { name: { name }, value } = attr.node;
-
-    if(name === "className"){
-      const className = t.isJSXExpressionContainer(value)
-        ? value.expression
-        : value;
-
-      if(t.isExpression(className))
-        element.classNames.push(className);
-    }
-
-    if(value)
-      return;
+    let { name } = attr.node.name;
   
     if(typeof name !== "string")
       name = name.name;

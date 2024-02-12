@@ -39,6 +39,22 @@ it("will apply styles", async () => {
   `);
 });
 
+it("will pass-thru existing className", async () => {
+  const output = await parser(`
+    const Component = () => {
+      div: {
+        color: blue;
+      }
+    
+      <div className="foobar">Hi</div>
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(
+    `const Component = () => <div className="foobar div_tl9">Hi</div>;`
+  );
+});
+
 it("will apply style to this", async () => {
   const output = await parser(`
     const Component = () => {
