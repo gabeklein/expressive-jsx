@@ -47,10 +47,12 @@ export class AbstractJSX {
 
   use(name: string){
     const apply = this.context.get(name);
+
     apply.forEach(x => {
       this.using.add(x);
       this.context.using.add(x);
     });
+
     return apply.length > 0;
   }
 

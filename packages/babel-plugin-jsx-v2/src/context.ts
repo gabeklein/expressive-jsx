@@ -16,9 +16,6 @@ export abstract class Context {
     return uid;
   }
 
-  assign!: (...args: any[]) => void;
-  apply?(path: t.NodePath<t.JSXElement>): void;
-
   constructor(public parent?: Context){
     if(!parent)
       return;
@@ -29,15 +26,21 @@ export abstract class Context {
     this.apply = parent.apply;
   }
 
+  assign!: (...args: any[]) => void;
+  apply?(path: t.NodePath<t.JSXElement>): void;
+
   assignTo(path: t.NodePath){
     CONTEXT.set(path, this);
   }
   
   get(name: string){
+    let { define } = this;
     const defines = [] as DefineContext[];
 
-    for(let { define } = this; define[name]; define = Object.getPrototypeOf(define))
+    while(define[name]){
       defines.push(define[name]);
+      define = Object.getPrototypeOf(define);
+    }
 
     return defines.reverse();
   }
@@ -45,9 +48,9 @@ export abstract class Context {
 
 export class ModuleContext extends Context {
   constructor(path: t.NodePath, options: Options){
-    super();
-
     const { macros, define, assign } = options; 
+    
+    super();
 
     if(!assign)
       throw new Error(`Plugin has not defined an assign method.`);
@@ -68,9 +71,10 @@ export class DefineContext extends Context {
   styles: Record<string, string> = {};
 
   constructor(parent: Context | undefined, public path: t.NodePath){
+    const name = getName(path);
+    
     super(parent);
-
-    const name = this.name = getName(path);
+    this.name = name;
     this.assignTo(path);
 
     if(parent)
@@ -113,7 +117,7 @@ export class FunctionContext extends DefineContext {
 }
 
 export function getContext(path: t.NodePath){
-  while (path) {
+  while(path){
     const context = CONTEXT.get(path);
 
     if(context instanceof Context)
