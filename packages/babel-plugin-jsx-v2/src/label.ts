@@ -11,20 +11,7 @@ type ModifierItem = {
 export function handleLabel(
   path: t.NodePath<t.LabeledStatement>){
 
-  let parent = path.parentPath;
-
-  if(parent.isBlockStatement())
-    parent = parent.parentPath!;
-
-  let context = CONTEXT.get(parent);
-
-  if(!context){
-    if(parent.isFunction())
-      context = new FunctionContext(parent);
-    else
-      throw new Error("Context not found");
-  }
-
+  const context = getContext(path);
   const body = path.get("body");
 
   if(body.isBlockStatement()){
@@ -100,6 +87,23 @@ function applyMacros(
         queue.push({ name: key, args });
     }
   }
+}
+
+function getContext(path: t.NodePath<t.LabeledStatement>){
+  let parent = path.parentPath;
+
+  if(parent.isBlockStatement())
+    parent = parent.parentPath!;
+
+  const context = CONTEXT.get(parent);
+
+  if(context)
+    return context;
+  
+  if(parent.isFunction())
+    return new FunctionContext(parent);
+  
+  throw new Error("Context not found");
 }
 
 function parseError(path: t.NodePath, err: unknown, modiferName: string){
