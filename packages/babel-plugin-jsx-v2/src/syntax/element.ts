@@ -44,7 +44,7 @@ export function forwardProps(
 
 export function extractClassName(
   props: t.Node,
-  path: t.NodePath<t.JSXElement>){
+  scope: t.Scope){
 
   if(t.isIdentifier(props))
     return t.memberExpression(props, t.identifier("className"));
@@ -58,7 +58,7 @@ export function extractClassName(
   )) as t.ObjectProperty | undefined;
 
   if(!classNameProp){
-    const id = uniqueIdentifier(path.scope, "className");
+    const id = uniqueIdentifier(scope, "className");
 
     classNameProp = id.name === "className"
       ? t.objectProperty(id, id, false, true)

@@ -90,7 +90,7 @@ export class AbstractJSX {
       const props = forwardProps(path);
 
       if(classNames.length)
-        classNames.unshift(extractClassName(props, path))
+        classNames.unshift(extractClassName(props, path.scope))
     }
 
     if(classNames.length > 0)
