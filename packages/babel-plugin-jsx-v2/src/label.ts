@@ -1,6 +1,6 @@
-import { Parser } from '../syntax/arguments';
-import { CONTEXT, DefineContext, FunctionContext } from '../context';
-import * as t from '../types';
+import { Parser } from './syntax/arguments';
+import { CONTEXT, DefineContext, FunctionContext } from './context';
+import * as t from './types';
 
 type ModifierItem = {
   name: string,
