@@ -67,7 +67,6 @@ export class ModuleContext extends Context {
 }
 
 export class DefineContext extends Context {
-  name: string;
   styles: Record<string, string> = {};
 
   constructor(parent: Context | undefined, public path: t.NodePath){
@@ -102,7 +101,7 @@ export class FocusContext extends Context {
 
   get(name: string){
     const mods = new Set<DefineContext>();
-    
+
     for(const def of this.using)
       def.get(name).forEach(x => mods.add(x));
 
