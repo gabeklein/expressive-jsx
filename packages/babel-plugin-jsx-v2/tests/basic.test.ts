@@ -145,3 +145,27 @@ it("will apply nested styles to attributes", async () => {
     }
   `);
 });
+
+it("will bail on repeat macro", async () => {
+  function foo(value: any){
+    return {
+      foo: value + "Baz"
+    }
+  }
+  
+  const parse = parser({ macros: [{foo}] });
+
+  const output = await parse(`
+    const Component = () => {
+      foo: "bar";
+
+      <this />
+    }
+  `);
+
+  expect(output.css).toMatchInlineSnapshot(`
+    .Component_ifp {
+      foo: barBaz;
+    }
+  `);
+});
