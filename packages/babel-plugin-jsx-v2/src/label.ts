@@ -86,7 +86,9 @@ function applyMacros(
   }
 }
 
-function createContext(path: t.NodePath<t.LabeledStatement>){
+function createContext(
+  path: t.NodePath<t.LabeledStatement>){
+
   let parent = path.parentPath;
 
   if(parent.isBlockStatement())
@@ -101,8 +103,11 @@ function createContext(path: t.NodePath<t.LabeledStatement>){
 
   if(parent.isFunction())
     return new FunctionContext(ambient, parent);
-  
-    throw new Error("Context not found");
+
+  if(parent.isIfStatement())
+    return new IfContext(ambient, parent);
+
+  throw new Error("Context not found");
 }
 
 function parseError(path: t.NodePath, err: unknown, modiferName: string){

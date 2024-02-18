@@ -69,7 +69,7 @@ export class ModuleContext extends Context {
 
 export class DefineContext extends Context {
   styles: Record<string, string> = {};
-
+  
   get className(){
     return t.stringLiteral(this.uid);
   }
@@ -113,6 +113,16 @@ export class FocusContext extends Context {
 }
 
 export class FunctionContext extends DefineContext {}
+
+export class IfContext extends DefineContext {
+  alternate?: DefineContext;
+
+  alt(path: t.NodePath<t.Node>){
+    return this.alternate || (
+      this.alternate = new DefineContext(this.parent, path)
+    );
+  }
+}
 
 export function getContext(path: t.NodePath){
   while(path){
