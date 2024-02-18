@@ -14,12 +14,10 @@ it.skip("will apply styles", async () => {
 
   expect(output.code).toMatchInlineSnapshot(`
     const Component = ({ className, active, ...rest }) => {
-      if (active) {
-      }
       return (
         <div
           {...rest}
-          className={classNames(className, 'Component_ifp')}>
+          className={classNames(className, 'Component_ifp', active && "active_ifp")}>
           Hello
         </div>
       );
@@ -30,7 +28,7 @@ it.skip("will apply styles", async () => {
     .Component_ifp {
       color: blue;
     }
-    .element_tl9 {
+    .active_ifp {
       color: red;
     }
   `);
