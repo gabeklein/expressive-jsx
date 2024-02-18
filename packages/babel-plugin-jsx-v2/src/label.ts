@@ -1,5 +1,5 @@
-import { Parser } from './syntax/arguments';
-import { CONTEXT, DefineContext, FunctionContext, IfContext, getContext } from './context';
+import { CONTEXT, DefineContext, FunctionContext, getContext, IfContext } from './context';
+import { parseArgument } from './syntax/arguments';
 import * as t from './types';
 
 export function handleLabel(
@@ -17,9 +17,10 @@ export function handleLabel(
     throw new Error("Invalid modifier");
 
   let { name } = path.node.label;
+  const args = parseArgument(body);
 
   try {
-    context.macro(name, new Parser(body.node).arguments);
+    context.macro(name, args);
   }
   catch(err: unknown){
     throw parseError(body, err, name);

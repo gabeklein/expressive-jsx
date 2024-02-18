@@ -12,22 +12,21 @@ const Oops = ParseErrors({
   ElseNotSupported: "An else statement in an if modifier is not yet supported"
 });
 
-export class Parser {
-  expression: t.Expression;
+export function parseArgument(
+  element: t.NodePath<t.ExpressionStatement>,
+  childKey?: keyof t.Expression
+){
+  const exp = element.get("expression").node;
+  const args = parsers.Expression(exp, childKey);
 
-  constructor(node: t.Expression | t.ExpressionStatement){
-    this.expression = t.isExpressionStatement(node)
-      ? node.expression : node;
-  }
+  return Array.isArray(args) ? args : [args];
+}
 
-  get arguments(){
-    return [].concat(this.Expression(this.expression));
-  }
-
+export const parsers = {
   Expression<T extends t.Expression>(
     element: T,
     childKey?: keyof T): any {
-  
+
     if(childKey)
       element = element[childKey] as unknown as T;
 
@@ -36,108 +35,109 @@ export class Parser {
 
     if(element.type in this)
       return (this as any)[element.type](element);
-  
+
     throw Oops.UnknownArgument(element);
-  }
-  
+  },
+
   Identifier({ name }: t.Identifier){
     if(name.startsWith("$")){
       name = camelToDash(name.slice(1));
       return `var(--${name})`;
     }
-  
+
     return name;
-  }
-  
+  },
+
   BooleanLiteral(bool: t.BooleanLiteral){
     return bool.value;
-  }
-  
+  },
+
   StringLiteral(e: t.StringLiteral){
     return e.value;
-  }
-  
+  },
+
   NullLiteral(){
     return null;
-  }
-  
+  },
+
   TemplateLiteral(temp: t.TemplateLiteral) {
     if(temp.quasis.length == 1)
       return temp.quasis[0].value.raw;
-  
+
     return temp;
-  }
-  
+  },
+
   NumericLiteral(number: t.NumericLiteral, negative?: boolean){
     let { extra: { rawValue, raw } } = number as any;
-  
+
     if(t.isParenthesized(number) || !/^0x/.test(raw)){
       if(raw.indexOf(".") > 0)
         return negative ? "-" + raw : raw;
-  
+
       return negative ? -rawValue : rawValue;
     }
-  
+
     if(negative)
       throw Oops.HexNoNegative(number, rawValue);
-  
+
     return HEXColor(raw);
-  }
-  
+  },
+
   UnaryExpression(e: t.UnaryExpression){
     const { argument, operator } = e;
-  
+
     if(operator == "-" && t.isNumericLiteral(argument))
       return this.NumericLiteral(argument, true);
-  
+
     if(operator == "!" && t.isIdentifier(argument, { name: "important" }))
       return "!important";
-  
+
     throw Oops.UnaryUseless(e)
-  }
-  
+  },
+
   BinaryExpression(binary: t.BinaryExpression){
     const { left, right, operator } = binary;
-  
+
     if(operator == "-"
     && t.isIdentifier(left)
     && t.isIdentifier(right, { start: left.end! + 1 }))
       return left.name + "-" + right.name
-  
+
     return [
       operator,
       this.Expression(binary, "left"),
       this.Expression(binary, "right")
     ]
-  }
-  
+  },
+
   SequenceExpression(sequence: t.SequenceExpression){
     return sequence.expressions.map(x => this.Expression(x))
-  }
+  },
 
   CallExpression(e: t.CallExpression){
     const callee = e.callee;
     const args = [] as string[];
-  
+
     if(callee.type !== "Identifier")
       throw Oops.MustBeIdentifier(callee);
-  
+
     for(const item of e.arguments){
-      if(t.isExpression(item))
-        args.push(this.Expression(item));
-      else if(t.isSpreadElement(item))
-        throw Oops.ArgumentSpread(item)
-      else
-        throw Oops.UnknownArgument(item)
+      if(t.isSpreadElement(item))
+        throw Oops.ArgumentSpread(item);
+
+      if(!t.isExpression(item))
+        throw Oops.UnknownArgument(item);
+
+      args.push(this.Expression(item));
     }
-  
+
     const { name } = callee;
-  
+
     if(CSS_UNITS.has(name))
       return args.map(x => String(x) + name).join(" ");
-  
+
     return camelToDash(callee.name) + `(${args.join(", ")})`;
-  }
+  },
 
   ArrowFunctionExpression(e: t.ArrowFunctionExpression): never {
     throw Oops.ArrowNotImplemented(e);
