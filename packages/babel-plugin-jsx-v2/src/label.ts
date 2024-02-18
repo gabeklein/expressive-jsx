@@ -19,10 +19,7 @@ export function handleLabel(
     return;
   }
 
-  if(!body.isExpressionStatement())
-    return;
-
-  if(!(context instanceof DefineContext))
+  if(!body.isExpressionStatement() || !(context instanceof DefineContext))
     throw new Error("Invalid modifier");
 
   let { name } = path.node.label;

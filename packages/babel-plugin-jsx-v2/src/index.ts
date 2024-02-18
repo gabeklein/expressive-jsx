@@ -37,24 +37,25 @@ const Program: Visitor<t.Program> = {
   }
 }
 
-const IGNORE = new Set();
+const AFTER = new WeakMap<t.NodePath, () => void>();
 
 const LabeledStatement: Visitor<t.LabeledStatement> = {
   enter(path){
     const body = path.get("body");
 
-    if(body.isFor() || body.isWhile()){
-      IGNORE.add(path);
+    if(body.isFor() || body.isWhile())
       return;
-    }
 
     handleLabel(path);
+    AFTER.set(path, () => {
+      path.remove();
+    });
   },
   exit(path){
-    if(IGNORE.has(path))
-      return;
+    const after = AFTER.get(path);
 
-    path.remove();
+    if(after)
+      after();
   }
 }
 
