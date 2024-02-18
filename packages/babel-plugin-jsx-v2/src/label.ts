@@ -2,12 +2,6 @@ import { Parser } from './syntax/arguments';
 import { CONTEXT, DefineContext, FunctionContext, IfContext, getContext } from './context';
 import * as t from './types';
 
-type ModifierItem = {
-  name: string,
-  args: any[],
-  body?: t.NodePath<t.Statement>
-}[];
-
 export function handleLabel(
   path: t.NodePath<t.LabeledStatement>){
   
@@ -25,64 +19,10 @@ export function handleLabel(
   let { name } = path.node.label;
 
   try {
-    applyMacros(context, name, body);
+    context.macro(name, new Parser(body.node).arguments);
   }
   catch(err: unknown){
     throw parseError(body, err, name);
-  }
-}
-
-function applyMacros(
-  parent: DefineContext,
-  name: string,
-  body: t.NodePath<t.ExpressionStatement>){
-
-  const args = new Parser(body.node).arguments;
-  const queue: ModifierItem = [{ name, args, body }];
-
-  while(queue.length){
-    const { name, args } = queue.pop()!;
-    const apply = (args: any[]) => {
-      parent.assign(name, ...args);
-    }
-
-    if(!(parent instanceof DefineContext))
-      throw new Error("Invalid modifier");
-
-    const macro = parent.macros[name];
-
-    if(!macro){
-      apply(args);
-      continue;
-    }
-
-    const output = macro.apply(parent as DefineContext, args);
-
-    if(!output)
-      continue;
-
-    if(Array.isArray(output)){
-      apply(output);
-      continue;
-    }
-    
-    if(typeof output != "object")
-      throw new Error("Invalid modifier output.");
-
-    for(const key in output){
-      let args = output[key];
-
-      if(args === undefined)
-        continue;
-
-      if(!Array.isArray(args))
-        args = [args];
-
-      if(key === name)
-        apply(args);
-      else
-        queue.push({ name: key, args });
-    }
   }
 }
 

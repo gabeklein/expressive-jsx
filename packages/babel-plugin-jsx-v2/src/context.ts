@@ -97,6 +97,52 @@ export class DefineContext extends Context {
     
     return [];
   }
+  
+  macro(name: string, args: any[]){
+    const queue = [{ name, args }];
+
+    while(queue.length){
+      const { name, args } = queue.pop()!;
+      const apply = (args: any[]) => {
+        this.assign(name, ...args);
+      }
+  
+      const macro = this.macros[name];
+  
+      if(!macro){
+        apply(args);
+        continue;
+      }
+  
+      const output = macro.apply(this, args);
+  
+      if(!output)
+        continue;
+  
+      if(Array.isArray(output)){
+        apply(output);
+        continue;
+      }
+      
+      if(typeof output != "object")
+        throw new Error("Invalid modifier output.");
+  
+      for(const key in output){
+        let args = output[key];
+  
+        if(args === undefined)
+          continue;
+  
+        if(!Array.isArray(args))
+          args = [args];
+  
+        if(key === name)
+          apply(args);
+        else
+          queue.push({ name: key, args });
+      }
+    }
+  }
 }
 
 export class FocusContext extends Context {
