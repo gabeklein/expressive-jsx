@@ -1,5 +1,5 @@
 import { Parser } from './syntax/arguments';
-import { CONTEXT, DefineContext, FunctionContext } from './context';
+import { CONTEXT, DefineContext, FunctionContext, IfContext, getContext } from './context';
 import * as t from './types';
 
 type ModifierItem = {
@@ -10,9 +10,9 @@ type ModifierItem = {
 
 export function handleLabel(
   path: t.NodePath<t.LabeledStatement>){
-
-  const context = getContext(path);
+  
   const body = path.get("body");
+  const context = createContext(path);
 
   if(body.isBlockStatement()){
     new DefineContext(context, path);
@@ -86,7 +86,7 @@ function applyMacros(
   }
 }
 
-function getContext(path: t.NodePath<t.LabeledStatement>){
+function createContext(path: t.NodePath<t.LabeledStatement>){
   let parent = path.parentPath;
 
   if(parent.isBlockStatement())
@@ -97,10 +97,12 @@ function getContext(path: t.NodePath<t.LabeledStatement>){
   if(context)
     return context;
   
+  const ambient = getContext(parent);
+
   if(parent.isFunction())
-    return new FunctionContext(parent);
+    return new FunctionContext(ambient, parent);
   
-  throw new Error("Context not found");
+    throw new Error("Context not found");
 }
 
 function parseError(path: t.NodePath, err: unknown, modiferName: string){

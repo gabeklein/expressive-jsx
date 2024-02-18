@@ -6,9 +6,11 @@ import * as t from './types';
 export const CONTEXT = new WeakMap<t.NodePath, Context>();
 
 export abstract class Context {
-  name = "";
   define: Record<string, DefineContext> = {};
   macros: Record<string, Macro> = {};
+
+  assign!: (...args: any[]) => void;
+  apply?(path: t.NodePath<t.JSXElement>): void;
 
   get uid(): string {
     const uid = this.name + "_" + simpleHash(this.parent?.uid);
@@ -16,7 +18,10 @@ export abstract class Context {
     return uid;
   }
 
-  constructor(public parent?: Context){
+  constructor(
+    public name: string,
+    public parent?: Context){
+
     if(!parent)
       return;
 
@@ -25,9 +30,6 @@ export abstract class Context {
     this.assign = parent.assign;
     this.apply = parent.apply;
   }
-
-  assign!: (...args: any[]) => void;
-  apply?(path: t.NodePath<t.JSXElement>): void;
 
   assignTo(path: t.NodePath){
     CONTEXT.set(path, this);
@@ -49,8 +51,9 @@ export abstract class Context {
 export class ModuleContext extends Context {
   constructor(path: t.NodePath, options: Options){
     const { macros, define, assign } = options; 
+    const name = (path.hub as any).file.opts.filename as string;
     
-    super();
+    super(name);
 
     if(!assign)
       throw new Error(`Plugin has not defined an assign method.`);
@@ -60,28 +63,28 @@ export class ModuleContext extends Context {
     this.macros = Object.assign({}, ...macros || []);
     this.define = Object.assign({}, ...define || []);
 
-    Object.defineProperty(this, "uid", {
-      value: (path.hub as any).file.opts.filename
-    });
+    Object.defineProperty(this, "uid", { value: name });
   }
 }
 
 export class DefineContext extends Context {
   styles: Record<string, string> = {};
 
-  constructor(parent: Context | undefined, public path: t.NodePath){
+  get className(){
+    return t.stringLiteral(this.uid);
+  }
+
+  constructor(
+    public parent: Context,
+    public path: t.NodePath){
+
     const name = getName(path);
     
-    super(parent);
-    this.name = name;
+    super(name, parent);
     this.assignTo(path);
 
     if(parent)
       parent.define[name] = this;
-  }
-  
-  get className(){
-    return t.stringLiteral(this.uid);
   }
 
   get(name: string): DefineContext[] {
@@ -109,11 +112,7 @@ export class FocusContext extends Context {
   }
 }
 
-export class FunctionContext extends DefineContext {
-  constructor(public path: t.NodePath<t.Function>){
-    super(getContext(path), path);
-  }
-}
+export class FunctionContext extends DefineContext {}
 
 export function getContext(path: t.NodePath){
   while(path){
