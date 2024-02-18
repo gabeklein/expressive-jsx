@@ -19,7 +19,7 @@ export abstract class Context {
   }
 
   constructor(
-    public name: string,
+    public name: string = "",
     public parent?: Context){
 
     if(!parent)
