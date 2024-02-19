@@ -1,4 +1,4 @@
-import { Context, DefineContext, FunctionContext, getContext } from './context';
+import { Context, DefineContext, getContext } from './context';
 import { setClassNames } from './syntax/className';
 import { extractClassName, forwardProps, setTagName } from './syntax/element';
 import { hasProperTagName } from './syntax/tags';
