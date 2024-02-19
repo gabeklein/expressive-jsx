@@ -71,7 +71,7 @@ export class DefineContext extends Context {
   styles: Record<string, string> = {};
   
   get className(){
-    return t.stringLiteral(this.uid);
+    return this.uid;
   }
 
   constructor(
@@ -144,19 +144,6 @@ export class DefineContext extends Context {
           queue.push({ name: key, args });
       }
     }
-  }
-}
-
-export class FocusContext extends Context {
-  using = new Set<DefineContext>();
-
-  get(name: string){
-    const mods = new Set<DefineContext>();
-
-    for(const def of this.using)
-      def.get(name).forEach(x => mods.add(x));
-
-    return Array.from(mods);
   }
 }
 

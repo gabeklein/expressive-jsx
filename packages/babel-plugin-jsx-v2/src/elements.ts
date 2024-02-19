@@ -1,4 +1,4 @@
-import { DefineContext, FocusContext, FunctionContext, getContext } from './context';
+import { Context, DefineContext, FunctionContext, getContext } from './context';
 import { setClassNames } from './syntax/className';
 import { extractClassName, forwardProps, setTagName } from './syntax/element';
 import { hasProperTagName } from './syntax/tags';
@@ -38,62 +38,65 @@ export function handleElement(
       attr.remove();
   });
 
-  element.using.forEach((def) => {
-    if(def instanceof FunctionContext)
-      element.forwardProps = true;
-
-    element.classNames.push(def.className);
-  });
-
-  element.apply();
+  element.commit();
 }
 
-export class AbstractJSX {
+export class AbstractJSX extends Context {
   forwardProps = false;
+  parent: Context;
+  
   using = new Set<DefineContext>();
-
   props: Record<string, t.Expression> = {};
   styles: Record<string, t.Expression | string> = {};
-  classNames: t.Expression[] = [];
-  context = new FocusContext();
+  classNames = new Set<t.Expression | string>();
 
-  constructor(
-    public path: t.NodePath<t.JSXElement>){
-
-    const { context } = this;
+  constructor(public path: t.NodePath<t.JSXElement>){
+    const tagName = path.get("openingElement.name").toString();
     const parent = getContext(path);
 
-    if(parent instanceof DefineContext)
-      context.using.add(parent);
-    else if(parent instanceof FocusContext)
-      for(const define of parent.using)
-        context.using.add(define);
+    super(tagName);
 
-    context.assignTo(path);
+    this.parent = parent;
+    this.assignTo(path);
+  }
+
+  get(name: string){
+    const mods = new Set<DefineContext>();
+
+    for(const ctx of [this.parent, ...this.using])
+      ctx.get(name).forEach(x => mods.add(x));
+
+    return Array.from(mods);
   }
 
   use(name: string){
-    const apply = this.context.get(name);
+    const apply = this.get(name);
+
+    if(name === "this")
+      this.forwardProps = true;
 
     apply.forEach(x => {
+      this.classNames.add(x.className);
       this.using.add(x);
-      this.context.using.add(x);
     });
 
     return apply.length > 0;
   }
 
-  apply(){
+  commit(){
     const { classNames, path } = this;
+    const names = Array.from(classNames, x => {
+      return typeof x === "string" ? t.stringLiteral(x) : x;
+    });
 
     if(this.forwardProps){
       const props = forwardProps(path);
 
-      if(classNames.length)
-        classNames.unshift(extractClassName(props, path.scope))
+      if(names.length)
+        names.unshift(extractClassName(props, path.scope))
     }
 
-    if(classNames.length > 0)
-      setClassNames(path, classNames);
+    if(names.length > 0)
+      setClassNames(path, names);
   }
 }

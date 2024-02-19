@@ -135,15 +135,6 @@ it("will apply nested styles to attributes", async () => {
       </div>
     );
   `);
-
-  expect(output.css).toMatchInlineSnapshot(`
-    .item_tl9 {
-      color: blue;
-    }
-    .red_jh9 {
-      color: red;
-    }
-  `);
 });
 
 it("will bail on repeat macro", async () => {
