@@ -1,10 +1,10 @@
-import { CONTEXT, DefineContext, FunctionContext, getContext, IfContext } from './context';
+import { CONTEXT, DefineContext, FunctionContext, IfContext } from './context';
 import { parseArgument } from './syntax/arguments';
 import * as t from './types';
 
 export function handleLabel(
   path: t.NodePath<t.LabeledStatement>){
-  
+
   const body = path.get("body");
   const context = createContext(path);
 
@@ -27,26 +27,28 @@ export function handleLabel(
   }
 }
 
-function createContext(
-  path: t.NodePath<t.LabeledStatement>){
+function createContext(path: t.NodePath): any {
+  let parent = path.parentPath!;
+  let key = path.key;
 
-  let parent = path.parentPath;
-
-  if(parent.isBlockStatement())
+  if(parent.isBlockStatement()){
     parent = parent.parentPath!;
+    key = parent.key;
+  }
 
   const context = CONTEXT.get(parent);
 
+  if(context instanceof IfContext)
+    return key === "consequent" ? context : context.alt(path);
+
   if(context)
     return context;
-  
-  const ambient = getContext(parent);
 
   if(parent.isFunction())
-    return new FunctionContext(ambient, parent);
+    return new FunctionContext(parent);
 
   if(parent.isIfStatement())
-    return new IfContext(ambient, parent);
+    return new IfContext(createContext(parent), parent);
 
   throw new Error("Context not found");
 }

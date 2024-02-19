@@ -87,6 +87,8 @@ export class DefineContext extends Context {
       parent.define[name] = this;
   }
 
+  exit?(key: string | number | null): void;
+
   get(name: string): DefineContext[] {
     if(name !== "this")
       return super.get(name);
@@ -158,7 +160,11 @@ export class FocusContext extends Context {
   }
 }
 
-export class FunctionContext extends DefineContext {}
+export class FunctionContext extends DefineContext {
+  constructor(path: t.NodePath<t.Function>){
+    super(getContext(path), path);
+  }
+}
 
 export class IfContext extends DefineContext {
   alternate?: DefineContext;
@@ -167,6 +173,11 @@ export class IfContext extends DefineContext {
     return this.alternate || (
       this.alternate = new DefineContext(this.parent, path)
     );
+  }
+
+  exit(key: string | number | null): void {
+    if(key === "alernate" || !this.alternate)
+      this.path.remove();
   }
 }
 

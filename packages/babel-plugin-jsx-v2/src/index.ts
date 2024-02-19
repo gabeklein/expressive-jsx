@@ -1,4 +1,4 @@
-import { Context, ModuleContext } from './context';
+import { CONTEXT, Context, DefineContext, ModuleContext } from './context';
 import { handleElement } from './elements';
 import { handleLabel } from './label';
 import { Macro, Options } from './options';
@@ -21,6 +21,7 @@ function Plugin(){
     visitor: {
       Program,
       LabeledStatement,
+      BlockStatement,
       JSXElement
     }
   })
@@ -35,6 +36,10 @@ const Program: Visitor<t.Program> = {
     Object.assign(Options, options);
     new ModuleContext(path, options);
   }
+}
+
+const BlockStatement: Visitor<t.BlockStatement> = {
+  exit: exitParent
 }
 
 const AFTER = new WeakMap<t.NodePath, () => void>();
@@ -56,6 +61,8 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
 
     if(after)
       after();
+
+    exitParent(path);
   }
 }
 
@@ -66,4 +73,12 @@ const JSXElement: Visitor<t.JSXElement> = {
   exit(path){
     fixImplicitReturn(path);
   }
+}
+
+function exitParent(path: t.NodePath){
+  const parent = path.parentPath!;
+  const context = CONTEXT.get(parent);
+
+  if(context instanceof DefineContext && context.exit)
+    context.exit(parent.key);
 }
