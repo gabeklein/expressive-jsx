@@ -17,12 +17,12 @@ export function parseArgument(
   childKey?: keyof t.Expression
 ){
   const exp = element.get("expression").node;
-  const args = parsers.Expression(exp, childKey);
+  const args = parse.Expression(exp, childKey);
 
   return Array.isArray(args) ? args : [args];
 }
 
-export const parsers = {
+const parse = {
   Expression<T extends t.Expression>(
     element: T,
     childKey?: keyof T): any {
