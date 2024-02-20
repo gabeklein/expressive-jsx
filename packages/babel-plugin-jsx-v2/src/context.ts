@@ -56,7 +56,7 @@ export class Context {
 
 export class DefineContext extends Context {
   also = new Set<DefineContext>();
-  styles: Record<string, string> = {};
+  styles: Record<string, string | unknown[]> = {};
   usedBy = new Set<ElementContext>();
   
   get className(){
@@ -71,7 +71,7 @@ export class DefineContext extends Context {
     
     super(name, parent);
     this.assignTo(path);
-      parent.define[name] = this;
+    parent.define[name] = this;
   }
 
   exit?(key: string | number | null): void;
@@ -81,11 +81,11 @@ export class DefineContext extends Context {
 
     while(queue.length){
       const { name, args } = queue.pop()!;
+      const macro = this.macros[name];
       const apply = (args: any[]) => {
+        this.styles[name] = args;
         this.assign(name, ...args);
       }
-  
-      const macro = this.macros[name];
   
       if(!macro){
         apply(args);
