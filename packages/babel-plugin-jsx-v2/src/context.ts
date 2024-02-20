@@ -1,6 +1,7 @@
-import { getName } from './syntax/entry';
+import { AbstractJSX } from './elements';
 import { simpleHash } from './helper/simpleHash';
 import { Macro, Options } from './options';
+import { getName } from './syntax/entry';
 import * as t from './types';
 
 export const CONTEXT = new WeakMap<t.NodePath, Context>();
@@ -75,6 +76,7 @@ export class ModuleContext extends Context {
 export class DefineContext extends Context {
   also = new Set<DefineContext>();
   styles: Record<string, string> = {};
+  usedBy = new Set<AbstractJSX>();
   
   get className(){
     return this.uid as string | t.Expression;
