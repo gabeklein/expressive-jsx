@@ -59,8 +59,8 @@ export class DefineContext extends Context {
   styles: Record<string, string | unknown[]> = {};
   usedBy = new Set<ElementContext>();
   
-  get className(){
-    return this.uid as string | t.Expression;
+  get className(): string | t.Expression | null {
+    return this.uid;
   }
 
   constructor(
@@ -127,6 +127,12 @@ export class FunctionContext extends DefineContext {
   constructor(path: t.NodePath<t.Function>){
     super(getContext(path), path);
     this.define["this"] = this;
+  }
+
+  get className(){
+    return Object.keys(this.styles).length > 0
+      ? super.className
+      : null;
   }
 }
 

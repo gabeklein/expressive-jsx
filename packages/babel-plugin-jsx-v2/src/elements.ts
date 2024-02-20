@@ -84,9 +84,11 @@ export class ElementContext extends Context {
 
   commit(){
     const { using, path } = this;
-    const names = Array.from(using, ({ className: x }) => (
-      typeof x === "string" ? t.stringLiteral(x) : x
-    ));
+    const names = Array
+      .from(using, ({ className: x }) => (
+        typeof x === "string" ? t.stringLiteral(x) : x
+      ))
+      .filter(Boolean) as t.Expression[];
 
     if(this.forwardProps){
       const props = forwardProps(path);
