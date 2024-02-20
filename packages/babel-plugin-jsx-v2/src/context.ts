@@ -1,12 +1,12 @@
 import { ElementContext } from './elements';
 import { simpleHash } from './helper/simpleHash';
-import { Macro, Options } from './options';
+import { Macro } from './options';
 import { getName } from './syntax/entry';
 import * as t from './types';
 
 export const CONTEXT = new WeakMap<t.NodePath, Context>();
 
-export abstract class Context {
+export class Context {
   define: Record<string, DefineContext> = {};
   macros: Record<string, Macro> = {};
 
@@ -51,25 +51,6 @@ export abstract class Context {
     }
 
     return defines.reverse();
-  }
-}
-
-export class ModuleContext extends Context {
-  constructor(path: t.NodePath, options: Options){
-    const { macros, define, assign } = options; 
-    const name = (path.hub as any).file.opts.filename as string;
-    
-    super(name);
-
-    if(!assign)
-      throw new Error(`Plugin has not defined an assign method.`);
-
-    this.assignTo(path);
-    this.assign = assign;
-    this.macros = Object.assign({}, ...macros || []);
-    this.define = Object.assign({}, ...define || []);
-
-    Object.defineProperty(this, "uid", { value: name });
   }
 }
 
