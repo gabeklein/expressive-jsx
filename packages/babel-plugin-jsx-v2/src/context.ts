@@ -36,11 +36,16 @@ export abstract class Context {
   }
   
   get(name: string){
-    let { define } = this;
     const defines = [] as DefineContext[];
+    let mod: DefineContext;
+    let { define } = this;
 
-    while(define[name]){
-      defines.push(define[name]);
+    while(mod = define[name]){
+      defines.push(mod, ...mod.also);
+
+      if(name === "this")
+        break;
+
       define = Object.getPrototypeOf(define);
     }
 
@@ -68,10 +73,11 @@ export class ModuleContext extends Context {
 }
 
 export class DefineContext extends Context {
+  also = new Set<DefineContext>();
   styles: Record<string, string> = {};
   
   get className(){
-    return this.uid;
+    return this.uid as string | t.Expression;
   }
 
   constructor(
@@ -88,17 +94,6 @@ export class DefineContext extends Context {
   }
 
   exit?(key: string | number | null): void;
-
-  get(name: string): DefineContext[] {
-    if(name !== "this")
-      return super.get(name);
-
-    for(let ctx: Context = this; ctx; ctx = ctx.parent!)
-      if(ctx instanceof FunctionContext)
-        return [ctx];
-    
-    return [];
-  }
   
   macro(name: string, args: any[]){
     const queue = [{ name, args }];
@@ -150,11 +145,34 @@ export class DefineContext extends Context {
 export class FunctionContext extends DefineContext {
   constructor(path: t.NodePath<t.Function>){
     super(getContext(path), path);
+    this.define["this"] = this;
   }
 }
 
 export class IfContext extends DefineContext {
+  test: t.Expression;
   alternate?: DefineContext;
+  
+  constructor(
+    public parent: Context,
+    public path: t.NodePath<t.IfStatement>){
+
+    super(parent, path);
+
+    const test = this.test = path.node.test;
+
+    if(t.isIdentifier(test))
+      this.name = test.name;
+
+    if(parent instanceof DefineContext)
+      parent.also.add(this);
+
+    Object.defineProperty(this, "className", {
+      value: t.logicalExpression("&&",
+        this.test, t.stringLiteral(this.uid)
+      )
+    });
+  }
 
   alt(path: t.NodePath<t.Node>){
     return this.alternate || (

@@ -16,7 +16,11 @@ it("will apply to this", async () => {
     const Component = ({ className, active, ...rest }) => (
       <div
         {...rest}
-        className={classNames(className, 'Component_ifp', active && "active_ifp")}>
+        className={classNames(
+          className,
+          active && 'active_tl9',
+          'Component_ifp'
+        )}>
         Hello
       </div>
     );
@@ -26,13 +30,13 @@ it("will apply to this", async () => {
     .Component_ifp {
       color: blue;
     }
-    .element_tl9 {
+    .active_tl9 {
       color: red;
     }
   `);
 });
 
-it.skip("will apply to selector", async () => {
+it("will apply to selector", async () => {
   const output = await parser(`
     const Component = ({ active }) => {
       div: {
@@ -48,7 +52,9 @@ it.skip("will apply to selector", async () => {
 
   expect(output.code).toMatchInlineSnapshot(`
     const Component = ({ active }) => (
-      <div className="div_tl9">Hello</div>
+      <div className={classNames(active && 'active_roo', 'div_tl9')}>
+        Hello
+      </div>
     );
   `);
 });
@@ -60,19 +66,6 @@ it.skip("will apply styles", async () => {
         color: red;
       
       <div>Hello</div>
-    }
-  `);
-
-  expect(output.code).toMatchInlineSnapshot();
-});
-
-it.skip("will apply styles", async () => {
-  const output = await parser(`
-    const Component = () => {
-      if("active")
-        color: red;
-      
-      <this>Hello</this>
     }
   `);
 
