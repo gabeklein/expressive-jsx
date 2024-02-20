@@ -22,7 +22,7 @@ async function stuff(){
     ]
   });
 
-  const output = await format(result!.code!, {
+  const output = format(result!.code!, {
     singleQuote: true,
     trailingComma: "none",
     jsxBracketSameLine: true,
@@ -39,7 +39,12 @@ function generateCss(){
   let css = "<style>\n";
 
   for(const [context, styles] of CSS){
-    css += `  .${context.uid} {\n`;
+    let selector = `.${context.uid}`;
+
+    for(let x = context.within; x; x = x.within)
+      selector = `.${x.uid} ${selector}`;
+
+    css += `  ${selector} {\n`;
 
     for(const [name, value] of Object.entries(styles))
       css += `    ${name}: ${value};\n`;

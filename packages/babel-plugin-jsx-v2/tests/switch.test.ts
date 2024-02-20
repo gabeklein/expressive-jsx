@@ -59,6 +59,38 @@ it("will apply to selector", async () => {
   `);
 });
 
+it("will apply to child selector", async () => {
+  const output = await parser(`
+    const Component = ({ active }) => {
+      if(active){
+        div: {
+          color: red;
+        }
+      }
+      
+      <this>
+        <div>Hello</div>
+      </this>
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(`
+    const Component = ({ className, active, ...rest }) => (
+      <div
+        {...rest}
+        className={classNames(className, active && 'active_tl9')}>
+        <div className="div_xt4">Hello</div>
+      </div>
+    );
+  `);
+
+  expect(output.css).toMatchInlineSnapshot(`
+    .active_tl9 .div_xt4 {
+      color: red;
+    }
+  `);
+});
+
 it.skip("will apply styles", async () => {
   const output = await parser(`
     const Component = ({ active }) => {

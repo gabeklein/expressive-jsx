@@ -39,8 +39,12 @@ function createParser(options?: Options){
         [Plugin, <Plugin.Options>{
           polyfill: false,
           assign(name, value){
-            const className = `.${this.uid}`;
-            const block = styles[className] || (styles[className] = {});
+            let select = `.${this.uid}`;
+
+            for(let x = this.within; x; x = x.within)
+              select = `.${x.uid} ${select}`;
+  
+            const block = styles[select] || (styles[select] = {});
 
             block[name] = value;
           },

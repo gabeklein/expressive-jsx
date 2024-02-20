@@ -32,6 +32,11 @@ export class Context {
     this.apply = parent.apply;
   }
 
+  add(child: DefineContext){
+    if(child.name)
+      this.define[child.name] = child;
+  }
+
   assignTo(path: t.NodePath){
     CONTEXT.set(path, this);
   }
@@ -58,6 +63,7 @@ export class DefineContext extends Context {
   also = new Set<DefineContext>();
   styles: Record<string, string | unknown[]> = {};
   usedBy = new Set<ElementContext>();
+  within?: DefineContext;
   
   get className(): string | t.Expression | null {
     return this.uid;
@@ -71,7 +77,7 @@ export class DefineContext extends Context {
     
     super(name, parent);
     this.assignTo(path);
-    parent.define[name] = this;
+    parent.add(this);
   }
 
   exit?(key: string | number | null): void;
@@ -159,6 +165,11 @@ export class IfContext extends DefineContext {
         this.test, t.stringLiteral(this.uid)
       )
     });
+  }
+
+  add(child: DefineContext){
+    child.within = this;
+    super.add(child);
   }
 
   alt(path: t.NodePath<t.Node>){
