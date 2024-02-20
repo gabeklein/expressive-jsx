@@ -7,7 +7,7 @@ import * as t from './types';
 export function handleElement(
   path: t.NodePath<t.JSXElement>){
   
-  const element = new AbstractJSX(path);
+  const element = new ElementContext(path);
   const opening = path.get("openingElement");
   let tag = opening.node.name;
 
@@ -41,7 +41,7 @@ export function handleElement(
   element.commit();
 }
 
-export class AbstractJSX extends Context {
+export class ElementContext extends Context {
   forwardProps = false;
   parent: Context;
   

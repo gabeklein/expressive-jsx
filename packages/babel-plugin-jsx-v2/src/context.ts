@@ -1,4 +1,4 @@
-import { AbstractJSX } from './elements';
+import { ElementContext } from './elements';
 import { simpleHash } from './helper/simpleHash';
 import { Macro, Options } from './options';
 import { getName } from './syntax/entry';
@@ -76,7 +76,7 @@ export class ModuleContext extends Context {
 export class DefineContext extends Context {
   also = new Set<DefineContext>();
   styles: Record<string, string> = {};
-  usedBy = new Set<AbstractJSX>();
+  usedBy = new Set<ElementContext>();
   
   get className(){
     return this.uid as string | t.Expression;
