@@ -48,7 +48,6 @@ export class AbstractJSX extends Context {
   using = new Set<DefineContext>();
   props: Record<string, t.Expression> = {};
   styles: Record<string, t.Expression | string> = {};
-  classNames = new Set<t.Expression | string>();
 
   constructor(public path: t.NodePath<t.JSXElement>){
     const tagName = path.get("openingElement.name").toString();
@@ -76,7 +75,7 @@ export class AbstractJSX extends Context {
       this.forwardProps = true;
 
     apply.forEach(x => {
-      this.classNames.add(x.className);
+      x.usedBy.add(this);
       this.using.add(x);
     });
 
@@ -84,10 +83,10 @@ export class AbstractJSX extends Context {
   }
 
   commit(){
-    const { classNames, path } = this;
-    const names = Array.from(classNames, x => {
-      return typeof x === "string" ? t.stringLiteral(x) : x;
-    });
+    const { using, path } = this;
+    const names = Array.from(using, ({ className: x }) => (
+      typeof x === "string" ? t.stringLiteral(x) : x
+    ));
 
     if(this.forwardProps){
       const props = forwardProps(path);
