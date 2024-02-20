@@ -64,7 +64,7 @@ function createParser(options?: Options){
         .map(([name, value]) => `  ${name}: ${value};`)
         .join("\n");
 
-      css.push(selector + ` {\n` + style + "\n}");
+      css.push(selector + " {\n" + style + "\n}");
     }
 
     return <Output> {

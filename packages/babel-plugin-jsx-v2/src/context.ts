@@ -71,8 +71,6 @@ export class DefineContext extends Context {
     
     super(name, parent);
     this.assignTo(path);
-
-    if(parent)
       parent.define[name] = this;
   }
 
