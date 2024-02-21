@@ -91,7 +91,9 @@ it("will apply to child selector", async () => {
   `);
 });
 
-it.skip("will apply styles", async () => {
+
+// might not keep this
+it.skip("will apply without brackets", async () => {
   const output = await parser(`
     const Component = ({ active }) => {
       div: if(active)

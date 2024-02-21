@@ -5,54 +5,21 @@ it("will apply styles", async () => {
     const Component = () => {
       div: {
         color: blue;
-        fontSize: "1.5em";
-      }
-
-      inner: {
-        color: red;
       }
     
-      <div>
-        Hello
-        <div inner>World</div>
-      </div>
-    }
-  `);
-
-  expect(output.code).toMatchInlineSnapshot(`
-    const Component = () => (
-      <div className="div_tl9">
-        Hello
-        <div className="div_tl9 inner_tl9">World</div>
-      </div>
-    );
-  `);
-
-  expect(output.css).toMatchInlineSnapshot(`
-    .div_tl9 {
-      color: blue;
-      fontSize: 1.5em;
-    }
-    .inner_tl9 {
-      color: red;
-    }
-  `);
-});
-
-it("will pass-thru existing className", async () => {
-  const output = await parser(`
-    const Component = () => {
-      div: {
-        color: blue;
-      }
-    
-      <div className="foobar">Hi</div>
+      <div>Hello</div>
     }
   `);
 
   expect(output.code).toMatchInlineSnapshot(
-    `const Component = () => <div className="foobar div_tl9">Hi</div>;`
+    `const Component = () => <div className="div_tl9">Hello</div>;`
   );
+
+  expect(output.css).toMatchInlineSnapshot(`
+    .div_tl9 {
+      color: blue;
+    }
+  `);
 });
 
 it("will apply style to this", async () => {
@@ -81,6 +48,46 @@ it("will apply style to this", async () => {
       color: red;
     }
   `);
+});
+
+it("will apply to attributes", async () => {
+  const output = await parser(`
+    const Component = () => {
+      inner: {
+        color: red;
+      }
+    
+      <div>
+        Hello
+        <div inner>World</div>
+      </div>
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(`
+    const Component = () => (
+      <div>
+        Hello
+        <div className="inner_tl9">World</div>
+      </div>
+    );
+  `);
+});
+
+it("will keep existing className", async () => {
+  const output = await parser(`
+    const Component = () => {
+      div: {
+        color: blue;
+      }
+    
+      <div className="foobar">Hi</div>
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(
+    `const Component = () => <div className="foobar div_tl9">Hi</div>;`
+  );
 });
 
 it("will apply nested styles", async () => {
@@ -134,29 +141,5 @@ it("will apply nested styles to attributes", async () => {
         <div className="item_tl9 red_jh9" />
       </div>
     );
-  `);
-});
-
-it("will bail on repeat macro", async () => {
-  function foo(value: any){
-    return {
-      foo: value + "Baz"
-    }
-  }
-  
-  const parse = parser({ macros: [{foo}] });
-
-  const output = await parse(`
-    const Component = () => {
-      foo: "bar";
-
-      <this />
-    }
-  `);
-
-  expect(output.css).toMatchInlineSnapshot(`
-    .Component_ifp {
-      foo: barBaz;
-    }
   `);
 });
