@@ -1,6 +1,6 @@
 import { parser } from "./adapter";
 
-it("will apply styles", async () => {
+it("will apply", async () => {
   const output = await parser(`
     const Component = () => {
       div: {
@@ -22,7 +22,7 @@ it("will apply styles", async () => {
   `);
 });
 
-it("will apply style to this", async () => {
+it("will apply to this", async () => {
   const output = await parser(`
     const Component = () => {
       color: red;
@@ -90,7 +90,7 @@ it("will keep existing className", async () => {
   );
 });
 
-it("will apply nested styles", async () => {
+it("will apply nested", async () => {
   const output = await parser(`
     const Component = () => {
       container: {
@@ -116,7 +116,7 @@ it("will apply nested styles", async () => {
   `);
 });
 
-it("will apply nested styles to attributes", async () => {
+it("will apply nested to attributes", async () => {
   const output = await parser(`
     const Component = () => {
       item: {
