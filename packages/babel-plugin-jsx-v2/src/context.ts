@@ -130,15 +130,32 @@ export class DefineContext extends Context {
 }
 
 export class FunctionContext extends DefineContext {
+  body: t.NodePath<t.BlockStatement | t.Expression>;
+
   constructor(path: t.NodePath<t.Function>){
     super(getContext(path), path);
     this.define["this"] = this;
+    this.body = path.get("body");
   }
 
   get className(){
     return Object.keys(this.styles).length > 0
       ? super.className
       : null;
+  }
+
+  exit(){
+    const { body } = this;
+
+    if(body.isBlockStatement() && body.node.body.length === 0)
+      body.replaceWith(t.blockStatement([
+        t.returnStatement(
+          t.jsxElement(
+            t.jsxOpeningElement(t.jsxIdentifier("this"), [], true),
+            undefined, [], true
+          )
+        )
+      ]));
   }
 }
 
