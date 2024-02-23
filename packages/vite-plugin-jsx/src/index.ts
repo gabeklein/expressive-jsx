@@ -113,6 +113,11 @@ async function transform(id: string, input: string, options?: Options){
     generatorOpts: {
       decoratorsBeforeExport: true
     },
+    plugins: [
+      ["@babel/plugin-transform-typescript", {
+        isTSX: true
+      }]
+    ],
     presets: [
       ["@expressive/babel-preset-react", {
         output: "jsx",
