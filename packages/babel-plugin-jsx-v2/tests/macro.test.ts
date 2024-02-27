@@ -1,4 +1,4 @@
-import { parser } from './adapter';
+import { parser } from "./adapter";
 
 it("will bail on repeat macro", async () => {
   function foo(value: any) {
@@ -24,6 +24,24 @@ it("will bail on repeat macro", async () => {
   `);
 });
 
+it("will convert native hex color", async () => {
+  const output = await parser(`
+    const Component = () => {
+      color: 0xff0000;
+      background: 0x00ff0022;
+
+      <this />
+    }
+  `);
+
+  expect(output.css).toMatchInlineSnapshot(`
+    .Component_ifp {
+      color: #ff0000;
+      background: rgba(0,255,0,0.133);
+    }
+  `);
+});
+
 it.skip("will apply complex style", async () => {
   const output = await parser(`
     const Component = () => {
@@ -42,4 +60,4 @@ it.skip("will apply complex style", async () => {
       transform: translateX(10px) rotate(90deg) scale(2);
     }
   `);
-})
+});
