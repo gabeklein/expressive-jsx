@@ -97,12 +97,11 @@ it("will apply to selector", async () => {
 it("will apply to child selector", async () => {
   const output = await parser(`
     const Component = ({ active }) => {
-      if(active){
+      if(active)
         div: {
           color: red;
         }
-      }
-      
+
       <this>
         <div>Hello</div>
       </this>
