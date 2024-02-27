@@ -7,16 +7,16 @@ export function handleLabel(
 
   const body = path.get("body");
   const context = createContext(path);
+  let { name } = path.node.label;
 
   if(body.isBlockStatement()){
-    new DefineContext(context, path);
+    new DefineContext(name, context).assignTo(path);
     return;
   }
 
   if(!body.isExpressionStatement() || !(context instanceof DefineContext))
     throw new Error("Invalid modifier");
 
-  let { name } = path.node.label;
   const args = parseArgument(body);
 
   try {

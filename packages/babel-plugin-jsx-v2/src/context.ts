@@ -69,14 +69,8 @@ export class DefineContext extends Context {
     return this.uid;
   }
 
-  constructor(
-    public parent: Context,
-    public path: t.NodePath){
-
-    const name = getName(path);
-    
+  constructor(name: string, parent: Context){
     super(name, parent);
-    this.assignTo(path);
     parent.add(this);
   }
 
@@ -133,7 +127,12 @@ export class FunctionContext extends DefineContext {
   body: t.NodePath<t.BlockStatement | t.Expression>;
 
   constructor(path: t.NodePath<t.Function>){
-    super(getContext(path), path);
+    const name = getName(path);
+    const ctx = getContext(path);
+
+    super(name, ctx);
+  
+    this.assignTo(path);
     this.define["this"] = this;
     this.body = path.get("body");
   }
@@ -167,9 +166,13 @@ export class IfContext extends DefineContext {
     public parent: Context,
     public path: t.NodePath<t.IfStatement>){
 
-    super(parent, path);
+    const test = path.node.test;
+    const name = t.isIdentifier(test) ? test.name : getName(path);
 
-    const test = this.test = path.node.test;
+    super(name, parent);
+
+    this.assignTo(path);
+    this.test = test;
 
     if(t.isIdentifier(test))
       this.name = test.name;
