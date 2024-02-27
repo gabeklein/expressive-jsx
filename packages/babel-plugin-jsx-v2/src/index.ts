@@ -54,7 +54,7 @@ const BlockStatement: Visitor<t.BlockStatement> = {
   exit: exitParent
 }
 
-const AFTER = new WeakMap<t.NodePath, () => void>();
+const HANDLED = new WeakSet<t.NodePath>();
 
 const LabeledStatement: Visitor<t.LabeledStatement> = {
   enter(path){
@@ -64,15 +64,11 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
       return;
 
     handleLabel(path);
-    AFTER.set(path, () => {
-      path.remove();
-    });
+    HANDLED.add(path);
   },
   exit(path){
-    const after = AFTER.get(path);
-
-    if(after)
-      after();
+    if(HANDLED.has(path))
+      path.remove();
 
     exitParent(path);
   }
