@@ -36,6 +36,41 @@ it("will apply to this", async () => {
   `);
 });
 
+it("will apply else", async () => {
+  const output = await parser(`
+    const Component = ({ active }) => {
+      if(active)
+        color: red;
+      else
+        color: blue;
+      
+      <this>Hello</this>
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(`
+    const Component = ({ className, active, ...rest }) => (
+      <div
+        {...rest}
+        className={classNames(
+          className,
+          active ? 'active_tl9' : 'not_active_tl9'
+        )}>
+        Hello
+      </div>
+    );
+  `);
+
+  expect(output.css).toMatchInlineSnapshot(`
+    .active_tl9 {
+      color: red;
+    }
+    .not_active_tl9 {
+      color: blue;
+    }
+  `);
+});
+
 it("will apply to selector", async () => {
   const output = await parser(`
     const Component = ({ active }) => {
@@ -90,7 +125,6 @@ it("will apply to child selector", async () => {
     }
   `);
 });
-
 
 // might not keep this
 it.skip("will apply without brackets", async () => {

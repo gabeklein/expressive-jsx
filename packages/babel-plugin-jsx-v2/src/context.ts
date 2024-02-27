@@ -146,15 +146,17 @@ export class FunctionContext extends DefineContext {
   exit(){
     const { body } = this;
 
-    if(body.isBlockStatement() && body.node.body.length === 0)
-      body.replaceWith(t.blockStatement([
-        t.returnStatement(
-          t.jsxElement(
-            t.jsxOpeningElement(t.jsxIdentifier("this"), [], true),
-            undefined, [], true
-          )
+    if(!body.isBlockStatement() || body.node.body.length > 0)
+      return;
+
+    body.replaceWith(t.blockStatement([
+      t.returnStatement(
+        t.jsxElement(
+          t.jsxOpeningElement(t.jsxIdentifier("this"), [], true),
+          undefined, [], true
         )
-      ]));
+      )
+    ]));
   }
 }
 
@@ -179,12 +181,24 @@ export class IfContext extends DefineContext {
 
     if(parent instanceof DefineContext)
       parent.also.add(this);
+  }
 
-    Object.defineProperty(this, "className", {
-      value: t.logicalExpression("&&",
-        this.test, t.stringLiteral(this.uid)
-      )
-    });
+  get className(){
+    const { test, alternate, uid } = this;
+
+    if(!alternate)
+      return t.logicalExpression("&&", test, t.stringLiteral(uid));
+
+    let alt = alternate.className!;
+
+    if(typeof alt === "string")
+      alt = t.stringLiteral(alt);
+
+    return t.conditionalExpression(
+      test,
+      t.stringLiteral(uid),
+      alt
+    );
   }
 
   add(child: DefineContext){
@@ -192,10 +206,18 @@ export class IfContext extends DefineContext {
     super.add(child);
   }
 
-  alt(path: t.NodePath<t.Node>){
-    return this.alternate || (
-      this.alternate = new DefineContext(this.parent, path)
-    );
+  for(key: unknown){
+    if(key === "consequent")
+      return this;
+
+    let { alternate, parent, name } = this;
+
+    if(!alternate){
+      alternate = new DefineContext("not_" + name, parent);
+      this.alternate = alternate;
+    }
+
+    return alternate;
   }
 
   exit(key: string | number | null): void {
@@ -229,7 +251,7 @@ export function createContext(path: t.NodePath): any {
   const context = CONTEXT.get(parent);
 
   if(context instanceof IfContext)
-    return key === "consequent" ? context : context.alt(path);
+    return context.for(key);
 
   if(context)
     return context;
