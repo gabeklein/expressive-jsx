@@ -1,15 +1,6 @@
-const Component = () => {
-  minSize: 50;
+const Setup1 = () => {
+  outline: red;
+  // something: (`sdasd`);
 
-  if(2){
-    color: red;
-  }
-
-  if(3){
-    color: blue;
-  }
-  
-  <this>
-    Hello World
-  </this>
+  <this />
 }

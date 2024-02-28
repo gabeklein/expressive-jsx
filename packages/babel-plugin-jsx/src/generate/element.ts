@@ -24,9 +24,9 @@ export class Generator {
   }
 
   get info(){
-    const { props, children } = this;
+    const { props, children, inline_only } = this;
     const className = this.className();
-    const stylesProp = this.style.flatten();
+    const stylesProp = this.style.flatten(inline_only);
   
     if(className)
       props.push({ name: "className", value: className });
