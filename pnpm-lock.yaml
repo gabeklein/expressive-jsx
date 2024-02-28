@@ -49,7 +49,7 @@ importers:
   packages/babel-preset-react:
     dependencies:
       '@expressive/babel-plugin-jsx':
-        specifier: ^1.8.0
+        specifier: ^1.8.1
         version: link:../babel-plugin-jsx
       chroma-js:
         specifier: ^2.0.3
@@ -89,7 +89,7 @@ importers:
         specifier: ^7.23.6
         version: 7.23.6(@babel/core@7.23.5)
       '@expressive/babel-preset-react':
-        specifier: ^1.8.0
+        specifier: ^1.8.1
         version: link:../babel-preset-react
     devDependencies:
       '@types/babel__core':
@@ -105,7 +105,7 @@ importers:
   packages/webpack-plugin-jsx:
     dependencies:
       '@expressive/babel-preset-react':
-        specifier: ^1.8.0
+        specifier: ^1.8.1
         version: link:../babel-preset-react
       babel-loader:
         specifier: ^9.1.2
