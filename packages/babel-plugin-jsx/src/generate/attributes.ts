@@ -31,9 +31,9 @@ export class AttributeStack extends ArrayStack<Style> {
       super.insert(item);
   }
 
-  flatten(){
+  flatten(inline_only?: boolean){
     if(!this.length){
-      if(!this.invariant.size)
+      if(!this.invariant.size || !inline_only)
         return;
       
       return t.object(
