@@ -74,6 +74,25 @@ it("will apply to attributes", async () => {
   `);
 });
 
+it("will apply to attribute this", async () => {
+  const output = await parser(`
+    const RedInput = () => {
+      color: red;
+    
+      <input this />
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(`
+    const RedInput = (props) => (
+      <input
+        {...props}
+        className={classNames(props.className, 'RedInput_ifp')}
+      />
+    );
+  `);
+});
+
 it("will keep existing className", async () => {
   const output = await parser(`
     const Component = () => {
