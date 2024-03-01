@@ -39,12 +39,7 @@ function generateCss(){
   let css = "<style>\n";
 
   for(const [context, styles] of CSS){
-    let selector = `.${context.uid}`;
-
-    for(let x = context.within; x; x = x.within)
-      selector = `.${x.uid} ${selector}`;
-
-    css += `  ${selector} {\n`;
+    css += `  ${context.selector} {\n`;
 
     for(const [name, value] of Object.entries(styles))
       css += `    ${name}: ${value};\n`;

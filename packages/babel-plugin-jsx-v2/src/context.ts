@@ -65,16 +65,25 @@ export class DefineContext extends Context {
   usedBy = new Set<ElementContext>();
   within?: DefineContext;
   
+  exit?(key: string | number | null): void;
+  
   get className(): string | t.Expression | null {
     return this.uid;
+  }
+
+  get selector(){
+    let selector = `.${this.uid}`;
+
+    for(let x = this.within; x; x = x.within)
+      selector = `.${x.uid} ${selector}`;
+
+    return selector;
   }
 
   constructor(name: string, parent: Context){
     super(name, parent);
     parent.add(this);
   }
-
-  exit?(key: string | number | null): void;
   
   macro(name: string, args: any[]){
     const queue = [{ name, args }];
