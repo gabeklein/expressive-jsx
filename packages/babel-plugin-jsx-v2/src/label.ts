@@ -14,8 +14,11 @@ export function handleLabel(
     return;
   }
 
-  if(!body.isExpressionStatement() || !(context instanceof DefineContext))
-    throw new Error("Invalid modifier");
+  if(!body.isExpressionStatement())
+    throw parseError(body, "Not an expression", name);
+
+  if(!(context instanceof DefineContext))
+    throw parseError(body, "Bad context", name);
 
   const args = parseArgument(body);
 
