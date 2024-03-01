@@ -1,4 +1,4 @@
-import { createContext, DefineContext } from './context';
+import { CONTEXT, DefineContext, FunctionContext, IfContext, SelectorContext } from './context';
 import { parseArgument } from './syntax/arguments';
 import * as t from './types';
 
@@ -41,4 +41,37 @@ function parseError(path: t.NodePath, err: unknown, modiferName: string){
   error.stack = stack.slice(0, stack.findIndex(line => /^parse/.test(line)) + 1).join("\n    at ");
   
   return error;
+}
+
+function createContext(path: t.NodePath): any {
+  let parent = path.parentPath!;
+  let key = path.key;
+
+  if(parent.isBlockStatement()){
+    parent = parent.parentPath!;
+    key = parent.key;
+  }
+
+  const context = CONTEXT.get(parent);
+
+  if(context instanceof IfContext)
+    return context.for(key);
+
+  if(context)
+    return context;
+
+  if(parent.isFunction())
+    return new FunctionContext(parent);
+
+  if(parent.isIfStatement()){
+    const ambient = createContext(parent) as DefineContext;
+    const test = parent.get("test");
+
+    if(test.isStringLiteral())
+      return new SelectorContext(ambient, parent);
+
+    return new IfContext(ambient, parent);
+  }
+
+  throw new Error("Context not found");
 }
