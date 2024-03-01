@@ -53,6 +53,9 @@ const parse = {
   },
 
   StringLiteral(e: t.StringLiteral){
+    if(e.value === "")
+      return '""';
+
     return e.value;
   },
 
