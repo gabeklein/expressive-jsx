@@ -64,7 +64,8 @@ export class DefineContext extends Context {
   styles: Record<string, string | unknown[]> = {};
   usedBy = new Set<ElementContext>();
   within?: DefineContext;
-  
+  dependant: SelectorContext[] = [];
+
   exit?(key: string | number | null): void;
   
   get className(): string | t.Expression | null {
@@ -147,9 +148,11 @@ export class FunctionContext extends DefineContext {
   }
 
   get className(){
-    return Object.keys(this.styles).length > 0
-      ? super.className
-      : null;
+    const used =
+      Object.keys(this.styles).length ||
+      this.dependant.length;
+    
+    return used ? super.className : null;
   }
 
   exit(){
@@ -166,6 +169,39 @@ export class FunctionContext extends DefineContext {
         )
       )
     ]));
+  }
+}
+
+export class SelectorContext extends DefineContext {
+  selects: string;
+  
+  constructor(
+    public parent: DefineContext,
+    public path: t.NodePath<t.IfStatement>){
+
+    const test = path.node.test as t.StringLiteral;
+
+    super(test.value, parent);
+    parent.dependant.push(this);
+    this.selects = test.value;
+    this.assignTo(path);
+  }
+
+  exit(key: string | number | null): void {
+    this.path.remove();
+  }
+
+  get selector(){
+    return this.parent.selector + this.selects;
+  }
+
+  get className(){
+    return this.parent!.className;
+  }
+
+  add(child: DefineContext){
+    child.within = this;
+    super.add(child);
   }
 }
 
@@ -204,9 +240,7 @@ export class IfContext extends DefineContext {
       alt = t.stringLiteral(alt);
 
     return t.conditionalExpression(
-      test,
-      t.stringLiteral(uid),
-      alt
+      test, t.stringLiteral(uid), alt
     );
   }
 
@@ -268,8 +302,15 @@ export function createContext(path: t.NodePath): any {
   if(parent.isFunction())
     return new FunctionContext(parent);
 
-  if(parent.isIfStatement())
-    return new IfContext(createContext(parent), parent);
+  if(parent.isIfStatement()){
+    const ambient = createContext(parent) as DefineContext;
+    const test = parent.get("test");
+
+    if(test.isStringLiteral())
+      return new SelectorContext(ambient, parent);
+
+    return new IfContext(ambient, parent);
+  }
 
   throw new Error("Context not found");
 }

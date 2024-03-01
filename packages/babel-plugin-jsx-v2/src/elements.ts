@@ -1,4 +1,4 @@
-import { Context, DefineContext, getContext } from './context';
+import { Context, DefineContext, FunctionContext, getContext } from './context';
 import { setClassNames } from './syntax/className';
 import { extractClassName, forwardProps, setTagName } from './syntax/element';
 import { hasProperTagName } from './syntax/tags';
@@ -42,7 +42,6 @@ export function handleElement(
 }
 
 export class ElementContext extends Context {
-  forwardProps = false;
   parent: Context;
   
   using = new Set<DefineContext>();
@@ -71,9 +70,6 @@ export class ElementContext extends Context {
   use(name: string){
     const apply = this.get(name);
 
-    if(name === "this")
-      this.forwardProps = true;
-
     apply.forEach(x => {
       x.usedBy.add(this);
       this.using.add(x);
@@ -84,13 +80,23 @@ export class ElementContext extends Context {
 
   commit(){
     const { using, path } = this;
-    const names = Array
-      .from(using, ({ className: x }) => (
-        typeof x === "string" ? t.stringLiteral(x) : x
-      ))
-      .filter(Boolean) as t.Expression[];
+    const names: t.Expression[] = []
+    let forward = false;
+    
+    for(const context of using){
+      let { className } = context;
 
-    if(this.forwardProps){
+      if(context instanceof FunctionContext)
+        forward = true;
+
+      if(typeof className == 'string')
+        className = t.stringLiteral(className);
+
+      if(className)
+        names.push(className);
+    }
+
+    if(forward){
       const props = forwardProps(path);
 
       if(names.length)
