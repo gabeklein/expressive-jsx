@@ -1,3 +1,4 @@
+import { onExit } from '.';
 import { CONTEXT, DefineContext, FunctionContext, IfContext, SelectorContext } from './context';
 import { parseArgument } from './syntax/arguments';
 import * as t from './types';
@@ -5,8 +6,8 @@ import * as t from './types';
 export function handleLabel(
   path: t.NodePath<t.LabeledStatement>){
 
-  const body = path.get("body");
-  const context = createContext(path);
+  const context = createContext(path)
+  const body = path.get("body");;
   let { name } = path.node.label;
 
   if(body.isBlockStatement()){
@@ -60,17 +61,44 @@ function createContext(path: t.NodePath): any {
   if(context)
     return context;
 
-  if(parent.isFunction())
+  if(parent.isFunction()){
+    const body = parent.get("body");
+
+    onExit(parent, () => {
+      if(!body.isBlockStatement() || body.node.body.length > 0)
+        return;
+  
+      body.replaceWith(t.blockStatement([
+        t.returnStatement(
+          t.jsxElement(
+            t.jsxOpeningElement(t.jsxIdentifier("this"), [], true),
+            undefined, [], true
+          )
+        )
+      ]));
+    });
+
     return new FunctionContext(parent);
+  }
 
   if(parent.isIfStatement()){
     const ambient = createContext(parent) as DefineContext;
     const test = parent.get("test");
+    const context = test.isStringLiteral()
+      ? new SelectorContext(ambient, parent)
+      : new IfContext(ambient, parent);
 
-    if(test.isStringLiteral())
-      return new SelectorContext(ambient, parent);
+    onExit(parent, (key, path) => {
+      if(key == "conseqent"
+      && context instanceof IfContext
+      && context.alternate)
+        return;
+  
+      if(!path.removed)
+        path.remove();
+    });
 
-    return new IfContext(ambient, parent);
+    return context;
   }
 
   throw new Error("Context not found");

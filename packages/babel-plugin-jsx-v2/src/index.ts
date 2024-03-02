@@ -51,10 +51,16 @@ const Program: Visitor<t.Program> = {
 }
 
 const BlockStatement: Visitor<t.BlockStatement> = {
-  exit: exitParent
+  exit(path){
+    const parent = path.parentPath!;
+    const callback = HANDLED.get(parent);
+  
+    if(callback)
+      callback(path.key, parent);
+  }
 }
 
-const HANDLED = new WeakSet<t.NodePath>();
+const HANDLED = new WeakMap<t.NodePath, (key: unknown, path: t.NodePath) => void>();
 
 const LabeledStatement: Visitor<t.LabeledStatement> = {
   enter(path){
@@ -64,13 +70,30 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
       return;
 
     handleLabel(path);
-    HANDLED.add(path);
+    HANDLED.set(path, () => {
+      !path.removed && path.remove();
+    });
   },
   exit(path){
-    if(HANDLED.has(path))
-      path.remove();
+    const callback = HANDLED.get(path);
+  
+    if(callback)
+      callback(path.key, path);
 
-    exitParent(path);
+    for(let p of path.getAncestry()){
+      if(p.isLabeledStatement())
+        break;
+
+      if(p.isBlockStatement())
+        p = p.parentPath!;
+
+      const callback = HANDLED.get(p);
+  
+      if(!callback)
+        break;
+
+      callback(p.key, p);
+    }
   }
 }
 
@@ -83,10 +106,8 @@ const JSXElement: Visitor<t.JSXElement> = {
   }
 }
 
-function exitParent(path: t.NodePath){
-  const parent = path.parentPath!;
-  const context = CONTEXT.get(parent);
+export function onExit(
+  path: t.NodePath, callback: (key: unknown, path: t.NodePath) => void){
 
-  if(context instanceof DefineContext && context.exit)
-    context.exit(parent.key);
+  HANDLED.set(path, callback);
 }

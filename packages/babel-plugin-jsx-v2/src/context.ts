@@ -66,8 +66,6 @@ export class DefineContext extends Context {
   within?: DefineContext;
   dependant: SelectorContext[] = [];
 
-  exit?(key: string | number | null): void;
-  
   get className(): string | t.Expression | null {
     return this.uid;
   }
@@ -154,22 +152,6 @@ export class FunctionContext extends DefineContext {
     
     return used ? super.className : null;
   }
-
-  exit(){
-    const { body } = this;
-
-    if(!body.isBlockStatement() || body.node.body.length > 0)
-      return;
-
-    body.replaceWith(t.blockStatement([
-      t.returnStatement(
-        t.jsxElement(
-          t.jsxOpeningElement(t.jsxIdentifier("this"), [], true),
-          undefined, [], true
-        )
-      )
-    ]));
-  }
 }
 
 export class SelectorContext extends DefineContext {
@@ -185,10 +167,6 @@ export class SelectorContext extends DefineContext {
     parent.dependant.push(this);
     this.selects = test.value;
     this.assignTo(path);
-  }
-
-  exit(key: string | number | null): void {
-    this.path.remove();
   }
 
   get selector(){
@@ -239,9 +217,7 @@ export class IfContext extends DefineContext {
     if(typeof alt === "string")
       alt = t.stringLiteral(alt);
 
-    return t.conditionalExpression(
-      test, t.stringLiteral(uid), alt
-    );
+    return t.conditionalExpression(test, t.stringLiteral(uid), alt);
   }
 
   add(child: DefineContext){
@@ -261,11 +237,6 @@ export class IfContext extends DefineContext {
     }
 
     return alternate;
-  }
-
-  exit(key: string | number | null): void {
-    if(key === "alernate" || !this.alternate)
-      this.path.remove();
   }
 }
 
