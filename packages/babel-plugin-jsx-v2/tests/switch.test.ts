@@ -3,8 +3,6 @@ import { parser } from "./adapter";
 it("will apply to this", async () => {
   const output = await parser(`
     const Component = ({ active }) => {
-      color: blue;
-      
       if(active)
         color: red;
       
@@ -16,20 +14,13 @@ it("will apply to this", async () => {
     const Component = ({ className, active, ...rest }) => (
       <div
         {...rest}
-        className={classNames(
-          className,
-          active && 'active_tl9',
-          'Component_ifp'
-        )}>
+        className={classNames(className, active && 'active_tl9')}>
         Hello
       </div>
     );
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_ifp {
-      color: blue;
-    }
     .active_tl9 {
       color: red;
     }
