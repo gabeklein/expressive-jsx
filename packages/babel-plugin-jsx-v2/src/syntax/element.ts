@@ -17,25 +17,23 @@ export function setTagName(
     closingElement.name = tag;
 }
 
-export function forwardProps(
-  jsxElement: t.NodePath<t.JSXElement>){
-
-  const parent = jsxElement.findParent(x => x.isFunction()) as t.NodePath<t.Function>;
-  let [ props ] = parent.node.params;
+export function forwardFunctionProps(element: t.NodePath<t.JSXElement>){
+  const parentFunc = element.findParent(x => x.isFunction()) as t.NodePath<t.Function>;
+  let [ props ] = parentFunc.node.params;
   let spreadProps;
 
   if(!props){
-    props = uniqueIdentifier(jsxElement.scope, "props");
-    parent.node.params.unshift(props);
+    props = uniqueIdentifier(element.scope, "props");
+    parentFunc.node.params.unshift(props);
     spreadProps = props;
   }
   else if(t.isObjectPattern(props)){
-    spreadProps = uniqueIdentifier(jsxElement.scope, "rest");
+    spreadProps = uniqueIdentifier(element.scope, "rest");
     props.properties.push(t.restElement(spreadProps));
   }
 
   if(t.isIdentifier(spreadProps))
-    jsxElement.node.openingElement.attributes.push(
+    element.node.openingElement.attributes.push(
       t.jsxSpreadAttribute(spreadProps)
     );
 

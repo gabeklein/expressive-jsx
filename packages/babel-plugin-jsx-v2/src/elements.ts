@@ -1,6 +1,6 @@
 import { Context, DefineContext, FunctionContext, getContext } from './context';
 import { setClassNames } from './syntax/className';
-import { extractClassName, forwardProps, setTagName } from './syntax/element';
+import { extractClassName, forwardFunctionProps, setTagName } from './syntax/element';
 import { hasProperTagName } from './syntax/tags';
 import * as t from './types';
 
@@ -13,14 +13,14 @@ export function handleElement(
   const element = new ElementContext(tagName.toString(), parent);
 
   function use(name: string){
-    const apply = element.get(name);
+    const applied = element.get(name);
 
-    apply.forEach(x => {
-      x.usedBy.add(element);
-      element.using.add(x);
+    applied.forEach(context => {
+      context.usedBy.add(element);
+      element.using.add(context);
     });
 
-    return apply.length > 0;
+    return applied.length;
   }
 
   let tag = tagName.node;
@@ -33,10 +33,7 @@ export function handleElement(
   if(t.isJSXIdentifier(tag))
     use(tag.name);
 
-  if(t.isJSXIdentifier(tag))
-    use(tag.name);
-
-  opening.get("attributes").forEach((attr) => {
+  opening.get("attributes").forEach(attr => {
     if(!attr.isJSXAttribute() || attr.node.value)
       return;
 
@@ -44,47 +41,50 @@ export function handleElement(
   
     if(typeof name !== "string")
       name = name.name;
+
+    const applied = use(name);
     
-    if(use(name))
+    if(applied > 0)
       attr.remove();
   });
 
-  const names: t.Expression[] = []
-  let forward = false;
-  
-  for(const context of element.using){
-    let { className } = context;
+  element.assignTo(path);
+  setProps(path, element);
 
+  if(!hasProperTagName(path))
+    setTagName(path, "div");
+}
+
+function setProps(
+  path: t.NodePath<t.JSXElement>,
+  element: ElementContext){
+  
+  const names: t.Expression[] = [];
+  let props;
+
+  element.using.forEach(context => {
     if(context instanceof FunctionContext)
-      forward = true;
+      props = forwardFunctionProps(path);
+
+    let { className } = context;
 
     if(typeof className == 'string')
       className = t.stringLiteral(className);
 
     if(className)
       names.push(className);
-  }
+  })
 
-  if(forward){
-    const props = forwardProps(path);
+  if(names.length){
+    if(props)
+      names.unshift(extractClassName(props, path.scope));
 
-    if(names.length)
-      names.unshift(extractClassName(props, path.scope))
-  }
-
-  if(names.length > 0)
     setClassNames(path, names);
-
-  if(!hasProperTagName(path))
-    setTagName(path, "div");
-
-  element.assignTo(path);
+  }
 }
 
 export class ElementContext extends Context {
   using = new Set<DefineContext>();
-  props: Record<string, t.Expression> = {};
-  styles: Record<string, t.Expression | string> = {};
 
   get(name: string){
     const mods = new Set<DefineContext>();
