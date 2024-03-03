@@ -10,8 +10,7 @@ export class Context {
   define: Record<string, DefineContext> = {};
   macros: Record<string, Macro> = {};
 
-  assign!: (...args: any[]) => void;
-  apply?(path: t.NodePath<t.JSXElement>): void;
+  apply?: (this: ElementContext, element: ElementContext) => void;
 
   get uid(): string {
     const uid = this.name + "_" + simpleHash(this.parent?.uid);
@@ -28,7 +27,6 @@ export class Context {
 
     this.define = Object.create(parent.define);
     this.macros = Object.create(parent.macros);
-    this.assign = parent.assign;
     this.apply = parent.apply;
   }
 
@@ -64,7 +62,7 @@ export class DefineContext extends Context {
   styles: Record<string, string | unknown[]> = {};
   usedBy = new Set<ElementContext>();
   within?: DefineContext;
-  dependant: SelectorContext[] = [];
+  dependant: DefineContext[] = [];
 
   get className(): string | t.Expression | null {
     return this.uid;
@@ -90,11 +88,13 @@ export class DefineContext extends Context {
     while(queue.length){
       const { name, args } = queue.pop()!;
       const macro = this.macros[name];
-      const apply = (args: any[]) => {
-        this.styles[name] = args;
-        this.assign(name, ...args);
-      }
+      const apply = (args: any) => {
+        if(!Array.isArray(args))
+          args = [args];
   
+        this.styles[name] = args;
+      }
+   
       if(!macro){
         apply(args);
         continue;
@@ -114,13 +114,10 @@ export class DefineContext extends Context {
         throw new Error("Invalid modifier output.");
   
       for(const key in output){
-        let args = output[key];
+        const args = output[key];
   
         if(args === undefined)
           continue;
-  
-        if(!Array.isArray(args))
-          args = [args];
   
         if(key === name)
           apply(args);
@@ -234,6 +231,7 @@ export class IfContext extends DefineContext {
     if(!alternate){
       alternate = new DefineContext("not_" + name, parent);
       this.alternate = alternate;
+      this.dependant.push(alternate);
     }
 
     return alternate;

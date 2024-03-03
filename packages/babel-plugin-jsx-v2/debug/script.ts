@@ -7,15 +7,23 @@ import Plugin from '../src';
 import { DefineContext } from '../src/context';
 
 const file = (path: string) => resolve(__dirname, path);
-const CSS = new Map<DefineContext, Record<string, string>>();
 
 async function stuff(){
+  const css = [] as string[];
+  const used = new Set<Plugin.DefineContext>();
   const source = await readFile(file("input.jsx"), "utf-8");
   const result = await transformAsync(source, {
     filename: '/REPL.js',
     plugins: [
       [Plugin, <Plugin.Options>{
-        assign: assignStyle,
+        apply(element){
+          const using = new Set(element.using);
+
+          using.forEach(context => {
+            used.add(context);
+            context.dependant.forEach(x => using.add(x));
+          });
+        },
         polyfill: false,
         macros: [{ absolute }]
       }]
@@ -30,35 +38,21 @@ async function stuff(){
     parser: "babel"
   });
 
-  console.clear();
-  console.log(output);
-  console.log(generateCss());
-}
+  for(const context of used){
+    if(!Object.keys(context.styles).length)
+      continue;
 
-function generateCss(){
-  let css = "<style>\n";
+    const styles = [] as string[];
 
-  for(const [context, styles] of CSS){
-    css += `  ${context.selector} {\n`;
+    for(const [name, value] of Object.entries(context.styles))
+      styles.push(`    ${name}: ${value};`);
 
-    for(const [name, value] of Object.entries(styles))
-      css += `    ${name}: ${value};\n`;
-    
-    css += "  }\n";
+    css.push(context.selector + " {\n" + styles.join("\n") + "\n  }");
   }
 
-  return css + "</style>\n";
-}
-
-function assignStyle(this: DefineContext, name: string, ...args: any[]){
-  let styles = CSS.get(this);
-  const output = args.length == 1 || typeof args[0] == "object"
-    ? args[0] : Array.from(args).join(" ");
-
-  if(!styles)
-    CSS.set(this, styles = {});
-
-  styles[name] = output;
+  console.clear();
+  console.log(output);
+  console.log("<style>\n  " + css.join("\n  ") + "\n</style>\n");
 }
 
 function absolute(offset: number){

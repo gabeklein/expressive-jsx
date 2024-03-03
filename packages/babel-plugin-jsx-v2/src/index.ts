@@ -1,4 +1,4 @@
-import { CONTEXT, Context, DefineContext } from './context';
+import { Context, DefineContext } from './context';
 import { handleElement } from './elements';
 import { handleLabel } from './label';
 import { Macro, Options } from './options';
@@ -11,6 +11,7 @@ type Visitor<T extends t.Node> =
 declare namespace Plugin {
   export { Options };
   export { Macro };
+  export { DefineContext }
 }
 
 function Plugin(){
@@ -32,18 +33,17 @@ export default Plugin;
 const Program: Visitor<t.Program> = {
   enter(path, state){
     const options = state.opts as Options;
-    const { macros, define, apply, assign } = options; 
+    const { macros, define, apply } = options; 
     const name = (path.hub as any).file.opts.filename as string;
     const context = new Context();
 
     Object.assign(Options, options);
     Object.defineProperty(context, "uid", { value: name });
 
-    if(!assign)
-      throw new Error(`Plugin has not defined an assign method.`);
+    if(!apply)
+      throw new Error(`Plugin has not defined an apply method.`);
 
     context.assignTo(path);
-    context.assign = assign;
     context.apply = apply;
     context.macros = Object.assign({}, ...macros || []);
     context.define = Object.assign({}, ...define || []);

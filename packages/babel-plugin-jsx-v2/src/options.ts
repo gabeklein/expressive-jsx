@@ -1,5 +1,5 @@
 import { DefineContext } from './context';
-import * as t from './types';
+import { ElementContext } from './elements';
 
 export type Macro =
   (this: DefineContext, ...args: any[]) =>
@@ -8,8 +8,7 @@ export type Macro =
 export interface Options {
   macros?: Record<string, Macro>[];
   define?: Record<string, DefineContext>[];
-  assign?(this: DefineContext, ...args: any[]): void;
-  apply?(this: DefineContext, path: t.NodePath<t.JSXElement>): void;
+  apply?(this: ElementContext, element: ElementContext): void;
   polyfill?: string | boolean;
 }
 

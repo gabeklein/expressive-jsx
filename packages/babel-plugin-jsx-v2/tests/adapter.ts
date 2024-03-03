@@ -16,7 +16,6 @@ export type Options = Plugin.Options;
 export type Styles = Record<string, Record<string, string>>;
 export type Output = {
   code: string;
-  styles: Styles;
   css: string
 }
 
@@ -32,46 +31,47 @@ function parser(argument?: Plugin.Options | string){
 
 function createParser(options?: Options){
   return async function parse(source: string){
-    const styles: Styles = {};
+    const css = [] as string[];
+    const used = new Set<Plugin.DefineContext>();
     const result = await transformAsync(source, {
       filename: expect.getState().currentTestName,
       plugins: [
         [Plugin, <Plugin.Options>{
           polyfill: false,
-          assign(name, value){
-            const select = this.selector;
-  
-            const block = styles[select] || (styles[select] = {});
+          apply(element){
+            const using = new Set(element.using);
 
-            block[name] = value;
+            using.forEach(context => {
+              used.add(context);
+              context.dependant.forEach(x => using.add(x));
+            });
           },
           ...options
         }]
       ]
     });
 
-    const css = [];
-    const code = format(result!.code!, {
-      singleQuote: true,
-      trailingComma: "none",
-      jsxBracketSameLine: true,
-      printWidth: 65,
-      parser: "babel"
-    }).replace(/\n$/gm, '');
+    for(const context of used){
+      if(!Object.keys(context.styles).length)
+        continue;
 
-    for(const selector in styles){
-      const style = Object
-        .entries(styles[selector])
-        .map(([name, value]) => `  ${name}: ${value};`)
-        .join("\n");
+      const styles = [] as string[];
 
-      css.push(selector + " {\n" + style + "\n}");
+      for(const [name, value] of Object.entries(context.styles))
+        styles.push(`  ${name}: ${value};`);
+
+      css.push(context.selector + " {\n" + styles.join("\n") + "\n}");
     }
 
     return <Output> {
-      code,
       css: css.join("\n"),
-      styles
+      code: format(result!.code!, {
+        singleQuote: true,
+        trailingComma: "none",
+        jsxBracketSameLine: true,
+        printWidth: 65,
+        parser: "babel"
+      }).replace(/\n$/gm, '')
     };
   }
 }

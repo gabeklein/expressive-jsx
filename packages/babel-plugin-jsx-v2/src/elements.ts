@@ -40,6 +40,9 @@ export function handleElement(
   element.assignTo(path);
   setProps(path, element);
 
+  if(element.apply)
+    element.apply(element);
+
   if(!hasProperTagName(path))
     setTagName(path, "div");
 }
