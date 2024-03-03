@@ -12,26 +12,15 @@ export function handleElement(
   const tagName = opening.get("name");
   const element = new ElementContext(tagName.toString(), parent);
 
-  function use(name: string){
-    const applied = element.get(name);
-
-    applied.forEach(context => {
-      context.usedBy.add(element);
-      element.using.add(context);
-    });
-
-    return applied.length;
-  }
-
   let tag = tagName.node;
 
   while(t.isJSXMemberExpression(tag)){
-    use(tag.property.name);
+    element.use(tag.property.name);
     tag = tag.object;
   }
 
   if(t.isJSXIdentifier(tag))
-    use(tag.name);
+    element.use(tag.name);
 
   opening.get("attributes").forEach(attr => {
     if(!attr.isJSXAttribute() || attr.node.value)
@@ -42,9 +31,9 @@ export function handleElement(
     if(typeof name !== "string")
       name = name.name;
 
-    const applied = use(name);
+    const applied = element.use(name);
     
-    if(applied > 0)
+    if(applied.length)
       attr.remove();
   });
 
@@ -93,5 +82,16 @@ export class ElementContext extends Context {
       ctx.get(name).forEach(x => mods.add(x));
 
     return Array.from(mods);
+  }
+
+  use(name: string){
+    const applied = this.get(name);
+
+    applied.forEach(context => {
+      context.usedBy.add(this);
+      this.using.add(context);
+    });
+
+    return applied;
   }
 }
