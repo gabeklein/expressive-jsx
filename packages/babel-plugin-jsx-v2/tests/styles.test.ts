@@ -12,11 +12,11 @@ it("will apply", async () => {
   `);
 
   expect(output.code).toMatchInlineSnapshot(
-    `const Component = () => <div className="div_tl9">Hello</div>;`
+    `const Component = () => <div className="div_tla">Hello</div>;`
   );
 
   expect(output.css).toMatchInlineSnapshot(`
-    .div_tl9 {
+    .div_tla {
       color: blue;
     }
   `);
@@ -37,14 +37,14 @@ it("will apply to this", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_ifp')}>
+        className={classNames(props.className, 'Component_z6p')}>
         Hello World
       </div>
     );
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_ifp {
+    .Component_z6p {
       color: red;
     }
   `);
@@ -87,7 +87,7 @@ it("will apply to attribute this", async () => {
     const RedInput = (props) => (
       <input
         {...props}
-        className={classNames(props.className, 'RedInput_ifp')}
+        className={classNames(props.className, 'RedInput_c11')}
       />
     );
   `);

@@ -34,7 +34,7 @@ function createParser(options?: Options){
   return async function parse(source: string){
     const styles: Styles = {};
     const result = await transformAsync(source, {
-      filename: '/test.js',
+      filename: expect.getState().currentTestName,
       plugins: [
         [Plugin, <Plugin.Options>{
           polyfill: false,

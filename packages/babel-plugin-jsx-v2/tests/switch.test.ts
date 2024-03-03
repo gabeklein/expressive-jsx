@@ -103,14 +103,14 @@ it("will apply to child selector", async () => {
     const Component = ({ className, active, ...rest }) => (
       <div
         {...rest}
-        className={classNames(className, active && 'active_tl9')}>
+        className={classNames(className, active && 'active_tla')}>
         <div className="div_xt4">Hello</div>
       </div>
     );
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .active_tl9 .div_xt4 {
+    .active_tla .div_xt4 {
       color: red;
     }
   `);
