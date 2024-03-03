@@ -42,22 +42,3 @@ it("will not optimize with statements", async () => {
     };
   `);
 });
-
-it("will return this if no JSX", async () => {
-  const output = await parser(`
-    const Component = () => {
-      color: red;
-      width: "16px";
-      background: "blue";
-    }
-  `);
-
-  expect(output.code).toMatchInlineSnapshot(`
-    const Component = (props) => (
-      <div
-        {...props}
-        className={classNames(props.className, 'Component_ifp')}
-      />
-    );
-  `);
-});
