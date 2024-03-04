@@ -10,7 +10,7 @@ export function handleElement(
   const parent = getContext(path);
   const opening = path.get("openingElement");
   const tagName = opening.get("name");
-  const element = new ElementContext(tagName.toString(), parent);
+  const element = new ElementContext(parent);
 
   let tag = tagName.node;
 

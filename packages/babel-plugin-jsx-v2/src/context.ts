@@ -13,15 +13,10 @@ export class Context {
   apply?: (this: ElementContext, element: ElementContext) => void;
 
   get uid(): string {
-    const uid = this.name + "_" + simpleHash(this.parent?.uid);
-    Object.defineProperty(this, "uid", { value: uid });
-    return uid;
+    return simpleHash(this.parent?.uid);
   }
 
-  constructor(
-    public name: string = "",
-    public parent?: Context){
-
+  constructor(public parent?: Context){
     if(!parent)
       return;
 
@@ -64,6 +59,12 @@ export class DefineContext extends Context {
   within?: DefineContext;
   dependant: DefineContext[] = [];
 
+  get uid(): string {
+    const uid = this.name + "_" + simpleHash(this.parent?.uid);
+    Object.defineProperty(this, "uid", { value: uid });
+    return uid;
+  }
+
   get className(): string | t.Expression | null {
     return this.uid;
   }
@@ -77,8 +78,8 @@ export class DefineContext extends Context {
     return selector;
   }
 
-  constructor(name: string, parent: Context){
-    super(name, parent);
+  constructor(public name: string, parent: Context){
+    super(parent);
     parent.add(this);
   }
   
