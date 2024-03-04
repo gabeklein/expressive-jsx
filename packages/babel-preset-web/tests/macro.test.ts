@@ -18,7 +18,7 @@ it("will bail on repeat macro", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_pdq {
+    .Component_4qa {
       foo: barBaz;
     }
   `);
@@ -35,7 +35,7 @@ it("will convert native hex color", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_a1u {
+    .Component_msr {
       color: #ff0000;
       background: rgba(0,255,0,0.133);
     }

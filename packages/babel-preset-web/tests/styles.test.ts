@@ -37,14 +37,14 @@ it("will apply to this", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_z6p')}>
+        className={classNames(props.className, 'Component_7ps')}>
         Hello World
       </div>
     );
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_z6p {
+    .Component_7ps {
       color: red;
     }
   `);
@@ -68,7 +68,7 @@ it("will apply to attributes", async () => {
     const Component = () => (
       <div>
         Hello
-        <div className="inner_tl9">World</div>
+        <div className="inner_tla">World</div>
       </div>
     );
   `);
@@ -87,7 +87,7 @@ it("will apply to attribute this", async () => {
     const RedInput = (props) => (
       <input
         {...props}
-        className={classNames(props.className, 'RedInput_c11')}
+        className={classNames(props.className, 'RedInput_2y8')}
       />
     );
   `);
@@ -105,7 +105,7 @@ it("will keep existing className", async () => {
   `);
 
   expect(output.code).toMatchInlineSnapshot(
-    `const Component = () => <div className="foobar div_tl9">Hi</div>;`
+    `const Component = () => <div className="foobar div_tla">Hi</div>;`
   );
 });
 
@@ -156,8 +156,8 @@ it("will apply nested to attributes", async () => {
   expect(output.code).toMatchInlineSnapshot(`
     const Component = () => (
       <div>
-        <div className="item_tl9" />
-        <div className="item_tl9 red_jh9" />
+        <div className="item_tla" />
+        <div className="item_tla red_jh9" />
       </div>
     );
   `);

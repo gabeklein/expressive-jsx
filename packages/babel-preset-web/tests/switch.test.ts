@@ -14,14 +14,14 @@ it("will apply to this", async () => {
     const Component = ({ className, active, ...rest }) => (
       <div
         {...rest}
-        className={classNames(className, active && 'active_tl9')}>
+        className={classNames(className, active && 'active_tla')}>
         Hello
       </div>
     );
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .active_tl9 {
+    .active_tla {
       color: red;
     }
   `);
@@ -45,7 +45,7 @@ it("will apply else", async () => {
         {...rest}
         className={classNames(
           className,
-          active ? 'active_tl9' : 'not_active_tl9'
+          active ? 'active_tla' : 'not_active_tla'
         )}>
         Hello
       </div>
@@ -53,10 +53,10 @@ it("will apply else", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .active_tl9 {
+    .active_tla {
       color: red;
     }
-    .not_active_tl9 {
+    .not_active_tla {
       color: blue;
     }
   `);

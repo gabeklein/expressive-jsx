@@ -7,7 +7,7 @@ namespace Preset {
   }
 }
 
-function Preset(_compiler: any, options: Preset.Options = {}){
+function Preset(_compiler: any, options: Preset.Options = {}): any {
   let { macros = [], ...opts } = options;
   const styles = new Set<Plugin.DefineContext>();
 

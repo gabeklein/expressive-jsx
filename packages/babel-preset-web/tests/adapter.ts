@@ -30,29 +30,31 @@ function parser(argument?: Preset.Options | string){
 
 function createParser(options?: Preset.Options){
   return async function parse(source: string){
-    let stylesheet = "";
+    let css = "";
     const result = await transformAsync(source, {
       filename: expect.getState().currentTestName,
-      plugins: [
+      presets: [
         [Preset, <Preset.Options>{
           polyfill: false,
-          onStyleSheet(css){
-            stylesheet = css;
+          onStyleSheet(stylesheet){
+            css = stylesheet;
           },
           ...options
         }]
       ]
     });
 
+    const code = format(result!.code!, {
+      singleQuote: true,
+      trailingComma: "none",
+      jsxBracketSameLine: true,
+      printWidth: 65,
+      parser: "babel"
+    }).replace(/\n$/gm, '')
+
     return <Output> {
-      css: stylesheet.replace(/^(.)/gm, "  $1"),
-      code: format(result!.code!, {
-        singleQuote: true,
-        trailingComma: "none",
-        jsxBracketSameLine: true,
-        printWidth: 65,
-        parser: "babel"
-      }).replace(/\n$/gm, '')
+      css,
+      code
     };
   }
 }
