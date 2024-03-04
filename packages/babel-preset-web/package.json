@@ -1,5 +1,5 @@
 {
-  "name": "@expressive/babel-plugin-jsx-v2",
+  "name": "@expressive/babel-preset-web",
   "private": true,
   "version": "1.7.3",
   "description": "React output for XJS babel parser plugin.",

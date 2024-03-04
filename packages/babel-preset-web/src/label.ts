@@ -1,4 +1,4 @@
-import { onExit } from '.';
+import { onExit } from './plugin';
 import { CONTEXT, DefineContext, FunctionContext, IfContext, SelectorContext } from './context';
 import { parseArgument } from './syntax/arguments';
 import * as t from './types';
