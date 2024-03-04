@@ -90,9 +90,6 @@ export class DefineContext extends Context {
       const { name, args } = queue.pop()!;
       const macro = this.macros[name];
       const apply = (args: any) => {
-        if(!Array.isArray(args))
-          args = [args];
-  
         this.styles[name] = args;
       }
    
@@ -115,10 +112,13 @@ export class DefineContext extends Context {
         throw new Error("Invalid modifier output.");
   
       for(const key in output){
-        const args = output[key];
+        let args = output[key];
   
         if(args === undefined)
           continue;
+
+        if(!Array.isArray(args))
+          args = [args];
   
         if(key === name)
           apply(args);
