@@ -1,7 +1,7 @@
 import { transformAsync } from '@babel/core';
 import { format } from 'prettier';
 
-import Plugin from '../src';
+import Preset from '../src';
 
 // forces babel to initialize saving time on first run
 beforeAll(() => parser(`<div />`));
@@ -12,7 +12,6 @@ expect.addSnapshotSerializer({
   print: output => output as string
 });
 
-export type Options = Plugin.Options;
 export type Styles = Record<string, Record<string, string>>;
 export type Output = {
   code: string;
@@ -22,49 +21,31 @@ export type Output = {
 const defaultParser = createParser();
 
 function parser(code: string): Promise<Output>;
-function parser(options: Plugin.Options): (code: string) => Promise<Output>;
-function parser(argument?: Plugin.Options | string){
+function parser(options: Preset.Options): (code: string) => Promise<Output>;
+function parser(argument?: Preset.Options | string){
   return typeof argument === 'string'
     ? defaultParser(argument)
     : createParser(argument);
 }
 
-function createParser(options?: Options){
+function createParser(options?: Preset.Options){
   return async function parse(source: string){
-    const css = [] as string[];
-    const used = new Set<Plugin.DefineContext>();
+    let stylesheet = "";
     const result = await transformAsync(source, {
       filename: expect.getState().currentTestName,
       plugins: [
-        [Plugin, <Plugin.Options>{
+        [Preset, <Preset.Options>{
           polyfill: false,
-          apply(element){
-            const using = new Set(element.using);
-
-            using.forEach(context => {
-              used.add(context);
-              context.dependant.forEach(x => using.add(x));
-            });
+          onStyleSheet(css){
+            stylesheet = css;
           },
           ...options
         }]
       ]
     });
 
-    for(const context of used){
-      if(!Object.keys(context.styles).length)
-        continue;
-
-      const styles = [] as string[];
-
-      for(const [name, value] of Object.entries(context.styles))
-        styles.push(`  ${name}: ${value};`);
-
-      css.push(context.selector + " {\n" + styles.join("\n") + "\n}");
-    }
-
     return <Output> {
-      css: css.join("\n"),
+      css: stylesheet.replace(/^(.)/gm, "  $1"),
       code: format(result!.code!, {
         singleQuote: true,
         trailingComma: "none",

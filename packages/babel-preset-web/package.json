@@ -1,7 +1,7 @@
 {
   "name": "@expressive/babel-preset-web",
   "private": true,
-  "version": "1.7.3",
+  "version": "1.8.1",
   "description": "React output for XJS babel parser plugin.",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
@@ -34,7 +34,9 @@
   "dependencies": {
     "@babel/core": "^7.22.5",
     "@babel/traverse": "^7.22.5",
-    "@babel/types": "7.22.5"
+    "@babel/types": "7.22.5",
+    "chroma-js": "^2.0.3",
+    "easing-coordinates": "^2.0.2"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.2",
