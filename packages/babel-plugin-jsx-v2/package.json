@@ -48,7 +48,7 @@
   },
   "tsup": {
     "external": [
-      "../polyfill"
+      "./polyfill"
     ]
   }
 }
