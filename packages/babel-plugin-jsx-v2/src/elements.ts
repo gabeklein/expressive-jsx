@@ -8,36 +8,8 @@ export function handleElement(
   path: t.NodePath<t.JSXElement>){
   
   const parent = getContext(path);
-  const opening = path.get("openingElement");
-  const tagName = opening.get("name");
-  const element = new ElementContext(parent);
+  const element = new ElementContext(path, parent);
 
-  let tag = tagName.node;
-
-  while(t.isJSXMemberExpression(tag)){
-    element.use(tag.property.name);
-    tag = tag.object;
-  }
-
-  if(t.isJSXIdentifier(tag))
-    element.use(tag.name);
-
-  opening.get("attributes").forEach(attr => {
-    if(!attr.isJSXAttribute() || attr.node.value)
-      return;
-
-    let { name } = attr.node.name;
-  
-    if(typeof name !== "string")
-      name = name.name;
-
-    const applied = element.use(name);
-    
-    if(applied.length)
-      attr.remove();
-  });
-
-  element.assignTo(path);
   setProps(path, element);
 
   if(element.apply)
@@ -77,6 +49,41 @@ function setProps(
 
 export class ElementContext extends Context {
   using = new Set<DefineContext>();
+
+  constructor(
+    public path: t.NodePath<t.JSXElement>,
+    public parent: Context){
+
+    const opening = path.get("openingElement");
+    let name = opening.get("name");
+
+    super(parent);
+
+    while(name.isJSXMemberExpression()){
+      this.use(name.get("property").toString());
+      name = name.get("object");
+    }
+
+    if(name.isJSXIdentifier())
+      this.use(name.toString());
+
+    opening.get("attributes").forEach(attr => {
+      if(!attr.isJSXAttribute() || attr.node.value)
+        return;
+
+      let { name } = attr.node.name;
+    
+      if(typeof name !== "string")
+        name = name.name;
+
+      const applied = this.use(name);
+      
+      if(applied.length)
+        attr.remove();
+    });
+
+    this.assignTo(path);
+  }
 
   get(name: string){
     const mods = new Set<DefineContext>();
