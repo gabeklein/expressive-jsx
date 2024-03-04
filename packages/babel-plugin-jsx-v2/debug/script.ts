@@ -4,7 +4,6 @@ import { resolve } from 'path';
 import { format } from 'prettier';
 
 import Plugin from '../src';
-import { DefineContext } from '../src/context';
 
 const file = (path: string) => resolve(__dirname, path);
 

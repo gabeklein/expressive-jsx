@@ -1,4 +1,4 @@
-import * as t from '../types';
+import * as t from '.';
 
 type JSXReference = t.JSXIdentifier | t.JSXMemberExpression;
 

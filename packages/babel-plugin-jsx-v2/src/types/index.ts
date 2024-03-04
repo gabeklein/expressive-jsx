@@ -1,5 +1,12 @@
 export * from '@babel/types';
-export * from '@babel/traverse';
+
+export {
+  VisitNodeObject,
+  NodePath,
+  Scope,
+  Hub
+} from '@babel/traverse';
+
 export {
   PluginObj,
   PluginPass
