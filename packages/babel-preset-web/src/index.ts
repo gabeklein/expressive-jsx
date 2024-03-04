@@ -20,11 +20,11 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
           ...macros
         ],
         apply(element){
-          const using = new Set(element.using);
+          const used = new Set(element.using);
 
-          using.forEach(context => {
+          used.forEach(context => {
+            context.dependant.forEach(x => used.add(x));
             styles.add(context);
-            context.dependant.forEach(x => using.add(x));
           });
         },
       }],
@@ -32,22 +32,8 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
         visitor: {
           Program: {
             exit(){
-              const css = [] as string[];
-
-              for(const context of styles){
-                if(!Object.keys(context.styles).length)
-                  continue;
-            
-                const styles = [] as string[];
-            
-                for(const [name, value] of Object.entries(context.styles))
-                  styles.push(`  ${name}: ${value};`);
-            
-                css.push(context.selector + " {\n" + styles.join("\n") + "\n}");
-              }
-
               if(options.onStyleSheet)
-                options.onStyleSheet(css.join("\n"));
+                options.onStyleSheet(print(styles));
 
               styles.clear();
             }
@@ -56,6 +42,24 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
       }]
     ]
   }
+}
+
+function print(styles: Iterable<Plugin.DefineContext>){
+  const css = [] as string[];
+
+  for(const context of styles){
+    if(!Object.keys(context.styles).length)
+      continue;
+
+    const styles = [] as string[];
+
+    for(const [name, value] of Object.entries(context.styles))
+      styles.push(`  ${name}: ${value};`);
+
+    css.push(context.selector + " {\n" + styles.join("\n") + "\n}");
+  }
+
+  return css.join("\n");
 }
 
 export default Preset;
