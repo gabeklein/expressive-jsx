@@ -162,3 +162,17 @@ it("will apply nested to attributes", async () => {
     );
   `);
 });
+
+it("will convert camelCase properties to dash", async () => {
+  const output = await parser(`
+    const Component = () => {
+      boxSizing: border-box;
+    }
+  `);
+
+  expect(output.css).toMatchInlineSnapshot(`
+    .Component_2dj {
+      box-sizing: border-box;
+    }
+  `);
+});

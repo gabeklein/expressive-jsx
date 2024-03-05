@@ -1,5 +1,6 @@
-import Plugin from "./plugin";
-import * as Macros from "./macros";
+import * as Macros from './macros';
+import { camelToDash } from './macros/util';
+import Plugin from './plugin';
 
 namespace Preset {
   export interface Options extends Plugin.Options {
@@ -54,7 +55,7 @@ function print(styles: Iterable<Plugin.DefineContext>){
     const styles = [] as string[];
 
     for(const [name, value] of Object.entries(context.styles))
-      styles.push(`  ${name}: ${value};`);
+      styles.push(`  ${camelToDash(name)}: ${value};`);
 
     css.push(context.selector + " {\n" + styles.join("\n") + "\n}");
   }
