@@ -11,7 +11,12 @@
     "strict": true,
     "types": [
       "node"
-    ]
+    ],
+    "paths": {
+      "@expressive/babel-preset-web": [
+        "../babel-preset-web/src"
+      ]
+    }
   },
   "include": [
     "src"

@@ -30,7 +30,7 @@
   "dependencies": {
     "@babel/core": "^7.22.20",
     "@babel/plugin-transform-typescript": "^7.23.6",
-    "@expressive/babel-preset-react": "^1.8.1"
+    "@expressive/babel-preset-web": "^1.8.1"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.2",

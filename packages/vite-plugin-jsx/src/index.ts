@@ -1,19 +1,20 @@
 import * as babel from '@babel/core';
-import { Options as TransformOptions } from '@expressive/babel-preset-react';
+import Preset from '@expressive/babel-preset-web';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { ModuleNode, Plugin, ViteDevServer } from 'vite';
+import { ModuleGraph, ModuleNode, Plugin } from 'vite';
 
 const CWD = process.cwd();
 const PREFIX = "\0virtual:";
 const relative = path.relative.bind(path, CWD);
 
-export interface Options extends TransformOptions {
+export interface Options extends Preset.Options {
   test?: RegExp | ((uri: string) => boolean);
 }
 
 function jsxPlugin(options?: Options): Plugin {
   let test = options && options.test;
+  let moduleGraph!: ModuleGraph;
 
   if(!test)
     test = (id: string) => !/node_modules/.test(id) && id.endsWith(".jsx");
@@ -25,17 +26,11 @@ function jsxPlugin(options?: Options): Plugin {
   const shouldTransform = test;
   const CACHE = new Map<string, TransformResult>();
 
-  /**
-   * In the event a vite development server is running, we
-   * can use it to reload the module when the CSS changes.
-   */
-  let server: ViteDevServer | undefined;
-
   return {
     name: "expressive-jsx",
     enforce: "pre",
-    configureServer(_server){
-      server = _server;
+    configureServer(server){
+      moduleGraph = server.moduleGraph;
     },
     resolveId(id, importer){
       if(id === "__EXPRESSIVE_CSS__")
@@ -68,7 +63,6 @@ function jsxPlugin(options?: Options): Plugin {
       if(!cached)
         return;
 
-      const { moduleGraph } = server!;
       const updated: ModuleNode[] = [];
       const source = await context.read();
       const result = await transform(path, source, options);
@@ -98,7 +92,11 @@ interface TransformResult {
   css: string;
 }
 
-async function transform(id: string, input: string, options?: Options){
+async function transform(
+  id: string,
+  input: string,
+  options?: Options
+): Promise<TransformResult> {
   let css = "";
 
   const result = await babel.transformAsync(input, {
@@ -113,19 +111,10 @@ async function transform(id: string, input: string, options?: Options){
     generatorOpts: {
       decoratorsBeforeExport: true
     },
-    plugins: [
-      ["@babel/plugin-transform-typescript", {
-        isTSX: true
-      }]
-    ],
     presets: [
-      ["@expressive/babel-preset-react", {
-        output: "jsx",
-        cssModule: false,
-        printStyle: "pretty",
-        ...options,
-        extractCss(text: string){
-          css = text;
+      [Preset, <Preset.Options> {
+        onStyleSheet(stylesheet){
+          css = stylesheet;
         }
       }]
     ]
@@ -134,14 +123,17 @@ async function transform(id: string, input: string, options?: Options){
   if(!result)
     throw new Error("No result");
 
-  let { code } = result;
+  let { code, map } = result;
+
+  if(!code)
+    throw new Error("No code");
 
   if(css)
     code += `\nimport "__EXPRESSIVE_CSS__";`;
 
-  return <TransformResult> {
+  return {
     code,
     css,
-    map: result.map
-  }
+    map
+  };
 }
