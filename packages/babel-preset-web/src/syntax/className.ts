@@ -2,8 +2,6 @@ import { Options } from '../options';
 import * as t from '../types';
 import { uniqueIdentifier } from './unique';
 
-const POLYFILL = require.resolve("../../polyfill");
-
 export function setClassNames(
   path: t.NodePath<t.JSXElement>,
   classNames: t.Expression[]){
@@ -69,12 +67,12 @@ function optimizeClassNames(expressions: t.Expression[]){
 }
 
 function importClassNamesHelper(path: t.NodePath) {
-  let { polyfill } = Options;
+  const polyfill = Options.polyfill!;
   const program = path.find(x => x.isProgram()) as t.NodePath<t.Program>;
   const body = program.get("body");
 
   for (const statement of body) {
-    if (!statement.isImportDeclaration() || statement.node.source.value !== POLYFILL)
+    if (!statement.isImportDeclaration() || statement.node.source.value !== polyfill)
       continue;
 
     const specifiers = statement.get("specifiers");
@@ -90,11 +88,8 @@ function importClassNamesHelper(path: t.NodePath) {
 
   const id = uniqueIdentifier(path.scope, "classNames");
 
-  if(polyfill === false)
+  if(polyfill === null)
     return id;
-
-  if(typeof polyfill !== "string")
-    polyfill = POLYFILL;
 
   const importStatement = t.importDeclaration(
     [t.importSpecifier(id, t.identifier("classNames"))],

@@ -14,7 +14,7 @@ async function transform(){
     filename: '/REPL.js',
     presets: [
       [Preset, <Preset.Options>{
-        polyfill: false,
+        polyfill: null,
         onStyleSheet(css){
           stylesheet = css;
         }

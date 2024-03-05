@@ -9,7 +9,9 @@ export interface Options {
   macros?: Record<string, Macro>[];
   define?: Record<string, DefineContext>[];
   apply?(this: ElementContext, element: ElementContext): void;
-  polyfill?: string | boolean;
+  polyfill?: string | null;
 }
 
-export const Options: Options = {};
+export const Options: Options = {
+  polyfill: require.resolve("../polyfill")
+};
