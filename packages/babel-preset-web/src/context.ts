@@ -78,9 +78,11 @@ export class DefineContext extends Context {
     return selector;
   }
 
-  constructor(public name: string, parent: Context){
+  constructor(
+    public name: string,
+    public parent: Context){
+
     super(parent);
-    parent.add(this);
   }
   
   macro(name: string, args: any[]){

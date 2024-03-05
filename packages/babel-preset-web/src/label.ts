@@ -11,7 +11,9 @@ export function handleLabel(
   let { name } = path.node.label;
 
   if(body.isBlockStatement()){
-    new DefineContext(name, context).assignTo(path);
+    const define = new DefineContext(name, context)
+    define.assignTo(path);
+    context.add(define);
     return;
   }
 
