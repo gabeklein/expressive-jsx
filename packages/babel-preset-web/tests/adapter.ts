@@ -35,7 +35,7 @@ function createParser(options?: Preset.Options){
       filename: expect.getState().currentTestName,
       presets: [
         [Preset, <Preset.Options>{
-          polyfill: false,
+          polyfill: null,
           onStyleSheet(stylesheet){
             css = stylesheet;
           },
