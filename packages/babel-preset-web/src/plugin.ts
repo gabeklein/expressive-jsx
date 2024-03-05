@@ -2,7 +2,8 @@ import { Context, DefineContext } from './context';
 import { handleElement } from './elements';
 import { handleLabel } from './label';
 import { Macro, Options } from './options';
-import { fixImplicitReturn } from './syntax/element';
+import { fixImplicitReturn, setTagName } from './syntax/element';
+import { hasProperTagName } from './syntax/tags';
 import * as t from './types';
 
 type Visitor<T extends t.Node> =
@@ -102,6 +103,9 @@ const JSXElement: Visitor<t.JSXElement> = {
     handleElement(path);
   },
   exit(path){
+    if(!hasProperTagName(path))
+      setTagName(path, "div");
+
     fixImplicitReturn(path);
   }
 }

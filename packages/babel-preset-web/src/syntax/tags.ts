@@ -7,7 +7,7 @@ import * as t from "../types";
 export function hasProperTagName(element: t.NodePath<t.JSXElement>){
   const tag = element.node.openingElement.name;
 
-  if(!t.isJSXIdentifier(tag))
+  if(!t.isJSXIdentifier(tag) || tag.name.match(/^[A-Z]/))
     return true;
 
   const { name } = tag;

@@ -1,7 +1,6 @@
 import { Context, DefineContext, FunctionContext, getContext } from './context';
 import { setClassNames } from './syntax/className';
-import { extractClassName, forwardFunctionProps, setTagName } from './syntax/element';
-import { hasProperTagName } from './syntax/tags';
+import { extractClassName, forwardFunctionProps } from './syntax/element';
 import * as t from './types';
 
 export function handleElement(
@@ -14,9 +13,6 @@ export function handleElement(
 
   if(element.apply)
     element.apply(element);
-
-  if(!hasProperTagName(path))
-    setTagName(path, "div");
 }
 
 function setProps(
