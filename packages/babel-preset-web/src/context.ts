@@ -10,8 +10,6 @@ export class Context {
   define: Record<string, DefineContext> = {};
   macros: Record<string, Macro> = {};
 
-  apply?: (this: ElementContext, element: ElementContext) => void;
-
   get uid(): string {
     return simpleHash(this.parent?.uid);
   }
@@ -22,7 +20,6 @@ export class Context {
 
     this.define = Object.create(parent.define);
     this.macros = Object.create(parent.macros);
-    this.apply = parent.apply;
   }
 
   add(child: DefineContext){

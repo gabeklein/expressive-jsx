@@ -3,19 +3,7 @@ import { setClassNames } from './syntax/className';
 import { extractClassName, forwardFunctionProps } from './syntax/element';
 import * as t from './types';
 
-export function handleElement(
-  path: t.NodePath<t.JSXElement>){
-  
-  const parent = getContext(path);
-  const element = new ElementContext(path, parent);
-
-  setProps(path, element);
-
-  if(element.apply)
-    element.apply(element);
-}
-
-function setProps(
+export function setProps(
   path: t.NodePath<t.JSXElement>,
   element: ElementContext){
   
@@ -47,9 +35,9 @@ export class ElementContext extends Context {
   using = new Set<DefineContext>();
 
   constructor(
-    public path: t.NodePath<t.JSXElement>,
-    public parent: Context){
+    public path: t.NodePath<t.JSXElement>){
 
+  const parent = getContext(path);
     const opening = path.get("openingElement");
     let name = opening.get("name");
 

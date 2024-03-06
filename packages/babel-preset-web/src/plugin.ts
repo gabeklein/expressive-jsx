@@ -1,5 +1,5 @@
 import { Context, DefineContext } from './context';
-import { handleElement } from './elements';
+import { ElementContext, setProps } from './elements';
 import { handleLabel } from './label';
 import { Macro, Options } from './options';
 import { fixImplicitReturn, setTagName } from './syntax/element';
@@ -38,14 +38,13 @@ const Program: Visitor<t.Program> = {
     const name = (path.hub as any).file.opts.filename as string;
     const context = new Context();
 
-    Object.assign(Options, options);
-    Object.defineProperty(context, "uid", { value: name });
-
     if(!apply)
       throw new Error(`Plugin has not defined an apply method.`);
 
+    Object.assign(Options, options);
+    Object.defineProperty(context, "uid", { value: name });
+
     context.assignTo(path);
-    context.apply = apply;
     context.macros = Object.assign({}, ...macros || []);
     context.define = Object.assign({}, ...define || []);
   }
@@ -100,9 +99,22 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
 
 const JSXElement: Visitor<t.JSXElement> = {
   enter(path){
-    handleElement(path);
+    const { apply } = Options;
+    const element = new ElementContext(path);
+    
+    HANDLED.set(path, () => {
+      setProps(path, element);
+
+      if(apply)
+        apply(element);
+    });
   },
   exit(path){
+    const callback = HANDLED.get(path);
+
+    if(callback)
+      callback(path.key, path);
+
     if(!hasProperTagName(path))
       setTagName(path, "div");
 
