@@ -36,7 +36,7 @@ const Program: Visitor<t.Program> = {
     const options = state.opts as Options;
     const { macros, define, apply } = options; 
     const name = (path.hub as any).file.opts.filename as string;
-    const context = new Context();
+    const context = new Context(path);
 
     if(!apply)
       throw new Error(`Plugin has not defined an apply method.`);
@@ -44,7 +44,6 @@ const Program: Visitor<t.Program> = {
     Object.assign(Options, options);
     Object.defineProperty(context, "uid", { value: name });
 
-    context.assignTo(path);
     context.macros = Object.assign({}, ...macros || []);
     context.define = Object.assign({}, ...define || []);
   }

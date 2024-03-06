@@ -14,7 +14,12 @@ export class Context {
     return simpleHash(this.parent?.uid);
   }
 
-  constructor(public parent?: Context){
+  constructor(
+    public path: t.NodePath,
+    public parent?: Context){
+
+    CONTEXT.set(path, this);
+
     if(!parent)
       return;
 
@@ -25,10 +30,6 @@ export class Context {
   add(child: DefineContext){
     if(child.name)
       this.define[child.name] = child;
-  }
-
-  assignTo(path: t.NodePath){
-    CONTEXT.set(path, this);
   }
   
   get(name: string){
@@ -77,9 +78,10 @@ export class DefineContext extends Context {
 
   constructor(
     public name: string,
-    public parent: Context){
+    public parent: Context,
+    path: t.NodePath<t.Node>){
 
-    super(parent);
+    super(path, parent);
   }
   
   macro(name: string, args: any[]){
@@ -131,13 +133,12 @@ export class DefineContext extends Context {
 export class FunctionContext extends DefineContext {
   body: t.NodePath<t.BlockStatement | t.Expression>;
 
-  constructor(path: t.NodePath<t.Function>){
+  constructor(public path: t.NodePath<t.Function>){
     const name = getName(path);
     const ctx = getContext(path);
 
-    super(name, ctx);
+    super(name, ctx, path);
   
-    this.assignTo(path);
     this.define["this"] = this;
     this.body = path.get("body");
   }
@@ -160,10 +161,9 @@ export class SelectorContext extends DefineContext {
 
     const test = path.node.test as t.StringLiteral;
 
-    super(test.value, parent);
+    super(test.value, parent, path);
     parent.dependant.push(this);
     this.selects = test.value;
-    this.assignTo(path);
   }
 
   get selector(){
@@ -191,9 +191,8 @@ export class IfContext extends DefineContext {
     const test = path.node.test;
     const name = t.isIdentifier(test) ? test.name : getName(path);
 
-    super(name, parent);
+    super(name, parent, path);
 
-    this.assignTo(path);
     this.test = test;
 
     if(t.isIdentifier(test))
@@ -226,10 +225,10 @@ export class IfContext extends DefineContext {
     if(key === "consequent")
       return this;
 
-    let { alternate, parent, name } = this;
+    let { alternate, parent, name, path } = this;
 
     if(!alternate){
-      alternate = new DefineContext("not_" + name, parent);
+      alternate = new DefineContext("not_" + name, parent, path);
       this.alternate = alternate;
       this.dependant.push(alternate);
     }

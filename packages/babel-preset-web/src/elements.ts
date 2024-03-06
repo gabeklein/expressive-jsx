@@ -37,11 +37,11 @@ export class ElementContext extends Context {
   constructor(
     public path: t.NodePath<t.JSXElement>){
 
-  const parent = getContext(path);
+    const parent = getContext(path);
     const opening = path.get("openingElement");
     let name = opening.get("name");
 
-    super(parent);
+    super(path, parent);
 
     while(name.isJSXMemberExpression()){
       this.use(name.get("property").toString());
@@ -65,8 +65,6 @@ export class ElementContext extends Context {
       if(applied.length)
         attr.remove();
     });
-
-    this.assignTo(path);
   }
 
   get(name: string){
