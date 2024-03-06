@@ -40,27 +40,28 @@ export function forwardFunctionProps(element: t.NodePath<t.JSXElement>){
   return props;
 }
 
-export function extractClassName(
+export function extractProperty(
   props: t.Node,
-  scope: t.Scope){
+  scope: t.Scope,
+  name: string){
 
   if(t.isIdentifier(props))
-    return t.memberExpression(props, t.identifier("className"));
+    return t.memberExpression(props, t.identifier(name));
 
   if(!t.isObjectPattern(props))
     throw new Error(`Expected an ObjectPattern or Identifier, got ${props.type}`);
 
   let classNameProp = props.properties.find(x => (
     t.isObjectProperty(x) &&
-    t.isIdentifier(x.key, { name: "className" })
+    t.isIdentifier(x.key, { name })
   )) as t.ObjectProperty | undefined;
 
   if(!classNameProp){
-    const id = uniqueIdentifier(scope, "className");
+    const id = uniqueIdentifier(scope, name);
 
-    classNameProp = id.name === "className"
+    classNameProp = id.name === name
       ? t.objectProperty(id, id, false, true)
-      : t.objectProperty(t.identifier("className"), id);
+      : t.objectProperty(t.identifier(name), id);
       
     props.properties.unshift(classNameProp);
   }

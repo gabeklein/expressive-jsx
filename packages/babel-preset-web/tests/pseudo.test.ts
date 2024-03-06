@@ -15,7 +15,7 @@ it("will apply hover pseudo class", async () => {
       <div
         {...props}
         className={classNames(props.className, 'Component_b7l')}>
-        Hello
+        Hello{props.children}
       </div>
     );
   `);
@@ -55,6 +55,7 @@ it("will apply hover pseudo class with nested", async () => {
         {...props}
         className={classNames(props.className, 'Component_prl')}>
         Hello
+        {props.children}
       </div>
     );
   `);

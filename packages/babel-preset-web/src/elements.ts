@@ -1,6 +1,4 @@
-import { Context, DefineContext, FunctionContext, getContext } from './context';
-import { setClassNames } from './syntax/className';
-import { extractClassName, forwardFunctionProps } from './syntax/element';
+import { Context, DefineContext, getContext } from './context';
 import * as t from './types';
 
 export class ElementContext extends Context {

@@ -3,7 +3,7 @@ import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
 import { setClassNames } from './syntax/className';
-import { extractClassName, forwardFunctionProps, setTagName } from './syntax/element';
+import { extractProperty, forwardFunctionProps, hasChildren, setTagName } from './syntax/element';
 import { hasProperTagName } from './syntax/tags';
 import * as t from './types';
 
@@ -29,12 +29,12 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
           const { path, using } = element;
           const names: t.Expression[] = [];
           const used = new Set(using);
-          let props;
+          let forwardProps;
 
           for(const context of used){
             if(context instanceof FunctionContext)
-              props = forwardFunctionProps(path);
-        
+              forwardProps = forwardFunctionProps(path);
+
             let { className } = context;
         
             if(typeof className == 'string')
@@ -50,11 +50,20 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
           }
         
           if(names.length){
-            if(props)
-              names.unshift(extractClassName(props, path.scope));
+            if(forwardProps)
+              names.unshift(
+                extractProperty(forwardProps, path.scope, "className")
+              );
         
             setClassNames(path, names);
           }
+
+          if(hasChildren(path) && forwardProps)
+            path.node.children.push(
+              t.jsxExpressionContainer(
+                extractProperty(forwardProps, path.scope, "children")
+              )
+            );
 
           if(!hasProperTagName(path))
             setTagName(path, "div");
