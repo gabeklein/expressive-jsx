@@ -40,7 +40,7 @@ export class Context {
     while(mod = define[name]){
       defines.push(mod, ...mod.also);
 
-      if(name === "this")
+      if(mod instanceof FunctionContext)
         break;
 
       define = Object.getPrototypeOf(define);
@@ -56,6 +56,14 @@ export class DefineContext extends Context {
   usedBy = new Set<ElementContext>();
   within?: DefineContext;
   dependant: DefineContext[] = [];
+
+  constructor(
+    public name: string,
+    public parent: Context,
+    path: t.NodePath<t.Node>){
+
+    super(path, parent);
+  }
 
   get uid(): string {
     const uid = this.name + "_" + simpleHash(this.parent?.uid);
@@ -74,14 +82,6 @@ export class DefineContext extends Context {
       selector = `.${x.uid} ${selector}`;
 
     return selector;
-  }
-
-  constructor(
-    public name: string,
-    public parent: Context,
-    path: t.NodePath<t.Node>){
-
-    super(path, parent);
   }
   
   macro(name: string, args: any[]){
