@@ -109,9 +109,6 @@ const JSXElement: Visitor<t.JSXElement> = {
     if(apply)
       apply(element);
 
-    if(!hasProperTagName(path))
-      setTagName(path, "div");
-
     fixImplicitReturn(path);
   }
 }

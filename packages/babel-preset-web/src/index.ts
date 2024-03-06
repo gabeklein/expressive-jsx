@@ -1,6 +1,8 @@
 import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
+import { setTagName } from './syntax/element';
+import { hasProperTagName } from './syntax/tags';
 
 namespace Preset {
   export interface Options extends Plugin.Options {
@@ -21,12 +23,16 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
           ...macros
         ],
         apply(element){
-          const used = new Set(element.using);
+          const { path, using } = element;
+          const used = new Set(using);
 
           used.forEach(context => {
             context.dependant.forEach(x => used.add(x));
             styles.add(context);
           });
+
+          if(!hasProperTagName(path))
+            setTagName(path, "div");
         },
       }],
       [{
