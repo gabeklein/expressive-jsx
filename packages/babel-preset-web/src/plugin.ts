@@ -1,9 +1,8 @@
 import { CONTEXT, Context, DefineContext } from './context';
-import { ElementContext, setProps } from './elements';
+import { ElementContext } from './elements';
 import { handleLabel } from './label';
 import { Macro, Options } from './options';
-import { fixImplicitReturn, setTagName } from './syntax/element';
-import { hasProperTagName } from './syntax/tags';
+import { fixImplicitReturn } from './syntax/element';
 import * as t from './types';
 
 type Visitor<T extends t.Node> =
@@ -103,8 +102,6 @@ const JSXElement: Visitor<t.JSXElement> = {
   exit(path, { opts }){
     const { apply } = opts as Options;
     const element = CONTEXT.get(path) as ElementContext;
-
-    setProps(element);
 
     if(apply)
       apply(element);

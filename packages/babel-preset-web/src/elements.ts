@@ -3,34 +3,6 @@ import { setClassNames } from './syntax/className';
 import { extractClassName, forwardFunctionProps } from './syntax/element';
 import * as t from './types';
 
-export function setProps(
-  element: ElementContext){
-  
-  const names: t.Expression[] = [];
-  const { path } = element;
-  let props;
-
-  element.using.forEach(context => {
-    if(context instanceof FunctionContext)
-      props = forwardFunctionProps(path);
-
-    let { className } = context;
-
-    if(typeof className == 'string')
-      className = t.stringLiteral(className);
-
-    if(className)
-      names.push(className);
-  })
-
-  if(names.length){
-    if(props)
-      names.unshift(extractClassName(props, path.scope));
-
-    setClassNames(path, names);
-  }
-}
-
 export class ElementContext extends Context {
   using = new Set<DefineContext>();
 
