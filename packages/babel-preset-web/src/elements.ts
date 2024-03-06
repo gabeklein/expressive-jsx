@@ -4,10 +4,10 @@ import { extractClassName, forwardFunctionProps } from './syntax/element';
 import * as t from './types';
 
 export function setProps(
-  path: t.NodePath<t.JSXElement>,
   element: ElementContext){
   
   const names: t.Expression[] = [];
+  const { path } = element;
   let props;
 
   element.using.forEach(context => {

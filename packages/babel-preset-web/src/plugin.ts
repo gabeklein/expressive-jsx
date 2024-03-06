@@ -1,4 +1,4 @@
-import { Context, DefineContext } from './context';
+import { CONTEXT, Context, DefineContext } from './context';
 import { ElementContext, setProps } from './elements';
 import { handleLabel } from './label';
 import { Macro, Options } from './options';
@@ -99,21 +99,16 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
 
 const JSXElement: Visitor<t.JSXElement> = {
   enter(path){
-    const { apply } = Options;
-    const element = new ElementContext(path);
-    
-    HANDLED.set(path, () => {
-      setProps(path, element);
-
-      if(apply)
-        apply(element);
-    });
+    new ElementContext(path);
   },
-  exit(path){
-    const callback = HANDLED.get(path);
+  exit(path, { opts }){
+    const { apply } = opts as Options;
+    const element = CONTEXT.get(path) as ElementContext;
 
-    if(callback)
-      callback(path.key, path);
+    setProps(element);
+
+    if(apply)
+      apply(element);
 
     if(!hasProperTagName(path))
       setTagName(path, "div");
