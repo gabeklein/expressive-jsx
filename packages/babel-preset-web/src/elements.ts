@@ -5,9 +5,9 @@ export class ElementContext extends Context {
   using = new Set<DefineContext>();
 
   constructor(
+    public parent: Context,
     public path: t.NodePath<t.JSXElement>){
 
-    const parent = getContext(path);
     const opening = path.get("openingElement");
     let name = opening.get("name");
 

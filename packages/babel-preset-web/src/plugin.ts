@@ -97,7 +97,8 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
 
 const JSXElement: Visitor<t.JSXElement> = {
   enter(path){
-    new ElementContext(path);
+    const parent = getContext(path);
+    new ElementContext(parent, path);
   },
   exit(path, { opts }){
     const { apply } = opts as Options;
