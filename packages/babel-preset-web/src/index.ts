@@ -3,7 +3,7 @@ import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
 import { setClassNames } from './syntax/className';
-import { extractProperty, forwardFunctionProps, hasChildren, setTagName } from './syntax/element';
+import { extractProperty, forwardFunctionProps, setTagName } from './syntax/element';
 import { hasProperTagName } from './syntax/tags';
 import * as t from './types';
 
@@ -58,7 +58,7 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
             setClassNames(path, names);
           }
 
-          if(hasChildren(path) && forwardProps)
+          if(path.node.children.length && forwardProps)
             path.node.children.push(
               t.jsxExpressionContainer(
                 extractProperty(forwardProps, path.scope, "children")
