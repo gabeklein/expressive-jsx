@@ -36,40 +36,46 @@ export function forwardFunctionProps(element: t.NodePath<t.JSXElement>){
     element.node.openingElement.attributes.push(
       t.jsxSpreadAttribute(spreadProps)
     );
-
-  return props;
 }
 
-export function extractProperty(
-  props: t.Node,
-  scope: t.Scope,
-  name: string){
+/**
+ * Obtain named prop from props object, first argument of a function.
+ * If props does not exist, it will be created. If it is an ObjectPattern,
+ * a rest element will be added to it. If prop exist in ObjectPattern, it
+ * will be returned. If it does not exist, it will be prepended and returned.
+ * If props is an Identifier, a MemberExpression will be returned where the
+ * object is the props identifier and the property is the name of the prop.
+ */
+export function getProp(
+  from: t.NodePath<t.Function>,
+  name: string): t.MemberExpression | t.Identifier {
+  
+  let [ props ] = from.node.params;
 
+  if(t.isObjectPattern(props)){
+    const { properties } = props;
+
+    const prop = properties.find(x => (
+      t.isObjectProperty(x) &&
+      t.isIdentifier(x.key, { name })
+    )) as t.ObjectProperty | undefined;
+
+    if(prop)
+      return prop.value as t.Identifier;
+
+    const id = t.identifier(name);
+
+    properties.unshift(t.objectProperty(id, id, false, true));
+
+    return id;
+  }
+  else if(!props){
+    props = uniqueIdentifier(from.scope, "props");
+    from.node.params.unshift(props);
+  }
+  
   if(t.isIdentifier(props))
     return t.memberExpression(props, t.identifier(name));
 
-  if(!t.isObjectPattern(props))
-    throw new Error(`Expected an ObjectPattern or Identifier, got ${props.type}`);
-
-  let classNameProp = props.properties.find(x => (
-    t.isObjectProperty(x) &&
-    t.isIdentifier(x.key, { name })
-  )) as t.ObjectProperty | undefined;
-
-  if(!classNameProp){
-    const id = uniqueIdentifier(scope, name);
-
-    classNameProp = id.name === name
-      ? t.objectProperty(id, id, false, true)
-      : t.objectProperty(t.identifier(name), id);
-      
-    props.properties.unshift(classNameProp);
-  }
-
-  const { value } = classNameProp;
-
-  if(!t.isExpression(value))
-    throw new Error(`Cannot get className from ${value.type}`);
-
-  return value;
+  throw new Error(`Expected an Identifier or ObjectPattern, got ${props.type}`);
 }

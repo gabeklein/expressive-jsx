@@ -1,8 +1,9 @@
-import { Context, DefineContext, getContext } from './context';
+import { Context, DefineContext, FunctionContext, getContext } from './context';
 import * as t from './types';
 
 export class ElementContext extends Context {
   using = new Set<DefineContext>();
+  forwardProps?: t.NodePath<t.Function>;
 
   constructor(
     public parent: Context,
@@ -52,6 +53,9 @@ export class ElementContext extends Context {
     applied.forEach(context => {
       context.usedBy.add(this);
       this.using.add(context);
+
+      if(context instanceof FunctionContext)
+        this.forwardProps = context.path;
     });
 
     return applied;

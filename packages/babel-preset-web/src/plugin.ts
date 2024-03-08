@@ -1,8 +1,8 @@
-import { CONTEXT, Context, DefineContext } from './context';
+import { CONTEXT, Context, DefineContext, FunctionContext, getContext } from './context';
 import { ElementContext } from './elements';
 import { handleLabel } from './label';
 import { Macro, Options } from './options';
-import { fixImplicitReturn } from './syntax/element';
+import { forwardFunctionProps } from './syntax/element';
 import * as t from './types';
 
 type Visitor<T extends t.Node> =
@@ -104,20 +104,34 @@ const JSXElement: Visitor<t.JSXElement> = {
     const { apply } = opts as Options;
     const element = CONTEXT.get(path) as ElementContext;
 
+    const { parent, forwardProps } = element;
+
+    if(forwardProps)
+      forwardFunctionProps(element.path);
+
     if(apply)
       apply(element);
 
-    const statement = path.parentPath;
-    const block = statement.parentPath!;
-  
-    if (!block.isBlockStatement())
+    const [
+      { node },
+      statement,
+      block,
+      within
+    ] = path.getAncestry();
+
+    if(parent instanceof FunctionContext
+    && parent.usedBy.size == 0
+    && Object.keys(parent.styles).length > 0){
+      // TODO: wrap in <this> element.
+    }
+
+    if(!block.isBlockStatement())
       return;
   
-    const within = block.parentPath as t.NodePath;
-    const inserted = block.node.body.length === 1 &&
+    const inserted = block.get("body").length === 1 &&
       within.isArrowFunctionExpression()
-      ? block.replaceWith(t.parenthesizedExpression(path.node))
-      : statement.replaceWith(t.returns(path.node));
+      ? block.replaceWith(t.parenthesizedExpression(node))
+      : statement.replaceWith(t.returns(node));
   
     inserted[0].skip();
   }
