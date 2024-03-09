@@ -1,14 +1,8 @@
 import * as t from '../types';
 
-export function setTagName(
-  element: t.NodePath<t.JSXElement> | t.JSXElement,
-  tagName: string){
-
-  if(element instanceof t.NodePath)
-    element = element.node;
-
-  const { openingElement, closingElement } = element;
-  const tag = t.jsxIdentifier(tagName);
+export function setTagName(node: t.JSXElement, name: string){
+  const { openingElement, closingElement } = node;
+  const tag = t.jsxIdentifier(name);
 
   openingElement.name = tag;
 
@@ -16,14 +10,11 @@ export function setTagName(
     closingElement.name = tag;
 }
 
-export function getProp(
-  path: t.NodePath<t.JSXElement>,
-  name: string){
-
-  const { attributes } = path.node.openingElement;
+export function getProp(node: t.JSXElement, name: string){
+  const { attributes } = node.openingElement;
 
   for(const attr of attributes)
-    if(t.isJSXAttribute(attr) && attr.name.name === "className"){
+    if(t.isJSXAttribute(attr) && attr.name.name === name){
       const { value } = attr;
 
       if(t.isJSXExpressionContainer(value) && t.isExpression(value.expression))

@@ -1,8 +1,6 @@
 import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
-import { addClassName } from './syntax/className';
-import { setTagName, getProp } from './syntax/element';
 import { hasProperTagName } from './syntax/tags';
 import * as t from './types';
 
@@ -30,7 +28,7 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
 
           for(const context of used)
             if(context.className)
-              addClassName(path, context.className);
+              element.addClassName(context.className);
 
           for(const context of used){
             context.dependant.forEach(x => used.add(x));
@@ -40,8 +38,8 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
           if(component){
             const { children } = path.node;
 
-            if(getProp(path, "className"))
-              addClassName(path, component.getProp("className"))
+            if(element.getProp("className"))
+              element.addClassName(component.getProp("className"))
   
             if(children.length)
               children.push(
@@ -52,7 +50,7 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
           }
 
           if(!hasProperTagName(path))
-            setTagName(path, "div");
+            element.setTagName("div");
         },
       }],
       [{

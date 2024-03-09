@@ -1,8 +1,11 @@
 import { Context, DefineContext } from './context';
+import { addClassName } from './syntax/className';
+import { getProp, setTagName } from './syntax/element';
 import * as t from './types';
 
 export class ElementContext extends Context {
   using = new Set<DefineContext>();
+  node: t.JSXElement;
 
   constructor(
     public parent: Context,
@@ -12,6 +15,8 @@ export class ElementContext extends Context {
     let name = opening.get("name");
 
     super(path, parent);
+
+    this.node = path.node;
 
     while(name.isJSXMemberExpression()){
       this.use(name.get("property").toString());
@@ -62,5 +67,17 @@ export class ElementContext extends Context {
     });
 
     return applied;
+  }
+
+  setTagName(to: string){
+    setTagName(this.node, to);
+  }
+
+  getProp(named: string){
+    return getProp(this.node, named);
+  }
+
+  addClassName(name: string | t.Expression){
+    return addClassName(this.path, name);
   }
 }
