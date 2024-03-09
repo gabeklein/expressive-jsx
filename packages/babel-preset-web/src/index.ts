@@ -25,7 +25,7 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
           ...macros
         ],
         apply(element){
-          const { path, using, forwardProps } = element;
+          const { path, using, this: component } = element;
           const names: t.Expression[] = [];
           const used = new Set(using);
 
@@ -45,18 +45,18 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
           }
         
           if(names.length){
-            if(forwardProps)
+            if(component)
               names.unshift(
-                getProp(forwardProps, "className")
+                component.getProp("className")
               );
         
             setClassNames(path, names);
           }
 
-          if(path.node.children.length && forwardProps)
+          if(path.node.children.length && component)
             path.node.children.push(
               t.jsxExpressionContainer(
-                getProp(forwardProps, "children")
+                component.getProp("children")
               )
             );
 

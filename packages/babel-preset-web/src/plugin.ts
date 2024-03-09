@@ -1,8 +1,7 @@
 import { CONTEXT, Context, DefineContext, FunctionContext, getContext } from './context';
 import { ElementContext } from './elements';
-import { handleLabel } from './label';
+import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
-import { forwardFunctionProps } from './syntax/element';
 import * as t from './types';
 
 type Visitor<T extends t.Node> =
@@ -97,33 +96,23 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
 
 const JSXElement: Visitor<t.JSXElement> = {
   enter(path){
-    const parent = getContext(path);
+    const parent = createContext(path, false);
     new ElementContext(parent, path);
   },
   exit(path, { opts }){
     const { apply } = opts as Options;
     const element = CONTEXT.get(path) as ElementContext;
+    const parent = element.this;
 
-    const { parent, forwardProps } = element;
-
-    if(forwardProps)
-      forwardFunctionProps(element.path);
+    if(parent)
+      element.path.node.openingElement.attributes.unshift(
+        t.jsxSpreadAttribute(parent.getProps().node)
+      );
 
     if(apply)
       apply(element);
 
-    const [
-      { node },
-      statement,
-      block,
-      within
-    ] = path.getAncestry();
-
-    if(parent instanceof FunctionContext
-    && parent.usedBy.size == 0
-    && Object.keys(parent.styles).length > 0){
-      // TODO: wrap in <this> element.
-    }
+    const [{ node }, statement, block, within] = path.getAncestry();
 
     if(!block.isBlockStatement())
       return;

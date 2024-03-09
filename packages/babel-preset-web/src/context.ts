@@ -1,6 +1,7 @@
 import { ElementContext } from './elements';
 import { simpleHash } from './helper/simpleHash';
 import { Macro } from './options';
+import { getProp, getRestProps } from './syntax/element';
 import { getName } from './syntax/entry';
 import * as t from './types';
 
@@ -9,10 +10,6 @@ export const CONTEXT = new WeakMap<t.NodePath, Context>();
 export class Context {
   define: Record<string, DefineContext> = {};
   macros: Record<string, Macro> = {};
-
-  get uid(): string {
-    return simpleHash(this.parent?.uid);
-  }
 
   constructor(
     public path: t.NodePath,
@@ -25,6 +22,18 @@ export class Context {
 
     this.define = Object.create(parent.define);
     this.macros = Object.create(parent.macros);
+  }
+
+  get uid(): string {
+    return simpleHash(this.parent?.uid);
+  }
+
+  get component(): FunctionContext | undefined {
+    let ctx: Context | undefined = this;
+
+    while(ctx = ctx.parent)
+      if(ctx instanceof FunctionContext)
+        return ctx;
   }
 
   add(child: DefineContext){
@@ -149,6 +158,14 @@ export class FunctionContext extends DefineContext {
       this.dependant.length;
     
     return used ? super.className : null;
+  }
+
+  getProp(name: string){
+    return getProp(this.path, name);
+  }
+
+  getProps(){
+    return getRestProps(this.path)
   }
 }
 

@@ -17,25 +17,30 @@ export function setTagName(
     closingElement.name = tag;
 }
 
-export function forwardFunctionProps(element: t.NodePath<t.JSXElement>){
-  const parentFunc = element.findParent(x => x.isFunction()) as t.NodePath<t.Function>;
-  let [ props ] = parentFunc.node.params;
-  let spreadProps;
+export function getRestProps(element: t.NodePath<t.Function>){
+  let [ props ] = element.get("params");
+  let output: t.NodePath | undefined;
 
   if(!props){
-    props = uniqueIdentifier(element.scope, "props");
-    parentFunc.node.params.unshift(props);
-    spreadProps = props;
+    [ output ] = element.pushContainer("params", uniqueIdentifier(element.scope, "props"));
   }
-  else if(t.isObjectPattern(props)){
-    spreadProps = uniqueIdentifier(element.scope, "rest");
-    props.properties.push(t.restElement(spreadProps));
+  else if(props.isObjectPattern()){
+    const existing = props.get("properties").find(x => x.isRestElement());
+
+    if(existing && existing.isRestElement())
+      output = existing.get("argument");
+
+    const [ inserted ] = props.pushContainer("properties", 
+      t.restElement(uniqueIdentifier(element.scope, "rest"))
+    )
+
+    output = inserted.get("argument");
   }
 
-  if(t.isIdentifier(spreadProps))
-    element.node.openingElement.attributes.push(
-      t.jsxSpreadAttribute(spreadProps)
-    );
+  if(output && output.isIdentifier())
+    return output;
+
+  throw new Error("Could not extract props from function.")
 }
 
 /**

@@ -1,5 +1,5 @@
 import { onExit } from './plugin';
-import { CONTEXT, DefineContext, FunctionContext, IfContext, SelectorContext } from './context';
+import { CONTEXT, DefineContext, FunctionContext, IfContext, SelectorContext, getContext } from './context';
 import { parseArgument } from './syntax/arguments';
 import * as t from './types';
 
@@ -46,11 +46,11 @@ function parseError(path: t.NodePath, err: unknown, modiferName: string){
   return error;
 }
 
-function createContext(path: t.NodePath): any {
+export function createContext(path: t.NodePath, required?: boolean): any {
   let parent = path.parentPath!;
   let key = path.key;
 
-  if(parent.isBlockStatement()){
+  while(parent.isBlockStatement() || parent.isExpressionStatement()){
     parent = parent.parentPath!;
     key = parent.key;
   }
@@ -102,6 +102,9 @@ function createContext(path: t.NodePath): any {
 
     return context;
   }
+
+  if(required === false)
+    return getContext(path);
 
   throw new Error("Context not found");
 }
