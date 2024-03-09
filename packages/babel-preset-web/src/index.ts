@@ -1,8 +1,8 @@
 import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
-import { setClassNames } from './syntax/className';
-import { setTagName } from './syntax/element';
+import { addClassName } from './syntax/className';
+import { setTagName, getProp } from './syntax/element';
 import { hasProperTagName } from './syntax/tags';
 import * as t from './types';
 
@@ -26,39 +26,30 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
         ],
         apply(element){
           const { path, using, this: component } = element;
-          const names: t.Expression[] = [];
           const used = new Set(using);
 
-          for(const context of used){
-            let { className } = context;
-        
-            if(typeof className == 'string')
-              className = t.stringLiteral(className);
-        
-            if(className)
-              names.push(className);
-          }
+          for(const context of used)
+            if(context.className)
+              addClassName(path, context.className);
 
           for(const context of used){
             context.dependant.forEach(x => used.add(x));
             styles.add(context);
           }
-        
-          if(names.length){
-            if(component)
-              names.unshift(
-                component.getProp("className")
-              );
-        
-            setClassNames(path, names);
-          }
 
-          if(path.node.children.length && component)
-            path.node.children.push(
-              t.jsxExpressionContainer(
-                component.getProp("children")
-              )
-            );
+          if(component){
+            const { children } = path.node;
+
+            if(getProp(path, "className"))
+              addClassName(path, component.getProp("className"))
+  
+            if(children.length)
+              children.push(
+                t.jsxExpressionContainer(
+                  component.getProp("children")
+                )
+              );
+          }
 
           if(!hasProperTagName(path))
             setTagName(path, "div");

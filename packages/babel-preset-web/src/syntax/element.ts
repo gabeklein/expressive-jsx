@@ -15,3 +15,21 @@ export function setTagName(
   if(closingElement)
     closingElement.name = tag;
 }
+
+export function getProp(
+  path: t.NodePath<t.JSXElement>,
+  name: string){
+
+  const { attributes } = path.node.openingElement;
+
+  for(const attr of attributes)
+    if(t.isJSXAttribute(attr) && attr.name.name === "className"){
+      const { value } = attr;
+
+      if(t.isJSXExpressionContainer(value) && t.isExpression(value.expression))
+        return value.expression;
+
+      if(t.isExpression(value))
+        return value;
+    }
+}

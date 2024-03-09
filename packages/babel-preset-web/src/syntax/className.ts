@@ -1,69 +1,56 @@
 import { Options } from '../options';
 import * as t from '../types';
+import { getProp } from './element';
 import { uniqueIdentifier } from './unique';
 
-export function setClassNames(
+export function addClassName(
   path: t.NodePath<t.JSXElement>,
-  classNames: t.Expression[]){
+  name: string | t.Expression
+){
+  const existing = getProp(path, "className");
+  const { attributes } = path.node.openingElement;
 
-  const attributes = path.node.openingElement.attributes;
-  const classNameProp = attributes.find(
-    x => t.isJSXAttribute(x) &&
-    x.name.name === "className"
-  ) as t.JSXAttribute | undefined;
+  if(typeof name == "string")
+    name = t.stringLiteral(name);
 
-  if(classNameProp){
-    const { value } = classNameProp;
-
-    if(t.isJSXExpressionContainer(value)
-    && t.isArrayExpression(value.expression))
-      classNames.unshift(value.expression);
-    
-    if(t.isStringLiteral(value))
-      classNames.unshift(value);
+  if(t.isStringLiteral(existing) && t.isStringLiteral(name)){
+    existing.value += " " + name.value;
+    return;
   }
 
-  classNames = optimizeClassNames(classNames);
-
-  const classNameValue = classNames.length == 1
-    ? classNames[0]
-    : t.callExpression(
-      importClassNamesHelper(path),
-      classNames
-    );
-  
-  const classNamePropValue = t.isStringLiteral(classNameValue)
-    ? classNameValue
-    : t.jsxExpressionContainer(classNameValue);
-
-  if(classNameProp)
-    classNameProp.value = classNamePropValue;
-  else
+  if(!existing){
     attributes.push(
       t.jsxAttribute(
         t.jsxIdentifier("className"),
-        classNamePropValue
+        t.isStringLiteral(name)
+          ? name : t.jsxExpressionContainer(name)
       )
     );
-}
-
-function optimizeClassNames(expressions: t.Expression[]){
-  const optimized: t.Expression[] = [];
-
-  for(const expr of expressions){
-    if(t.isStringLiteral(expr)){
-      const last = optimized[optimized.length - 1];
-
-      if(t.isStringLiteral(last)){
-        last.value += " " + expr.value;
-        continue;
-      }
-    }
-
-    optimized.push(expr);
+    return;
   }
 
-  return optimized;
+  const concat = importClassNamesHelper(path);
+
+  if(t.isCallExpression(existing) && existing.callee === concat){
+    if(!t.isStringLiteral(name))
+      existing.arguments.push(name);
+    else
+      for(const value of existing.arguments)
+        if(t.isStringLiteral(value)){
+          value.value += " " + name.value;
+          return;
+        }
+  }
+
+  for(const attr of attributes)
+    if(t.isJSXAttribute(attr) && t.isJSXIdentifier(attr.name, { name: "className" })){
+      attr.value = t.jsxExpressionContainer(
+        t.callExpression(concat, [name, existing])
+      )
+      return;
+    }
+
+  throw new Error("Could not insert className");
 }
 
 function importClassNamesHelper(path: t.NodePath) {
