@@ -2,7 +2,7 @@ import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
 import { setClassNames } from './syntax/className';
-import { getProp, setTagName } from './syntax/element';
+import { setTagName } from './syntax/element';
 import { hasProperTagName } from './syntax/tags';
 import * as t from './types';
 

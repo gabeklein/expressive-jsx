@@ -1,7 +1,7 @@
 import { ElementContext } from './elements';
 import { simpleHash } from './helper/simpleHash';
 import { Macro } from './options';
-import { getProp, getRestProps } from './syntax/element';
+import { getProp, getRestProps } from './syntax/component';
 import { getName } from './syntax/entry';
 import * as t from './types';
 
