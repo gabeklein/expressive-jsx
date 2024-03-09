@@ -7,8 +7,10 @@ export function addClassName(
   path: t.NodePath<t.JSXElement>,
   name: string | t.Expression
 ){
-  const existing = getProp(path, "className");
-  const { attributes } = path.node.openingElement;
+  const { node, scope } = path;
+  const { attributes } = node.openingElement;
+  const { polyfill } = Options;
+  const existing = getProp(node, "className");
 
   if(typeof name == "string")
     name = t.stringLiteral(name);
@@ -29,7 +31,34 @@ export function addClassName(
     return;
   }
 
-  const concat = importClassNamesHelper(path);
+  const program = path.find(x => x.isProgram()) as t.NodePath<t.Program>;
+  const body = program.get("body");
+
+  for(const statement of body){
+    if(!statement.isImportDeclaration() || statement.node.source.value !== polyfill)
+      continue;
+
+    const specifiers = statement.get("specifiers");
+
+    for(const spec of specifiers){
+      if(!spec.isImportSpecifier())
+        continue;
+
+      if(t.isIdentifier(spec.node.imported, { name: "classNames" }))
+        return spec.node.local;
+    }
+  }
+
+  const concat = uniqueIdentifier(scope, "classNames");
+
+  if(polyfill){
+    const importStatement = t.importDeclaration(
+      [t.importSpecifier(concat, t.identifier("classNames"))],
+      t.stringLiteral(polyfill)
+    );
+  
+    program.node.body.unshift(importStatement);
+  }
 
   if(t.isCallExpression(existing) && existing.callee === concat){
     if(!t.isStringLiteral(name))
@@ -51,38 +80,4 @@ export function addClassName(
     }
 
   throw new Error("Could not insert className");
-}
-
-function importClassNamesHelper(path: t.NodePath) {
-  const polyfill = Options.polyfill!;
-  const program = path.find(x => x.isProgram()) as t.NodePath<t.Program>;
-  const body = program.get("body");
-
-  for (const statement of body) {
-    if (!statement.isImportDeclaration() || statement.node.source.value !== polyfill)
-      continue;
-
-    const specifiers = statement.get("specifiers");
-
-    for (const spec of specifiers) {
-      if (!spec.isImportSpecifier())
-        continue;
-
-      if (t.isIdentifier(spec.node.imported, { name: "classNames" }))
-        return spec.node.local;
-    }
-  }
-
-  const id = uniqueIdentifier(path.scope, "classNames");
-
-  if(polyfill === null)
-    return id;
-
-  const importStatement = t.importDeclaration(
-    [t.importSpecifier(id, t.identifier("classNames"))],
-    t.stringLiteral(polyfill)
-  );
-
-  program.node.body.unshift(importStatement);
-  return id;
 }
