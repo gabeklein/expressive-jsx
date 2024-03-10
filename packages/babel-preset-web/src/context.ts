@@ -84,9 +84,12 @@ export class ModuleContext extends Context {
     Object.defineProperty(this, "uid", { value: name });
 
     this.module = this;
-    this.options = opts;
     this.macros = Object.assign({}, ...opts.macros || []);
     this.define = Object.assign({}, ...opts.define || []);
+    this.options = {
+      polyfill: require.resolve("../polyfill"),
+      ...opts
+    };
   }
 
   getHelper(name: string){

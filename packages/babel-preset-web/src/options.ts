@@ -8,10 +8,6 @@ export type Macro =
 export interface Options {
   macros?: Record<string, Macro>[];
   define?: Record<string, DefineContext>[];
-  apply?(element: ElementContext): void;
+  apply(element: ElementContext): void;
   polyfill?: string | null;
 }
-
-export const Options: Options = {
-  polyfill: require.resolve("../polyfill")
-};
