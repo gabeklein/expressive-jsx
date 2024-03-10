@@ -277,27 +277,29 @@ export class FunctionContext extends DefineContext {
   }
 
   getProps(){
-    const element = this.path;
-    let [ props ] = element.get("params");
-    let output: t.NodePath | undefined;
+    const { scope, node } = this.path;
+    let [ props ] = node.params
+    let output: t.Node | undefined;
 
     if(!props){
-      [ output ] = element.pushContainer("params", uniqueIdentifier(element.scope, "props"));
+      node.params.push(output = uniqueIdentifier(scope, "props"));
     }
-    else if(props.isObjectPattern()){
-      const existing = props.get("properties").find(x => x.isRestElement());
+    else if(t.isObjectPattern(props)){
+      const existing = props.properties.find(x => t.isRestElement(x));
 
-      if(existing && existing.isRestElement())
-        output = existing.get("argument");
+      if(t.isRestElement(existing))
+        output = existing.argument;
 
-      const [ inserted ] = props.pushContainer("properties", 
-        t.restElement(uniqueIdentifier(element.scope, "rest"))
-      )
+      const inserted = t.restElement(uniqueIdentifier(scope, "rest"));
+      
+      props.properties.push(inserted)
 
-      output = inserted.get("argument");
+      output = inserted.argument;
     }
+    else
+      output = props;
 
-    if(output && output.isIdentifier())
+    if(t.isIdentifier(output))
       return output;
 
     throw new Error("Could not extract props from function.")
