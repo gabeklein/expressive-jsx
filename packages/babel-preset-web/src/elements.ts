@@ -1,5 +1,5 @@
 import { Context, DefineContext } from './context';
-import { addClassName } from './syntax/className';
+import { getHelper } from './syntax/program';
 import { getProp, setTagName } from './syntax/element';
 import * as t from './types';
 
@@ -78,6 +78,50 @@ export class ElementContext extends Context {
   }
 
   addClassName(name: string | t.Expression){
-    return addClassName(this.path, name);
+    const { node } = this.path;
+    const { attributes } = node.openingElement;
+    const existing = getProp(node, "className");
+  
+    if(typeof name == "string")
+      name = t.stringLiteral(name);
+  
+    if(t.isStringLiteral(existing) && t.isStringLiteral(name)){
+      existing.value += " " + name.value;
+      return;
+    }
+  
+    if(!existing){
+      attributes.push(
+        t.jsxAttribute(
+          t.jsxIdentifier("className"),
+          t.isStringLiteral(name)
+            ? name : t.jsxExpressionContainer(name)
+        )
+      );
+      return;
+    }
+  
+    const program = this.path.find(x => x.isProgram()) as t.NodePath<t.Program>;
+    const concat = getHelper(program, "classNames");
+  
+    if(t.isCallExpression(existing) && existing.callee === concat)
+      if(!t.isStringLiteral(name))
+        existing.arguments.push(name);
+      else
+        for(const value of existing.arguments)
+          if(t.isStringLiteral(value)){
+            value.value += " " + name.value;
+            return;
+          }
+  
+    for(const attr of attributes)
+      if(t.isJSXAttribute(attr) && t.isJSXIdentifier(attr.name, { name: "className" })){
+        attr.value = t.jsxExpressionContainer(
+          t.callExpression(concat, [name, existing])
+        )
+        return;
+      }
+  
+    throw new Error("Could not insert className");
   }
 }
