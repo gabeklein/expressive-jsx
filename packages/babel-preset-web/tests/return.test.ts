@@ -42,3 +42,25 @@ it("will not optimize with statements", async () => {
     };
   `);
 });
+
+it.skip("will wrap elements if 'this' is styled", async () => {
+  const output = await parser(`
+    function Component(){
+      color: red;
+
+      <div>Hello</div>
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(`
+    function Component(props) {
+      return (
+        <div
+          {...props}
+          className={classNames(props.className, 'Component_ivp')}>
+          <div>Hello</div>
+        </div>
+      );
+    }
+  `);
+});
