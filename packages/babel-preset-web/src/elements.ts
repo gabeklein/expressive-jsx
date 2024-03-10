@@ -1,5 +1,4 @@
 import { Context, DefineContext } from './context';
-import { getHelper } from './syntax/program';
 import { getProp, setTagName } from './syntax/element';
 import * as t from './types';
 
@@ -100,9 +99,8 @@ export class ElementContext extends Context {
       );
       return;
     }
-  
-    const program = this.path.find(x => x.isProgram()) as t.NodePath<t.Program>;
-    const concat = getHelper(program, "classNames");
+
+    const concat = this.module.getHelper("classNames");
   
     if(t.isCallExpression(existing) && existing.callee === concat)
       if(!t.isStringLiteral(name))

@@ -1,6 +1,6 @@
 import { ElementContext } from './elements';
 import { simpleHash } from './helper/simpleHash';
-import { Macro } from './options';
+import { Macro, Options } from './options';
 import { onExit } from './plugin';
 import { getName } from './syntax/entry';
 import { uniqueIdentifier } from './syntax/unique';
@@ -9,6 +9,7 @@ import * as t from './types';
 export const CONTEXT = new WeakMap<t.NodePath, Context>();
 
 export class Context {
+  module!: ModuleContext;
   define: Record<string, DefineContext> = {};
   macros: Record<string, Macro> = {};
 
@@ -23,6 +24,7 @@ export class Context {
 
     this.define = Object.create(parent.define);
     this.macros = Object.create(parent.macros);
+    this.module = parent.module;
   }
 
   get uid(): string {
@@ -57,6 +59,64 @@ export class Context {
     }
 
     return defines.reverse();
+  }
+}
+
+export class ModuleContext extends Context {
+  options: Options;
+
+  constructor(
+    public path: t.NodePath<t.Program>,
+    state: any){
+
+    const opts = state.opts as Options;
+    const name = (path.hub as any).file.opts.filename as string;
+
+    super(path);
+
+    if(!opts.apply)
+      throw new Error(`Plugin has not defined an apply method.`);
+
+    Object.defineProperty(this, "uid", { value: name });
+
+    this.module = this;
+    this.options = opts;
+    this.macros = Object.assign({}, ...opts.macros || []);
+    this.define = Object.assign({}, ...opts.define || []);
+  }
+
+  getHelper(name: string){
+    const { polyfill } = this.options;
+    const program = this.path
+    const body = program.get("body");
+  
+    for(const statement of body){
+      if(!statement.isImportDeclaration() || statement.node.source.value !== polyfill)
+        continue;
+  
+      const specifiers = statement.get("specifiers");
+  
+      for(const spec of specifiers){
+        if(!spec.isImportSpecifier())
+          continue;
+  
+        if(t.isIdentifier(spec.node.imported, { name }))
+          return spec.node.local;
+      }
+    }
+  
+    const concat = uniqueIdentifier(program.scope, name);
+  
+    if(polyfill){
+      const importStatement = t.importDeclaration(
+        [t.importSpecifier(concat, t.identifier(name))],
+        t.stringLiteral(polyfill)
+      );
+    
+      program.unshiftContainer("body", importStatement);
+    }
+  
+    return concat;
   }
 }
 

@@ -1,4 +1,4 @@
-import { CONTEXT, Context, DefineContext, FunctionContext, getContext } from './context';
+import { CONTEXT, Context, DefineContext, ModuleContext } from './context';
 import { ElementContext } from './elements';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
@@ -31,19 +31,7 @@ export default Plugin;
 
 const Program: Visitor<t.Program> = {
   enter(path, state){
-    const options = state.opts as Options;
-    const { macros, define, apply } = options; 
-    const name = (path.hub as any).file.opts.filename as string;
-    const context = new Context(path);
-
-    if(!apply)
-      throw new Error(`Plugin has not defined an apply method.`);
-
-    Object.assign(Options, options);
-    Object.defineProperty(context, "uid", { value: name });
-
-    context.macros = Object.assign({}, ...macros || []);
-    context.define = Object.assign({}, ...define || []);
+    new ModuleContext(path, state);
   }
 }
 
