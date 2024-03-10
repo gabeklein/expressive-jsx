@@ -1,35 +1,3 @@
-import * as t from "../types";
-
-/*
-  TODO: Replace with modifiers for all
-  real tags which sets tagName explicitly
-*/
-export function hasProperTagName(element: t.NodePath<t.JSXElement>){
-  const tag = element.node.openingElement.name;
-
-  if(!t.isJSXIdentifier(tag) || tag.name.match(/^[A-Z]/))
-    return true;
-
-  const { name } = tag;
-
-  if(HTML_TAGS.includes(name))
-    return true;
-
-  if(SVG_TAGS.includes(name)){
-    let parent: t.NodePath | null = element;
-      
-    while(parent = parent.parentPath){
-      if(parent.isFunction())
-        break;
-
-      if(parent.isJSXElement() && t.isJSXIdentifier(parent.node.openingElement.name, { name: "svg" }))
-        return true;
-    }
-  }
-
-  return false;
-}
-
 export const HTML_TAGS = [
   "a",
   "abbr",
@@ -124,7 +92,7 @@ export const HTML_TAGS = [
   "wbr",
 ];
 
-const SVG_TAGS = [
+export const SVG_TAGS = [
   'a',
   'altGlyph',
   'altGlyphDef',
