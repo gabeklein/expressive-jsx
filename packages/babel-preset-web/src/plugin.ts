@@ -94,10 +94,30 @@ const JSXElement: Visitor<t.JSXElement> = {
     if(apply)
       apply(element);
 
-    const [{ node }, statement, block, within] = path.getAncestry();
+    let [{ node }, statement, block, within] = path.getAncestry();
+    const { component } = element;
 
     if(!block.isBlockStatement())
       return;
+
+    if(component
+    && component.usedBy.size == 0
+    && Object.keys(component.styles).length > 0){
+      const tag = t.jSXIdentifier("this");
+
+      node = t.jsxElement(
+        t.jsxOpeningElement(tag, []),
+        t.jsxClosingElement(tag),
+        [node]
+      )
+
+      const wrapper = new ElementContext(component, node);
+
+      wrapper.use(component);
+
+      if(apply)
+        apply(wrapper);
+    }
   
     const inserted = block.get("body").length === 1 &&
       within.isArrowFunctionExpression()

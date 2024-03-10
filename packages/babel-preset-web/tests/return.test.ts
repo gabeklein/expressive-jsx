@@ -43,7 +43,7 @@ it("will not optimize with statements", async () => {
   `);
 });
 
-it.skip("will wrap elements if 'this' is styled", async () => {
+it("will wrap elements if 'this' is styled", async () => {
   const output = await parser(`
     function Component(){
       color: red;
@@ -57,8 +57,9 @@ it.skip("will wrap elements if 'this' is styled", async () => {
       return (
         <div
           {...props}
-          className={classNames(props.className, 'Component_ivp')}>
+          className={classNames(props.className, 'Component_cfu')}>
           <div>Hello</div>
+          {props.children}
         </div>
       );
     }

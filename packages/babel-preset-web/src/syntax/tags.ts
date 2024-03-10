@@ -30,7 +30,7 @@ export function hasProperTagName(element: t.NodePath<t.JSXElement>){
   return false;
 }
 
-const HTML_TAGS = [
+export const HTML_TAGS = [
   "a",
   "abbr",
   "address",

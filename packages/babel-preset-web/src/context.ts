@@ -18,10 +18,11 @@ export class Context {
   }
 
   constructor(
-    public path: t.NodePath,
+    public path?: t.NodePath,
     public parent?: Context){
 
-    CONTEXT.set(path, this);
+    if(path)
+      CONTEXT.set(path, this);
 
     if(!parent)
       return;
@@ -137,7 +138,7 @@ export class DefineContext extends Context {
   constructor(
     public name: string,
     public parent: Context,
-    path: t.NodePath<t.Node>){
+    public path: t.NodePath<t.Node>){
 
     super(path, parent);
   }

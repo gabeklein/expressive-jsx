@@ -1,7 +1,7 @@
 import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
-import { hasProperTagName } from './syntax/tags';
+import { HTML_TAGS } from './syntax/tags';
 import * as t from './types';
 
 namespace Preset {
@@ -10,7 +10,7 @@ namespace Preset {
   }
 }
 
-function Preset(_compiler: any, options: Preset.Options = {}): any {
+function Preset(_compiler: any, options: Preset.Options = {} as any): any {
   let { macros = [], ...opts } = options;
   const styles = new Set<Plugin.DefineContext>();
 
@@ -23,7 +23,7 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
           ...macros
         ],
         apply(element){
-          const { path, using, this: component } = element;
+          const { node, using, this: component } = element;
           const used = new Set(using);
        
           if(component)
@@ -41,7 +41,7 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
           }
 
           if(component){
-            const { children } = path.node;
+            const { children } = node;
 
             if(element.getProp("className"))
               element.addClassName(component.getProp("className"))
@@ -54,7 +54,9 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
               );
           }
 
-          if(!hasProperTagName(path))
+          const { name } = node.openingElement;
+
+          if(t.isJSXIdentifier(name) && !HTML_TAGS.includes(name.name))
             element.setTagName("div");
         },
       }],

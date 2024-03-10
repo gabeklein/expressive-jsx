@@ -8,12 +8,20 @@ export class ElementContext extends Context {
 
   constructor(
     public parent: Context,
-    public path: t.NodePath<t.JSXElement>){
+    path: t.JSXElement | t.NodePath<t.JSXElement>){
+
+    super(path instanceof t.NodePath ? path : undefined, parent);
+
+    if(path instanceof t.NodePath){
+      this.node = path.node;
+    }
+    else {
+      this.node = path
+      return
+    }
 
     const opening = path.get("openingElement");
     let name = opening.get("name");
-
-    super(path, parent);
 
     this.node = path.node;
 
@@ -57,15 +65,16 @@ export class ElementContext extends Context {
     return Array.from(mods);
   }
 
-  use(name: string){
-    const applied = this.get(name);
+  use(name: string | DefineContext){
+    const apply = typeof name == "string"
+      ? this.get(name) : [name];
 
-    applied.forEach(context => {
+    apply.forEach(context => {
       context.usedBy.add(this);
       this.using.add(context);
     });
 
-    return applied;
+    return apply;
   }
 
   setTagName(to: string){
@@ -77,9 +86,8 @@ export class ElementContext extends Context {
   }
 
   addClassName(name: string | t.Expression){
-    const { node } = this.path;
-    const { attributes } = node.openingElement;
-    const existing = getProp(node, "className");
+    const { attributes } = this.node.openingElement;
+    const existing = getProp(this.node, "className");
   
     if(typeof name == "string")
       name = t.stringLiteral(name);
