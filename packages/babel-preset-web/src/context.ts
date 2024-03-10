@@ -1,8 +1,8 @@
 import { ElementContext } from './elements';
 import { simpleHash } from './helper/simpleHash';
 import { Macro } from './options';
-import { getProp, getRestProps } from './syntax/component';
 import { getName } from './syntax/entry';
+import { uniqueIdentifier } from './syntax/unique';
 import * as t from './types';
 
 export const CONTEXT = new WeakMap<t.NodePath, Context>();
@@ -161,11 +161,62 @@ export class FunctionContext extends DefineContext {
   }
 
   getProp(name: string){
-    return getProp(this.path, name);
+    const from = this.path;
+    let [props] = from.node.params;
+
+    if (t.isObjectPattern(props)) {
+      const { properties } = props;
+
+      const prop = properties.find(x => (
+        t.isObjectProperty(x) &&
+        t.isIdentifier(x.key, { name })
+      )) as t.ObjectProperty | undefined;
+
+      if (prop)
+        return prop.value as t.Identifier;
+
+      const id = t.identifier(name);
+
+      properties.unshift(t.objectProperty(id, id, false, true));
+
+      return id;
+    }
+    else if (!props) {
+      props = uniqueIdentifier(from.scope, "props");
+      from.node.params.unshift(props);
+    }
+
+    if (t.isIdentifier(props))
+      return t.memberExpression(props, t.identifier(name));
+
+    throw new Error(`Expected an Identifier or ObjectPattern, got ${props.type}`);
   }
 
   getProps(){
-    return getRestProps(this.path)
+    const element = this.path;
+    let [ props ] = element.get("params");
+    let output: t.NodePath | undefined;
+
+    if(!props){
+      [ output ] = element.pushContainer("params", uniqueIdentifier(element.scope, "props"));
+    }
+    else if(props.isObjectPattern()){
+      const existing = props.get("properties").find(x => x.isRestElement());
+
+      if(existing && existing.isRestElement())
+        output = existing.get("argument");
+
+      const [ inserted ] = props.pushContainer("properties", 
+        t.restElement(uniqueIdentifier(element.scope, "rest"))
+      )
+
+      output = inserted.get("argument");
+    }
+
+    if(output && output.isIdentifier())
+      return output;
+
+    throw new Error("Could not extract props from function.")
   }
 }
 
