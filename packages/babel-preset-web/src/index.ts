@@ -26,9 +26,9 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
           const { path, using, this: component } = element;
           const used = new Set(using);
 
-          for(const context of used)
-            if(context.className)
-              element.addClassName(context.className);
+          for(const { className } of used)
+            if(className)
+              element.addClassName(className);
 
           for(const context of used){
             context.dependant.forEach(x => used.add(x));

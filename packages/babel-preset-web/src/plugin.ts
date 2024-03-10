@@ -102,12 +102,12 @@ const JSXElement: Visitor<t.JSXElement> = {
   exit(path, { opts }){
     const { apply } = opts as Options;
     const element = CONTEXT.get(path) as ElementContext;
-    const parent = element.this;
+    const props = element.this && element.this.getProps();
 
-    if(parent)
-      element.path.node.openingElement.attributes.unshift(
-        t.jsxSpreadAttribute(parent.getProps().node)
-      );
+    if(props)
+      element.node.openingElement.attributes.unshift(
+        t.jsxSpreadAttribute(props.node)
+      )
 
     if(apply)
       apply(element);
