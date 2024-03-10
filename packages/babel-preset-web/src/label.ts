@@ -1,4 +1,4 @@
-import { CONTEXT, DefineContext, FunctionContext, getContext } from './context';
+import { Context, DefineContext, FunctionContext, getContext } from './context';
 import { parseError } from './helper/errors';
 import { handleSwitch, IfContext } from './switch';
 import { parseArgument } from './syntax/arguments';
@@ -43,7 +43,7 @@ export function createContext(path: t.NodePath, required?: boolean): any {
     key = parent.key;
   }
 
-  const context = CONTEXT.get(parent);
+  const context = Context.get(parent);
 
   if(context instanceof IfContext)
     return context.for(key);

@@ -1,4 +1,4 @@
-import { CONTEXT, Context, DefineContext, ModuleContext } from './context';
+import { Context, DefineContext, ModuleContext } from './context';
 import { ElementContext } from './elements';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
@@ -89,7 +89,7 @@ const JSXElement: Visitor<t.JSXElement> = {
   },
   exit(path, { opts }){
     const { apply } = opts as Options;
-    const element = CONTEXT.get(path) as ElementContext;
+    const element = Context.get(path) as ElementContext;
 
     if(apply)
       apply(element);

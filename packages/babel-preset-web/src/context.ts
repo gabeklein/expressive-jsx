@@ -6,12 +6,16 @@ import { getName } from './syntax/entry';
 import { uniqueIdentifier } from './syntax/unique';
 import * as t from './types';
 
-export const CONTEXT = new WeakMap<t.NodePath, Context>();
+const CONTEXT = new WeakMap<t.NodePath, Context>();
 
 export class Context {
   module!: ModuleContext;
   define: Record<string, DefineContext> = {};
   macros: Record<string, Macro> = {};
+
+  static get(from: t.NodePath){
+    return CONTEXT.get(from)
+  }
 
   constructor(
     public path: t.NodePath,
