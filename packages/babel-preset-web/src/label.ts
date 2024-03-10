@@ -1,4 +1,5 @@
 import { CONTEXT, DefineContext, FunctionContext, getContext } from './context';
+import { parseError } from './helper/errors';
 import { onExit } from './plugin';
 import { handleSwitch, IfContext } from './switch';
 import { parseArgument } from './syntax/arguments';
@@ -32,19 +33,6 @@ export function handleLabel(
   catch(err: unknown){
     throw parseError(body, err, name);
   }
-}
-
-function parseError(path: t.NodePath, err: unknown, modiferName: string){
-  if(!(err instanceof Error))
-    return path.hub.buildError(path.node, `Modifier "${modiferName}" failed: ${err}`);
-
-  const stack = err.stack!.split("\n    at ");
-  const message = err instanceof Error ? err.message : err;
-  const error = path.hub.buildError(path.node, `Modifier "${modiferName}" failed: ${message}`);
-
-  error.stack = stack.slice(0, stack.findIndex(line => /^parse/.test(line)) + 1).join("\n    at ");
-  
-  return error;
 }
 
 export function createContext(path: t.NodePath, required?: boolean): any {

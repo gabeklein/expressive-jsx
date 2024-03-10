@@ -48,3 +48,16 @@ export function ParseErrors<O extends Record<string, string>> (register: O) {
     readonly [P in keyof O]: ParseError
   };
 }
+
+export function parseError(path: t.NodePath, err: unknown, modiferName: string){
+  if(!(err instanceof Error))
+    return path.hub.buildError(path.node, `Modifier "${modiferName}" failed: ${err}`);
+
+  const stack = err.stack!.split("\n    at ");
+  const message = err instanceof Error ? err.message : err;
+  const error = path.hub.buildError(path.node, `Modifier "${modiferName}" failed: ${message}`);
+
+  error.stack = stack.slice(0, stack.findIndex(line => /^parse/.test(line)) + 1).join("\n    at ");
+  
+  return error;
+}
