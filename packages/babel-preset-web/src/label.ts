@@ -1,5 +1,6 @@
+import { CONTEXT, DefineContext, FunctionContext, getContext } from './context';
 import { onExit } from './plugin';
-import { CONTEXT, DefineContext, FunctionContext, IfContext, SelectorContext, getContext } from './context';
+import { handleSwitch, IfContext } from './switch';
 import { parseArgument } from './syntax/arguments';
 import * as t from './types';
 
@@ -83,25 +84,8 @@ export function createContext(path: t.NodePath, required?: boolean): any {
     return new FunctionContext(parent);
   }
 
-  if(parent.isIfStatement()){
-    const ambient = createContext(parent) as DefineContext;
-    const test = parent.get("test");
-    const context = test.isStringLiteral()
-      ? new SelectorContext(ambient, parent)
-      : new IfContext(ambient, parent);
-
-    onExit(parent, (key, path) => {
-      if(key == "conseqent"
-      && context instanceof IfContext
-      && context.alternate)
-        return;
-  
-      if(!path.removed)
-        path.remove();
-    });
-
-    return context;
-  }
+  if(parent.isIfStatement())
+    return handleSwitch(parent);
 
   if(required === false)
     return getContext(path);
