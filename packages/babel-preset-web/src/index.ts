@@ -25,6 +25,11 @@ function Preset(_compiler: any, options: Preset.Options = {}): any {
         apply(element){
           const { path, using, this: component } = element;
           const used = new Set(using);
+       
+          if(component)
+            element.node.openingElement.attributes.unshift(
+              t.jsxSpreadAttribute(component.getProps().node)
+            )
 
           for(const { className } of used)
             if(className)
