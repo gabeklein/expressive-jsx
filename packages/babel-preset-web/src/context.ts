@@ -1,6 +1,7 @@
 import { ElementContext } from './elements';
 import { simpleHash } from './helper/simpleHash';
 import { Macro } from './options';
+import { onExit } from './plugin';
 import { getName } from './syntax/entry';
 import { uniqueIdentifier } from './syntax/unique';
 import * as t from './types';
@@ -145,6 +146,22 @@ export class FunctionContext extends DefineContext {
   constructor(public path: t.NodePath<t.Function>){
     const name = getName(path);
     const ctx = getContext(path);
+
+    onExit(path, () => {
+      const body = path.get("body");
+
+      if(!body.isBlockStatement() || body.node.body.length > 0)
+        return;
+  
+      body.replaceWith(t.blockStatement([
+        t.returnStatement(
+          t.jsxElement(
+            t.jsxOpeningElement(t.jsxIdentifier("this"), [], true),
+            undefined, [], true
+          )
+        )
+      ]));
+    });
 
     super(name, ctx, path);
   

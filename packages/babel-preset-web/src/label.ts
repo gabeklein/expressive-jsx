@@ -1,6 +1,5 @@
 import { CONTEXT, DefineContext, FunctionContext, getContext } from './context';
 import { parseError } from './helper/errors';
-import { onExit } from './plugin';
 import { handleSwitch, IfContext } from './switch';
 import { parseArgument } from './syntax/arguments';
 import * as t from './types';
@@ -52,25 +51,8 @@ export function createContext(path: t.NodePath, required?: boolean): any {
   if(context)
     return context;
 
-  if(parent.isFunction()){
-    const body = parent.get("body");
-
-    onExit(parent, () => {
-      if(!body.isBlockStatement() || body.node.body.length > 0)
-        return;
-  
-      body.replaceWith(t.blockStatement([
-        t.returnStatement(
-          t.jsxElement(
-            t.jsxOpeningElement(t.jsxIdentifier("this"), [], true),
-            undefined, [], true
-          )
-        )
-      ]));
-    });
-
+  if(parent.isFunction())
     return new FunctionContext(parent);
-  }
 
   if(parent.isIfStatement())
     return handleSwitch(parent);
