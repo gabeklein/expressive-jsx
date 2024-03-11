@@ -76,7 +76,7 @@ importers:
         specifier: ^7.23.6
         version: 7.23.6(@babel/core@7.23.5)
       '@expressive/babel-preset-web':
-        specifier: ^2.0.0
+        specifier: ^2.0.1
         version: link:../babel-preset-web
     devDependencies:
       '@types/babel__core':
@@ -92,7 +92,7 @@ importers:
   packages/webpack-plugin-jsx:
     dependencies:
       '@expressive/babel-preset-web':
-        specifier: ^2.0.0
+        specifier: ^2.0.1
         version: link:../babel-preset-web
       babel-loader:
         specifier: ^9.1.2
