@@ -56,7 +56,9 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
 
           const { name } = node.openingElement;
 
-          if(t.isJSXIdentifier(name) && !HTML_TAGS.includes(name.name))
+          if(t.isJSXIdentifier(name)
+          && !/^[A-Z]/.test(name.name)
+          && !HTML_TAGS.includes(name.name))
             element.setTagName("div");
         },
       }],
