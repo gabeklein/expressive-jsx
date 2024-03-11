@@ -7,7 +7,9 @@ it("will bail on repeat macro", async () => {
     };
   }
 
-  const parse = parser({ macros: [{ foo }] });
+  const parse = parser({
+    macros: [{ foo }]
+  });
 
   const output = await parse(`
     const Component = () => {
