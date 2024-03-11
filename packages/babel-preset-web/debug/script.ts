@@ -32,11 +32,13 @@ async function transform(){
 
   console.clear();
   console.log(output);
-  console.log(
-    "<style>\n" +
-    stylesheet.replace(/^(.)/gm, "  $1") +
-    "\n</style>\n"
-  );
+
+  if(stylesheet)
+    console.log(
+      "<style>\n" +
+      stylesheet.replace(/^(.)/gm, "  $1") +
+      "\n</style>\n"
+    );
 }
 
 transform();
