@@ -26,9 +26,10 @@
   "scripts": {
     "build": "tsup src/index.ts --dts",
     "watch": "tsup src/index.ts --watch --sourcemap inline",
-    "prepublish": "npm run build",
     "test": "jest",
-    "prebuild": "rm -rf lib"
+    "prebuild": "rm -rf lib",
+    "prepublish": "npm run build",
+    "preversion": "npm run test && npm run build"
   },
   "dependencies": {
     "@babel/core": "^7.22.5",
