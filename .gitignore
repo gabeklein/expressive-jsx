@@ -1,4 +1,5 @@
 .DS_Store
+.nx
 *.log
 node_modules
 packages/*/dist/
