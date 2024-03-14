@@ -1,5 +1,4 @@
 import { Context, DefineContext } from './context';
-import { getProp, setTagName } from './syntax/element';
 import { t } from './types';
 
 import type { NodePath } from '@babel/traverse';
@@ -82,17 +81,34 @@ export class ElementContext extends Context {
     return apply;
   }
 
-  setTagName(to: string){
-    setTagName(this.node, to);
+  setTagName(name: string){
+    const { openingElement, closingElement } = this.node;
+    const tag = t.jsxIdentifier(name);
+  
+    openingElement.name = tag;
+  
+    if(closingElement)
+      closingElement.name = tag;
   }
 
-  getProp(named: string){
-    return getProp(this.node, named);
+  getProp(name: string){
+    const { attributes } = this.node.openingElement;
+
+    for(const attr of attributes)
+      if(t.isJSXAttribute(attr) && attr.name.name === name){
+        const { value } = attr;
+
+        if(t.isJSXExpressionContainer(value) && t.isExpression(value.expression))
+          return value.expression;
+
+        if(t.isExpression(value))
+          return value;
+      }
   }
 
   addClassName(name: string | Expression){
     const { attributes } = this.node.openingElement;
-    const existing = getProp(this.node, "className");
+    const existing = this.getProp("className");
   
     if(typeof name == "string")
       name = t.stringLiteral(name);
