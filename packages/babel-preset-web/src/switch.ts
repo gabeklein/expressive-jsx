@@ -1,7 +1,7 @@
 import { Context, DefineContext } from './context';
 import { createContext } from './label';
 import { onExit } from './plugin';
-import { getName } from './syntax/entry';
+import { getName } from './syntax/names';
 import { t } from './types';
 
 import type { NodePath } from '@babel/traverse';

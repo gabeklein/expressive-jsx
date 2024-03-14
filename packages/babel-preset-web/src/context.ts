@@ -2,7 +2,7 @@ import { ElementContext } from './elements';
 import { simpleHash } from './helper/simpleHash';
 import { Macro, Options } from './options';
 import { onExit } from './plugin';
-import { getName } from './syntax/entry';
+import { getName } from './syntax/names';
 import { t } from './types';
 
 import type { NodePath, Scope } from '@babel/traverse';
