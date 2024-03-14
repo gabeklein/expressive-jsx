@@ -30,6 +30,8 @@ it("will apply to this", async () => {
 it("will apply else", async () => {
   const output = await parser(`
     const Component = ({ active }) => {
+      background: white;
+
       if(active)
         color: red;
       else
@@ -44,8 +46,9 @@ it("will apply else", async () => {
       <div
         {...rest}
         className={classNames(
-          className,
-          active ? 'active_tla' : 'not_active_tla'
+          'Component_59f',
+          active ? 'active_tla' : 'not_active_tla',
+          className
         )}>
         Hello
       </div>
@@ -55,6 +58,9 @@ it("will apply else", async () => {
   expect(output.css).toMatchInlineSnapshot(`
     .active_tla {
       color: red;
+    }
+    .Component_59f {
+      background: white;
     }
     .not_active_tla {
       color: blue;

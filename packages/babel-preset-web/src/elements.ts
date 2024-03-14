@@ -131,15 +131,18 @@ export class ElementContext extends Context {
 
     const concat = this.module.getHelper("classNames");
   
-    if(t.isCallExpression(existing) && existing.callee === concat)
-      if(!t.isStringLiteral(name))
-        existing.arguments.push(name);
-      else
+    if(t.isCallExpression(existing) && t.isIdentifier(existing.callee, { name: concat.name }))
+      if(t.isStringLiteral(name)){
         for(const value of existing.arguments)
           if(t.isStringLiteral(value)){
             value.value += " " + name.value;
             return;
           }
+      }
+      else {
+        existing.arguments.push(name);
+        return;
+      }
   
     for(const attr of attributes)
       if(t.isJSXAttribute(attr) && t.isJSXIdentifier(attr.name, { name: "className" })){
