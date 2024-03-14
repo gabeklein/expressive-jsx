@@ -1,7 +1,7 @@
 import { camelToDash } from './util';
 
-const chroma = require('chroma-js');
-const easingCoordinates = require('easing-coordinates')
+import chroma from 'chroma-js';
+import easingCoordinates from 'easing-coordinates';
 
 // const timingFunctions = [
 //   'ease',

@@ -1,7 +1,7 @@
 export * from './border';
 export * from './color';
 export * from './flex';
-export * from './gradient';
+// export * from './gradient';
 export * from './grid';
 export * from './image';
 export * from './margins';
