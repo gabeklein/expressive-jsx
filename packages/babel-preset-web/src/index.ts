@@ -29,7 +29,6 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
             using,
             this: component,
             node: {
-              children,
               openingElement: {
                 name,
                 attributes
@@ -61,13 +60,6 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
             if(element.getProp("className"))
               element.addClassName(
                 component.getProp("className")
-              )
-  
-            if(children.length)
-              children.push(
-                t.jsxExpressionContainer(
-                  component.getProp("children")
-                )
               )
           }
         },

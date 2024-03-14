@@ -59,7 +59,6 @@ it("will wrap elements if 'this' is styled", async () => {
           {...props}
           className={classNames(props.className, 'Component_cfu')}>
           <div>Hello</div>
-          {props.children}
         </div>
       );
     }

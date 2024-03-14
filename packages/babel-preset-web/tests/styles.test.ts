@@ -39,7 +39,6 @@ it("will apply to this", async () => {
         {...props}
         className={classNames(props.className, 'Component_7ps')}>
         Hello World
-        {props.children}
       </div>
     );
   `);
