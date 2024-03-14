@@ -1,11 +1,11 @@
-import * as t from '../types';
+import type { Node, NodePath } from '@babel/traverse';
 
 type FlatValue = string | number | boolean | null;
-type ParseError = <T extends t.Node>(node: t.NodePath<T> | T, ...args: FlatValue[]) => Error;
+type ParseError = <T extends Node>(node: NodePath<T> | T, ...args: FlatValue[]) => Error;
 
 export interface BabelFile extends File {
   buildCodeFrameError<TError extends Error>(
-    node: t.Node,
+    node: Node,
     msg: string,
     Error?: new (msg: string) => TError
   ): TError;
@@ -49,7 +49,7 @@ export function ParseErrors<O extends Record<string, string>> (register: O) {
   };
 }
 
-export function parseError(path: t.NodePath, err: unknown, modiferName: string){
+export function parseError(path: NodePath, err: unknown, modiferName: string){
   if(!(err instanceof Error))
     return path.hub.buildError(path.node, `Modifier "${modiferName}" failed: ${err}`);
 

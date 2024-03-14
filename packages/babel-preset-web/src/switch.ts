@@ -2,9 +2,12 @@ import { Context, DefineContext } from './context';
 import { createContext } from './label';
 import { onExit } from './plugin';
 import { getName } from './syntax/entry';
-import * as t from './types';
+import { t } from './types';
 
-export function handleSwitch(parent: t.NodePath<t.IfStatement>){
+import type { NodePath } from '@babel/traverse';
+import type { Expression, IfStatement, StringLiteral } from '@babel/types';
+
+export function handleSwitch(parent: NodePath<IfStatement>){
   const ambient = createContext(parent) as DefineContext;
   const test = parent.get("test");
   const context = test.isStringLiteral()
@@ -29,9 +32,9 @@ export class SelectorContext extends DefineContext {
   
   constructor(
     public parent: DefineContext,
-    public path: t.NodePath<t.IfStatement>){
+    public path: NodePath<IfStatement>){
 
-    const test = path.node.test as t.StringLiteral;
+    const test = path.node.test as StringLiteral;
 
     super(test.value, parent, path);
     parent.dependant.push(this);
@@ -53,12 +56,12 @@ export class SelectorContext extends DefineContext {
 }
 
 export class IfContext extends DefineContext {
-  test: t.Expression;
+  test: Expression;
   alternate?: DefineContext;
   
   constructor(
     public parent: Context,
-    public path: t.NodePath<t.IfStatement>){
+    public path: NodePath<IfStatement>){
 
     const test = path.node.test;
     const name = t.isIdentifier(test) ? test.name : getName(path);

@@ -2,10 +2,14 @@ import { Context, DefineContext, ModuleContext } from './context';
 import { ElementContext } from './elements';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
-import * as t from './types';
+import { t } from './types';
 
-type Visitor<T extends t.Node> =
-  t.VisitNodeObject<t.PluginPass & { context: Context }, T>;
+import type { PluginObj, PluginPass } from '@babel/core';
+import type { Node, NodePath, VisitNodeObject } from '@babel/traverse';
+import type { BlockStatement, JSXElement, LabeledStatement, Program } from '@babel/types';
+
+type Visitor<T extends Node> =
+  VisitNodeObject<PluginPass & { context: Context }, T>;
 
 declare namespace Plugin {
   export { Options };
@@ -14,7 +18,7 @@ declare namespace Plugin {
 }
 
 function Plugin(){
-  return <t.PluginObj>({
+  return <PluginObj>({
     manipulateOptions(_options, parse){
       parse.plugins.push("jsx");
     },
@@ -29,13 +33,13 @@ function Plugin(){
 
 export default Plugin;
 
-const Program: Visitor<t.Program> = {
+const Program: Visitor<Program> = {
   enter(path, state){
     new ModuleContext(path, state);
   }
 }
 
-const BlockStatement: Visitor<t.BlockStatement> = {
+const BlockStatement: Visitor<BlockStatement> = {
   exit(path){
     const parent = path.parentPath!;
     const callback = HANDLED.get(parent);
@@ -45,9 +49,9 @@ const BlockStatement: Visitor<t.BlockStatement> = {
   }
 }
 
-const HANDLED = new WeakMap<t.NodePath, (key: unknown, path: t.NodePath) => void>();
+const HANDLED = new WeakMap<NodePath, (key: unknown, path: NodePath) => void>();
 
-const LabeledStatement: Visitor<t.LabeledStatement> = {
+const LabeledStatement: Visitor<LabeledStatement> = {
   enter(path){
     const body = path.get("body");
 
@@ -82,7 +86,7 @@ const LabeledStatement: Visitor<t.LabeledStatement> = {
   }
 }
 
-const JSXElement: Visitor<t.JSXElement> = {
+const JSXElement: Visitor<JSXElement> = {
   enter(path){
     const parent = createContext(path, false);
     new ElementContext(parent, path);
@@ -129,7 +133,7 @@ const JSXElement: Visitor<t.JSXElement> = {
 }
 
 export function onExit(
-  path: t.NodePath, callback: (key: unknown, path: t.NodePath) => void){
+  path: NodePath, callback: (key: unknown, path: NodePath) => void){
 
   HANDLED.set(path, callback);
 }

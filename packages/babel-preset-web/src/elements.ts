@@ -1,18 +1,23 @@
 import { Context, DefineContext } from './context';
 import { getProp, setTagName } from './syntax/element';
-import * as t from './types';
+import { t } from './types';
+
+import type { NodePath } from '@babel/traverse';
+import type { Expression, JSXElement } from '@babel/types';
 
 export class ElementContext extends Context {
   using = new Set<DefineContext>();
-  node: t.JSXElement;
+  node: JSXElement;
 
   constructor(
     public parent: Context,
-    path: t.JSXElement | t.NodePath<t.JSXElement>){
+    path: JSXElement | NodePath<JSXElement>){
 
-    super(path instanceof t.NodePath ? path : undefined, parent);
+    const isPath = "node" in path;
 
-    if(path instanceof t.NodePath){
+    super(isPath ? path : undefined, parent);
+
+    if(isPath){
       this.node = path.node;
     }
     else {
@@ -85,7 +90,7 @@ export class ElementContext extends Context {
     return getProp(this.node, named);
   }
 
-  addClassName(name: string | t.Expression){
+  addClassName(name: string | Expression){
     const { attributes } = this.node.openingElement;
     const existing = getProp(this.node, "className");
   

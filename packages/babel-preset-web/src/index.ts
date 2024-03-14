@@ -2,7 +2,7 @@ import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
 import { HTML_TAGS } from './syntax/tags';
-import * as t from './types';
+import { t } from './types';
 
 namespace Preset {
   export interface Options extends Plugin.Options {
@@ -11,6 +11,8 @@ namespace Preset {
 }
 
 function Preset(_compiler: any, options: Preset.Options = {} as any): any {
+  Object.assign(t, _compiler.types);
+
   let { macros = [], ...opts } = options;
   const styles = new Set<Plugin.DefineContext>();
 

@@ -1,11 +1,13 @@
+import type { NodePath } from '@babel/traverse';
+import type { LabeledStatement } from '@babel/types';
+
 import { Context, DefineContext, FunctionContext, getContext } from './context';
 import { parseError } from './helper/errors';
 import { handleSwitch, IfContext } from './switch';
 import { parseArgument } from './syntax/arguments';
-import * as t from './types';
 
 export function handleLabel(
-  path: t.NodePath<t.LabeledStatement>){
+  path: NodePath<LabeledStatement>){
 
   const context = createContext(path)
   const body = path.get("body");;
@@ -34,7 +36,7 @@ export function handleLabel(
   }
 }
 
-export function createContext(path: t.NodePath, required?: boolean): any {
+export function createContext(path: NodePath, required?: boolean): any {
   let parent = path.parentPath!;
   let key = path.key;
 

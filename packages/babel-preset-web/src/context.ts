@@ -4,21 +4,24 @@ import { Macro, Options } from './options';
 import { onExit } from './plugin';
 import { getName } from './syntax/entry';
 import { uniqueIdentifier } from './syntax/unique';
-import * as t from './types';
+import { t } from './types';
 
-const CONTEXT = new WeakMap<t.NodePath, Context>();
+import type { NodePath } from '@babel/traverse';
+import type { BlockStatement, Expression, Function, Identifier, Node, ObjectProperty, Program } from '@babel/types';
+
+const CONTEXT = new WeakMap<NodePath, Context>();
 
 export class Context {
   module!: ModuleContext;
   define: Record<string, DefineContext> = {};
   macros: Record<string, Macro> = {};
 
-  static get(from: t.NodePath){
+  static get(from: NodePath){
     return CONTEXT.get(from)
   }
 
   constructor(
-    public path?: t.NodePath,
+    public path?: NodePath,
     public parent?: Context){
 
     if(path)
@@ -71,7 +74,7 @@ export class ModuleContext extends Context {
   options: Options;
 
   constructor(
-    public path: t.NodePath<t.Program>,
+    public path: NodePath<Program>,
     state: any){
 
     const opts = state.opts as Options;
@@ -138,7 +141,7 @@ export class DefineContext extends Context {
   constructor(
     public name: string,
     public parent: Context,
-    public path: t.NodePath<t.Node>){
+    public path: NodePath){
 
     super(path, parent);
   }
@@ -149,7 +152,7 @@ export class DefineContext extends Context {
     return uid;
   }
 
-  get className(): string | t.Expression | null {
+  get className(): string | Expression | null {
     return this.uid;
   }
 
@@ -209,9 +212,9 @@ export class DefineContext extends Context {
 }
 
 export class FunctionContext extends DefineContext {
-  body: t.NodePath<t.BlockStatement | t.Expression>;
+  body: NodePath<BlockStatement | Expression>;
 
-  constructor(public path: t.NodePath<t.Function>){
+  constructor(public path: NodePath<Function>){
     const name = getName(path);
     const ctx = getContext(path);
 
@@ -255,10 +258,10 @@ export class FunctionContext extends DefineContext {
       const prop = properties.find(x => (
         t.isObjectProperty(x) &&
         t.isIdentifier(x.key, { name })
-      )) as t.ObjectProperty | undefined;
+      )) as ObjectProperty | undefined;
 
       if (prop)
-        return prop.value as t.Identifier;
+        return prop.value as Identifier;
 
       const id = t.identifier(name);
 
@@ -280,7 +283,7 @@ export class FunctionContext extends DefineContext {
   getProps(){
     const { scope, node } = this.path;
     let [ props ] = node.params
-    let output: t.Node | undefined;
+    let output: Node | undefined;
 
     if(!props){
       node.params.push(output = uniqueIdentifier(scope, "props"));
@@ -307,7 +310,7 @@ export class FunctionContext extends DefineContext {
   }
 }
 
-export function getContext(path: t.NodePath){
+export function getContext(path: NodePath){
   while(path){
     const context = CONTEXT.get(path);
 

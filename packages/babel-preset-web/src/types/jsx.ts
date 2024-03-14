@@ -1,16 +1,29 @@
-import * as t from '.';
+import { t } from '.';
 
-type JSXReference = t.JSXIdentifier | t.JSXMemberExpression;
+import type {
+  Expression,
+  JSXAttribute,
+  JSXElement,
+  JSXExpressionContainer,
+  JSXFragment,
+  JSXIdentifier,
+  JSXMemberExpression,
+  JSXSpreadAttribute,
+  JSXSpreadChild,
+  JSXText,
+} from '@babel/types';
+
+type JSXReference = JSXIdentifier | JSXMemberExpression;
 
 export type JSXChild =
-  | t.JSXElement
-  | t.JSXFragment
-  | t.JSXExpressionContainer
-  | t.JSXSpreadChild
-  | t.JSXText;
+  | JSXElement
+  | JSXFragment
+  | JSXExpressionContainer
+  | JSXSpreadChild
+  | JSXText;
 
 function jsxIdentifier<T extends JSXReference>(name: T): T;
-function jsxIdentifier(name: string): t.JSXIdentifier;
+function jsxIdentifier(name: string): JSXIdentifier;
 function jsxIdentifier(name: string | JSXReference): JSXReference;
 function jsxIdentifier(name: string | JSXReference){
   return typeof name == "string"
@@ -19,9 +32,9 @@ function jsxIdentifier(name: string | JSXReference){
 }
 
 export function jsxTag(
-  tag: string | t.JSXMemberExpression,
-  props: (t.JSXSpreadAttribute | t.JSXAttribute)[],
-  children: t.Expression[]
+  tag: string | JSXMemberExpression,
+  props: (JSXSpreadAttribute | JSXAttribute)[],
+  children: Expression[]
 ){
   const type = jsxIdentifier(tag);
   const content = children.map(jsxContent);
@@ -33,7 +46,7 @@ export function jsxTag(
   return t.jsxElement(openingElement, closingElement, content, !contains);
 }
 
-function jsxContent(child: t.Expression){
+function jsxContent(child: Expression){
   if(t.isJSXElement(child))
     return child;
 

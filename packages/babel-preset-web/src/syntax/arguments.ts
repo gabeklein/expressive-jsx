@@ -1,5 +1,21 @@
+import type { NodePath } from '@babel/traverse';
+import type {
+  ArrowFunctionExpression,
+  BinaryExpression,
+  BooleanLiteral,
+  CallExpression,
+  Expression,
+  ExpressionStatement,
+  Identifier,
+  NumericLiteral,
+  SequenceExpression,
+  StringLiteral,
+  TemplateLiteral,
+  UnaryExpression,
+} from '@babel/types';
+
 import { ParseErrors } from '../helper/errors';
-import * as t from '../types';
+import { t } from '../types';
 
 const Oops = ParseErrors({
   UnaryUseless: "Unary operator here doesn't do anything",
@@ -13,8 +29,8 @@ const Oops = ParseErrors({
 });
 
 export function parseArgument(
-  element: t.NodePath<t.ExpressionStatement>,
-  childKey?: keyof t.Expression
+  element: NodePath<ExpressionStatement>,
+  childKey?: keyof Expression
 ){
   const exp = element.get("expression").node;
   const args = parse.Expression(exp, childKey);
@@ -23,7 +39,7 @@ export function parseArgument(
 }
 
 const parse = {
-  Expression<T extends t.Expression>(
+  Expression<T extends Expression>(
     element: T,
     childKey?: keyof T): any {
 
@@ -39,7 +55,7 @@ const parse = {
     throw Oops.UnknownArgument(element);
   },
 
-  Identifier({ name }: t.Identifier){
+  Identifier({ name }: Identifier){
     if(name.startsWith("$")){
       name = camelToDash(name.slice(1));
       return `var(--${name})`;
@@ -48,11 +64,11 @@ const parse = {
     return name;
   },
 
-  BooleanLiteral(bool: t.BooleanLiteral){
+  BooleanLiteral(bool: BooleanLiteral){
     return bool.value;
   },
 
-  StringLiteral(e: t.StringLiteral){
+  StringLiteral(e: StringLiteral){
     if(e.value === "")
       return '""';
 
@@ -63,14 +79,14 @@ const parse = {
     return null;
   },
 
-  TemplateLiteral(temp: t.TemplateLiteral) {
+  TemplateLiteral(temp: TemplateLiteral) {
     if(temp.quasis.length == 1)
       return temp.quasis[0].value.raw;
 
     return temp;
   },
 
-  NumericLiteral(number: t.NumericLiteral, negative?: boolean){
+  NumericLiteral(number: NumericLiteral, negative?: boolean){
     let { extra: { rawValue, raw } } = number as any;
 
     if(t.isParenthesized(number) || !/^0x/.test(raw)){
@@ -86,7 +102,7 @@ const parse = {
     return HEXColor(raw);
   },
 
-  UnaryExpression(e: t.UnaryExpression){
+  UnaryExpression(e: UnaryExpression){
     const { argument, operator } = e;
 
     if(operator == "-" && t.isNumericLiteral(argument))
@@ -98,7 +114,7 @@ const parse = {
     throw Oops.UnaryUseless(e)
   },
 
-  BinaryExpression(binary: t.BinaryExpression){
+  BinaryExpression(binary: BinaryExpression){
     const { left, right, operator } = binary;
 
     if(operator == "-"
@@ -113,11 +129,11 @@ const parse = {
     ]
   },
 
-  SequenceExpression(sequence: t.SequenceExpression){
+  SequenceExpression(sequence: SequenceExpression){
     return sequence.expressions.map(x => this.Expression(x))
   },
 
-  CallExpression(e: t.CallExpression){
+  CallExpression(e: CallExpression){
     const callee = e.callee;
     const args = [] as string[];
 
@@ -142,7 +158,7 @@ const parse = {
     return camelToDash(callee.name) + `(${args.join(", ")})`;
   },
 
-  ArrowFunctionExpression(e: t.ArrowFunctionExpression): never {
+  ArrowFunctionExpression(e: ArrowFunctionExpression): never {
     throw Oops.ArrowNotImplemented(e);
   }
 }

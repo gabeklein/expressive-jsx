@@ -1,6 +1,7 @@
-import * as t from '../types';
+import type { JSXElement } from '@babel/types';
+import { t } from '../types';
 
-export function setTagName(node: t.JSXElement, name: string){
+export function setTagName(node: JSXElement, name: string){
   const { openingElement, closingElement } = node;
   const tag = t.jsxIdentifier(name);
 
@@ -10,7 +11,7 @@ export function setTagName(node: t.JSXElement, name: string){
     closingElement.name = tag;
 }
 
-export function getProp(node: t.JSXElement, name: string){
+export function getProp(node: JSXElement, name: string){
   const { attributes } = node.openingElement;
 
   for(const attr of attributes)

@@ -1,28 +1,40 @@
-import * as t from '../types';
+import type { Hub, NodePath } from '@babel/traverse';
+import type {
+  AssignmentExpression,
+  Class,
+  Function,
+  FunctionDeclaration,
+  LabeledStatement,
+  ObjectProperty,
+  VariableDeclaration,
+  VariableDeclarator,
+} from '@babel/types';
 
-export function getName(path: t.NodePath): string {
+import { t } from '../types';
+
+export function getName(path: NodePath): string {
   let encounteredReturn;
 
   while(path)
     switch(path.type){
       case "LabeledStatement":
-        return (<t.LabeledStatement>path.node).label.name;
+        return (<LabeledStatement>path.node).label.name;
 
       case "VariableDeclarator": {
-        const { id } = path.node as t.VariableDeclarator;
+        const { id } = path.node as VariableDeclarator;
         return t.isIdentifier(id)
           ? id.name
-          : (<t.VariableDeclaration>path.parentPath!.node).kind
+          : (<VariableDeclaration>path.parentPath!.node).kind
       }
 
       case "AssignmentExpression":
       case "AssignmentPattern": {
-        const { left } = path.node as t.AssignmentExpression;
+        const { left } = path.node as AssignmentExpression;
         return t.isIdentifier(left) ? left.name : "assignment";
       }
 
       case "FunctionDeclaration":
-        return (<t.FunctionDeclaration>path.node).id!.name;
+        return (<FunctionDeclaration>path.node).id!.name;
 
       case "ExportDefaultDeclaration":
         return getLocalFilename(path.hub);
@@ -39,7 +51,7 @@ export function getName(path: t.NodePath): string {
         encounteredReturn = path;
 
         const ancestry = path.getAncestry();
-        const within = ancestry.find((x)=> x.isFunction()) as t.NodePath<t.Function>;
+        const within = ancestry.find((x)=> x.isFunction()) as NodePath<Function>;
 
         const { node } = within;
 
@@ -58,7 +70,7 @@ export function getName(path: t.NodePath): string {
           if(node.key.name != "render")
             return node.key.name;
 
-          const owner = within.parentPath.parentPath as t.NodePath<t.Class>;
+          const owner = within.parentPath.parentPath as NodePath<Class>;
 
           if(owner.node.id)
             return owner.node.id.name;
@@ -72,7 +84,7 @@ export function getName(path: t.NodePath): string {
       }
 
       case "ObjectProperty": {
-        const { key } = path.node as t.ObjectProperty;
+        const { key } = path.node as ObjectProperty;
         return (
           t.isIdentifier(key) ? key.name : 
           t.isStringLiteral(key) ? key.value : 
@@ -87,7 +99,7 @@ export function getName(path: t.NodePath): string {
   return "element";
 }
 
-export function getLocalFilename(hub: t.Hub){
+export function getLocalFilename(hub: Hub){
   try {
     const { basename, dirname, sep: separator } = require('path');
 

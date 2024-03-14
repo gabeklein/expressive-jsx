@@ -1,6 +1,8 @@
-import * as t from '../types';
+import type { Scope } from '@babel/traverse';
 
-export function uniqueIdentifier(scope: t.Scope, name = "temp") {
+import { t } from '../types';
+
+export function uniqueIdentifier(scope: Scope, name = "temp") {
   let uid = name;
   let i = 0;
 
