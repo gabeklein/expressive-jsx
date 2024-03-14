@@ -48,6 +48,9 @@ importers:
       '@types/babel__traverse':
         specifier: ^7.20.2
         version: 7.20.4
+      '@types/node':
+        specifier: ^20.3.1
+        version: 20.10.4
       '@types/prettier':
         specifier: ' ^2.7.3'
         version: 2.7.3
