@@ -18,13 +18,14 @@
     "jsx"
   ],
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "files": [
     "/dist",
     "/polyfill.js"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --dts",
+    "build": "tsup src/index.ts --dts --format esm,cjs",
     "watch": "tsup src/index.ts --watch --sourcemap inline",
     "test": "jest",
     "prebuild": "rm -rf lib",
