@@ -3,10 +3,9 @@ import { simpleHash } from './helper/simpleHash';
 import { Macro, Options } from './options';
 import { onExit } from './plugin';
 import { getName } from './syntax/entry';
-import { uniqueIdentifier } from './syntax/unique';
 import { t } from './types';
 
-import type { NodePath } from '@babel/traverse';
+import type { NodePath, Scope } from '@babel/traverse';
 import type { BlockStatement, Expression, Function, Identifier, Node, ObjectProperty, Program } from '@babel/types';
 
 const CONTEXT = new WeakMap<NodePath, Context>();
@@ -321,4 +320,21 @@ export function getContext(path: NodePath){
   }
 
   throw new Error("Context not found");
+}
+
+export function uniqueIdentifier(scope: Scope, name = "temp") {
+  let uid = name;
+  let i = 0;
+
+  do {
+    if(i > 0) uid = name + i;
+    i++;
+  } while (
+    scope.hasLabel(uid) ||
+    scope.hasBinding(uid) ||
+    scope.hasGlobal(uid) ||
+    scope.hasReference(uid)
+  );
+
+  return t.identifier(uid);
 }
