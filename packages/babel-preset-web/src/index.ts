@@ -38,12 +38,12 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           } = element;
 
           const used = new Set(using);
-       
-          if(component)
-            attributes.unshift(
-              t.jsxSpreadAttribute(component.getProps())
-            )
 
+          if(t.isJSXIdentifier(name)
+          && !/^[A-Z]/.test(name.name)
+          && !HTML_TAGS.includes(name.name))
+            element.setTagName("div");
+       
           for(const define of used)
             if(define.className)
               element.addClassName(define.className);
@@ -54,6 +54,10 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           }
 
           if(component){
+            attributes.unshift(
+              t.jsxSpreadAttribute(component.getProps())
+            )
+
             if(element.getProp("className"))
               element.addClassName(
                 component.getProp("className")
@@ -66,11 +70,6 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
                 )
               )
           }
-
-          if(t.isJSXIdentifier(name)
-          && !/^[A-Z]/.test(name.name)
-          && !HTML_TAGS.includes(name.name))
-            element.setTagName("div");
         },
       }],
       [{
