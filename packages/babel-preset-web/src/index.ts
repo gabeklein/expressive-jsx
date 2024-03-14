@@ -25,17 +25,28 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           ...macros
         ],
         apply(element){
-          const { node, using, this: component } = element;
+          const {
+            using,
+            this: component,
+            node: {
+              children,
+              openingElement: {
+                name,
+                attributes
+              }
+            }
+          } = element;
+
           const used = new Set(using);
        
           if(component)
-            element.node.openingElement.attributes.unshift(
+            attributes.unshift(
               t.jsxSpreadAttribute(component.getProps())
             )
 
-          for(const { className } of used)
-            if(className)
-              element.addClassName(className);
+          for(const define of used)
+            if(define.className)
+              element.addClassName(define.className);
 
           for(const context of used){
             context.dependant.forEach(x => used.add(x));
@@ -43,20 +54,18 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           }
 
           if(component){
-            const { children } = node;
-
             if(element.getProp("className"))
-              element.addClassName(component.getProp("className"))
+              element.addClassName(
+                component.getProp("className")
+              )
   
             if(children.length)
               children.push(
                 t.jsxExpressionContainer(
                   component.getProp("children")
                 )
-              );
+              )
           }
-
-          const { name } = node.openingElement;
 
           if(t.isJSXIdentifier(name)
           && !/^[A-Z]/.test(name.name)
