@@ -89,10 +89,10 @@ export class ModuleContext extends Context {
     this.module = this;
     this.macros = Object.assign({}, ...opts.macros || []);
     this.define = Object.assign({}, ...opts.define || []);
-    this.options = {
-      polyfill: require.resolve("../polyfill"),
-      ...opts
-    };
+    this.options = opts;
+
+    if(!opts.polyfill)
+      opts.polyfill = require.resolve("../polyfill");
   }
 
   getHelper(name: string){
