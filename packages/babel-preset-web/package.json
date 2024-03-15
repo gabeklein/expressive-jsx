@@ -29,7 +29,8 @@
   },
   "files": [
     "/dist",
-    "/polyfill.js"
+    "/polyfill.js",
+    "/polyfill.d.ts"
   ],
   "scripts": {
     "build": "tsup src/index.ts --dts --format esm,cjs",
