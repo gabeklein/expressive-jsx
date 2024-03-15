@@ -10,7 +10,6 @@ export const Layout = (props) => {
   } = Control.use(props);
 
   grid: {
-    forward: className;
     display: grid;
   }
 
@@ -38,7 +37,6 @@ const Handle = ({
   vertical,
   width,
 }) => {
-  forward: className;
   position: relative;
 
   bar: {
