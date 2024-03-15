@@ -136,9 +136,6 @@ importers:
       '@expressive/babel-preset-web':
         specifier: ^2.1.1
         version: link:../../packages/babel-preset-web
-      '@expressive/css':
-        specifier: ^1.6.1
-        version: 1.6.1
       '@expressive/mvc':
         specifier: ^0.36.3
         version: 0.36.3
@@ -1178,10 +1175,6 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
-
-  /@expressive/css@1.6.1:
-    resolution: {integrity: sha512-IDwqImAwOkHTYUO4FPBtVMN66Cz7OJAHNQyy+R09i3pUdR59OURF4JqLoZrkC9kLjqukW8D2SUoN7hYDMkcisA==}
-    dev: false
 
   /@expressive/mvc@0.36.3:
     resolution: {integrity: sha512-LHL4vhfKV3BnvfFg5l5VtqTpyj8iKvPGbGG+kqiYumOMyolsCf7IXBDZGrY5P6ZOX5cvUXZhptwlPofigN7U7A==}
