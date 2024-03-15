@@ -3,7 +3,6 @@
   "private": true,
   "description": "An alternative syntax for JSX constructs using less code",
   "scripts": {
-    "test": "npm run test --prefix packages/babel-plugin-jsx",
     "build": "lerna run build --stream",
     "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +"
   },
