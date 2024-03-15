@@ -1,6 +1,6 @@
 {
   "name": "@expressive/webpack-plugin",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Webpack plugin for Expressive JSX",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "private": true,
@@ -25,7 +25,7 @@
     "index.d.ts"
   ],
   "dependencies": {
-    "@expressive/babel-preset-web": "^2.0.1",
+    "@expressive/babel-preset-web": "^2.1.0",
     "babel-loader": "^9.1.2",
     "webpack-virtual-modules": "^0.5.0"
   }

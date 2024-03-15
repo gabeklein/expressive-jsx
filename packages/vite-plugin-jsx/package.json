@@ -1,6 +1,6 @@
 {
   "name": "@expressive/vite-plugin-jsx",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Expressive JSX Vite Plugin",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
@@ -30,7 +30,7 @@
   "dependencies": {
     "@babel/core": "^7.22.20",
     "@babel/plugin-transform-typescript": "^7.23.6",
-    "@expressive/babel-preset-web": "^2.0.1"
+    "@expressive/babel-preset-web": "^2.1.0"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.2",
