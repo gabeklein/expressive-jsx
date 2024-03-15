@@ -91,7 +91,7 @@ export class ModuleContext extends Context {
     this.define = Object.assign({}, ...opts.define || []);
     this.options = opts;
 
-    if(!opts.polyfill)
+    if(opts.polyfill === undefined)
       opts.polyfill = require.resolve("../polyfill");
   }
 
