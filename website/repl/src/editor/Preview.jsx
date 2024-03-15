@@ -30,7 +30,7 @@ export const Preview = () => {
         <style>{output_css}</style>
       </Boundary>
     ) : (
-      <Issue>Waiting for exports...</Issue>
+      <issue>Waiting for exports...</issue>
     )}
   </this>
 }
