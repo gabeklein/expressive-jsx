@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+      "baseUrl": "src/",
+      "outDir": "lib/",
+      "target": "ES6",
+      "jsx": "react",
+      "moduleResolution": "node",
+      "noUnusedLocals": true,
+      "strict": true,
+      "noEmit": true,
+      "esModuleInterop": true,
+      "lib": ["ES2018", "DOM"],
+      "allowJs": true
+  }
+}

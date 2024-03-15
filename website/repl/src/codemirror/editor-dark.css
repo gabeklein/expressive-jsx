@@ -1,0 +1,62 @@
+.cm-editor {
+  color: #abb2bf;
+  background: #282c34;
+  border: #ddd solid 1px;
+}
+
+.cm-stale .cm-editor,
+.cm-stale .cm-gutters {
+  background: #2d3137 !important;
+}
+
+.cm-gutters {
+  border-right: 1px solid #222 !important;
+  background-color: #282c34 !important;
+}
+
+.cm-line {
+  color: #abb2bf;
+}
+
+.tok-typeName {
+  color: #e5c07b;
+}
+
+.tok-keyword {
+  color: #c678dd;
+}
+
+.tok-labelName {
+  color: #61afef;
+}
+
+.tok-variableName,
+.tok-propertyName {
+  color: #e06c75;
+}
+
+.tok-string {
+  color: #98c379;
+}
+
+.tok-string2 {
+  color: #98c379;
+}
+
+.tok-comment {
+  color: #7d8799;
+}
+
+.tok-punctuation {
+  color: #999;
+}
+
+.tok-regex,
+.tok-boolean,
+.tok-number {
+  color: #56b6c2;
+}
+
+.tok-operator {
+  color: #9a6e3a;
+}

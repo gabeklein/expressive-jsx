@@ -1,0 +1,40 @@
+{
+  "name": "repl",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "start": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@babel/standalone": "^7.23.2",
+    "@codemirror/autocomplete": "^6.10.2",
+    "@codemirror/commands": "^6.3.0",
+    "@codemirror/lang-css": "^6.2.1",
+    "@codemirror/lang-javascript": "^6.2.1",
+    "@codemirror/language": "^6.9.2",
+    "@codemirror/search": "^6.5.4",
+    "@codemirror/state": "^6.2.1",
+    "@codemirror/view": "^6.22.0",
+    "@expressive/babel-preset-web": "^2.1.1",
+    "@expressive/css": "^1.6.1",
+    "@expressive/mvc": "^0.36.3",
+    "@expressive/react": "^0.36.3",
+    "@lezer/common": "^1.1.0",
+    "@lezer/highlight": "^1.1.6",
+    "prettier": "^2.8.8",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@expressive/vite-plugin-jsx": "^2.1.1",
+    "@types/babel__standalone": "^7.1.7",
+    "@types/prettier": "^2.7.3",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@vitejs/plugin-react": "^4.1.1",
+    "vite": "^4.5.0",
+    "vite-plugin-externals": "^0.6.2",
+    "vite-tsconfig-paths": "^4.2.1"
+  }
+}

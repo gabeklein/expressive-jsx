@@ -1,0 +1,49 @@
+.cm-editor,
+.cm-editor * {
+  transition:
+    color 0.15s ease-in-out,
+    filter 0.15s ease-in-out,
+    background 0.15s ease-in-out;
+}
+
+.cm-editor {
+  border-radius: 8px;
+}
+
+.cm-content {
+  padding: 20px 0 !important;
+}
+
+.cm-scroller {
+  font-family: "Fira Mono" !important;
+}
+
+.cm-activeLineGutter,
+.cm-activeLine {
+  background-color: "transparent" !important;
+}
+
+.cm-editor {
+  height: 100%;
+  outline: none !important;
+  overflow: hidden;
+}
+
+.cm-stale .cm-content {
+  filter: saturate(40%) brightness(130%);
+}
+
+.cmt-important,
+.cmt-bold {
+  font-weight: bold;
+}
+
+.cmt-italic {
+  font-style: italic;
+}
+
+.cm-gutters {
+  padding-right: 5px;
+  margin-right: 8px;
+  margin-left: 8px;
+}
