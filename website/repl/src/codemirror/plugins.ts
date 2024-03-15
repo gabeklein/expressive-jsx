@@ -41,11 +41,10 @@ export function jsxMixed(){
   }))
 }
 
-export { javascript };
+export { javascript, lineNumbers };
 
 export const code = () => [
   syntaxHighlighting(classHighlighter),
-  lineNumbers()
 ]
 
 /** Set editor to read-only */

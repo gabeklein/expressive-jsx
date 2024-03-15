@@ -1,5 +1,16 @@
 import { get } from '@expressive/react';
-import { CIRCULAR, command, code, Editor, editor, javascript, jsxMixed, onUpdate, readOnly } from 'codemirror/Editor';
+import {
+  CIRCULAR,
+  code,
+  command,
+  Editor,
+  editor,
+  javascript,
+  jsxMixed,
+  lineNumbers,
+  onUpdate,
+  readOnly,
+} from 'codemirror/Editor';
 
 import { Document } from './Document';
 import { Main } from './Main';
@@ -19,6 +30,7 @@ export class InputEditor extends Editor {
     const { main, doc } = this;
 
     return [
+      lineNumbers(),
       code(),
       editor(),
       javascript({ jsx: true }),
@@ -58,6 +70,7 @@ export class OutputJSX extends Editor {
   extends(){
     return [
       code(),
+      lineNumbers(),
       jsxMixed(),
       readOnly()
     ];
