@@ -1,9 +1,6 @@
 {
   "name": "expressive-jsx",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
   "description": "An alternative syntax for JSX constructs using less code",
   "scripts": {
     "test": "npm run test --prefix packages/babel-plugin-jsx",
