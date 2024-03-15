@@ -2,6 +2,7 @@
   "version": "2.1.1",
   "npmClient": "pnpm",
   "packages": [
-    "packages/*"
+    "packages/*",
+    "website/*"
   ]
 }
