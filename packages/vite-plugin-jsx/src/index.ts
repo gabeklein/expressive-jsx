@@ -97,8 +97,6 @@ async function transform(
   input: string,
   options?: Options
 ): Promise<TransformResult> {
-  let css = "";
-
   const result = await babel.transformAsync(input, {
     root: CWD,
     filename: id,
@@ -112,18 +110,14 @@ async function transform(
       decoratorsBeforeExport: true
     },
     presets: [
-      [Preset, <Preset.Options> {
-        onStyleSheet(stylesheet){
-          css = stylesheet;
-        }
-      }]
+      Preset
     ]
   });
 
   if(!result)
     throw new Error("No result");
 
-  let { code, map } = result;
+  let { code, map, metadata: { css } } = result as Preset.Result;
 
   if(!code)
     throw new Error("No code");
