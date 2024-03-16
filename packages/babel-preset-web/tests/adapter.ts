@@ -4,7 +4,7 @@ import { format } from 'prettier';
 import Preset from '../src';
 
 // forces babel to initialize saving time on first run
-beforeAll(() => parser(`<div />`));
+beforeAll(() => parser(""));
 
 // drop quotes from string snapshot
 expect.addSnapshotSerializer({
