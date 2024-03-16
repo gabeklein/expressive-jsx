@@ -2,5 +2,5 @@
 .nx
 *.log
 node_modules
-packages/*/dist/
+*/*/dist/
 v2/
