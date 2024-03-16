@@ -8,7 +8,9 @@ const DEFAULT_CODE =
   color: red;
   fontSize: 2.0;
 
-  <this>Hello World!</this>
+  <this>
+    Hello World 
+  </this>
 }`
 
 export class Document extends Model {
