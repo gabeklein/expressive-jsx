@@ -30,13 +30,7 @@ export const Column = () => {
 
 export { Column as Col };
 
-const Handle = ({
-  grab,
-  pull,
-  push,
-  vertical,
-  width,
-}) => {
+const Handle = ({ grab, pull, push, vertical, width }) => {
   position: relative;
 
   bar: {
@@ -71,16 +65,12 @@ const Handle = ({
   
   <this onMouseDown={grab}>
     <bar />
-    {pull && (
-      <Corner onMouseDown={pull} style={{ left: -width, top: 0 }} />
-    )}
-    {push && (
-      <Corner onMouseDown={push} style={{ right: -width, bottom: 0 }} />
-    )}
+    <Corner onMouseDown={pull} style={{ left: -width, top: 0 }} />
+    <Corner onMouseDown={push} style={{ right: -width, bottom: 0 }} />
   </this>
 }
 
-const Corner = () => {
+const Corner = (props) => {
   position: absolute;
   cursor: move;
   radius: round;
@@ -92,6 +82,9 @@ const Corner = () => {
   if(":hover"){
     borderColor: 0x9cc3ff;
   }
+
+  if(!props.onMouseDown)
+    return null;
   
   <this />
 }

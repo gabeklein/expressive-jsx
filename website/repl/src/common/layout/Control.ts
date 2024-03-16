@@ -11,7 +11,7 @@ export class Layout extends Model {
   container = ref(this.applyLayout);
 
   parent = get(Layout, false);
-  output = get(() => this.getOutput);
+  output = set(this.getOutput);
 
   children = set<ReactNode>(undefined, (value) => {
     this.items = flatten(value);
@@ -151,7 +151,7 @@ function onDrag(delta: (x: number, y: number) => void){
   document.addEventListener("mouseup", endResize);
 }
 
-const Spacer: React.FC<{ index: number }> = ({ index }) => {
+function Spacer({ index }: { index: number }) {
   return Layout.get(layout => {
     const { grab, pull, push } = layout.resize(index);
     const { separator, row, gap } = layout;
