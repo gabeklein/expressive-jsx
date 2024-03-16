@@ -30,16 +30,12 @@ export class InputEditor extends Editor {
     const { main, doc } = this;
 
     return [
-      lineNumbers(),
       code(),
       editor(),
+      lineNumbers(),
       javascript({ jsx: true }),
-      command("=", () => {
-        main.fontSize++;
-      }),
-      command("-", () => {
-        main.fontSize--;
-      }),
+      command("=", () => { main.fontSize++ }),
+      command("-", () => { main.fontSize-- }),
       command("s", () => {
         doc.build(this.text);
       }),
@@ -58,9 +54,10 @@ export class InputEditor extends Editor {
 export class OutputJSX extends Editor {
   text = get(Document, ({ output_css, output_jsx }) => {
     if(output_css){
-      const format = output_css.replace(/^|\t/g, "  ").replace(/\n/g, "\n  ");
+      const format = output_css
+        .replace(/^|\t/g, "  ")
+        .replace(/\n/g, "\n  ");
 
-      // output_jsx += `\n\n/* ~~~~~~~ CSS ~~~~~~~ */`;
       output_jsx += `\n\n<style>\n${format}\n</style>`;
     }
     
