@@ -88,52 +88,58 @@ const LabeledStatement: Visitor<LabeledStatement> = {
 
 const JSXElement: Visitor<JSXElement> = {
   enter(path){
+    let { node, parentPath: statement } = path;
+
+    if(statement.isExpressionStatement()){
+      const block = statement.parentPath;
+
+      if(block.isBlockStatement()
+      && block.get("body").length == 1
+      && block.parentPath.isArrowFunctionExpression()){
+        block.replaceWith(t.parenthesizedExpression(node));
+      }
+      else {
+        statement.replaceWith(t.returnStatement(node));
+      }
+
+      path.skip();
+      return;
+    }
+
     const parent = createContext(path, false);
     new ElementContext(parent, path);
   },
   exit(path, { opts }){
-    const { apply } = opts as Options;
     const element = Context.get(path) as ElementContext;
+    const { apply } = opts as Options;
+    const { component } = element;
 
     if(apply)
       apply(element);
 
-    let [{ node }, statement, block, within] = path.getAncestry();
-    const { component } = element;
-
-    if(!block.isBlockStatement())
+    if(!component || component.usedBy.size || component.empty)
       return;
 
-    if(component
-    && component.usedBy.size == 0
-    && Object.keys(component.styles).length > 0){
-      const tag = t.jSXIdentifier("this");
+    const tag = t.jSXIdentifier("this");
+    const node = t.jsxElement(
+      t.jsxOpeningElement(tag, []),
+      t.jsxClosingElement(tag),
+      [path.node]
+    );
+    const wrapper = new ElementContext(component, node);
 
-      node = t.jsxElement(
-        t.jsxOpeningElement(tag, []),
-        t.jsxClosingElement(tag),
-        [node]
-      )
+    wrapper.use(component);
 
-      const wrapper = new ElementContext(component, node);
+    if(apply)
+      apply(wrapper);
 
-      wrapper.use(component);
-
-      if(apply)
-        apply(wrapper);
-    }
-  
-    const inserted = block.get("body").length === 1 &&
-      within.isArrowFunctionExpression()
-      ? block.replaceWith(t.parenthesizedExpression(node))
-      : statement.replaceWith(t.returns(node));
-  
-    inserted[0].skip();
+    path.replaceWith(node)[0].skip();
   }
 }
 
 export function onExit(
-  path: NodePath, callback: (key: unknown, path: NodePath) => void){
+  path: NodePath,
+  callback: (key: unknown, path: NodePath) => void){
 
   HANDLED.set(path, callback);
 }

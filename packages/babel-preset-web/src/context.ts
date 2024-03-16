@@ -145,6 +145,10 @@ export class DefineContext extends Context {
     super(path, parent);
   }
 
+  get empty(){
+    return Object.keys(this.styles).length === 0;
+  }
+
   get uid(): string {
     const uid = this.name + "_" + simpleHash(this.parent?.uid);
     Object.defineProperty(this, "uid", { value: uid });
@@ -220,17 +224,13 @@ export class FunctionContext extends DefineContext {
     onExit(path, () => {
       const body = path.get("body");
 
-      if(!body.isBlockStatement() || body.node.body.length > 0)
-        return;
-  
-      body.replaceWith(t.blockStatement([
-        t.returnStatement(
+      if(body.isBlockStatement() && body.node.body.length == 0)
+        body.pushContainer("body", t.expressionStatement(
           t.jsxElement(
             t.jsxOpeningElement(t.jsxIdentifier("this"), [], true),
             undefined, [], true
           )
-        )
-      ]));
+        ));
     });
 
     super(name, ctx, path);
