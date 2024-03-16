@@ -48,7 +48,9 @@ it("will wrap elements if 'this' is styled", async () => {
     function Component(){
       color: red;
 
-      <div>Hello</div>
+      <div>
+        <div>Hello</div>
+      </div>
     }
   `);
 
@@ -58,7 +60,9 @@ it("will wrap elements if 'this' is styled", async () => {
         <div
           {...props}
           className={classNames(props.className, 'Component_cfu')}>
-          <div>Hello</div>
+          <div>
+            <div>Hello</div>
+          </div>
         </div>
       );
     }
@@ -67,9 +71,12 @@ it("will wrap elements if 'this' is styled", async () => {
 
 it("will not race normal jsx plugin", async () => {
   const parse = parser({}, [
-    ['@babel/plugin-transform-react-jsx', {
-      useBuiltIns: true
-    }]
+    [
+      "@babel/plugin-transform-react-jsx",
+      {
+        useBuiltIns: true,
+      },
+    ],
   ]);
 
   const output = await parse(`

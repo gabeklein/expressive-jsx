@@ -1,4 +1,4 @@
-import { Context, DefineContext, ModuleContext } from './context';
+import { Context, DefineContext, FunctionContext, ModuleContext } from './context';
 import { ElementContext } from './elements';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
@@ -88,10 +88,10 @@ const LabeledStatement: Visitor<LabeledStatement> = {
 
 const JSXElement: Visitor<JSXElement> = {
   enter(path, state){
-    let { node, parentPath: statement } = path;
+    let { node, parentPath: parent } = path;
 
-    if(statement.isExpressionStatement()){
-      const block = statement.parentPath;
+    if(parent.isExpressionStatement()){
+      const block = parent.parentPath;
 
       if(block.isBlockStatement()
       && block.get("body").length == 1
@@ -99,36 +99,36 @@ const JSXElement: Visitor<JSXElement> = {
         block.replaceWith(t.parenthesizedExpression(node));
       }
       else {
-        statement.replaceWith(t.returnStatement(node));
+        parent.replaceWith(t.returnStatement(node));
       }
 
       path.skip();
       return;
     }
 
-    const parent = createContext(path, false);
-    const element = new ElementContext(parent, path);
+    const context = createContext(path, false);
+    const element = new ElementContext(context, path);
     const { apply } = state.opts as Options;
 
     if(apply)
       apply(element);
   },
   exit(path, state){
-    const { component } = Context.get(path) as ElementContext;
+    const { parent } = Context.get(path) as ElementContext;
 
-    if(!component || component.usedBy.size || component.empty)
+    if(!(parent instanceof FunctionContext) || parent.usedBy.size || parent.empty)
       return;
 
+    const { apply } = state.opts as Options;
     const tag = t.jSXIdentifier("this");
     const node = t.jsxElement(
       t.jsxOpeningElement(tag, []),
       t.jsxClosingElement(tag),
       [path.node]
     );
-    const wrapper = new ElementContext(component, node);
-    const { apply } = state.opts as Options;
+    const wrapper = new ElementContext(parent, node);
 
-    wrapper.use(component);
+    wrapper.use(parent);
 
     if(apply)
       apply(wrapper);
