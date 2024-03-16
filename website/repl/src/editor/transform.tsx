@@ -24,8 +24,6 @@ export function transform(input_jsx: string){
 
   try {
     jsx = Prettier.format(jsx, {
-      // fake parser! returns AST we have
-      // parser: () => output.ast,
       parser: "babel",
       plugins: [ parserBabel ],
       singleQuote: false, 

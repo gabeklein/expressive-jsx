@@ -4,20 +4,6 @@ import React, { Component, createElement, Fragment } from 'react';
 
 import { InputEditor, OutputJSX } from './Editors';
 
-/** @type {React.FC} */
-const InputJSX = () => {
-  const { element } = InputEditor.use();
-
-  <div ref={element} />
-}
-
-/** @type {React.FC} */
-const ShowJSX = () => {
-  const { element } = OutputJSX.use();
-
-  <div ref={element} />
-}
-
 export const Interface = () => {
   <Row>
     <InputJSX />
@@ -26,7 +12,19 @@ export const Interface = () => {
   </Row>
 }
 
-export const Preview = () => {
+const InputJSX = () => {
+  const { element } = InputEditor.use();
+
+  <div ref={element} />
+}
+
+const ShowJSX = () => {
+  const { element } = OutputJSX.use();
+
+  <div ref={element} />
+}
+
+const Preview = () => {
   const {
     key,
     error,
