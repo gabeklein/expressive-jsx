@@ -5,7 +5,7 @@ import * as MVC from '@expressive/react';
 import React, { Component } from 'react';
 
 /** Imports shared with sandbox. */
-export const SANDBOX_MODULES: Record<string, any> = {
+const SANDBOX_MODULES: Record<string, any> = {
   "react": React,
   "polyfill": POLYFILL,
   "@expressive/react": MVC
