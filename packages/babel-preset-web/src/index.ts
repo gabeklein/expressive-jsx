@@ -1,4 +1,4 @@
-import { BabelFileMetadata } from '@babel/core';
+import { BabelFileMetadata, BabelFileResult } from '@babel/core';
 
 import * as Macros from './macros';
 import { camelToDash } from './macros/util';
@@ -10,6 +10,10 @@ namespace Preset {
   export interface Options extends Plugin.Options {}
   export interface Meta extends BabelFileMetadata {
     css: string;
+  }
+  export interface Result extends BabelFileResult {
+    metadata: Meta;
+    code: string;
   }
 }
 
