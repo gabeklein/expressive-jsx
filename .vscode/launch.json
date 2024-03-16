@@ -6,7 +6,8 @@
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:5173/",
-      "webRoot": "${workspaceFolder}/website/repl"
+      "webRoot": "${workspaceFolder}/website/repl",
+      "preLaunchTask": "repl"
     },
     {
       "type": "node",

@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "repl",
+      "type": "npm",
+      "path": "website/repl",
+      "script": "start",
+      "isBackground": true,
+      "problemMatcher": {
+        "base": "$tsc-watch",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": ".*"
+        }
+      },
+      "presentation": {
+        "reveal": "never",
+        "panel": "new",
+        "close": true
+      }
+    }
+  ]
+}
