@@ -6,23 +6,22 @@ import { format } from 'prettier';
 import Preset from '../src';
 
 async function transform(){
-  let stylesheet = "";
-
   const input = resolve(__dirname, "input.jsx");
   const source = await readFile(input, "utf-8");
   const result = await transformAsync(source, {
     filename: '/REPL.js',
     presets: [
       [Preset, <Preset.Options>{
-        polyfill: null,
-        onStyleSheet(css){
-          stylesheet = css;
-        }
+        polyfill: null
       }]
     ]
   });
 
-  const output = format(result!.code!, {
+  if(!result)
+    throw new Error("No result from babel transform");
+
+  const { css } = result.metadata as Preset.Meta;
+  const output = format(result.code!, {
     singleQuote: true,
     trailingComma: "none",
     jsxBracketSameLine: true,
@@ -33,11 +32,11 @@ async function transform(){
   console.clear();
   console.log(output);
 
-  if(stylesheet)
+  if(css)
     console.log(
-      "<style>\n" +
-      stylesheet.replace(/^(.)/gm, "  $1") +
-      "\n</style>\n"
+      `<style>\n${
+        css.replace(/^(.)/gm, "  $1")
+      }\n</style>\n`
     );
 }
 

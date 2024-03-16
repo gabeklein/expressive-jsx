@@ -13,10 +13,7 @@ expect.addSnapshotSerializer({
 });
 
 export type Styles = Record<string, Record<string, string>>;
-export type Output = {
-  code: string;
-  css: string
-}
+export type Output = { code: string; css: string };
 
 const defaultParser = createParser();
 
@@ -30,27 +27,28 @@ function parser(argument?: Preset.Options | string){
 
 function createParser(options?: Preset.Options){
   return async function parse(source: string){
-    let css = "";
+    const { currentTestName } = expect.getState();
     const result = await transformAsync(source, {
-      filename: expect.getState().currentTestName,
+      filename: currentTestName,
       presets: [
         [Preset, <Preset.Options>{
           polyfill: null,
-          onStyleSheet(stylesheet){
-            css = stylesheet;
-          },
           ...options
         }]
       ]
     });
 
-    const code = format(result!.code!, {
+    if(!result)
+      throw new Error("No result from babel transform");
+
+    const { css } = result.metadata as Preset.Meta;
+    const code = format(result.code!, {
       singleQuote: true,
       trailingComma: "none",
       jsxBracketSameLine: true,
       printWidth: 65,
       parser: "babel"
-    }).replace(/\n$/gm, '')
+    }).replace(/\n$/gm, '');
 
     return <Output> {
       css,

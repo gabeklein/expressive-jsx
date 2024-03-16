@@ -1,3 +1,5 @@
+import { BabelFileMetadata } from '@babel/core';
+
 import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
@@ -5,8 +7,9 @@ import { HTML_TAGS } from './syntax/tags';
 import { t } from './types';
 
 namespace Preset {
-  export interface Options extends Plugin.Options {
-    onStyleSheet?(css: string): void;
+  export interface Options extends Plugin.Options {}
+  export interface Meta extends BabelFileMetadata {
+    css: string;
   }
 }
 
@@ -67,11 +70,9 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
       [{
         visitor: {
           Program: {
-            exit(){
-              if(options.onStyleSheet)
-                options.onStyleSheet(print(styles));
-
-              styles.clear();
+            exit(path: any){
+              path.hub.file.metadata.css = print(styles);
+              styles.clear(); 
             }
           }
         }
