@@ -75,3 +75,15 @@ it("will forward props to this attribute", async () => {
     );
   `);
 });
+
+it("will forward props with no styles", async () => {
+  const output = await parser(`
+    export const Row = () => {
+      <div this />
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(
+    `export const Row = (props) => <div {...props} />;`
+  );
+});

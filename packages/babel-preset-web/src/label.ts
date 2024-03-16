@@ -38,7 +38,12 @@ export function createContext(path: NodePath, required?: boolean): any {
   let parent = path.parentPath!;
   let key = path.key;
 
-  while(parent.isBlockStatement() || parent.isExpressionStatement()){
+  while(
+    parent.isBlockStatement() ||
+    parent.isExpressionStatement() ||
+    parent.isReturnStatement() ||
+    parent.isParenthesizedExpression()){
+
     parent = parent.parentPath!;
     key = parent.key;
   }
