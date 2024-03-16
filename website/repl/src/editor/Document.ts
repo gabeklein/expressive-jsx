@@ -1,7 +1,7 @@
 import Model from '@expressive/react';
-import React from 'react';
 
-import { evaluate, hash, prettify, transform } from './transform';
+import { evaluate, PreviewComponent } from './evaluate';
+import { hash, transform } from './transform';
 
 const DEFAULT_CODE =
 `export const Hi = () => {
@@ -17,7 +17,7 @@ export class Document extends Model {
   output_css = "";
 
   key = 0;
-  Preview: React.FC | undefined;
+  Preview?: PreviewComponent = undefined;
 
   stale = false;
   error = "";
@@ -35,17 +35,16 @@ export class Document extends Model {
 
   build(from: string){
     try {
-      const { jsx, css } = transform(from);
-      const pretty = prettify(jsx);
-      const Component = evaluate(jsx);
+      const result = transform(from);
+      const Component = evaluate(from);
 
       this.error = "";
       this.input = from;
-      this.key = hash(from);
-      this.output_css = css;
-      this.output_jsx = pretty;
-      this.Preview = Component;
       this.stale = false;
+      this.key = hash(from);
+      this.output_css = result.css;
+      this.output_jsx = result.jsx;
+      this.Preview = Component;
     }
     catch(error){
       console.error(error);

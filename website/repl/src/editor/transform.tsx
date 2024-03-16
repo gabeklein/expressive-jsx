@@ -1,68 +1,29 @@
 import * as Babel from '@babel/standalone';
 import Preset from '@expressive/babel-preset-web';
-import * as POLYFILL from '@expressive/babel-preset-web/polyfill';
-import * as MVC from '@expressive/react';
 import parserBabel from 'prettier/parser-babel';
 import Prettier from 'prettier/standalone';
-import * as REACT from 'react';
-
-/** Imports shared with sandbox. */
-const SANDBOX_MODULES: Record<string, any> = {
-  "react": REACT,
-  "polyfill": POLYFILL,
-  "@expressive/react": MVC
-}
-
-export function evaluate(output_jsx: string){
-  if(!output_jsx)
-    return;
-
-  const { code } = Babel.transform(output_jsx, {
-    filename: '/REPL.js',
-    plugins: [
-      "transform-react-jsx",
-      "transform-modules-commonjs"
-    ]
-  });
-
-  const prefix = `const React = require("react");\n`;
-  const run = new Function("require", "exports", "module", prefix + code!);
-  const require = (name: string) => SANDBOX_MODULES[name];
-  const module = { exports: {} };
-
-  run(require, module.exports, module);
-
-  return Object.values(module.exports)[0] as React.FC;
-}
 
 /** Generate preview JSX code from source. */
 export function transform(input_jsx: string){
-  let css = "";
-
-  let { code } = Babel.transform(input_jsx, {
+  const result = Babel.transform(input_jsx, {
     filename: '/REPL.js',
     presets: [
-      [Preset, <Preset.Options>{
-        polyfill: "polyfill",
-        onStyleSheet(styleSheet){
-          css = styleSheet;
-        }
-      }]
+      [Preset, {
+        polyfill: "polyfill"
+      } as Preset.Options]
     ]
   });
 
-  if(!code)  
+  if(!result)  
     throw new Error("Failed to transform source.");
 
-  return {
-    jsx: code,
-    css
-  };
-}
+  let {
+    code: jsx,
+    metadata: { css }
+  } = result as Preset.Result;
 
-export function prettify(output_jsx: string){
   try {
-    output_jsx = Prettier.format(output_jsx, {
+    jsx = Prettier.format(jsx, {
       // fake parser! returns AST we have
       // parser: () => output.ast,
       parser: "babel",
@@ -74,13 +35,15 @@ export function prettify(output_jsx: string){
       printWidth: 60
     });
 
-    return Object
+    jsx = Object
       .values(transforms)
-      .reduce((x, fx) => fx(x), output_jsx);
+      .reduce((x, fx) => fx(x), jsx);
   }
   catch(err){
     throw new Error("Failed to prettify source.");
   }
+
+  return { jsx, css };
 }
 
 const transforms: Record<string, (x: string) => string> = {
