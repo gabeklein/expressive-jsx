@@ -10,6 +10,9 @@ async function transform(){
   const source = await readFile(input, "utf-8");
   const result = await transformAsync(source, {
     filename: '/REPL.js',
+    // plugins: [
+    //   '@babel/plugin-transform-react-jsx'
+    // ],
     presets: [
       [Preset, <Preset.Options>{
         polyfill: null

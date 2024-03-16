@@ -1,4 +1,4 @@
-import { transformAsync } from '@babel/core';
+import { PluginItem, transformAsync } from '@babel/core';
 import { format } from 'prettier';
 
 import Preset from '../src';
@@ -18,19 +18,19 @@ export type Output = { code: string; css: string };
 const defaultParser = createParser();
 
 function parser(code: string): Promise<Output>;
-function parser(options: Preset.Options, jsxPlugin?: boolean): (code: string) => Promise<Output>;
-function parser(argument?: Preset.Options | string, jsxPlugin?: boolean){
+function parser(options: Preset.Options, plugins?: PluginItem[]): (code: string) => Promise<Output>;
+function parser(argument?: Preset.Options | string, plugins?: PluginItem[]){
   return typeof argument === 'string'
     ? defaultParser(argument)
-    : createParser(argument, jsxPlugin);
+    : createParser(argument, plugins);
 }
 
-function createParser(options?: Preset.Options, jsxPlugin?: boolean){
+function createParser(options?: Preset.Options, plugins?: PluginItem[]){
   return async function parse(source: string){
     const { currentTestName } = expect.getState();
     const result = await transformAsync(source, {
       filename: currentTestName,
-      plugins: jsxPlugin ? ['@babel/plugin-transform-react-jsx'] : [],
+      plugins,
       presets: [
         [Preset, <Preset.Options>{
           polyfill: null,

@@ -66,7 +66,12 @@ it("will wrap elements if 'this' is styled", async () => {
 });
 
 it("will not race normal jsx plugin", async () => {
-  const parse = parser({}, true);
+  const parse = parser({}, [
+    ['@babel/plugin-transform-react-jsx', {
+      useBuiltIns: true
+    }]
+  ]);
+
   const output = await parse(`
     export const Hi = () => {
       color: red;
