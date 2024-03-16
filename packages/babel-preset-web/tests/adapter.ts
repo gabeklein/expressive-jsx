@@ -18,18 +18,19 @@ export type Output = { code: string; css: string };
 const defaultParser = createParser();
 
 function parser(code: string): Promise<Output>;
-function parser(options: Preset.Options): (code: string) => Promise<Output>;
-function parser(argument?: Preset.Options | string){
+function parser(options: Preset.Options, jsxPlugin?: boolean): (code: string) => Promise<Output>;
+function parser(argument?: Preset.Options | string, jsxPlugin?: boolean){
   return typeof argument === 'string'
     ? defaultParser(argument)
-    : createParser(argument);
+    : createParser(argument, jsxPlugin);
 }
 
-function createParser(options?: Preset.Options){
+function createParser(options?: Preset.Options, jsxPlugin?: boolean){
   return async function parse(source: string){
     const { currentTestName } = expect.getState();
     const result = await transformAsync(source, {
       filename: currentTestName,
+      plugins: jsxPlugin ? ['@babel/plugin-transform-react-jsx'] : [],
       presets: [
         [Preset, <Preset.Options>{
           polyfill: null,

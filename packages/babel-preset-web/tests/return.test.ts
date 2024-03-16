@@ -64,3 +64,20 @@ it("will wrap elements if 'this' is styled", async () => {
     }
   `);
 });
+
+it("will not race normal jsx plugin", async () => {
+  const parse = parser({}, true);
+  const output = await parse(`
+    export const Hi = () => {
+      color: red;
+      fontSize: 2.0;
+    
+      <this>Hello World!</this>
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(`
+    export const Hi = () =>
+      /*#__PURE__*/ React.createElement(this, null, 'Hello World!');
+  `);
+});
