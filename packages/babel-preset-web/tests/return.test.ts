@@ -77,7 +77,13 @@ it("will not race normal jsx plugin", async () => {
   `);
 
   expect(output.code).toMatchInlineSnapshot(`
-    export const Hi = () =>
-      /*#__PURE__*/ React.createElement(this, null, 'Hello World!');
+    export const Hi = (props) =>
+      /*#__PURE__*/ React.createElement(
+        'div',
+        Object.assign({}, props, {
+          className: classNames(props.className, 'Hi_2uq')
+        }),
+        'Hello World!'
+      );
   `);
 });

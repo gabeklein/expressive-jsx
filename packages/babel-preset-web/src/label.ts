@@ -6,11 +6,9 @@ import { parseError } from './helper/errors';
 import { handleSwitch, IfContext } from './switch';
 import { parseArgument } from './syntax/arguments';
 
-export function handleLabel(
-  path: NodePath<LabeledStatement>){
-
+export function handleLabel(path: NodePath<LabeledStatement>){
   const context = createContext(path)
-  const body = path.get("body");;
+  const body = path.get("body");
   let { name } = path.node.label;
 
   if(body.isBlockStatement()){

@@ -87,7 +87,7 @@ const LabeledStatement: Visitor<LabeledStatement> = {
 }
 
 const JSXElement: Visitor<JSXElement> = {
-  enter(path){
+  enter(path, state){
     let { node, parentPath: statement } = path;
 
     if(statement.isExpressionStatement()){
@@ -107,15 +107,14 @@ const JSXElement: Visitor<JSXElement> = {
     }
 
     const parent = createContext(path, false);
-    new ElementContext(parent, path);
-  },
-  exit(path, { opts }){
-    const element = Context.get(path) as ElementContext;
-    const { apply } = opts as Options;
-    const { component } = element;
+    const element = new ElementContext(parent, path);
+    const { apply } = state.opts as Options;
 
     if(apply)
       apply(element);
+  },
+  exit(path, state){
+    const { component } = Context.get(path) as ElementContext;
 
     if(!component || component.usedBy.size || component.empty)
       return;
@@ -127,6 +126,7 @@ const JSXElement: Visitor<JSXElement> = {
       [path.node]
     );
     const wrapper = new ElementContext(component, node);
+    const { apply } = state.opts as Options;
 
     wrapper.use(component);
 
