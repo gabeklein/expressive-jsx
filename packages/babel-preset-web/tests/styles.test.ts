@@ -37,14 +37,14 @@ it("will apply to this", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_7ps')}>
+        className={classNames(props.className, 'Component_17j')}>
         Hello World
       </div>
     );
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_7ps {
+    .Component_17j {
       color: red;
     }
   `);
@@ -87,7 +87,7 @@ it("will apply to attribute this", async () => {
     const RedInput = (props) => (
       <input
         {...props}
-        className={classNames(props.className, 'RedInput_2y8')}
+        className={classNames(props.className, 'RedInput_140')}
       />
     );
   `);
@@ -128,7 +128,7 @@ it("will apply nested", async () => {
 
   expect(output.code).toMatchInlineSnapshot(`
     const Component = () => (
-      <div className="container_tl9">
+      <div className="container_tla">
         Hello <div className="inner_wj9">World</div>
       </div>
     );
@@ -171,7 +171,7 @@ it("will convert camelCase properties to dash", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_2dj {
+    .Component_13j {
       box-sizing: border-box;
     }
   `);

@@ -8,7 +8,7 @@ it("will bail on repeat macro", async () => {
   }
 
   const parse = parser({
-    macros: [{ foo }]
+    macros: [{ foo }],
   });
 
   const output = await parse(`
@@ -20,7 +20,7 @@ it("will bail on repeat macro", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_4qa {
+    .Component_15c {
       foo: barBaz;
     }
   `);
@@ -37,7 +37,7 @@ it("will convert native hex color", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_msr {
+    .Component_2bn {
       color: #ff0000;
       background: rgba(0,255,0,0.133);
     }

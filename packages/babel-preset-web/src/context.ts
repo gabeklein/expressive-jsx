@@ -14,6 +14,7 @@ export class Context {
   module!: ModuleContext;
   define: Record<string, DefineContext> = {};
   macros: Record<string, Macro> = {};
+  uid = "";
 
   static get(from: NodePath){
     return CONTEXT.get(from)
@@ -29,13 +30,10 @@ export class Context {
     if(!parent)
       return;
 
+    this.uid = simpleHash(parent?.uid);
     this.define = Object.create(parent.define);
     this.macros = Object.create(parent.macros);
     this.module = parent.module;
-  }
-
-  get uid(): string {
-    return simpleHash(this.parent?.uid);
   }
 
   get component(): FunctionContext {
@@ -86,8 +84,7 @@ export class ModuleContext extends Context {
     if(!opts.apply)
       throw new Error(`Plugin has not defined an apply method.`);
 
-    Object.defineProperty(this, "uid", { value: name });
-
+    this.uid = simpleHash(name);
     this.module = this;
     this.macros = Object.assign({}, ...opts.macros || []);
     this.define = Object.assign({}, ...opts.define || []);
@@ -145,16 +142,11 @@ export class DefineContext extends Context {
     public path: NodePath){
 
     super(path, parent);
+    this.uid = name + "_" + simpleHash(parent?.uid);
   }
 
   get empty(){
     return Object.keys(this.styles).length === 0;
-  }
-
-  get uid(): string {
-    const uid = this.name + "_" + simpleHash(this.parent?.uid);
-    Object.defineProperty(this, "uid", { value: uid });
-    return uid;
   }
 
   get className(): string | Expression | null {

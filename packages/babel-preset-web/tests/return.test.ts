@@ -59,7 +59,7 @@ it("will wrap elements if 'this' is styled", async () => {
       return (
         <div
           {...props}
-          className={classNames(props.className, 'Component_cfu')}>
+          className={classNames(props.className, 'Component_23x')}>
           <div>
             <div>Hello</div>
           </div>
@@ -93,7 +93,7 @@ it("will not race normal jsx plugin", async () => {
       /*#__PURE__*/ React.createElement(
         'div',
         Object.assign({}, props, {
-          className: classNames(props.className, 'Hi_2uq')
+          className: classNames(props.className, 'Hi_13y')
         }),
         'Hello World!'
       );
