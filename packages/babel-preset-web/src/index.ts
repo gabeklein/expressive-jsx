@@ -20,16 +20,15 @@ namespace Preset {
 function Preset(_compiler: any, options: Preset.Options = {} as any): any {
   Object.assign(t, _compiler.types);
 
-  let { macros = [], ...opts } = options;
   const styles = new Set<Plugin.DefineContext>();
 
   return {
     plugins: [
       [Plugin, <Plugin.Options>{
-        ...opts,
+        ...options,
         macros: [
           Macros,
-          ...macros
+          ...options.macros || []
         ],
         apply(element){
           const {
@@ -44,11 +43,6 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           } = element;
 
           const used = new Set(using);
-
-          if(t.isJSXIdentifier(name)
-          && !/^[A-Z]/.test(name.name)
-          && !HTML_TAGS.includes(name.name))
-            element.setTagName("div");
        
           for(const define of used)
             if(define.className)
@@ -58,6 +52,11 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
             context.dependant.forEach(x => used.add(x));
             styles.add(context);
           }
+
+          if(t.isJSXIdentifier(name)
+          && !/^[A-Z]/.test(name.name)
+          && !HTML_TAGS.includes(name.name))
+            element.setTagName("div");
 
           if(component && component.usedBy.has(element)){
             attributes.unshift(
