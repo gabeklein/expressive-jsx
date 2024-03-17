@@ -14,7 +14,7 @@ export class ElementContext extends Context {
 
     const isPath = "node" in path;
 
-    super(isPath ? path : undefined, parent);
+    super(parent, isPath ? path : undefined);
 
     if(isPath){
       this.node = path.node;
@@ -122,7 +122,7 @@ export class ElementContext extends Context {
       return;
     }
 
-    const concat = this.module.getHelper("classNames");
+    const concat = this.getHelper("classNames");
   
     if(t.isCallExpression(existing)
     && t.isIdentifier(existing.callee, { name: concat.name }))

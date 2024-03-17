@@ -1,4 +1,4 @@
-import { Context, DefineContext, FunctionContext, ModuleContext } from './context';
+import { Context, DefineContext, FunctionContext } from './context';
 import { ElementContext } from './elements';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
@@ -35,7 +35,7 @@ export default Plugin;
 
 const Program: Visitor<Program> = {
   enter(path, state){
-    new ModuleContext(path, state);
+    new Context(state.opts, path);
   }
 }
 

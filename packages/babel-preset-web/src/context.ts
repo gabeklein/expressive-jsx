@@ -11,9 +11,10 @@ import type { BlockStatement, Expression, Function, Identifier, Node, ObjectProp
 const CONTEXT = new WeakMap<NodePath, Context>();
 
 export class Context {
-  module!: ModuleContext;
+  parent: Context | undefined;
   define: Record<string, DefineContext> = {};
   macros: Record<string, Macro> = {};
+  options: Options;
   uid = "";
 
   static get(from: NodePath){
@@ -21,19 +22,35 @@ export class Context {
   }
 
   constructor(
-    public path?: NodePath,
-    public parent?: Context){
+    input: Context | Options,
+    public path?: NodePath){
 
     if(path)
       CONTEXT.set(path, this);
 
-    if(!parent)
-      return;
+    if(input instanceof Context){
+      this.define = Object.create(input.define);
+      this.macros = Object.create(input.macros);
+      this.options = input.options;
+      this.parent = input;
+      this.uid = simpleHash(input?.uid);
+    }
+    else if(path && path.isProgram()) {
+      const name = (path.hub as any).file.opts.filename as string;
+      
+      if(!input.apply)
+        throw new Error(`Plugin has not defined an apply method.`);
 
-    this.uid = simpleHash(parent?.uid);
-    this.define = Object.create(parent.define);
-    this.macros = Object.create(parent.macros);
-    this.module = parent.module;
+      if(input.polyfill === undefined)
+        input.polyfill = require.resolve("../polyfill");
+
+      this.define = Object.assign({}, ...input.define || []);
+      this.macros = Object.assign({}, ...input.macros || []);
+      this.options = input;
+      this.uid = simpleHash(name);
+    }
+    else
+      throw new Error("Invalid context input.");
   }
 
   get component(): FunctionContext {
@@ -67,40 +84,20 @@ export class Context {
 
     return defines.reverse();
   }
-}
-
-export class ModuleContext extends Context {
-  options: Options;
-
-  constructor(
-    public path: NodePath<Program>,
-    state: any){
-
-    const opts = state.opts as Options;
-    const name = (path.hub as any).file.opts.filename as string;
-
-    super(path);
-
-    if(!opts.apply)
-      throw new Error(`Plugin has not defined an apply method.`);
-
-    this.uid = simpleHash(name);
-    this.module = this;
-    this.macros = Object.assign({}, ...opts.macros || []);
-    this.define = Object.assign({}, ...opts.define || []);
-    this.options = opts;
-
-    if(opts.polyfill === undefined)
-      opts.polyfill = require.resolve("../polyfill");
-  }
 
   getHelper(name: string){
-    const { polyfill } = this.options;
-    const program = this.path
-    const body = program.get("body");
+    let context: Context = this;
+
+    while(context.parent)
+      context = context.parent;
+
+    const { polyfill } = context.options;
+    const program = context.path as NodePath<Program>;
+    const body = (program as NodePath<Program>).get("body");
   
     for(const statement of body){
-      if(!statement.isImportDeclaration() || statement.node.source.value !== polyfill)
+      if(!statement.isImportDeclaration()
+      || statement.node.source.value !== polyfill)
         continue;
   
       const specifiers = statement.get("specifiers");
@@ -141,7 +138,7 @@ export class DefineContext extends Context {
     public parent: Context,
     public path: NodePath){
 
-    super(path, parent);
+    super(parent, path);
     this.uid = name + "_" + simpleHash(parent?.uid);
   }
 
