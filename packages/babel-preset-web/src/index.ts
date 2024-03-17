@@ -31,17 +31,8 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           ...options.macros || []
         ],
         apply(element){
-          const {
-            using,
-            component,
-            node: {
-              openingElement: {
-                name,
-                attributes
-              }
-            }
-          } = element;
-
+          const { using, component, path } = element;
+          const { name, attributes } = path.node.openingElement;
           const used = new Set(using);
        
           for(const define of used)

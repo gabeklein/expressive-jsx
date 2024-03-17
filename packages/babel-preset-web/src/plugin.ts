@@ -107,6 +107,7 @@ const JSXElement: Visitor<JSXElement> = {
     }
 
     const context = createContext(path, false);
+
     const element = new ElementContext(context, path);
     const { apply } = state.opts as Options;
 
@@ -119,21 +120,23 @@ const JSXElement: Visitor<JSXElement> = {
     if(!(parent instanceof FunctionContext) || parent.usedBy.size || parent.empty)
       return;
 
+    const [ inserted ] = path.replaceWith(
+      t.jsxElement(
+        t.jsxOpeningElement(t.jSXIdentifier("this"), []),
+        t.jsxClosingElement(t.jSXIdentifier("this")),
+        [path.node]
+      )
+    )
+
+    const wrapper = new ElementContext(parent, inserted);
     const { apply } = state.opts as Options;
-    const tag = t.jSXIdentifier("this");
-    const node = t.jsxElement(
-      t.jsxOpeningElement(tag, []),
-      t.jsxClosingElement(tag),
-      [path.node]
-    );
-    const wrapper = new ElementContext(parent, node);
 
     wrapper.use(parent);
 
     if(apply)
       apply(wrapper);
 
-    path.replaceWith(node)[0].skip();
+    inserted.skip();
   }
 }
 

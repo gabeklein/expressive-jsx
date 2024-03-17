@@ -6,28 +6,16 @@ import type { Expression, JSXElement } from '@babel/types';
 
 export class ElementContext extends Context {
   using = new Set<DefineContext>();
-  node: JSXElement;
 
   constructor(
     public parent: Context,
-    path: JSXElement | NodePath<JSXElement>){
+    public path: NodePath<JSXElement>){
 
-    const isPath = "node" in path;
-
-    super(parent, isPath ? path : undefined);
-
-    if(isPath){
-      this.node = path.node;
-    }
-    else {
-      this.node = path
-      return
-    }
+    super(parent, path);
 
     const opening = path.get("openingElement");
+    const attrs = opening.get("attributes");
     let name = opening.get("name");
-
-    this.node = path.node;
 
     while(name.isJSXMemberExpression()){
       this.use(name.get("property").toString());
@@ -37,7 +25,7 @@ export class ElementContext extends Context {
     if(name.isJSXIdentifier())
       this.use(name.toString());
 
-    opening.get("attributes").forEach(attr => {
+    attrs.forEach(attr => {
       if(!attr.isJSXAttribute() || attr.node.value)
         return;
 
@@ -75,7 +63,7 @@ export class ElementContext extends Context {
   }
 
   setTagName(name: string){
-    const { openingElement, closingElement } = this.node;
+    const { openingElement, closingElement } = this.path.node;
     const tag = t.jsxIdentifier(name);
   
     openingElement.name = tag;
@@ -85,7 +73,7 @@ export class ElementContext extends Context {
   }
 
   getProp(name: string){
-    const { attributes } = this.node.openingElement;
+    const { attributes } = this.path.node.openingElement;
 
     for(const attr of attributes)
       if(t.isJSXAttribute(attr) && attr.name.name === name){
@@ -100,7 +88,7 @@ export class ElementContext extends Context {
   }
 
   addClassName(name: string | Expression){
-    const { attributes } = this.node.openingElement;
+    const { attributes } = this.path.node.openingElement;
     const existing = this.getProp("className");
   
     if(typeof name == "string")
@@ -139,7 +127,8 @@ export class ElementContext extends Context {
       }
   
     for(const attr of attributes)
-      if(t.isJSXAttribute(attr) && t.isJSXIdentifier(attr.name, { name: "className" })){
+      if(t.isJSXAttribute(attr)
+      && t.isJSXIdentifier(attr.name, { name: "className" })){
         attr.value = t.jsxExpressionContainer(
           t.callExpression(concat, [name, existing])
         )
