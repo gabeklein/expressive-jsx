@@ -9,8 +9,7 @@ import type { Expression, IfStatement, StringLiteral } from '@babel/types';
 
 export function handleSwitch(parent: NodePath<IfStatement>){
   const ambient = createContext(parent) as DefineContext;
-  const test = parent.get("test");
-  const context = test.isStringLiteral()
+  const context = parent.get("test").isStringLiteral()
     ? new SelectorContext(ambient, parent)
     : new IfContext(ambient, parent);
 

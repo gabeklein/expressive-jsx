@@ -40,8 +40,8 @@ export function createContext(path: NodePath, required?: boolean): any {
 
   while(
     parent.isBlockStatement() ||
-    parent.isExpressionStatement() ||
     parent.isReturnStatement() ||
+    parent.isExpressionStatement() ||
     parent.isParenthesizedExpression()){
 
     parent = parent.parentPath!;
