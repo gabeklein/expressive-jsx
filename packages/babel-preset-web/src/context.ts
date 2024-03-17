@@ -2,6 +2,7 @@ import { ElementContext } from './elements';
 import { simpleHash } from './helper/simpleHash';
 import { Macro, Options } from './options';
 import { onExit } from './plugin';
+import { getProp, getProps } from './syntax/function';
 import { getName } from './syntax/names';
 import { t } from './types';
 
@@ -239,64 +240,11 @@ export class FunctionContext extends DefineContext {
   }
 
   getProp(name: string){
-    const from = this.path;
-    let [props] = from.node.params;
-
-    if (t.isObjectPattern(props)) {
-      const { properties } = props;
-
-      const prop = properties.find(x => (
-        t.isObjectProperty(x) &&
-        t.isIdentifier(x.key, { name })
-      )) as ObjectProperty | undefined;
-
-      if (prop)
-        return prop.value as Identifier;
-
-      const id = t.identifier(name);
-
-      properties.unshift(t.objectProperty(id, id, false, true));
-
-      return id;
-    }
-    else if (!props) {
-      props = uniqueIdentifier(from.scope, "props");
-      from.node.params.unshift(props);
-    }
-
-    if (t.isIdentifier(props))
-      return t.memberExpression(props, t.identifier(name));
-
-    throw new Error(`Expected an Identifier or ObjectPattern, got ${props.type}`);
+    return getProp(this.path, name);
   }
 
   getProps(){
-    const { scope, node } = this.path;
-    let [ props ] = node.params
-    let output: Node | undefined;
-
-    if(!props){
-      node.params.push(output = uniqueIdentifier(scope, "props"));
-    }
-    else if(t.isObjectPattern(props)){
-      const existing = props.properties.find(x => t.isRestElement(x));
-
-      if(t.isRestElement(existing))
-        output = existing.argument;
-
-      const inserted = t.restElement(uniqueIdentifier(scope, "rest"));
-      
-      props.properties.push(inserted)
-
-      output = inserted.argument;
-    }
-    else
-      output = props;
-
-    if(t.isIdentifier(output))
-      return output;
-
-    throw new Error("Could not extract props from function.")
+    return getProps(this.path);
   }
 }
 
