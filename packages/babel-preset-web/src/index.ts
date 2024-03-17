@@ -34,7 +34,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
         apply(element){
           const {
             using,
-            this: component,
+            component,
             node: {
               openingElement: {
                 name,
@@ -59,7 +59,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
             styles.add(context);
           }
 
-          if(component){
+          if(component && component.usedBy.has(element)){
             attributes.unshift(
               t.jsxSpreadAttribute(component.getProps())
             )

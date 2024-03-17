@@ -53,13 +53,6 @@ export class ElementContext extends Context {
     });
   }
 
-  get this(){
-    const { component } = this;
-
-    if(component && component.usedBy.has(this))
-      return component;
-  }
-
   get(name: string){
     const mods = new Set<DefineContext>();
 

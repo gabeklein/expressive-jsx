@@ -38,12 +38,14 @@ export class Context {
     return simpleHash(this.parent?.uid);
   }
 
-  get component(): FunctionContext | undefined {
+  get component(): FunctionContext {
     let ctx: Context | undefined = this;
 
     while(ctx = ctx.parent)
       if(ctx instanceof FunctionContext)
         return ctx;
+
+    throw new Error("Component not found.");
   }
 
   add(child: DefineContext){
