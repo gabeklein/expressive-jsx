@@ -7,7 +7,7 @@ import { getName } from './syntax/names';
 import { t } from './types';
 
 import type { NodePath, Scope } from '@babel/traverse';
-import type { BlockStatement, Expression, Function, Identifier, Node, ObjectProperty, Program } from '@babel/types';
+import type { BlockStatement, Expression, Function, Program } from '@babel/types';
 
 const CONTEXT = new WeakMap<NodePath, Context>();
 
@@ -52,16 +52,6 @@ export class Context {
     }
     else
       throw new Error("Invalid context input.");
-  }
-
-  get component(): FunctionContext {
-    let ctx: Context | undefined = this;
-
-    while(ctx = ctx.parent)
-      if(ctx instanceof FunctionContext)
-        return ctx;
-
-    throw new Error("Component not found.");
   }
 
   add(child: DefineContext){
@@ -147,7 +137,7 @@ export class DefineContext extends Context {
     return Object.keys(this.styles).length === 0;
   }
 
-  get className(): string | Expression | null {
+  get className(): Expression | string | undefined {
     return this.uid;
   }
 
@@ -232,11 +222,8 @@ export class FunctionContext extends DefineContext {
   }
 
   get className(){
-    const used =
-      Object.keys(this.styles).length ||
-      this.dependant.length;
-    
-    return used ? super.className : null;
+    if(!this.empty || this.dependant.length)
+      return super.className;
   }
 
   getProp(name: string){

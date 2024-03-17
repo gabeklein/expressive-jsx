@@ -5,6 +5,7 @@ import { camelToDash } from './macros/util';
 import Plugin from './plugin';
 import { HTML_TAGS } from './syntax/tags';
 import { t } from './types';
+import { Context, FunctionContext } from './context';
 
 namespace Preset {
   export interface Options extends Plugin.Options {}
@@ -31,7 +32,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           ...options.macros || []
         ],
         apply(element){
-          const { using, component, path } = element;
+          const { using, path } = element;
           const { name, attributes } = path.node.openingElement;
           const used = new Set(using);
        
@@ -49,16 +50,23 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           && !HTML_TAGS.includes(name.name))
             element.setTagName("div");
 
-          if(component && component.usedBy.has(element)){
-            attributes.unshift(
-              t.jsxSpreadAttribute(component.getProps())
-            )
+          let contex: Context | undefined = element;
 
-            if(element.getProp("className"))
-              element.addClassName(
-                component.getProp("className")
-              )
-          }
+          while(contex = contex.parent)
+            if(contex instanceof FunctionContext){
+              if(contex.usedBy.has(element)){
+                attributes.unshift(
+                  t.jsxSpreadAttribute(contex.getProps())
+                )
+    
+                if(element.getProp("className"))
+                  element.addClassName(
+                    contex.getProp("className")
+                  )
+              }
+
+              break;
+            }
         },
       }],
       [{
@@ -79,7 +87,7 @@ function print(styles: Iterable<Plugin.DefineContext>){
   const css = [] as string[];
 
   for(const context of styles){
-    if(!Object.keys(context.styles).length)
+    if(context.empty)
       continue;
 
     const styles = [] as string[];
