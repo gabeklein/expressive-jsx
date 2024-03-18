@@ -48,9 +48,11 @@ it("will wrap elements if 'this' is styled", async () => {
     function Component(){
       color: red;
 
-      <div>
-        <div>Hello</div>
-      </div>
+      inner: {
+        color: blue;
+      }
+
+      <inner>Hello</inner>
     }
   `);
 
@@ -60,9 +62,7 @@ it("will wrap elements if 'this' is styled", async () => {
         <div
           {...props}
           className={classNames(props.className, 'Component_23x')}>
-          <div>
-            <div>Hello</div>
-          </div>
+          <div className="inner_tla">Hello</div>
         </div>
       );
     }
