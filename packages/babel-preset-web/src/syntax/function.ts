@@ -1,7 +1,6 @@
-import { NodePath } from '@babel/traverse';
+import { NodePath, Scope } from '@babel/traverse';
 import { Function, Identifier, Node, ObjectProperty } from '@babel/types';
 
-import { uniqueIdentifier } from '../context/Context';
 import { t } from '../types';
 
 export function getProp(from: NodePath<Function>, name: string){
@@ -62,4 +61,21 @@ export function getProps(from: NodePath<Function>){
     return output;
 
   throw new Error("Could not extract props from function.")
+}
+
+export function uniqueIdentifier(scope: Scope, name = "temp") {
+  let uid = name;
+  let i = 0;
+
+  do {
+    if(i > 0) uid = name + i;
+    i++;
+  } while (
+    scope.hasLabel(uid) ||
+    scope.hasBinding(uid) ||
+    scope.hasGlobal(uid) ||
+    scope.hasReference(uid)
+  );
+
+  return t.identifier(uid);
 }

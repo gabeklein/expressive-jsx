@@ -1,4 +1,4 @@
-import type { Node, NodePath } from '@babel/traverse';
+import { Node, NodePath } from '@babel/traverse';
 
 type FlatValue = string | number | boolean | null;
 type ParseError = <T extends Node>(node: NodePath<T> | T, ...args: FlatValue[]) => Error;

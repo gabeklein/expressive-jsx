@@ -1,9 +1,10 @@
+import { NodePath } from '@babel/traverse';
+import { BlockStatement, Expression, Function } from '@babel/types';
+
 import { onExit } from '../plugin';
 import { getProp, getProps } from '../syntax/function';
 import { getName } from '../syntax/names';
 import { t } from '../types';
-import type { NodePath } from '@babel/traverse';
-import type { BlockStatement, Expression, Function } from '@babel/types';
 import { getContext } from './Context';
 import { DefineContext } from './DefineContext';
 

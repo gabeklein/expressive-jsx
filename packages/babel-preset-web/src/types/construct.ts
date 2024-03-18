@@ -1,6 +1,21 @@
+import {
+  BlockStatement,
+  BooleanLiteral,
+  Expression,
+  Identifier,
+  LVal,
+  MemberExpression,
+  NullLiteral,
+  NumericLiteral,
+  ObjectProperty,
+  SpreadElement,
+  Statement,
+  StringLiteral,
+  ThisExpression,
+} from '@babel/types';
+
 import { t } from '.';
 
-import type { BlockStatement, BooleanLiteral, Expression, Identifier, LVal, MemberExpression, NullLiteral, NumericLiteral, ObjectProperty, SpreadElement, Statement, StringLiteral, ThisExpression } from '@babel/types';
 export type FlatValue = string | number | boolean | null;
 
 export function literal(value: string): StringLiteral;

@@ -1,14 +1,20 @@
+import { PluginObj, PluginPass } from '@babel/core';
+import { Node, NodePath, VisitNodeObject } from '@babel/traverse';
+
 import { Context } from './context/Context';
 import { DefineContext } from './context/DefineContext';
-import { FunctionContext } from './context/FunctionContext';
 import { ElementContext } from './context/ElementContext';
+import { FunctionContext } from './context/FunctionContext';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
 import { t } from './types';
 
-import type { PluginObj, PluginPass } from '@babel/core';
-import type { Node, NodePath, VisitNodeObject } from '@babel/traverse';
-import type { BlockStatement, JSXElement, LabeledStatement, Program } from '@babel/types';
+import type {
+  BlockStatement,
+  JSXElement,
+  LabeledStatement,
+  Program
+} from '@babel/types';
 
 type Visitor<T extends Node> =
   VisitNodeObject<PluginPass & { context: Context }, T>;

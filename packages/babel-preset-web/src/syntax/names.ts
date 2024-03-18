@@ -1,5 +1,5 @@
-import type { Hub, NodePath } from '@babel/traverse';
-import type {
+import { Hub, NodePath } from '@babel/traverse';
+import {
   AssignmentExpression,
   Class,
   Function,

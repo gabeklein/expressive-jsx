@@ -1,4 +1,4 @@
-import type { BinaryExpression, Expression, UnaryExpression } from '@babel/types';
+import { BinaryExpression, Expression, UnaryExpression } from '@babel/types';
 
 import { t } from './';
 

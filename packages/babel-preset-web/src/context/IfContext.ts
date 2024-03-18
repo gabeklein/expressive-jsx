@@ -1,12 +1,12 @@
-import { Context } from './Context';
-import { DefineContext } from './DefineContext';
+import { NodePath } from '@babel/traverse';
+import { Expression, IfStatement, StringLiteral } from '@babel/types';
+
 import { createContext } from '../label';
 import { onExit } from '../plugin';
 import { getName } from '../syntax/names';
 import { t } from '../types';
-
-import type { NodePath } from '@babel/traverse';
-import type { Expression, IfStatement, StringLiteral } from '@babel/types';
+import { Context } from './Context';
+import { DefineContext } from './DefineContext';
 
 export function handleSwitch(parent: NodePath<IfStatement>){
   const ambient = createContext(parent) as DefineContext;

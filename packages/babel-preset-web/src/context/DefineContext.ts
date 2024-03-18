@@ -1,8 +1,9 @@
-import { ElementContext } from './ElementContext';
+import { NodePath } from '@babel/traverse';
+import { Expression } from '@babel/types';
+
 import { simpleHash } from '../helper/simpleHash';
-import type { NodePath } from '@babel/traverse';
-import type { Expression } from '@babel/types';
 import { Context } from './Context';
+import { ElementContext } from './ElementContext';
 
 
 export class DefineContext extends Context {

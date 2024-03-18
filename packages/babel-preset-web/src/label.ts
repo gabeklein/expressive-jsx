@@ -1,12 +1,12 @@
+import { NodePath } from '@babel/traverse';
+import { LabeledStatement } from '@babel/types';
+
 import { Context, getContext } from './context/Context';
 import { DefineContext } from './context/DefineContext';
 import { FunctionContext } from './context/FunctionContext';
 import { handleSwitch, IfContext } from './context/IfContext';
 import { parseError } from './helper/errors';
 import { parseArgument } from './syntax/arguments';
-
-import type { NodePath } from '@babel/traverse';
-import type { LabeledStatement } from '@babel/types';
 
 export function handleLabel(path: NodePath<LabeledStatement>){
   const context = createContext(path);

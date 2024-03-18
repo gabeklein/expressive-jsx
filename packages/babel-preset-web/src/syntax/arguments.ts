@@ -1,5 +1,5 @@
-import type { NodePath } from '@babel/traverse';
-import type {
+import { NodePath } from '@babel/traverse';
+import {
   ArrowFunctionExpression,
   BinaryExpression,
   BooleanLiteral,

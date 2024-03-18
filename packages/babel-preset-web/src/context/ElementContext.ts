@@ -1,9 +1,9 @@
+import { NodePath } from '@babel/traverse';
+import { Expression, JSXElement } from '@babel/types';
+
+import { t } from '../types';
 import { Context } from './Context';
 import { DefineContext } from './DefineContext';
-import { t } from '../types';
-
-import type { NodePath } from '@babel/traverse';
-import type { Expression, JSXElement } from '@babel/types';
 
 export class ElementContext extends Context {
   using = new Set<DefineContext>();
