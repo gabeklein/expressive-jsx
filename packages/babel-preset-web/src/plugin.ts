@@ -98,26 +98,10 @@ const LabeledStatement: Visitor<LabeledStatement> = {
 
 const JSXElement: Visitor<JSXElement> = {
   enter(path, state){
-    let { node, parentPath: parent } = path;
-
-    if(parent.isExpressionStatement()){
-      const block = parent.parentPath;
-
-      if(block.isBlockStatement()
-      && block.get("body").length == 1
-      && block.parentPath.isArrowFunctionExpression()){
-        block.replaceWith(t.parenthesizedExpression(node));
-      }
-      else {
-        parent.replaceWith(t.returnStatement(node));
-      }
-
-      path.skip();
+    if(isImplicitReturn(path))
       return;
-    }
 
     const context = createContext(path, false);
-
     const element = new ElementContext(context, path);
     const { apply } = state.opts as Options;
 
@@ -155,4 +139,23 @@ export function onExit(
   callback: (path: NodePath, key: string | number | null) => void){
 
   HANDLED.set(path, callback);
+}
+
+function isImplicitReturn(path: NodePath<JSXElement>){
+  let { node, parentPath: parent } = path;
+
+  if(!parent.isExpressionStatement())
+    return false;
+
+  const block = parent.parentPath;
+
+  if(block.isBlockStatement()
+  && block.get("body").length == 1
+  && block.parentPath.isArrowFunctionExpression())
+    block.replaceWith(t.parenthesizedExpression(node));
+  else
+    parent.replaceWith(t.returnStatement(node));
+
+  path.skip();
+  return true;
 }
