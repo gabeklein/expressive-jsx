@@ -158,7 +158,7 @@ export function uniqueIdentifier(scope: Scope, name = "temp") {
     scope.hasReference(uid)
   );
 
-  if(i > 1 )
+  if(i > 1)
     uid = name + i;
 
   return t.identifier(uid);
