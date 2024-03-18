@@ -21,7 +21,14 @@ type Visitor<T extends Node> =
   VisitNodeObject<PluginPass & { context: Context }, T>;
 
 declare namespace Plugin {
-  export { Options, Macro, Define };
+  export {
+    Component,
+    Context,
+    Define,
+    Element,
+    Macro,
+    Options,
+  };
 }
 
 function Plugin(){
