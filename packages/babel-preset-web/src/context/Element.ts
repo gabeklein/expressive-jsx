@@ -4,7 +4,6 @@ import { Expression, JSXElement } from '@babel/types';
 import t from '../types';
 import { Context } from './Context';
 import { Define } from './Define';
-import { getNames } from '../syntax/names';
 
 export class Element extends Context {
   using = new Set<Define>();

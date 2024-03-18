@@ -1,13 +1,13 @@
 import { PluginObj, PluginPass } from '@babel/core';
 import { Node, NodePath, VisitNodeObject } from '@babel/traverse';
 
+import { Component } from './context/Component';
 import { Context } from './context/Context';
 import { Define } from './context/Define';
 import { Element } from './context/Element';
-import { Component } from './context/Component';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
-import { getNames } from './syntax/names';
+import { getNames, isImplicitReturn } from './syntax/jsx';
 import t from './types';
 
 import type {
@@ -154,23 +154,4 @@ export function exit(path: NodePath, key?: string | number | null){
   }
 
   return false;
-}
-
-function isImplicitReturn(path: NodePath<JSXElement>){
-  let { node, parentPath: parent } = path;
-
-  if(!parent.isExpressionStatement())
-    return false;
-
-  const block = parent.parentPath;
-
-  if(block.isBlockStatement()
-  && block.get("body").length == 1
-  && block.parentPath.isArrowFunctionExpression())
-    block.replaceWith(t.parenthesizedExpression(node));
-  else
-    parent.replaceWith(t.returnStatement(node));
-
-  path.skip();
-  return true;
 }
