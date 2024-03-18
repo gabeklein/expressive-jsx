@@ -11,7 +11,7 @@ import {
   JSXText,
 } from '@babel/types';
 
-import { t } from '.';
+import t from '.';
 
 type JSXReference = JSXIdentifier | JSXMemberExpression;
 

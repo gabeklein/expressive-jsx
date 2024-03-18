@@ -14,7 +14,7 @@ import {
   ThisExpression,
 } from '@babel/types';
 
-import { t } from '.';
+import t from '.';
 
 export type FlatValue = string | number | boolean | null;
 

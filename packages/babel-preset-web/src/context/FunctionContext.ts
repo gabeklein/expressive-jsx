@@ -3,7 +3,7 @@ import { BlockStatement, Expression, Function, Identifier, Node, ObjectProperty 
 
 import { onExit } from '../plugin';
 import { getName, uniqueIdentifier } from '../syntax/names';
-import { t } from '../types';
+import t from '../types';
 import { getContext } from './Context';
 import { DefineContext } from './DefineContext';
 

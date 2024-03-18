@@ -4,7 +4,7 @@ import { Program } from '@babel/types';
 import { simpleHash } from '../helper/simpleHash';
 import { Macro, Options } from '../options';
 import { uniqueIdentifier } from '../syntax/names';
-import { t } from '../types';
+import t from '../types';
 import { DefineContext } from './DefineContext';
 
 const CONTEXT = new WeakMap<NodePath, Context>();

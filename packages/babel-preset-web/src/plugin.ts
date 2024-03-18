@@ -7,7 +7,7 @@ import { ElementContext } from './context/ElementContext';
 import { FunctionContext } from './context/FunctionContext';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
-import { t } from './types';
+import t from './types';
 
 import type {
   BlockStatement,

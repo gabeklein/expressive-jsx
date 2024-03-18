@@ -4,7 +4,7 @@ import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
 import { HTML_TAGS } from './syntax/tags';
-import { t } from './types';
+import t from './types';
 import { Context } from './context/Context';
 import { FunctionContext } from './context/FunctionContext';
 

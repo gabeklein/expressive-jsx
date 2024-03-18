@@ -10,7 +10,7 @@ import {
   VariableDeclarator,
 } from '@babel/types';
 
-import { t } from '../types';
+import t from '../types';
 
 export function getName(path: NodePath): string {
   let encounteredReturn;

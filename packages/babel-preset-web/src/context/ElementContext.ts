@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/traverse';
 import { Expression, JSXElement } from '@babel/types';
 
-import { t } from '../types';
+import t from '../types';
 import { Context } from './Context';
 import { DefineContext } from './DefineContext';
 

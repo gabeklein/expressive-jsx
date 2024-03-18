@@ -15,7 +15,7 @@ import {
 } from '@babel/types';
 
 import { ParseErrors } from '../helper/errors';
-import { t } from '../types';
+import t from '../types';
 
 const Oops = ParseErrors({
   UnaryUseless: "Unary operator here doesn't do anything",

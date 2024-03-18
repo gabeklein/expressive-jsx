@@ -4,7 +4,7 @@ import { Expression, IfStatement, StringLiteral } from '@babel/types';
 import { createContext } from '../label';
 import { onExit } from '../plugin';
 import { getName } from '../syntax/names';
-import { t } from '../types';
+import t from '../types';
 import { Context } from './Context';
 import { DefineContext } from './DefineContext';
 
