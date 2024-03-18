@@ -55,17 +55,9 @@ const Program: Visitor<Program> = {
 
 const BlockStatement: Visitor<BlockStatement> = {
   exit(path){
-    const parent = path.parentPath!;
-    const callback = HANDLED.get(parent);
-  
-    if(callback)
-      callback(parent, path.key);
+    exit(path.parentPath, path.key);
   }
 }
-
-const HANDLED = new WeakMap<NodePath, (
-  path: NodePath, key: string | number | null
-) => void>();
 
 const LabeledStatement: Visitor<LabeledStatement> = {
   enter(path){
@@ -75,15 +67,13 @@ const LabeledStatement: Visitor<LabeledStatement> = {
       return;
 
     handleLabel(path);
-    HANDLED.set(path, () => {
-      !path.removed && path.remove();
+    onExit(path, () => {
+      if(!path.removed)
+        path.remove();
     });
   },
   exit(path){
-    const callback = HANDLED.get(path);
-  
-    if(callback)
-      callback(path, path.key);
+    exit(path, path.key);
 
     for(let p of path.getAncestry()){
       if(p.isLabeledStatement())
@@ -92,12 +82,8 @@ const LabeledStatement: Visitor<LabeledStatement> = {
       if(p.isBlockStatement())
         p = p.parentPath!;
 
-      const callback = HANDLED.get(p);
-  
-      if(!callback)
+      if(!exit(p))
         break;
-
-      callback(p, p.key);
     }
   }
 }
@@ -147,11 +133,27 @@ const JSXElement: Visitor<JSXElement> = {
   }
 }
 
+type ExitCallback = (path: NodePath, key: string | number | null) => void;
+
+const HANDLED = new WeakMap<NodePath, ExitCallback>();
+
 export function onExit(
   path: NodePath,
   callback: (path: NodePath, key: string | number | null) => void){
 
   HANDLED.set(path, callback);
+}
+
+export function exit(path: NodePath, key?: string | number | null){
+  const callback = HANDLED.get(path);
+
+  if(callback){
+    callback(path, key || path.key);
+    // HANDLED.delete(path);
+    return true;
+  }
+
+  return false;
 }
 
 function isImplicitReturn(path: NodePath<JSXElement>){
