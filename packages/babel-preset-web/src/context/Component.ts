@@ -12,16 +12,16 @@ export class Component extends Define {
 
   constructor(public path: NodePath<Function>) {
     const name = getName(path);
-    const ctx = getContext(path);
+    const context = getContext(path);
     const body = path.get("body");
 
-    super(name, ctx, path);
+    super(name, context, path);
 
     this.body = body;
     this.define["this"] = this;
 
     onExit(path, () => {
-      if(body.isBlockStatement() && body.get("body").length == 0)
+      if(body.isBlockStatement() && !body.get("body").length)
         body.pushContainer("body", t.expressionStatement(
           t.jsxElement(
             t.jsxOpeningElement(t.jsxIdentifier("this"), [], true),
