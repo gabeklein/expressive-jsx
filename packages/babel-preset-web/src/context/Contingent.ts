@@ -1,88 +1,60 @@
 import { NodePath } from '@babel/traverse';
-import { Expression, IfStatement, StringLiteral } from '@babel/types';
+import { Expression, IfStatement } from '@babel/types';
 
 import { createContext } from '../label';
 import { onExit } from '../plugin';
 import { getName } from '../syntax/names';
 import t from '../types';
-import { Context } from './Context';
 import { Define } from './Define';
 
-export function handleSwitch(parent: NodePath<IfStatement>){
-  const ambient = createContext(parent) as Define;
-  const context = parent.get("test").isStringLiteral()
-    ? new Contingent(ambient, parent)
-    : new Condition(ambient, parent);
-
-  onExit(parent, (path, key) => {
-    if(key == "conseqent"
-    && context instanceof Condition
-    && context.alternate)
-      return;
-
-    if(!path.removed)
-      path.remove();
-  });
-
-  return context;
-}
-
 export class Contingent extends Define {
-  constructor(
-    public parent: Define,
-    public path: NodePath<IfStatement>){
-
-    const test = path.node.test as StringLiteral;
-
-    super(test.value, parent, path);
-    parent.dependant.push(this);
-    this.selector = this.parent.selector + test.value;
-  }
-
-  get className(){
-    return this.parent!.className;
-  }
-
-  has(child: Define){
-    child.selector = this.selector + " " + child.selector;
-  }
-}
-
-export class Condition extends Define {
-  test: Expression;
+  condition: Expression;
   alternate?: Define;
   
   constructor(
-    public parent: Context,
     public path: NodePath<IfStatement>){
 
     const test = path.node.test;
     const name = t.isIdentifier(test) ? test.name : getName(path);
+    const parent = createContext(path) as Define;
 
     super(name, parent, path);
 
-    this.test = test;
+    this.condition = test;
 
-    if(t.isIdentifier(test))
-      this.name = test.name;
-
-    if(parent instanceof Define)
+    if(t.isStringLiteral(test)){
+      parent.dependant.push(this);
+      this.selector = parent.selector + test.value;
+    }
+    else
       parent.also.add(this);
+
+    onExit(path, (path, key) => {
+      if(key == "conseqent" && this.alternate)
+        return;
+  
+      if(!path.removed)
+        path.remove();
+    });
   }
 
   get className(){
-    const { test, alternate, uid } = this;
+    const { condition, alternate, uid } = this;
+
+    if(t.isStringLiteral(condition))
+      return;
+
     const value = t.stringLiteral(uid);
 
     if(!alternate)
-      return t.logicalExpression("&&", test, value);
+      return t.logicalExpression("&&", condition, value);
 
     let alt = alternate.className!;
 
     if(typeof alt === "string")
       alt = t.stringLiteral(alt);
 
-    return t.conditionalExpression(test, value, alt);
+    return t.conditionalExpression(condition, value, alt);
   }
 
   has(child: Define){
@@ -90,17 +62,18 @@ export class Condition extends Define {
   }
 
   for(key: unknown){
-    if(key === "consequent")
-      return this;
+    if(key === "alternate"){
+      let { alternate, parent, name, path } = this;
 
-    let { alternate, parent, name, path } = this;
+      if(!alternate){
+        alternate = new Define("not_" + name, parent, path);
+        this.alternate = alternate;
+        this.dependant.push(alternate);
+      }
 
-    if(!alternate){
-      alternate = new Define("not_" + name, parent, path);
-      this.alternate = alternate;
-      this.dependant.push(alternate);
+      return alternate;
     }
 
-    return alternate;
+    return this;
   }
 }

@@ -4,7 +4,7 @@ import { LabeledStatement } from '@babel/types';
 import { Context, getContext } from './context/Context';
 import { Define } from './context/Define';
 import { Component } from './context/Component';
-import { handleSwitch, Condition } from './context/Contingent';
+import { Contingent } from './context/Contingent';
 import { parseError } from './helper/errors';
 import { parseArgument } from './syntax/arguments';
 
@@ -52,7 +52,7 @@ export function createContext(path: NodePath, required?: boolean){
 
   const context = Context.get(parent);
 
-  if(context instanceof Condition)
+  if(context instanceof Contingent)
     return context.for(key);
 
   if(context)
@@ -62,7 +62,7 @@ export function createContext(path: NodePath, required?: boolean){
     return new Component(parent);
 
   if(parent.isIfStatement())
-    return handleSwitch(parent);
+    return new Contingent(parent);
 
   if(required === false)
     return getContext(path);
