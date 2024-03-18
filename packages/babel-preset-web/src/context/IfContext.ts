@@ -14,7 +14,7 @@ export function handleSwitch(parent: NodePath<IfStatement>){
     ? new SelectorContext(ambient, parent)
     : new IfContext(ambient, parent);
 
-  onExit(parent, (key, path) => {
+  onExit(parent, (path, key) => {
     if(key == "conseqent"
     && context instanceof IfContext
     && context.alternate)

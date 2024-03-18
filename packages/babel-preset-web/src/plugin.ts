@@ -53,11 +53,13 @@ const BlockStatement: Visitor<BlockStatement> = {
     const callback = HANDLED.get(parent);
   
     if(callback)
-      callback(path.key, parent);
+      callback(parent, path.key);
   }
 }
 
-const HANDLED = new WeakMap<NodePath, (key: unknown, path: NodePath) => void>();
+const HANDLED = new WeakMap<NodePath, (
+  path: NodePath, key: string | number | null
+) => void>();
 
 const LabeledStatement: Visitor<LabeledStatement> = {
   enter(path){
@@ -75,7 +77,7 @@ const LabeledStatement: Visitor<LabeledStatement> = {
     const callback = HANDLED.get(path);
   
     if(callback)
-      callback(path.key, path);
+      callback(path, path.key);
 
     for(let p of path.getAncestry()){
       if(p.isLabeledStatement())
@@ -89,7 +91,7 @@ const LabeledStatement: Visitor<LabeledStatement> = {
       if(!callback)
         break;
 
-      callback(p.key, p);
+      callback(p, p.key);
     }
   }
 }
@@ -150,7 +152,7 @@ const JSXElement: Visitor<JSXElement> = {
 
 export function onExit(
   path: NodePath,
-  callback: (key: unknown, path: NodePath) => void){
+  callback: (path: NodePath, key: string | number | null) => void){
 
   HANDLED.set(path, callback);
 }
