@@ -150,7 +150,6 @@ export function uniqueIdentifier(scope: Scope, name = "temp") {
   let i = 0;
 
   do {
-    if(i > 0) uid = name + i;
     i++;
   } while (
     scope.hasLabel(uid) ||
@@ -158,6 +157,9 @@ export function uniqueIdentifier(scope: Scope, name = "temp") {
     scope.hasGlobal(uid) ||
     scope.hasReference(uid)
   );
+
+  if(i > 1 )
+    uid = name + i;
 
   return t.identifier(uid);
 }
