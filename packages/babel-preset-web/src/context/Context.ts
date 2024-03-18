@@ -3,7 +3,7 @@ import { Program } from '@babel/types';
 
 import { simpleHash } from '../helper/simpleHash';
 import { Macro, Options } from '../options';
-import { uniqueIdentifier } from '../syntax/function';
+import { uniqueIdentifier } from '../syntax/names';
 import { t } from '../types';
 import { DefineContext } from './DefineContext';
 
