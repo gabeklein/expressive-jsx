@@ -3,14 +3,13 @@ import { Expression } from '@babel/types';
 
 import { simpleHash } from '../helper/simpleHash';
 import { Context } from './Context';
-import { ElementContext } from './ElementContext';
+import { Element } from './Element';
 
-
-export class DefineContext extends Context {
-  also = new Set<DefineContext>();
+export class Define extends Context {
+  also = new Set<Define>();
   styles: Record<string, string | unknown[]> = {};
-  usedBy = new Set<ElementContext>();
-  dependant: DefineContext[] = [];
+  usedBy = new Set<Element>();
+  dependant: Define[] = [];
   selector: string;
 
   constructor(

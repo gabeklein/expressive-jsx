@@ -5,13 +5,13 @@ import { simpleHash } from '../helper/simpleHash';
 import { Macro, Options } from '../options';
 import { uniqueIdentifier } from '../syntax/names';
 import t from '../types';
-import { DefineContext } from './DefineContext';
+import { Define } from './Define';
 
 const CONTEXT = new WeakMap<NodePath, Context>();
 
 export class Context {
   parent: Context | undefined;
-  define: Record<string, DefineContext> = {};
+  define: Record<string, Define> = {};
   macros: Record<string, Macro> = {};
   options: Options;
   uid = "";
@@ -52,11 +52,11 @@ export class Context {
       throw new Error("Invalid context input.");
   }
 
-  has?(child: DefineContext): void;
+  has?(child: Define): void;
   
   get(name: string){
-    const defines = [] as DefineContext[];
-    let mod: DefineContext;
+    const defines = [] as Define[];
+    let mod: Define;
     let { define } = this;
 
     while(mod = define[name]){

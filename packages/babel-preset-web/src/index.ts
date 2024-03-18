@@ -6,7 +6,7 @@ import Plugin from './plugin';
 import { HTML_TAGS } from './syntax/tags';
 import t from './types';
 import { Context } from './context/Context';
-import { FunctionContext } from './context/FunctionContext';
+import { Component } from './context/Component';
 
 namespace Preset {
   export interface Options extends Plugin.Options {}
@@ -22,7 +22,7 @@ namespace Preset {
 function Preset(_compiler: any, options: Preset.Options = {} as any): any {
   Object.assign(t, _compiler.types);
 
-  const styles = new Set<Plugin.DefineContext>();
+  const styles = new Set<Plugin.Define>();
 
   return {
     plugins: [
@@ -54,7 +54,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           let contex: Context | undefined = element;
 
           while(contex = contex.parent)
-            if(contex instanceof FunctionContext){
+            if(contex instanceof Component){
               if(contex.usedBy.has(element)){
                 attributes.unshift(
                   t.jsxSpreadAttribute(contex.getProps())
@@ -84,7 +84,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
   }
 }
 
-function print(styles: Iterable<Plugin.DefineContext>){
+function print(styles: Iterable<Plugin.Define>){
   const css = [] as string[];
 
   for(const context of styles){

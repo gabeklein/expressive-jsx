@@ -6,17 +6,17 @@ import { onExit } from '../plugin';
 import { getName } from '../syntax/names';
 import t from '../types';
 import { Context } from './Context';
-import { DefineContext } from './DefineContext';
+import { Define } from './Define';
 
 export function handleSwitch(parent: NodePath<IfStatement>){
-  const ambient = createContext(parent) as DefineContext;
+  const ambient = createContext(parent) as Define;
   const context = parent.get("test").isStringLiteral()
-    ? new SelectorContext(ambient, parent)
-    : new IfContext(ambient, parent);
+    ? new Contingent(ambient, parent)
+    : new Condition(ambient, parent);
 
   onExit(parent, (path, key) => {
     if(key == "conseqent"
-    && context instanceof IfContext
+    && context instanceof Condition
     && context.alternate)
       return;
 
@@ -27,9 +27,9 @@ export function handleSwitch(parent: NodePath<IfStatement>){
   return context;
 }
 
-export class SelectorContext extends DefineContext {
+export class Contingent extends Define {
   constructor(
-    public parent: DefineContext,
+    public parent: Define,
     public path: NodePath<IfStatement>){
 
     const test = path.node.test as StringLiteral;
@@ -43,14 +43,14 @@ export class SelectorContext extends DefineContext {
     return this.parent!.className;
   }
 
-  has(child: DefineContext){
+  has(child: Define){
     child.selector = this.selector + " " + child.selector;
   }
 }
 
-export class IfContext extends DefineContext {
+export class Condition extends Define {
   test: Expression;
-  alternate?: DefineContext;
+  alternate?: Define;
   
   constructor(
     public parent: Context,
@@ -66,7 +66,7 @@ export class IfContext extends DefineContext {
     if(t.isIdentifier(test))
       this.name = test.name;
 
-    if(parent instanceof DefineContext)
+    if(parent instanceof Define)
       parent.also.add(this);
   }
 
@@ -85,7 +85,7 @@ export class IfContext extends DefineContext {
     return t.conditionalExpression(test, value, alt);
   }
 
-  has(child: DefineContext){
+  has(child: Define){
     child.selector = this.selector + " " + child.selector;
   }
 
@@ -96,7 +96,7 @@ export class IfContext extends DefineContext {
     let { alternate, parent, name, path } = this;
 
     if(!alternate){
-      alternate = new DefineContext("not_" + name, parent, path);
+      alternate = new Define("not_" + name, parent, path);
       this.alternate = alternate;
       this.dependant.push(alternate);
     }

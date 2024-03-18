@@ -1,13 +1,13 @@
-import { DefineContext } from './context/DefineContext';
-import { ElementContext } from './context/ElementContext';
+import { Define } from './context/Define';
+import { Element } from './context/Element';
 
 export type Macro =
-  (this: DefineContext, ...args: any[]) =>
+  (this: Define, ...args: any[]) =>
     Record<string, any> | void;
 
 export interface Options {
   macros?: Record<string, Macro>[];
-  define?: Record<string, DefineContext>[];
-  apply?(element: ElementContext): void;
+  define?: Record<string, Define>[];
+  apply?(element: Element): void;
   polyfill?: string | null;
 }

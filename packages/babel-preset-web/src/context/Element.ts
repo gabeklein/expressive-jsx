@@ -3,11 +3,11 @@ import { Expression, JSXElement } from '@babel/types';
 
 import t from '../types';
 import { Context } from './Context';
-import { DefineContext } from './DefineContext';
+import { Define } from './Define';
 import { getNames } from '../syntax/names';
 
-export class ElementContext extends Context {
-  using = new Set<DefineContext>();
+export class Element extends Context {
+  using = new Set<Define>();
 
   constructor(
     public parent: Context,
@@ -17,7 +17,7 @@ export class ElementContext extends Context {
   }
 
   get(name: string){
-    const mods = new Set<DefineContext>();
+    const mods = new Set<Define>();
 
     for(const ctx of [this.parent!, ...this.using])
       ctx.get(name).forEach(x => mods.add(x));
@@ -25,7 +25,7 @@ export class ElementContext extends Context {
     return Array.from(mods);
   }
 
-  use(name: string | DefineContext){
+  use(name: string | Define){
     const apply = typeof name == "string"
       ? this.get(name) : [name];
 

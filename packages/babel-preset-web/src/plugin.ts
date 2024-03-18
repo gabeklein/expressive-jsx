@@ -2,9 +2,9 @@ import { PluginObj, PluginPass } from '@babel/core';
 import { Node, NodePath, VisitNodeObject } from '@babel/traverse';
 
 import { Context } from './context/Context';
-import { DefineContext } from './context/DefineContext';
-import { ElementContext } from './context/ElementContext';
-import { FunctionContext } from './context/FunctionContext';
+import { Define } from './context/Define';
+import { Element } from './context/Element';
+import { Component } from './context/Component';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
 import { getNames } from './syntax/names';
@@ -21,9 +21,7 @@ type Visitor<T extends Node> =
   VisitNodeObject<PluginPass & { context: Context }, T>;
 
 declare namespace Plugin {
-  export { Options };
-  export { Macro };
-  export { DefineContext }
+  export { Options, Macro, Define };
 }
 
 function Plugin(){
@@ -103,7 +101,7 @@ const JSXElement: Visitor<JSXElement> = {
       return;
 
     const context = createContext(path, false);
-    const element = new ElementContext(context, path);
+    const element = new Element(context, path);
     const { apply } = state.opts as Options;
 
     getNames(path).forEach((path, name) => {
@@ -117,9 +115,9 @@ const JSXElement: Visitor<JSXElement> = {
       apply(element);
   },
   exit(path, state){
-    const { parent } = Context.get(path) as ElementContext;
+    const { parent } = Context.get(path) as Element;
 
-    if(!(parent instanceof FunctionContext) || parent.usedBy.size || parent.empty)
+    if(!(parent instanceof Component) || parent.usedBy.size || parent.empty)
       return;
 
     const [ inserted ] = path.replaceWith(
@@ -130,7 +128,7 @@ const JSXElement: Visitor<JSXElement> = {
       )
     )
 
-    const wrapper = new ElementContext(parent, inserted);
+    const wrapper = new Element(parent, inserted);
     const { apply } = state.opts as Options;
 
     wrapper.use(parent);

@@ -2,9 +2,9 @@ import { NodePath } from '@babel/traverse';
 import { LabeledStatement } from '@babel/types';
 
 import { Context, getContext } from './context/Context';
-import { DefineContext } from './context/DefineContext';
-import { FunctionContext } from './context/FunctionContext';
-import { handleSwitch, IfContext } from './context/IfContext';
+import { Define } from './context/Define';
+import { Component } from './context/Component';
+import { handleSwitch, Condition } from './context/Contingent';
 import { parseError } from './helper/errors';
 import { parseArgument } from './syntax/arguments';
 
@@ -15,7 +15,7 @@ export function handleLabel(path: NodePath<LabeledStatement>){
 
   if(body.isBlockStatement()){
     context.define[name] =
-      new DefineContext(name, context, path);
+      new Define(name, context, path);
 
     return;
   }
@@ -23,7 +23,7 @@ export function handleLabel(path: NodePath<LabeledStatement>){
   if(!body.isExpressionStatement())
     throw parseError(body, "Not an expression", name);
 
-  if(!(context instanceof DefineContext))
+  if(!(context instanceof Define))
     throw parseError(body, "Bad context", name);
 
   const args = parseArgument(body);
@@ -52,14 +52,14 @@ export function createContext(path: NodePath, required?: boolean){
 
   const context = Context.get(parent);
 
-  if(context instanceof IfContext)
+  if(context instanceof Condition)
     return context.for(key);
 
   if(context)
     return context;
 
   if(parent.isFunction())
-    return new FunctionContext(parent);
+    return new Component(parent);
 
   if(parent.isIfStatement())
     return handleSwitch(parent);

@@ -5,9 +5,9 @@ import { onExit } from '../plugin';
 import { getName, uniqueIdentifier } from '../syntax/names';
 import t from '../types';
 import { getContext } from './Context';
-import { DefineContext } from './DefineContext';
+import { Define } from './Define';
 
-export class FunctionContext extends DefineContext {
+export class Component extends Define {
   body: NodePath<BlockStatement | Expression>;
 
   constructor(public path: NodePath<Function>) {
