@@ -1,5 +1,6 @@
-import { Context, DefineContext } from './context';
-import { t } from './types';
+import { Context } from './Context';
+import { DefineContext } from './DefineContext';
+import { t } from '../types';
 
 import type { NodePath } from '@babel/traverse';
 import type { Expression, JSXElement } from '@babel/types';

@@ -1,5 +1,7 @@
-import { Context, DefineContext, FunctionContext } from './context';
-import { ElementContext } from './elements';
+import { Context } from './context/Context';
+import { DefineContext } from './context/DefineContext';
+import { FunctionContext } from './context/FunctionContext';
+import { ElementContext } from './context/ElementContext';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
 import { t } from './types';

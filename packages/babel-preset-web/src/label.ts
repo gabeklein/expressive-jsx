@@ -1,20 +1,22 @@
+import { Context, getContext } from './context/Context';
+import { DefineContext } from './context/DefineContext';
+import { FunctionContext } from './context/FunctionContext';
+import { handleSwitch, IfContext } from './context/IfContext';
+import { parseError } from './helper/errors';
+import { parseArgument } from './syntax/arguments';
+
 import type { NodePath } from '@babel/traverse';
 import type { LabeledStatement } from '@babel/types';
 
-import { Context, DefineContext, FunctionContext, getContext } from './context';
-import { parseError } from './helper/errors';
-import { handleSwitch, IfContext } from './switch';
-import { parseArgument } from './syntax/arguments';
-
 export function handleLabel(path: NodePath<LabeledStatement>){
-  const context = createContext(path)
+  const context = createContext(path);
   const body = path.get("body");
   let { name } = path.node.label;
 
   if(body.isBlockStatement()){
-    context.add(
-      new DefineContext(name, context, path)
-    );
+    context.define[name] =
+      new DefineContext(name, context, path);
+
     return;
   }
 
@@ -34,7 +36,7 @@ export function handleLabel(path: NodePath<LabeledStatement>){
   }
 }
 
-export function createContext(path: NodePath, required?: boolean): any {
+export function createContext(path: NodePath, required?: boolean){
   let parent = path.parentPath!;
   let key = path.key;
 

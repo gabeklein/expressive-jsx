@@ -1,8 +1,9 @@
-import { Context, DefineContext } from './context';
-import { createContext } from './label';
-import { onExit } from './plugin';
-import { getName } from './syntax/names';
-import { t } from './types';
+import { Context } from './Context';
+import { DefineContext } from './DefineContext';
+import { createContext } from '../label';
+import { onExit } from '../plugin';
+import { getName } from '../syntax/names';
+import { t } from '../types';
 
 import type { NodePath } from '@babel/traverse';
 import type { Expression, IfStatement, StringLiteral } from '@babel/types';
@@ -27,8 +28,6 @@ export function handleSwitch(parent: NodePath<IfStatement>){
 }
 
 export class SelectorContext extends DefineContext {
-  selects: string;
-  
   constructor(
     public parent: DefineContext,
     public path: NodePath<IfStatement>){
@@ -37,20 +36,15 @@ export class SelectorContext extends DefineContext {
 
     super(test.value, parent, path);
     parent.dependant.push(this);
-    this.selects = test.value;
-  }
-
-  get selector(){
-    return this.parent.selector + this.selects;
+    this.selector = this.parent.selector + test.value;
   }
 
   get className(){
     return this.parent!.className;
   }
 
-  add(child: DefineContext){
-    child.within = this;
-    super.add(child);
+  has(child: DefineContext){
+    child.selector = this.selector + " " + child.selector;
   }
 }
 
@@ -78,21 +72,21 @@ export class IfContext extends DefineContext {
 
   get className(){
     const { test, alternate, uid } = this;
+    const value = t.stringLiteral(uid);
 
     if(!alternate)
-      return t.logicalExpression("&&", test, t.stringLiteral(uid));
+      return t.logicalExpression("&&", test, value);
 
     let alt = alternate.className!;
 
     if(typeof alt === "string")
       alt = t.stringLiteral(alt);
 
-    return t.conditionalExpression(test, t.stringLiteral(uid), alt);
+    return t.conditionalExpression(test, value, alt);
   }
 
-  add(child: DefineContext){
-    child.within = this;
-    super.add(child);
+  has(child: DefineContext){
+    child.selector = this.selector + " " + child.selector;
   }
 
   for(key: unknown){

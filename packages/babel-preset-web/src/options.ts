@@ -1,5 +1,5 @@
-import { DefineContext } from './context';
-import { ElementContext } from './elements';
+import { DefineContext } from './context/DefineContext';
+import { ElementContext } from './context/ElementContext';
 
 export type Macro =
   (this: DefineContext, ...args: any[]) =>

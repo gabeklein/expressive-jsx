@@ -5,7 +5,8 @@ import { camelToDash } from './macros/util';
 import Plugin from './plugin';
 import { HTML_TAGS } from './syntax/tags';
 import { t } from './types';
-import { Context, FunctionContext } from './context';
+import { Context } from './context/Context';
+import { FunctionContext } from './context/FunctionContext';
 
 namespace Preset {
   export interface Options extends Plugin.Options {}

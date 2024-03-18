@@ -1,13 +1,10 @@
-import { ElementContext } from './elements';
-import { simpleHash } from './helper/simpleHash';
-import { Macro, Options } from './options';
-import { onExit } from './plugin';
-import { getProp, getProps } from './syntax/function';
-import { getName } from './syntax/names';
-import { t } from './types';
+import { DefineContext } from './DefineContext';
+import { simpleHash } from '../helper/simpleHash';
+import { Macro, Options } from '../options';
+import { t } from '../types';
 
 import type { NodePath, Scope } from '@babel/traverse';
-import type { BlockStatement, Expression, Function, Program } from '@babel/types';
+import type { Program } from '@babel/types';
 
 const CONTEXT = new WeakMap<NodePath, Context>();
 
@@ -54,10 +51,7 @@ export class Context {
       throw new Error("Invalid context input.");
   }
 
-  add(child: DefineContext){
-    if(child.name)
-      this.define[child.name] = child;
-  }
+  has?(child: DefineContext): void;
   
   get(name: string){
     const defines = [] as DefineContext[];
@@ -67,7 +61,7 @@ export class Context {
     while(mod = define[name]){
       defines.push(mod, ...mod.also);
 
-      if(mod instanceof FunctionContext)
+      if(name == "this")
         break;
 
       define = Object.getPrototypeOf(define);
@@ -114,124 +108,6 @@ export class Context {
     }
   
     return concat;
-  }
-}
-
-export class DefineContext extends Context {
-  also = new Set<DefineContext>();
-  styles: Record<string, string | unknown[]> = {};
-  usedBy = new Set<ElementContext>();
-  within?: DefineContext;
-  dependant: DefineContext[] = [];
-
-  constructor(
-    public name: string,
-    public parent: Context,
-    public path: NodePath){
-
-    super(parent, path);
-    this.uid = name + "_" + simpleHash(parent?.uid);
-  }
-
-  get empty(){
-    return Object.keys(this.styles).length === 0;
-  }
-
-  get className(): Expression | string | undefined {
-    return this.uid;
-  }
-
-  get selector(){
-    let selector = `.${this.uid}`;
-
-    for(let x = this.within; x; x = x.within)
-      selector = `.${x.uid} ${selector}`;
-
-    return selector;
-  }
-  
-  macro(name: string, args: any[]){
-    const queue = [{ name, args }];
-
-    while(queue.length){
-      const { name, args } = queue.pop()!;
-      const macro = this.macros[name];
-      const apply = (args: any) => {
-        this.styles[name] = args;
-      }
-   
-      if(!macro){
-        apply(args);
-        continue;
-      }
-  
-      const output = macro.apply(this, args);
-  
-      if(!output)
-        continue;
-  
-      if(Array.isArray(output)){
-        apply(output);
-        continue;
-      }
-      
-      if(typeof output != "object")
-        throw new Error("Invalid modifier output.");
-  
-      for(const key in output){
-        let args = output[key];
-  
-        if(args === undefined)
-          continue;
-
-        if(!Array.isArray(args))
-          args = [args];
-  
-        if(key === name)
-          apply(args);
-        else
-          queue.push({ name: key, args });
-      }
-    }
-  }
-}
-
-export class FunctionContext extends DefineContext {
-  body: NodePath<BlockStatement | Expression>;
-
-  constructor(public path: NodePath<Function>){
-    const name = getName(path);
-    const ctx = getContext(path);
-
-    onExit(path, () => {
-      const body = path.get("body");
-
-      if(body.isBlockStatement() && body.node.body.length == 0)
-        body.pushContainer("body", t.expressionStatement(
-          t.jsxElement(
-            t.jsxOpeningElement(t.jsxIdentifier("this"), [], true),
-            undefined, [], true
-          )
-        ));
-    });
-
-    super(name, ctx, path);
-  
-    this.define["this"] = this;
-    this.body = path.get("body");
-  }
-
-  get className(){
-    if(!this.empty || this.dependant.length)
-      return super.className;
-  }
-
-  getProp(name: string){
-    return getProp(this.path, name);
-  }
-
-  getProps(){
-    return getProps(this.path);
   }
 }
 
