@@ -4,6 +4,7 @@ import { Expression, JSXElement } from '@babel/types';
 import t from '../types';
 import { Context } from './Context';
 import { DefineContext } from './DefineContext';
+import { getNames } from '../syntax/names';
 
 export class ElementContext extends Context {
   using = new Set<DefineContext>();
@@ -13,33 +14,6 @@ export class ElementContext extends Context {
     public path: NodePath<JSXElement>){
 
     super(parent, path);
-
-    const opening = path.get("openingElement");
-    const attrs = opening.get("attributes");
-    let name = opening.get("name");
-
-    while(name.isJSXMemberExpression()){
-      this.use(name.get("property").toString());
-      name = name.get("object");
-    }
-
-    if(name.isJSXIdentifier())
-      this.use(name.toString());
-
-    attrs.forEach(attr => {
-      if(!attr.isJSXAttribute() || attr.node.value)
-        return;
-
-      let { name } = attr.node.name;
-    
-      if(typeof name !== "string")
-        name = name.name;
-
-      const applied = this.use(name);
-      
-      if(applied.length)
-        attr.remove();
-    });
   }
 
   get(name: string){
@@ -74,9 +48,7 @@ export class ElementContext extends Context {
   }
 
   getProp(name: string){
-    const { attributes } = this.path.node.openingElement;
-
-    for(const attr of attributes)
+    for(const attr of this.path.node.openingElement.attributes)
       if(t.isJSXAttribute(attr) && attr.name.name === name){
         const { value } = attr;
 

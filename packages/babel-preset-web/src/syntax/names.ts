@@ -4,6 +4,7 @@ import {
   Class,
   Function,
   FunctionDeclaration,
+  JSXElement,
   LabeledStatement,
   ObjectProperty,
   VariableDeclaration,
@@ -97,6 +98,34 @@ export function getName(path: NodePath): string {
     }
 
   return "element";
+}
+
+export function getNames(path: NodePath<JSXElement>){
+  const names = new Map<string, NodePath>();
+  const opening = path.get("openingElement");
+  let tag = opening.get("name");
+
+  while(tag.isJSXMemberExpression()){
+    names.set(tag.get("property").toString(), tag);
+    tag = tag.get("object");
+  }
+
+  if(tag.isJSXIdentifier())
+    names.set(tag.toString(), tag);
+
+  opening.get("attributes").forEach(attr => {
+    if(!attr.isJSXAttribute() || attr.node.value)
+      return;
+
+    let { name } = attr.node.name;
+  
+    if(typeof name !== "string")
+      name = name.name;
+
+    names.set(name, attr);
+  });
+
+  return names;
 }
 
 export function getLocalFilename(hub: Hub){

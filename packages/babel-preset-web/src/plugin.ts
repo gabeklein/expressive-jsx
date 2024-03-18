@@ -7,6 +7,7 @@ import { ElementContext } from './context/ElementContext';
 import { FunctionContext } from './context/FunctionContext';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
+import { getNames } from './syntax/names';
 import t from './types';
 
 import type {
@@ -104,6 +105,13 @@ const JSXElement: Visitor<JSXElement> = {
     const context = createContext(path, false);
     const element = new ElementContext(context, path);
     const { apply } = state.opts as Options;
+
+    getNames(path).forEach((path, name) => {
+      const applied = element.use(name);
+
+      if(applied.length && path.isJSXAttribute())
+        path.remove();
+    });
 
     if(apply)
       apply(element);
