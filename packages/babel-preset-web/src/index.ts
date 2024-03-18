@@ -33,9 +33,8 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           ...options.macros || []
         ],
         apply(element){
-          const { using, path } = element;
-          const { name, attributes } = path.node.openingElement;
-          const used = new Set(using);
+          const { name, attributes } = element.path.node.openingElement;
+          const used = new Set(element.using);
        
           for(const define of used)
             if(define.className)
@@ -51,18 +50,18 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           && !HTML_TAGS.includes(name.name))
             element.setTagName("div");
 
-          let contex: Context | undefined = element;
+          let context: Context | undefined = element;
 
-          while(contex = contex.parent)
-            if(contex instanceof Component){
-              if(contex.usedBy.has(element)){
+          while(context = context.parent)
+            if(context instanceof Component){
+              if(context.usedBy.has(element)){
                 attributes.unshift(
-                  t.jsxSpreadAttribute(contex.getProps())
+                  t.jsxSpreadAttribute(context.getProps())
                 )
     
                 if(element.getProp("className"))
                   element.addClassName(
-                    contex.getProp("className")
+                    context.getProp("className")
                   )
               }
 

@@ -22,10 +22,9 @@ export class Context {
 
   constructor(
     input: Context | Options,
-    public path?: NodePath){
+    public path: NodePath){
 
-    if(path)
-      CONTEXT.set(path, this);
+    CONTEXT.set(path, this);
 
     if(input instanceof Context){
       this.define = Object.create(input.define);
@@ -34,7 +33,7 @@ export class Context {
       this.parent = input;
       this.uid = simpleHash(input?.uid);
     }
-    else if(path && path.isProgram()) {
+    else if(path.isProgram()) {
       const name = (path.hub as any).file.opts.filename as string;
       
       if(!input.apply)
