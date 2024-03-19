@@ -78,7 +78,7 @@ export class Context {
 
     const { polyfill } = context.options;
     const program = context.path as NodePath<Program>;
-    const body = (program as NodePath<Program>).get("body");
+    const body = program.get("body");
   
     for(const statement of body){
       if(!statement.isImportDeclaration()
