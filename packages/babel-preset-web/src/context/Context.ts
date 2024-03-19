@@ -54,12 +54,12 @@ export class Context {
   has?(child: Define): void;
   
   get(name: string){
-    const defines = [] as Define[];
+    const applicable = [] as Define[];
     let mod: Define;
     let { define } = this;
 
     while(mod = define[name]){
-      defines.push(mod, ...mod.also);
+      applicable.push(mod, ...mod.also);
 
       if(name == "this")
         break;
@@ -67,7 +67,7 @@ export class Context {
       define = Object.getPrototypeOf(define);
     }
 
-    return defines.reverse();
+    return applicable.reverse();
   }
 
   getHelper(name: string){

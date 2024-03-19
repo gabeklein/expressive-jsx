@@ -60,8 +60,8 @@ export class Element extends Context {
   }
 
   addClassName(name: string | Expression){
-    const { attributes } = this.path.node.openingElement;
     const existing = this.getProp("className");
+    const opening = this.path.get("openingElement")
   
     if(typeof name == "string")
       name = t.stringLiteral(name);
@@ -72,7 +72,8 @@ export class Element extends Context {
     }
   
     if(!existing){
-      attributes.push(
+      opening.pushContainer(
+        "attributes",
         t.jsxAttribute(
           t.jsxIdentifier("className"),
           t.isStringLiteral(name)
@@ -98,10 +99,10 @@ export class Element extends Context {
         return;
       }
   
-    for(const attr of attributes)
-      if(t.isJSXAttribute(attr)
-      && t.isJSXIdentifier(attr.name, { name: "className" })){
-        attr.value = t.jsxExpressionContainer(
+    for(const attr of opening.get("attributes"))
+      if(attr.isJSXAttribute()
+      && attr.get("name").isJSXIdentifier({ name: "className" })){
+        attr.node.value = t.jsxExpressionContainer(
           t.callExpression(concat, [name, existing])
         )
         return;
