@@ -1,11 +1,12 @@
-import { BabelFileMetadata, BabelFileResult } from '@babel/core';
-import { Expression } from '@babel/types';
+import { BabelFileMetadata, BabelFileResult, NodePath } from '@babel/core';
+import { Expression, Function } from '@babel/types';
 
 import { Component } from './context/Component';
 import { Context } from './context/Context';
 import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
+import { getProp, getProps } from './syntax/component';
 import { HTML_TAGS } from './syntax/tags';
 import t from './types';
 
@@ -58,14 +59,16 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
 
           while(context = context.parent)
             if(context instanceof Component){
+              const path = context.path as NodePath<Function>;
+
               if(context.usedBy.has(element)){
                 attributes.unshift(
-                  t.jsxSpreadAttribute(context.getProps())
+                  t.jsxSpreadAttribute(getProps(path))
                 )
     
                 if(element.getProp("className"))
                   element.addClassName(
-                    context.getProp("className")
+                    getProp(path, "className")
                   )
               }
 
