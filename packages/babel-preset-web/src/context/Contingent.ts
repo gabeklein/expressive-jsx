@@ -10,6 +10,7 @@ import { Define } from './Define';
 export class Contingent extends Define {
   condition: Expression;
   alternate?: Define;
+  parent: Define;
   
   constructor(
     public path: NodePath<IfStatement>){
@@ -21,6 +22,7 @@ export class Contingent extends Define {
     super(name, parent, path);
 
     this.condition = test;
+    this.parent = parent;
 
     if(t.isStringLiteral(test)){
       parent.dependant.add(this);
@@ -30,35 +32,17 @@ export class Contingent extends Define {
       parent.also.add(this);
 
     onExit(path, (path, key) => {
-      if(key == "conseqent" && this.alternate)
+      if(key == "alternate" || this.alternate)
         return;
-  
+
       if(!path.removed)
         path.remove();
     });
   }
 
-  get className(){
-    const { condition, alternate, uid } = this;
-
-    if(t.isStringLiteral(condition))
-      return;
-
-    const value = t.stringLiteral(uid);
-
-    if(!alternate)
-      return t.logicalExpression("&&", condition, value);
-
-    let alt = alternate.className!;
-
-    if(typeof alt === "string")
-      alt = t.stringLiteral(alt);
-
-    return t.conditionalExpression(condition, value, alt);
-  }
-
   has(child: Define){
     child.selector = this.selector + " " + child.selector;
+    this.dependant.add(child);
   }
 
   for(key: unknown){

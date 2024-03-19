@@ -173,6 +173,7 @@ it.skip("will recycle child classnames", async () => {
       </div>
     );
   `);
+
   expect(output.css).toMatchInlineSnapshot(`
     .div_tla {
       color: green;

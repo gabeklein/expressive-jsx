@@ -31,11 +31,6 @@ export class Component extends Define {
     });
   }
 
-  get className() {
-    if(!this.empty || this.dependant.size)
-      return super.className;
-  }
-
   getProp(name: string) {
     const { node, scope } = this.path;
     let [props] = node.params;

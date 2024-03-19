@@ -1,12 +1,13 @@
 import { BabelFileMetadata, BabelFileResult } from '@babel/core';
+import { Expression } from '@babel/types';
 
+import { Component } from './context/Component';
+import { Context } from './context/Context';
 import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
 import { HTML_TAGS } from './syntax/tags';
 import t from './types';
-import { Context } from './context/Context';
-import { Component } from './context/Component';
 
 namespace Preset {
   export interface Options extends Plugin.Options {}
@@ -36,9 +37,12 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           const { name, attributes } = element.path.node.openingElement;
           const used = new Set(element.using);
        
-          for(const define of used)
-            if(define.className)
-              element.addClassName(define.className);
+          for(const define of used){
+            const className = getClassName(define);
+
+            if(className)
+              element.addClassName(className);
+          }
 
           for(const context of used){
             context.dependant.forEach(x => used.add(x));
@@ -81,6 +85,33 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
       }]
     ]
   }
+}
+
+function getClassName(context: Plugin.Define): Expression | undefined {
+  if(context.empty && !context.dependant.size)
+    return;
+
+  const { condition, alternate, uid} = context;
+
+  if(typeof condition == "string" || t.isStringLiteral(condition))
+    return;
+
+  const value = t.stringLiteral(uid);
+
+  if(!condition)
+    return value;
+
+  if(alternate){
+    let alt = getClassName(alternate);
+
+    if(typeof alt === "string")
+      alt = t.stringLiteral(alt);
+
+    if(alt)
+      return t.conditionalExpression(condition, value, alt);
+  }
+
+  return t.logicalExpression("&&", condition, value);
 }
 
 function print(styles: Iterable<Plugin.Define>){

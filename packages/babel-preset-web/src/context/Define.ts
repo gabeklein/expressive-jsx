@@ -11,6 +11,8 @@ export class Define extends Context {
   usedBy = new Set<Element>();
   dependant = new Set<Define>();
   selector: string;
+  condition?: Expression | string;
+  alternate?: Define;
 
   constructor(
     public name: string,
@@ -29,10 +31,6 @@ export class Define extends Context {
 
   get empty() {
     return Object.keys(this.styles).length === 0;
-  }
-
-  get className(): Expression | string | undefined {
-    return this.uid;
   }
 
   macro(name: string, args: any[]) {
