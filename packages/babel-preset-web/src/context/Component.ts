@@ -32,7 +32,7 @@ export class Component extends Define {
   }
 
   get className() {
-    if(!this.empty || this.dependant.length)
+    if(!this.empty || this.dependant.size)
       return super.className;
   }
 

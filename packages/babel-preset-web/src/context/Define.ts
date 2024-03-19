@@ -9,7 +9,7 @@ export class Define extends Context {
   also = new Set<Define>();
   styles: Record<string, string | unknown[]> = {};
   usedBy = new Set<Element>();
-  dependant: Define[] = [];
+  dependant = new Set<Define>();
   selector: string;
 
   constructor(

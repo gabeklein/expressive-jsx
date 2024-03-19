@@ -23,7 +23,7 @@ export class Contingent extends Define {
     this.condition = test;
 
     if(t.isStringLiteral(test)){
-      parent.dependant.push(this);
+      parent.dependant.add(this);
       this.selector = parent.selector + test.value;
     }
     else
@@ -68,7 +68,7 @@ export class Contingent extends Define {
       if(!alternate){
         alternate = new Define("not_" + name, parent, path);
         this.alternate = alternate;
-        this.dependant.push(alternate);
+        this.dependant.add(alternate);
       }
 
       return alternate;
