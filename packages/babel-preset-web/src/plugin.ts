@@ -1,7 +1,6 @@
 import { PluginObj, PluginPass } from '@babel/core';
 import { Node, NodePath, VisitNodeObject } from '@babel/traverse';
 
-import { Component } from './context/Component';
 import { Context } from './context/Context';
 import { Define } from './context/Define';
 import { Element } from './context/Element';
@@ -22,7 +21,6 @@ type Visitor<T extends Node> =
 
 declare namespace Plugin {
   export {
-    Component,
     Context,
     Define,
     Element,
@@ -110,7 +108,10 @@ const JSXElement: Visitor<JSXElement> = {
   exit(path, state){
     const { parent } = Context.get(path) as Element;
 
-    if(!(parent instanceof Component) || parent.usedBy.size || parent.empty)
+    if(!(parent instanceof Define)
+    || parent.define.this !== parent
+    || parent.usedBy.size
+    || parent.empty)
       return;
 
     const [ inserted ] = path.replaceWith(

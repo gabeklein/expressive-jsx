@@ -1,8 +1,8 @@
-import { BabelFileMetadata, BabelFileResult, NodePath } from '@babel/core';
-import { Expression, Function } from '@babel/types';
+import { BabelFileMetadata, BabelFileResult } from '@babel/core';
+import { Expression } from '@babel/types';
 
-import { Component } from './context/Component';
 import { Context } from './context/Context';
+import { Define } from './context/Define';
 import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
@@ -57,10 +57,10 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
 
           let context: Context | undefined = element;
 
-          while(context = context.parent)
-            if(context instanceof Component){
-              const path = context.path as NodePath<Function>;
-
+          while(context = context.parent){
+            const path = context.path;
+    
+            if(context instanceof Define && path.isFunction()){
               if(context.usedBy.has(element)){
                 attributes.unshift(
                   t.jsxSpreadAttribute(getProps(path))
@@ -74,6 +74,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
 
               break;
             }
+          }
         },
       }],
       [{
