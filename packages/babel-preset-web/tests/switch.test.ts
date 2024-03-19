@@ -136,3 +136,49 @@ it.skip("will apply without brackets", async () => {
   expect(output.code).toMatchInlineSnapshot();
   expect(output.css).toMatchInlineSnapshot();
 });
+
+it.skip("will recycle child classnames", async () => {
+  const output = await parser(`
+    const Component = ({ active }) => {
+      div: {
+        color: green;
+      }
+    
+      if(active)
+        div: {
+          color: red;
+        }
+      else
+        div: {
+          color: blue;
+        }
+    
+      <this>
+        <div>
+          Hello World
+        </div>
+      </this>
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(`
+    const Component = ({ className, active, ...rest }) => (
+      <div
+        {...rest}
+        className={classNames(
+          className,
+          active ? 'active_tla' : 'not_active_tla'
+        )}>
+        <div className="div_tla div_xt4">Hello World</div>
+      </div>
+    );
+  `);
+  expect(output.css).toMatchInlineSnapshot(`
+    .div_tla {
+      color: green;
+    }
+    .active_tla .div_xt4 {
+      color: red;
+    }
+  `);
+});
