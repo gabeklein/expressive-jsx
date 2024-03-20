@@ -7,6 +7,7 @@ import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
 import { getProp, getProps } from './syntax/component';
+import { addClassName, hasProp, setTagName } from './syntax/jsx';
 import { HTML_TAGS } from './syntax/tags';
 import t from './types';
 
@@ -25,6 +26,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
   Object.assign(t, _compiler.types);
 
   const styles = new Set<Plugin.Define>();
+  const polyfill = options.polyfill || null;
 
   return {
     plugins: [
@@ -35,14 +37,15 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           ...options.macros || []
         ],
         apply(element){
-          const { name, attributes } = element.path.node.openingElement;
+          const { path } = element;
+          const opening = path.get("openingElement");
           const used = new Set(element.using);
        
           for(const define of used){
             const className = getClassName(define);
 
             if(className)
-              element.addClassName(className);
+              addClassName(path, className, polyfill);
           }
 
           for(const context of used){
@@ -50,26 +53,26 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
             styles.add(context);
           }
 
+          const { name } = element.path.node.openingElement;
+
           if(t.isJSXIdentifier(name)
           && !/^[A-Z]/.test(name.name)
           && !HTML_TAGS.includes(name.name))
-            element.setTagName("div");
+            setTagName(path, "div");
 
           let context: Context | undefined = element;
 
           while(context = context.parent){
-            const path = context.path;
+            const parent = context.path;
     
-            if(context instanceof Define && path.isFunction()){
+            if(context instanceof Define && parent.isFunction()){
               if(context.usedBy.has(element)){
-                attributes.unshift(
-                  t.jsxSpreadAttribute(getProps(path))
+                opening.unshiftContainer("attributes",
+                  t.jsxSpreadAttribute(getProps(parent))
                 )
     
-                if(element.getProp("className"))
-                  element.addClassName(
-                    getProp(path, "className")
-                  )
+                if(hasProp(element.path, "className"))
+                  addClassName(path, getProp(parent, "className"), polyfill)
               }
 
               break;
@@ -129,6 +132,20 @@ function print(styles: Iterable<Plugin.Define>){
 
     for(const [name, value] of Object.entries(context.styles))
       styles.push(`  ${camelToDash(name)}: ${value};`);
+
+    let selector = `.${context.uid}`;
+
+    for(let x = context.parent; x; x = x.parent!)
+      if(x instanceof Define && x.condition){
+        const { condition, parent, uid } = x;
+
+        if(typeof condition === "string")
+          selector = "." + parent.uid + condition + " " + selector;
+        else
+          selector = "." + uid + selector;
+
+        x.dependant.add(context);
+      }
 
     css.push(context.selector + " {\n" + styles.join("\n") + "\n}");
   }
