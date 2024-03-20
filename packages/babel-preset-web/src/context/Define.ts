@@ -43,34 +43,34 @@ export class Define extends Context {
         this.styles[name] = args;
       };
 
-      if (!macro) {
+      if(!macro) {
         apply(args);
         continue;
       }
 
       const output = macro.apply(this, args);
 
-      if (!output)
+      if(!output)
         continue;
 
-      if (Array.isArray(output)) {
+      if(Array.isArray(output)) {
         apply(output);
         continue;
       }
 
-      if (typeof output != "object")
+      if(typeof output != "object")
         throw new Error("Invalid modifier output.");
 
-      for (const key in output) {
+      for(const key in output) {
         let args = output[key];
 
-        if (args === undefined)
+        if(args === undefined)
           continue;
 
-        if (!Array.isArray(args))
+        if(!Array.isArray(args))
           args = [args];
 
-        if (key === name)
+        if(key === name)
           apply(args);
 
         else
