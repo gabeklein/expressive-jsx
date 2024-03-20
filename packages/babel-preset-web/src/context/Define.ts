@@ -14,6 +14,10 @@ export class Define extends Context {
   condition?: Expression | string;
   alternate?: Define;
 
+  get empty() {
+    return Object.keys(this.styles).length === 0;
+  }
+
   constructor(
     public name: string,
     public parent: Context,
@@ -32,10 +36,6 @@ export class Define extends Context {
       }
 
     this.selector = selector;
-  }
-
-  get empty() {
-    return Object.keys(this.styles).length === 0;
   }
 
   macro(name: string, args: any[]) {
