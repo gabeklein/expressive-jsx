@@ -31,7 +31,7 @@ export function getNames(path: NodePath<JSXElement>) {
   return names;
 }
 
-export function isImplicitReturn(path: NodePath<JSXElement>){
+export function fixImplicitReturn(path: NodePath<JSXElement>){
   let { node, parentPath: parent } = path;
 
   if(!parent.isExpressionStatement())

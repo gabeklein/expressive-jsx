@@ -6,7 +6,7 @@ import { Define } from './context/Define';
 import { Element } from './context/Element';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
-import { getNames, isImplicitReturn } from './syntax/jsx';
+import { fixImplicitReturn, getNames } from './syntax/jsx';
 import t from './types';
 
 import type {
@@ -88,7 +88,7 @@ const LabeledStatement: Visitor<LabeledStatement> = {
 
 const JSXElement: Visitor<JSXElement> = {
   enter(path, state){
-    if(isImplicitReturn(path))
+    if(fixImplicitReturn(path))
       return;
 
     const context = createContext(path, false);
