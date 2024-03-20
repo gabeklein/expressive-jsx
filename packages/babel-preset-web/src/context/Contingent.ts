@@ -8,8 +8,6 @@ import t from '../types';
 import { Define } from './Define';
 
 export class Contingent extends Define {
-  condition: Expression;
-  alternate?: Define;
   parent: Define;
   
   constructor(
@@ -21,15 +19,17 @@ export class Contingent extends Define {
 
     super(name, parent, path);
 
-    this.condition = test;
     this.parent = parent;
 
     if(t.isStringLiteral(test)){
       parent.dependant.add(this);
       this.selector = parent.selector + test.value;
+      this.condition = test.value;
     }
-    else
+    else {
       parent.also.add(this);
+      this.condition = test;
+    }
 
     onExit(path, (path, key) => {
       if(key == "alternate" || this.alternate)
