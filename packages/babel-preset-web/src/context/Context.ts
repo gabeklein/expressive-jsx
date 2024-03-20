@@ -66,10 +66,6 @@ export class Context {
 
     return applicable.reverse();
   }
-
-  getHelper(name: string){
-    return getHelper(name, this.path, this.options.polyfill);
-  }
 }
 
 export function getContext(path: NodePath){

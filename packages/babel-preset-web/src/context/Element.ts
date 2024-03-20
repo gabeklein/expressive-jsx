@@ -1,6 +1,7 @@
 import { NodePath } from '@babel/traverse';
 import { Expression, JSXElement } from '@babel/types';
 
+import { getHelper } from '../syntax/program';
 import t from '../types';
 import { Context } from './Context';
 import { Define } from './Define';
@@ -83,7 +84,7 @@ export class Element extends Context {
       return;
     }
 
-    const concat = this.getHelper("classNames");
+    const concat = getHelper("classNames", this.path, this.options.polyfill);
   
     if(t.isCallExpression(existing)
     && t.isIdentifier(existing.callee, { name: concat.name }))
