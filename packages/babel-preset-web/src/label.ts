@@ -2,7 +2,6 @@ import { NodePath } from '@babel/traverse';
 import { LabeledStatement } from '@babel/types';
 
 import { Context, getContext } from './context/Context';
-import { Contingent } from './context/Contingent';
 import { Define } from './context/Define';
 import { parseError } from './helper/errors';
 import { onExit } from './plugin';
@@ -54,11 +53,21 @@ export function createContext(path: NodePath, required?: boolean){
 
   const context = Context.get(parent);
 
-  if(context instanceof Contingent)
-    return context.for(key);
-
-  if(context)
+  if(context instanceof Define){
+    if(key === "alternate"){
+      let { alternate, parent, name, path } = context;
+  
+      if(!alternate){
+        alternate = new Define("not_" + name, parent, path);
+        context.alternate = alternate;
+        context.dependant.add(alternate);
+      }
+  
+      return alternate;
+    }
+  
     return context;
+  }
 
   if(parent.isFunction()){
     const name = getName(parent);
@@ -80,8 +89,32 @@ export function createContext(path: NodePath, required?: boolean){
     return component;
   }
 
-  if(parent.isIfStatement())
-    return new Contingent(parent);
+  if(parent.isIfStatement()){
+    const test = parent.node.test;
+    const name = t.isIdentifier(test) ? test.name : "?";
+    const context = createContext(parent) as Define;
+    const define = new Define(name, context, parent);
+
+    if(t.isStringLiteral(test)){
+      context.dependant.add(define);
+      define.selector = context.selector + test.value;
+      define.condition = test.value;
+    }
+    else {
+      context.also.add(define);
+      define.condition = test;
+    }
+
+    onExit(parent, (path, key) => {
+      if(key == "alternate" || define.alternate)
+        return;
+
+      if(!path.removed)
+        path.remove();
+    });
+
+    return define;
+  }
 
   if(required === false)
     return getContext(path);
