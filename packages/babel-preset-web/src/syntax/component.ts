@@ -4,9 +4,9 @@ import { Function, Identifier, Node, ObjectProperty } from '@babel/types';
 import t from '../types';
 import { uniqueIdentifier } from './names';
 
-export function getProp(path: NodePath<Function>, name: string){
-  const { node, scope } = path;
-  let [props] = node.params;
+export function getProp(path: NodePath, name: string){
+  const func = path.find(x => x.isFunction()) as NodePath<Function>;
+  let [ props ] = func.node.params;
 
   if(t.isObjectPattern(props)){
     const { properties } = props;
@@ -28,8 +28,8 @@ export function getProp(path: NodePath<Function>, name: string){
     return id;
   }
   else if(!props){
-    props = uniqueIdentifier(scope, "props");
-    node.params.unshift(props);
+    props = uniqueIdentifier(path.scope, "props");
+    func.unshiftContainer("params", props);
   }
 
   if(t.isIdentifier(props))
@@ -38,13 +38,13 @@ export function getProp(path: NodePath<Function>, name: string){
   throw new Error(`Expected an Identifier or ObjectPattern, got ${props.type}`);
 }
 
-export function getProps(path: NodePath<Function>){
-  const { scope, node: { params } } = path;
-  let [ props ] = params
+export function getProps(path: NodePath){
+  const func = path.find(x => x.isFunction()) as NodePath<Function>;
+  let [ props ] = func.node.params;
   let output: Node | undefined;
 
   if(!props){
-    params.push(output = uniqueIdentifier(scope, "props"));
+    func.pushContainer("params", output = uniqueIdentifier(path.scope, "props"));
   }
   else if(t.isObjectPattern(props)){
     const existing = props.properties.find(x => t.isRestElement(x));
@@ -52,7 +52,7 @@ export function getProps(path: NodePath<Function>){
     if(t.isRestElement(existing))
       output = existing.argument;
 
-    const inserted = t.restElement(uniqueIdentifier(scope, "rest"));
+    const inserted = t.restElement(uniqueIdentifier(path.scope, "rest"));
     
     props.properties.push(inserted)
 

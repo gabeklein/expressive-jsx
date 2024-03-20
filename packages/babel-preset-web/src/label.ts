@@ -15,9 +15,7 @@ export function handleLabel(path: NodePath<LabeledStatement>){
   let { name } = path.node.label;
 
   if(body.isBlockStatement()){
-    context.define[name] =
-      new Define(name, context, path);
-
+    context.define[name] = new Define(name, context, path);
     return;
   }
 

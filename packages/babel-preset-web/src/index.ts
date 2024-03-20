@@ -53,7 +53,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
             styles.add(context);
           }
 
-          const { name } = element.path.node.openingElement;
+          const { name } = opening.node;
 
           if(t.isJSXIdentifier(name)
           && !/^[A-Z]/.test(name.name)
@@ -71,8 +71,8 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
                   t.jsxSpreadAttribute(getProps(parent))
                 )
     
-                if(hasProp(element.path, "className"))
-                  addClassName(path, getProp(parent, "className"), polyfill)
+                if(hasProp(path, "className"))
+                  addClassName(path, getProp(path, "className"), polyfill)
               }
 
               break;
