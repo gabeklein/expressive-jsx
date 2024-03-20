@@ -1,10 +1,8 @@
 import { NodePath } from '@babel/traverse';
-import { Program } from '@babel/types';
 
 import { simpleHash } from '../helper/simpleHash';
 import { Macro, Options } from '../options';
 import { Define } from './Define';
-import { getHelper } from '../syntax/program';
 
 const CONTEXT = new WeakMap<NodePath, Context>();
 
@@ -66,17 +64,4 @@ export class Context {
 
     return applicable.reverse();
   }
-}
-
-export function getContext(path: NodePath){
-  while(path){
-    const context = CONTEXT.get(path);
-
-    if(context instanceof Context)
-      return context;
-
-    path = path.parentPath!;
-  }
-
-  throw new Error("Context not found");
 }

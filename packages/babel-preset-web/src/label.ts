@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/traverse';
 import { LabeledStatement } from '@babel/types';
 
-import { Context, getContext } from './context/Context';
+import { Context } from './context/Context';
 import { Define } from './context/Define';
 import { parseError } from './helper/errors';
 import { onExit } from './plugin';
@@ -116,6 +116,19 @@ export function createContext(path: NodePath, required?: boolean){
 
   if(required === false)
     return getContext(path);
+
+  throw new Error("Context not found");
+}
+
+function getContext(path: NodePath){
+  while(path){
+    const context = Context.get(path);
+
+    if(context instanceof Context)
+      return context;
+
+    path = path.parentPath!;
+  }
 
   throw new Error("Context not found");
 }
