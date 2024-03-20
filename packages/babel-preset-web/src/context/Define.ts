@@ -23,7 +23,7 @@ export class Define extends Context {
     public parent: Context,
     public path: NodePath) {
 
-    super(parent, path);
+    super(path, parent);
 
     this.uid = name + "_" + simpleHash(parent?.uid);
 

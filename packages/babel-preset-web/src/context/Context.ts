@@ -10,7 +10,6 @@ export class Context {
   parent: Context | undefined;
   define: Record<string, Define> = {};
   macros: Record<string, Macro> = {};
-  options: Options;
   uid = "";
 
   static get(from: NodePath){
@@ -18,33 +17,18 @@ export class Context {
   }
 
   constructor(
-    input: Context | Options,
-    public path: NodePath){
+    public path: NodePath,
+    input?: Context){
 
     CONTEXT.set(path, this);
 
     if(input instanceof Context){
+      this.parent = input;
       this.define = Object.create(input.define);
       this.macros = Object.create(input.macros);
-      this.options = input.options;
-      this.parent = input;
       this.uid = simpleHash(input?.uid);
     }
-    else if(path.isProgram()) {
-      const name = (path.hub as any).file.opts.filename as string;
-      
-      if(!input.apply)
-        throw new Error(`Plugin has not defined an apply method.`);
-
-      if(input.polyfill === undefined)
-        input.polyfill = require.resolve("../polyfill");
-
-      this.define = Object.assign({}, ...input.define || []);
-      this.macros = Object.assign({}, ...input.macros || []);
-      this.options = input;
-      this.uid = simpleHash(name);
-    }
-    else
+    else if(!path.isProgram())
       throw new Error("Invalid context input.");
   }
   

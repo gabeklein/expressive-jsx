@@ -4,6 +4,7 @@ import { Node, NodePath, VisitNodeObject } from '@babel/traverse';
 import { Context } from './context/Context';
 import { Define } from './context/Define';
 import { Element } from './context/Element';
+import { simpleHash } from './helper/simpleHash';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
 import { fixImplicitReturn, getNames } from './syntax/jsx';
@@ -15,7 +16,6 @@ import type {
   LabeledStatement,
   Program
 } from '@babel/types';
-
 type Visitor<T extends Node> =
   VisitNodeObject<PluginPass & { context: Context }, T>;
 
@@ -47,7 +47,18 @@ export default Plugin;
 
 const Program: Visitor<Program> = {
   enter(path, state){
-    new Context(state.opts, path);
+    const options = state.opts as Options;
+    const context = new Context(path);
+      
+    if(!options.apply)
+      throw new Error(`Plugin has not defined an apply method.`);
+
+    if(options.polyfill === undefined)
+      options.polyfill = require.resolve("../polyfill");
+
+    context.define = Object.assign({}, ...options.define || []);
+    context.macros = Object.assign({}, ...options.macros || []);
+    context.uid = simpleHash(state.file.opts.filename!);
   }
 }
 
@@ -92,7 +103,7 @@ const JSXElement: Visitor<JSXElement> = {
       return;
 
     const context = createContext(path, false);
-    const element = new Element(context, path);
+    const element = new Element(path, context);
     const { apply } = state.opts as Options;
 
     getNames(path).forEach((path, name) => {
@@ -122,7 +133,7 @@ const JSXElement: Visitor<JSXElement> = {
       )
     )
 
-    const wrapper = new Element(parent, inserted);
+    const wrapper = new Element(inserted, parent);
     const { apply } = state.opts as Options;
 
     wrapper.use(parent);
