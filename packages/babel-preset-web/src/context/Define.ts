@@ -22,11 +22,16 @@ export class Define extends Context {
     super(parent, path);
 
     this.uid = name + "_" + simpleHash(parent?.uid);
-    this.selector = `.${this.uid}`;
 
-    for (let x = this.parent; x; x = x.parent!)
-      if (x.has)
-        x.has(this);
+    let selector = `.${this.uid}`;
+
+    for(let x = this.parent; x; x = x.parent!)
+      if(x instanceof Define && x.condition){
+        selector = x.selector + " " + selector;
+        x.dependant.add(this);
+      }
+
+    this.selector = selector;
   }
 
   get empty() {

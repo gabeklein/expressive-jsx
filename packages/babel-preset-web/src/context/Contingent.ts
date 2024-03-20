@@ -1,5 +1,5 @@
 import { NodePath } from '@babel/traverse';
-import { Expression, IfStatement } from '@babel/types';
+import { IfStatement } from '@babel/types';
 
 import { createContext } from '../label';
 import { onExit } from '../plugin';
@@ -38,11 +38,6 @@ export class Contingent extends Define {
       if(!path.removed)
         path.remove();
     });
-  }
-
-  has(child: Define){
-    child.selector = this.selector + " " + child.selector;
-    this.dependant.add(child);
   }
 
   for(key: unknown){

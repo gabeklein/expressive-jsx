@@ -50,8 +50,6 @@ export class Context {
     else
       throw new Error("Invalid context input.");
   }
-
-  has?(child: Define): void;
   
   get(name: string){
     const applicable = [] as Define[];
