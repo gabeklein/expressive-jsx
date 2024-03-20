@@ -3,9 +3,8 @@ import { Program } from '@babel/types';
 
 import { simpleHash } from '../helper/simpleHash';
 import { Macro, Options } from '../options';
-import { uniqueIdentifier } from '../syntax/names';
-import t from '../types';
 import { Define } from './Define';
+import { getHelper } from '../syntax/program';
 
 const CONTEXT = new WeakMap<NodePath, Context>();
 
@@ -53,8 +52,8 @@ export class Context {
   
   get(name: string){
     const applicable = [] as Define[];
-    let mod: Define;
     let { define } = this;
+    let mod: Define;
 
     while(mod = define[name]){
       applicable.push(mod, ...mod.also);
@@ -69,43 +68,7 @@ export class Context {
   }
 
   getHelper(name: string){
-    let context: Context = this;
-
-    while(context.parent)
-      context = context.parent;
-
-    const { polyfill } = context.options;
-    const program = context.path as NodePath<Program>;
-    const body = program.get("body");
-  
-    for(const statement of body){
-      if(!statement.isImportDeclaration()
-      || statement.node.source.value !== polyfill)
-        continue;
-  
-      const specifiers = statement.get("specifiers");
-  
-      for(const spec of specifiers){
-        if(!spec.isImportSpecifier())
-          continue;
-  
-        if(t.isIdentifier(spec.node.imported, { name }))
-          return spec.node.local;
-      }
-    }
-  
-    const concat = uniqueIdentifier(program.scope, name);
-  
-    if(polyfill){
-      const importStatement = t.importDeclaration(
-        [t.importSpecifier(concat, t.identifier(name))],
-        t.stringLiteral(polyfill)
-      );
-    
-      program.unshiftContainer("body", importStatement);
-    }
-  
-    return concat;
+    return getHelper(name, this.path, this.options.polyfill);
   }
 }
 
