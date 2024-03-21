@@ -64,7 +64,7 @@ const Program: Visitor<Program> = {
 
 const BlockStatement: Visitor<BlockStatement> = {
   exit(path){
-    exit(path.parentPath, path.key);
+    exit(path, path.key);
   }
 }
 
@@ -84,12 +84,9 @@ const LabeledStatement: Visitor<LabeledStatement> = {
   exit(path){
     exit(path, path.key);
 
-    for(let p of path.getAncestry()){
+    for(const p of path.getAncestry()){
       if(p.isLabeledStatement())
         break;
-
-      if(p.isBlockStatement())
-        p = p.parentPath!;
 
       if(!exit(p))
         break;
@@ -149,10 +146,7 @@ type ExitCallback = (path: NodePath, key: string | number | null) => void;
 
 const HANDLED = new WeakMap<NodePath, ExitCallback>();
 
-export function onExit(
-  path: NodePath,
-  callback: (path: NodePath, key: string | number | null) => void){
-
+export function onExit(path: NodePath, callback: ExitCallback){
   HANDLED.set(path, callback);
 }
 
@@ -164,6 +158,9 @@ export function exit(path: NodePath, key?: string | number | null){
     // HANDLED.delete(path);
     return true;
   }
+
+  if(path.isBlockStatement())
+    return exit(path.parentPath!);
 
   return false;
 }
