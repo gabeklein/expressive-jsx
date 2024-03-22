@@ -6,7 +6,6 @@ import { Define } from './Define';
 
 export class Element extends Context {
   using = new Set<Define>();
-  path!: NodePath<JSXElement>;
 
   get(name: string){
     const mods = new Set<Define>();

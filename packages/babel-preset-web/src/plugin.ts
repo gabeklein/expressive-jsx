@@ -111,7 +111,7 @@ const JSXElement: Visitor<JSXElement> = {
     });
 
     if(apply)
-      apply(element);
+      apply(path, element);
   },
   exit(path, state){
     const { parent } = Context.get(path) as Element;
@@ -136,7 +136,7 @@ const JSXElement: Visitor<JSXElement> = {
     wrapper.use(parent);
 
     if(apply)
-      apply(wrapper);
+      apply(inserted, wrapper);
 
     inserted.skip();
   }

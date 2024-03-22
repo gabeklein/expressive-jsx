@@ -36,8 +36,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           Macros,
           ...options.macros || []
         ],
-        apply(element){
-          const { path } = element;
+        apply(path, element){
           const opening = path.get("openingElement");
           const used = new Set(element.using);
        
