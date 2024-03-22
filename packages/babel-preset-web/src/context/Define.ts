@@ -25,7 +25,7 @@ export class Define extends Context {
 
     super(path, parent);
 
-    this.uid = name + "_" + simpleHash(parent?.uid);
+    this.uid = name + "_" + simpleHash(parent.uid);
 
     let selector = `.${this.uid}`;
 

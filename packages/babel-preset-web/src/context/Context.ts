@@ -24,9 +24,9 @@ export class Context {
 
     if(input instanceof Context){
       this.parent = input;
+      this.uid = simpleHash(input.uid);
       this.define = Object.create(input.define);
       this.macros = Object.create(input.macros);
-      this.uid = simpleHash(input?.uid);
     }
     else if(!path.isProgram())
       throw new Error("Invalid context input.");
