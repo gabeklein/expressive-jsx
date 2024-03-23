@@ -14,14 +14,14 @@ export class Define extends Context {
   condition?: Expression | string;
   alternate?: Define;
 
-  get empty() {
+  get empty(){
     return Object.keys(this.styles).length === 0;
   }
 
   constructor(
     public name: string,
     public parent: Context,
-    public path: NodePath) {
+    public path: NodePath){
 
     super(path, parent);
 
@@ -38,17 +38,17 @@ export class Define extends Context {
     this.selector = selector;
   }
 
-  macro(name: string, args: any[]) {
+  macro(name: string, args: any[]){
     const queue = [{ name, args }];
 
-    while (queue.length) {
+    while(queue.length){
       const { name, args } = queue.pop()!;
       const macro = this.macros[name];
       const apply = (args: any) => {
         this.styles[name] = args;
       };
 
-      if(!macro) {
+      if(!macro){
         apply(args);
         continue;
       }
@@ -58,7 +58,7 @@ export class Define extends Context {
       if(!output)
         continue;
 
-      if(Array.isArray(output)) {
+      if(Array.isArray(output)){
         apply(output);
         continue;
       }
@@ -66,7 +66,7 @@ export class Define extends Context {
       if(typeof output != "object")
         throw new Error("Invalid modifier output.");
 
-      for(const key in output) {
+      for(const key in output){
         let args = output[key];
 
         if(args === undefined)
@@ -77,7 +77,6 @@ export class Define extends Context {
 
         if(key === name)
           apply(args);
-
         else
           queue.push({ name: key, args });
       }

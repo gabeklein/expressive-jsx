@@ -33,12 +33,12 @@ export class Context {
   }
   
   get(name: string){
-    const applicable = [] as Define[];
+    const apply = [] as Define[];
     let { define } = this;
     let mod: Define;
 
     while(mod = define[name]){
-      applicable.push(mod, ...mod.also);
+      apply.push(mod, ...mod.also);
 
       if(name == "this")
         break;
@@ -46,6 +46,6 @@ export class Context {
       define = Object.getPrototypeOf(define);
     }
 
-    return applicable.reverse();
+    return apply.reverse();
   }
 }

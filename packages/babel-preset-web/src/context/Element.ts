@@ -1,6 +1,3 @@
-import { NodePath } from '@babel/traverse';
-import { JSXElement } from '@babel/types';
-
 import { Context } from './Context';
 import { Define } from './Define';
 
