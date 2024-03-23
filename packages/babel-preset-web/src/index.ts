@@ -1,5 +1,5 @@
-import { BabelFileMetadata, BabelFileResult } from '@babel/core';
-import { Expression } from '@babel/types';
+import { BabelFileMetadata, BabelFileResult, NodePath } from '@babel/core';
+import { Expression, Function } from '@babel/types';
 
 import { Context } from './context/Context';
 import { Define } from './context/Define';
@@ -39,12 +39,17 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
         apply(path, element){
           const opening = path.get("openingElement");
           const used = new Set(element.using);
+
+          let thisComponent: NodePath<Function> | undefined;
        
           for(const define of used){
             const className = getClassName(define);
 
             if(className)
               addClassName(path, className, polyfill);
+
+            if(define.path.isFunction())
+              thisComponent = define.path;
           }
 
           for(const context of used){
@@ -52,31 +57,16 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
             styles.add(context);
           }
 
-          const { name } = opening.node;
+          if(thisComponent){
+            opening.unshiftContainer("attributes",
+              t.jsxSpreadAttribute(getProps(thisComponent))
+            )
 
-          if(t.isJSXIdentifier(name)
-          && !/^[A-Z]/.test(name.name)
-          && !HTML_TAGS.includes(name.name))
-            setTagName(path, "div");
-
-          let context: Context | undefined = element;
-
-          while(context = context.parent){
-            const parent = context.path;
-    
-            if(context instanceof Define && parent.isFunction()){
-              if(context.usedBy.has(element)){
-                opening.unshiftContainer("attributes",
-                  t.jsxSpreadAttribute(getProps(parent))
-                )
-    
-                if(hasProp(path, "className"))
-                  addClassName(path, getProp(path, "className"), polyfill)
-              }
-
-              break;
-            }
+            if(hasProp(path, "className"))
+              addClassName(path, getProp(path, "className"), polyfill)
           }
+
+          fixTagName(path);
         },
       }],
       [{
@@ -91,6 +81,16 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
       }]
     ]
   }
+}
+
+/** TODO: Move to a default handler included with macros. */
+function fixTagName(path: any){
+  const { name } = path.get("openingElement").node;
+
+  if(t.isJSXIdentifier(name)
+  && !/^[A-Z]/.test(name.name)
+  && !HTML_TAGS.includes(name.name))
+    setTagName(path, "div");
 }
 
 function getClassName(context: Plugin.Define): Expression | undefined {
