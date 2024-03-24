@@ -2,8 +2,8 @@ import { PluginObj, PluginPass } from '@babel/core';
 import { Node, NodePath, VisitNodeObject } from '@babel/traverse';
 
 import { Context } from './context/Context';
-import { Define } from './context/Define';
-import { Element } from './context/Element';
+import { Define } from './context/Context';
+import { Element } from './context/Context';
 import { simpleHash } from './helper/simpleHash';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';

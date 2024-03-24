@@ -2,7 +2,7 @@ import { NodePath } from '@babel/traverse';
 import { LabeledStatement } from '@babel/types';
 
 import { Context } from './context/Context';
-import { Define } from './context/Define';
+import { Define } from './context/Context';
 import { parseError } from './helper/errors';
 import { onExit } from './plugin';
 import { parseArgument } from './syntax/arguments';

@@ -1,8 +1,8 @@
 import { NodePath } from '@babel/traverse';
 import { JSXElement } from '@babel/types';
 
-import { Define } from './context/Define';
-import { Element } from './context/Element';
+import { Define } from './context/Context';
+import { Element } from './context/Context';
 
 export type Macro =
   (this: Define, ...args: any[]) => Record<string, any> | void;
