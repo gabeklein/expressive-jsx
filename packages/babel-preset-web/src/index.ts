@@ -94,7 +94,7 @@ function fixTagName(path: any){
 }
 
 function getClassName(context: Plugin.Define): Expression | undefined {
-  if(context.empty && !context.dependant.size)
+  if(!context.props.size && !context.dependant.size)
     return;
 
   const { condition, alternate, uid} = context;
@@ -124,12 +124,12 @@ function print(styles: Iterable<Plugin.Define>){
   const css = [] as string[];
 
   for(const context of styles){
-    if(context.empty)
+    if(!context.props.size)
       continue;
 
     const styles = [] as string[];
 
-    for(const [name, value] of Object.entries(context.styles))
+    for(const [name, value] of context.props)
       styles.push(`  ${camelToDash(name)}: ${value};`);
 
     let selector = `.${context.uid}`;

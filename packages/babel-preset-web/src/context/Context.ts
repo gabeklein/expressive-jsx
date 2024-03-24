@@ -52,16 +52,12 @@ export class Context {
 
 export class Define extends Context {
   also = new Set<Define>();
-  styles: Record<string, string | unknown[]> = {};
+  props = new Map<string, any>();
   usedBy = new Set<Element>();
   dependant = new Set<Define>();
   selector: string;
   condition?: Expression | string;
   alternate?: Define;
-
-  get empty(){
-    return Object.keys(this.styles).length === 0;
-  }
 
   constructor(
     public name: string,
@@ -90,7 +86,7 @@ export class Define extends Context {
       const { name, args } = queue.pop()!;
       const macro = this.macros[name];
       const apply = (args: any) => {
-        this.styles[name] = args;
+        this.props.set(name, args);
       };
 
       if(!macro){

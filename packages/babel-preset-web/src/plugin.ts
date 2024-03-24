@@ -118,8 +118,8 @@ const JSXElement: Visitor<JSXElement> = {
 
     if(!(parent instanceof Define)
     || parent.define.this !== parent
-    || parent.usedBy.size
-    || parent.empty)
+    || parent.props.size === 0
+    || parent.usedBy.size)
       return;
 
     const [ inserted ] = path.replaceWith(
