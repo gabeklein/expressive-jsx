@@ -4,7 +4,7 @@ import { Function, Identifier, Node, ObjectProperty } from '@babel/types';
 import t from '../types';
 import { uniqueIdentifier } from './names';
 
-export function getProp(path: NodePath, name: string){
+export function componentProp(path: NodePath, name: string){
   const func = path.find(x => x.isFunction()) as NodePath<Function>;
   let [ props ] = func.node.params;
 
@@ -38,7 +38,7 @@ export function getProp(path: NodePath, name: string){
   throw new Error(`Expected an Identifier or ObjectPattern, got ${props.type}`);
 }
 
-export function getProps(path: NodePath){
+export function componentProps(path: NodePath){
   const func = path.find(x => x.isFunction()) as NodePath<Function>;
   let [ props ] = func.node.params;
   let output: Node | undefined;

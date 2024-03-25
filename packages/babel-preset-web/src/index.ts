@@ -5,8 +5,8 @@ import { Context } from './context/Context';
 import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
-import { getProp, getProps } from './syntax/component';
-import { addClassName, hasProp, setTagName } from './syntax/jsx';
+import { componentProp, componentProps } from './syntax/component';
+import { addClassName, hasProp, setTagName, spreadProps } from './syntax/jsx';
 import { HTML_TAGS } from './syntax/tags';
 import t from './types';
 
@@ -59,12 +59,10 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           }
 
           if(thisComponent){
-            path.get("openingElement").unshiftContainer("attributes",
-              t.jsxSpreadAttribute(getProps(thisComponent))
-            )
+            spreadProps(path, componentProps(thisComponent));
 
             if(hasProp(path, "className"))
-              addClassName(path, getProp(path, "className"), polyfill)
+              addClassName(path, componentProp(path, "className"), polyfill)
           }
 
           fixTagName(path);
