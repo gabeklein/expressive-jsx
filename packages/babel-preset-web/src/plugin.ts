@@ -51,9 +51,6 @@ const Program: Visitor<Program> = {
     if(!options.apply)
       throw new Error(`Plugin has not defined an apply method.`);
 
-    if(options.polyfill === undefined)
-      options.polyfill = require.resolve("../polyfill");
-
     context.define = Object.assign({}, ...options.define || []);
     context.macros = Object.assign({}, ...options.macros || []);
     context.uid = simpleHash(state.file.opts.filename!);

@@ -25,7 +25,10 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
   Object.assign(t, _compiler.types);
 
   const styles = new Set<Plugin.Context>();
-  const polyfill = options.polyfill || null;
+  let polyfill = options.polyfill;
+
+  if(polyfill === undefined)
+    polyfill = require.resolve("../polyfill");
 
   return {
     plugins: [
