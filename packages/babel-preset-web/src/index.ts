@@ -38,9 +38,8 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           Macros,
           ...options.macros || []
         ],
-        apply(path, element){
-          const opening = path.get("openingElement");
-          const used = new Set(element.using);
+        apply(path, using){
+          const used = new Set(using);
 
           let thisComponent: NodePath<Function> | undefined;
        
@@ -60,7 +59,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           }
 
           if(thisComponent){
-            opening.unshiftContainer("attributes",
+            path.get("openingElement").unshiftContainer("attributes",
               t.jsxSpreadAttribute(getProps(thisComponent))
             )
 

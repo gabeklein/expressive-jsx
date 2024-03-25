@@ -11,7 +11,7 @@ export type Macro =
 export interface Options {
   macros?: Record<string, Macro>[];
   define?: Record<string, Context>[];
-  apply?(path: NodePath<JSXElement>, element: Element): void;
+  apply?(path: NodePath<JSXElement>, using: Set<Context>): void;
   polyfill?: string | null;
 }
 

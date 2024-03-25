@@ -111,7 +111,7 @@ const JSXElement: Visitor<JSXElement> = {
     const { apply } = state.opts as Options;
 
     if(apply)
-      apply(path, element);
+      apply(path, element.using);
 
     ELEMENTS.set(path, element);
   },
@@ -138,7 +138,7 @@ const JSXElement: Visitor<JSXElement> = {
     wrapper.use(parent);
 
     if(apply)
-      apply(inserted, wrapper);
+      apply(inserted, wrapper.using);
 
     inserted.skip();
   }

@@ -9,10 +9,10 @@ export class Element {
     public parent: Context | Element) {
   }
 
-  get(name: string) {
+  get(name: string){
     const mods = new Set<Context>();
 
-    for (const ctx of [this.parent!, ...this.using])
+    for(const ctx of [this.parent!, ...this.using])
       ctx.get(name).forEach(x => mods.add(x));
 
     return Array.from(mods);
