@@ -105,6 +105,8 @@ const JSXElement: Visitor<JSXElement> = {
 
     const element = new Element(path, context);
 
+    ELEMENTS.set(path, element);
+
     getNames(path).forEach((path, name) => {
       const applied = element.use(name);
 
