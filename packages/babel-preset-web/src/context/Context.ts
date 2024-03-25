@@ -3,6 +3,7 @@ import { Expression } from '@babel/types';
 
 import { simpleHash } from '../helper/simpleHash';
 import { BabelState, Macro } from '../options';
+import { Element } from './Element';
 
 const CONTEXT = new WeakMap<NodePath, Context>();
 
@@ -115,35 +116,5 @@ export class Context {
           queue.push({ name: key, args });
       }
     }
-  }
-}
-
-export class Element {
-  using = new Set<Context>();
-
-  constructor(
-    public path: NodePath,
-    public parent: Context | Element){
-  }
-
-  get(name: string){
-    const mods = new Set<Context>();
-
-    for(const ctx of [this.parent!, ...this.using])
-      ctx.get(name).forEach(x => mods.add(x));
-
-    return Array.from(mods);
-  }
-
-  use(name: string | Context){
-    const apply = typeof name == "string"
-      ? this.get(name) : [name];
-
-    apply.forEach(context => {
-      context.usedBy.add(this);
-      this.using.add(context);
-    });
-
-    return apply;
   }
 }

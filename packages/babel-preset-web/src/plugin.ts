@@ -1,7 +1,8 @@
 import { PluginObj, PluginPass } from '@babel/core';
 import { Node, NodePath, VisitNodeObject } from '@babel/traverse';
 
-import { Context, Element } from './context/Context';
+import { Context } from './context/Context';
+import { Element } from './context/Element';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
 import { fixImplicitReturn, getNames } from './syntax/jsx';
