@@ -1,7 +1,7 @@
 import { PluginObj, PluginPass } from '@babel/core';
 import { Node, NodePath, VisitNodeObject } from '@babel/traverse';
 
-import { Context, Define, Element } from './context/Context';
+import { Context, Element } from './context/Context';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
 import { fixImplicitReturn, getNames } from './syntax/jsx';
@@ -117,7 +117,7 @@ const JSXElement: Visitor<JSXElement> = {
   exit(path, state){
     const { parent } = ELEMENTS.get(path)!;
 
-    if(!(parent instanceof Define)
+    if(!(parent instanceof Context)
     || parent.define.this !== parent
     || parent.props.size === 0
     || parent.usedBy.size)

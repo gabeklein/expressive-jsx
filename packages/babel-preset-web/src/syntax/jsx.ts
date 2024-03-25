@@ -9,21 +9,21 @@ export function getNames(path: NodePath<JSXElement>) {
   const opening = path.get("openingElement");
   let tag = opening.get("name");
 
-  while (tag.isJSXMemberExpression()) {
+  while(tag.isJSXMemberExpression()) {
     names.set(tag.get("property").toString(), tag);
     tag = tag.get("object");
   }
 
-  if (tag.isJSXIdentifier())
+  if(tag.isJSXIdentifier())
     names.set(tag.toString(), tag);
 
   opening.get("attributes").forEach(attr => {
-    if (!attr.isJSXAttribute() || attr.node.value)
+    if(!attr.isJSXAttribute() || attr.node.value)
       return;
 
     let { name } = attr.node.name;
 
-    if (typeof name !== "string")
+    if(typeof name !== "string")
       name = name.name;
 
     names.set(name, attr);

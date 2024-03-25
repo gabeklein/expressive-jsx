@@ -7,6 +7,8 @@ import { BabelState, Macro } from '../options';
 const CONTEXT = new WeakMap<NodePath, Context>();
 
 export class Context {
+  name: string;
+  path: NodePath;
   parent: Context | undefined;
   define: Record<string, Context> = {};
   macros: Record<string, Macro> = {};
@@ -24,21 +26,30 @@ export class Context {
   }
 
   constructor(
-    public path: NodePath,
-    input?: Context | BabelState){
+    path: NodePath,
+    parent?: Context | BabelState,
+    name?: string){
 
     CONTEXT.set(path, this);
+    this.path = path;
+    this.name = name || "";
 
-    if(input instanceof Context){
-      this.parent = input;
-      this.uid = simpleHash(input.uid);
-      this.define = Object.create(input.define);
-      this.macros = Object.create(input.macros);
+    if(parent instanceof Context){
+      this.parent = parent;
+      this.uid = simpleHash(parent.uid);
+      this.define = Object.create(parent.define);
+      this.macros = Object.create(parent.macros);
+      this.uid = name + "_" + simpleHash(parent.uid);
+
+      do if(parent.condition){
+        parent.children.add(this);
+      }
+      while(parent = parent.parent)
     }
-    else if(input){
-      this.uid = simpleHash(input.filename!);
-      this.define = Object.assign({}, ...input.opts.define || []);
-      this.macros = Object.assign({}, ...input.opts.macros || []);
+    else if(parent){
+      this.uid = simpleHash(parent.filename!);
+      this.define = Object.assign({}, ...parent.opts.define || []);
+      this.macros = Object.assign({}, ...parent.opts.macros || []);
     }
     else
       throw new Error("Invalid context input.");
@@ -104,22 +115,6 @@ export class Context {
           queue.push({ name: key, args });
       }
     }
-  }
-}
-
-export class Define extends Context {
-  constructor(
-    public path: NodePath,
-    public name: string,
-    public parent: Context){
-
-    super(path, parent);
-
-    this.uid = name + "_" + simpleHash(parent.uid);
-
-    for(let x = this.parent; x; x = x.parent!)
-      if(x.condition)
-        x.children.add(this);
   }
 }
 

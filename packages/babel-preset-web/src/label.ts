@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/traverse';
 import { LabeledStatement } from '@babel/types';
 
-import { Context, Define } from './context/Context';
+import { Context } from './context/Context';
 import { parseError } from './helper/errors';
 import { onExit } from './plugin';
 import { parseArgument } from './syntax/arguments';
@@ -14,7 +14,7 @@ export function handleLabel(path: NodePath<LabeledStatement>){
   let { name } = path.node.label;
 
   if(body.isBlockStatement()){
-    context.define[name] = new Define(path, name, context);
+    context.define[name] = new Context(path, context, name);
     return;
   }
 
@@ -50,12 +50,12 @@ export function createContext(path: NodePath, required?: boolean){
 
   const context = Context.get(parent);
 
-  if(context instanceof Define){
+  if(context instanceof Context){
     if(key === "alternate"){
       let { alternate, parent, name, path } = context;
   
       if(!alternate){
-        alternate = new Define(path, "not_" + name, parent);
+        alternate = new Context(path, parent, "not_" + name);
         context.children.add(alternate);
         context.alternate = alternate;
       }
@@ -69,7 +69,7 @@ export function createContext(path: NodePath, required?: boolean){
   if(parent.isFunction()){
     const name = getName(parent);
     const context = getContext(parent);
-    const component = new Define(parent, name, context);
+    const component = new Context(parent, context, name);
     const body = parent.get("body");
 
     component.define["this"] = component;
@@ -90,7 +90,7 @@ export function createContext(path: NodePath, required?: boolean){
     const test = parent.node.test;
     const name = t.isIdentifier(test) ? test.name : "?";
     const context = createContext(parent) as Context;
-    const define = new Define(parent, name, context);
+    const define = new Context(parent, context, name);
 
     if(t.isStringLiteral(test)){
       context.children.add(define);
