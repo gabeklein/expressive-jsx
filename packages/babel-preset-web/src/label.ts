@@ -1,8 +1,7 @@
 import { NodePath } from '@babel/traverse';
 import { LabeledStatement } from '@babel/types';
 
-import { Context } from './context/Context';
-import { Define } from './context/Context';
+import { Context, Define } from './context/Context';
 import { parseError } from './helper/errors';
 import { onExit } from './plugin';
 import { parseArgument } from './syntax/arguments';
@@ -15,15 +14,15 @@ export function handleLabel(path: NodePath<LabeledStatement>){
   let { name } = path.node.label;
 
   if(body.isBlockStatement()){
-    context.define[name] = new Define(name, context, path);
+    context.define[name] = new Define(path, name, context);
     return;
   }
 
   if(!body.isExpressionStatement())
     throw parseError(body, "Not an expression", name);
 
-  if(!(context instanceof Define))
-    throw parseError(body, "Bad context", name);
+  if(!context)
+    throw parseError(body, "Missing context", name);
 
   const args = parseArgument(body);
 
@@ -56,9 +55,9 @@ export function createContext(path: NodePath, required?: boolean){
       let { alternate, parent, name, path } = context;
   
       if(!alternate){
-        alternate = new Define("not_" + name, parent, path);
+        alternate = new Define(path, "not_" + name, parent);
+        context.children.add(alternate);
         context.alternate = alternate;
-        context.dependant.add(alternate);
       }
   
       return alternate;
@@ -70,7 +69,7 @@ export function createContext(path: NodePath, required?: boolean){
   if(parent.isFunction()){
     const name = getName(parent);
     const context = getContext(parent);
-    const component = new Define(name, context, parent);
+    const component = new Define(parent, name, context);
     const body = parent.get("body");
 
     component.define["this"] = component;
@@ -90,11 +89,11 @@ export function createContext(path: NodePath, required?: boolean){
   if(parent.isIfStatement()){
     const test = parent.node.test;
     const name = t.isIdentifier(test) ? test.name : "?";
-    const context = createContext(parent) as Define;
-    const define = new Define(name, context, parent);
+    const context = createContext(parent) as Context;
+    const define = new Define(parent, name, context);
 
     if(t.isStringLiteral(test)){
-      context.dependant.add(define);
+      context.children.add(define);
       define.uid = context.uid;
       define.condition = test.value;
     }

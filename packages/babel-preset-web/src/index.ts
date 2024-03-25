@@ -2,7 +2,6 @@ import { BabelFileMetadata, BabelFileResult, NodePath } from '@babel/core';
 import { Expression, Function } from '@babel/types';
 
 import { Context } from './context/Context';
-import { Define } from './context/Context';
 import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
@@ -25,7 +24,7 @@ namespace Preset {
 function Preset(_compiler: any, options: Preset.Options = {} as any): any {
   Object.assign(t, _compiler.types);
 
-  const styles = new Set<Plugin.Define>();
+  const styles = new Set<Plugin.Context>();
   const polyfill = options.polyfill || null;
 
   return {
@@ -53,7 +52,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           }
 
           for(const context of used){
-            context.dependant.forEach(x => used.add(x));
+            context.children.forEach(x => used.add(x));
             styles.add(context);
           }
 
@@ -93,8 +92,8 @@ function fixTagName(path: any){
     setTagName(path, "div");
 }
 
-function getClassName(context: Plugin.Define): Expression | undefined {
-  if(!context.props.size && !context.dependant.size)
+function getClassName(context: Plugin.Context): Expression | undefined {
+  if(!context.props.size && !context.children.size)
     return;
 
   const { condition, alternate, uid} = context;
@@ -120,7 +119,7 @@ function getClassName(context: Plugin.Define): Expression | undefined {
   return t.logicalExpression("&&", condition, value);
 }
 
-function print(styles: Iterable<Plugin.Define>){
+function print(styles: Iterable<Plugin.Context>){
   const css = [] as string[];
 
   for(const context of styles){
@@ -141,16 +140,16 @@ function print(styles: Iterable<Plugin.Define>){
   return css.join("\n");
 }
 
-function selector(context: Define): string {
+function selector(context: Context): string {
   const { condition, uid } = context;
 
   if(typeof condition === "string")
-    return selector(context.parent as Define) + condition;
+    return selector(context.parent!) + condition;
 
   let select = "";
 
   for(let parent = context.parent; parent; parent = parent.parent!)
-    if(parent instanceof Define && parent.condition){
+    if(parent instanceof Context && parent.condition){
       select = selector(parent) + " ";
       break;
     }

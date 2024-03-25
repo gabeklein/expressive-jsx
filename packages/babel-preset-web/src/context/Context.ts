@@ -8,9 +8,16 @@ const CONTEXT = new WeakMap<NodePath, Context>();
 
 export class Context {
   parent: Context | undefined;
-  define: Record<string, Define> = {};
+  define: Record<string, Context> = {};
   macros: Record<string, Macro> = {};
   uid = "";
+
+  also = new Set<Context>();
+  props = new Map<string, any>();
+  usedBy = new Set<Element>();
+  children = new Set<Context>();
+  condition?: Expression | string;
+  alternate?: Context;
 
   static get(from: NodePath){
     return CONTEXT.get(from)
@@ -33,9 +40,9 @@ export class Context {
   }
   
   get(name: string){
-    const apply = [] as Define[];
+    const apply = [] as Context[];
     let { define } = this;
-    let mod: Define;
+    let mod: Context;
 
     while(mod = define[name]){
       apply.push(mod, ...mod.also);
@@ -47,29 +54,6 @@ export class Context {
     }
 
     return apply.reverse();
-  }
-}
-
-export class Define extends Context {
-  also = new Set<Define>();
-  props = new Map<string, any>();
-  usedBy = new Set<Element>();
-  dependant = new Set<Define>();
-  condition?: Expression | string;
-  alternate?: Define;
-
-  constructor(
-    public name: string,
-    public parent: Context,
-    public path: NodePath){
-
-    super(path, parent);
-
-    this.uid = name + "_" + simpleHash(parent.uid);
-
-    for(let x = this.parent; x; x = x.parent!)
-      if(x instanceof Define && x.condition)
-        x.dependant.add(this);
   }
 
   macro(name: string, args: any[]){
@@ -118,11 +102,27 @@ export class Define extends Context {
   }
 }
 
+export class Define extends Context {
+  constructor(
+    public path: NodePath,
+    public name: string,
+    public parent: Context){
+
+    super(path, parent);
+
+    this.uid = name + "_" + simpleHash(parent.uid);
+
+    for(let x = this.parent; x; x = x.parent!)
+      if(x.condition)
+        x.children.add(this);
+  }
+}
+
 export class Element extends Context {
-  using = new Set<Define>();
+  using = new Set<Context>();
 
   get(name: string){
-    const mods = new Set<Define>();
+    const mods = new Set<Context>();
 
     for(const ctx of [this.parent!, ...this.using])
       ctx.get(name).forEach(x => mods.add(x));
@@ -130,7 +130,7 @@ export class Element extends Context {
     return Array.from(mods);
   }
 
-  use(name: string | Define){
+  use(name: string | Context){
     const apply = typeof name == "string"
       ? this.get(name) : [name];
 

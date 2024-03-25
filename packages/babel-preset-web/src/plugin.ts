@@ -1,9 +1,7 @@
 import { PluginObj, PluginPass } from '@babel/core';
 import { Node, NodePath, VisitNodeObject } from '@babel/traverse';
 
-import { Context } from './context/Context';
-import { Define } from './context/Context';
-import { Element } from './context/Context';
+import { Context, Define, Element } from './context/Context';
 import { simpleHash } from './helper/simpleHash';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
@@ -22,7 +20,6 @@ type Visitor<T extends Node> =
 declare namespace Plugin {
   export {
     Context,
-    Define,
     Element,
     Macro,
     Options,
@@ -114,7 +111,8 @@ const JSXElement: Visitor<JSXElement> = {
       apply(path, element);
   },
   exit(path, state){
-    const { parent } = Context.get(path) as Element;
+    const element = Context.get(path) as Element;
+    const { parent } = element;
 
     if(!(parent instanceof Define)
     || parent.define.this !== parent
