@@ -118,8 +118,13 @@ export class Define extends Context {
   }
 }
 
-export class Element extends Context {
+export class Element {
   using = new Set<Context>();
+
+  constructor(
+    public path: NodePath,
+    public parent: Context | Element){
+  }
 
   get(name: string){
     const mods = new Set<Context>();

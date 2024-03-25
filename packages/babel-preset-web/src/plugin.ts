@@ -14,6 +14,7 @@ import type {
   LabeledStatement,
   Program
 } from '@babel/types';
+
 type Visitor<T extends Node> =
   VisitNodeObject<PluginPass & { context: Context }, T>;
 
@@ -91,14 +92,21 @@ const LabeledStatement: Visitor<LabeledStatement> = {
   }
 }
 
+const ELEMENTS = new WeakMap<NodePath, Element>();
+
 const JSXElement: Visitor<JSXElement> = {
   enter(path, state){
     if(fixImplicitReturn(path))
       return;
 
-    const context = createContext(path, false);
+    const context = path.parentPath.isJSXElement()
+      ? ELEMENTS.get(path.parentPath)!
+      : createContext(path, false);
+
     const element = new Element(path, context);
     const { apply } = state.opts as Options;
+
+    ELEMENTS.set(path, element);
 
     getNames(path).forEach((path, name) => {
       const applied = element.use(name);
@@ -111,7 +119,7 @@ const JSXElement: Visitor<JSXElement> = {
       apply(path, element);
   },
   exit(path, state){
-    const element = Context.get(path) as Element;
+    const element = ELEMENTS.get(path)!;
     const { parent } = element;
 
     if(!(parent instanceof Define)
