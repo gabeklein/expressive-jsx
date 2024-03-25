@@ -9,24 +9,24 @@ export class Element {
     public parent: Context | Element) {
   }
 
-  get(name: string){
-    const mods = new Set<Context>();
-
-    for(const ctx of [this.parent!, ...this.using])
-      ctx.get(name).forEach(x => mods.add(x));
-
-    return Array.from(mods);
-  }
-
-  use(name: string | Context) {
-    const apply = typeof name == "string"
-      ? this.get(name) : [name];
-
-    apply.forEach(context => {
+  use(name: string | Context){
+    const used = new Set<Context>();
+    const use = (context: Context) => {
       context.usedBy.add(this);
       this.using.add(context);
-    });
+      used.add(context);
+    }
 
-    return apply;
+    if(name instanceof Context)
+      use(name);
+    else
+      for(let x: Element | Context = this; x; x = x.parent!)
+        if(x instanceof Element)
+          for(const ctx of x.using)
+            ctx.get(name).forEach(use);
+        else
+          x.get(name).forEach(use);
+
+    return used;
   }
 }

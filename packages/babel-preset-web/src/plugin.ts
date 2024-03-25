@@ -104,7 +104,7 @@ const JSXElement: Visitor<JSXElement> = {
     getNames(path).forEach((path, name) => {
       const applied = element.use(name);
 
-      if(applied.length && path.isJSXAttribute())
+      if(applied.size && path.isJSXAttribute())
         path.remove();
     });
 
