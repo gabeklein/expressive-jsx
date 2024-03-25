@@ -37,7 +37,6 @@ export class Context {
 
     if(parent instanceof Context){
       this.parent = parent;
-      this.uid = simpleHash(parent.uid);
       this.define = Object.create(parent.define);
       this.macros = Object.create(parent.macros);
       this.uid = name + "_" + simpleHash(parent.uid);
@@ -48,9 +47,9 @@ export class Context {
       while(parent = parent.parent)
     }
     else if(parent){
-      this.uid = simpleHash(parent.filename!);
       this.define = Object.assign({}, ...parent.opts.define || []);
       this.macros = Object.assign({}, ...parent.opts.macros || []);
+      this.uid = simpleHash(parent.filename!);
     }
     else
       throw new Error("Invalid context input.");
