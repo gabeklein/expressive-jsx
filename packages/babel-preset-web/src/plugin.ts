@@ -2,7 +2,6 @@ import { PluginObj, PluginPass } from '@babel/core';
 import { Node, NodePath, VisitNodeObject } from '@babel/traverse';
 
 import { Context, Define, Element } from './context/Context';
-import { simpleHash } from './helper/simpleHash';
 import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
 import { fixImplicitReturn, getNames } from './syntax/jsx';
@@ -15,8 +14,12 @@ import type {
   Program
 } from '@babel/types';
 
-type Visitor<T extends Node> =
-  VisitNodeObject<PluginPass & { context: Context }, T>;
+export type State = PluginPass & {
+  context: Context;
+  opts: Options;
+}
+
+type Visitor<T extends Node> = VisitNodeObject<State, T>;
 
 declare namespace Plugin {
   export {
@@ -27,7 +30,10 @@ declare namespace Plugin {
   };
 }
 
-function Plugin(){
+function Plugin(_compiler: any, options: Options): PluginObj {
+  if(!options.apply)
+    throw new Error(`Plugin has not defined an apply method.`);
+  
   return <PluginObj>({
     manipulateOptions(_options, parse){
       parse.plugins.push("jsx");
@@ -45,15 +51,7 @@ export default Plugin;
 
 const Program: Visitor<Program> = {
   enter(path, state){
-    const options = state.opts as Options;
-    const context = new Context(path);
-      
-    if(!options.apply)
-      throw new Error(`Plugin has not defined an apply method.`);
-
-    context.define = Object.assign({}, ...options.define || []);
-    context.macros = Object.assign({}, ...options.macros || []);
-    context.uid = simpleHash(state.file.opts.filename!);
+    new Context(path, state);
   }
 }
 
@@ -102,8 +100,6 @@ const JSXElement: Visitor<JSXElement> = {
 
     const element = new Element(path, context);
 
-    ELEMENTS.set(path, element);
-
     getNames(path).forEach((path, name) => {
       const applied = element.use(name);
 
@@ -119,8 +115,7 @@ const JSXElement: Visitor<JSXElement> = {
     ELEMENTS.set(path, element);
   },
   exit(path, state){
-    const element = ELEMENTS.get(path)!;
-    const { parent } = element;
+    const { parent } = ELEMENTS.get(path)!;
 
     if(!(parent instanceof Define)
     || parent.define.this !== parent

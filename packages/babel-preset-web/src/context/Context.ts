@@ -2,7 +2,7 @@ import { NodePath } from '@babel/traverse';
 import { Expression } from '@babel/types';
 
 import { simpleHash } from '../helper/simpleHash';
-import { Macro } from '../options';
+import { BabelState, Macro } from '../options';
 
 const CONTEXT = new WeakMap<NodePath, Context>();
 
@@ -25,7 +25,7 @@ export class Context {
 
   constructor(
     public path: NodePath,
-    input?: Context){
+    input?: Context | BabelState){
 
     CONTEXT.set(path, this);
 
@@ -35,7 +35,12 @@ export class Context {
       this.define = Object.create(input.define);
       this.macros = Object.create(input.macros);
     }
-    else if(!path.isProgram())
+    else if(input){
+      this.uid = simpleHash(input.filename!);
+      this.define = Object.assign({}, ...input.opts.define || []);
+      this.macros = Object.assign({}, ...input.opts.macros || []);
+    }
+    else
       throw new Error("Invalid context input.");
   }
   

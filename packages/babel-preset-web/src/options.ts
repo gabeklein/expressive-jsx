@@ -1,3 +1,4 @@
+import { PluginPass } from '@babel/core';
 import { NodePath } from '@babel/traverse';
 import { JSXElement } from '@babel/types';
 
@@ -11,4 +12,9 @@ export interface Options {
   define?: Record<string, Context>[];
   apply?(path: NodePath<JSXElement>, element: Element): void;
   polyfill?: string | null;
+}
+
+export type BabelState = PluginPass & {
+  context: Context;
+  opts: Options;
 }
