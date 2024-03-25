@@ -132,24 +132,30 @@ function print(styles: Iterable<Plugin.Define>){
     for(const [name, value] of context.props)
       styles.push(`  ${camelToDash(name)}: ${value};`);
 
-    let selector = `.${context.uid}`;
+    const style = styles.join("\n");
+    const select = selector(context);
 
-    for(let x = context.parent; x; x = x.parent!)
-      if(x instanceof Define && x.condition){
-        const { condition, parent, uid } = x;
-
-        if(typeof condition === "string")
-          selector = "." + parent.uid + condition + " " + selector;
-        else
-          selector = "." + uid + selector;
-
-        x.dependant.add(context);
-      }
-
-    css.push(context.selector + " {\n" + styles.join("\n") + "\n}");
+    css.push(`${select} {\n${style}\n}`);
   }
 
   return css.join("\n");
+}
+
+function selector(context: Define): string {
+  const { condition, uid } = context;
+
+  if(typeof condition === "string")
+    return selector(context.parent as Define) + condition;
+
+  let select = "";
+
+  for(let parent = context.parent; parent; parent = parent.parent!)
+    if(parent instanceof Define && parent.condition){
+      select = selector(parent) + " ";
+      break;
+    }
+
+  return select += "." + uid;
 }
 
 export default Preset;

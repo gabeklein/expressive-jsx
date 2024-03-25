@@ -95,7 +95,7 @@ export function createContext(path: NodePath, required?: boolean){
 
     if(t.isStringLiteral(test)){
       context.dependant.add(define);
-      define.selector = context.selector + test.value;
+      define.uid = context.uid;
       define.condition = test.value;
     }
     else {

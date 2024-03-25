@@ -55,7 +55,6 @@ export class Define extends Context {
   props = new Map<string, any>();
   usedBy = new Set<Element>();
   dependant = new Set<Define>();
-  selector: string;
   condition?: Expression | string;
   alternate?: Define;
 
@@ -68,15 +67,9 @@ export class Define extends Context {
 
     this.uid = name + "_" + simpleHash(parent.uid);
 
-    let selector = `.${this.uid}`;
-
     for(let x = this.parent; x; x = x.parent!)
-      if(x instanceof Define && x.condition){
-        selector = x.selector + " " + selector;
+      if(x instanceof Define && x.condition)
         x.dependant.add(this);
-      }
-
-    this.selector = selector;
   }
 
   macro(name: string, args: any[]){
