@@ -2,8 +2,7 @@ import { PluginObj, PluginPass } from '@babel/core';
 import { Node, NodePath, VisitNodeObject } from '@babel/traverse';
 
 import { Context } from './context/Context';
-import { Element } from './context/Element';
-import { createContext, handleLabel } from './label';
+import { createContext, getContext, handleLabel } from './label';
 import { Macro, Options } from './options';
 import { fixImplicitReturn, getNames } from './syntax/jsx';
 import t from './types';
@@ -14,7 +13,6 @@ import type {
   LabeledStatement,
   Program
 } from '@babel/types';
-
 export type State = PluginPass & {
   context: Context;
   opts: Options;
@@ -25,7 +23,6 @@ type Visitor<T extends Node> = VisitNodeObject<State, T>;
 declare namespace Plugin {
   export {
     Context,
-    Element,
     Macro,
     Options,
   };
@@ -88,35 +85,47 @@ const LabeledStatement: Visitor<LabeledStatement> = {
   }
 }
 
-const ELEMENTS = new WeakMap<NodePath, Element>();
+const SCOPE = new WeakMap<NodePath, Set<Context>>();
 
 const JSXElement: Visitor<JSXElement> = {
   enter(path, state){
     if(fixImplicitReturn(path))
       return;
 
-    const context = path.parentPath.isJSXElement()
-      ? ELEMENTS.get(path.parentPath)!
-      : createContext(path, false);
+    const pp = path.parentPath;
+    const scope = new Set<Context>();
+    const using = new Set<Context>()
 
-    const element = new Element(path, context);
+    SCOPE.set(path, scope);
+
+    if(pp.isJSXElement())
+      for(const ctx of SCOPE.get(pp)!)
+        scope.add(ctx);
+    else
+      scope.add(createContext(pp));
 
     getNames(path).forEach((path, name) => {
-      const applied = element.use(name);
+      let used = false;
 
-      if(applied.size && path.isJSXAttribute())
+      for(const context of scope)
+        context.get(name).forEach((ctx) => {
+          ctx.usedBy.add(path);
+          scope.add(ctx);
+          using.add(ctx);
+          used = true;
+        });
+
+      if(used && path.isJSXAttribute())
         path.remove();
     });
 
     const { apply } = state.opts as Options;
 
     if(apply)
-      apply(path, element.using);
-
-    ELEMENTS.set(path, element);
+      apply(path, using);
   },
   exit(path, state){
-    const { parent } = ELEMENTS.get(path)!;
+    const parent = getContext(path);
 
     if(!(parent instanceof Context)
     || parent.define.this !== parent
@@ -124,6 +133,7 @@ const JSXElement: Visitor<JSXElement> = {
     || parent.usedBy.size)
       return;
 
+    const { apply } = state.opts as Options;
     const [ inserted ] = path.replaceWith(
       t.jsxElement(
         t.jsxOpeningElement(t.jSXIdentifier("this"), []),
@@ -132,13 +142,8 @@ const JSXElement: Visitor<JSXElement> = {
       )
     )
 
-    const wrapper = new Element(inserted, parent);
-    const { apply } = state.opts as Options;
-
-    wrapper.use(parent);
-
     if(apply)
-      apply(inserted, wrapper.using);
+      apply(inserted, [parent]);
 
     inserted.skip();
   }

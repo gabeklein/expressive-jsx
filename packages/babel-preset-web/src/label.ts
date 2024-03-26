@@ -119,7 +119,7 @@ export function createContext(path: NodePath, required?: boolean){
   throw new Error("Context not found");
 }
 
-function getContext(path: NodePath){
+export function getContext(path: NodePath){
   while(path){
     const context = Context.get(path);
 

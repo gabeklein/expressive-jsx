@@ -3,7 +3,6 @@ import { Expression } from '@babel/types';
 
 import { simpleHash } from '../helper/simpleHash';
 import { BabelState, Macro } from '../options';
-import { Element } from './Element';
 
 const CONTEXT = new WeakMap<NodePath, Context>();
 
@@ -17,7 +16,7 @@ export class Context {
 
   also = new Set<Context>();
   props = new Map<string, any>();
-  usedBy = new Set<Element>();
+  usedBy = new Set<NodePath>();
   children = new Set<Context>();
   condition?: Expression | string;
   alternate?: Context;
@@ -33,13 +32,13 @@ export class Context {
 
     CONTEXT.set(path, this);
     this.path = path;
-    this.name = name || "";
 
     if(parent instanceof Context){
+      this.name = name!;
+      this.uid = name + "_" + simpleHash(parent.uid);
       this.parent = parent;
       this.define = Object.create(parent.define);
       this.macros = Object.create(parent.macros);
-      this.uid = name + "_" + simpleHash(parent.uid);
 
       do if(parent.condition){
         parent.children.add(this);
@@ -47,9 +46,11 @@ export class Context {
       while(parent = parent.parent)
     }
     else if(parent){
+      this.name = "File";
+      // this.uid = "File_" + simpleHash(parent.filename!);
+      this.uid = simpleHash(parent.filename!);
       this.define = Object.assign({}, ...parent.opts.define || []);
       this.macros = Object.assign({}, ...parent.opts.macros || []);
-      this.uid = simpleHash(parent.filename!);
     }
     else
       throw new Error("Invalid context input.");

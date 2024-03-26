@@ -3,7 +3,6 @@ import { NodePath } from '@babel/traverse';
 import { JSXElement } from '@babel/types';
 
 import { Context } from './context/Context';
-import { Element } from './context/Element';
 
 export type Macro =
   (this: Context, ...args: any[]) => Record<string, any> | void;
@@ -11,7 +10,7 @@ export type Macro =
 export interface Options {
   macros?: Record<string, Macro>[];
   define?: Record<string, Context>[];
-  apply?(path: NodePath<JSXElement>, using: Set<Context>): void;
+  apply?(path: NodePath<JSXElement>, using: Iterable<Context>): void;
   polyfill?: string | null;
 }
 
