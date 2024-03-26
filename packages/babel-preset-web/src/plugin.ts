@@ -1,26 +1,16 @@
 import { PluginObj, PluginPass } from '@babel/core';
-import { Node, NodePath, VisitNodeObject } from '@babel/traverse';
+import { NodePath } from '@babel/traverse';
 
 import { Context } from './context/Context';
-import { createContext, getContext, handleLabel } from './label';
+import { createContext, handleLabel } from './label';
 import { Macro, Options } from './options';
 import { fixImplicitReturn, getNames } from './syntax/jsx';
 import t from './types';
-
-import type {
-  BlockStatement,
-  JSXElement,
-  LabeledStatement,
-  Program
-} from '@babel/types';
 
 export type State = PluginPass & {
   context: Context;
   opts: Options;
 }
-
-type Visitor<T extends Node> =
-  VisitNodeObject<State, T>;
 
 declare namespace Plugin {
   export {
@@ -30,134 +20,118 @@ declare namespace Plugin {
   };
 }
 
-function Plugin(_compiler: any, options: Options): PluginObj {
-  if(!options.apply)
+const HANDLED = new WeakMap<NodePath, ExitCallback>();
+
+function Plugin(_compiler: any, options: Options): PluginObj<State> {
+  const SCOPE = new WeakMap<NodePath, Set<Context>>();
+  const { apply } = options;
+
+  if(!apply)
     throw new Error(`Plugin has not defined an apply method.`);
   
-  return <PluginObj>({
+  return {
     manipulateOptions(_options, parse){
       parse.plugins.push("jsx");
     },
     visitor: {
-      Program,
-      LabeledStatement,
-      BlockStatement,
-      JSXElement
+      Program(path, state){
+        new Context(path, state);
+      },
+      LabeledStatement: {
+        enter(path){
+          const body = path.get("body");
+      
+          if(body.isFor() || body.isWhile())
+            return;
+      
+          handleLabel(path);
+          onExit(path, () => {
+            if(!path.removed)
+              path.remove();
+          });
+        },
+        exit(path){
+          exit(path);
+      
+          for(const p of path.getAncestry()){
+            if(p.isLabeledStatement())
+              break;
+      
+            if(!exit(p))
+              break;
+          }
+        }
+      },
+      BlockStatement: { exit },
+      JSXElement: {
+        enter(path){
+          if(fixImplicitReturn(path))
+            return;
+
+          const parent = path.parentPath;
+          const using = new Set<Context>()
+          const scope = new Set<Context>(
+            parent.isJSXElement()
+              ? SCOPE.get(parent)
+              : [createContext(parent)]
+          );
+
+          SCOPE.set(path, scope);
+
+          getNames(path).forEach((path, name) => {
+            let used = false;
+      
+            for(const context of scope)
+              context.get(name).forEach((ctx) => {
+                ctx.usedBy.add(path);
+                scope.add(ctx);
+                using.add(ctx);
+                used = true;
+              });
+      
+            if(used && path.isJSXAttribute())
+              path.remove();
+          });
+      
+          apply(path, using);
+        },
+        exit(path){
+          const [ parent ] = SCOPE.get(path)!;
+      
+          if(parent.define.this !== parent
+          || parent.props.size === 0
+          || parent.usedBy.size)
+            return;
+      
+          const [ inserted ] = path.replaceWith(
+            t.jsxElement(
+              t.jsxOpeningElement(t.jSXIdentifier("this"), []),
+              t.jsxClosingElement(t.jSXIdentifier("this")),
+              [path.node]
+            )
+          )
+      
+          apply(inserted, [parent]);
+          inserted.skip();
+        }
+      }
     }
-  })
+  }
 }
 
 export default Plugin;
 
-const Program: Visitor<Program> = {
-  enter(path, state){
-    new Context(path, state);
-  }
-}
-
-const BlockStatement: Visitor<BlockStatement> = {
-  exit(path){
-    exit(path);
-  }
-}
-
-const LabeledStatement: Visitor<LabeledStatement> = {
-  enter(path){
-    const body = path.get("body");
-
-    if(body.isFor() || body.isWhile())
-      return;
-
-    handleLabel(path);
-    onExit(path, () => {
-      if(!path.removed)
-        path.remove();
-    });
-  },
-  exit(path){
-    exit(path);
-
-    for(const p of path.getAncestry()){
-      if(p.isLabeledStatement())
-        break;
-
-      if(!exit(p))
-        break;
-    }
-  }
-}
-
-const SCOPE = new WeakMap<NodePath, Set<Context>>();
-
-const JSXElement: Visitor<JSXElement> = {
-  enter(path, state){
-    if(fixImplicitReturn(path))
-      return;
-
-    const parent = path.parentPath;
-    const scope = new Set<Context>();
-    const using = new Set<Context>()
-
-    SCOPE.set(path, scope);
-
-    if(parent.isJSXElement())
-      for(const ctx of SCOPE.get(parent)!)
-        scope.add(ctx);
-    else
-      scope.add(createContext(parent));
-
-    getNames(path).forEach((path, name) => {
-      let used = false;
-
-      for(const context of scope)
-        context.get(name).forEach((ctx) => {
-          ctx.usedBy.add(path);
-          scope.add(ctx);
-          using.add(ctx);
-          used = true;
-        });
-
-      if(used && path.isJSXAttribute())
-        path.remove();
-    });
-
-    state.opts.apply!(path, using);
-  },
-  exit(path, state){
-    const parent = getContext(path);
-
-    if(parent.define.this !== parent
-    || parent.props.size === 0
-    || parent.usedBy.size)
-      return;
-
-    const [ inserted ] = path.replaceWith(
-      t.jsxElement(
-        t.jsxOpeningElement(t.jSXIdentifier("this"), []),
-        t.jsxClosingElement(t.jSXIdentifier("this")),
-        [path.node]
-      )
-    )
-
-    state.opts.apply!(inserted, [parent]);
-    inserted.skip();
-  }
-}
-
-type ExitCallback =
-  (path: NodePath, key: string | number | null) => void;
-
-const HANDLED = new WeakMap<NodePath, ExitCallback>();
+type ExitCallback = (path: NodePath, key: string | number | null) => void;
 
 export function onExit(path: NodePath, callback: ExitCallback){
   HANDLED.set(path, callback);
 }
 
-export function exit(path: NodePath, key?: string | number | null){
+export function exit(path: NodePath){
   const callback = HANDLED.get(path);
 
   if(callback){
-    callback(path, key || path.key);
+    callback(path, path.key);
     // HANDLED.delete(path);
     return true;
   }
