@@ -71,8 +71,8 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
       [{
         visitor: {
           Program: {
-            exit(path: any){
-              path.hub.file.metadata.css = print(styles);
+            exit(path: any, state: any){
+              state.file.metadata.css = print(styles);
               styles.clear(); 
             }
           }
