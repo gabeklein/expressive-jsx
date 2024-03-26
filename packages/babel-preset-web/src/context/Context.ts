@@ -89,11 +89,6 @@ export class Context {
       if(!output)
         continue;
 
-      if(Array.isArray(output)){
-        apply(output);
-        continue;
-      }
-
       if(typeof output != "object")
         throw new Error("Invalid modifier output.");
 
