@@ -37,6 +37,7 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
       Program(path, state){
         new Context(path, state);
       },
+      BlockStatement: { exit },
       LabeledStatement: {
         enter(path){
           const body = path.get("body");
@@ -62,7 +63,6 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
           }
         }
       },
-      BlockStatement: { exit },
       JSXElement(path){
         if(path.getData("handled"))
           return;
@@ -94,7 +94,7 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
     
         apply(path, using);
 
-        if(!context
+        if(context === false
         || context.define.this !== context
         || context.props.size === 0
         || context.usedBy.size)
