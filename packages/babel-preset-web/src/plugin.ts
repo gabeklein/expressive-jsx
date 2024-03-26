@@ -13,12 +13,14 @@ import type {
   LabeledStatement,
   Program
 } from '@babel/types';
+
 export type State = PluginPass & {
   context: Context;
   opts: Options;
 }
 
-type Visitor<T extends Node> = VisitNodeObject<State, T>;
+type Visitor<T extends Node> =
+  VisitNodeObject<State, T>;
 
 declare namespace Plugin {
   export {
@@ -149,7 +151,8 @@ const JSXElement: Visitor<JSXElement> = {
   }
 }
 
-type ExitCallback = (path: NodePath, key: string | number | null) => void;
+type ExitCallback =
+  (path: NodePath, key: string | number | null) => void;
 
 const HANDLED = new WeakMap<NodePath, ExitCallback>();
 
