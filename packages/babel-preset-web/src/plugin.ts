@@ -121,10 +121,7 @@ const JSXElement: Visitor<JSXElement> = {
         path.remove();
     });
 
-    const { apply } = state.opts as Options;
-
-    if(apply)
-      apply(path, using);
+    state.opts.apply!(path, using);
   },
   exit(path, state){
     const parent = getContext(path);
@@ -135,7 +132,6 @@ const JSXElement: Visitor<JSXElement> = {
     || parent.usedBy.size)
       return;
 
-    const { apply } = state.opts as Options;
     const [ inserted ] = path.replaceWith(
       t.jsxElement(
         t.jsxOpeningElement(t.jSXIdentifier("this"), []),
@@ -144,9 +140,7 @@ const JSXElement: Visitor<JSXElement> = {
       )
     )
 
-    if(apply)
-      apply(inserted, [parent]);
-
+    state.opts.apply!(inserted, [parent]);
     inserted.skip();
   }
 }
