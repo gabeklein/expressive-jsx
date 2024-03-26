@@ -78,7 +78,9 @@ export function createContext(path: NodePath, required?: boolean){
       if(body.isBlockStatement() && !body.get("body").length)
         body.pushContainer("body", t.expressionStatement(
           t.jsxElement(
-            t.jsxOpeningElement(t.jsxIdentifier("this"), [], true), null, [], true
+            t.jsxOpeningElement(
+              t.jsxIdentifier("this"), [], true
+            ), null, [], true
           )
         ));
     });
