@@ -92,17 +92,17 @@ const JSXElement: Visitor<JSXElement> = {
     if(fixImplicitReturn(path))
       return;
 
-    const pp = path.parentPath;
+    const parent = path.parentPath;
     const scope = new Set<Context>();
     const using = new Set<Context>()
 
     SCOPE.set(path, scope);
 
-    if(pp.isJSXElement())
-      for(const ctx of SCOPE.get(pp)!)
+    if(parent.isJSXElement())
+      for(const ctx of SCOPE.get(parent)!)
         scope.add(ctx);
     else
-      scope.add(createContext(pp));
+      scope.add(createContext(parent));
 
     getNames(path).forEach((path, name) => {
       let used = false;
