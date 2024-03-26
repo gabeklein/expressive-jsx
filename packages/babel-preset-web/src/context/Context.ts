@@ -7,7 +7,6 @@ import { BabelState, Macro } from '../options';
 const CONTEXT = new WeakMap<NodePath, Context>();
 
 export class Context {
-  name: string;
   path: NodePath;
   parent: Context | undefined;
   define: Record<string, Context> = {};
@@ -34,7 +33,6 @@ export class Context {
     this.path = path;
 
     if(parent instanceof Context){
-      this.name = name!;
       this.uid = name + "_" + simpleHash(parent.uid);
       this.parent = parent;
       this.define = Object.create(parent.define);
@@ -46,8 +44,6 @@ export class Context {
       while(parent = parent.parent)
     }
     else if(parent){
-      this.name = "File";
-      // this.uid = "File_" + simpleHash(parent.filename!);
       this.uid = simpleHash(parent.filename!);
       this.define = Object.assign({}, ...parent.opts.define || []);
       this.macros = Object.assign({}, ...parent.opts.macros || []);

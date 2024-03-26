@@ -52,10 +52,10 @@ export function createContext(path: NodePath, required?: boolean){
 
   if(context instanceof Context){
     if(key === "alternate"){
-      let { alternate, parent, name, path } = context;
+      let { alternate, parent, path } = context;
   
       if(!alternate){
-        alternate = new Context(path, parent, "not_" + name);
+        alternate = new Context(path, parent, "else");
         context.children.add(alternate);
         context.alternate = alternate;
       }

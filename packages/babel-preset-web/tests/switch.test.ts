@@ -47,7 +47,7 @@ it("will apply else", async () => {
         {...rest}
         className={classNames(
           'Component_14q',
-          active ? 'active_tla' : 'not_active_tla',
+          active ? 'active_tla' : 'else_tla',
           className
         )}>
         Hello
@@ -62,7 +62,7 @@ it("will apply else", async () => {
     .Component_14q {
       background: white;
     }
-    .not_active_tla {
+    .else_tla {
       color: blue;
     }
   `);
