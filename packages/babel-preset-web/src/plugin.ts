@@ -57,7 +57,7 @@ const Program: Visitor<Program> = {
 
 const BlockStatement: Visitor<BlockStatement> = {
   exit(path){
-    exit(path, path.key);
+    exit(path);
   }
 }
 
@@ -75,7 +75,7 @@ const LabeledStatement: Visitor<LabeledStatement> = {
     });
   },
   exit(path){
-    exit(path, path.key);
+    exit(path);
 
     for(const p of path.getAncestry()){
       if(p.isLabeledStatement())
@@ -126,8 +126,7 @@ const JSXElement: Visitor<JSXElement> = {
   exit(path, state){
     const parent = getContext(path);
 
-    if(!(parent instanceof Context)
-    || parent.define.this !== parent
+    if(parent.define.this !== parent
     || parent.props.size === 0
     || parent.usedBy.size)
       return;
