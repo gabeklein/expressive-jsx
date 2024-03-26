@@ -63,57 +63,53 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
         }
       },
       BlockStatement: { exit },
-      JSXElement: {
-        enter(path){
-          if(fixImplicitReturn(path))
-            return;
+      JSXElement(path){
+        if(path.getData("handled"))
+          return;
 
-          const parent = path.parentPath;
-          const using = new Set<Context>()
-          const scope = new Set<Context>(
-            parent.isJSXElement()
-              ? SCOPE.get(parent)
-              : [createContext(parent)]
-          );
+        if(fixImplicitReturn(path))
+          return;
 
-          SCOPE.set(path, scope);
+        const parent = path.parentPath;
+        const context = !parent.isJSXElement() && createContext(parent);
+        const scope = new Set(context ? [context] : SCOPE.get(parent));
+        const using = new Set<Context>();
 
-          getNames(path).forEach((path, name) => {
-            let used = false;
-      
-            for(const context of scope)
-              context.get(name).forEach((ctx) => {
-                ctx.usedBy.add(path);
-                scope.add(ctx);
-                using.add(ctx);
-                used = true;
-              });
-      
-            if(used && path.isJSXAttribute())
-              path.remove();
-          });
-      
-          apply(path, using);
-        },
-        exit(path){
-          const [ parent ] = SCOPE.get(path)!;
-      
-          if(parent.define.this !== parent
-          || parent.props.size === 0
-          || parent.usedBy.size)
-            return;
-      
-          const [ inserted ] = path.replaceWith(
-            t.jsxElement(
-              t.jsxOpeningElement(t.jSXIdentifier("this"), []),
-              t.jsxClosingElement(t.jSXIdentifier("this")),
-              [path.node]
-            )
+        SCOPE.set(path, scope);
+
+        getNames(path).forEach((path, name) => {
+          let used = false;
+    
+          for(const context of scope)
+            context.get(name).forEach((ctx) => {
+              ctx.usedBy.add(path);
+              scope.add(ctx);
+              using.add(ctx);
+              used = true;
+            });
+    
+          if(used && path.isJSXAttribute())
+            path.remove();
+        });
+    
+        apply(path, using);
+
+        if(!context
+        || context.define.this !== context
+        || context.props.size === 0
+        || context.usedBy.size)
+          return;
+    
+        const [inserted] = path.replaceWith(
+          t.jsxElement(
+            t.jsxOpeningElement(t.jSXIdentifier("this"), []),
+            t.jsxClosingElement(t.jSXIdentifier("this")),
+            [path.node]
           )
-      
-          apply(inserted, [parent]);
-          inserted.skip();
-        }
+        )
+    
+        apply(inserted, [context]);
+        inserted.setData("handled", true);
       }
     }
   }

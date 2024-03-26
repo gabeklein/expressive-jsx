@@ -52,7 +52,13 @@ it("will wrap elements if 'this' is styled", async () => {
         color: blue;
       }
 
-      <inner>Hello</inner>
+      thing: {
+        fontStyle: italic;
+      }
+
+      <inner>
+        <thing>Hello</thing>
+      </inner>
     }
   `);
 
@@ -62,9 +68,23 @@ it("will wrap elements if 'this' is styled", async () => {
         <div
           {...props}
           className={classNames(props.className, 'Component_23x')}>
-          <div className="inner_tla">Hello</div>
+          <div className="inner_tla">
+            <div className="thing_tla">Hello</div>
+          </div>
         </div>
       );
+    }
+  `);
+
+  expect(output.css).toMatchInlineSnapshot(`
+    .inner_tla {
+      color: blue;
+    }
+    .Component_23x {
+      color: red;
+    }
+    .thing_tla {
+      font-style: italic;
     }
   `);
 });
