@@ -176,3 +176,28 @@ it("will convert camelCase properties to dash", async () => {
     }
   `);
 });
+
+it("will convert $-prefixed properties to css variables", async () => {
+  const output = await parser(`
+    const Component = () => {
+      $colorPrimary: blue;
+
+      something: {
+        color: $colorPrimary;
+      }
+
+      <something>
+        Hello
+      </something>
+    }
+  `);
+
+  expect(output.css).toMatchInlineSnapshot(`
+    .something_tla {
+      color: var(--color-primary);
+    }
+    .Component_2gt {
+      --color-primary: blue;
+    }
+  `);
+});

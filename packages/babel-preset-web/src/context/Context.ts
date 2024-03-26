@@ -2,6 +2,7 @@ import { NodePath } from '@babel/traverse';
 import { Expression } from '@babel/types';
 
 import { simpleHash } from '../helper/simpleHash';
+import { camelToDash } from '../macros/util';
 import { BabelState, Macro } from '../options';
 
 const CONTEXT = new WeakMap<NodePath, Context>();
@@ -76,7 +77,11 @@ export class Context {
       const { name, args } = queue.pop()!;
       const macro = this.macros[name];
       const apply = (args: any) => {
-        this.props.set(name, args);
+        const key = /^\$/.test(name)
+          ? `--${camelToDash(name.slice(1))}`
+          : name
+
+        this.props.set(key, args);
       };
 
       if(!macro){
