@@ -1,5 +1,5 @@
 import { NodePath } from '@babel/traverse';
-import { LabeledStatement } from '@babel/types';
+import { Function, IfStatement, LabeledStatement } from '@babel/types';
 
 import { Context } from './context/Context';
 import { parseError } from './helper/errors';
@@ -9,7 +9,7 @@ import { getName } from './syntax/names';
 import t from './types';
 
 export function handleLabel(path: NodePath<LabeledStatement>){
-  const context = createContext(path);
+  const context = getContext(path);
   const body = path.get("body");
   let { name } = path.node.label;
 
@@ -34,102 +34,85 @@ export function handleLabel(path: NodePath<LabeledStatement>){
   }
 }
 
-export function createContext(path: NodePath, required?: boolean){
-  let parent = path.parentPath!;
+export function getContext(path: NodePath): Context {
   let key = path.key;
 
-  while(
-    parent.isBlockStatement() ||
-    parent.isReturnStatement() ||
-    parent.isExpressionStatement() ||
-    parent.isParenthesizedExpression()){
+  while(path = path.parentPath!){
+    const context = Context.get(path);
 
-    parent = parent.parentPath!;
-    key = parent.key;
-  }
-
-  const context = Context.get(parent);
-
-  if(context instanceof Context){
-    if(key === "alternate"){
-      let { alternate, parent, path } = context;
-  
-      if(!alternate){
-        alternate = new Context(path, parent, "else");
-        context.children.add(alternate);
-        context.alternate = alternate;
+    if(context instanceof Context){
+      if(key === "alternate"){
+        let { alternate, parent, path } = context;
+    
+        if(!alternate){
+          alternate = new Context(path, parent, "else");
+          context.children.add(alternate);
+          context.alternate = alternate;
+        }
+    
+        return alternate;
       }
-  
-      return alternate;
-    }
-  
-    return context;
-  }
-
-  if(parent.isFunction()){
-    const name = getName(parent);
-    const context = getContext(parent);
-    const component = new Context(parent, context, name);
-    const body = parent.get("body");
-
-    component.define["this"] = component;
-
-    onExit(parent, () => {
-      if(body.isBlockStatement() && !body.get("body").length)
-        body.pushContainer("body", t.expressionStatement(
-          t.jsxElement(
-            t.jsxOpeningElement(
-              t.jsxIdentifier("this"), [], true
-            ), null, [], true
-          )
-        ));
-    });
-
-    return component;
-  }
-
-  if(parent.isIfStatement()){
-    const test = parent.node.test;
-    const name = t.isIdentifier(test) ? test.name : "?";
-    const context = createContext(parent) as Context;
-    const define = new Context(parent, context, name);
-
-    if(t.isStringLiteral(test)){
-      context.children.add(define);
-      define.uid = context.uid;
-      define.condition = test.value;
-    }
-    else {
-      context.also.add(define);
-      define.condition = test;
+    
+      return context;
     }
 
-    onExit(parent, (path, key) => {
-      if(key == "alternate" || define.alternate)
-        return;
+    if(path.isFunction())
+      return createFunctionContext(path);
 
-      if(!path.removed)
-        path.remove();
-    });
+    if(path.isIfStatement())
+      return createIfContext(path);
 
-    return define;
+    key = path.key;
   }
-
-  if(required === false)
-    return getContext(path);
 
   throw new Error("Context not found");
 }
 
-export function getContext(path: NodePath){
-  while(path){
-    const context = Context.get(path);
+function createFunctionContext(path: NodePath<Function>){
+  const name = getName(path);
+  const context = getContext(path);
+  const component = new Context(path, context, name);
+  const body = path.get("body");
 
-    if(context instanceof Context)
-      return context;
+  component.define["this"] = component;
 
-    path = path.parentPath!;
+  onExit(path, () => {
+    if(body.isBlockStatement() && !body.get("body").length)
+      body.pushContainer("body", t.expressionStatement(
+        t.jsxElement(
+          t.jsxOpeningElement(
+            t.jsxIdentifier("this"), [], true
+          ), null, [], true
+        )
+      ));
+  });
+
+  return component;
+}
+
+function createIfContext(path: NodePath<IfStatement>){
+  const test = path.node.test;
+  const name = t.isIdentifier(test) ? test.name : "?";
+  const context = getContext(path);
+  const define = new Context(path, context, name);
+
+  if(t.isStringLiteral(test)){
+    context.children.add(define);
+    define.uid = context.uid;
+    define.condition = test.value;
+  }
+  else {
+    context.also.add(define);
+    define.condition = test;
   }
 
-  throw new Error("Context not found");
+  onExit(path, (path, key) => {
+    if(key == "alternate" || define.alternate)
+      return;
+
+    if(!path.removed)
+      path.remove();
+  });
+
+  return define;
 }
