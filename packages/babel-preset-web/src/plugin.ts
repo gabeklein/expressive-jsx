@@ -2,7 +2,7 @@ import { PluginObj, PluginPass } from '@babel/core';
 import { NodePath } from '@babel/traverse';
 
 import { Context } from './context/Context';
-import { createContext, handleLabel } from './label';
+import { getContext, handleLabel } from './label';
 import { Macro, Options } from './options';
 import { fixImplicitReturn, getNames } from './syntax/jsx';
 import t from './types';
@@ -63,7 +63,7 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
           return;
 
         const parent = path.parentPath;
-        const context = !parent.isJSXElement() && createContext(parent);
+        const context = !parent.isJSXElement() && getContext(parent);
         const scope = new Set(context ? [context] : SCOPE.get(parent));
         const using = new Set<Context>();
 

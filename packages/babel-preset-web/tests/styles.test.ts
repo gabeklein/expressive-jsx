@@ -201,3 +201,25 @@ it("will convert $-prefixed properties to css variables", async () => {
     }
   `);
 });
+
+it("will apply to jsx in conditional statement", async () => {
+  const output = await parser(`
+    const Component = () => {
+      div: {
+        color: blue;
+      }
+    
+      <this>
+        {true && <div>Hello</div>}
+      </this>
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(`
+    const Component = (props) => (
+      <div {...props}>
+        {true && <div className="div_tla">Hello</div>}
+      </div>
+    );
+  `);
+});
