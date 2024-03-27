@@ -37,8 +37,11 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
       Program(path, state){
         new Context(path, state);
       },
-      BlockStatement: { exit },
+      BlockStatement: {
+        exit
+      },
       LabeledStatement: {
+        exit,
         enter(path){
           const body = path.get("body");
       
@@ -50,17 +53,6 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
             if(!path.removed)
               path.remove();
           });
-        },
-        exit(path){
-          exit(path);
-      
-          for(const p of path.getAncestry()){
-            if(p.isLabeledStatement())
-              break;
-      
-            if(!exit(p))
-              break;
-          }
         }
       },
       JSXElement(path){
@@ -123,17 +115,16 @@ export function onExit(path: NodePath, callback: ExitCallback){
   HANDLED.set(path, callback);
 }
 
-export function exit(path: NodePath){
-  const callback = HANDLED.get(path);
+function exit(path: NodePath){
+  for(const p of path.getAncestry()){
+    if(p.isBlockStatement())
+      continue;
 
-  if(callback){
-    callback(path, path.key);
-    // HANDLED.delete(path);
-    return true;
+    const callback = HANDLED.get(p);
+
+    if(callback)
+      callback(p, p.key);
+    else
+      break;
   }
-
-  if(path.isBlockStatement())
-    return exit(path.parentPath!);
-
-  return false;
 }
