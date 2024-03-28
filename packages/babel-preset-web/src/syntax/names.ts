@@ -120,14 +120,13 @@ export function uniqueIdentifier(scope: Scope, name = "temp") {
   let uid = name;
   let i = 0;
 
-  do {
-    i++;
-  } while (
+  while (
     scope.hasLabel(uid) ||
     scope.hasBinding(uid) ||
-    scope.hasGlobal(uid) ||
-    scope.hasReference(uid)
-  );
+    scope.hasGlobal(uid)
+  ){
+    uid = name + ++i;
+  };
 
   if(i > 1)
     uid = name + i;
