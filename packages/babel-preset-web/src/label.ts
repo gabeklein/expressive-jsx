@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/traverse';
 import { Function, IfStatement, LabeledStatement } from '@babel/types';
 
-import { Context } from './context/Context';
+import { Context } from './context';
 import { parseError } from './helper/errors';
 import { onExit } from './plugin';
 import { parseArgument } from './syntax/arguments';

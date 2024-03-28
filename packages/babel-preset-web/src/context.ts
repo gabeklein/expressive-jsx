@@ -1,9 +1,9 @@
 import { NodePath } from '@babel/traverse';
 import { Expression } from '@babel/types';
 
-import { simpleHash } from '../helper/simpleHash';
-import { camelToDash } from '../macros/util';
-import { BabelState, Macro } from '../options';
+import { simpleHash } from './helper/simpleHash';
+import { camelToDash } from './macros/util';
+import { BabelState, Macro } from './options';
 
 const CONTEXT = new WeakMap<NodePath, Context>();
 

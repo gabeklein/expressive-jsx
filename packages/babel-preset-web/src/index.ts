@@ -1,7 +1,7 @@
 import { BabelFileMetadata, BabelFileResult, NodePath } from '@babel/core';
 import { Expression, Function } from '@babel/types';
 
-import { Context } from './context/Context';
+import { Context } from './context';
 import * as Macros from './macros';
 import { camelToDash } from './macros/util';
 import Plugin from './plugin';
