@@ -121,8 +121,11 @@ function getClassName(context: Plugin.Context): Expression | undefined {
 
 function print(styles: Iterable<Plugin.Context>){
   const css = [] as string[];
+  const sorted = Array.from(styles).sort((a, b) => {
+    return depth(a) - depth(b);
+  });
 
-  for(const context of styles){
+  for(const context of sorted){
     if(!context.props.size)
       continue;
 
@@ -155,6 +158,20 @@ function selector(context: Context): string {
     }
 
   return select += "." + uid;
+}
+
+function depth(context: Plugin.Context){
+  let depth = 0;
+
+  do {
+    if(context.path.isFunction())
+      break;
+    else
+      depth++;
+  }
+  while(context = context.parent!)
+
+  return depth;
 }
 
 export default Preset;

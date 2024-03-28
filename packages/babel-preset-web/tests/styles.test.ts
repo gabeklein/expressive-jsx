@@ -193,11 +193,11 @@ it("will convert $-prefixed properties to css variables", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .something_tla {
-      color: var(--color-primary);
-    }
     .Component_2gt {
       --color-primary: blue;
+    }
+    .something_tla {
+      color: var(--color-primary);
     }
   `);
 });
@@ -221,5 +221,50 @@ it("will apply to jsx in conditional statement", async () => {
         {true && <div className="div_tla">Hello</div>}
       </div>
     );
+  `);
+});
+
+it("will export styles in order", async () => {
+  const output = await parser(`
+    const Component = ({ active }) => {
+      color: blue;
+    
+      if(active)
+        color: yellow;
+    
+      something: {
+        color: purple;
+      }
+    
+      div: {
+        color: red;
+    
+        something: {
+          color: green;
+        }
+      }
+    
+      <this>
+        <div something />
+      </this>
+    }
+  `);
+
+  expect(output.css).toMatchInlineSnapshot(`
+    .Component_2fr {
+      color: blue;
+    }
+    .active_tla {
+      color: yellow;
+    }
+    .div_tla {
+      color: red;
+    }
+    .something_tla {
+      color: purple;
+    }
+    .something_roo {
+      color: green;
+    }
   `);
 });

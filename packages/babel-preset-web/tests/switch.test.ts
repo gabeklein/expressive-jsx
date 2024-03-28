@@ -56,11 +56,11 @@ it("will apply else", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .active_tla {
-      color: red;
-    }
     .Component_14q {
       background: white;
+    }
+    .active_tla {
+      color: red;
     }
     .else_tla {
       color: blue;

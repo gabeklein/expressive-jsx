@@ -77,11 +77,11 @@ it("will wrap elements if 'this' is styled", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .inner_tla {
-      color: blue;
-    }
     .Component_23x {
       color: red;
+    }
+    .inner_tla {
+      color: blue;
     }
     .thing_tla {
       font-style: italic;
