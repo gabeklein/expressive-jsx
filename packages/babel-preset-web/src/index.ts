@@ -161,6 +161,7 @@ function selector(context: Context): string {
 }
 
 function depth(context: Plugin.Context){
+  const component = /^[A-Z]/.test(context.uid);
   let depth = 0;
 
   do {
@@ -169,7 +170,10 @@ function depth(context: Plugin.Context){
     else
       depth++;
   }
-  while(context = context.parent!)
+  while(context = context.parent!);
+
+  if(depth && component)
+    depth++;
 
   return depth;
 }
