@@ -1,6 +1,6 @@
 import * as Babel from '@babel/standalone';
-import Preset from '@expressive/babel-preset-web';
-import * as POLYFILL from '@expressive/babel-preset-web/polyfill';
+import Preset from '@expressive/babel-preset';
+import * as POLYFILL from '@expressive/babel-preset/polyfill';
 import * as MVC from '@expressive/react';
 import React, { Component } from 'react';
 

@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "rootDir": "src",
     "baseUrl": "src",
     "outDir": "dist",
     "target": "ES2020",
@@ -13,8 +12,8 @@
       "node"
     ],
     "paths": {
-      "@expressive/babel-preset-web": [
-        "../babel-preset-web/src"
+      "@expressive/*": [
+        "../*/src"
       ]
     }
   },

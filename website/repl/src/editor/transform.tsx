@@ -1,5 +1,5 @@
 import * as Babel from '@babel/standalone';
-import Preset from '@expressive/babel-preset-web';
+import Preset from '@expressive/babel-preset';
 import parserBabel from 'prettier/parser-babel';
 import Prettier from 'prettier/standalone';
 

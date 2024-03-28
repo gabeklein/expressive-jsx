@@ -27,7 +27,7 @@ module.exports = class ExpressivePlugin {
           type: null,
           options: {
             presets: [
-              ["@expressive/babel-preset-web", {
+              ["@expressive/babel-preset", {
                 extractCss: (css) => {
                   const filename = resource + ".module.css";
   

@@ -1,5 +1,5 @@
 import * as babel from '@babel/core';
-import Preset from '@expressive/babel-preset-web';
+import Preset from '@expressive/babel-preset';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { ModuleGraph, ModuleNode, Plugin } from 'vite';
@@ -27,7 +27,7 @@ function jsxPlugin(options?: Options): Plugin {
   const CACHE = new Map<string, TransformResult>();
 
   return {
-    name: "expressive-jsx",
+    name: "expressive-jsx-plugin",
     enforce: "pre",
     configureServer(server){
       moduleGraph = server.moduleGraph;
