@@ -24,6 +24,6 @@ export const Footer = () => {
   fontSize: 12;
 
   <this>
-    Gabe Klein - MIT - 2023
+    Gabe Klein - MIT - {new Date().getFullYear()}
   </this>
 }
