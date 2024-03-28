@@ -10,6 +10,11 @@
       "noEmit": true,
       "esModuleInterop": true,
       "lib": ["ES2018", "DOM"],
-      "allowJs": true
+      "allowJs": true,
+      "paths": {
+        "@expressive/*": [
+          "../../../packages/*/src"
+        ]
+      }
   }
 }
