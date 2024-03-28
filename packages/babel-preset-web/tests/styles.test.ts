@@ -268,3 +268,41 @@ it("will export styles in order", async () => {
     }
   `);
 });
+
+it("will prioritize capitalized styles", async () => {
+  const output = await parser(`
+    const Component = () => {
+      Something: {
+        color: blue;
+      }
+    
+      <this>
+        <Something />
+      </this>
+    }
+    
+    const Something = () => {
+      color: purple;
+    
+      something: {
+        color: red;
+      }
+      
+      <this something>
+        Something
+      </this>
+    }
+  `);
+
+  expect(output.css).toMatchInlineSnapshot(`
+    .Something_2bj {
+      color: purple;
+    }
+    .something_jsf {
+      color: red;
+    }
+    .Something_tla {
+      color: blue;
+    }
+  `);
+});

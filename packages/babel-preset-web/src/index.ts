@@ -161,19 +161,15 @@ function selector(context: Context): string {
 }
 
 function depth(context: Plugin.Context){
-  const component = /^[A-Z]/.test(context.uid);
   let depth = 0;
 
   do {
     if(context.path.isFunction())
       break;
     else
-      depth++;
+      depth += /^[A-Z]/.test(context.uid) ? 2 : 1;
   }
-  while(context = context.parent!);
-
-  if(depth && component)
-    depth++;
+  while(context = context.parent!)
 
   return depth;
 }
