@@ -12,8 +12,17 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Preset",
+      "cwd": "${workspaceFolder}/packages/babel-preset",
+      "console": "integratedTerminal",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["debug/script.ts"],
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Preset Tests",
-      "cwd": "${workspaceFolder}/packages/babel-preset-react",
+      "cwd": "${workspaceFolder}/packages/babel-preset",
       "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
       "args": [
         "--watchAll",
@@ -22,38 +31,6 @@
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Plugin v2",
-      "cwd": "${workspaceFolder}/packages/babel-preset-web",
-      "console": "integratedTerminal",
-      "runtimeArgs": ["-r", "ts-node/register"],
-      "args": ["debug/script.ts"],
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Plugin v2 Tests",
-      "cwd": "${workspaceFolder}/packages/babel-preset-web",
-      "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
-      "args": [
-        "--watchAll",
-        "--runInBand",
-        "${input:testName}"
-      ],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Babel Preset",
-      "cwd": "${workspaceFolder}/packages/babel-preset-react",
-      "console": "integratedTerminal",
-      "runtimeArgs": ["-r", "ts-node/register"],
-      "args": ["debug/script.ts"],
     }
   ],
   "inputs": [
