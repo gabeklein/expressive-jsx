@@ -1,7 +1,8 @@
 {
-  "name": "@expressive/repl-jsx",
+  "name": "@expressive/jsx-repl",
   "version": "0.1.0",
   "private": true,
+  "module": "src/App.jsx",
   "scripts": {
     "start": "vite",
     "build": "vite build"
