@@ -3,7 +3,6 @@ import { Function, IfStatement, LabeledStatement } from '@babel/types';
 
 import { Context } from './context';
 import { parseError } from './helper/errors';
-import { camelToDash } from './macros/util';
 import { onExit } from './plugin';
 import { parseArgument } from './syntax/arguments';
 import { getName } from './syntax/names';
@@ -34,11 +33,7 @@ export function handleLabel(path: NodePath<LabeledStatement>){
       const { name, args } = queue.pop()!;
       const macro = context.macros[name];
       const apply = (args: any) => {
-        const key = /^\$/.test(name)
-          ? `--${camelToDash(name.slice(1))}`
-          : name
-
-        context.props.set(key, args);
+        context.props.set(name, args);
       };
 
       if(!macro){

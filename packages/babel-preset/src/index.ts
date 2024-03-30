@@ -131,8 +131,22 @@ function print(styles: Iterable<Plugin.Context>){
 
     const styles = [] as string[];
 
-    for(const [name, value] of context.props)
-      styles.push(`  ${camelToDash(name)}: ${value};`);
+    for(let [name, value] of context.props){
+      const property = name
+        .replace(/^\$/, "--")
+        .replace(/([A-Z]+)/g, "-$1")
+        .toLowerCase();
+
+      if(Array.isArray(value))
+        value = value.map(value => {
+          if(value.startsWith("$"))
+            return `var(--${camelToDash(value.slice(1))})`;
+
+          return value;
+        })
+
+      styles.push(`  ${property}: ${value};`);
+    }
 
     const style = styles.join("\n");
     const select = selector(context);
