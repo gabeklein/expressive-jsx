@@ -1,4 +1,5 @@
 const VirtualModulesPlugin = require('webpack-virtual-modules');
+const JSXPreset = require('@expressive/babel-preset');
 
 module.exports = class ExpressivePlugin {
   constructor(options = {}){
@@ -27,7 +28,7 @@ module.exports = class ExpressivePlugin {
           type: null,
           options: {
             presets: [
-              ["@expressive/babel-preset", {
+              [JSXPreset, {
                 extractCss: (css) => {
                   const filename = resource + ".module.css";
   
