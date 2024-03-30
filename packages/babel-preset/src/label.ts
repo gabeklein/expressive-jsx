@@ -3,6 +3,7 @@ import { Function, IfStatement, LabeledStatement } from '@babel/types';
 
 import { Context } from './context';
 import { parseError } from './helper/errors';
+import { camelToDash } from './macros/util';
 import { onExit } from './plugin';
 import { parseArgument } from './syntax/arguments';
 import { getName } from './syntax/names';
@@ -27,7 +28,52 @@ export function handleLabel(path: NodePath<LabeledStatement>){
   const args = parseArgument(body);
 
   try {
-    context.macro(name, args);
+    const queue = [{ name, args }];
+
+    while(queue.length){
+      const { name, args } = queue.pop()!;
+      const macro = context.macros[name];
+      const apply = (args: any) => {
+        const key = /^\$/.test(name)
+          ? `--${camelToDash(name.slice(1))}`
+          : name
+
+        context.props.set(key, args);
+      };
+
+      if(!macro){
+        apply(args);
+        continue;
+      }
+
+      const output = macro.apply(context, args);
+
+      if(!output)
+        continue;
+
+      if(Array.isArray(output)){
+        apply(output);
+        continue;
+      }
+
+      if(typeof output != "object")
+        throw new Error("Invalid modifier output.");
+
+      for(const key in output){
+        let args = output[key];
+
+        if(args === undefined)
+          continue;
+
+        if(!Array.isArray(args))
+          args = [args];
+
+        if(key === name)
+          apply(args);
+        else
+          queue.push({ name: key, args });
+      }
+    }
   }
   catch(err: unknown){
     throw parseError(body, err, name);
