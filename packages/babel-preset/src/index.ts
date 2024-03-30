@@ -24,7 +24,7 @@ namespace Preset {
 function Preset(_compiler: any, options: Preset.Options = {} as any): any {
   Object.assign(t, _compiler.types);
 
-  const styles = new Set<Plugin.Context>();
+  const styles = new Set<Context>();
   let polyfill = options.polyfill;
 
   if(polyfill === undefined)
@@ -98,7 +98,7 @@ function fixTagName(path: any){
     setTagName(path, "div");
 }
 
-function getClassName(context: Plugin.Context): Expression | undefined {
+function getClassName(context: Context): Expression | undefined {
   if(!context.props.size && !context.children.size)
     return;
 
@@ -125,15 +125,15 @@ function getClassName(context: Plugin.Context): Expression | undefined {
   return t.logicalExpression("&&", condition, value);
 }
 
-function isInUse(context: Plugin.Context){
-  return context.usedBy.size > 0;
+function isInUse(context: Context){
+  return context.props.size > 0;
 }
 
-function byPriority(a: Plugin.Context, b: Plugin.Context){
+function byPriority(a: Context, b: Context){
   return depth(a) - depth(b);
 }
 
-function toCss(context: Plugin.Context){
+function toCss(context: Context){
   const css = [] as string[];
 
   for(let [name, value] of context.props)
@@ -183,7 +183,7 @@ function toSelector(context: Context): string {
   return selector += "." + uid;
 }
 
-function depth(context: Plugin.Context){
+function depth(context: Context){
   let depth = 0;
 
   do {

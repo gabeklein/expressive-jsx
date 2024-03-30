@@ -41,7 +41,6 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
         exit
       },
       LabeledStatement: {
-        exit,
         enter(path){
           const body = path.get("body");
       
@@ -53,7 +52,8 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
             if(!path.removed)
               path.remove();
           });
-        }
+        },
+        exit
       },
       JSXElement(path){
         if(path.getData("handled"))
@@ -72,10 +72,9 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
         getNames(path).forEach((path, name) => {
           let used = false;
     
-          for(const context of scope){
+          for(let { define } of scope){
             const apply = [] as Context[];
-            let { define } = context;
-            
+
             for(
               let mod: Context; 
               mod = define[name];
