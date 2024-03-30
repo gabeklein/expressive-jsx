@@ -1,6 +1,5 @@
 import { get } from '@expressive/react';
 import {
-  CIRCULAR,
   code,
   command,
   Editor,
@@ -34,18 +33,21 @@ export class InputEditor extends Editor {
       editor(),
       lineNumbers(),
       javascript({ jsx: true }),
-      command("=", () => { main.fontSize++ }),
-      command("-", () => { main.fontSize-- }),
+      command("=", () => {
+        main.fontSize++;
+      }),
+      command("-", () => {
+        main.fontSize--;
+      }),
       command("s", () => {
         doc.build(this.text);
       }),
-      onUpdate((update) => {
-        if(!update.docChanged)
+      onUpdate(({ docChanged, state }) => {
+        if(!docChanged)
           return;
 
         doc.stale = true;
-        this.text = update.state.doc.toString();
-        this.set(CIRCULAR);
+        this.update(state.doc.toString());
       })
     ];
   }

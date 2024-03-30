@@ -17,6 +17,11 @@ export abstract class Editor extends Model {
 
   text = "";
 
+  update(text: string){
+    this.text = text;
+    this.set(CIRCULAR);
+  }
+
   protected abstract extends(): Extension;
 
   protected createEditor(parent: HTMLDivElement){
