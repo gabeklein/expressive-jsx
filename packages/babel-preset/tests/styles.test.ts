@@ -37,14 +37,14 @@ it("will apply to this", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_17j')}>
+        className={classNames(props.className, 'Component_17q')}>
         Hello World
       </div>
     );
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_17j {
+    .Component_17q {
       color: red;
     }
   `);
@@ -87,7 +87,7 @@ it("will apply to attribute this", async () => {
     const RedInput = (props) => (
       <input
         {...props}
-        className={classNames(props.className, 'RedInput_140')}
+        className={classNames(props.className, 'RedInput_2hl')}
       />
     );
   `);
@@ -171,7 +171,7 @@ it("will convert camelCase properties to dash", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_13j {
+    .Component_18u {
       box-sizing: border-box;
     }
   `);
@@ -193,7 +193,7 @@ it("will convert $-prefixed properties to css variables", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_2gt {
+    .Component_29b {
       --color-primary: blue;
     }
     .something_tla {
@@ -251,7 +251,7 @@ it("will export styles in order", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_2fr {
+    .Component_25r {
       color: blue;
     }
     .active_tla {
@@ -295,7 +295,7 @@ it("will prioritize capitalized styles", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Something_2bj {
+    .Something_2bi {
       color: purple;
     }
     .something_jsf {

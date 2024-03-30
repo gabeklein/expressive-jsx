@@ -67,7 +67,7 @@ it("will wrap elements if 'this' is styled", async () => {
       return (
         <div
           {...props}
-          className={classNames(props.className, 'Component_23x')}>
+          className={classNames(props.className, 'Component_2eh')}>
           <div className="inner_tla">
             <div className="thing_tla">Hello</div>
           </div>
@@ -77,7 +77,7 @@ it("will wrap elements if 'this' is styled", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_23x {
+    .Component_2eh {
       color: red;
     }
     .inner_tla {
@@ -113,7 +113,7 @@ it("will not race normal jsx plugin", async () => {
       /*#__PURE__*/ React.createElement(
         'div',
         Object.assign({}, props, {
-          className: classNames(props.className, 'Hi_13y')
+          className: classNames(props.className, 'Hi_297')
         }),
         'Hello World!'
       );
