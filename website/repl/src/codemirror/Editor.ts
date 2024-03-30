@@ -22,13 +22,7 @@ export abstract class Editor extends Model {
   protected createEditor(parent: HTMLDivElement){
     const state = EditorState.create({ extensions: this.extends() });
     const view = this.view = new EditorView({ parent, state });
-
-    const done1 = this.main.get(({ fontSize }) => {
-      parent.style.fontSize = fontSize + "px";
-      view.requestMeasure();
-    });
-
-    const done2 = this.get(({ text }, update) => {
+    const done = this.get(({ text }, update) => {
       if(update.has(CIRCULAR))
         return;
 
@@ -42,8 +36,7 @@ export abstract class Editor extends Model {
     });
 
     return () => {
-      done1();
-      done2();
+      done();
       view.destroy();
     }
   }
