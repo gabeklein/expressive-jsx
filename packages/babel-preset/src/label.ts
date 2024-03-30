@@ -134,26 +134,26 @@ function createFunctionContext(path: NodePath<Function>){
 function createIfContext(path: NodePath<IfStatement>){
   const test = path.node.test;
   const name = t.isIdentifier(test) ? test.name : "?";
-  const context = getContext(path);
-  const define = new Context(path, context, name);
+  const outer = getContext(path);
+  const inner = new Context(path, outer, name);
 
   if(t.isStringLiteral(test)){
-    context.children.add(define);
-    define.uid = context.uid;
-    define.condition = test.value;
+    outer.children.add(inner);
+    inner.uid = outer.uid;
+    inner.condition = test.value;
   }
   else {
-    context.also.add(define);
-    define.condition = test;
+    outer.also.add(inner);
+    inner.condition = test;
   }
 
   onExit(path, (path, key) => {
-    if(key == "alternate" || define.alternate)
+    if(key == "alternate" || inner.alternate)
       return;
 
     if(!path.removed)
       path.remove();
   });
 
-  return define;
+  return inner;
 }
