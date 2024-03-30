@@ -72,13 +72,28 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
         getNames(path).forEach((path, name) => {
           let used = false;
     
-          for(const context of scope)
-            context.get(name).forEach((ctx) => {
+          for(const context of scope){
+            const apply = [] as Context[];
+            let { define } = context;
+            
+            for(
+              let mod: Context; 
+              mod = define[name];
+              define = Object.getPrototypeOf(define)){
+  
+              apply.push(mod, ...mod.also);
+              used = true;
+        
+              if(name == "this")
+                break;
+            }
+
+            apply.reverse().forEach((ctx) => {
               ctx.usedBy.add(path);
               scope.add(ctx);
               using.add(ctx);
-              used = true;
             });
+          }
     
           if(used && path.isJSXAttribute())
             path.remove();

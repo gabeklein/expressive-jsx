@@ -96,7 +96,7 @@ function getClassName(context: Plugin.Context): Expression | undefined {
   if(!context.props.size && !context.children.size)
     return;
 
-  const { condition, alternate, uid} = context;
+  const { condition, alternate, uid } = context;
 
   if(typeof condition == "string" || t.isStringLiteral(condition))
     return;
@@ -140,7 +140,9 @@ function print(styles: Iterable<Plugin.Context>){
       if(Array.isArray(value))
         value = value.map(value => {
           if(value.startsWith("$"))
-            return `var(--${camelToDash(value.slice(1))})`;
+            return `var(--${
+              camelToDash(value.slice(1))
+            })`;
 
           return value;
         })

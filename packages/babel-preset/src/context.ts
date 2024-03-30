@@ -51,21 +51,4 @@ export class Context {
     else
       throw new Error("Invalid context input.");
   }
-  
-  get(name: string){
-    const apply = [] as Context[];
-    let { define } = this;
-    let mod: Context;
-
-    while(mod = define[name]){
-      apply.push(mod, ...mod.also);
-
-      if(name == "this")
-        break;
-
-      define = Object.getPrototypeOf(define);
-    }
-
-    return apply.reverse();
-  }
 }
