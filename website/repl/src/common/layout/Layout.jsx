@@ -41,7 +41,7 @@ const Handle = ({ grab, pull, push, vertical, width }) => {
 
   if(":hover")
     bar: {
-      bg: 0x9cc3ff;
+      bg: $accentLight;
     }
 
   if(vertical){
@@ -79,9 +79,8 @@ const Corner = (props) => {
   borderStyle: solid;
   zIndex: 10;
 
-  if(":hover"){
-    borderColor: 0x9cc3ff;
-  }
+  if(":hover")
+    borderColor: $accentLight;
 
   if(!props.onMouseDown)
     return null;

@@ -25,13 +25,13 @@ const Preview = () => {
 
   flex: 1;
   flexAlign: center;
-  border: dashed, 2, 0xccc;
+  border: dashed, 2, $borderLight;
   radius: 8;
   position: relative;
   overflow: hidden;
 
   issue: {
-    color: 0xd47878;
+    color: $red;
   }
 
   <this>
