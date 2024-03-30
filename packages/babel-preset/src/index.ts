@@ -72,7 +72,13 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
         visitor: {
           Program: {
             exit(path: any, state: any){
-              state.file.metadata.css = print(styles);
+              state.file.metadata.css = Array
+                .from(styles)
+                .filter(isInUse)
+                .sort(byPriority)
+                .map(toCss)
+                .join("\n");
+    
               styles.clear(); 
             }
           }
@@ -119,61 +125,62 @@ function getClassName(context: Plugin.Context): Expression | undefined {
   return t.logicalExpression("&&", condition, value);
 }
 
-function print(styles: Iterable<Plugin.Context>){
-  const css = [] as string[];
-  const sorted = Array.from(styles).sort((a, b) => {
-    return depth(a) - depth(b);
-  });
-
-  for(const context of sorted){
-    if(!context.props.size)
-      continue;
-
-    const styles = [] as string[];
-
-    for(let [name, value] of context.props){
-      const property = name
-        .replace(/^\$/, "--")
-        .replace(/([A-Z]+)/g, "-$1")
-        .toLowerCase();
-
-      if(Array.isArray(value))
-        value = value.map(value => {
-          if(value.startsWith("$"))
-            return `var(--${
-              camelToDash(value.slice(1))
-            })`;
-
-          return value;
-        })
-
-      styles.push(`  ${property}: ${value};`);
-    }
-
-    const style = styles.join("\n");
-    const select = selector(context);
-
-    css.push(`${select} {\n${style}\n}`);
-  }
-
-  return css.join("\n");
+function isInUse(context: Plugin.Context){
+  return context.usedBy.size > 0;
 }
 
-function selector(context: Context): string {
-  const { condition, uid } = context;
+function byPriority(a: Plugin.Context, b: Plugin.Context){
+  return depth(a) - depth(b);
+}
+
+function toCss(context: Plugin.Context){
+  const css = [] as string[];
+
+  for(let [name, value] of context.props)
+    css.push("  " + toCssProperty(name, value));
+
+  const select = toSelector(context);
+  const style = css.join("\n");
+    
+  return `${select} {\n${style}\n}`
+}
+
+function toCssProperty(name: string, value: any){
+  const property = name
+    .replace(/^\$/, "--")
+    .replace(/([A-Z]+)/g, "-$1")
+    .toLowerCase();
+
+  if(Array.isArray(value))
+    value = value.map(value => {
+      if(value.startsWith("$"))
+        return `var(--${
+          camelToDash(value.slice(1))
+        })`;
+
+      return value;
+    })
+
+  return `${property}: ${value};`;
+}
+
+function toSelector(context: Context): string {
+  let { parent, condition, uid } = context;
 
   if(typeof condition === "string")
-    return selector(context.parent!) + condition;
+    return toSelector(context.parent!) + condition;
 
-  let select = "";
+  let selector = "";
 
-  for(let parent = context.parent; parent; parent = parent.parent!)
+  while(parent){
     if(parent instanceof Context && parent.condition){
-      select = selector(parent) + " ";
+      selector = toSelector(parent) + " ";
       break;
     }
+    parent = parent.parent;
+  }
 
-  return select += "." + uid;
+  return selector += "." + uid;
 }
 
 function depth(context: Plugin.Context){
