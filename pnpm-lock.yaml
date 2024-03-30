@@ -1153,12 +1153,25 @@ packages:
     resolution: {integrity: sha512-LHL4vhfKV3BnvfFg5l5VtqTpyj8iKvPGbGG+kqiYumOMyolsCf7IXBDZGrY5P6ZOX5cvUXZhptwlPofigN7U7A==}
     dev: false
 
+  /@expressive/mvc@0.50.0:
+    resolution: {integrity: sha512-0C7+uBEFAfjLnMJjq4+rNUYxyRjl/Btd98+5xbAfM4OnEvFJ53CI4K37BoqaScUOkBg0PScKr6NHjoJ8VN5GtQ==}
+    dev: false
+
   /@expressive/react@0.36.3(react@18.2.0):
     resolution: {integrity: sha512-OWNbZ/VAI5hCXWdH1BUBzPXXBNJib/UHZOGgx0Nj3lQR5tpjEPSWERhtbFyYXjoonbNUOb7+SEn0CHDVLIVlqg==}
     peerDependencies:
       react: '>=16.8.0 <19.0.0'
     dependencies:
       '@expressive/mvc': 0.36.3
+      react: 18.2.0
+    dev: false
+
+  /@expressive/react@0.50.0(react@18.2.0):
+    resolution: {integrity: sha512-Zc7Z6DIPMQw/6oIR0MWr9Vrhk1vlQY0wcdKtKRvNLtl3z42Z+yeo93btmFS6gRc6kWPBmRccT8o7yencDxIfXQ==}
+    peerDependencies:
+      react: '>=16.8.0 <19.0.0'
+    dependencies:
+      '@expressive/mvc': 0.50.0
       react: 18.2.0
     dev: false
 
