@@ -1,5 +1,6 @@
 .DS_Store
 .turbo
+.next
 .nx
 *.log
 node_modules
