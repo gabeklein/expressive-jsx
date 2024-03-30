@@ -47,3 +47,66 @@
   margin-right: 8px;
   margin-left: 8px;
 }
+
+.cm-editor {
+  color: var(--cm-text);
+  background: var(--cm-background);
+  border: var(--cm-border) solid 1px;
+}
+
+.cm-stale .cm-editor,
+.cm-stale .cm-gutters {
+  background: var(--cm-stale-background) !important;
+}
+
+.cm-gutters {
+  border-right: 1px solid var(--cm-gutters-border) !important;
+  background-color: var(--cm-gutters-background) !important;
+}
+
+.cm-line {
+  color: var(--cm-line);
+}
+
+.tok-typeName {
+  color: var(--cm-typeName);
+}
+
+.tok-keyword {
+  color: var(--cm-keyword);
+}
+
+.tok-labelName {
+  color: var(--cm-labelName);
+}
+
+.tok-variableName,
+.tok-propertyName {
+  color: var(--cm-variableName);
+}
+
+.tok-string {
+  color: var(--cm-string);
+}
+
+.tok-string2 {
+  color: var(--cm-string2);
+}
+
+.tok-comment {
+  color: var(--cm-comment);
+}
+
+.tok-punctuation {
+  color: var(--cm-punctuation);
+}
+
+.tok-regex,
+.tok-boolean,
+.tok-number {
+  color: var(--cm-regex);
+}
+
+.tok-operator {
+  color: var(--cm-operator);
+}

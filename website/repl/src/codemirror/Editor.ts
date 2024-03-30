@@ -1,4 +1,3 @@
-import './editor-light.css';
 import './editor.css';
 
 import { EditorState, Extension } from '@codemirror/state';
