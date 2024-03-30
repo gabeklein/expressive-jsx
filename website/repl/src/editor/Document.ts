@@ -9,7 +9,7 @@ const DEFAULT_CODE =
   fontSize: 2.0;
 
   <this>
-    Hello World 
+    Hello World!
   </this>
 }`
 

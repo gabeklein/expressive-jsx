@@ -1,15 +1,5 @@
 import { get } from '@expressive/react';
-import {
-  code,
-  command,
-  Editor,
-  editor,
-  javascript,
-  jsxMixed,
-  lineNumbers,
-  onUpdate,
-  readOnly,
-} from 'codemirror/Editor';
+import { code, command, Editor, editor, javascript, jsxMixed, lineNumbers, readOnly } from 'codemirror/Editor';
 
 import { Document } from './Document';
 import { Main } from './Main';
@@ -20,8 +10,8 @@ export class InputEditor extends Editor {
 
   constructor(){
     super();
-    this.get($ => {
-      this.text = $.doc.input;
+    this.get(({ doc }) => {
+      this.text = doc.input;
     })
   }
 
@@ -41,13 +31,6 @@ export class InputEditor extends Editor {
       }),
       command("s", () => {
         doc.build(this.text);
-      }),
-      onUpdate(({ docChanged, state }) => {
-        if(!docChanged)
-          return;
-
-        doc.stale = true;
-        this.update(state.doc.toString());
       })
     ];
   }

@@ -19,7 +19,7 @@ export function evaluate(input: string): PreviewComponent {
     presets: [
       [Preset, {
         polyfill: "polyfill"
-      } as Preset.Options]
+      }]
     ],
     plugins: [
       "transform-react-jsx",
