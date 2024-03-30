@@ -41,7 +41,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
         apply(path, using){
           const used = new Set(using);
 
-          let thisComponent: NodePath<Function> | undefined;
+          let forward: NodePath<Function> | undefined;
        
           for(const define of used){
             const className = getClassName(define);
@@ -50,7 +50,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
               addClassName(path, className, polyfill);
 
             if(define.path.isFunction())
-              thisComponent = define.path;
+              forward = define.path;
           }
 
           for(const context of used){
@@ -58,8 +58,8 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
             styles.add(context);
           }
 
-          if(thisComponent){
-            spreadProps(path, componentProps(thisComponent));
+          if(forward){
+            spreadProps(path, componentProps(forward));
 
             if(hasProp(path, "className"))
               addClassName(path, componentProp(path, "className"), polyfill)
