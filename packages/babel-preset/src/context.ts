@@ -2,7 +2,6 @@ import { NodePath } from '@babel/traverse';
 import { Expression } from '@babel/types';
 
 import { simpleHash } from './helper/simpleHash';
-import { camelToDash } from './macros/util';
 import { BabelState, Macro } from './options';
 
 const CONTEXT = new WeakMap<NodePath, Context>();
@@ -51,71 +50,5 @@ export class Context {
     }
     else
       throw new Error("Invalid context input.");
-  }
-  
-  get(name: string){
-    const apply = [] as Context[];
-    let { define } = this;
-    let mod: Context;
-
-    while(mod = define[name]){
-      apply.push(mod, ...mod.also);
-
-      if(name == "this")
-        break;
-
-      define = Object.getPrototypeOf(define);
-    }
-
-    return apply.reverse();
-  }
-
-  macro(name: string, args: any[]){
-    const queue = [{ name, args }];
-
-    while(queue.length){
-      const { name, args } = queue.pop()!;
-      const macro = this.macros[name];
-      const apply = (args: any) => {
-        const key = /^\$/.test(name)
-          ? `--${camelToDash(name.slice(1))}`
-          : name
-
-        this.props.set(key, args);
-      };
-
-      if(!macro){
-        apply(args);
-        continue;
-      }
-
-      const output = macro.apply(this, args);
-
-      if(!output)
-        continue;
-
-      if(Array.isArray(output)){
-        apply(output);
-        continue;
-      }
-
-      if(typeof output != "object")
-        throw new Error("Invalid modifier output.");
-
-      for(const key in output){
-        let args = output[key];
-
-        if(args === undefined)
-          continue;
-
-        if(!Array.isArray(args))
-          args = [args];
-
-        if(key === name)
-          apply(args);
-        else
-          queue.push({ name: key, args });
-      }
-    }
   }
 }

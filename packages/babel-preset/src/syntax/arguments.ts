@@ -40,8 +40,7 @@ export function parseArgument(
 
 const parse = {
   Expression<T extends Expression>(
-    element: T,
-    childKey?: keyof T): any {
+    element: T, childKey?: keyof T): any {
 
     if(childKey)
       element = element[childKey] as unknown as T;
@@ -55,13 +54,8 @@ const parse = {
     throw Oops.UnknownArgument(element);
   },
 
-  Identifier({ name }: Identifier){
-    if(name.startsWith("$")){
-      name = camelToDash(name.slice(1));
-      return `var(--${name})`;
-    }
-
-    return name;
+  Identifier(node: Identifier){
+    return node.name;
   },
 
   BooleanLiteral(bool: BooleanLiteral){
