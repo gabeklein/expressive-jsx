@@ -1,7 +1,7 @@
 import { PluginItem, transformAsync } from '@babel/core';
 import { format } from 'prettier';
 
-import Preset from '../src';
+import Preset from '../src/preset';
 
 // forces babel to initialize saving time on first run
 beforeAll(() => parser(""));

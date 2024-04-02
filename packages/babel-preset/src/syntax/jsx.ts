@@ -2,7 +2,6 @@ import { NodePath } from '@babel/traverse';
 import { Expression, JSXElement } from '@babel/types';
 
 import t from '../types';
-import { getHelper } from './program';
 
 export function getNames(path: NodePath<JSXElement>) {
   const names = new Map<string, NodePath>();
@@ -65,62 +64,6 @@ export function setTagName(path: NodePath<JSXElement>, name: string){
 
   if(closingElement)
     closingElement.name = tag;
-}
-
-export function addClassName(
-  path: NodePath<JSXElement>,
-  name: string | Expression,
-  polyfill?: string | null){
-
-  const existing = hasProp(path, "className");
-  const opening = path.get("openingElement")
-
-  if(typeof name == "string")
-    name = t.stringLiteral(name);
-
-  if(t.isStringLiteral(existing) && t.isStringLiteral(name)){
-    existing.value += " " + name.value;
-    return;
-  }
-
-  if(!existing){
-    opening.pushContainer(
-      "attributes",
-      t.jsxAttribute(
-        t.jsxIdentifier("className"),
-        t.isStringLiteral(name)
-          ? name : t.jsxExpressionContainer(name)
-      )
-    );
-    return;
-  }
-
-  const concat = getHelper("classNames", path, polyfill);
-
-  if(t.isCallExpression(existing)
-  && t.isIdentifier(existing.callee, { name: concat.name }))
-    if(t.isStringLiteral(name)){
-      for(const value of existing.arguments)
-        if(t.isStringLiteral(value)){
-          value.value += " " + name.value;
-          return;
-        }
-    }
-    else {
-      existing.arguments.push(name);
-      return;
-    }
-
-  for(const attr of opening.get("attributes"))
-    if(attr.isJSXAttribute()
-    && attr.get("name").isJSXIdentifier({ name: "className" })){
-      attr.node.value = t.jsxExpressionContainer(
-        t.callExpression(concat, [name, existing])
-      )
-      return;
-    }
-
-  throw new Error("Could not insert className");
 }
 
 export function hasProp(path: NodePath<JSXElement>, name: string){
