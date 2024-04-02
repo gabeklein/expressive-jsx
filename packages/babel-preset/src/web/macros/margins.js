@@ -1,4 +1,4 @@
-import { appendUnitToN } from './util';
+import { appendUnitToN } from '../util';
 
 function margin(a1){
   let margin;

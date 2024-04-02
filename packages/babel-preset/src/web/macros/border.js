@@ -1,4 +1,4 @@
-import { appendUnitToN } from './util';
+import { appendUnitToN } from '../util';
 
 function factory(dir){
   const key = dir

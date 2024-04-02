@@ -3,7 +3,7 @@ import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 import { format } from 'prettier';
 
-import Preset from '../src/preset';
+import Preset from '../src/web';
 
 async function transform(){
   const input = resolve(__dirname, "input.jsx");

@@ -1,15 +1,14 @@
 import { BabelFile, BabelFileMetadata, BabelFileResult, NodePath } from '@babel/core';
-import { Expression, Function } from '@babel/types';
+import { Function } from '@babel/types';
 
 import { Context } from '../context';
-import * as Macros from '../macros';
-import { camelToDash } from '../macros/util';
 import Plugin from '../plugin';
 import { componentProp, componentProps } from '../syntax/component';
-import { hasProp, setTagName, spreadProps } from '../syntax/jsx';
-import { addClassName, fixTagName, getClassName } from './jsx';
-import { HTML_TAGS } from './tags';
+import { hasProp, spreadProps } from '../syntax/jsx';
 import t from '../types';
+import { addClassName, fixTagName, getClassName } from './jsx';
+import * as Macros from './macros';
+import { camelToDash } from './util';
 
 namespace Preset {
   export interface Options extends Plugin.Options {}

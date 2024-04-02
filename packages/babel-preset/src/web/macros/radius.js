@@ -1,4 +1,4 @@
-import { addUnit } from './util';
+import { addUnit } from '../util';
 
 const CORNER_MATRIX = {
   top: [1, 1, 0, 0],

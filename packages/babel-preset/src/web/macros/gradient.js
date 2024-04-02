@@ -1,4 +1,4 @@
-import { camelToDash } from './util';
+import { camelToDash } from '../util';
 
 import chroma from 'chroma-js';
 import easingCoordinates from 'easing-coordinates';
