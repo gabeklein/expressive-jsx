@@ -1,4 +1,4 @@
-import { BabelFileMetadata, BabelFileResult, NodePath } from '@babel/core';
+import { BabelFile, BabelFileMetadata, BabelFileResult, NodePath } from '@babel/core';
 import { Expression, Function } from '@babel/types';
 
 import { Context } from './context';
@@ -18,6 +18,10 @@ namespace Preset {
   export interface Result extends BabelFileResult {
     metadata: Meta;
     code: string;
+  }
+  export interface MetaData {
+    readonly css: string;
+    styles: Set<Context>;
   }
 }
 
@@ -55,7 +59,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
 
           for(const context of used){
             context.children.forEach(x => used.add(x));
-            styles.add(context);
+            (path.hub as any).file.metadata.styles.add(context);
           }
 
           if(forward){
@@ -69,19 +73,24 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
         },
       }],
       [{
-        visitor: {
-          Program: {
-            exit(path: any, state: any){
-              state.file.metadata.css = Array
-                .from(styles)
-                .filter(isInUse)
-                .sort(byPriority)
-                .map(toCss)
-                .join("\n");
-    
-              styles.clear(); 
+        pre(file: BabelFile){
+          Object.defineProperties(file.metadata, {
+            styles: {
+              enumerable: true,
+              value: styles
+            },
+            css: {
+              enumerable: true,
+              get(this: Preset.MetaData){
+                return Array
+                  .from(this.styles)
+                  .filter(isInUse)
+                  .sort(byPriority)
+                  .map(toCss)
+                  .join("\n");
+              }
             }
-          }
+          })
         }
       }]
     ]
