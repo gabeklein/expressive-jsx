@@ -2,6 +2,7 @@ import { PluginObj, PluginPass } from '@babel/core';
 import { NodePath } from '@babel/traverse';
 
 import { Context } from './context';
+import { simpleHash } from './helper/simpleHash';
 import { getContext, handleLabel } from './label';
 import { Macro, Options } from './options';
 import { fixImplicitReturn, getNames } from './syntax/jsx';
@@ -35,7 +36,11 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
     },
     visitor: {
       Program(path, state){
-        new Context(path, state);
+        const context = new Context(path);
+
+        context.uid = simpleHash(state.filename!);
+        context.define = Object.assign({}, ...options.define || []);
+        context.macros = Object.assign({}, ...options.macros || []);
       },
       BlockStatement: {
         exit
