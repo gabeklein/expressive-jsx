@@ -17,7 +17,10 @@ export function fixTagName(path: any){
     setTagName(path, "div");
 }
 
-export function getClassName(context: Context, module?: Expression): Expression | undefined {
+export function getClassName(
+  context: Context,
+  module?: Expression
+): Expression | undefined {
   if(!context.props.size && !context.children.size)
     return;
 
@@ -26,7 +29,9 @@ export function getClassName(context: Context, module?: Expression): Expression 
   if(typeof condition == "string" || t.isStringLiteral(condition))
     return;
 
-  const value = module ? t.memberExpression(module, t.identifier(uid), false) : t.stringLiteral(uid);
+  const value = module
+    ? t.memberExpression(module, t.identifier(uid), false)
+    : t.stringLiteral(uid);
 
   if(!condition)
     return value;
@@ -52,15 +57,15 @@ export function addClassName(
   const existing = hasProp(path, "className");
   const opening = path.get("openingElement");
 
-  if (typeof name == "string")
+  if(typeof name == "string")
     name = t.stringLiteral(name);
 
-  if (t.isStringLiteral(existing) && t.isStringLiteral(name)) {
+  if(t.isStringLiteral(existing) && t.isStringLiteral(name)) {
     existing.value += " " + name.value;
     return;
   }
 
-  if (!existing) {
+  if(!existing) {
     opening.pushContainer(
       "attributes",
       t.jsxAttribute(
@@ -74,11 +79,11 @@ export function addClassName(
 
   const concat = getHelper("classNames", path, polyfill);
 
-  if (t.isCallExpression(existing)
+  if(t.isCallExpression(existing)
     && t.isIdentifier(existing.callee, { name: concat.name }))
-    if (t.isStringLiteral(name)) {
-      for (const value of existing.arguments)
-        if (t.isStringLiteral(value)) {
+    if(t.isStringLiteral(name)) {
+      for(const value of existing.arguments)
+        if(t.isStringLiteral(value)) {
           value.value += " " + name.value;
           return;
         }
@@ -88,8 +93,8 @@ export function addClassName(
       return;
     }
 
-  for (const attr of opening.get("attributes"))
-    if (attr.isJSXAttribute()
+  for(const attr of opening.get("attributes"))
+    if(attr.isJSXAttribute()
       && attr.get("name").isJSXIdentifier({ name: "className" })) {
       attr.node.value = t.jsxExpressionContainer(
         t.callExpression(concat, [name, existing])
