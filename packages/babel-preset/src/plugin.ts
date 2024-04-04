@@ -74,7 +74,7 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
 
         SCOPE.set(path, scope);
 
-        getNames(path).forEach((path, name) => {
+        getNames(path).forEach((attr, name) => {
           let used = false;
     
           for(let { define } of scope){
@@ -99,8 +99,8 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
             });
           }
     
-          if(used && path.isJSXAttribute())
-            path.remove();
+          if(used && attr.isJSXAttribute())
+            attr.remove();
         });
     
         apply(path, using);

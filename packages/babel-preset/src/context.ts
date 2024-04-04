@@ -32,16 +32,17 @@ export class Context {
     CONTEXT.set(path, this);
     this.path = path;
 
-    if(parent instanceof Context){
-      this.uid = name + "_" + simpleHash(parent.uid);
-      this.parent = parent;
-      this.define = Object.create(parent.define);
-      this.macros = Object.create(parent.macros);
+    if(!(parent instanceof Context))
+      return;
 
-      do if(parent.condition){
-        parent.children.add(this);
-      }
-      while(parent = parent.parent)
+    this.parent = parent;
+    this.uid = name + "_" + simpleHash(parent.uid);
+    this.define = Object.create(parent.define);
+    this.macros = Object.create(parent.macros);
+
+    do if(parent.condition){
+      parent.children.add(this);
     }
+    while(parent = parent.parent)
   }
 }
