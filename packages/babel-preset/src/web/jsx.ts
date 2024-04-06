@@ -95,7 +95,7 @@ export function addClassName(
 
   for(const attr of opening.get("attributes"))
     if(attr.isJSXAttribute()
-      && attr.get("name").isJSXIdentifier({ name: "className" })) {
+    && attr.get("name").isJSXIdentifier({ name: "className" })) {
       attr.node.value = t.jsxExpressionContainer(
         t.callExpression(concat, [name, existing])
       );
