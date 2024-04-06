@@ -1,5 +1,5 @@
-import { BabelFile, BabelFileMetadata, BabelFileResult, NodePath } from '@babel/core';
-import { Function } from '@babel/types';
+import { BabelFile, BabelFileMetadata, BabelFileResult, NodePath, PluginObj, PluginPass, Visitor } from '@babel/core';
+import { Expression, Function, Identifier } from '@babel/types';
 
 import { Context } from '../context';
 import Plugin from '../plugin';
@@ -9,9 +9,20 @@ import t from '../types';
 import { addClassName, fixTagName, getClassName } from './jsx';
 import * as Macros from './macros';
 import { byPriority, isInUse, toCss } from './styles';
+import { uniqueIdentifier } from '../syntax/names';
 
-namespace Preset {
-  export interface Options extends Plugin.Options {}
+export interface Options extends Plugin.Options {
+  cssModule?: string;
+}
+
+interface State extends PluginPass {
+  file: BabelFile & {
+    metadata: Preset.MetaData;
+  };
+}
+
+declare namespace Preset {
+  export { Options };
   export interface Meta extends BabelFileMetadata {
     css: string;
   }
@@ -26,13 +37,13 @@ namespace Preset {
 }
 
 function Preset(_compiler: any, options: Preset.Options = {} as any): any {
+  const { cssModule } = options;
+
+  let cssObject: Identifier | undefined;
+
   Object.assign(t, _compiler.types);
 
   const styles = new Set<Context>();
-  let polyfill = options.polyfill;
-
-  if(polyfill === undefined)
-    polyfill = require.resolve("../polyfill");
 
   return {
     plugins: [
@@ -48,10 +59,10 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           let forward: NodePath<Function> | undefined;
        
           for(const define of used){
-            const className = getClassName(define);
+            const className = getClassName(define, cssObject);
 
             if(className)
-              addClassName(path, className, polyfill);
+              addClassName(path, className, options);
 
             if(define.path.isFunction())
               forward = define.path;
@@ -66,32 +77,48 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
             spreadProps(path, componentProps(forward));
 
             if(hasProp(path, "className"))
-              addClassName(path, componentProp(path, "className"), polyfill)
+              addClassName(path, componentProp(path, "className"), options)
           }
 
           fixTagName(path);
         },
       }],
-      [{
-        pre(file: BabelFile){
-          Object.defineProperties(file.metadata, {
-            styles: {
-              enumerable: true,
-              value: styles
+      [<PluginObj<State>>{
+        visitor: {
+          Program: {
+            enter(path, state){
+              if(cssModule)
+                cssObject = uniqueIdentifier(path.scope, "css");
+  
+              Object.defineProperties(state.file.metadata, {
+                styles: {
+                  enumerable: true,
+                  value: styles
+                },
+                css: {
+                  enumerable: true,
+                  get(this: Preset.MetaData){
+                    return Array
+                      .from(this.styles)
+                      .filter(isInUse)
+                      .sort(byPriority)
+                      .map(toCss)
+                      .join("\n");
+                  }
+                }
+              })
             },
-            css: {
-              enumerable: true,
-              get(this: Preset.MetaData){
-                return Array
-                  .from(this.styles)
-                  .filter(isInUse)
-                  .sort(byPriority)
-                  .map(toCss)
-                  .join("\n");
-              }
+            exit(path, state){
+              const { styles } = state.file.metadata;
+
+              if(cssObject && cssModule && styles.size)
+              path.unshiftContainer("body", t.importDeclaration(
+                [t.importDefaultSpecifier(cssObject)],
+                t.stringLiteral(cssModule)
+              ));
             }
-          })
-        }
+          }
+        },
       }]
     ]
   }

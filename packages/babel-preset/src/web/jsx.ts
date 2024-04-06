@@ -1,11 +1,13 @@
 import { NodePath } from '@babel/traverse';
 import { Expression, JSXElement } from '@babel/types';
 
+import { getPolyfill } from '..';
 import { Context } from '../context';
+import { Options } from '../options';
 import { hasProp, setTagName } from '../syntax/jsx';
 import { getHelper } from '../syntax/program';
-import { HTML_TAGS } from './tags';
 import t from '../types';
+import { HTML_TAGS } from './tags';
 
 /** TODO: Move to a default handler included with macros. */
 export function fixTagName(path: any){
@@ -52,7 +54,12 @@ export function getClassName(
 export function addClassName(
   path: NodePath<JSXElement>,
   name: string | Expression,
-  polyfill?: string | null) {
+  options: Options) {
+
+  let { polyfill } = options;
+
+  if(polyfill === undefined)
+    polyfill = getPolyfill();
 
   const existing = hasProp(path, "className");
   const opening = path.get("openingElement");

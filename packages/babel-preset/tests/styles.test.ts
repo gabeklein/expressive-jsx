@@ -306,3 +306,24 @@ it("will prioritize capitalized styles", async () => {
     }
   `);
 });
+
+it("will use classnames from module", async () => {
+  const parse = parser({
+    cssModule: "./styles.module.css",
+  });
+
+  const output = await parse(`
+    const Component = () => {
+      div: {
+        color: blue;
+      }
+    
+      <div>Hello</div>
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(`
+    import css from './styles.module.css';
+    const Component = () => <div className={css.div_tla}>Hello</div>;
+  `);
+});
