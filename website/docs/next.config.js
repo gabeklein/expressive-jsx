@@ -1,12 +1,12 @@
-import JSXPlugin from '@expressive/webpack-plugin';
-import Nextra from 'nextra';
+const { default: JSXPlugin } = require('@expressive/webpack-plugin');
+const Nextra = require('nextra');
 
 const nextra = Nextra({
   theme: 'nextra-theme-docs',
   themeConfig: './theme.config.tsx'
 });
 
-export default nextra({
+module.exports = nextra({
   webpack: (config) => {
     config.plugins.push(
       new JSXPlugin()
