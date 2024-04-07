@@ -1,0 +1,9 @@
+{
+  "testEnvironment": "node",
+  "transform": {
+    "^.+\\.[tj]sx?$": "@swc/jest"
+  },
+  "moduleNameMapper": {
+    "@expressive/(.*)$": "<rootDir>/../$1/src"
+  }
+}

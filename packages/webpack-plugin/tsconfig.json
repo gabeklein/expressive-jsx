@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "outDir": "dist", // Change the output directory to a different location
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "declaration": true,
+    "strict": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "types": [
+      "node",
+      "jest"
+    ],
+    "paths": {
+      "@expressive/*": [
+        "../*/src"
+      ]
+    }
+  },
+  "include": [
+    "src"
+  ]
+}

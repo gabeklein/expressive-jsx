@@ -6,8 +6,11 @@
   "private": true,
   "author": {
     "name": "Gabe Klein",
-    "email": "me@gabeklein.dev",
+    "email": "gabe@expressive.dev",
     "url": "https://github.com/gabeklein"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --dts"
   },
   "license": "MIT",
   "publishConfig": {
@@ -18,15 +21,27 @@
     "expressive",
     "jsx"
   ],
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
-    "index.js",
-    "index.d.ts"
+    "dist"
   ],
   "dependencies": {
     "@expressive/babel-preset": "^0.1.0",
-    "babel-loader": "^9.1.2",
+    "babel-loader": "^8.3.0",
+    "webpack": "^5.91.0",
     "webpack-virtual-modules": "^0.5.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.4",
+    "@babel/preset-react": "^7.24.1",
+    "@swc/jest": "^0.2.36",
+    "@types/babel__core": "^7.20.2",
+    "css-loader": "^7.0.0",
+    "jest": "^29.7.0",
+    "prettier": "^2.8.8",
+    "swc-loader": "^0.2.6",
+    "tsup": "^8.0.1",
+    "typescript": "^5.2.2"
   }
 }

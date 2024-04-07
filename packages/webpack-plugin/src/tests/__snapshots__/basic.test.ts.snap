@@ -1,0 +1,132 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`will output with css module 1`] = `
+var __webpack_modules__ = {
+  './input.jsx.module.css': (
+    module,
+    __webpack_exports__,
+    __webpack_require__
+  ) => {
+    __webpack_require__.r(__webpack_exports__);
+    __webpack_require__.d(__webpack_exports__, {
+      Component_2hh: () => Component_2hh,
+      default: () => __WEBPACK_DEFAULT_EXPORT__
+    });
+    var MODULE_0__ = __webpack_require__(
+      'css-loader/dist/runtime/noSourceMaps.js'
+    );
+    var MODULE_0___default = __webpack_require__.n(MODULE_0__);
+    var MODULE_1__ = __webpack_require__('css-loader/dist/runtime/api.js');
+    var MODULE_1___default = __webpack_require__.n(MODULE_1__);
+    var ___CSS_LOADER_EXPORT___ = MODULE_1___default()(MODULE_0___default());
+    ___CSS_LOADER_EXPORT___.push([
+      module.id,
+      \`.zdREuaVG0Se1YyiQXzPg {
+  color: red;
+}\`,
+      ''
+    ]);
+    var Component_2hh = \`zdREuaVG0Se1YyiQXzPg\`;
+    const __WEBPACK_DEFAULT_EXPORT__ = ___CSS_LOADER_EXPORT___;
+  },
+  '../babel-preset/polyfill.js': (
+    __unused_webpack_module,
+    __webpack_exports__,
+    __webpack_require__
+  ) => {
+    __webpack_require__.r(__webpack_exports__);
+    __webpack_require__.d(__webpack_exports__, {
+      classNames: () => classNames,
+      collect: () => collect
+    });
+    function classNames() {
+      return Array.from(arguments).filter(Boolean).join(' ');
+    }
+    function collect(acc) {
+      const sum = [];
+      acc(sum.push.bind(sum));
+      return sum;
+    }
+  },
+  'css-loader/dist/runtime/api.js': (module) => {
+    module.exports = require('css-loader/dist/runtime/api.js');
+  },
+  'css-loader/dist/runtime/noSourceMaps.js': (module) => {
+    module.exports = require('css-loader/dist/runtime/noSourceMaps.js');
+  }
+};
+var __webpack_module_cache__ = {};
+function __webpack_require__(moduleId) {
+  var cachedModule = __webpack_module_cache__[moduleId];
+  if (cachedModule !== undefined) {
+    return cachedModule.exports;
+  }
+  var module = (__webpack_module_cache__[moduleId] = {
+    id: moduleId,
+    exports: {}
+  });
+  __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+  return module.exports;
+}
+(() => {
+  __webpack_require__.n = (module) => {
+    var getter =
+      module && module.__esModule ? () => module['default'] : () => module;
+    __webpack_require__.d(getter, {
+      a: getter
+    });
+    return getter;
+  };
+})();
+(() => {
+  __webpack_require__.d = (exports, definition) => {
+    for (var key in definition) {
+      if (
+        __webpack_require__.o(definition, key) &&
+        !__webpack_require__.o(exports, key)
+      ) {
+        Object.defineProperty(exports, key, {
+          enumerable: true,
+          get: definition[key]
+        });
+      }
+    }
+  };
+})();
+(() => {
+  __webpack_require__.o = (obj, prop) =>
+    Object.prototype.hasOwnProperty.call(obj, prop);
+})();
+(() => {
+  __webpack_require__.r = (exports) => {
+    if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+      Object.defineProperty(exports, Symbol.toStringTag, {
+        value: 'Module'
+      });
+    }
+    Object.defineProperty(exports, '__esModule', {
+      value: true
+    });
+  };
+})();
+var __webpack_exports__ = {};
+(() => {
+  __webpack_require__.r(__webpack_exports__);
+  var MODULE_0__ = __webpack_require__('./input.jsx.module.css');
+  var MODULE_1__ = __webpack_require__('../babel-preset/polyfill.js');
+  const Component = (props) =>
+    element(
+      'div',
+      {
+        ...props,
+        className: (0, MODULE_1__.classNames)(
+          props.className,
+          MODULE_0__['default'].Component_2hh
+        )
+      },
+      element('h1', null, 'Hello World'),
+      'This is a test.'
+    );
+})();
+
+`;
