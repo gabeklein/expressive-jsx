@@ -15,17 +15,20 @@ class ExpressiveJSXPlugin {
   constructor(private options: Options = {}){}
 
   apply(compiler: Compiler){
-    const virtualModules = new VirtualModulesPlugin();
-    virtualModules.apply(compiler);
-
+    const virtual = new VirtualModulesPlugin();    
+    const handled = new Set<string>();
+    
+    virtual.apply(compiler);
     compiler.hooks.compilation.tap("ExpressiveJSXPlugin", (compilation) => {
       const { loader } = compiler.webpack.NormalModule.getCompilationHooks(compilation);
 
-      loader.tap("ExpressiveJSXPlugin", (_context, module) => {
+      loader.tap("ExpressiveJSXPlugin", (_context: any, module) => {
         const { resource } = module;
         
-        if(!/\.jsx$/.test(resource) || /node_modules/.test(resource))
+        if(!/\.jsx$/.test(resource) || /node_modules/.test(resource) || handled.has(resource))
           return;
+  
+        handled.add(resource);
 
         const cssModule = resource + ".module.css";
 
@@ -42,10 +45,10 @@ class ExpressiveJSXPlugin {
                 post({ metadata }){
                   const { css } = metadata as any;
 
-                  if(css){
-                    // loaderContext.addDependency(filename);
-                    virtualModules.writeModule(cssModule, css);
-                  }
+                  if(!css)
+                    return;
+
+                  virtual.writeModule(cssModule, css);
                 }
               }]
             ]

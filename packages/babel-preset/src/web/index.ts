@@ -43,7 +43,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
 
   Object.assign(t, _compiler.types);
 
-  const styles = new Set<Context>();
+  const styles = new Map<string, Context>();
 
   return {
     plugins: [
@@ -70,7 +70,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
 
           for(const context of used){
             context.children.forEach(x => used.add(x));
-            (path.hub as any).file.metadata.styles.add(context);
+            (path.hub as any).file.metadata.styles.set(context.uid, context);
           }
 
           if(forward){
@@ -99,7 +99,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
                   enumerable: true,
                   get(this: Preset.MetaData){
                     return Array
-                      .from(this.styles)
+                      .from(this.styles.values())
                       .filter(isInUse)
                       .sort(byPriority)
                       .map(toCss)
