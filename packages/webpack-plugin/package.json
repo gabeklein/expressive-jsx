@@ -21,10 +21,12 @@
     "expressive",
     "jsx"
   ],
-  "main": "dist/index.js",
+  "main": "index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "index.js"
   ],
   "dependencies": {
     "@expressive/babel-preset": "^0.1.0",
