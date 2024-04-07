@@ -25,7 +25,7 @@ class ExpressiveJSXPlugin {
       loader.tap("ExpressiveJSXPlugin", (_context: any, module) => {
         const { resource } = module;
         
-        if(!/\.jsx$/.test(resource) || /node_modules/.test(resource) || handled.has(resource))
+        if(handled.has(resource) || !/\.jsx$/.test(resource) || /node_modules/.test(resource))
           return;
   
         handled.add(resource);
