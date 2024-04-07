@@ -29,7 +29,7 @@ export function toCssProperty(name: string, value: any){
 
   if(Array.isArray(value))
     value = value.map(value => {
-      if(value.startsWith("$"))
+      if(typeof value == "string" && /^\$/.test(value))
         return `var(--${
           camelToDash(value.slice(1))
         })`;
