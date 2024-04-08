@@ -11,5 +11,10 @@ export default nextra({
     config.plugins.push(
       new JSXPlugin()
     );
+    config.module.rules.push({
+      test: /\.svg$/i,
+      issuer: /\.[jt]sx?$/,
+      use: ['@svgr/webpack'],
+    });
   }
 });

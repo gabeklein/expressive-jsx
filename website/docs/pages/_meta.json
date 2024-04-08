@@ -1,3 +1,18 @@
 {
-  "index": "What is Expressive?"
+  "index": {
+    "type": "page",
+    "title": "Expressive JSX",
+    "display": "hidden"
+  },
+  "docs": {
+    "type": "page",
+    "title": "Documentation"
+  },
+  "404": {
+    "type": "page",
+    "theme": {
+      "timestamp": false,
+      "typesetting": "article"
+    }
+  }
 }
