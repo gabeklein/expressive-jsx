@@ -20,21 +20,6 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Webpack Tests",
-      "cwd": "${workspaceFolder}/packages/webpack-plugin",
-      "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
-      "args": [
-        "--watchAll",
-        "--runInBand",
-        "--config",
-        "${input:testName}"
-      ],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
-    },
-    {
-      "type": "node",
-      "request": "launch",
       "name": "Debug Current Test File",
       "autoAttachChildProcesses": true,
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
@@ -42,20 +27,6 @@
       "args": ["run", "--watch", "${relativeFile}"],
       "smartStep": true,
       "console": "integratedTerminal"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Preset Tests",
-      "cwd": "${workspaceFolder}/packages/babel-preset",
-      "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
-      "args": [
-        "--watchAll",
-        "--runInBand",
-        "${input:testName}"
-      ],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
     }
   ],
   "inputs": [
