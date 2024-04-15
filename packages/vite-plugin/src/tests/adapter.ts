@@ -37,6 +37,7 @@ export async function bundle(
   BUILD_OUTPUT.add(output);
   
   await build({
+    logLevel: 'silent',
     build: {
       rollupOptions: {
         external: /polyfill/
