@@ -35,6 +35,17 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Debug Current Test File",
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "--watch", "${relativeFile}"],
+      "smartStep": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Preset Tests",
       "cwd": "${workspaceFolder}/packages/babel-preset",
       "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
