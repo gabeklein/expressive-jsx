@@ -10,8 +10,12 @@ export type Macro =
 export interface Options {
   macros?: Record<string, Macro>[];
   define?: Record<string, Context>[];
-  apply?(path: NodePath<JSXElement>, using: Iterable<Context>): void;
   polyfill?: string | null;
+  apply?(
+    path: NodePath<JSXElement>,
+    using: Iterable<Context>,
+    state: BabelState
+  ): void;
 }
 
 export type BabelState = PluginPass & {

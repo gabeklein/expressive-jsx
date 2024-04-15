@@ -60,7 +60,7 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
         },
         exit
       },
-      JSXElement(path){
+      JSXElement(path, state){
         if(path.getData("handled"))
           return;
 
@@ -103,7 +103,7 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
             attr.remove();
         });
     
-        apply(path, using);
+        apply(path, using, state);
 
         if(context === false
         || context.define.this !== context
@@ -119,7 +119,7 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
           )
         )
     
-        apply(inserted, [context]);
+        apply(inserted, [context], state);
         inserted.setData("handled", true);
       }
     }

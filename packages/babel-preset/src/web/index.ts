@@ -1,15 +1,15 @@
-import { BabelFile, BabelFileMetadata, BabelFileResult, NodePath, PluginObj, PluginPass, Visitor } from '@babel/core';
-import { Expression, Function, Identifier } from '@babel/types';
+import { BabelFile, BabelFileMetadata, BabelFileResult, NodePath, PluginObj, PluginPass } from '@babel/core';
+import { Function, Identifier } from '@babel/types';
 
 import { Context } from '../context';
 import Plugin from '../plugin';
 import { componentProp, componentProps } from '../syntax/component';
 import { hasProp, spreadProps } from '../syntax/jsx';
+import { uniqueIdentifier } from '../syntax/names';
 import t from '../types';
 import { addClassName, fixTagName, getClassName } from './jsx';
 import * as Macros from './macros';
-import { byPriority, isInUse, toCss } from './styles';
-import { uniqueIdentifier } from '../syntax/names';
+import { byPriority, isInUse, toCss, toSelector } from './styles';
 
 export interface Options extends Plugin.Options {
   cssModule?: string;
@@ -32,7 +32,7 @@ declare namespace Preset {
   }
   export interface MetaData {
     readonly css: string;
-    styles: Set<Context>;
+    styles: Map<string, Context>;
   }
 }
 
@@ -43,8 +43,6 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
 
   Object.assign(t, _compiler.types);
 
-  const styles = new Map<string, Context>();
-
   return {
     plugins: [
       [Plugin, <Plugin.Options>{
@@ -53,7 +51,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           Macros,
           ...options.macros || []
         ],
-        apply(path, using){
+        apply(path, using, state){
           const used = new Set(using);
 
           let forward: NodePath<Function> | undefined;
@@ -69,8 +67,11 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
           }
 
           for(const context of used){
+            const { styles } = state.file.metadata as Preset.MetaData;
+            const key = toSelector(context);
+
             context.children.forEach(x => used.add(x));
-            (path.hub as any).file.metadata.styles.set(context.uid, context);
+            styles.set(key, context);
           }
 
           if(forward){
@@ -93,7 +94,7 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
               Object.defineProperties(state.file.metadata, {
                 styles: {
                   enumerable: true,
-                  value: styles
+                  value: new Map<string, Context>()
                 },
                 css: {
                   enumerable: true,
@@ -112,10 +113,10 @@ function Preset(_compiler: any, options: Preset.Options = {} as any): any {
               const { styles } = state.file.metadata;
 
               if(cssObject && cssModule && styles.size)
-              path.unshiftContainer("body", t.importDeclaration(
-                [t.importDefaultSpecifier(cssObject)],
-                t.stringLiteral(cssModule)
-              ));
+                path.unshiftContainer("body", t.importDeclaration(
+                  [t.importDefaultSpecifier(cssObject)],
+                  t.stringLiteral(cssModule)
+                ));
             }
           }
         },
