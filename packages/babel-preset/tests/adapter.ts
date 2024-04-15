@@ -1,11 +1,8 @@
 import { PluginItem, transformAsync } from '@babel/core';
 import { format } from 'prettier';
-import { beforeAll, expect } from 'vitest';
+import { expect } from 'vitest';
 
 import Preset from '../src/web';
-
-// forces babel to initialize saving time on first run
-beforeAll(() => void parser(""));
 
 // drop quotes from string snapshot
 expect.addSnapshotSerializer({
