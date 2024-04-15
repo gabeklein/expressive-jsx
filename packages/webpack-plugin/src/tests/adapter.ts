@@ -111,34 +111,9 @@ class TestSnapshotPlugin {
         },
         (assets, callback) => {
           Object.entries(assets).forEach(([assetName, source]) => {
-            let output = source.source().toString();
-
-            const result = transform(output, {
-              comments: false,
-              plugins: [{
-                visitor: {
-                  Identifier({ node }) {
-                    node.name = node.name.replace(/\w+?__WEBPACK_IMPORTED_/, "");
-                  },
-                  StringLiteral({ node }){
-                    node.value = node.value.replace(/^.+\/node_modules\//, "");
-                  }
-                }
-              }]
-            })
-            
-            if(result)
-              output = result.code!;
-
-            output = prettier.format(output, {
-              parser: 'babel',
-              trailingComma: 'none',
-              jsxBracketSameLine: true,
-              printWidth: 80,
-              singleQuote: true
-            });
-
-            this.files[assetName] = output;
+            this.files[assetName] = pretty(
+              source.source().toString()
+            );
           });
 
           callback();
@@ -146,4 +121,31 @@ class TestSnapshotPlugin {
       );
     });
   }
+}
+
+function pretty(code: string){
+  const result = transform(code, {
+    comments: false,
+    plugins: [{
+      visitor: {
+        Identifier({ node }) {
+          node.name = node.name.replace(/\w+?__WEBPACK_IMPORTED_/, "");
+        },
+        StringLiteral({ node }){
+          node.value = node.value.replace(/^.+\/node_modules\//, "");
+        }
+      }
+    }]
+  })
+  
+  if(result)
+    code = result.code!;
+
+  return prettier.format(code, {
+    parser: 'babel',
+    trailingComma: 'none',
+    jsxBracketSameLine: true,
+    printWidth: 80,
+    singleQuote: true
+  });
 }
