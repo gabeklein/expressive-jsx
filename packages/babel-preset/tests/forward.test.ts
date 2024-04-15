@@ -15,7 +15,7 @@ it("will forward props", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_14n')}
+        className={classNames(props.className, 'Component_2a0')}
       />
     );
   `);
@@ -34,7 +34,7 @@ it("will forward existing props", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_14p')}
+        className={classNames(props.className, 'Component_222')}
       />
     );
   `);
@@ -53,7 +53,7 @@ it("will return this if no JSX", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_2fa')}
+        className={classNames(props.className, 'Component_11k')}
       />
     );
   `);
@@ -72,7 +72,7 @@ it("will forward props to this attribute", async () => {
     const Component = (props) => (
       <input
         {...props}
-        className={classNames(props.className, 'Component_2i6')}
+        className={classNames(props.className, 'Component_2dy')}
       />
     );
   `);

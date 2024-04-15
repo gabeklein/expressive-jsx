@@ -29,8 +29,9 @@ function parser(argument?: Preset.Options | string, plugins?: PluginItem[]){
 function createParser(options?: Preset.Options, plugins?: PluginItem[]){
   return async function parse(source: string){
     const { currentTestName } = expect.getState();
+    const filename = currentTestName!.replace(/^.+? > /, "");
     const result = await transformAsync(source, {
-      filename: currentTestName,
+      filename,
       plugins,
       presets: [
         [Preset, <Preset.Options>{
