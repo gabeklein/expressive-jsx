@@ -31,6 +31,9 @@ function jsxPlugin(options: Options = {}): Plugin {
       moduleGraph = server.moduleGraph;
     },
     resolveId(id, importer){
+      if(id === "@expressive/babel-preset/polyfill")
+        return require.resolve(id);
+      
       if(id === "__EXPRESSIVE_CSS__")
         return PREFIX + cwd(importer!) + ".css";
     },

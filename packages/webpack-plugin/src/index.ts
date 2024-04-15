@@ -1,6 +1,6 @@
 import { PluginObj } from '@babel/core';
 import JSXPreset from '@expressive/babel-preset';
-import { Compiler } from 'webpack';
+import { Compiler, NormalModuleReplacementPlugin } from 'webpack';
 import VirtualModulesPlugin from 'webpack-virtual-modules';
 
 const BABEL_LOADER = require.resolve('babel-loader');
@@ -17,8 +17,20 @@ class ExpressiveJSXPlugin {
   apply(compiler: Compiler){
     const virtual = new VirtualModulesPlugin();    
     const handled = new Set<string>();
+
+    // babel-preset is not a direct dependency of a package
+    // this plugin builds, so may need to resolve it manually
+    new NormalModuleReplacementPlugin(
+      /@expressive\/babel-preset\/polyfill/,
+      resource => {
+        const absolute = require.resolve(resource.request);
+
+        resource.request = absolute;
+      }
+    ).apply(compiler);
     
     virtual.apply(compiler);
+
     compiler.hooks.compilation.tap("ExpressiveJSXPlugin", (compilation) => {
       const { loader } = compiler.webpack.NormalModule.getCompilationHooks(compilation);
 

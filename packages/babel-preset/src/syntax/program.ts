@@ -1,14 +1,19 @@
 import { NodePath } from '@babel/traverse';
 import { Program } from '@babel/types';
 
+import { Options } from '../options';
 import t from '../types';
 import { uniqueIdentifier } from './names';
 
-export function getHelper(name: string, from: NodePath, polyfill?: string | null){
-  const { scope } = from;
+const POLYFILL_DEFAULT = "@expressive/babel-preset/polyfill";
+
+export function getHelper(
+  name: string, from: NodePath, options: Options){
+
+  const { polyfill = POLYFILL_DEFAULT } = options;
   const program = from.findParent((path) => path.isProgram()) as NodePath<Program>;
   const body = program.get("body");
-  
+
   for(const statement of body){
     if(!statement.isImportDeclaration()
     || statement.node.source.value !== polyfill)
@@ -25,7 +30,7 @@ export function getHelper(name: string, from: NodePath, polyfill?: string | null
     }
   }
 
-  const concat = uniqueIdentifier(scope, name);
+  const concat = uniqueIdentifier(from.scope, name);
 
   if(polyfill){
     const importStatement = t.importDeclaration(

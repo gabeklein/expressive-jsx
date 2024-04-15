@@ -1,7 +1,6 @@
 import { NodePath } from '@babel/traverse';
 import { Expression, JSXElement } from '@babel/types';
 
-import { getPolyfill } from '..';
 import { Context } from '../context';
 import { Options } from '../options';
 import { hasProp, setTagName } from '../syntax/jsx';
@@ -56,11 +55,6 @@ export function addClassName(
   name: string | Expression,
   options: Options) {
 
-  let { polyfill } = options;
-
-  if(polyfill === undefined)
-    polyfill = getPolyfill();
-
   const existing = hasProp(path, "className");
   const opening = path.get("openingElement");
 
@@ -84,7 +78,7 @@ export function addClassName(
     return;
   }
 
-  const concat = getHelper("classNames", path, polyfill);
+  const concat = getHelper("classNames", path, options);
 
   if(t.isCallExpression(existing)
     && t.isIdentifier(existing.callee, { name: concat.name }))
