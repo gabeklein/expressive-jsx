@@ -1,30 +1,28 @@
 import * as babel from '@babel/core';
-import Preset from '@expressive/babel-preset';
-import * as fs from 'fs/promises';
+import BabelPreset from '@expressive/babel-preset';
 import * as path from 'path';
 import { ModuleGraph, ModuleNode, Plugin } from 'vite';
 
 const CWD = process.cwd();
-const PREFIX = "\0virtual:";
-const relative = path.relative.bind(path, CWD);
+const PREFIX = "\0expressive:";
+const cwd = path.relative.bind(path, CWD);
 
-export interface Options extends Preset.Options {
+const DEFAULT_SHOULD_TRANSFORM = (id: string) =>
+  !/node_modules/.test(id) && id.endsWith(".jsx");
+
+export interface Options extends BabelPreset.Options {
   test?: RegExp | ((uri: string) => boolean);
 }
 
-function jsxPlugin(options?: Options): Plugin {
-  let test = options && options.test;
-  let moduleGraph!: ModuleGraph;
+function jsxPlugin(options: Options = {}): Plugin {
+  const test = options.test;
+  const accept =
+    typeof test == "function" ? test :
+    test instanceof RegExp ? (id: string) => test.test(id) :
+    DEFAULT_SHOULD_TRANSFORM;
 
-  if(!test)
-    test = (id: string) => !/node_modules/.test(id) && id.endsWith(".jsx");
-  else if(test instanceof RegExp){
-    const regex = test;
-    test = (id: string) => regex.test(id);
-  }
-
-  const shouldTransform = test;
   const CACHE = new Map<string, TransformResult>();
+  let moduleGraph!: ModuleGraph;
 
   return {
     name: "expressive-jsx-plugin",
@@ -34,30 +32,30 @@ function jsxPlugin(options?: Options): Plugin {
     },
     resolveId(id, importer){
       if(id === "__EXPRESSIVE_CSS__")
-        return '\0virtual:' + relative(importer!) + ".css";
+        return PREFIX + cwd(importer!) + ".css";
     },
-    async load(path: string) {
-      if(path.startsWith(PREFIX))
-        return CACHE.get(path.slice(9, -4))!.css;
-
-      if(!shouldTransform(path))
+    async transform(code, id){
+      if(!accept(id))
         return;
 
-      const id = relative(path);
+      const result = await transformJSX(id, code);
 
-      if(CACHE.has(id))
-        return CACHE.get(id);
+      CACHE.set(id.replace(CWD + "/", ""), result);
 
-      const source = await fs.readFile(path, "utf8");
-      const result = await transform(id, source, options);
-
-      CACHE.set(id, result);
+      if(result.css)
+        result.code += `\nimport "__EXPRESSIVE_CSS__";`;
 
       return result;
     },
+    async load(path: string) {
+      if(path.startsWith(PREFIX)){
+        const name = path.slice(12, -4);
+        return CACHE.get(name)!.css;
+      }
+    },
     async handleHotUpdate(context){
       const path = context.file;
-      const id = relative(path);
+      const id = cwd(path);
       const cached = CACHE.get(id);
 
       if(!cached)
@@ -65,7 +63,7 @@ function jsxPlugin(options?: Options): Plugin {
 
       const updated: ModuleNode[] = [];
       const source = await context.read();
-      const result = await transform(path, source, options);
+      const result = await transformJSX(path, source);
 
       CACHE.set(id, result);
 
@@ -92,11 +90,7 @@ interface TransformResult {
   css: string;
 }
 
-async function transform(
-  id: string,
-  input: string,
-  options?: Options
-): Promise<TransformResult> {
+async function transformJSX(id: string, input: string){
   const result = await babel.transformAsync(input, {
     root: CWD,
     filename: id,
@@ -110,22 +104,19 @@ async function transform(
       decoratorsBeforeExport: true
     },
     presets: [
-      Preset
+      BabelPreset
     ]
   });
 
   if(!result)
     throw new Error("No result");
 
-  let { code, map, metadata: { css } } = result as Preset.Result;
+  let { code, map, metadata: { css } } = result as BabelPreset.Result;
 
   if(!code)
     throw new Error("No code");
 
-  if(css)
-    code += `\nimport "__EXPRESSIVE_CSS__";`;
-
-  return {
+  return <TransformResult> {
     code,
     css,
     map
