@@ -22,9 +22,11 @@
     "expressive",
     "jsx"
   ],
-  "main": "dist/index.js",
+  "main": "index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
+    "index.js",
     "dist"
   ],
   "dependencies": {
