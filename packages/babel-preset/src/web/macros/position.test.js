@@ -1,4 +1,6 @@
-import { absolute, fixed } from "./position";
+import { describe, expect, it } from 'vitest';
+
+import { absolute, fixed } from './position';
 
 const INVERSE = [
   ["top", "bottom"],
