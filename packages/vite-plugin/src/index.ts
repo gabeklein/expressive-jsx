@@ -1,11 +1,10 @@
 import * as babel from '@babel/core';
 import BabelPreset from '@expressive/babel-preset';
-import * as path from 'path';
+import { relative } from 'path';
 import { ModuleGraph, ModuleNode, Plugin } from 'vite';
 
 const CWD = process.cwd();
 const PREFIX = "\0expressive:";
-const cwd = path.relative.bind(path, CWD);
 
 const DEFAULT_SHOULD_TRANSFORM = (id: string) =>
   !/node_modules/.test(id) && id.endsWith(".jsx");
@@ -16,9 +15,9 @@ export interface Options extends BabelPreset.Options {
 
 function jsxPlugin(options: Options = {}): Plugin {
   const test = options.test;
-  const accept =
+  const accept: (id: string) => boolean =
     typeof test == "function" ? test :
-    test instanceof RegExp ? (id: string) => test.test(id) :
+    test instanceof RegExp ? id => test.test(id) :
     DEFAULT_SHOULD_TRANSFORM;
 
   const CACHE = new Map<string, TransformResult>();
@@ -35,7 +34,7 @@ function jsxPlugin(options: Options = {}): Plugin {
         return require.resolve(id);
       
       if(id === "__EXPRESSIVE_CSS__")
-        return PREFIX + cwd(importer!) + ".css";
+        return PREFIX + relative(CWD, importer!) + ".css";
     },
     async transform(code, id){
       if(!accept(id))
@@ -58,7 +57,7 @@ function jsxPlugin(options: Options = {}): Plugin {
     },
     async handleHotUpdate(context){
       const path = context.file;
-      const id = cwd(path);
+      const id = relative(CWD, path);
       const cached = CACHE.get(id);
 
       if(!cached)
