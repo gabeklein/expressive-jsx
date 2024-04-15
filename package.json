@@ -4,7 +4,7 @@
   "description": "An alternative syntax for JSX constructs using less code",
   "scripts": {
     "build": "lerna run build --stream",
-    "test": "lerna run test --stream -- --no-watch",
+    "test": "vitest --no-watch",
     "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +"
   },
   "keywords": [
