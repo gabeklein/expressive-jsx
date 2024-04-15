@@ -1,3 +1,4 @@
+import { it, expect } from "vitest";
 import { bundle } from "./adapter";
 
 it("will output with css module", async () => {

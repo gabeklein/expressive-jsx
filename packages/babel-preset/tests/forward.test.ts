@@ -1,4 +1,6 @@
-import { parser } from "./adapter";
+import { expect, it } from 'vitest';
+
+import { parser } from './adapter';
 
 it("will forward props", async () => {
   const output = await parser(`
@@ -13,7 +15,7 @@ it("will forward props", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_28p')}
+        className={classNames(props.className, 'Component_14n')}
       />
     );
   `);
@@ -32,7 +34,7 @@ it("will forward existing props", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_2d7')}
+        className={classNames(props.className, 'Component_14p')}
       />
     );
   `);
@@ -51,7 +53,7 @@ it("will return this if no JSX", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_2aw')}
+        className={classNames(props.className, 'Component_2fa')}
       />
     );
   `);
@@ -70,7 +72,7 @@ it("will forward props to this attribute", async () => {
     const Component = (props) => (
       <input
         {...props}
-        className={classNames(props.className, 'Component_24x')}
+        className={classNames(props.className, 'Component_2i6')}
       />
     );
   `);

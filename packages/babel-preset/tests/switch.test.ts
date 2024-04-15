@@ -1,3 +1,4 @@
+import { expect, it } from 'vitest';
 import { parser } from "./adapter";
 
 it("will apply to this", async () => {
@@ -46,7 +47,7 @@ it("will apply else", async () => {
       <div
         {...rest}
         className={classNames(
-          'Component_164',
+          'Component_13m',
           active ? 'active_tla' : 'else_tla',
           className
         )}>
@@ -56,7 +57,7 @@ it("will apply else", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_164 {
+    .Component_13m {
       background: white;
     }
     .active_tla {

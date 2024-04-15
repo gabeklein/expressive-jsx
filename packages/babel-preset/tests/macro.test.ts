@@ -1,3 +1,4 @@
+import { expect, it } from 'vitest';
 import { parser } from "./adapter";
 
 it("will bail on repeat macro", async () => {
@@ -20,7 +21,7 @@ it("will bail on repeat macro", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_2d4 {
+    .Component_13x {
       foo: barBaz;
     }
   `);
@@ -37,7 +38,7 @@ it("will convert native hex color", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_2bk {
+    .Component_17l {
       color: #ff0000;
       background: rgba(0,255,0,0.133);
     }

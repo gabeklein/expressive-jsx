@@ -10,7 +10,8 @@
     "url": "https://github.com/gabeklein"
   },
   "scripts": {
-    "build": "tsup src/index.ts --dts"
+    "build": "tsup src/index.ts --dts",
+    "test": "vitest"
   },
   "license": "MIT",
   "publishConfig": {
@@ -37,13 +38,11 @@
   "devDependencies": {
     "@babel/core": "^7.24.4",
     "@babel/preset-react": "^7.24.1",
-    "@swc/jest": "^0.2.36",
     "@types/babel__core": "^7.20.2",
     "css-loader": "^7.0.0",
-    "jest": "^29.7.0",
     "prettier": "^2.8.8",
     "swc-loader": "^0.2.6",
     "tsup": "^8.0.1",
-    "typescript": "^5.2.2"
+    "vitest": "^1.5.0"
   }
 }

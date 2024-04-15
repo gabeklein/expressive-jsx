@@ -10,8 +10,7 @@
     "allowJs": true,
     "esModuleInterop": true,
     "types": [
-      "node",
-      "jest"
+      "node"
     ],
     "paths": {
       "@expressive/*": [

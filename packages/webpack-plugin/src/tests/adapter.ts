@@ -1,5 +1,7 @@
 import { transform } from '@babel/core';
-import prettier from 'prettier';
+import { resolve } from 'path';
+import { format } from 'prettier';
+import { expect } from 'vitest';
 import webpack, { Compilation, Compiler, Stats } from 'webpack';
 import VirtualModulesPlugin from 'webpack-virtual-modules';
 
@@ -16,10 +18,11 @@ export async function bundle(
 
   if(typeof input === 'string')
     input = { './input.jsx': input };
-  
+
   const output: Record<string, string> = {};
   const entry = Object.keys(input)[0];
   const compiler = webpack({
+    context: resolve(__dirname, "../.."),
     mode: 'development',
     devtool: false,
     entry,
@@ -141,7 +144,7 @@ function pretty(code: string){
   if(result)
     code = result.code!;
 
-  return prettier.format(code, {
+  return format(code, {
     parser: 'babel',
     trailingComma: 'none',
     jsxBracketSameLine: true,

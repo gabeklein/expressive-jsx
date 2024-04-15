@@ -1,3 +1,4 @@
+import { expect, it } from 'vitest';
 import { parser } from "./adapter";
 
 it("will apply hover pseudo class", async () => {
@@ -14,14 +15,14 @@ it("will apply hover pseudo class", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_24d')}>
+        className={classNames(props.className, 'Component_23c')}>
         Hello
       </div>
     );
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_24d:hover {
+    .Component_23c:hover {
       color: red;
     }
   `);
@@ -53,23 +54,23 @@ it("will apply hover pseudo class with nested", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_28k')}>
+        className={classNames(props.className, 'Component_16j')}>
         Hello
       </div>
     );
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_28k {
+    .Component_Component_16j {
       color: red;
     }
-    .Component_28k:after {
+    .Component_Component_16j:after {
       content:  World!;
     }
-    .Component_28k.active {
+    .Component_Component_16j.active {
       color: blue;
     }
-    .Component_28k.active:after {
+    .Component_Component_16j.active:after {
       color: green;
     }
   `);

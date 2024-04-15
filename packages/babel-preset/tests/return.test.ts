@@ -1,3 +1,4 @@
+import { expect, it } from 'vitest';
 import { parser } from "./adapter";
 
 it("will return implicitly", async () => {
@@ -67,7 +68,7 @@ it("will wrap elements if 'this' is styled", async () => {
       return (
         <div
           {...props}
-          className={classNames(props.className, 'Component_2eh')}>
+          className={classNames(props.className, 'Component_133')}>
           <div className="inner_tla">
             <div className="thing_tla">Hello</div>
           </div>
@@ -77,7 +78,7 @@ it("will wrap elements if 'this' is styled", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_2eh {
+    .Component_133 {
       color: red;
     }
     .inner_tla {
@@ -113,7 +114,7 @@ it("will not race normal jsx plugin", async () => {
       /*#__PURE__*/ React.createElement(
         'div',
         Object.assign({}, props, {
-          className: classNames(props.className, 'Hi_297')
+          className: classNames(props.className, 'Hi_17a')
         }),
         'Hello World!'
       );
