@@ -4,7 +4,7 @@
   "private": true,
   "module": "src/App.jsx",
   "scripts": {
-    "start": "vite",
+    "dev": "vite",
     "build": "vite build"
   },
   "dependencies": {

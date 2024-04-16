@@ -2,12 +2,8 @@
   "name": "@website/editor",
   "version": "0.1.0",
   "private": true,
-  "main": "src/index.ts",
+  "main": "src",
   "type": "module",
-  "scripts": {
-    "start": "vite",
-    "build": "vite build"
-  },
   "dependencies": {
     "@babel/standalone": "^7.23.2",
     "@codemirror/autocomplete": "^6.10.2",
