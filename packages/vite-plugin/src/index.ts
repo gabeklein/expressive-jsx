@@ -36,7 +36,7 @@ function jsxPlugin(options: Options = {}): Plugin {
       if(id === "__EXPRESSIVE_CSS__")
         return PREFIX + relative(CWD, importer!) + ".css";
     },
-    async load(path: string) {
+    async load(path: string){
       if(path.startsWith(PREFIX)){
         const name = path.slice(12, -4);
         return CACHE.get(name)!.css;
@@ -46,9 +46,15 @@ function jsxPlugin(options: Options = {}): Plugin {
       if(!accept(id))
         return;
 
+      const relativeId = relative(CWD, id);
+      const cached = CACHE.get(relativeId);
+
+      if(cached)
+        return cached.code;
+
       const result = await transformJSX(id, code);
 
-      CACHE.set(id.replace(CWD + "/", ""), result);
+      CACHE.set(relative(CWD, id), result);
 
       if(result.css)
         result.code += `\nimport "__EXPRESSIVE_CSS__";`;
