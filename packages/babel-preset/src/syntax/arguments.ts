@@ -149,7 +149,7 @@ const parse = {
     if(CSS_UNITS.has(name))
       return args.map(x => String(x) + name).join(" ");
 
-    return camelToDash(callee.name) + `(${args.join(", ")})`;
+    return callee.name + `(${args.join(", ")})`;
   },
 
   ArrowFunctionExpression(e: ArrowFunctionExpression): never {

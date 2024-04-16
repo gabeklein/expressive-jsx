@@ -1,7 +1,6 @@
 export * from './border';
 export * from './color';
 export * from './flex';
-// export * from './gradient';
 export * from './grid';
 export * from './image';
 export * from './margins';
@@ -12,3 +11,6 @@ export * from './shadow';
 export * from './size';
 export * from './font';
 export * from './outline';
+export * from './transform';
+
+// export * from './gradient';

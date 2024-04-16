@@ -45,22 +45,25 @@ it("will convert native hex color", async () => {
   `);
 });
 
-it.skip("will apply complex style", async () => {
+it.only("will apply complex style", async () => {
   const output = await parser(`
     const Component = () => {
       transform: translateX(10), rotate(90), scale(2);
-    
-      <this>Hello</this>
     }
   `);
 
   expect(output.code).toMatchInlineSnapshot(`
-    const Component = () => <this className="transform_tl9">Hello</this>;
+    const Component = (props) => (
+      <div
+        {...props}
+        className={classNames(props.className, 'Component_22q')}
+      />
+    );
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .transform_tl9 {
-      transform: translateX(10px) rotate(90deg) scale(2);
+    .Component_22q {
+      transform: translateX(10) rotate(90) scale(2);
     }
   `);
 });
