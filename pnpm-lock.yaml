@@ -76,7 +76,7 @@ importers:
         specifier: ^7.23.6
         version: 7.23.6(@babel/core@7.23.6)
       '@expressive/babel-preset':
-        specifier: ^0.1.0
+        specifier: ^0.2.0
         version: link:../babel-preset
     devDependencies:
       '@types/babel__core':
@@ -98,7 +98,7 @@ importers:
   packages/webpack-plugin:
     dependencies:
       '@expressive/babel-preset':
-        specifier: ^0.1.0
+        specifier: ^0.2.0
         version: link:../babel-preset
       babel-loader:
         specifier: ^8.3.0
@@ -157,7 +157,7 @@ importers:
         version: 18.2.0(react@18.2.0)
     devDependencies:
       '@expressive/webpack-plugin':
-        specifier: ^0.1.0
+        specifier: ^0.2.0
         version: link:../../packages/webpack-plugin
       '@svgr/webpack':
         specifier: ^8.1.0
@@ -196,7 +196,7 @@ importers:
         specifier: ^6.22.0
         version: 6.26.0
       '@expressive/babel-preset':
-        specifier: ^0.1.0
+        specifier: ^0.2.0
         version: link:../../packages/babel-preset
       '@expressive/mvc':
         specifier: ^0.50.0
@@ -221,7 +221,7 @@ importers:
         version: 4.3.2(typescript@5.3.3)(vite@5.2.8)
     devDependencies:
       '@expressive/vite-plugin':
-        specifier: ^0.1.0
+        specifier: ^0.2.0
         version: link:../../packages/vite-plugin
       '@types/react':
         specifier: ^18.2.37
@@ -242,13 +242,13 @@ importers:
         specifier: ^7.23.2
         version: 7.24.0
       '@expressive/babel-preset':
-        specifier: ^0.1.0
+        specifier: ^0.2.0
         version: link:../../packages/babel-preset
       '@expressive/react':
         specifier: ^0.50.0
         version: 0.50.0(react@18.2.0)
       '@website/editor':
-        specifier: ^0.1.0
+        specifier: ^0.2.0
         version: link:../editor
       prettier:
         specifier: ^2.8.8
@@ -261,7 +261,7 @@ importers:
         version: 18.2.0(react@18.2.0)
     devDependencies:
       '@expressive/vite-plugin':
-        specifier: ^0.1.0
+        specifier: ^0.2.0
         version: link:../../packages/vite-plugin
       '@types/babel__standalone':
         specifier: ^7.1.7
