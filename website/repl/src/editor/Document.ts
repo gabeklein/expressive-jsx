@@ -16,8 +16,6 @@ const DEFAULT_CODE =
 export class Document extends Model {
   input = "";
   output = "";
-
-  stale = false;
   error = "";
 
   key = 0;
@@ -25,7 +23,9 @@ export class Document extends Model {
 
   constructor(){
     super(() => {
-      this.build(localStorage.getItem("REPL:file") || DEFAULT_CODE);
+      this.build(
+        localStorage.getItem("REPL:file") || DEFAULT_CODE
+      );
     });
   }
 
@@ -37,11 +37,10 @@ export class Document extends Model {
   build(from: string){
     try {
       const { jsx, css } = transform(from);
-      const Component = evaluate(from);
+      const component = evaluate(from);
 
       this.error = "";
       this.input = from;
-      this.stale = false;
       this.key = hash(from);
       this.output = jsx;
 
@@ -53,7 +52,7 @@ export class Document extends Model {
         this.output += `\n\n<style>\n${format}\n</style>`;
       }
 
-      this.Preview = Component;
+      this.Preview = component;
     }
     catch(error){
       console.error(error);
