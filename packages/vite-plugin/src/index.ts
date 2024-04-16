@@ -119,7 +119,11 @@ async function transformJSX(id: string, input: string){
   if(!result)
     throw new Error("No result");
 
-  let { code, map, metadata: { css } } = result as BabelPreset.Result;
+  let {
+    code,
+    map,
+    metadata: { css }
+  } = result as BabelPreset.Result;
 
   if(!code)
     throw new Error("No code");
