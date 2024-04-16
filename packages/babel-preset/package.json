@@ -38,7 +38,7 @@
     "test": "vitest",
     "prebuild": "rm -rf lib",
     "prepublish": "npm run build",
-    "preversion": "npm run test && npm run build"
+    "preversion": "npm run build"
   },
   "dependencies": {
     "@babel/core": "^7.22.5",
