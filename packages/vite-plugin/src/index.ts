@@ -36,6 +36,12 @@ function jsxPlugin(options: Options = {}): Plugin {
       if(id === "__EXPRESSIVE_CSS__")
         return PREFIX + relative(CWD, importer!) + ".css";
     },
+    async load(path: string) {
+      if(path.startsWith(PREFIX)){
+        const name = path.slice(12, -4);
+        return CACHE.get(name)!.css;
+      }
+    },
     async transform(code, id){
       if(!accept(id))
         return;
@@ -48,12 +54,6 @@ function jsxPlugin(options: Options = {}): Plugin {
         result.code += `\nimport "__EXPRESSIVE_CSS__";`;
 
       return result;
-    },
-    async load(path: string) {
-      if(path.startsWith(PREFIX)){
-        const name = path.slice(12, -4);
-        return CACHE.get(name)!.css;
-      }
     },
     async handleHotUpdate(context){
       const path = context.file;
@@ -76,7 +76,7 @@ function jsxPlugin(options: Options = {}): Plugin {
 
       if(cached.css !== result.css)
         updated.push(
-          moduleGraph.getModuleById("\0virtual:" + id + ".css")!
+          moduleGraph.getModuleById(PREFIX + id + ".css")!
         );
 
       return updated;
