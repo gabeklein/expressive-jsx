@@ -39,12 +39,5 @@
       "skipFiles": ["<node_internals>/**"],
       "console": "integratedTerminal"
     }
-  ],
-  "inputs": [
-    {
-      "id": "testName",
-      "type": "promptString",
-      "description": "Test suite to run a debug session for."
-    }
   ]
 }
