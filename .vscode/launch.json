@@ -9,15 +9,6 @@
       "webRoot": "${workspaceFolder}/website/repl"
     },
     {
-      "name": "Preset",
-      "type": "node",
-      "request": "launch",
-      "cwd": "${workspaceFolder}/packages/babel-preset",
-      "console": "integratedTerminal",
-      "runtimeArgs": ["-r", "ts-node/register"],
-      "args": ["debug/script.ts"],
-    },
-    {
       "name": "Debug Tests",
       "type": "node",
       "request": "launch",
