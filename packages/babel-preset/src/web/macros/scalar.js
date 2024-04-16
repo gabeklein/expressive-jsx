@@ -9,7 +9,9 @@ export function nToNUnits(value, unit) {
     value = value.inner[0]
   }
 
-  return [ appendUnitToN(value, unit) ];
+  return [
+    appendUnitToN(value, unit)
+  ];
 }
 
 export const gap = nToNUnits;

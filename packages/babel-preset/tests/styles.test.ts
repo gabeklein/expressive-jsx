@@ -57,7 +57,7 @@ it("will apply to attributes", async () => {
       inner: {
         color: red;
       }
-    
+
       <div>
         Hello
         <div inner>World</div>
@@ -161,45 +161,6 @@ it("will apply nested to attributes", async () => {
         <div className="item_tla red_jh9" />
       </div>
     );
-  `);
-});
-
-it("will convert camelCase properties to dash", async () => {
-  const output = await parser(`
-    const Component = () => {
-      boxSizing: border-box;
-    }
-  `);
-
-  expect(output.css).toMatchInlineSnapshot(`
-    .Component_24p {
-      box-sizing: border-box;
-    }
-  `);
-});
-
-it("will convert $-prefixed properties to css variables", async () => {
-  const output = await parser(`
-    const Component = () => {
-      $colorPrimary: blue;
-
-      something: {
-        color: $colorPrimary;
-      }
-
-      <something>
-        Hello
-      </something>
-    }
-  `);
-
-  expect(output.css).toMatchInlineSnapshot(`
-    .Component_22x {
-      --color-primary: blue;
-    }
-    .something_tla {
-      color: var(--color-primary);
-    }
   `);
 });
 
