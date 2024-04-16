@@ -1,5 +1,5 @@
 import { DocsThemeConfig } from 'nextra-theme-docs'
-import { SiteLogo } from './common/Logo'
+import { SiteLogo } from './Logo'
 
 const config: DocsThemeConfig = {
   logo: <SiteLogo />,

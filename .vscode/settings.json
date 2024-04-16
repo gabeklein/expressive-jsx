@@ -3,6 +3,7 @@
         ".git": true,
         ".gitignore": true,
         ".vscode": true,
+        "**/.next": true,
         "**/.DS_Store": true,
         "**/node_modules": true,
         "packages/*/dist": true,
