@@ -15,14 +15,13 @@ const DEFAULT_CODE =
 
 export class Document extends Model {
   input = "";
-  output_jsx = "";
-  output_css = "";
-
-  key = 0;
-  Preview?: PreviewComponent = undefined;
+  output = "";
 
   stale = false;
   error = "";
+
+  key = 0;
+  Preview?: PreviewComponent = undefined;
 
   constructor(){
     super(() => {
@@ -37,15 +36,23 @@ export class Document extends Model {
 
   build(from: string){
     try {
-      const result = transform(from);
+      const { jsx, css } = transform(from);
       const Component = evaluate(from);
 
       this.error = "";
       this.input = from;
       this.stale = false;
       this.key = hash(from);
-      this.output_css = result.css;
-      this.output_jsx = result.jsx;
+      this.output = jsx;
+
+      if(css){
+        const format = css
+          .replace(/^|\t/g, "  ")
+          .replace(/\n/g, "\n  ");
+  
+        this.output += `\n\n<style>\n${format}\n</style>`;
+      }
+
       this.Preview = Component;
     }
     catch(error){

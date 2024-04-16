@@ -37,17 +37,7 @@ export class InputEditor extends Editor {
 }
 
 export class OutputJSX extends Editor {
-  text = get(Document, ({ output_css, output_jsx }) => {
-    if(output_css){
-      const format = output_css
-        .replace(/^|\t/g, "  ")
-        .replace(/\n/g, "\n  ");
-
-      output_jsx += `\n\n<style>\n${format}\n</style>`;
-    }
-    
-    return output_jsx;
-  })
+  text = get(Document, $ => $.output)
 
   extends(){
     return [
