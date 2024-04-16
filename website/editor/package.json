@@ -1,0 +1,26 @@
+{
+  "name": "@website/editor",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@babel/standalone": "^7.23.2",
+    "@codemirror/autocomplete": "^6.10.2",
+    "@codemirror/commands": "^6.3.0",
+    "@codemirror/lang-css": "^6.2.1",
+    "@codemirror/lang-javascript": "^6.2.1",
+    "@codemirror/language": "^6.9.2",
+    "@codemirror/search": "^6.5.4",
+    "@codemirror/state": "^6.2.1",
+    "@codemirror/view": "^6.22.0",
+    "@expressive/babel-preset": "^0.1.0",
+    "@expressive/mvc": "^0.50.0",
+    "@lezer/common": "^1.1.0",
+    "@lezer/highlight": "^1.1.6"
+  }
+}

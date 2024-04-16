@@ -10,11 +10,7 @@ import { autoCloseTab, autoElementSplit, jsxMixed } from './pluginsJSX';
 
 type KeyBindings = KeyBinding | readonly KeyBinding[];
 
-export {
-  javascript,
-  jsxMixed,
-  lineNumbers,
-};
+export { javascript, jsxMixed, lineNumbers };
 
 export const code = () => [
   syntaxHighlighting(classHighlighter),

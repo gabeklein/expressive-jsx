@@ -2,17 +2,13 @@ import './editor.css';
 
 import { EditorState, Extension } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
-import { get, Model, ref, set } from '@expressive/react';
-import { Main } from 'editor/Main';
+import { Model, ref, set } from '@expressive/mvc';
 
 import { onUpdate } from './plugins';
 
-export * from './plugins';
-
-export const CIRCULAR = Symbol("INTERNAL");
+const CIRCULAR = Symbol("INTERNAL");
 
 export abstract class Editor extends Model {
-  main = get(Main);
   view = set<EditorView>();
   state = set<EditorState>();
   element = ref(this.createEditor);
