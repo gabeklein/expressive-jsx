@@ -1,5 +1,5 @@
 {
-  "name": "@expressive/jsx-repl",
+  "name": "@website/repl",
   "version": "0.1.0",
   "private": true,
   "module": "src/App.jsx",
