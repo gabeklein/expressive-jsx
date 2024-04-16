@@ -37,12 +37,14 @@ export function easingGradient(direction, from, timing, to, stops = 13){
   }
 
   return {
-    backgroundImage: `linear-gradient(${ output.join(", ") })`
+    backgroundImage: `linear-gradient(${
+      output.join(", ")
+    })`
   }
 }
 
 function getBeforeParenthesisMaybe(str){
-  return str.indexOf('(') !== -1
+  return str.includes('(')
     ? str.substring(0, str.indexOf('('))
     : str
 }
@@ -54,14 +56,15 @@ function getParenthesisInsides(str){
 function roundHslAlpha(color){
   const prefix = getBeforeParenthesisMaybe(color)
   const values = getParenthesisInsides(color)
-  .split(',')
-  .map(string => (
-    string.includes('%')
-      ? string.trim() 
-      : string.length > 4
-        ? Number(string).toFixed(3)
-        : string
-  ))
+    .split(',')
+    .map(string => (
+      string.includes('%')
+        ? string.trim() 
+        : string.length > 4
+          ? Number(string).toFixed(3)
+          : string
+    ))
+
   return `${ prefix }(${ values.join(', ') })`
 }
 

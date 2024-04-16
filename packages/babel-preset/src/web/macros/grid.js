@@ -46,13 +46,9 @@ function recombineSlash(args){
 
     if(Array.isArray(layer[1]))
       layer = layer[1]
-    else {
-      layer = layer[1] + x;
-      break;
-    }
+    else
+      return layer[1] + x;
   }
-
-  return layer;
 }
 
 function recombineTemplate(args){
@@ -61,16 +57,16 @@ function recombineTemplate(args){
 
 function formatGridValue(x){
   if(typeof x == "number")
-    return `${x}px`;
+    return x + "px";
 
   if(typeof x !== "string")
     throw new Error("Unexpected value for grid")
 
   if(/^\d+\.\d+$/.test(x))
-    return `${x}fr`
+    return x + "fr"
 
   if(x == "min" || x == "max")
-    return `${x}-content`
+    return x + "-content"
 
   return x;
 }
