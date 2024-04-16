@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "description": "Webpack plugin for Expressive JSX",
   "repository": "https://github.com/gabeklein/expressive-dsl",
-  "private": true,
   "author": {
     "name": "Gabe Klein",
     "email": "gabe@expressive.dev",
