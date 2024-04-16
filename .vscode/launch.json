@@ -9,18 +9,18 @@
       "webRoot": "${workspaceFolder}/website/repl"
     },
     {
+      "name": "Preset",
       "type": "node",
       "request": "launch",
-      "name": "Preset",
       "cwd": "${workspaceFolder}/packages/babel-preset",
       "console": "integratedTerminal",
       "runtimeArgs": ["-r", "ts-node/register"],
       "args": ["debug/script.ts"],
     },
     {
+      "name": "Debug Tests",
       "type": "node",
       "request": "launch",
-      "name": "Debug Current Test File",
       "autoAttachChildProcesses": true,
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
       "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
@@ -29,11 +29,11 @@
       "console": "integratedTerminal"
     },
     {
+      "name": "Launch Vite",
       "type": "node",
-      "program": "node_modules/vite/bin/vite.js",
       "request": "launch",
       "cwd": "${workspaceFolder}/website/home",
-      "name": "Launch Vite",
+      "program": "node_modules/vite/bin/vite.js",
       "args": ["--config", "vite.config.ts"],
       "runtimeArgs": ["--inspect-brk"],
       "skipFiles": ["<node_internals>/**"],
