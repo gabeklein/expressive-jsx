@@ -7,7 +7,7 @@ function factory(dir){
     key += dir[0].toUpperCase() + dir.slice(1);
 
   return (color, width, style) => {
-    if(color == "none" || color == "transparent" || !(2 in arguments))
+    if(color == "none" || color == "transparent" || !width)
       return {
         [key]: color
       };
