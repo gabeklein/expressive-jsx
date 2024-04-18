@@ -11,7 +11,7 @@ const CIRCULAR = Symbol("INTERNAL");
 export abstract class Editor extends Model {
   view = set<EditorView>();
   state = set<EditorState>();
-  element = ref(this.createEditor);
+  ref = ref(this.createEditor);
 
   text = "";
 

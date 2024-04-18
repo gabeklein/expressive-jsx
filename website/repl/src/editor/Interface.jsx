@@ -5,15 +5,15 @@ import React, { Component, createElement, Fragment } from 'react';
 import { InputEditor, OutputJSX } from './Editors';
 
 export const Interface = () => {
-  const input = InputEditor.use();
-  const output = OutputJSX.use();
-
   <Row>
-    <div ref={input.element} />
-    <div ref={output.element} />
+    <Input />
+    <Output />
     <Preview />
   </Row>
 }
+
+export const Input = InputEditor.as(p => <div ref={p.ref} />)
+export const Output = OutputJSX.as(p => <div ref={p.ref} />)
 
 const Preview = () => {
   const {
