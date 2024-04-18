@@ -197,7 +197,7 @@ function HEXColor(raw: string){
     //decimal for opacity, also prevents repeating digits (i.e. 1/3)
     decimal[3] = (decimal[3] / 255).toFixed(3)
 
-    return `rgba(${ decimal.join(",") })`
+    return `rgba(${ decimal.join(", ") })`
   }
 
   return "#" + raw;

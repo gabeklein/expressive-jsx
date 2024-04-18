@@ -37,7 +37,7 @@ export function toCssProperty(name: string, value: any){
       return value;
     })
 
-  return `${property}: ${value};`;
+  return `${property}: ${value.join(" ")};`;
 }
 
 export function toSelector(context: Context): string {
