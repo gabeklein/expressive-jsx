@@ -47,14 +47,9 @@ function jsxPlugin(options: Options = {}): Plugin {
         return;
 
       const relativeId = relative(CWD, id);
-      const cached = CACHE.get(relativeId);
+      const result = CACHE.get(relativeId) || await transformJSX(id, code);
 
-      if(cached)
-        return cached.code;
-
-      const result = await transformJSX(id, code);
-
-      CACHE.set(relative(CWD, id), result);
+      CACHE.set(relativeId, result);
 
       if(result.css)
         result.code += `\nimport "__EXPRESSIVE_CSS__";`;
