@@ -6,7 +6,8 @@ import { Model, ref, set } from '@expressive/mvc';
 
 import { onUpdate } from './plugins';
 
-const NOOP = Symbol("INTERNAL");
+/** Event is internal and ignored to avoid loop. */
+const NOOP = Symbol("NOOP");
 
 export abstract class Editor extends Model {
   view = set<EditorView>();
