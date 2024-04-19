@@ -9,7 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@expressive/react": "^0.36.1",
+    "@expressive/react": "^0.51.0",
     "next": "^13.5.4",
     "nextra": "^2.13.2",
     "nextra-theme-docs": "^2.13.2",

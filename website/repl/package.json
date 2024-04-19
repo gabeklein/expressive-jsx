@@ -10,7 +10,7 @@
   "dependencies": {
     "@babel/standalone": "^7.23.2",
     "@expressive/babel-preset": "^0.2.0",
-    "@expressive/react": "^0.50.0",
+    "@expressive/react": "^0.51.0",
     "@website/editor": "^0.2.0",
     "prettier": "^2.8.8",
     "react": "^18.2.0",

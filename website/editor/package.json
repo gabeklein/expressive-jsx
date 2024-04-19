@@ -15,7 +15,7 @@
     "@codemirror/state": "^6.2.1",
     "@codemirror/view": "^6.22.0",
     "@expressive/babel-preset": "^0.2.0",
-    "@expressive/mvc": "^0.50.0",
+    "@expressive/mvc": "^0.51.0",
     "@lezer/common": "^1.1.0",
     "@lezer/highlight": "^1.1.6"
   }
