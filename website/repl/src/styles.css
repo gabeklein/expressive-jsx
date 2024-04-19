@@ -55,6 +55,7 @@
 :root {
   --cm-text: #444;
   --cm-background: #F5F5F5;
+  --cm-background-dark: #E8E8E8;
   --cm-border: #ddd;
   --cm-stale-background: #fcfcfc;
   --cm-gutters-border: #eaeaea;
@@ -79,6 +80,7 @@
   :root {
     --cm-text: #abb2bf;
     --cm-background: #282c34;
+    --cm-background-dark: #1f2328;
     --cm-border: #555;
     --cm-stale-background: #2d3137;
     --cm-gutters-border: #222;

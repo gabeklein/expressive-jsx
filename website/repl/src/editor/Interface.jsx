@@ -26,6 +26,7 @@ const Preview = () => {
   flex: 1;
   flexAlign: center;
   border: dashed, 2, $borderLight;
+  background: $cmBackgroundDark;
   radius: 8;
   position: relative;
   overflow: hidden;
