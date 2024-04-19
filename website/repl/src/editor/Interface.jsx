@@ -30,6 +30,7 @@ const Preview = () => {
   radius: 8;
   position: relative;
   overflow: hidden;
+  color: $cmText;
 
   issue: {
     color: $red;
