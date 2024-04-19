@@ -99,6 +99,7 @@
     --cm-boolean: #56b6c2;
     --cm-number: #56b6c2;
     --cm-operator: #9a6e3a;
+    --cm-selection-background: #3e4451;
   }
 }
 
@@ -165,6 +166,11 @@
     --border-subtle: #3a3a3a;
     --border-light: #4a4a4a;
     --border-grey: #3b3b3b;
+  }
+
+  * {
+    scrollbar-color: var(--border-subtle) var(--background);
+    caret-color: #fff;
   }
 }
 

@@ -64,6 +64,10 @@
   background-color: var(--cm-gutters-background) !important;
 }
 
+.cm-selectionBackground {
+  background: var(--cm-selection-background) !important;
+}
+
 .cm-line {
   color: var(--cm-line);
 }
