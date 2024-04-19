@@ -1,18 +1,20 @@
-import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
-import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
+import { closeBrackets } from '@codemirror/autocomplete';
+import { history } from '@codemirror/commands';
 import { indentOnInput, syntaxHighlighting } from '@codemirror/language';
-import { searchKeymap } from '@codemirror/search';
+import { EditorState, Extension } from '@codemirror/state';
 import { drawSelection, EditorView, KeyBinding, keymap, lineNumbers, ViewUpdate } from '@codemirror/view';
 import { classHighlighter } from '@lezer/highlight';
+import { vscodeKeymap } from '@replit/codemirror-vscode-keymap';
 
 import { autoCloseTab, autoElementSplit } from './pluginsJSX';
-import { Extension } from '@codemirror/state';
 
 type KeyBindings = KeyBinding | readonly KeyBinding[];
 
 const code = () => [
+  lineNumbers(),
+  drawSelection(),
   syntaxHighlighting(classHighlighter),
-  lineNumbers()
+  EditorState.allowMultipleSelections.of(true)
 ]
 
 /** Set editor to read-only */
@@ -29,14 +31,7 @@ export const editor = () => [
   autoElementSplit(),
   indentOnInput(),
   closeBrackets(),
-  drawSelection(),
-  keyBind(
-    closeBracketsKeymap,
-    defaultKeymap,
-    searchKeymap,
-    historyKeymap,
-    indentWithTab
-  )
+  keymap.of(vscodeKeymap)
 ]
 
 /** Register keymap helper */
@@ -66,10 +61,7 @@ export function command(
     return Object.entries(key).map(([key, action]) => command(key, action));
 
   if(action)
-    return [
-      onKey(`Meta-${key}`, action),
-      onKey(`Ctrl-${key}`, action)
-    ]
+    return onKey(`Mod-${key}`, action);
 }
 
 /** Callback on document update. */

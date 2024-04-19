@@ -169,31 +169,31 @@ importers:
   website/editor:
     dependencies:
       '@babel/standalone':
-        specifier: ^7.23.2
+        specifier: ^7.24.4
         version: 7.24.4
       '@codemirror/autocomplete':
-        specifier: ^6.10.2
+        specifier: ^6.16.0
         version: 6.16.0(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@lezer/common@1.2.1)
       '@codemirror/commands':
-        specifier: ^6.3.0
+        specifier: ^6.4.0
         version: 6.4.0
       '@codemirror/lang-css':
         specifier: ^6.2.1
         version: 6.2.1(@codemirror/view@6.26.3)
       '@codemirror/lang-javascript':
-        specifier: ^6.2.1
+        specifier: ^6.2.2
         version: 6.2.2
       '@codemirror/language':
-        specifier: ^6.9.2
+        specifier: ^6.10.1
         version: 6.10.1
       '@codemirror/search':
-        specifier: ^6.5.4
+        specifier: ^6.5.6
         version: 6.5.6
       '@codemirror/state':
-        specifier: ^6.2.1
+        specifier: ^6.4.1
         version: 6.4.1
       '@codemirror/view':
-        specifier: ^6.22.0
+        specifier: ^6.26.3
         version: 6.26.3
       '@expressive/babel-preset':
         specifier: ^0.2.0
@@ -202,11 +202,14 @@ importers:
         specifier: ^0.51.0
         version: 0.51.0
       '@lezer/common':
-        specifier: ^1.1.0
+        specifier: ^1.2.1
         version: 1.2.1
       '@lezer/highlight':
-        specifier: ^1.1.6
+        specifier: ^1.2.0
         version: 1.2.0
+      '@replit/codemirror-vscode-keymap':
+        specifier: ^6.0.2
+        version: 6.0.2(@codemirror/autocomplete@6.16.0)(@codemirror/commands@6.4.0)(@codemirror/language@6.10.1)(@codemirror/lint@6.5.0)(@codemirror/search@6.5.6)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)
 
   website/home:
     dependencies:
@@ -3029,6 +3032,26 @@ packages:
 
   /@popperjs/core@2.11.8:
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
+    dev: false
+
+  /@replit/codemirror-vscode-keymap@6.0.2(@codemirror/autocomplete@6.16.0)(@codemirror/commands@6.4.0)(@codemirror/language@6.10.1)(@codemirror/lint@6.5.0)(@codemirror/search@6.5.6)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3):
+    resolution: {integrity: sha512-j45qTwGxzpsv82lMD/NreGDORFKSctMDVkGRopaP+OrzSzv+pXDQuU3LnFvKpasyjVT0lf+PKG1v2DSCn/vxxg==}
+    peerDependencies:
+      '@codemirror/autocomplete': ^6.0.0
+      '@codemirror/commands': ^6.0.0
+      '@codemirror/language': ^6.0.0
+      '@codemirror/lint': ^6.0.0
+      '@codemirror/search': ^6.0.0
+      '@codemirror/state': ^6.0.0
+      '@codemirror/view': ^6.0.0
+    dependencies:
+      '@codemirror/autocomplete': 6.16.0(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@lezer/common@1.2.1)
+      '@codemirror/commands': 6.4.0
+      '@codemirror/language': 6.10.1
+      '@codemirror/lint': 6.5.0
+      '@codemirror/search': 6.5.6
+      '@codemirror/state': 6.4.1
+      '@codemirror/view': 6.26.3
     dev: false
 
   /@rollup/rollup-android-arm-eabi@4.14.3:
