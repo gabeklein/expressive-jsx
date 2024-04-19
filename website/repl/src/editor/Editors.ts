@@ -1,5 +1,5 @@
 import { get } from '@expressive/react';
-import { command, Editor, editor, jsx, jsxMixed, readOnly } from '@website/editor';
+import { command, Editor, editor, jsx, cssInJsx, readOnly } from '@website/editor';
 
 import { Document } from './Document';
 import { Main } from './Main';
@@ -30,7 +30,7 @@ export class InputEditor extends Editor {
 export class OutputJSX extends Editor {
   extends(){
     return [
-      jsxMixed,
+      cssInJsx,
       readOnly
     ];
   }

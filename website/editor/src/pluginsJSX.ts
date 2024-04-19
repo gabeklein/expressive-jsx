@@ -13,7 +13,7 @@ export const jsx = () => [
   javascript({ jsx: true })
 ]
 
-export function jsxMixed() {
+export function cssInJsx() {
   return new LanguageSupport(jsxLanguage.configure({
     wrap: parseMixed((ref, input) => {
       if (ref.name != "JSXElement")
@@ -72,8 +72,9 @@ export function autoElementSplit() {
     run(target: CommandTarget) {
       const { state } = target;
 
-      const notBetweenTags = state.selection.ranges.find(range => state.sliceDoc(range.from - 1, range.to + 1) !== "><"
-      );
+      const notBetweenTags = state.selection.ranges.find(range => (
+        state.sliceDoc(range.from - 1, range.to + 1) !== "><"
+      ));
 
       if (notBetweenTags)
         return false;
