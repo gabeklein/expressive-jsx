@@ -31,16 +31,20 @@ export function evaluate(input: string): PreviewComponent {
   const source = `const React = require("react");\n` + code;
   const evaluate = new Function("require", "exports", "module", source);
   const require = (name: string) => SANDBOX_MODULES[name];
-  const module = { exports: {} };
+  const module = { exports: {} as Record<string, any> };
 
   evaluate(require, module.exports, module);
 
   const Component = Object.values(module.exports)[0] as React.FC;
+  const styles = module.exports.css;
 
   return (props) => (
     <Boundary {...props}>
       <Component />
       <style>{css}</style>
+      {typeof styles == "string" && (
+        <style>{styles}</style>
+      )}
     </Boundary>
   );
 }
