@@ -1,5 +1,5 @@
 import { cssLanguage } from '@codemirror/lang-css';
-import { jsxLanguage } from '@codemirror/lang-javascript';
+import { javascript, jsxLanguage } from '@codemirror/lang-javascript';
 import { getIndentation, IndentContext, indentString, LanguageSupport } from '@codemirror/language';
 import { EditorSelection, EditorState, Text, Transaction } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
@@ -8,6 +8,10 @@ import { parseMixed } from '@lezer/common';
 import { keyBind } from './plugins';
 
 /** JSX including syntax for CSS nested in <style> tags. */
+
+export const jsx = () => [
+  javascript({ jsx: true })
+]
 
 export function jsxMixed() {
   return new LanguageSupport(jsxLanguage.configure({

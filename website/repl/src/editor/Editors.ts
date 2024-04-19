@@ -1,5 +1,5 @@
 import { get } from '@expressive/react';
-import { code, command, Editor, editor, javascript, jsxMixed, lineNumbers, readOnly } from '@website/editor';
+import { command, Editor, editor, jsx, jsxMixed, readOnly } from '@website/editor';
 
 import { Document } from './Document';
 import { Main } from './Main';
@@ -9,17 +9,19 @@ export class InputEditor extends Editor {
   main = get(Main);
 
   extends(){
-    const { main, doc } = this;
-
     return [
-      code(),
-      editor(),
-      lineNumbers(),
-      javascript({ jsx: true }),
-      command("=", () => { main.fontSize++ }),
-      command("-", () => { main.fontSize-- }),
-      command("s", () => {
-        doc.build(this.text);
+      jsx,
+      editor,
+      command({
+        "=": () => {
+          this.main.fontSize++;
+        },
+        "-": () => {
+          this.main.fontSize--;
+        },
+        "s": () => {
+          this.doc.build(this.text);
+        }
       })
     ];
   }
@@ -28,10 +30,8 @@ export class InputEditor extends Editor {
 export class OutputJSX extends Editor {
   extends(){
     return [
-      code(),
-      lineNumbers(),
-      jsxMixed(),
-      readOnly()
+      jsxMixed,
+      readOnly
     ];
   }
 }

@@ -6,7 +6,7 @@ import { Model, ref, set } from '@expressive/mvc';
 
 import { onUpdate } from './plugins';
 
-const CIRCULAR = Symbol("INTERNAL");
+const NOOP = Symbol("INTERNAL");
 
 export abstract class Editor extends Model {
   view = set<EditorView>();
@@ -15,7 +15,7 @@ export abstract class Editor extends Model {
 
   text = "";
 
-  protected abstract extends(): Extension;
+  protected abstract extends(): (Extension | (() => Extension))[];
 
   protected createEditor(parent: HTMLDivElement){
     const state = this.state = EditorState.create({ 
@@ -23,17 +23,19 @@ export abstract class Editor extends Model {
         onUpdate(({ docChanged, state }) => {
           if(docChanged){
             this.text = state.doc.toString();
-            this.set(CIRCULAR);
+            this.set(NOOP);
           }
         }),
-        this.extends()
+        ...this.extends().map(ext => (
+          typeof ext === "function" ? ext() : ext
+        ))
       ]
     });
 
     const view = this.view = new EditorView({ parent, state });
 
     const done = this.get(({ text }, update) => {
-      if(update.has(CIRCULAR))
+      if(update.has(NOOP))
         return;
 
       view.dispatch({
