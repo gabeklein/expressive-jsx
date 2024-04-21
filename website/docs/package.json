@@ -1,7 +1,7 @@
 {
   "name": "@website/docs",
   "description": "Expressive JSX Documentation",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -17,7 +17,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@expressive/webpack-plugin": "^0.2.0",
+    "@expressive/webpack-plugin": "^0.2.1",
     "@svgr/webpack": "^8.1.0",
     "typescript": "^5.2.2"
   }
