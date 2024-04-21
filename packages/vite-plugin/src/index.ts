@@ -1,13 +1,15 @@
 import * as babel from '@babel/core';
 import BabelPreset from '@expressive/babel-preset';
 import { relative } from 'path';
-import { ModuleGraph, ModuleNode, Plugin } from 'vite';
+import { ModuleGraph, Plugin } from 'vite';
 
 const CWD = process.cwd();
 const PREFIX = "\0expressive:";
 
 const DEFAULT_SHOULD_TRANSFORM = (id: string) =>
   !/node_modules/.test(id) && id.endsWith(".jsx");
+
+const local = (id: string) => "/" + relative(CWD, id);
 
 export interface Options extends BabelPreset.Options {
   test?: RegExp | ((uri: string) => boolean);
@@ -34,7 +36,7 @@ function jsxPlugin(options: Options = {}): Plugin {
         return require.resolve(id);
       
       if(id === "__EXPRESSIVE_CSS__")
-        return PREFIX + relative(CWD, importer!) + ".css";
+        return PREFIX + local(importer!) + ".css";
     },
     async load(path: string){
       if(path.startsWith(PREFIX)){
@@ -46,41 +48,36 @@ function jsxPlugin(options: Options = {}): Plugin {
       if(!accept(id))
         return;
 
-      const relativeId = relative(CWD, id);
-      const result = CACHE.get(relativeId) || await transformJSX(id, code);
+      id = local(id);
 
-      CACHE.set(relativeId, result);
+      let result = CACHE.get(id);
 
-      if(result.css)
-        result.code += `\nimport "__EXPRESSIVE_CSS__";`;
+      if(!result)
+        CACHE.set(id, 
+          result = await transformJSX(id, code)
+        );
 
       return result;
     },
     async handleHotUpdate(context){
-      const path = context.file;
-      const id = relative(CWD, path);
+      const id = local(context.file);
       const cached = CACHE.get(id);
 
       if(!cached)
         return;
 
-      const updated: ModuleNode[] = [];
       const source = await context.read();
-      const result = await transformJSX(path, source);
+      const result = await transformJSX(id, source);
 
       CACHE.set(id, result);
 
-      if(cached.code !== result.code)
-        updated.push(
-          moduleGraph.getModuleById(path)!
-        );
+      if(cached.code == result.code)
+        context.modules.pop();
 
       if(cached.css !== result.css)
-        updated.push(
+        context.modules.push(
           moduleGraph.getModuleById(PREFIX + id + ".css")!
         );
-
-      return updated;
     }
   }
 }
@@ -122,6 +119,9 @@ async function transformJSX(id: string, input: string){
 
   if(!code)
     throw new Error("No code");
+
+  if(css)
+    code += `\nimport "__EXPRESSIVE_CSS__";`;
 
   return <TransformResult> {
     code,
