@@ -1,15 +1,15 @@
 export function font(...args){
-  const attrs = {};
+  const output = {};
 
   for(const x of args)
     if(x % 100 === 0)
-      attrs.fontWeight = x;
+      output.fontWeight = x;
     else if(isNaN(x) === false)
-      attrs.fontSize = x;
+      output.fontSize = x;
     else if(typeof x === "string")
-      attrs.fontFamily = x
+      output.fontFamily = x
 
-  return attrs;
+  return output;
 }
 
 export function fontFamily(...args){
