@@ -1,15 +1,12 @@
 import * as babel from '@babel/core';
 import BabelPreset from '@expressive/babel-preset';
-import { relative } from 'path';
 import { ModuleGraph, Plugin } from 'vite';
 
 const CWD = process.cwd();
-const PREFIX = "\0expressive:";
+const PREFIX = "\0virtual:";
 
 const DEFAULT_SHOULD_TRANSFORM = (id: string) =>
   !/node_modules/.test(id) && id.endsWith(".jsx");
-
-const local = (id: string) => "/" + relative(CWD, id);
 
 export interface Options extends BabelPreset.Options {
   test?: RegExp | ((uri: string) => boolean);
@@ -36,19 +33,17 @@ function jsxPlugin(options: Options = {}): Plugin {
         return require.resolve(id);
       
       if(id === "__EXPRESSIVE_CSS__")
-        return PREFIX + local(importer!) + ".css";
+        return PREFIX + importer + ".css";
     },
     async load(path: string){
       if(path.startsWith(PREFIX)){
-        const name = path.slice(12, -4);
+        const name = path.slice(9, -4);
         return CACHE.get(name)!.css;
       }
     },
     async transform(code, id){
       if(!accept(id))
         return;
-
-      id = local(id);
 
       let result = CACHE.get(id);
 
@@ -60,7 +55,7 @@ function jsxPlugin(options: Options = {}): Plugin {
       return result;
     },
     async handleHotUpdate(context){
-      const id = local(context.file);
+      const id = context.file;
       const cached = CACHE.get(id);
 
       if(!cached)
