@@ -14,12 +14,12 @@ it("will do", async () => {
   `);
 
   expect(files).toMatchInlineSnapshot(`
-    /** assets/index-Fk7yMMzF.css **/
+    /** assets/index-WTvIwzMV.css **/
     .Hello_2cs {
       color: red;
     }
 
-    /** assets/index-PQxCNqx_.js **/
+    /** assets/index-BFVxwYF_.js **/
     import "vite/modulepreload-polyfill";
     import { classNames as l } from "@expressive/babel-preset/polyfill";
     const a = e => React.createElement("div", {
@@ -48,7 +48,7 @@ it("will import polyfill", async () => {
   `);
 
   expect(files).toMatchInlineSnapshot(`
-    /** assets/index-P_TO8H1F.css **/
+    /** assets/index-_9M7wfUX.css **/
     .Hello_2cs {
       color: red;
     }
@@ -56,7 +56,7 @@ it("will import polyfill", async () => {
       background: #00f;
     }
 
-    /** assets/index-VP3XTAEP.js **/
+    /** assets/index-RoLOAnTL.js **/
     import "vite/modulepreload-polyfill";
     import { classNames as l } from "@expressive/babel-preset/polyfill";
     const a = e => React.createElement("div", {
