@@ -133,7 +133,7 @@ function createFunctionContext(path: NodePath<Function>){
 
 function createIfContext(path: NodePath<IfStatement>){
   const test = path.node.test;
-  const name = t.isIdentifier(test) ? test.name : "?";
+  const name = t.isIdentifier(test) ? test.name : "if";
   const outer = getContext(path);
   const inner = new Context(path, outer, name);
 
