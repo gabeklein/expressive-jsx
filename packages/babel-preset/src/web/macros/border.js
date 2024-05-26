@@ -1,13 +1,13 @@
 import { appendUnitToN } from '../util';
 
-function factory(dir){
+function _border(dir){
   let key = "border";
 
   if(dir)
     key += dir[0].toUpperCase() + dir.slice(1);
 
   return (color, width, style) => {
-    if(color == "none" || color == "transparent" || !width)
+    if(color == "none" || color == "transparent")
       return {
         [key]: color
       };
@@ -22,20 +22,15 @@ function factory(dir){
   }
 }
 
-const border = factory();
-const borderTop = factory("top");
-const borderLeft = factory("left");
-const borderRight = factory("right");
-const borderBottom = factory("bottom");
+export const border = _border();
+export const borderTop = _border("top");
+export const borderLeft = _border("left");
+export const borderRight = _border("right");
+export const borderBottom = _border("bottom");
 
 export {
-  border,
-  borderTop,
   borderTop as borderT,
-  borderLeft,
   borderLeft as borderL,
-  borderRight,
   borderRight as borderR,
-  borderBottom,
   borderBottom as borderB
 }
