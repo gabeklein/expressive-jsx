@@ -3,7 +3,7 @@ import { Expression, JSXElement } from '@babel/types';
 
 import { Context } from '../context';
 import { Options } from '../options';
-import { getHelper } from '../syntax/program';
+import { importPolyfill } from './importPolyfill';
 import t from '../types';
 import { HTML_TAGS } from './tags';
 
@@ -77,7 +77,7 @@ export function addClassName(
     return;
   }
 
-  const concat = getHelper("classNames", path, options);
+  const concat = importPolyfill("classNames", path, options);
 
   if(t.isCallExpression(existing)
     && t.isIdentifier(existing.callee, { name: concat.name }))

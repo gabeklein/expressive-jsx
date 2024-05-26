@@ -3,11 +3,11 @@ import { Program } from '@babel/types';
 
 import { Options } from '../options';
 import t from '../types';
-import { uniqueIdentifier } from './names';
+import { uniqueIdentifier } from '../syntax/names';
 
 const POLYFILL_DEFAULT = "@expressive/babel-preset/polyfill";
 
-export function getHelper(
+export function importPolyfill(
   name: string, from: NodePath, options: Options){
 
   const { polyfill = POLYFILL_DEFAULT } = options;
