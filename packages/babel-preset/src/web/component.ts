@@ -2,7 +2,7 @@ import { NodePath } from '@babel/traverse';
 import { Function, Identifier, Node, ObjectProperty } from '@babel/types';
 
 import t from '../types';
-import { uniqueIdentifier } from './names';
+import { uniqueIdentifier } from '../syntax/names';
 
 export function componentProp(path: NodePath, name: string){
   const func = path.find(x => x.isFunction()) as NodePath<Function>;

@@ -3,11 +3,10 @@ import { Function, Identifier } from '@babel/types';
 
 import { Context } from '../context';
 import Plugin from '../plugin';
-import { componentProp, componentProps } from '../syntax/component';
-import { hasProp, spreadProps } from '../syntax/jsx';
 import { uniqueIdentifier } from '../syntax/names';
 import t from '../types';
-import { addClassName, fixTagName, getClassName } from './jsx';
+import { componentProp, componentProps } from './component';
+import { addClassName, fixTagName, getClassName, hasProp, spreadProps } from './jsx';
 import * as Macros from './macros';
 import { byPriority, isInUse, toCss, toSelector } from './styles';
 

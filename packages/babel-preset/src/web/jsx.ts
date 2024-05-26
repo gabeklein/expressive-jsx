@@ -3,7 +3,6 @@ import { Expression, JSXElement } from '@babel/types';
 
 import { Context } from '../context';
 import { Options } from '../options';
-import { hasProp, setTagName } from '../syntax/jsx';
 import { getHelper } from '../syntax/program';
 import t from '../types';
 import { HTML_TAGS } from './tags';
@@ -104,4 +103,33 @@ export function addClassName(
     }
 
   throw new Error("Could not insert className");
+}
+
+export function spreadProps(path: NodePath<JSXElement>, props: Expression){
+  path
+    .get("openingElement")
+    .unshiftContainer("attributes", t.jsxSpreadAttribute(props))
+}
+
+export function setTagName(path: NodePath<JSXElement>, name: string){
+  const { openingElement, closingElement } = path.node;
+  const tag = t.jsxIdentifier(name);
+
+  openingElement.name = tag;
+
+  if(closingElement)
+    closingElement.name = tag;
+}
+
+export function hasProp(path: NodePath<JSXElement>, name: string){
+  for(const attr of path.node.openingElement.attributes)
+    if(t.isJSXAttribute(attr) && attr.name.name === name){
+      const { value } = attr;
+
+      if(t.isJSXExpressionContainer(value) && t.isExpression(value.expression))
+        return value.expression;
+
+      if(t.isExpression(value))
+        return value;
+    }
 }
