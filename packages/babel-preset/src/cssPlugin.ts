@@ -14,11 +14,11 @@ export function CSSPlugin(
 
   const { cssModule } = options;
 
-  let cssObject: Identifier | undefined;
-
   return {
     visitor: {
       JSXElement(path, state) {
+        const { cssModuleId } = state.file.metadata;
+
         const using = getUsing(path);
 
         if (!using.size)
@@ -27,7 +27,7 @@ export function CSSPlugin(
         let forward: NodePath<Function> | undefined;
 
         for (const define of using) {
-          const className = getClassName(define, cssObject);
+          const className = getClassName(define, cssModuleId);
 
           if (className)
             addClassName(path, className, options);
@@ -55,8 +55,12 @@ export function CSSPlugin(
       },
       Program: {
         enter(path, state) {
+          const { metadata } = state.file;
+
           if (cssModule)
-            cssObject = uniqueIdentifier(path.scope, "css");
+            Object.defineProperty(metadata, "cssModuleId", {
+              value: uniqueIdentifier(path.scope, "css")
+            });
 
           Object.defineProperties(state.file.metadata, {
             styles: {
@@ -72,17 +76,17 @@ export function CSSPlugin(
           });
         },
         exit(path, state) {
-          const { styles } = state.file.metadata;
+          const { styles, cssModuleId } = state.file.metadata;
 
-          if (!cssObject || !cssModule || !styles.size)
+          if (!cssModuleId || !cssModule || !styles.size)
             return;
 
           path.unshiftContainer("body", t.importDeclaration(
-            [t.importDefaultSpecifier(cssObject)],
+            [t.importDefaultSpecifier(cssModuleId)],
             t.stringLiteral(cssModule)
           ));
         }
-      }
+      },
     },
   };
 }

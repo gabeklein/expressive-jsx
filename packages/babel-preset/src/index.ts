@@ -1,4 +1,5 @@
 import { BabelFile, BabelFileMetadata, BabelFileResult, PluginPass } from '@babel/core';
+import { Identifier } from '@babel/types';
 
 import { CSSPlugin } from './cssPlugin';
 import * as Macros from './macros';
@@ -28,7 +29,8 @@ export declare namespace Preset {
   }
   interface MetaData {
     readonly css: string;
-    styles: Map<string, Context>;
+    readonly cssModuleId?: Identifier;
+    readonly styles: Map<string, Context>;
   }
 
   export {
