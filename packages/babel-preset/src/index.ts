@@ -29,10 +29,10 @@ export declare namespace Preset {
   }
 
   export {
-    Options,
     Meta,
-    Result,
-    MetaData
+    MetaData,
+    Options,
+    Result
   };
 }
 
