@@ -64,11 +64,9 @@ export function CSSPlugin(
 
           Object.defineProperties(state.file.metadata, {
             styles: {
-              enumerable: true,
               value: new Map<string, Context>()
             },
             css: {
-              enumerable: true,
               get(this: Preset.MetaData) {
                 return toStylesheet(this.styles.values());
               }
