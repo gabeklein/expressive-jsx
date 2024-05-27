@@ -5,7 +5,8 @@ export function uniqueIdentifier(scope: Scope, name = "temp") {
   let uid = name;
   let i = 0;
 
-  while (scope.hasLabel(uid) ||
+  while (
+    scope.hasLabel(uid) ||
     scope.hasBinding(uid) ||
     scope.hasGlobal(uid)) {
     uid = name + ++i;
