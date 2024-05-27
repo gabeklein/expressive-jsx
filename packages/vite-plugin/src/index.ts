@@ -55,23 +55,23 @@ function jsxPlugin(options: Options = {}): Plugin {
       return result;
     },
     async handleHotUpdate(context){
-      const id = context.file;
-      const cached = CACHE.get(id);
+      const { file, modules } = context;
+      const cached = CACHE.get(file);
 
       if(!cached)
         return;
 
       const source = await context.read();
-      const result = await transform(id, source);
+      const result = await transform(file, source);
 
-      CACHE.set(id, result);
+      CACHE.set(file, result);
 
       if(cached.code == result.code)
-        context.modules.pop();
+        modules.pop();
 
       if(cached.css !== result.css)
-        context.modules.push(
-          moduleGraph.getModuleById(PREFIX + id + ".css")!
+        modules.push(
+          moduleGraph.getModuleById(styleModule(file))!
         );
     }
   }
