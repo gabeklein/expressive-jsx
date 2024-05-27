@@ -2,7 +2,6 @@ import BabelPreset from '@expressive/babel-preset';
 import { TransformResult, transform } from 'transform';
 import { ModuleGraph, Plugin } from 'vite';
 
-const CWD = process.cwd();
 const PREFIX = "\0virtual:";
 
 const DEFAULT_SHOULD_TRANSFORM = (id: string) =>
