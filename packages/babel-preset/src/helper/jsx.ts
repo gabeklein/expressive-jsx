@@ -2,9 +2,9 @@ import { NodePath } from '@babel/traverse';
 import { Expression, JSXElement } from '@babel/types';
 
 import { Context, Options } from '../plugin';
-import { HTML_TAGS } from '../tags';
 import t from '../types';
 import { importPolyfill } from './importPolyfill';
+import { HTML_TAGS } from './tags';
 
 /** TODO: Move to a default handler included with macros. */
 export function fixTagName(path: any){
