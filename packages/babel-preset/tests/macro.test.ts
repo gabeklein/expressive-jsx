@@ -15,8 +15,6 @@ it("will bail on repeat macro", async () => {
   const output = await parse(`
     const Component = () => {
       foo: "bar";
-
-      <this />
     }
   `);
 
@@ -32,20 +30,18 @@ it("will convert native hex color", async () => {
     const Component = () => {
       color: 0xff0000;
       background: 0x00ff0022;
-
-      <this />
     }
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
     .Component_2an {
       color: #ff0000;
-      background: rgba(0,255,0,0.133);
+      background: rgba(0, 255, 0, 0.133);
     }
   `);
 });
 
-it.only("will apply complex style", async () => {
+it("will apply complex style", async () => {
   const output = await parser(`
     const Component = () => {
       transform: translateX(10), rotate(90), scale(2);
