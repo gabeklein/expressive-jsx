@@ -1,6 +1,6 @@
 import { BabelFile, BabelFileMetadata, BabelFileResult, PluginPass } from '@babel/core';
 
-import { UseCSSPlugin } from './css';
+import { CSSPlugin } from './css';
 import * as Macros from './macros';
 import Plugin, { Context } from './plugin';
 import t from './types';
@@ -48,7 +48,7 @@ export function Preset(_compiler: any, options: Preset.Options = {} as any): any
           ...options.macros || []
         ]
       }],
-      [UseCSSPlugin, options]
+      [CSSPlugin, options]
     ]
   }
 }

@@ -9,7 +9,7 @@ import { uniqueIdentifier } from './helper/uniqueIdentifier';
 import { byPriority, isInUse, toCss, toSelector } from './styles';
 import t from './types';
 
-export function UseCSSPlugin(
+export function CSSPlugin(
   _compiler: any, options: Preset.Options = {}): PluginObj<State> {
 
   const { cssModule } = options;
