@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/traverse';
 import { Program } from '@babel/types';
 
-import { Options } from '../plugin';
+import { Options } from '..';
 import t from '../types';
 import { uniqueIdentifier } from './uniqueIdentifier';
 

@@ -2,11 +2,14 @@ import { BabelFile, BabelFileMetadata, BabelFileResult, PluginPass } from '@babe
 
 import { CSSPlugin } from './css';
 import * as Macros from './macros';
-import Plugin, { Context } from './plugin';
+import Plugin, { Context, Macro } from './plugin';
 import t from './types';
 
-export interface Options extends Plugin.Options {
+export interface Options {
   cssModule?: string;
+  macros?: (Record<string, Macro> | false)[];
+  define?: Record<string, Context>[];
+  polyfill?: string | null;
 }
 
 export interface State extends PluginPass {
@@ -37,17 +40,16 @@ export declare namespace Preset {
 }
 
 export function Preset(_compiler: any, options: Preset.Options = {} as any): any {
+  const { macros = [] } = options;
+
   Object.assign(t, _compiler.types);
+
+  if(!macros.some(x => x === false))
+    macros.push(Macros);
 
   return {
     plugins: [
-      [Plugin, <Plugin.Options>{
-        ...options,
-        macros: [
-          Macros,
-          ...options.macros || []
-        ]
-      }],
+      [Plugin, { ...options, macros }],
       [CSSPlugin, options]
     ]
   }

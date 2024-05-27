@@ -24,7 +24,7 @@ declare namespace Plugin {
 const HANDLED = new WeakMap<NodePath, ExitCallback>();
 const USING_KEY = Symbol("expressive context");
 
-export { Context, Options }
+export { Context, Options, Macro }
 
 export function getUsing(path: NodePath){
   return new Set(path.getData(USING_KEY)) as Set<Context>;
