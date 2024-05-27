@@ -2,7 +2,7 @@ import { PluginItem, transformAsync } from '@babel/core';
 import { format } from 'prettier';
 import { expect } from 'vitest';
 
-import Preset from '../src/web';
+import Preset from '../src';
 
 // drop quotes from string snapshot
 expect.addSnapshotSerializer({

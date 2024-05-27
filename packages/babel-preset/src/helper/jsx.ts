@@ -1,11 +1,10 @@
 import { NodePath } from '@babel/traverse';
 import { Expression, JSXElement } from '@babel/types';
 
-import { Context } from '../context';
-import { Options } from '../options';
-import { importPolyfill } from './importPolyfill';
+import { Context, Options } from '../plugin';
+import { HTML_TAGS } from '../tags';
 import t from '../types';
-import { HTML_TAGS } from './tags';
+import { importPolyfill } from './importPolyfill';
 
 /** TODO: Move to a default handler included with macros. */
 export function fixTagName(path: any){

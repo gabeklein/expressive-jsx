@@ -1,4 +1,4 @@
-import { appendUnitToN } from '../util';
+import { appendUnit } from "../helper/appendUnit";
 
 function _border(dir){
   let key = "border";
@@ -16,7 +16,7 @@ function _border(dir){
       [key]: [
         color || "black",
         style || "solid",
-        appendUnitToN(width || "1")
+        appendUnit(width || "1")
       ]
     };
   }

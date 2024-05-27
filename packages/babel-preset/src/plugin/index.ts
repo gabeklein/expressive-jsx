@@ -1,12 +1,12 @@
 import { PluginObj, PluginPass } from '@babel/core';
 import { NodePath } from '@babel/traverse';
-import { JSXElement } from '@babel/types';
 
+import { hash } from '../helper/util';
+import t from '../types';
 import { Context } from './context';
-import { simpleHash } from './helper/simpleHash';
 import { getContext, handleLabel } from './label';
+import { getNames } from './names';
 import { Macro, Options } from './options';
-import t from './types';
 
 export type State = PluginPass & {
   context: Context;
@@ -22,13 +22,16 @@ declare namespace Plugin {
 }
 
 const HANDLED = new WeakMap<NodePath, ExitCallback>();
+const USING_KEY = Symbol("expressive context");
+
+export { Context, Options }
+
+export function getUsing(path: NodePath){
+  return new Set(path.getData(USING_KEY)) as Set<Context>;
+}
 
 function Plugin(_compiler: any, options: Options): PluginObj<State> {
   const SCOPE = new WeakMap<NodePath, Set<Context>>();
-  const { apply } = options;
-
-  if(!apply)
-    throw new Error(`Plugin has not defined an apply method.`);
   
   return {
     manipulateOptions(_options, parse){
@@ -38,36 +41,30 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
       Program(path, state){
         const context = new Context(path);
 
-        context.uid = simpleHash(state.filename!);
+        context.uid = hash(state.filename!);
         context.define = Object.assign({}, ...options.define || []);
         context.macros = Object.assign({}, ...options.macros || []);
       },
-      BlockStatement: {
-        exit
-      },
-      LabeledStatement: {
-        enter(path){
-          const body = path.get("body");
-      
-          if(body.isFor() || body.isWhile())
-            return;
-      
-          handleLabel(path);
-          onExit(path, () => {
-            if(!path.removed)
-              path.remove();
-          });
-        },
-        exit
-      },
-      JSXElement(path, state){
-        if(path.getData("handled"))
+      JSXElement(path){
+        if(path.getData(USING_KEY))
           return;
 
-        if(fixImplicitReturn(path))
-          return;
+        let { node, parentPath: parent } = path;
 
-        const parent = path.parentPath;
+        if(parent.isExpressionStatement()){
+          const block = parent.parentPath;
+
+          if(block.isBlockStatement()
+          && block.get("body").length == 1
+          && block.parentPath.isArrowFunctionExpression())
+            block.replaceWith(t.parenthesizedExpression(node));
+          else
+            parent.replaceWith(t.returnStatement(node));
+        
+          path.skip();
+          return;
+        }
+
         const context = !parent.isJSXElement() && getContext(parent);
         const scope = new Set(context ? [context] : SCOPE.get(parent));
         const using = new Set<Context>();
@@ -103,7 +100,7 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
             attr.remove();
         });
     
-        apply(path, using, state);
+        path.setData(USING_KEY, using)
 
         if(context === false
         || context.define.this !== context
@@ -119,8 +116,25 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
           )
         )
     
-        apply(inserted, [context], state);
-        inserted.setData("handled", true);
+        inserted.setData(USING_KEY, new Set([context]));
+      },
+      BlockStatement: {
+        exit
+      },
+      LabeledStatement: {
+        enter(path){
+          const body = path.get("body");
+      
+          if(body.isFor() || body.isWhile())
+            return;
+      
+          handleLabel(path);
+          onExit(path, () => {
+            if(!path.removed)
+              path.remove();
+          });
+        },
+        exit
       }
     }
   }
@@ -146,51 +160,4 @@ function exit(path: NodePath){
     else
       break;
   }
-}
-
-export function getNames(path: NodePath<JSXElement>) {
-  const names = new Map<string, NodePath>();
-  const opening = path.get("openingElement");
-  let tag = opening.get("name");
-
-  while(tag.isJSXMemberExpression()) {
-    names.set(tag.get("property").toString(), tag);
-    tag = tag.get("object");
-  }
-
-  if(tag.isJSXIdentifier())
-    names.set(tag.toString(), tag);
-
-  opening.get("attributes").forEach(attr => {
-    if(!attr.isJSXAttribute() || attr.node.value)
-      return;
-
-    let { name } = attr.node.name;
-
-    if(typeof name !== "string")
-      name = name.name;
-
-    names.set(name, attr);
-  });
-
-  return names;
-}
-
-export function fixImplicitReturn(path: NodePath<JSXElement>){
-  let { node, parentPath: parent } = path;
-
-  if(!parent.isExpressionStatement())
-    return false;
-
-  const block = parent.parentPath;
-
-  if(block.isBlockStatement()
-  && block.get("body").length == 1
-  && block.parentPath.isArrowFunctionExpression())
-    block.replaceWith(t.parenthesizedExpression(node));
-  else
-    parent.replaceWith(t.returnStatement(node));
-
-  path.skip();
-  return true;
 }

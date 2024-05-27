@@ -1,5 +1,5 @@
-import { Context } from '../context';
-import { camelToDash } from './util';
+import { Context } from './plugin';
+import { camelToDash } from './helper/util';
 
 export function isInUse(context: Context){
   return context.props.size > 0;

@@ -1,4 +1,4 @@
-import { appendUnitToN } from '../util';
+import { appendUnit } from "../helper/appendUnit";
 
 const CORNER_MATRIX = {
   top: [1, 1, 0, 0],
@@ -29,11 +29,11 @@ export function radius(dir, r1, r2){
       return (b ? r1 : r2) || 0
     });
 
-    value = radii.map(appendUnitToN).join(" ");
+    value = radii.map(appendUnit).join(" ");
   }
 
   return {
-    borderRadius: appendUnitToN(value)
+    borderRadius: appendUnit(value)
   }
 }
 

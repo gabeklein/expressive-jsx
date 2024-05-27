@@ -26,9 +26,7 @@ function jsxIdentifier<T extends JSXReference>(name: T): T;
 function jsxIdentifier(name: string): JSXIdentifier;
 function jsxIdentifier(name: string | JSXReference): JSXReference;
 function jsxIdentifier(name: string | JSXReference){
-  return typeof name == "string"
-    ? t.jsxIdentifier(name)
-    : name;
+  return typeof name == "string" ? t.jsxIdentifier(name) : name;
 }
 
 export function jsxTag(

@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/traverse';
 import { Expression } from '@babel/types';
 
-import { simpleHash } from './helper/simpleHash';
+import { hash } from '../helper/util';
 import { Macro } from './options';
 
 const CONTEXT = new WeakMap<NodePath, Context>();
@@ -36,7 +36,7 @@ export class Context {
       return;
 
     this.parent = parent;
-    this.uid = name + "_" + simpleHash(parent.uid);
+    this.uid = name + "_" + hash(parent.uid);
     this.define = Object.create(parent.define);
     this.macros = Object.create(parent.macros);
 

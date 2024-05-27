@@ -1,4 +1,4 @@
-import { appendUnitToN } from '../util';
+import { appendUnit } from "../helper/appendUnit";
 
 function margin(a1){
   let margin;
@@ -6,7 +6,7 @@ function margin(a1){
   if(arguments.length == 1 && a1 == "auto" || a1 == "none" || / /.test(a1))
     margin = a1
   else
-    margin = Array.from(arguments).map(x => appendUnitToN(x)).join(" ")
+    margin = Array.from(arguments).map(x => appendUnit(x)).join(" ")
 
   return {
     margin
@@ -19,7 +19,7 @@ function padding(a1){
   if(arguments.length == 1 && a1 == "auto" || a1 == "none" || / /.test(a1))
     padding = a1
   else
-    padding = Array.from(arguments).map(x => appendUnitToN(x)).join(" ")
+    padding = Array.from(arguments).map(x => appendUnit(x)).join(" ")
 
   return {
     padding
@@ -28,25 +28,25 @@ function padding(a1){
 
 function marginTop(...args) {
   return {
-    marginTop: appendUnitToN(...args)
+    marginTop: appendUnit(...args)
   };
 }
 
 function marginLeft(...args) {
   return {
-    marginLeft: appendUnitToN(...args)
+    marginLeft: appendUnit(...args)
   };
 }
 
 function marginRight(...args) {
   return {
-    marginRight: appendUnitToN(...args)
+    marginRight: appendUnit(...args)
   };
 }
 
 function marginBottom(...args) {
   return {
-    marginBottom: appendUnitToN(...args)
+    marginBottom: appendUnit(...args)
   };
 }
 

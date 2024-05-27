@@ -1,9 +1,9 @@
 import { NodePath } from '@babel/traverse';
 import { Program } from '@babel/types';
 
-import { Options } from '../options';
+import { Options } from '../plugin';
 import t from '../types';
-import { uniqueIdentifier } from '../syntax/names';
+import { uniqueIdentifier } from './uniqueIdentifier';
 
 const POLYFILL_DEFAULT = "@expressive/babel-preset/polyfill";
 

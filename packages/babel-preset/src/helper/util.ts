@@ -1,4 +1,8 @@
-export function simpleHash(
+export function camelToDash(x: string){
+  return x.replace(/([A-Z]+)/g, "-$1").toLowerCase();
+}
+
+export function hash(
   input: string = String(Math.random()),
   length = 3){
 
