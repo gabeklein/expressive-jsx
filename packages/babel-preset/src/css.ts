@@ -4,9 +4,9 @@ import { Function, Identifier } from '@babel/types';
 import { Preset, State } from '.';
 import { getComponentProp, getComponentProps } from './helper/component';
 import { addClassName, fixTagName, getClassName, hasProp, spreadProps } from './helper/jsx';
-import { Context, getUsing } from './plugin';
 import { uniqueIdentifier } from './helper/uniqueIdentifier';
-import { byPriority, isInUse, toCss, toSelector } from './styles';
+import { camelToDash } from './helper/util';
+import { Context, getUsing } from './plugin';
 import t from './types';
 
 export function CSSPlugin(
@@ -90,4 +90,76 @@ export function CSSPlugin(
       }
     },
   };
+}
+
+export function isInUse(context: Context){
+  return context.props.size > 0;
+}
+
+export function byPriority(a: Context, b: Context){
+  return depth(a) - depth(b);
+}
+
+export function toCss(context: Context){
+  const css = [] as string[];
+
+  for(let [name, value] of context.props)
+    css.push("  " + toCssProperty(name, value));
+
+  const select = toSelector(context);
+  const style = css.join("\n");
+    
+  return `${select} {\n${style}\n}`
+}
+
+export function toSelector(context: Context): string {
+  let { parent, condition, uid } = context;
+
+  if(typeof condition === "string")
+    return toSelector(context.parent!) + condition;
+
+  let selector = "";
+
+  while(parent){
+    if(parent instanceof Context && parent.condition){
+      selector = toSelector(parent) + " ";
+      break;
+    }
+    parent = parent.parent;
+  }
+
+  return selector += "." + uid;
+}
+
+function toCssProperty(name: string, value: any){
+  const property = name
+    .replace(/^\$/, "--")
+    .replace(/([A-Z]+)/g, "-$1")
+    .toLowerCase();
+
+  if(Array.isArray(value))
+    value = value.map(value => {
+      if(typeof value == "string" && /^\$/.test(value))
+        return `var(--${
+          camelToDash(value.slice(1))
+        })`;
+
+      return value;
+    })
+
+  return `${property}: ${value.join(" ")};`;
+}
+
+function depth(context: Context){
+  let depth = 0;
+
+  do {
+    if(context.path.isFunction())
+      break;
+    else
+      depth += /^[A-Z]/.test(context.uid) ? 2 : 1;
+  }
+  while(context = context.parent!)
+
+  return depth;
 }
