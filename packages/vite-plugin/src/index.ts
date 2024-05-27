@@ -4,6 +4,8 @@ import { ModuleGraph, Plugin } from 'vite';
 
 const PREFIX = "\0virtual:";
 
+const styleModule = (path: string) => PREFIX + path + ".css";
+
 const DEFAULT_SHOULD_TRANSFORM = (id: string) =>
   !/node_modules/.test(id) && id.endsWith(".jsx");
 
@@ -21,6 +23,15 @@ function jsxPlugin(options: Options = {}): Plugin {
   const CACHE = new Map<string, TransformResult>();
   let moduleGraph!: ModuleGraph;
 
+  async function transformCache(id: string, code: string){
+    const result = await transform(id, code);
+
+    CACHE.set(id, result);
+    CACHE.set(styleModule(id), result);
+
+    return result;
+  }
+
   return {
     name: "expressive-jsx-plugin",
     enforce: "pre",
@@ -32,26 +43,22 @@ function jsxPlugin(options: Options = {}): Plugin {
         return require.resolve(id);
       
       if(id === "__EXPRESSIVE_CSS__")
-        return PREFIX + importer + ".css";
+        return styleModule(importer!);
     },
     async load(path: string){
-      if(path.startsWith(PREFIX)){
-        const name = path.slice(9, -4);
-        return CACHE.get(name)!.css;
-      }
+      const cached = CACHE.get(path);
+
+      if(cached && path.startsWith(PREFIX))
+        return cached.css;
     },
     async transform(code, id){
-      if(!accept(id))
-        return;
+      const result = CACHE.get(id);
 
-      let result = CACHE.get(id);
+      if(result)
+        return id.startsWith(PREFIX) ? result.css : result;
 
-      if(!result)
-        CACHE.set(id, 
-          result = await transformJSX(id, code)
-        );
-
-      return result;
+      if(accept(id))
+        return transformCache(id, code);
     },
     async handleHotUpdate(context){
       const { file, modules } = context;
@@ -61,9 +68,7 @@ function jsxPlugin(options: Options = {}): Plugin {
         return;
 
       const source = await context.read();
-      const result = await transform(file, source);
-
-      CACHE.set(file, result);
+      const result = await transformCache(file, source);
 
       if(cached.code == result.code)
         modules.pop();
