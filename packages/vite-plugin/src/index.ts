@@ -1,5 +1,5 @@
-import * as babel from '@babel/core';
 import BabelPreset from '@expressive/babel-preset';
+import { TransformResult, transform } from 'transform';
 import { ModuleGraph, Plugin } from 'vite';
 
 const CWD = process.cwd();
@@ -62,7 +62,7 @@ function jsxPlugin(options: Options = {}): Plugin {
         return;
 
       const source = await context.read();
-      const result = await transformJSX(id, source);
+      const result = await transform(id, source);
 
       CACHE.set(id, result);
 
@@ -78,49 +78,3 @@ function jsxPlugin(options: Options = {}): Plugin {
 }
 
 export default jsxPlugin;
-
-interface TransformResult {
-  code: string;
-  map: any;
-  css: string;
-}
-
-async function transformJSX(id: string, input: string){
-  const result = await babel.transformAsync(input, {
-    root: CWD,
-    filename: id,
-    sourceFileName: id.split("?")[0],
-    sourceMaps: true,
-    parserOpts: {
-      sourceType: "module",
-      allowAwaitOutsideFunction: true
-    },
-    generatorOpts: {
-      decoratorsBeforeExport: true
-    },
-    presets: [
-      BabelPreset
-    ]
-  });
-
-  if(!result)
-    throw new Error("No result");
-
-  let {
-    code,
-    map,
-    metadata: { css }
-  } = result as BabelPreset.Result;
-
-  if(!code)
-    throw new Error("No code");
-
-  if(css)
-    code += `\nimport "__EXPRESSIVE_CSS__";`;
-
-  return <TransformResult> {
-    code,
-    css,
-    map
-  };
-}
