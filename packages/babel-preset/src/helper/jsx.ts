@@ -2,7 +2,7 @@ import { NodePath } from '@babel/traverse';
 import { Expression, JSXElement } from '@babel/types';
 
 import { Options } from '..';
-import { Context } from '../plugin';
+import { Context } from '../parsePlugin';
 import t from '../types';
 import { importPolyfill } from './importPolyfill';
 import { HTML_TAGS } from './tags';

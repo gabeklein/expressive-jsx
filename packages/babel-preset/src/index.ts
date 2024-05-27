@@ -1,8 +1,8 @@
 import { BabelFile, BabelFileMetadata, BabelFileResult, PluginPass } from '@babel/core';
 
-import { CSSPlugin } from './css';
+import { CSSPlugin } from './cssPlugin';
 import * as Macros from './macros';
-import Plugin, { Context, Macro } from './plugin';
+import Plugin, { Context, Macro } from './parsePlugin';
 import t from './types';
 
 export interface Options {

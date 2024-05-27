@@ -6,7 +6,7 @@ import { getComponentProp, getComponentProps } from './helper/component';
 import { addClassName, fixTagName, getClassName, hasProp, spreadProps } from './helper/jsx';
 import { uniqueIdentifier } from './helper/uniqueIdentifier';
 import { camelToDash } from './helper/util';
-import { Context, getUsing } from './plugin';
+import { Context, getUsing } from './parsePlugin';
 import t from './types';
 
 export function CSSPlugin(
