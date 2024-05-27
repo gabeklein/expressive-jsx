@@ -21,25 +21,6 @@ export function toCss(context: Context){
   return `${select} {\n${style}\n}`
 }
 
-export function toCssProperty(name: string, value: any){
-  const property = name
-    .replace(/^\$/, "--")
-    .replace(/([A-Z]+)/g, "-$1")
-    .toLowerCase();
-
-  if(Array.isArray(value))
-    value = value.map(value => {
-      if(typeof value == "string" && /^\$/.test(value))
-        return `var(--${
-          camelToDash(value.slice(1))
-        })`;
-
-      return value;
-    })
-
-  return `${property}: ${value.join(" ")};`;
-}
-
 export function toSelector(context: Context): string {
   let { parent, condition, uid } = context;
 
@@ -59,7 +40,26 @@ export function toSelector(context: Context): string {
   return selector += "." + uid;
 }
 
-export function depth(context: Context){
+function toCssProperty(name: string, value: any){
+  const property = name
+    .replace(/^\$/, "--")
+    .replace(/([A-Z]+)/g, "-$1")
+    .toLowerCase();
+
+  if(Array.isArray(value))
+    value = value.map(value => {
+      if(typeof value == "string" && /^\$/.test(value))
+        return `var(--${
+          camelToDash(value.slice(1))
+        })`;
+
+      return value;
+    })
+
+  return `${property}: ${value.join(" ")};`;
+}
+
+function depth(context: Context){
   let depth = 0;
 
   do {
