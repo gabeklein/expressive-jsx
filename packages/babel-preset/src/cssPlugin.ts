@@ -66,12 +66,7 @@ export function CSSPlugin(
             css: {
               enumerable: true,
               get(this: Preset.MetaData) {
-                return Array
-                  .from(this.styles.values())
-                  .filter(isInUse)
-                  .sort(byPriority)
-                  .map(toCss)
-                  .join("\n");
+                return toStylesheet(this.styles.values());
               }
             }
           });
@@ -92,27 +87,26 @@ export function CSSPlugin(
   };
 }
 
-export function isInUse(context: Context){
-  return context.props.size > 0;
-}
-
-export function byPriority(a: Context, b: Context){
-  return depth(a) - depth(b);
-}
-
-export function toCss(context: Context){
-  const css = [] as string[];
-
-  for(let [name, value] of context.props)
-    css.push("  " + toCssProperty(name, value));
-
-  const select = toSelector(context);
-  const style = css.join("\n");
+function toStylesheet(contexts: Iterable<Context>){
+  return Array
+    .from(contexts)
+    .filter(d => d.props.size > 0)
+    .sort((d1, d2) => depth(d1) - depth(d2))
+    .map(define => {
+      const css = [] as string[];
     
-  return `${select} {\n${style}\n}`
+      for(let [name, value] of define.props)
+        css.push("  " + toCssProperty(name, value));
+    
+      const select = toSelector(define);
+      const style = css.join("\n");
+        
+      return `${select} {\n${style}\n}`
+    })
+    .join("\n");
 }
 
-export function toSelector(context: Context): string {
+function toSelector(context: Context): string {
   let { parent, condition, uid } = context;
 
   if(typeof condition === "string")
