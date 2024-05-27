@@ -63,3 +63,20 @@ it("will apply complex style", async () => {
     }
   `);
 });
+
+it("will apply absolute", async () => {
+  const output = await parser(`
+    const Component = () => {
+      absolute: fill-bottom;
+    }
+  `);
+
+  expect(output.css).toMatchInlineSnapshot(`
+    .Component_15e {
+      bottom: 0;
+      right: 0;
+      left: 0;
+      position: absolute;
+    }
+  `);
+});
