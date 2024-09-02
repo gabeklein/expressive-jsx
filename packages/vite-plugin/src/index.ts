@@ -24,7 +24,7 @@ function jsxPlugin(options: Options = {}): Plugin {
   let moduleGraph!: ModuleGraph;
 
   async function transformCache(id: string, code: string){
-    const result = await transform(id, code);
+    const result = await transform(id, code, options);
 
     CACHE.set(id, result);
     CACHE.set(styleModule(id), result);

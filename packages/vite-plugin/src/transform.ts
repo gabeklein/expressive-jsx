@@ -7,7 +7,11 @@ export interface TransformResult {
   css: string;
 }
 
-export async function transform(id: string, input: string) {
+export async function transform(
+  id: string,
+  input: string,
+  presetOptions: BabelPreset.Options = {}
+): Promise<TransformResult> {
   const result = await babel.transformAsync(input, {
     root: process.cwd(),
     filename: id,
@@ -21,7 +25,7 @@ export async function transform(id: string, input: string) {
       decoratorsBeforeExport: true
     },
     presets: [
-      BabelPreset
+      [BabelPreset, presetOptions]
     ]
   });
 
