@@ -21,6 +21,8 @@ export function CSSPlugin(
 
         const using = getUsing(path);
 
+        fixTagName(path);
+
         if (!using.size)
           return;
 
@@ -50,8 +52,6 @@ export function CSSPlugin(
           if (hasProp(path, "className"))
             addClassName(path, getComponentProp(path, "className"), options);
         }
-
-        fixTagName(path);
       },
       Program: {
         enter(path, state) {

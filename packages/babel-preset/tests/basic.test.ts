@@ -23,6 +23,18 @@ it("will pass", async () => {
   `);
 })
 
+it("will convert named element without styles", async () => {
+  const output = await parser(`
+    const Component = () => {
+      <hello />
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(`
+    const Component = () => <div />;
+  `);
+})
+
 it("will drop default macros", async () => {
   const sanityCheck = await parser(`
     const Component = () => {
