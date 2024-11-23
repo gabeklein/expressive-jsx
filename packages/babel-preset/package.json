@@ -1,6 +1,6 @@
 {
   "name": "@expressive/babel-preset",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Web preset for expressive JSX.",
   "repository": "https://github.com/gabeklein/expressive-dsl",
   "author": {
