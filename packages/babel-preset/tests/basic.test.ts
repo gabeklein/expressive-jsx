@@ -31,7 +31,7 @@ it("will drop default macros", async () => {
   `);
 
   expect(sanityCheck.css).toMatchInlineSnapshot(`
-    .Component_185 {
+    .Component_2jp {
       bottom: 0;
       right: 0;
       left: 0;
@@ -51,7 +51,7 @@ it("will drop default macros", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_185 {
+    .Component_2jp {
       absolute: fill;
     }
   `);

@@ -19,7 +19,7 @@ it("will bail on repeat macro", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_26g {
+    .Component_27o {
       foo: barBaz;
     }
   `);
@@ -34,7 +34,7 @@ it("will convert native hex color", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_2an {
+    .Component_27o {
       color: #ff0000;
       background: rgba(0, 255, 0, 0.133);
     }
@@ -52,13 +52,13 @@ it("will apply complex style", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_22q')}
+        className={classNames(props.className, 'Component_27o')}
       />
     );
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_22q {
+    .Component_27o {
       transform: translateX(10) rotate(90) scale(2);
     }
   `);
@@ -72,7 +72,7 @@ it("will apply absolute", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_15e {
+    .Component_27o {
       bottom: 0;
       right: 0;
       left: 0;

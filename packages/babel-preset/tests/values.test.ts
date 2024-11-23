@@ -9,7 +9,7 @@ it("will convert camelCase properties to dash", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_24p {
+    .Component_24q {
       box-sizing: border-box;
     }
   `);
@@ -23,7 +23,7 @@ it("will convert numbers to px", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_2bc {
+    .Component_24q {
       font-size: 12px;
     }
   `);
@@ -37,7 +37,7 @@ it("will convert decimal to em", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_13v {
+    .Component_24q {
       font-size: 1.5em;
     }
   `);
@@ -59,7 +59,7 @@ it("will convert $-prefixed properties to css variables", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_22x {
+    .Component_24q {
       --color-primary: blue;
     }
     .something_tla {

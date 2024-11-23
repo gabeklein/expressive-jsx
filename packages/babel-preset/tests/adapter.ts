@@ -25,11 +25,12 @@ function parser(argument?: Preset.Options | string, plugins?: PluginItem[]){
 
 function createParser(options?: Preset.Options, plugins?: PluginItem[]){
   return async function parse(source: string){
-    const { currentTestName } = expect.getState();
-    const filename = currentTestName!.replace(/^.+? > /, "");
+    const testName = expect.getState().currentTestName!;
+    const filename = testName.replace(/ >.+/, "");
     const result = await transformAsync(source, {
       filename,
       plugins,
+      cwd: "/",
       presets: [
         [Preset, <Preset.Options>{
           polyfill: null,
