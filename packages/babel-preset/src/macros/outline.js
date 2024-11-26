@@ -1,4 +1,4 @@
-function outline(a, b) {
+export function outline(a, b) {
   if (a == "none")
     return {
       outline: "none"

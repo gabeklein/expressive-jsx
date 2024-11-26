@@ -80,3 +80,17 @@ it("will apply absolute", async () => {
     }
   `);
 });
+
+it("will apply outline macro", async () => {
+  const output = await parser(`
+    const Component = () => {
+      outline: red;
+    }
+  `)
+
+  expect(output.css).toMatchInlineSnapshot(`
+    .Component_27o {
+      outline: 1px dashed red;
+    }
+  `);
+})
