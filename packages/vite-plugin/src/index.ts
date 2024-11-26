@@ -1,6 +1,7 @@
 import BabelPreset from '@expressive/babel-preset';
-import { TransformResult, transform } from 'transform';
 import { ModuleGraph, Plugin } from 'vite';
+
+import { transform, TransformResult } from './transform';
 
 const PREFIX = "\0virtual:";
 

@@ -33,7 +33,9 @@ export async function transform(
     throw new Error("No result");
 
   let {
-    code, map, metadata: { css }
+    code,
+    map,
+    metadata: { css }
   } = result as BabelPreset.Result;
 
   if (!code)
@@ -42,7 +44,7 @@ export async function transform(
   if (css)
     code += `\nimport "__EXPRESSIVE_CSS__";`;
 
-  return <TransformResult>{
+  return <TransformResult> {
     code,
     css,
     map
