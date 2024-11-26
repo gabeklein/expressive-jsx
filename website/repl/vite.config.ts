@@ -1,12 +1,12 @@
-import jsx from '@expressive/vite-plugin';
+import jsx from '@expressive/vite-plugin/src';
 import react from '@vitejs/plugin-react';
-import vite from 'vite';
+import { defineConfig } from 'vite';
 import paths from 'vite-tsconfig-paths';
 
-export default <vite.UserConfig> {
+export default defineConfig({
   plugins: [
     jsx(),
     react(),
     paths()
   ]
-}
+})
