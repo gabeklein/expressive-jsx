@@ -13,7 +13,17 @@ const SANDBOX_MODULES: Record<string, any> = {
 
 export type PreviewComponent = React.FC<Boundary.Props>;
 
-export function evaluate(input: string): PreviewComponent {
+export function run(source: string){
+  const module = { exports: {} as Record<string, any> };
+  const require = (name: string) => SANDBOX_MODULES[name];
+  const evaluate = new Function("require", "exports", "module", source);
+
+  evaluate(require, module.exports, module);
+
+  return module.exports as Record<string, any>;
+}
+
+export function toReact(input: string): PreviewComponent {
   const result = Babel.transform(input, {
     filename: '/REPL.js',
     presets: [
@@ -28,15 +38,9 @@ export function evaluate(input: string): PreviewComponent {
   });
 
   const { code, metadata: { css } } = result as Preset.Result;
-  const source = `const React = require("react");\n` + code;
-  const evaluate = new Function("require", "exports", "module", source);
-  const require = (name: string) => SANDBOX_MODULES[name];
-  const module = { exports: {} as Record<string, any> };
-
-  evaluate(require, module.exports, module);
-
-  const Component = Object.values(module.exports)[0] as React.FC;
-  const styles = module.exports.css;
+  const exports = run('const React = require("react");\n' + code);
+  const Component = Object.values(exports)[0] as React.FC;
+  const styles = exports.css;
 
   return (props) => (
     <Boundary {...props}>

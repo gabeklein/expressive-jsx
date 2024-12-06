@@ -1,6 +1,6 @@
 import Model from '@expressive/react';
 
-import { evaluate, PreviewComponent } from './evaluate';
+import { toReact, PreviewComponent } from './evaluate';
 import { hash, transform } from './transform';
 
 const DEFAULT_CODE =
@@ -33,22 +33,22 @@ export class Document extends Model {
     console.error(error);
   }
 
-  build(from: string){
+  build(source: string){
     try {
-      const { jsx, css } = transform(from);
-      const component = evaluate(from);
+      const { jsx, css } = transform(source);
+      const component = toReact(source);
 
       this.error = "";
-      this.input = from;
-      this.key = hash(from);
+      this.input = source;
+      this.key = hash(source);
       this.output = jsx;
 
       if(css){
-        const format = css
+        const pretty = css
           .replace(/^|\t/g, "  ")
           .replace(/\n/g, "\n  ");
   
-        this.output += `\n\n<style>\n${format}\n</style>`;
+        this.output += `\n\n<style>\n${pretty}\n</style>`;
       }
 
       this.Preview = component;
