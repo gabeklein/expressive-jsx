@@ -1,7 +1,6 @@
-import BabelPreset from '@expressive/babel-preset';
 import { ModuleGraph, Plugin } from 'vite';
 
-import { transform, TransformResult } from './transform';
+import { transform, TransformOptions, TransformResult } from './transform';
 
 const PREFIX = "\0virtual:";
 
@@ -10,7 +9,7 @@ const styleModule = (path: string) => PREFIX + path + ".css";
 const DEFAULT_SHOULD_TRANSFORM = (id: string) =>
   !/node_modules/.test(id) && id.endsWith(".jsx");
 
-export interface Options extends BabelPreset.Options {
+export interface Options extends TransformOptions {
   test?: RegExp | ((uri: string) => boolean);
 }
 

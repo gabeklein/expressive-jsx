@@ -1,6 +1,8 @@
 import * as babel from '@babel/core';
 import BabelPreset from '@expressive/babel-preset';
 
+export type TransformOptions = BabelPreset.Options;
+
 export interface TransformResult {
   code: string;
   map: any;
