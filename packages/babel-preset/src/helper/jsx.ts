@@ -1,11 +1,13 @@
 import { NodePath } from '@babel/traverse';
-import { Expression, JSXElement } from '@babel/types';
+import { Expression, JSXElement, Program } from '@babel/types';
 import { Plugin } from '@expressive/babel-plugin-jsx';
 
 import { Options } from '..';
 import t from '../types';
-import { importPolyfill } from './importPolyfill';
 import { HTML_TAGS } from './tags';
+import { uniqueIdentifier } from './uniqueIdentifier';
+
+const POLYFILL_DEFAULT = "@expressive/babel-preset/polyfill";
 
 /** TODO: Move to a default handler included with macros. */
 export function fixTagName(path: any){
@@ -132,4 +134,41 @@ export function hasProp(path: NodePath<JSXElement>, name: string){
       if(t.isExpression(value))
         return value;
     }
+}
+
+export function importPolyfill(
+  name: string, from: NodePath, options: Options){
+
+  const { polyfill = POLYFILL_DEFAULT } = options;
+  const program = from.findParent((path) => path.isProgram()) as NodePath<Program>;
+  const body = program.get("body");
+
+  for(const statement of body){
+    if(!statement.isImportDeclaration()
+    || statement.node.source.value !== polyfill)
+      continue;
+
+    const specifiers = statement.get("specifiers");
+
+    for(const spec of specifiers){
+      if(!spec.isImportSpecifier())
+        continue;
+
+      if(t.isIdentifier(spec.node.imported, { name }))
+        return spec.node.local;
+    }
+  }
+
+  const concat = uniqueIdentifier(from.scope, name);
+
+  if(polyfill){
+    const importStatement = t.importDeclaration(
+      [t.importSpecifier(concat, t.identifier(name))],
+      t.stringLiteral(polyfill)
+    );
+  
+    program.unshiftContainer("body", importStatement);
+  }
+
+  return concat;
 }
