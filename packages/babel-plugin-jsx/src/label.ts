@@ -2,11 +2,11 @@ import { NodePath } from '@babel/traverse';
 import { Function, IfStatement, LabeledStatement } from '@babel/types';
 
 import { onExit } from '.';
-import t from '../types';
 import { parseArgument } from './arguments';
 import { Context } from './context';
 import { parseError } from './errors';
 import { getName } from './names';
+import t from './types';
 
 export function handleLabel(path: NodePath<LabeledStatement>){
   const context = getContext(path);

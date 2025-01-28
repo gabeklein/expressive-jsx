@@ -1,14 +1,13 @@
 import { PluginObj, PluginPass } from '@babel/core';
 import { NodePath } from '@babel/traverse';
 
-import { hash } from '../helper/util';
-import t from '../types';
-import { Context } from './context';
+import { Context, hash } from './context';
 import { getContext, handleLabel } from './label';
 import { getNames } from './names';
 import { Macro, Options } from './options';
+import t from './types';
 
-export type State = PluginPass & {
+type State = PluginPass & {
   context: Context;
   opts: Options;
 }
@@ -24,14 +23,14 @@ declare namespace Plugin {
 const HANDLED = new WeakMap<NodePath, ExitCallback>();
 const USING_KEY = Symbol("expressive context");
 
-export { Context, Options, Macro }
-
-export function getUsing(path: NodePath){
+function getUsing(path: NodePath){
   return new Set(path.getData(USING_KEY)) as Set<Context>;
 }
 
 function Plugin(_compiler: any, options: Options): PluginObj<State> {
   const SCOPE = new WeakMap<NodePath, Set<Context>>();
+
+  Object.assign(t, _compiler.types);
   
   return {
     manipulateOptions(_options, parse){
@@ -140,11 +139,9 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
   }
 }
 
-export default Plugin;
-
 type ExitCallback = (path: NodePath, key: string | number | null) => void;
 
-export function onExit(path: NodePath, callback: ExitCallback){
+function onExit(path: NodePath, callback: ExitCallback){
   HANDLED.set(path, callback);
 }
 
@@ -161,3 +158,13 @@ function exit(path: NodePath){
       break;
   }
 }
+
+export {
+  Context,
+  getUsing,
+  Macro,
+  onExit,
+  Options,
+  Plugin,
+  State,
+};

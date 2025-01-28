@@ -14,7 +14,7 @@ import {
   UnaryExpression,
 } from '@babel/types';
 
-import t from '../types';
+import t from './types';
 import { ParseErrors } from './errors';
 
 const Oops = ParseErrors({
@@ -53,33 +53,27 @@ const parse = {
 
     throw Oops.UnknownArgument(element);
   },
-
   Identifier(node: Identifier){
     return node.name;
   },
-
   BooleanLiteral(bool: BooleanLiteral){
     return bool.value;
   },
-
   StringLiteral(e: StringLiteral){
     if(e.value === "")
       return '""';
 
     return e.value;
   },
-
   NullLiteral(){
     return null;
   },
-
   TemplateLiteral(temp: TemplateLiteral) {
     if(temp.quasis.length == 1)
       return temp.quasis[0].value.raw;
 
     return temp;
   },
-
   NumericLiteral(number: NumericLiteral, negative?: boolean){
     let { extra: { rawValue, raw } } = number as any;
 
@@ -95,7 +89,6 @@ const parse = {
 
     return HEXColor(raw);
   },
-
   UnaryExpression(e: UnaryExpression){
     const { argument, operator } = e;
 
@@ -107,7 +100,6 @@ const parse = {
 
     throw Oops.UnaryUseless(e)
   },
-
   BinaryExpression(binary: BinaryExpression){
     const { left, right, operator } = binary;
 
@@ -122,11 +114,9 @@ const parse = {
       this.Expression(binary, "right")
     ]
   },
-
   SequenceExpression(sequence: SequenceExpression){
     return sequence.expressions.map(x => this.Expression(x))
   },
-
   CallExpression(e: CallExpression){
     const callee = e.callee;
     const args = [] as string[];
@@ -151,7 +141,6 @@ const parse = {
 
     return callee.name + `(${args.join(", ")})`;
   },
-
   ArrowFunctionExpression(e: ArrowFunctionExpression): never {
     throw Oops.ArrowNotImplemented(e);
   }

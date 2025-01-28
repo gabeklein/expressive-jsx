@@ -47,7 +47,7 @@ it("will apply else", async () => {
       <div
         {...rest}
         className={classNames(
-          'Component_16h',
+          'Component_2a2',
           active ? 'active_tla' : 'else_tla',
           className
         )}>
@@ -57,7 +57,7 @@ it("will apply else", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_16h {
+    .Component_2a2 {
       background: white;
     }
     .active_tla {

@@ -1,8 +1,8 @@
 import { NodePath } from '@babel/traverse';
 import { Expression, JSXElement } from '@babel/types';
+import { Plugin } from '@expressive/babel-plugin-jsx';
 
 import { Options } from '..';
-import { Context } from '../parsePlugin';
 import t from '../types';
 import { importPolyfill } from './importPolyfill';
 import { HTML_TAGS } from './tags';
@@ -18,7 +18,7 @@ export function fixTagName(path: any){
 }
 
 export function getClassName(
-  context: Context,
+  context: Plugin.Context,
   module?: Expression
 ): Expression | undefined {
   if(!context.props.size && !context.children.size)

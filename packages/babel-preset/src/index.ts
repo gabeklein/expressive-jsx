@@ -1,9 +1,9 @@
 import { BabelFile, BabelFileMetadata, BabelFileResult, PluginPass } from '@babel/core';
 import { Identifier } from '@babel/types';
+import { Plugin, Context, Macro } from '@expressive/babel-plugin-jsx';
 
 import { CSSPlugin } from './cssPlugin';
-import * as Macros from './macros';
-import Plugin, { Context, Macro } from './parsePlugin';
+import * as DefaultMacros from './macros';
 import t from './types';
 
 export interface Options {
@@ -47,7 +47,7 @@ export function Preset(_compiler: any, options: Preset.Options = {} as any): any
   Object.assign(t, _compiler.types);
 
   if(!macros.some(x => x === false))
-    macros.push(Macros);
+    macros.push(DefaultMacros);
 
   return {
     plugins: [

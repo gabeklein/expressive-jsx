@@ -9,15 +9,16 @@
       "webRoot": "${workspaceFolder}/website/repl"
     },
     {
-      "name": "Debug Tests",
       "type": "node",
       "request": "launch",
+      "name": "Run tests",
       "autoAttachChildProcesses": true,
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
-      "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
-      "args": ["${relativeFile}", "--testTimeout", "10000000"],
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["${input:test_suite}", "--watch"],
       "smartStep": true,
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
     },
     {
       "name": "Launch Vite",
@@ -29,6 +30,13 @@
       "runtimeArgs": ["--inspect-brk"],
       "skipFiles": ["<node_internals>/**"],
       "console": "integratedTerminal"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "test_suite",
+      "type": "promptString",
+      "description": "Test pattern to run (e.g., 'src/**/*.test.ts')"
     }
   ]
 }

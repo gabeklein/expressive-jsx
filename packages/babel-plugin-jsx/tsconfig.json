@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "rootDir": ".",
     "outDir": "lib",
     "target": "ES2018",
     "moduleResolution": "node",
@@ -7,15 +8,10 @@
     "sourceMap": true,
     "strict": true,
     "esModuleInterop": true,
-    "types": [
-      "node"
-    ],
-    "paths": {
-      "@expressive/*": ["../*/src"]
-    }
+    "types": ["node"]
   },
   "include": [
     "src",
     "tests"
-  ]
+  ],
 }

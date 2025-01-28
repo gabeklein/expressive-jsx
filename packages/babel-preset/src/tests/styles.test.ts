@@ -38,14 +38,14 @@ it("will apply to this", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_2fv')}>
+        className={classNames(props.className, 'Component_26k')}>
         Hello World
       </div>
     );
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_2fv {
+    .Component_26k {
       color: red;
     }
   `);
@@ -88,7 +88,7 @@ it("will apply to attribute this", async () => {
     const RedInput = (props) => (
       <input
         {...props}
-        className={classNames(props.className, 'RedInput_2fv')}
+        className={classNames(props.className, 'RedInput_245')}
       />
     );
   `);
@@ -213,7 +213,7 @@ it("will export styles in order", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_2fv {
+    .Component_137 {
       color: blue;
     }
     .active_tla {
@@ -257,7 +257,7 @@ it("will prioritize capitalized styles", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Something_2fv {
+    .Something_15e {
       color: purple;
     }
     .something_jsf {
@@ -300,7 +300,7 @@ it("will handle border correctly", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_2fv {
+    .Component_22h {
       border: dashed var(--border-light) 2px;
     }
   `);

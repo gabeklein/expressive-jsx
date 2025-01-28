@@ -19,7 +19,7 @@ it("will bail on repeat macro", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_27o {
+    .Component_238 {
       foo: barBaz;
     }
   `);
@@ -34,7 +34,7 @@ it("will convert native hex color", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_27o {
+    .Component_23b {
       color: #ff0000;
       background: rgba(0, 255, 0, 0.133);
     }
@@ -52,13 +52,13 @@ it("will apply complex style", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_27o')}
+        className={classNames(props.className, 'Component_2du')}
       />
     );
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_27o {
+    .Component_2du {
       transform: translateX(10) rotate(90) scale(2);
     }
   `);
@@ -72,7 +72,7 @@ it("will apply absolute", async () => {
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_27o {
+    .Component_2a4 {
       bottom: 0;
       right: 0;
       left: 0;
@@ -89,7 +89,7 @@ it("will apply outline macro", async () => {
   `)
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_27o {
+    .Component_13o {
       outline: 1px dashed red;
     }
   `);

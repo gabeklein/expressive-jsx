@@ -11,7 +11,7 @@ import {
   VariableDeclarator,
 } from '@babel/types';
 
-import t from '../types';
+import t from './types';
 
 export function getNames(path: NodePath<JSXElement>) {
   const names = new Map<string, NodePath>();

@@ -15,14 +15,14 @@ it("will apply hover pseudo class", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_23i')}>
+        className={classNames(props.className, 'Component_2bb')}>
         Hello
       </div>
     );
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_23i:hover {
+    .Component_2bb:hover {
       color: red;
     }
   `);
@@ -54,23 +54,23 @@ it("will apply hover pseudo class with nested", async () => {
     const Component = (props) => (
       <div
         {...props}
-        className={classNames(props.className, 'Component_23i')}>
+        className={classNames(props.className, 'Component_2id')}>
         Hello
       </div>
     );
   `);
 
   expect(output.css).toMatchInlineSnapshot(`
-    .Component_23i {
+    .Component_2id {
       color: red;
     }
-    .Component_23i:after {
+    .Component_2id:after {
       content:  World!;
     }
-    .Component_23i.active {
+    .Component_2id.active {
       color: blue;
     }
-    .Component_23i.active:after {
+    .Component_2id.active:after {
       color: green;
     }
   `);
