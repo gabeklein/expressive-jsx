@@ -7,15 +7,10 @@
     "sourceMap": true,
     "strict": true,
     "esModuleInterop": true,
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "paths": {
       "@expressive/*": ["../*/src"]
     }
   },
-  "include": [
-    "src",
-    "tests"
-  ]
+  "include": ["src"]
 }

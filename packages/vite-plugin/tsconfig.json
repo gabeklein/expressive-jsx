@@ -8,16 +8,10 @@
     "moduleResolution": "node",
     "noUnusedLocals": true,
     "strict": true,
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "paths": {
-      "@expressive/*": [
-        "../*/src"
-      ]
+      "@expressive/*": ["../*/src"]
     }
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }
