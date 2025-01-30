@@ -6,6 +6,7 @@
     "module": "commonjs",
     "declaration": true,
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "noUnusedLocals": true,
     "strict": true,
     "types": ["node"],
