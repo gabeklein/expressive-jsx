@@ -33,7 +33,7 @@
     "build": "tsup src/index.ts --dts --format esm,cjs",
     "watch": "tsup src/index.ts --watch --sourcemap inline",
     "test": "vitest",
-    "prebuild": "rm -rf lib",
+    "prebuild": "rm -rf dist",
     "prepublish": "npm run build",
     "preversion": "npm run build"
   },
