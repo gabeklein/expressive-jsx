@@ -28,7 +28,11 @@
       "program": "node_modules/vite/bin/vite.js",
       "args": ["--config", "vite.config.ts"],
       "runtimeArgs": ["--inspect-brk"],
-      "skipFiles": ["<node_internals>/**"],
+      "runtimeExecutable": "tsx",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/node_modules/**",
+      ],
       "console": "integratedTerminal"
     }
   ],
