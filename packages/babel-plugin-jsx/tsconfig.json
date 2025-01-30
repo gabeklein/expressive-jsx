@@ -1,17 +1,7 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "lib",
-    "target": "ES2018",
-    "moduleResolution": "node",
-    "allowJs": true,
-    "sourceMap": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "types": ["node"]
-  },
-  "include": [
-    "src",
-    "tests"
-  ],
+    "outDir": "dist",
+    "baseUrl": "src"
+  }
 }

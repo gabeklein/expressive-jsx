@@ -1,17 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "skipLibCheck": true,
-    "declaration": true,
-    "sourceMap": true,
+    "allowJs": true,
     "baseUrl": ".",
+    "declaration": true,
+    "jsx": "react",
+    "lib": ["ES2020", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "strict": true,
+    "target": "ES2020",
     "paths": {
-      "@expressive/*": ["packages/*/src"]
+      "@expressive/*": ["../../../packages/*/src"],
+      "@website/*": ["../../../website/*/src"]
     }
   },
-  "include": ["packages/*/src"],
   "exclude": ["node_modules", "dist"]
 }
