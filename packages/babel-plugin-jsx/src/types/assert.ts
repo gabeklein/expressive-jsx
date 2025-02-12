@@ -57,14 +57,6 @@ export function and(a: Expression, b: Expression){
   return t.logicalExpression("&&", a, b);
 }
 
-export function anti(exp: Expression){
-  return isFalsy(exp) ? exp.argument : falsy(exp);
-}
-
-export function truthy(a: Expression){
-  return isFalsy(a) || isBinaryAssertion(a) ? a : falsy(falsy(a));
-}
-
 export function ternary(
   test: Expression,
   consequent: Expression,
