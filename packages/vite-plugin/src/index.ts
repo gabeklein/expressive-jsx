@@ -1,10 +1,12 @@
 import { ModuleGraph, Plugin } from 'vite';
 
 import { transform, TransformOptions, TransformResult } from './transform';
+import { relative } from 'path';
 
-const PREFIX = "\0virtual:";
+const VIRTUAL_CSS = "\0virtual:css:";
 
-const styleModule = (path: string) => PREFIX + path + ".css";
+const getCssId = (path: string) => VIRTUAL_CSS + localize(path) + ".css";
+const localize = (path: string) => relative(process.cwd(), path);
 
 const DEFAULT_SHOULD_TRANSFORM = (id: string) =>
   !/node_modules/.test(id) && id.endsWith(".jsx");
@@ -17,17 +19,22 @@ function jsxPlugin(options: Options = {}): Plugin {
   const test = options.test;
   const accept: (id: string) => boolean =
     typeof test == "function" ? test :
-    test instanceof RegExp ? id => test.test(id) :
-    DEFAULT_SHOULD_TRANSFORM;
+      test instanceof RegExp ? id => test.test(id) :
+        DEFAULT_SHOULD_TRANSFORM;
 
   const CACHE = new Map<string, TransformResult>();
+  const CSS_MAP = new Map<string, string>();
   let moduleGraph!: ModuleGraph;
 
-  async function transformCache(id: string, code: string){
+  async function transformCache(id: string, code: string) {
     const result = await transform(id, code, options);
 
     CACHE.set(id, result);
-    CACHE.set(styleModule(id), result);
+
+    if(result.css) {
+      const cssId = getCssId(id);
+      CSS_MAP.set(cssId, id);
+    }
 
     return result;
   }
@@ -35,32 +42,60 @@ function jsxPlugin(options: Options = {}): Plugin {
   return {
     name: "expressive-jsx-plugin",
     enforce: "pre",
-    configureServer(server){
+    configureServer(server) {
       moduleGraph = server.moduleGraph;
     },
-    resolveId(id, importer){
-      if(id === "@expressive/babel-preset/polyfill")
+    resolveId(id) {
+      if(id == "@expressive/babel-preset/polyfill")
         return require.resolve(id);
-      
-      if(id === "__EXPRESSIVE_CSS__")
-        return styleModule(importer!);
-    },
-    async load(path: string){
-      const cached = CACHE.get(path);
 
-      if(cached && path.startsWith(PREFIX))
-        return cached.css;
-    },
-    async transform(code, id){
-      const result = CACHE.get(id);
+      if(id.startsWith(VIRTUAL_CSS))
+        return id;
 
-      if(result)
-        return id.startsWith(PREFIX) ? result.css : result;
-
-      if(accept(id))
-        return transformCache(id, code);
+      if(CSS_MAP.has(id))
+        return id;
     },
-    async handleHotUpdate(context){
+    load(id) {
+      if(id.startsWith(VIRTUAL_CSS)) {
+        const sourceId = id.slice(VIRTUAL_CSS.length, -4);
+        const result = CACHE.get(sourceId);
+
+        if(result && result.css)
+          return result.css;
+      }
+
+      const sourceId = CSS_MAP.get(id);
+  
+      if(sourceId) {
+        const result = CACHE.get(sourceId);
+
+        if(result && result.css)
+          return result.css;
+      }
+
+      return null;
+    },
+    async transform(code, id) {
+      if(id.startsWith(VIRTUAL_CSS))
+        return null;
+
+      const cached = CACHE.get(id);
+
+      if(cached)
+        return cached;
+
+      if(accept(id)){
+        const result = await transformCache(id, code);
+
+        if(result.css)
+          result.code += `\nimport "${getCssId(id)}";`;
+
+        return result;
+      }
+
+      return null;
+    },
+    async handleHotUpdate(context) {
       const { file, modules } = context;
       const cached = CACHE.get(file);
 
@@ -73,10 +108,13 @@ function jsxPlugin(options: Options = {}): Plugin {
       if(cached.code == result.code)
         modules.pop();
 
-      if(cached.css !== result.css)
-        modules.push(
-          moduleGraph.getModuleById(styleModule(file))!
-        );
+      if(cached.css == result.css)
+        return;
+
+      const cssModule = moduleGraph.getModuleById(getCssId(file));
+
+      if(cssModule)
+        modules.push(cssModule);
     }
   }
 }

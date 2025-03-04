@@ -43,9 +43,6 @@ export async function transform(
   if (!code)
     throw new Error("No code");
 
-  if (css)
-    code += `\nimport "__EXPRESSIVE_CSS__";`;
-
   return <TransformResult> {
     code,
     css,
