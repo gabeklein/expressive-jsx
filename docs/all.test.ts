@@ -1,7 +1,4 @@
-import { PluginItem } from '@babel/core';
 import { expect, it } from 'vitest';
-
-import Preset from '..';
 
 // drop quotes from string snapshot
 expect.addSnapshotSerializer({
@@ -9,11 +6,10 @@ expect.addSnapshotSerializer({
   print: output => output as string
 });
 
-type Styles = Record<string, Record<string, string>>;
 type Output = { code: string; css: string };
 
 declare function parser(code: string): Promise<Output>;
-declare function parser(options: Preset.Options, plugins?: PluginItem[]): (code: string) => Promise<Output>;
+declare function parser(options: any, plugins?: any[]): (code: string) => Promise<Output>;
 
 it("will pass", async () => {
   const output = await parser(`
