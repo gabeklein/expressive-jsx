@@ -1,21 +1,26 @@
 /** @file examples.jsx
- * A style guide for Expressive JSX, showcasing key features with practical examples.
- * Each component demonstrates specific styling patterns and macros.
- * Use this as a reference for building components or generating training data.
+ * A style guide for Expressive JSX, showcasing all key features with practical examples.
+ * Each component demonstrates specific styling patterns and macros, with comments explaining features.
+ * Use this as a reference for building components or learning the system.
  */
 
 import { Link } from 'react-router-dom';
 
-/** @type {React.FC<{ active?: boolean }>} */
-const Button = ({ active }) => {
-  // Basic styling with shorthand macros and CSS variables
-  $primaryColor: 0x2563eb; // Blue hex color
+/** @type {React.FC<{ active?: boolean, className?: string }>} */
+const Button = ({ active, className }) => {
+  // CSS variable declaration with hex color
+  $primaryColor: 0x2563eb; // Blue
+  // Shorthand macro for padding (converts numbers to px)
   padding: 10, 20;
+  // Shorthand macro for border-radius
   borderRadius: 8;
   background: $primaryColor;
-  color: white;
+  // Use of !important for priority
+  color: white, !important;
+  // Decimal number converts to em for font-size
   fontSize: 1.0;
   cursor: pointer;
+  // Transition macro for smooth changes
   transition: "background-color 0.2s ease";
 
   // Conditional styling based on props
@@ -28,27 +33,47 @@ const Button = ({ active }) => {
   if (":hover")
     background: 0x1d4ed8;
 
-  <this>
+  // Nested conditional styling with pseudo-element
+  if (".active") {
+    color: 0x1e40af;
+    if (":after")
+      // Pseudo-element with quoted content
+      content: '"✔"';
+  }
+
+  // <this> merges className prop with generated classes
+  <this className={className}>
     {active ? "Active" : "Click Me"}
   </this>
 }
 
 /** @type {React.FC} */
 const Card = () => {
-  // Flexbox layout with shorthand macro
+  // Flexbox shorthand macro for layout
   flexAlign: center, column;
   padding: 20;
+  // Border macro with style, width, color
   border: solid, 1, 0xe5e7eb;
   borderRadius: 12;
-  shadow: "rgba(0, 0, 0, 0.1)", 4, 0, 2;
+  // Shadow macro for box-shadow
+  shadow: "0x0000001A", 4, 0, 2; // Black with 10% opacity
   background: white;
   maxWidth: 300;
+  // Transform macro for hover effect
+  if (":hover")
+    transform: scale(1.05);
+  // Typography macros for font styling
+  fontFamily: "Arial", "sans-serif";
+  lineHeight: 1.5;
+  // Specific border side macro
+  borderTop: solid, 2, 0x1f2937;
 
   // Nested selector for child elements
   title: {
     fontSize: 1.5;
     fontWeight: 600;
     color: 0x1f2937;
+    // Margin shorthand for specific side
     marginB: 10;
   }
 
@@ -61,14 +86,14 @@ const Card = () => {
   <this>
     <h2 title>Card Title</h2>
     <p description>
-      A simple card component with flexbox and shadow effects.
+      A card with flexbox, shadow, and transform effects.
     </p>
   </this>
 }
 
 /** @type {React.FC<{ checked?: boolean, onClick?: () => void }>} */
 const ToggleSwitch = ({ checked, onClick }) => {
-  // Styling a custom toggle switch with conditional logic
+  // Size macro for width and height
   size: 40, 24;
   borderRadius: "round";
   padding: 2;
@@ -87,7 +112,7 @@ const ToggleSwitch = ({ checked, onClick }) => {
     borderRadius: "round";
     transition: "left 0.2s ease";
 
-    // Conditional positioning using if/else for macro argument
+    // Absolute positioning macro with conditional argument
     if (checked)
       absolute: "top-right";
     else
@@ -101,12 +126,14 @@ const ToggleSwitch = ({ checked, onClick }) => {
 
 /** @type {React.FC} */
 const NavBar = () => {
-  // Horizontal flexbox navigation with hover effects
+  // Flexbox with row direction and gap
   flexAlign: row, center;
   padding: 10, 20;
   background: 0x1f2937;
+  // Gap macro for spacing
   gap: 20;
 
+  // Bare attribute as selector
   link: {
     color: white;
     textDecoration: none;
@@ -116,6 +143,7 @@ const NavBar = () => {
       color: 0x93c5fd;
   }
 
+  // Third-party component (react-router-dom) with styled attribute
   <this>
     <Link link to="/">Home</Link>
     <Link link to="/about">About</Link>
@@ -125,20 +153,28 @@ const NavBar = () => {
 
 /** @type {React.FC} */
 const Alert = () => {
-  // Styling with pseudo-elements and CSS variables for external control
-  $alertColor: currentColor; // Inherit parent's color
+  // CSS variable for external control
+  $alertColor: currentColor;
+  // Vendor-prefixed property
+  WebkitMaskImage: "url(icon.svg)";
   color: 0xdc2626; // Default red
   padding: 15;
   borderRadius: 8;
-  background: "rgba(220, 38, 38, 0.1)";
+  background: 0xdc26261A;
   position: relative;
 
   if (":before") {
     content: '"⚠️"';
+    // Margin shorthand for right side
     marginR: 10;
     fontSize: 1.2;
-    color: $alertColor; // Inherits from parent's color or overridden variable
+    color: $alertColor;
   }
+
+  // Outline macro with default dashed style
+  outline: red;
+  // Outline width macro
+  outlineWidth: 2;
 
   <this>
     Warning: This is an alert message.
@@ -147,7 +183,7 @@ const Alert = () => {
 
 /** @type {React.FC} */
 const SpecialAlert = () => {
-  // Demonstrate overriding Alert's $alertColor and color externally
+  // Styling a custom component with variable override
   Alert: {
     color: 0x800000; // Maroon
     $alertColor: 0xffd700; // Gold
@@ -158,7 +194,7 @@ const SpecialAlert = () => {
 
 /** @type {React.FC} */
 const Profile = () => {
-  // Nested components and custom component styling
+  // Flexbox with column direction
   flexAlign: column, center;
   padding: 20;
   gap: 15;
@@ -175,7 +211,7 @@ const Profile = () => {
     color: 0x1f2937;
   }
 
-  // Styling a custom component
+  // Styling a custom component (Button)
   Button: {
     width: 120;
     padding: 8, 16;
@@ -188,9 +224,9 @@ const Profile = () => {
   </this>
 }
 
-/** @type {React.FC} */
+/** @type {React.FC<{ step?: number, total?: number }>} */
 const ProgressIndicator = ({ step = 1, total = 5 }) => {
-  // Dynamic styling with inline style for progress
+  // CSS variable for color
   $progressColor: 0x8b5cf6; // Purple
   height: 8;
   background: 0xe5e7eb;
@@ -203,6 +239,7 @@ const ProgressIndicator = ({ step = 1, total = 5 }) => {
     transition: "width 0.3s ease";
   }
 
+  // Dynamic inline style for calculated width
   <this>
     <bar style={{ width: `${(step / total) * 100}%` }} />
   </this>
@@ -210,9 +247,9 @@ const ProgressIndicator = ({ step = 1, total = 5 }) => {
 
 /** @type {React.FC} */
 const Modal = () => {
-  // Fixed positioning with macros and nested elements
+  // Absolute positioning macro to fill parent
   absolute: "fill";
-  background: "rgba(0, 0, 0, 0.5)";
+  background: 0x00000080;
   flexAlign: center, center;
   zIndex: 1000;
 
@@ -221,7 +258,7 @@ const Modal = () => {
     padding: 20;
     borderRadius: 12;
     size: 400, 300;
-    shadow: "rgba(0, 0, 0, 0.2)", 8, 0, 4;
+    shadow: "0x00000033", 8, 0, 4;
   }
 
   close: {
@@ -235,6 +272,10 @@ const Modal = () => {
       color: 0x1f2937;
   }
 
+  // Margin and padding shorthand macros
+  marginHorizontal: 20;
+  paddingVertical: 10;
+
   <this>
     <content>
       <close>X</close>
@@ -243,14 +284,47 @@ const Modal = () => {
   </this>
 }
 
+/** @type {React.FC} */
+const GridLayout = () => {
+  // Grid layout with columns macro (1.0 instead of "1fr")
+  gridColumns: 1.0, 1.0;
+  gap: 20;
+
+  item: {
+    background: 0xe5e7eb;
+    padding: 10;
+  }
+
+  <this>
+    <div item>Item 1</div>
+    <div item>Item 2</div>
+  </this>
+}
+
+/** @type {React.FC} */
+const ImplicitReturn = () => {
+  // Implicit <this /> return with only styles
+  color: 0x0000ff;
+}
+
+/** @type {React.FC} */
+const CustomMacro = () => {
+  // Custom macro (assumes `highlight` defined in Babel config: { background: value })
+  highlight: "yellow";
+  <this>Highlighted</this>
+}
+
 export {
   Button,
   Card,
   ToggleSwitch,
   NavBar,
   Alert,
+  SpecialAlert,
   Profile,
   ProgressIndicator,
   Modal,
-  SpecialAlert
+  GridLayout,
+  ImplicitReturn,
+  CustomMacro
 };
