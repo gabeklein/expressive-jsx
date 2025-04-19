@@ -329,11 +329,13 @@ const Element = (props) => (
 - **Comma-Separated Values**: Concatenated with spaces (e.g., `margin: 0, auto` → `margin: 0 auto`).
 - **Quoted Strings**: Used for exact CSS values, including functions like gradients.
   ```jsx
-  background: 'linear-gradient(red, blue)'; // background: linear-gradient(red, blue);
+  background: 'linear-gradient(red, blue)';
+  // background: linear-gradient(red, blue);
   ```
 - **!important**: Supported by appending `, !important` to values.
   ```jsx
-  color: white, !important; // color: white !important;
+  color: white, !important;
+  // color: white !important;
   ```
 
 ```jsx
@@ -383,11 +385,13 @@ Expressive JSX’s CSS variables (prefixed with $) allow parent components to co
 ```jsx
 const Alert = () => {
   // Styling with pseudo-elements and CSS variables for external control
-  $alertColor: currentColor; // Inherit parent's color
+  $alertColor: currentColor;
+  // Inherit parent's color
 
   if (":before") {
     content: '"⚠️"';
-    color: $alertColor; // Inherits from parent's color or overridden variable
+    color: $alertColor;
+    // Inherits from parent's color or overridden variable
   }
 }
 
