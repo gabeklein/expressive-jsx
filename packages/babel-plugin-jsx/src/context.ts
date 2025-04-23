@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/traverse';
 import { Expression } from '@babel/types';
 
-import { Macro } from './options';
+import type { Macro } from './options';
 
 const CONTEXT = new WeakMap<NodePath, Context>();
 

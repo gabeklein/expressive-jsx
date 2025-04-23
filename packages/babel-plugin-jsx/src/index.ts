@@ -4,8 +4,9 @@ import { NodePath } from '@babel/traverse';
 import { Context, hash } from './context';
 import { getContext, handleLabel } from './label';
 import { getNames } from './names';
-import { Macro, Options } from './options';
 import t from './types';
+
+import type { Macro, Options } from './options';
 
 type State = PluginPass & {
   context: Context;
