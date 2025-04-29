@@ -1,0 +1,13 @@
+{
+    "name": "@expressive/typescript-plugin-jsx",
+    "version": "0.0.1",
+    "license": "MIT",
+    "main": "./dist",
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc --watch"
+    },
+    "dependencies": {
+        "typescript": ">=4.0.0"
+    }
+}
