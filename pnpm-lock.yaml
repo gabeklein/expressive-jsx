@@ -98,6 +98,31 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0(@types/node@20.12.7)
 
+  packages/eslint-plugin:
+    dependencies:
+      '@types/estree':
+        specifier: ^1.0.7
+        version: 1.0.7
+      eslint:
+        specifier: ^9.26.0
+        version: 9.26.0
+    devDependencies:
+      '@types/estree-jsx':
+        specifier: ^1.0.5
+        version: 1.0.5
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.31.1
+        version: 8.32.0(@typescript-eslint/parser@8.32.0)(eslint@9.26.0)(typescript@5.8.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.31.1
+        version: 8.32.0(eslint@9.26.0)(typescript@5.8.3)
+      tsup:
+        specifier: ^8.0.1
+        version: 8.0.2(typescript@5.8.3)
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
+
   packages/typescript-plugin-jsx:
     dependencies:
       typescript:
@@ -11433,7 +11458,6 @@ packages:
     resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
     engines: {node: '>=14.17'}
     hasBin: true
-    dev: false
 
   /ufo@1.5.3:
     resolution: {integrity: sha512-Y7HYmWaFwPUmkoQCUIAYpKqkOf+SbVj/2fJJZ4RJMCfZp0rTGwRbzQD+HghfnhKOjL9E01okqz+ncJskGYfBNw==}
