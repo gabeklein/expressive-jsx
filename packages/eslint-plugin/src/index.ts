@@ -9,7 +9,7 @@ const jsxMustBeReturnedRule: Rule.RuleModule = {
     type: 'problem',
     docs: {
       description: 'JSX elements must be returned, not left floating in a function',
-      recommended: false
+      recommended: true
     },
     schema: [],
     messages: {
@@ -60,7 +60,7 @@ const jsxTagNameMustBeValid: Rule.RuleModule = {
     fixable: 'code',
     docs: {
       description: 'JSX tag names must be valid HTML5 or SVG tags',
-      recommended: false,
+      recommended: true,
     },
     schema: [],
     messages: {
