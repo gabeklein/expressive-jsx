@@ -18,7 +18,12 @@ export function findLabeledStatementNode(sourceFile: ts.SourceFile, position: nu
 }
     
 // Function to check if a diagnostic is for an undeclared identifier in a label statement
-export function isStylePropertyValue(diagnostic: ts.Diagnostic, sourceFile: ts.SourceFile): boolean {
+export function stylePropertyValue(diagnostic: ts.Diagnostic): boolean {
+  const sourceFile = diagnostic.file!;
+  
+  if(diagnostic.code !== 2304)
+    return false;
+  
   const position = diagnostic.start;
 
   if(!position)
@@ -116,12 +121,10 @@ export function isPositionInLabelStatement(sourceFile: ts.SourceFile, position: 
   visit(sourceFile);
   return result;
 }
-    
-// Helper to check if any expression is within a labeled statement
+
 export function isExpressionInLabelStatement(sourceFile: ts.SourceFile, node: ts.Node): boolean {
-  if (!node) return false;
-  
   let parent = node.parent;
+
   while (parent) {
     if (parent.kind === ts.SyntaxKind.LabeledStatement)
       return true;
@@ -138,6 +141,21 @@ export function isExpressionInLabelStatement(sourceFile: ts.SourceFile, node: ts
     break;
   }
   
+  return false;
+}
+    
+// Helper to check if any expression is within a labeled statement
+export function expressionInLabelStatement(diagnostic: ts.Diagnostic): boolean {
+  const sourceFile = diagnostic.file!;
+  
+  if(diagnostic.code !== 2695)
+    return false;
+  
+  const node = findNodeAtPosition(sourceFile, diagnostic.start);
+
+  if (node)
+    return isExpressionInLabelStatement(sourceFile, node);
+
   return false;
 }
 

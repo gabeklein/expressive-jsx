@@ -1,12 +1,13 @@
 import ts from 'typescript/lib/tsserverlibrary';
 
 import {
+  expressionInLabelStatement,
   findIdentifierNodeAtPosition,
   findLabeledStatementNode,
   findNodeAtPosition,
   isExpressionInLabelStatement,
   isPositionInLabelStatement,
-  isStylePropertyValue,
+  stylePropertyValue,
   labelContainsNormalControlFlow,
 } from './util';
 
@@ -14,9 +15,10 @@ function init(modules: { typescript: typeof ts }) {
   const { ScriptElementKind } = modules.typescript;
   
   function create(info: ts.server.PluginCreateInfo) {
-    const { languageService: service, project } = info;
+    const { languageService: service } = info;
+    const { logger } = info.project.projectService;
     
-    project.projectService.logger.info("Loaded Expressive JSX Typescript Plugin");
+    logger.info("Loaded Expressive JSX Typescript Plugin");
 
     // Set up decorator object
     const proxy: ts.LanguageService = Object.create(null);
@@ -56,27 +58,17 @@ function init(modules: { typescript: typeof ts }) {
 
       return originalDiagnostics.filter(diagnostic => {
         try {
-          const { start, code } = diagnostic;
-          
-          // Handle "Cannot find name" errors (code 2304)
-          if (code === 2304 && isStylePropertyValue(diagnostic, sourceFile)) 
+          if (stylePropertyValue(diagnostic)) 
             return false;
           
-          // Handle "Left side of comma operator is unused and has no side effects" errors (code 2695)
-          if (code === 2695){
-            const nodeAtDiagnosticPos = findNodeAtPosition(sourceFile, start);
-    
-            if (nodeAtDiagnosticPos && isExpressionInLabelStatement(sourceFile, nodeAtDiagnosticPos))
-              return false;
-          }
-          
-          return true;
-
+          if (expressionInLabelStatement(diagnostic))
+            return false;
         }
         catch(e){
-          project.projectService.logger.info("Error in getSemanticDiagnostics: " + e);
-          return true;
+          logger.info("Error in getSemanticDiagnostics: " + e);
         }
+
+        return true;
       });
     };
 
