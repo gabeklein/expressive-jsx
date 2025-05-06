@@ -4,7 +4,7 @@ import { Plugin } from '@expressive/babel-plugin-jsx';
 
 import { Options } from '..';
 import t from '../types';
-import { HTML_TAGS } from './tags';
+import { isStandard } from './tags';
 import { uniqueIdentifier } from './uniqueIdentifier';
 
 const POLYFILL_DEFAULT = "@expressive/babel-preset/polyfill";
@@ -15,7 +15,7 @@ export function fixTagName(path: any){
 
   if(t.isJSXIdentifier(name)
   && !/^[A-Z]/.test(name.name)
-  && !HTML_TAGS.includes(name.name))
+  && !isStandard(name.name))
     setTagName(path, "div");
 }
 

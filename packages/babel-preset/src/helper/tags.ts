@@ -1,4 +1,4 @@
-export const HTML_TAGS = [
+export const HTML_TAGS = new Set([
   "a",
   "abbr",
   "address",
@@ -90,9 +90,9 @@ export const HTML_TAGS = [
   "var",
   "video",
   "wbr",
-];
+]);
 
-export const SVG_TAGS = [
+export const SVG_TAGS = new Set([
   'a',
   'altGlyph',
   'altGlyphDef',
@@ -187,4 +187,8 @@ export const SVG_TAGS = [
   'video',
   'view',
   'vkern'
-]
+]);
+
+export function isStandard(tag: string) {
+  return HTML_TAGS.has(tag) || SVG_TAGS.has(tag);
+}
