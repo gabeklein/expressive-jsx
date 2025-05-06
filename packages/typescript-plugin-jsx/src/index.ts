@@ -20,7 +20,6 @@ function init(modules: { typescript: typeof ts }) {
     
     logger.info("Loaded Expressive JSX Typescript Plugin");
 
-    // Set up decorator object
     const proxy: ts.LanguageService = Object.create(null);
 
     for (const k of Object.keys(service) as Array<keyof ts.LanguageService>) {
@@ -47,7 +46,6 @@ function init(modules: { typescript: typeof ts }) {
       })
     }
   
-    // Override getSemanticDiagnostics to filter out identifier errors and comma operator warnings within label statements
     proxy.getSemanticDiagnostics = (fileName) => {
       const originalDiagnostics = service.getSemanticDiagnostics(fileName);
       const sourceFile = service.getProgram()?.getSourceFile(fileName);
@@ -70,7 +68,6 @@ function init(modules: { typescript: typeof ts }) {
       });
     };
 
-    // Override getQuickInfoAtPosition to provide type information for identifiers in label statements
     proxy.getQuickInfoAtPosition = (fileName, position) => {
       const sourceFile = service.getProgram()?.getSourceFile(fileName);
       if (sourceFile) {
@@ -98,7 +95,6 @@ function init(modules: { typescript: typeof ts }) {
       return service.getQuickInfoAtPosition(fileName, position);
     };
 
-    // Override semantic classifications to prevent dimming of unreachable expressions in label statements
     proxy.getEncodedSemanticClassifications = (fileName, span): ts.Classifications => {
       const original = service.getEncodedSemanticClassifications(fileName, span);
       const sourceFile = service.getProgram()?.getSourceFile(fileName);
