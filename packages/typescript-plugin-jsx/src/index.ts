@@ -4,9 +4,7 @@ import {
   findIdentifierNodeAtPosition,
   findLabeledStatementNode,
   findNodeAtPosition,
-  flattenMessage,
   isExpressionInLabelStatement,
-  isInJsxElement,
   isPositionInLabelStatement,
   isStylePropertyValue,
   labelContainsNormalControlFlow,
@@ -59,30 +57,10 @@ function init(modules: { typescript: typeof ts }) {
       return originalDiagnostics.filter(diagnostic => {
         try {
           const { start, code } = diagnostic;
-          const message = flattenMessage(diagnostic.messageText);
-  
           
           // Handle "Cannot find name" errors (code 2304)
           if (code === 2304 && isStylePropertyValue(diagnostic, sourceFile)) 
             return false;
-  
-          // Handle void function used as JSX component error (code 2786)
-          if (code === 2786)
-            // Check if this is the void return error for JSX
-            if (message.includes("cannot be used as a JSX component") && (
-              message.includes("Its return type 'void' is not a valid JSX element") ||
-              message.includes("Its type 'undefined' is not a valid JSX element type") ||
-              message.includes("Type 'void' is not assignable to type 'ReactNode'")
-            )) {
-              return false; // Suppress this diagnostic
-            }
-
-          if (code === 2322)
-            // Check if this is a property assignment type error in JSX
-            if (message.includes("is not assignable to type") && message.includes("Property") && 
-                message.includes("does not exist on type") && isInJsxElement(sourceFile, start)) {
-              return false; // Suppress this diagnostic
-            }
           
           // Handle "Left side of comma operator is unused and has no side effects" errors (code 2695)
           if (code === 2695){
