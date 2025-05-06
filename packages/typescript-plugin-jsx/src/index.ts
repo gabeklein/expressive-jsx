@@ -36,9 +36,7 @@ function init(modules: { typescript: typeof ts }) {
       if (!sourceFile) return originalDiagnostics;
 
       return originalDiagnostics.filter(diagnostic => {
-        // Handle "Unused label" warnings (code 7028)
         if (diagnostic.code === 7028) {
-          // Find the labeled statement for this warning
           const labeledStatement = findLabeledStatementNode(sourceFile, diagnostic.start);
 
           if (labeledStatement && !labelContainsNormalControlFlow(labeledStatement))
@@ -76,15 +74,12 @@ function init(modules: { typescript: typeof ts }) {
     proxy.getQuickInfoAtPosition = (fileName, position) => {
       const sourceFile = service.getProgram()?.getSourceFile(fileName);
       if (sourceFile) {
-        // Check if the position is inside a label statement
         const labelCheck = isPositionInLabelStatement(sourceFile, position);
         
         if (labelCheck.isInLabel && labelCheck.identifierName) {
-          // Find the identifier node
           const identifierNode = findIdentifierNodeAtPosition(sourceFile, position);
           
           if (identifierNode) {
-            // Create a custom quickInfo for the identifier
             return {
               kind: ScriptElementKind.constElement,
               kindModifiers: 'declare',
@@ -110,11 +105,7 @@ function init(modules: { typescript: typeof ts }) {
       
       if (!sourceFile) return original;
 
-      // TypeScript applies dimming via semantic classifications for unreachable code
-      // We need to filter these classifications for nodes inside label statements
 
-      // The classifications are encoded in a specific format by TypeScript
-      // We'll convert them to a more usable format, filter, then convert back
       const { spans } = original;
       const modifiedSpans: number[] = [];
 
@@ -123,9 +114,6 @@ function init(modules: { typescript: typeof ts }) {
         const length = spans[i + 1];
         const classification = spans[i + 2];
         
-        // Check if this classification corresponds to a node inside a label statement
-        // Classification 8 corresponds to unreachable code in TypeScript
-        // Classification 16 corresponds to unused declarations (like unused labels)
         const isUnreachableCode = (classification & 8) !== 0;
         const isUnusedDeclaration = (classification & 16) !== 0;
         
@@ -133,20 +121,16 @@ function init(modules: { typescript: typeof ts }) {
         const nodeAtPosition = findNodeAtPosition(sourceFile, position);
         
         if (isUnreachableCode && nodeAtPosition && isExpressionInLabelStatement(sourceFile, nodeAtPosition)) {
-          // This is unreachable code inside a label statement - remove the unreachable flag
           const newClassification = classification & ~8; // Remove the unreachable flag
           modifiedSpans.push(start, length, newClassification);
           continue;
         }
         
         if (isUnusedDeclaration && nodeAtPosition) {
-          // Check if this is a label identifier
           const parent = nodeAtPosition.parent;
           if (parent && parent.kind === ts.SyntaxKind.LabeledStatement) {
             const labeledStatement = parent as ts.LabeledStatement;
-            // Only remove dimming if the label doesn't contain normal control flow constructs
             if (!labelContainsNormalControlFlow(labeledStatement)) {
-              // This is an unused label without normal control flow - remove the unused flag
               const newClassification = classification & ~16; // Remove the unused flag
               modifiedSpans.push(start, length, newClassification);
               continue;
@@ -154,7 +138,6 @@ function init(modules: { typescript: typeof ts }) {
           }
         }
         
-        // Keep the classification as is
         modifiedSpans.push(start, length, classification);
       }
       
