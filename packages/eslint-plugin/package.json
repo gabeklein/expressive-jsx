@@ -2,6 +2,9 @@
   "name": "@expressive/eslint-plugin-jsx",
   "version": "0.2.7",
   "description": "An ESLint plugin for JSX",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc"
