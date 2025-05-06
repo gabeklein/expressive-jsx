@@ -4,20 +4,22 @@ function init(modules: { typescript: typeof ts }) {
   const { ScriptElementKind } = modules.typescript;
   
   function create(info: ts.server.PluginCreateInfo) {
-    info.project.projectService.logger.info("Loaded Expressive JSX Typescript Plugin");
+    const { languageService: service, project } = info;
+    
+    project.projectService.logger.info("Loaded Expressive JSX Typescript Plugin");
 
     // Set up decorator object
     const proxy: ts.LanguageService = Object.create(null);
 
-    for (const k of Object.keys(info.languageService) as Array<keyof ts.LanguageService>) {
-      const x = info.languageService[k]!;
+    for (const k of Object.keys(service) as Array<keyof ts.LanguageService>) {
+      const x = service[k]!;
       // @ts-expect-error - JS runtime trickery which is tricky to type tersely
-      proxy[k] = (...args: Array<{}>) => x.apply(info.languageService, args);
+      proxy[k] = (...args: Array<{}>) => x.apply(service, args);
     }
 
     proxy.getSuggestionDiagnostics = (fileName) => {
-      const originalDiagnostics = info.languageService.getSuggestionDiagnostics(fileName);
-      const sourceFile = info.languageService.getProgram()?.getSourceFile(fileName);
+      const originalDiagnostics = service.getSuggestionDiagnostics(fileName);
+      const sourceFile = service.getProgram()?.getSourceFile(fileName);
 
       if (!sourceFile) return originalDiagnostics;
 
@@ -37,8 +39,8 @@ function init(modules: { typescript: typeof ts }) {
   
     // Override getSemanticDiagnostics to filter out identifier errors and comma operator warnings within label statements
     proxy.getSemanticDiagnostics = (fileName) => {
-      const originalDiagnostics = info.languageService.getSemanticDiagnostics(fileName);
-      const sourceFile = info.languageService.getProgram()?.getSourceFile(fileName);
+      const originalDiagnostics = service.getSemanticDiagnostics(fileName);
+      const sourceFile = service.getProgram()?.getSourceFile(fileName);
       
       if (!sourceFile) return originalDiagnostics;
 
@@ -82,7 +84,7 @@ function init(modules: { typescript: typeof ts }) {
 
         }
         catch(e){
-          info.project.projectService.logger.info("Error in getSemanticDiagnostics: " + e);
+          project.projectService.logger.info("Error in getSemanticDiagnostics: " + e);
           return true;
         }
       });
@@ -90,7 +92,7 @@ function init(modules: { typescript: typeof ts }) {
 
     // Override getQuickInfoAtPosition to provide type information for identifiers in label statements
     proxy.getQuickInfoAtPosition = (fileName, position) => {
-      const sourceFile = info.languageService.getProgram()?.getSourceFile(fileName);
+      const sourceFile = service.getProgram()?.getSourceFile(fileName);
       if (sourceFile) {
         // Check if the position is inside a label statement
         const labelCheck = isPositionInLabelStatement(sourceFile, position);
@@ -116,13 +118,13 @@ function init(modules: { typescript: typeof ts }) {
         }
       }
       
-      return info.languageService.getQuickInfoAtPosition(fileName, position);
+      return service.getQuickInfoAtPosition(fileName, position);
     };
 
     // Override semantic classifications to prevent dimming of unreachable expressions in label statements
     proxy.getEncodedSemanticClassifications = (fileName, span): ts.Classifications => {
-      const original = info.languageService.getEncodedSemanticClassifications(fileName, span);
-      const sourceFile = info.languageService.getProgram()?.getSourceFile(fileName);
+      const original = service.getEncodedSemanticClassifications(fileName, span);
+      const sourceFile = service.getProgram()?.getSourceFile(fileName);
       
       if (!sourceFile) return original;
 
