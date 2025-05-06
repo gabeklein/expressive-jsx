@@ -1,6 +1,6 @@
 {
   "name": "@expressive/eslint-plugin-jsx",
-  "version": "0.1.0",
+  "version": "0.2.7",
   "description": "An ESLint plugin for JSX",
   "main": "dist/index.js",
   "scripts": {
