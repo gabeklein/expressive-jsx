@@ -1,0 +1,22 @@
+{
+  "name": "@expressive/eslint-plugin-jsx",
+  "version": "0.1.0",
+  "description": "An ESLint plugin for JSX",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/estree": "^1.0.7",
+    "eslint": "^9.26.0"
+  },
+  "devDependencies": {
+    "@types/estree-jsx": "^1.0.5",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "typescript": "^5.8.3"
+  }
+}
