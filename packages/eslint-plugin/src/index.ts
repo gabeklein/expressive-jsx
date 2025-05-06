@@ -113,9 +113,18 @@ const jsxTagNameMustBeValid: Rule.RuleModule = {
   },
 };
 
-export = {
+export default {
   rules: {
     'jsx-must-return': jsxMustBeReturnedRule,
     'no-style-tag': jsxTagNameMustBeValid,
   },
+  configs: {
+    recommended: {
+      plugins: ['@expressive/jsx'],
+      rules: {
+        '@expressive/jsx/jsx-must-return': 'error',
+        '@expressive/jsx/no-style-tag': 'error'
+      }
+    }
+  }
 }
