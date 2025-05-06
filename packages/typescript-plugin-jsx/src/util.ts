@@ -1,7 +1,7 @@
 import ts from "typescript/lib/tsserverlibrary";
 
 // Helper function to find a labeled statement node
-export function findLabeledStatementNode(sourceFile: ts.SourceFile, position: number): ts.LabeledStatement | undefined {
+function findLabeledStatementNode(sourceFile: ts.SourceFile, position: number): ts.LabeledStatement | undefined {
   function find(node: ts.Node): ts.LabeledStatement | undefined {
     if (node.kind === ts.SyntaxKind.LabeledStatement && 
         node.getStart(sourceFile) <= position && 
@@ -15,6 +15,20 @@ export function findLabeledStatementNode(sourceFile: ts.SourceFile, position: nu
   }
   
   return find(sourceFile);
+}
+
+export function stylePropertyStatement(diagnostic: ts.Diagnostic): boolean {
+  if(diagnostic.code !== 7028) return false;
+
+  const sourceFile = diagnostic.file;
+
+  if (!sourceFile) return false;
+
+  const label = findLabeledStatementNode(sourceFile, diagnostic.start!);
+
+  if (!label || labelContainsNormalControlFlow(label)) return false;
+
+  return true
 }
     
 // Function to check if a diagnostic is for an undeclared identifier in a label statement

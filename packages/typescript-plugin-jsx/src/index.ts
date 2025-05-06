@@ -3,12 +3,12 @@ import ts from 'typescript/lib/tsserverlibrary';
 import {
   expressionInLabelStatement,
   findIdentifierNodeAtPosition,
-  findLabeledStatementNode,
   findNodeAtPosition,
   isExpressionInLabelStatement,
   isPositionInLabelStatement,
-  stylePropertyValue,
   labelContainsNormalControlFlow,
+  stylePropertyStatement,
+  stylePropertyValue,
 } from './util';
 
 function init(modules: { typescript: typeof ts }) {
@@ -29,30 +29,25 @@ function init(modules: { typescript: typeof ts }) {
     }
 
     proxy.getSuggestionDiagnostics = (fileName) => {
-      const originalDiagnostics = service.getSuggestionDiagnostics(fileName);
+      const issues = service.getSuggestionDiagnostics(fileName);
       const sourceFile = service.getProgram()?.getSourceFile(fileName);
 
-      if (!sourceFile) return originalDiagnostics;
+      if (!sourceFile) return issues;
 
-      return originalDiagnostics.filter(diagnostic => {
-        if (diagnostic.code === 7028) {
-          const labeledStatement = findLabeledStatementNode(sourceFile, diagnostic.start);
-
-          if (labeledStatement && !labelContainsNormalControlFlow(labeledStatement))
-            return false;
-        }
+      return issues.filter(diagnostic => {
+        if(stylePropertyStatement(diagnostic)) return false;
 
         return true;
       })
     }
   
     proxy.getSemanticDiagnostics = (fileName) => {
-      const originalDiagnostics = service.getSemanticDiagnostics(fileName);
+      const issues = service.getSemanticDiagnostics(fileName);
       const sourceFile = service.getProgram()?.getSourceFile(fileName);
       
-      if (!sourceFile) return originalDiagnostics;
+      if (!sourceFile) return issues;
 
-      return originalDiagnostics.filter(diagnostic => {
+      return issues.filter(diagnostic => {
         try {
           if (stylePropertyValue(diagnostic)) 
             return false;
@@ -70,6 +65,7 @@ function init(modules: { typescript: typeof ts }) {
 
     proxy.getQuickInfoAtPosition = (fileName, position) => {
       const sourceFile = service.getProgram()?.getSourceFile(fileName);
+
       if (sourceFile) {
         const labelCheck = isPositionInLabelStatement(sourceFile, position);
         
