@@ -115,7 +115,7 @@ const jsxTagNameMustBeValid: Rule.RuleModule = {
 
 export = {
   rules: {
-    'jsx-must-be-returned': jsxMustBeReturnedRule,
-    'jsx-tagname-must-be-valid': jsxTagNameMustBeValid,
+    'jsx-must-return': jsxMustBeReturnedRule,
+    'no-style-tag': jsxTagNameMustBeValid,
   },
 }
