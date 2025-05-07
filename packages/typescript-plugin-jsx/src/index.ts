@@ -49,6 +49,9 @@ function init(modules: { typescript: typeof ts }) {
 
       return issues.filter(diagnostic => {
         try {
+          if (isThisElement(diagnostic))
+            return false;
+
           if (stylePropertyValue(diagnostic)) 
             return false;
           
@@ -142,6 +145,16 @@ function init(modules: { typescript: typeof ts }) {
   }
   
   return { create };
+}
+
+function isThisElement(diagnostic: ts.Diagnostic): boolean {
+  const { code, messageText } = diagnostic;
+  
+  if (code === 2604 || code === 2786) {
+    const error = typeof messageText === 'string' ? messageText : messageText.messageText;
+    return error.includes("'this'");
+  }
+  return false;
 }
 
 export = init;
