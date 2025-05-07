@@ -25,11 +25,24 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Run tests",
+      "name": "Preset tests",
       "autoAttachChildProcesses": true,
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
       "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
       "args": ["${input:test_suite}", "--watch"],
+      "smartStep": true,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Typescript tests",
+      "autoAttachChildProcesses": true,
+      "cwd": "${workspaceFolder}/packages/typescript-plugin-jsx",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["--watch"],
       "smartStep": true,
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
