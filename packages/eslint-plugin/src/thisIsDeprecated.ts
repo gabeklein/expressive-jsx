@@ -8,12 +8,23 @@ export const thisIsDeprecated: Rule.RuleModule = {
       description: 'The <this> JSX element and bare this attribute are deprecated. Use fragments or explicit props forwarding instead.',
       recommended: true,
     },
-    schema: [],
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          toFragment: { type: 'boolean', default: true },
+        },
+        additionalProperties: false,
+      },
+    ],
     messages: {
       deprecatedThisElement: '<this> JSX element is deprecated. Use fragments (<>...</>) instead.'
     },
   },
   create(context: Rule.RuleContext) {
+    const options = context.options && context.options[0] || {};
+    const toFragment = options.toFragment !== false;
+
     return {
       JSXOpeningElement(node: any) {
         const tag = node.name;
@@ -27,31 +38,24 @@ export const thisIsDeprecated: Rule.RuleModule = {
           fix(fixer) {
             const parent = node.parent;
 
-            if (node.attributes.length > 0){
-              const fixes = [
-                fixer.replaceText(tag, 'div this')
-              ];
-  
-              if (!node.selfClosing && parent?.closingElement?.name)
-                fixes.push(fixer.replaceText(parent.closingElement.name, 'div'));
-  
+            if (toFragment && !node.attributes.length) {
+              const children = parent.children.filter((c: any) => c.type !== 'JSXText' || c.value.trim() !== '');
+      
+              if (children.length === 1 && children[0].type === 'JSXElement')
+                return fixer.replaceText(parent, context.sourceCode.getText(children[0]));
+
+              const fixes = [fixer.replaceText(node.name, '')];
+
+              if (node.parent?.closingElement?.name)
+                fixes.push(fixer.replaceText(node.parent.closingElement.name, ''));
+
               return fixes;
             }
 
-            if(node.selfClosing)
-              return fixer.replaceText(tag, 'div');
-
-            const children = parent.children.filter((c: any) => c.type !== 'JSXText' || c.value.trim() !== '');
-    
-            if (children.length === 1 && children[0].type === 'JSXElement')
-              return fixer.replaceText(parent, context.sourceCode.getText(children[0]));
-
-            const fixes = [];
-
-            fixes.push(fixer.replaceText(node.name, ''));
-
-            if (!node.selfClosing && node.parent?.closingElement?.name)
-              fixes.push(fixer.replaceText(node.parent.closingElement.name, ''));
+            const fixes = [fixer.replaceText(tag, 'div this')]
+  
+            if (!node.selfClosing && parent?.closingElement?.name)
+              fixes.push(fixer.replaceText(parent.closingElement.name, 'div'));
 
             return fixes;
           }
