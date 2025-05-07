@@ -57,6 +57,9 @@ function init(modules: { typescript: typeof ts }) {
           
           if (expressionInLabelStatement(diagnostic))
             return false;
+
+          if (isStyleCondition(diagnostic))
+            return false;
         }
         catch(e){
           logger.info("Error in getSemanticDiagnostics: " + e);
@@ -154,6 +157,43 @@ function isThisElement(diagnostic: ts.Diagnostic): boolean {
     const error = typeof messageText === 'string' ? messageText : messageText.messageText;
     return error.includes("'this'");
   }
+  return false;
+}
+
+function isStyleCondition(diagnostic: ts.Diagnostic): boolean {
+  if (diagnostic.code !== 2872)
+    return false;
+
+  const file = diagnostic.file!
+
+  if (!file)
+    return false;
+
+  const node = findNodeAtPosition(file, diagnostic.start);
+
+  if(!node) return false;
+
+  const { kind, parent } = node;
+
+  if (kind !== ts.SyntaxKind.StringLiteral)
+    return false;
+
+  if(!parent || parent.kind !== ts.SyntaxKind.IfStatement)
+    return false;
+
+  const { thenStatement } = parent as ts.IfStatement;
+
+  if(thenStatement.kind === ts.SyntaxKind.LabeledStatement)
+    return true;
+
+  else if(thenStatement.kind === ts.SyntaxKind.Block){
+    const { statements } = thenStatement as ts.Block;
+
+    for(const child of statements)
+      if(child.kind === ts.SyntaxKind.LabeledStatement)
+        return true;
+  }
+
   return false;
 }
 
