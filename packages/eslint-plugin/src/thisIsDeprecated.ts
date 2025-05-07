@@ -12,7 +12,12 @@ export const thisIsDeprecated: Rule.RuleModule = {
       {
         type: 'object',
         properties: {
-          toFragment: { type: 'boolean', default: true },
+          ambiguous: {
+            type: 'string',
+            enum: ['fragment', 'div', 'skip'],
+            default: 'fragment',
+            description: 'How to fix <this>: fragment (default), div, or skip.'
+          },
         },
         additionalProperties: false,
       },
@@ -23,7 +28,7 @@ export const thisIsDeprecated: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     const options = context.options && context.options[0] || {};
-    const toFragment = options.toFragment !== false;
+    const ambiguous = options.ambiguous || 'fragment';
 
     return {
       JSXOpeningElement(node: any) {
@@ -36,20 +41,27 @@ export const thisIsDeprecated: Rule.RuleModule = {
           node: tag,
           messageId: 'deprecatedThisElement',
           fix(fixer) {
-            const parent = node.parent;
+            const { parent } = node;
 
-            if (toFragment && !node.attributes.length) {
-              const children = parent.children.filter((c: any) => c.type !== 'JSXText' || c.value.trim() !== '');
-      
-              if (children.length === 1 && children[0].type === 'JSXElement')
-                return fixer.replaceText(parent, context.sourceCode.getText(children[0]));
+            // TODO: strict mode should also check if parent component has styles defined.
 
-              const fixes = [fixer.replaceText(node.name, '')];
+            if (!node.attributes.length) {
+              if (ambiguous === 'skip')
+                return null;
 
-              if (node.parent?.closingElement?.name)
-                fixes.push(fixer.replaceText(node.parent.closingElement.name, ''));
-
-              return fixes;
+              if(ambiguous === 'fragment') {
+                const children = parent.children.filter((c: any) => c.type !== 'JSXText' || c.value.trim() !== '');
+        
+                if (children.length === 1 && children[0].type === 'JSXElement')
+                  return fixer.replaceText(parent, context.sourceCode.getText(children[0]));
+  
+                const fixes = [fixer.replaceText(node.name, '')];
+  
+                if (node.parent?.closingElement?.name)
+                  fixes.push(fixer.replaceText(node.parent.closingElement.name, ''));
+  
+                return fixes;
+              }
             }
 
             const fixes = [fixer.replaceText(tag, 'div this')]
