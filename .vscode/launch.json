@@ -16,6 +16,7 @@
       "cwd": "${workspaceFolder}/packages/babel-preset",
       "program": "./debug/index.ts",
       "runtimeExecutable": "tsx",
+      "runtimeArgs": ["--watch"],
       "skipFiles": [
         "<node_internals>/**",
         "${workspaceFolder}/node_modules/**",
