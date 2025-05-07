@@ -6,6 +6,10 @@ export default defineConfig({
     tsconfigPaths()
   ],
   test: {
-    environment: 'node'
+    environment: 'node',
+    "exclude": [
+      "**/node_modules/**",
+      ".docs/**"
+    ]
   }
 })
