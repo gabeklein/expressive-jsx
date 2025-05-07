@@ -9,6 +9,19 @@
       "webRoot": "${workspaceFolder}/website/repl"
     },
     {
+      "name": "Debug Preset",
+      "type": "node",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/packages/babel-preset",
+      "program": "./debug/index.ts",
+      "runtimeExecutable": "tsx",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/node_modules/**",
+      ]
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Run tests",
@@ -27,7 +40,6 @@
       "cwd": "${workspaceFolder}/website/home",
       "program": "node_modules/vite/bin/vite.js",
       "args": ["--config", "vite.config.ts"],
-      "runtimeArgs": ["--inspect-brk"],
       "runtimeExecutable": "tsx",
       "skipFiles": [
         "<node_internals>/**",

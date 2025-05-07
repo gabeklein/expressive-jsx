@@ -36,6 +36,7 @@
     "build": "tsup src/index.ts --dts --format esm,cjs",
     "watch": "tsup src/index.ts --watch --sourcemap inline",
     "test": "vitest",
+    "dev": "tsx debug/index.ts",
     "prepublish": "npm run build",
     "preversion": "npm run build"
   },
