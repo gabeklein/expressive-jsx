@@ -43,9 +43,6 @@ function init(modules: { typescript: typeof ts }) {
   
     proxy.getSemanticDiagnostics = (fileName) => {
       const issues = service.getSemanticDiagnostics(fileName);
-      const sourceFile = service.getProgram()?.getSourceFile(fileName);
-      
-      if (!sourceFile) return issues;
 
       return issues.filter(diagnostic => {
         try {
