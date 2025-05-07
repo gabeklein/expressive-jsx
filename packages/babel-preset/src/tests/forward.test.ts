@@ -89,3 +89,27 @@ it("will forward props with no styles", async () => {
     `export const Row = (props) => <div {...props} />;`
   );
 });
+
+it("will apply styles by wrapping fragment", async () => {
+  const output = await parser(`
+    export const Row = () => {
+      color: red;
+    
+      <>
+        <span>Something</span>
+        <span>Something</span>
+      </>
+    }
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(`
+    export const Row = (props) => (
+      <div
+        {...props}
+        className={classNames(props.className, 'Row_2gs')}>
+        <span>Something</span>
+        <span>Something</span>
+      </div>
+    );
+  `);
+});

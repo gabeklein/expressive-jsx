@@ -7,6 +7,7 @@ import { getNames } from './names';
 import t from './types';
 
 import type { Macro, Options } from './options';
+import type { JSXElement, JSXFragment } from '@babel/types';
 
 type State = PluginPass & {
   context: Context;
@@ -32,6 +33,81 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
   const SCOPE = new WeakMap<NodePath, Set<Context>>();
 
   Object.assign(t, _compiler.types);
+
+  function JSX(path: NodePath<JSXElement> | NodePath<JSXFragment>){
+    if(path.getData(USING_KEY))
+      return;
+
+    let { node, parentPath: parent } = path;
+
+    if(parent.isExpressionStatement()){
+      const block = parent.parentPath;
+
+      if(block.isBlockStatement()
+      && block.get("body").length == 1
+      && block.parentPath.isArrowFunctionExpression())
+        block.replaceWith(t.parenthesizedExpression(node));
+      else
+        parent.replaceWith(t.returnStatement(node));
+    
+      path.skip();
+      return;
+    }
+
+    const context = !parent.isJSXElement() && !parent.isJSXFragment() && getContext(parent);
+    const scope = new Set(context ? [context] : SCOPE.get(parent));
+    const using = new Set<Context>();
+
+    SCOPE.set(path, scope);
+
+    if(path.isJSXElement())
+      getNames(path).forEach((attr, name) => {
+        let used = false;
+
+        for(let { define } of scope){
+          const apply = [] as Context[];
+
+          for(
+            let mod: Context; 
+            mod = define[name];
+            define = Object.getPrototypeOf(define)){
+
+            apply.push(mod, ...mod.also);
+            used = true;
+      
+            if(name == "this")
+              break;
+          }
+
+          apply.reverse().forEach((ctx) => {
+            ctx.usedBy.add(path);
+            scope.add(ctx);
+            using.add(ctx);
+          });
+        }
+
+        if(used && attr.isJSXAttribute())
+          attr.remove();
+      });
+
+    path.setData(USING_KEY, using)
+
+    if(context === false
+    || context.define.this !== context
+    || context.props.size === 0
+    || context.usedBy.size)
+      return;
+
+    const [inserted] = path.replaceWith(
+      t.jsxElement(
+        t.jsxOpeningElement(t.jSXIdentifier("this"), []),
+        t.jsxClosingElement(t.jSXIdentifier("this")),
+        path.isJSXElement() ? [path.node] : path.node.children
+      )
+    )
+
+    inserted.setData(USING_KEY, new Set([context]));
+  }
   
   return {
     manipulateOptions(_options, parse){
@@ -45,79 +121,8 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
         context.define = Object.assign({}, ...options.define || []);
         context.macros = Object.assign({}, ...options.macros || []);
       },
-      JSXElement(path){
-        if(path.getData(USING_KEY))
-          return;
-
-        let { node, parentPath: parent } = path;
-
-        if(parent.isExpressionStatement()){
-          const block = parent.parentPath;
-
-          if(block.isBlockStatement()
-          && block.get("body").length == 1
-          && block.parentPath.isArrowFunctionExpression())
-            block.replaceWith(t.parenthesizedExpression(node));
-          else
-            parent.replaceWith(t.returnStatement(node));
-        
-          path.skip();
-          return;
-        }
-
-        const context = !parent.isJSXElement() && getContext(parent);
-        const scope = new Set(context ? [context] : SCOPE.get(parent));
-        const using = new Set<Context>();
-
-        SCOPE.set(path, scope);
-
-        getNames(path).forEach((attr, name) => {
-          let used = false;
-    
-          for(let { define } of scope){
-            const apply = [] as Context[];
-
-            for(
-              let mod: Context; 
-              mod = define[name];
-              define = Object.getPrototypeOf(define)){
-  
-              apply.push(mod, ...mod.also);
-              used = true;
-        
-              if(name == "this")
-                break;
-            }
-
-            apply.reverse().forEach((ctx) => {
-              ctx.usedBy.add(path);
-              scope.add(ctx);
-              using.add(ctx);
-            });
-          }
-    
-          if(used && attr.isJSXAttribute())
-            attr.remove();
-        });
-    
-        path.setData(USING_KEY, using)
-
-        if(context === false
-        || context.define.this !== context
-        || context.props.size === 0
-        || context.usedBy.size)
-          return;
-    
-        const [inserted] = path.replaceWith(
-          t.jsxElement(
-            t.jsxOpeningElement(t.jSXIdentifier("this"), []),
-            t.jsxClosingElement(t.jSXIdentifier("this")),
-            [path.node]
-          )
-        )
-    
-        inserted.setData(USING_KEY, new Set([context]));
-      },
+      JSXElement: JSX,
+      JSXFragment: JSX,
       BlockStatement: {
         exit
       },
