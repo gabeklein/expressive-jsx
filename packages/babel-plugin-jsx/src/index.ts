@@ -98,6 +98,14 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
     || context.usedBy.size)
       return;
 
+    if(parent.isParenthesizedExpression())
+      parent = parent.parentPath;
+
+    if(!parent.isArrowFunctionExpression()
+    && !parent.isReturnStatement()
+    && !parent.isExpressionStatement())
+      return;
+
     const [inserted] = path.replaceWith(
       t.jsxElement(
         t.jsxOpeningElement(t.jSXIdentifier("this"), []),

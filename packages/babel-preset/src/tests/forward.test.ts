@@ -149,3 +149,29 @@ it("will apply styles by wrapping fragment with this", async () => {
     };
   `);
 });
+
+it("will not wrap an expression in element", async () => {
+  const output = await parser(`
+    const Test = () => {
+      display: flex;
+
+      return (
+        <>
+          {true && <div />}
+        </>
+      );
+    };
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(`
+    const Test = (props) => {
+      return (
+        <div
+          {...props}
+          className={classNames(props.className, 'Test_2b1')}>
+          {true && <div />}
+        </div>
+      );
+    };
+  `);
+});
