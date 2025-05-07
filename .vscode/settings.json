@@ -9,6 +9,5 @@
         "packages/*/dist": true,
         "pnpm-lock.yaml": true,
         "pnpm-workspace.yaml": true
-    },
-    "typescript.tsserver.experimental.enableProjectDiagnostics": true
+    }
 }
