@@ -33,14 +33,11 @@ export const noStyleTag: Rule.RuleModule = {
           messageId: 'invalidTag',
           data: { tag },
           fix(fixer) {
-            const fixes = [];
-
-            fixes.push(fixer.replaceText(node.name, 'div'));
-
-            const insertPos = node.name.range[1];
             const safeAttr = tag.replace(/[^a-zA-Z0-9-]/g, '');
     
-            fixes.push(fixer.insertTextAfterRange([insertPos, insertPos], ` ${safeAttr}`));
+            const fixes = [
+              fixer.replaceText(node.name, `div ${safeAttr}`)
+            ];
 
             if (!node.selfClosing && node.parent?.closingElement?.name)
               fixes.push(fixer.replaceText(node.parent.closingElement.name, 'div'));
