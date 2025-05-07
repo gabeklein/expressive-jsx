@@ -1,6 +1,6 @@
 {
     "name": "@expressive/typescript-plugin-jsx",
-    "version": "0.0.1",
+    "version": "0.2.9",
     "license": "MIT",
     "main": "./dist",
     "scripts": {

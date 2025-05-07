@@ -1,6 +1,6 @@
 {
   "name": "@website/repl",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "private": true,
   "module": "src/App.jsx",
   "scripts": {
@@ -9,15 +9,15 @@
   },
   "dependencies": {
     "@babel/standalone": "^7.23.2",
-    "@expressive/babel-preset": "^0.2.8",
+    "@expressive/babel-preset": "^0.2.9",
     "@expressive/react": "^0.51.0",
-    "@website/editor": "^0.2.8",
+    "@website/editor": "^0.2.9",
     "prettier": "^2.8.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@expressive/vite-plugin": "^0.2.8",
+    "@expressive/vite-plugin": "^0.2.9",
     "@types/babel__standalone": "^7.1.7",
     "@types/prettier": "^2.7.3",
     "@types/react": "^18.2.37",
