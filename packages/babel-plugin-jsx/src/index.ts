@@ -54,7 +54,7 @@ function Plugin(_compiler: any, options: Options): PluginObj<State> {
       return;
     }
 
-    const context = !parent.isJSXElement() && !parent.isJSXFragment() && getContext(parent);
+    const context = !parent.isJSXElement() && !parent.isJSXFragment() && getContext(path);
     const scope = new Set(context ? [context] : SCOPE.get(parent));
     const using = new Set<Context>();
 

@@ -113,3 +113,39 @@ it("will apply styles by wrapping fragment", async () => {
     );
   `);
 });
+
+it("will apply styles by wrapping fragment with this", async () => {
+  const output = await parser(`
+    const Steps = ({ steps, currentStep }) => {
+      color: red;
+
+      return (
+        <>
+          {steps.map((step, i) => (
+            <Step key={i} index={i} current={currentStep}>
+              {step}
+            </Step>
+          ))}
+          <DottedLine />
+        </>
+      );
+    };
+  `);
+
+  expect(output.code).toMatchInlineSnapshot(`
+    const Steps = ({ className, steps, currentStep, ...rest }) => {
+      return (
+        <div
+          {...rest}
+          className={classNames(className, 'Steps_11k')}>
+          {steps.map((step, i) => (
+            <Step key={i} index={i} current={currentStep}>
+              {step}
+            </Step>
+          ))}
+          <DottedLine />
+        </div>
+      );
+    };
+  `);
+});
