@@ -1,68 +1,5 @@
 import ts from "typescript/lib/tsserverlibrary";
 
-// Helper function to find a labeled statement node
-function findLabeledStatementNode(sourceFile: ts.SourceFile, position: number): ts.LabeledStatement | undefined {
-  function find(node: ts.Node): ts.LabeledStatement | undefined {
-    if (node.kind === ts.SyntaxKind.LabeledStatement && 
-        node.getStart(sourceFile) <= position && 
-        position < node.getEnd()) {
-      // If this is a labeled statement that contains our position
-      return node as ts.LabeledStatement;
-    }
-    
-    // Check children
-    return ts.forEachChild(node, find);
-  }
-  
-  return find(sourceFile);
-}
-
-export function stylePropertyStatement(diagnostic: ts.Diagnostic): boolean {
-  if(diagnostic.code !== 7028) return false;
-
-  const sourceFile = diagnostic.file;
-
-  if (!sourceFile) return false;
-
-  const label = findLabeledStatementNode(sourceFile, diagnostic.start!);
-
-  if (!label || labelContainsNormalControlFlow(label)) return false;
-
-  return true
-}
-    
-// Function to check if a diagnostic is for an undeclared identifier in a label statement
-export function stylePropertyValue(diagnostic: ts.Diagnostic): boolean {
-  const sourceFile = diagnostic.file!;
-  
-  if(diagnostic.code !== 2304)
-    return false;
-  
-  const position = diagnostic.start;
-
-  if(!position)
-    return false;
-
-  const labelCheck = isPositionInLabelStatement(sourceFile, position);
-  
-  if (labelCheck.isInLabel) {
-    // Extract the identifier name from the message for verification
-    const messageText = typeof diagnostic.messageText === 'string' 
-      ? diagnostic.messageText 
-      : diagnostic.messageText.messageText;
-    
-    // The message usually contains the identifier like "Cannot find name 'foo'"
-    const match = messageText.match(/Cannot find name ['"]([^'"]+)['"]/);
-    const identifierInError = match ? match[1] : null;
-    
-    // Double check that the identifier in the error matches the one we found
-    if (identifierInError && identifierInError === labelCheck.identifierName)
-      return true;
-  }
-  
-  return false;
-}
-    
 // Helper function to find identifier at position
 export function findIdentifierNodeAtPosition(sourceFile: ts.SourceFile, position: number): ts.Identifier | undefined {
   function find(node: ts.Node): ts.Identifier | undefined {
@@ -155,21 +92,6 @@ export function isExpressionInLabelStatement(sourceFile: ts.SourceFile, node: ts
     break;
   }
   
-  return false;
-}
-    
-// Helper to check if any expression is within a labeled statement
-export function expressionInLabelStatement(diagnostic: ts.Diagnostic): boolean {
-  const sourceFile = diagnostic.file!;
-  
-  if(diagnostic.code !== 2695)
-    return false;
-  
-  const node = findNodeAtPosition(sourceFile, diagnostic.start);
-
-  if (node)
-    return isExpressionInLabelStatement(sourceFile, node);
-
   return false;
 }
 

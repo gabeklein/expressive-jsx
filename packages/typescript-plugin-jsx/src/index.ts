@@ -1,14 +1,14 @@
 import ts from 'typescript/lib/tsserverlibrary';
 
+import { expressionInLabelStatement } from './expressionInLabelStatement';
+import { stylePropertyStatement } from './stylePropertyStatement';
+import { stylePropertyValue } from './stylePropertyValue';
 import {
-  expressionInLabelStatement,
   findIdentifierNodeAtPosition,
   findNodeAtPosition,
   isExpressionInLabelStatement,
   isPositionInLabelStatement,
   labelContainsNormalControlFlow,
-  stylePropertyStatement,
-  stylePropertyValue,
 } from './util';
 
 function init(modules: { typescript: typeof ts }) {
@@ -96,7 +96,6 @@ function init(modules: { typescript: typeof ts }) {
       const sourceFile = service.getProgram()?.getSourceFile(fileName);
       
       if (!sourceFile) return original;
-
 
       const { spans } = original;
       const modifiedSpans: number[] = [];
