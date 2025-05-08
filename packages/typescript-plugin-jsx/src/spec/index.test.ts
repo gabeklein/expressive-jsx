@@ -1,6 +1,6 @@
-import { it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import { getDiagnosticsWithPlugin } from './helpers';
-import { describe } from 'node:test';
 
 it('suppresses diagnostics for <this> JSX usage', () => {
   const code = `
