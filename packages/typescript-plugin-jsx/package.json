@@ -1,20 +1,22 @@
 {
-    "name": "@expressive/typescript-plugin-jsx",
-    "version": "0.2.10",
-    "license": "MIT",
-    "main": "./dist",
-    "private": true,
-    "scripts": {
-        "build": "tsc",
-        "watch": "tsc --watch",
-        "test": "vitest",
-        "prepublish": "npm run build",
-        "preversion": "npm run build"
-    },
-    "dependencies": {
-        "typescript": ">=4.0.0"
-    },
-    "devDependencies": {
-        "vitest": "^3.1.3"
-    }
+  "name": "@expressive/typescript-plugin-jsx",
+  "version": "0.2.10",
+  "license": "MIT",
+  "main": "./dist",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "test": "vitest",
+    "prepublish": "npm run build",
+    "preversion": "npm run build"
+  },
+  "dependencies": {
+    "typescript": ">=4.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.1.3"
+  }
 }
