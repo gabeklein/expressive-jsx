@@ -13,10 +13,10 @@ export const thisIsDeprecated: Rule.RuleModule = {
         type: 'object',
         properties: {
           ambiguous: {
-            type: 'string',
-            enum: ['fragment', 'div', 'skip'],
-            default: 'fragment',
-            description: 'How to fix <this>: fragment (default), div, or skip.'
+            type: ['string', 'undefined'],
+            enum: ['fragment', 'div', 'skip', undefined],
+            default: undefined,
+            description: 'How to fix <this>: fragment (default), div, skip, or undefined (default).'
           },
         },
         additionalProperties: false,
@@ -28,7 +28,8 @@ export const thisIsDeprecated: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     const options = context.options && context.options[0] || {};
-    const ambiguous = options.ambiguous || 'fragment';
+    // Allow ambiguous to be undefined and default to undefined
+    const ambiguous = options.ambiguous;
 
     return {
       JSXOpeningElement(node: any) {
@@ -42,14 +43,11 @@ export const thisIsDeprecated: Rule.RuleModule = {
           messageId: 'deprecatedThisElement',
           fix(fixer) {
             const { parent } = node;
-
+            
             // TODO: strict mode should also check if parent component has styles defined.
 
-            if (!node.attributes.length) {
-              if (ambiguous === 'skip')
-                return null;
-
-              if(ambiguous === 'fragment') {
+            if (!node.attributes.length && ambiguous !== 'div') {
+              if(ambiguous === 'fragment' || componentHasOwnStyle(node, context)) {
                 const children = parent.children.filter((c: any) => c.type !== 'JSXText' || c.value.trim() !== '');
         
                 if (children.length === 1 && children[0].type === 'JSXElement')
@@ -62,6 +60,9 @@ export const thisIsDeprecated: Rule.RuleModule = {
   
                 return fixes;
               }
+
+              if (ambiguous === 'skip')
+                return null;
             }
 
             const fixes = [fixer.replaceText(tag, 'div this')]
@@ -76,3 +77,21 @@ export const thisIsDeprecated: Rule.RuleModule = {
     };
   },
 };
+
+function componentHasOwnStyle(node: any, context: Rule.RuleContext) {
+  const { sourceCode } = context;
+  // Find the nearest function ancestor
+  const functionAncestor = sourceCode.getAncestors(node).reverse().find((ancestor) =>
+    ancestor.type === 'FunctionDeclaration' ||
+    ancestor.type === 'FunctionExpression' ||
+    ancestor.type === 'ArrowFunctionExpression'
+  );
+
+  if (!functionAncestor || !functionAncestor.body || functionAncestor.body.type !== 'BlockStatement')
+    return false;
+
+  // Check for a LabeledStatement with an ExpressionStatement as its body
+  return functionAncestor.body.body.some((child: any) =>
+    child.type === 'LabeledStatement' && child.body.type === 'ExpressionStatement'
+  );
+}
