@@ -4,12 +4,13 @@ import { transform, TransformOptions, TransformResult } from './transform';
 import { relative } from 'path';
 
 const VIRTUAL_CSS = "\0virtual:css:";
-
 const getCssId = (path: string) => VIRTUAL_CSS + localize(path) + ".css";
-const localize = (path: string) => relative(process.cwd(), path);
+const localize = (path: string) => {
+  const cwd = process.cwd();
+  return path.startsWith(cwd) ? "/" + relative(cwd, path) : path;
+}
 
-const DEFAULT_SHOULD_TRANSFORM = (id: string) =>
-  !/node_modules/.test(id) && id.endsWith(".jsx");
+const DEFAULT_SHOULD_TRANSFORM = (id: string) => id.endsWith(".jsx");
 
 export interface Options extends TransformOptions {
   test?: RegExp | ((uri: string) => boolean);
