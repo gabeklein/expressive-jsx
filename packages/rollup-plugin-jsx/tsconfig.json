@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "target": "es2020",
+    "module": "CommonJS",
+    "declaration": true,
+    "esModuleInterop": true,
+    "lib": ["ES2020", "DOM"],
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "sourceMap": true,
+    "strict": true,
+    "types": [ "node" ]
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
