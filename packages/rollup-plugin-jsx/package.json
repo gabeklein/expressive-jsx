@@ -14,7 +14,8 @@
     "@babel/traverse": "^7.27.1",
     "@babel/types": "^7.27.1",
     "@expressive/babel-preset": "^0.2.11",
-    "@rollup/pluginutils": "^5.1.4"
+    "@rollup/pluginutils": "^5.1.4",
+    "rollup": "^4.40.2"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.5",
