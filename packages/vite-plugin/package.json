@@ -32,7 +32,6 @@
   ],
   "dependencies": {
     "@babel/core": "^7.22.20",
-    "@babel/plugin-transform-typescript": "^7.23.6",
     "@expressive/babel-preset": "^0.2.11"
   },
   "devDependencies": {
