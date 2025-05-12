@@ -1,6 +1,6 @@
 import { PluginObj } from '@babel/core';
 import JSXPreset from '@expressive/babel-preset';
-import { Compiler, NormalModuleReplacementPlugin } from 'webpack';
+import { Compiler } from 'webpack';
 import VirtualModulesPlugin from 'webpack-virtual-modules';
 
 const BABEL_LOADER = require.resolve('babel-loader');
