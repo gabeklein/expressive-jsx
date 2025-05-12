@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'fs/promises';
 import { resolve } from 'path';
 import { format } from 'prettier';
 
-import { Preset } from '..';
+import { Preset } from '../src';
 
 export async function parse(
   input: string = "./input.jsx",
