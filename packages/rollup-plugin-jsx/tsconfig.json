@@ -2,7 +2,7 @@
   "compilerOptions": {
     "outDir": "./dist",
     "target": "es2020",
-    "module": "CommonJS",
+    "module": "ESNext",
     "declaration": true,
     "esModuleInterop": true,
     "lib": ["ES2020", "DOM"],

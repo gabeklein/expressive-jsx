@@ -1,11 +1,12 @@
 {
-  "name": "@expressive/rollup-plugin",
+  "name": "@expressive/rollup-plugin-jsx",
   "version": "1.0.0",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
   "private": true,
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch"
+    "build": "tsup src/index.ts --dts --sourcemap --format esm"
   },
   "dependencies": {
     "@babel/core": "^7.27.1",
@@ -21,6 +22,7 @@
     "@types/babel__core": "^7.20.5",
     "@types/babel__generator": "^7.27.0",
     "@types/babel__traverse": "^7.20.7",
-    "@types/node": "^20.17.46"
+    "@types/node": "^20.17.46",
+    "tsup": "^8.0.1"
   }
 }
