@@ -1,18 +1,22 @@
-import { NodePath, PluginObj } from '@babel/core';
-import { Function } from '@babel/types';
+import { NodePath, PluginObj, template } from '@babel/core';
+import { ExpressionStatement, Function, Identifier } from '@babel/types';
 import { Context, getUsing } from '@expressive/babel-plugin-jsx';
 
 import { Preset, State } from '..';
 import t from '../types';
 import { getComponentProp, getComponentProps } from './component';
-import { importPolyfill } from './importPolyfill';
 import { addClassName, fixTagName, getClassName, hasProp, spreadProps } from './jsx';
 import { uniqueIdentifier } from './uniqueIdentifier';
+
+const classNamesHelper = template.ast`
+  (...args) => args.filter(Boolean).join(" ");
+` as ExpressionStatement;
 
 export function CSSPlugin(
   _compiler: any, options: Preset.Options = {}): PluginObj<State> {
 
   const { cssModule } = options;
+  let getHelper: () => Identifier;
 
   return {
     visitor: {
@@ -27,8 +31,6 @@ export function CSSPlugin(
           return;
 
         let forward: NodePath<Function> | undefined;
-
-        const getHelper = () => importPolyfill("classNames", path, options.polyfill)
 
         for (const define of using) {
           const className = getClassName(define, cssModuleId);
@@ -58,6 +60,21 @@ export function CSSPlugin(
       Program: {
         enter(path, state) {
           const { metadata } = state.file;
+
+          getHelper = () => {
+            let helper = state.classNameHelper as Identifier;
+
+            if(!helper){
+              helper = state.classNameHelper = uniqueIdentifier(path.scope, "classNames")
+              path.unshiftContainer("body", 
+                t.variableDeclaration("const", [
+                  t.variableDeclarator(helper, classNamesHelper.expression)
+                ])
+              );
+            }
+              
+            return helper;
+          }
 
           if (cssModule)
             Object.defineProperty(metadata, "cssModuleId", {

@@ -16,11 +16,7 @@ export async function parse(
   const result = await transformAsync(contents, {
     filename: input,
     cwd: "/",
-    presets: [
-      [Preset, <Preset.Options>{
-        polyfill: null
-      }]
-    ]
+    presets: [Preset]
   });
 
   if(!result)

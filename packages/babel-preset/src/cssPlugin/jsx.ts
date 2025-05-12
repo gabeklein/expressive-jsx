@@ -75,7 +75,6 @@ export function addClassName(
     return;
   }
 
-  // const helper = importPolyfill("classNames", path, getHelper);
   const helper = getHelper();
 
   if(t.isCallExpression(existing)

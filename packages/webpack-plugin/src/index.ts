@@ -17,17 +17,6 @@ class ExpressiveJSXPlugin {
   apply(compiler: Compiler){
     const virtual = new VirtualModulesPlugin();    
     const handled = new Set<string>();
-
-    // babel-preset is not a direct dependency of a package
-    // this plugin builds, so may need to resolve it manually
-    new NormalModuleReplacementPlugin(
-      /@expressive\/babel-preset\/polyfill/,
-      resource => {
-        const absolute = require.resolve(resource.request);
-
-        resource.request = absolute;
-      }
-    ).apply(compiler);
     
     virtual.apply(compiler);
 

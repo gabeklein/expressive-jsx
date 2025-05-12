@@ -10,7 +10,6 @@ export interface Options {
   cssModule?: string;
   macros?: (Record<string, Macro> | false)[];
   define?: Record<string, Context>[];
-  polyfill?: string | null;
 }
 
 export interface State extends PluginPass {

@@ -7,11 +7,7 @@ import Prettier from 'prettier/standalone';
 export function transform(input_jsx: string){
   const result = Babel.transform(input_jsx, {
     filename: '/REPL.js',
-    presets: [
-      [Preset, {
-        polyfill: "polyfill"
-      } as Preset.Options]
-    ]
+    presets: [Preset]
   });
 
   if(!result)  

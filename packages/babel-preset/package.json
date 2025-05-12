@@ -24,13 +24,10 @@
     ".": {
       "require": "./dist/index.js",
       "import": "./dist/index.mjs"
-    },
-    "./polyfill": "./polyfill.js"
+    }
   },
   "files": [
-    "/dist",
-    "/polyfill.js",
-    "/polyfill.d.ts"
+    "/dist"
   ],
   "scripts": {
     "build": "tsup src/index.ts --dts --format esm,cjs",
@@ -57,10 +54,5 @@
     "tsup": "^8.0.1",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^1.5.0"
-  },
-  "tsup": {
-    "external": [
-      "../polyfill"
-    ]
   }
 }

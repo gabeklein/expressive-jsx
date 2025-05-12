@@ -19,13 +19,13 @@ it("will do", async () => {
       color: red;
     }
 
-    /** assets/index-BFVxwYF_.js **/
+    /** assets/index-CrD4AzJ5.js **/
     import "vite/modulepreload-polyfill";
-    import { classNames as l } from "@expressive/babel-preset/polyfill";
-    const a = e => React.createElement("div", {
-      ...e,
-      className: l(e.className, "Hello_2cs")
-    }, "Hello!");
+    const l = (...e) => e.filter(Boolean).join(" "),
+      a = e => React.createElement("div", {
+        ...e,
+        className: l(e.className, "Hello_2cs")
+      }, "Hello!");
     a();
   `);
 })
@@ -56,13 +56,13 @@ it("will import polyfill", async () => {
       background: #00f;
     }
 
-    /** assets/index-RoLOAnTL.js **/
+    /** assets/index-Cs8Aefty.js **/
     import "vite/modulepreload-polyfill";
-    import { classNames as l } from "@expressive/babel-preset/polyfill";
-    const a = e => React.createElement("div", {
-      ...e,
-      className: l(e.className, "Hello_2cs also_i3c")
-    }, "Hello!");
+    const l = (...e) => e.filter(Boolean).join(" "),
+      a = e => React.createElement("div", {
+        ...e,
+        className: l(e.className, "Hello_2cs also_i3c")
+      }, "Hello!");
     a();
   `);
 })

@@ -8,7 +8,6 @@ export type Macro =
 export interface Options {
   macros?: Record<string, Macro>[];
   define?: Record<string, Context>[];
-  polyfill?: string | null;
 }
 
 export type BabelState = PluginPass & {

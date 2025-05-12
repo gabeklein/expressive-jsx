@@ -1,13 +1,11 @@
 import * as Babel from '@babel/standalone';
 import Preset from '@expressive/babel-preset';
-import * as POLYFILL from '@expressive/babel-preset/polyfill';
 import * as MVC from '@expressive/react';
 import React, { Component } from 'react';
 
 /** Imports shared with sandbox. */
 const SANDBOX_MODULES: Record<string, any> = {
   "react": React,
-  "polyfill": POLYFILL,
   "@expressive/react": MVC
 }
 
@@ -27,9 +25,7 @@ export function toReact(input: string): PreviewComponent {
   const result = Babel.transform(input, {
     filename: '/REPL.js',
     presets: [
-      [Preset, {
-        polyfill: "polyfill"
-      }]
+      Preset
     ],
     plugins: [
       "transform-react-jsx",

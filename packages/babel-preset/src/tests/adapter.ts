@@ -32,10 +32,7 @@ function createParser(options?: Preset.Options, plugins?: PluginItem[]){
       plugins,
       cwd: "/",
       presets: [
-        [Preset, <Preset.Options>{
-          polyfill: null,
-          ...options
-        }]
+        [Preset, options]
       ]
     });
 
@@ -43,13 +40,17 @@ function createParser(options?: Preset.Options, plugins?: PluginItem[]){
       throw new Error("No result from babel transform");
 
     const { css } = result.metadata as Preset.Meta;
-    const code = format(result.code!, {
+
+    let code = format(result.code!, {
       singleQuote: true,
       trailingComma: "none",
       jsxBracketSameLine: true,
       printWidth: 65,
       parser: "babel"
-    }).replace(/\n$/gm, '');
+    })
+
+    code = code.replace(/\n$/gm, '');
+    code = code.replace("const classNames = (...args) => args.filter(Boolean).join(' ');", "");
 
     return <Output> {
       css,
