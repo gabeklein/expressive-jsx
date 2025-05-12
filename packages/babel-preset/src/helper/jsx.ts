@@ -1,13 +1,9 @@
 import { NodePath } from '@babel/traverse';
-import { Expression, JSXElement, Program } from '@babel/types';
+import { Expression, Identifier, JSXElement } from '@babel/types';
 import { Plugin } from '@expressive/babel-plugin-jsx';
 
-import { Options } from '..';
 import t from '../types';
 import { isStandard } from './tags';
-import { uniqueIdentifier } from './uniqueIdentifier';
-
-const POLYFILL_DEFAULT = "@expressive/babel-preset/polyfill";
 
 /** TODO: Move to a default handler included with macros. */
 export function fixTagName(path: any){
@@ -54,7 +50,7 @@ export function getClassName(
 export function addClassName(
   path: NodePath<JSXElement>,
   name: string | Expression,
-  options: Options) {
+  getHelper: () => Identifier) {
 
   const existing = hasProp(path, "className");
   const opening = path.get("openingElement");
@@ -79,10 +75,11 @@ export function addClassName(
     return;
   }
 
-  const concat = importPolyfill("classNames", path, options);
+  // const helper = importPolyfill("classNames", path, getHelper);
+  const helper = getHelper();
 
   if(t.isCallExpression(existing)
-    && t.isIdentifier(existing.callee, { name: concat.name }))
+    && t.isIdentifier(existing.callee, { name: helper.name }))
     if(t.isStringLiteral(name)) {
       for(const value of existing.arguments)
         if(t.isStringLiteral(value)) {
@@ -99,7 +96,7 @@ export function addClassName(
     if(attr.isJSXAttribute()
     && attr.get("name").isJSXIdentifier({ name: "className" })) {
       attr.node.value = t.jsxExpressionContainer(
-        t.callExpression(concat, [name, existing])
+        t.callExpression(helper, [name, existing])
       );
       return;
     }
@@ -136,39 +133,3 @@ export function hasProp(path: NodePath<JSXElement>, name: string){
     }
 }
 
-export function importPolyfill(
-  name: string, from: NodePath, options: Options){
-
-  const { polyfill = POLYFILL_DEFAULT } = options;
-  const program = from.findParent((path) => path.isProgram()) as NodePath<Program>;
-  const body = program.get("body");
-
-  for(const statement of body){
-    if(!statement.isImportDeclaration()
-    || statement.node.source.value !== polyfill)
-      continue;
-
-    const specifiers = statement.get("specifiers");
-
-    for(const spec of specifiers){
-      if(!spec.isImportSpecifier())
-        continue;
-
-      if(t.isIdentifier(spec.node.imported, { name }))
-        return spec.node.local;
-    }
-  }
-
-  const concat = uniqueIdentifier(from.scope, name);
-
-  if(polyfill){
-    const importStatement = t.importDeclaration(
-      [t.importSpecifier(concat, t.identifier(name))],
-      t.stringLiteral(polyfill)
-    );
-  
-    program.unshiftContainer("body", importStatement);
-  }
-
-  return concat;
-}

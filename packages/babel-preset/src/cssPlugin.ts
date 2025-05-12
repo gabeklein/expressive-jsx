@@ -1,6 +1,7 @@
 import { NodePath, PluginObj } from '@babel/core';
 import { Function } from '@babel/types';
 import { Context, getUsing } from '@expressive/babel-plugin-jsx';
+import { importPolyfill } from 'helper/importPolyfill';
 
 import { Preset, State } from '.';
 import { getComponentProp, getComponentProps } from './helper/component';
@@ -28,11 +29,13 @@ export function CSSPlugin(
 
         let forward: NodePath<Function> | undefined;
 
+        const getHelper = () => importPolyfill("classNames", path, options.polyfill)
+
         for (const define of using) {
           const className = getClassName(define, cssModuleId);
 
           if (className)
-            addClassName(path, className, options);
+            addClassName(path, className, getHelper);
 
           if (define.path.isFunction())
             forward = define.path;
@@ -50,7 +53,7 @@ export function CSSPlugin(
           spreadProps(path, getComponentProps(forward));
 
           if (hasProp(path, "className"))
-            addClassName(path, getComponentProp(path, "className"), options);
+            addClassName(path, getComponentProp(path, "className"), getHelper);
         }
       },
       Program: {
