@@ -77,19 +77,17 @@ export function addClassName(
 
   const helper = getHelper();
 
-  if(t.isCallExpression(existing)
-    && t.isIdentifier(existing.callee, { name: helper.name }))
-    if(t.isStringLiteral(name)) {
+  if(t.isCallExpression(existing) && t.isIdentifier(existing.callee, { name: helper.name })){
+    if(t.isStringLiteral(name))
       for(const value of existing.arguments)
         if(t.isStringLiteral(value)) {
           value.value += " " + name.value;
           return;
         }
-    }
-    else {
-      existing.arguments.push(name);
-      return;
-    }
+    
+    existing.arguments.push(name);
+    return;
+  }
 
   for(const attr of opening.get("attributes"))
     if(attr.isJSXAttribute()
