@@ -1,4 +1,4 @@
-import { appendUnit } from "../helper/appendUnit";
+import { appendUnit } from "./appendUnit";
 
 function _border(dir){
   let key = "border";

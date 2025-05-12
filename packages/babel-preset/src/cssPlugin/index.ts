@@ -1,14 +1,13 @@
 import { NodePath, PluginObj } from '@babel/core';
 import { Function } from '@babel/types';
 import { Context, getUsing } from '@expressive/babel-plugin-jsx';
-import { importPolyfill } from 'helper/importPolyfill';
 
-import { Preset, State } from '.';
-import { getComponentProp, getComponentProps } from './helper/component';
-import { addClassName, fixTagName, getClassName, hasProp, spreadProps } from './helper/jsx';
-import { uniqueIdentifier } from './helper/uniqueIdentifier';
-import { camelToDash } from './helper/util';
-import t from './types';
+import { Preset, State } from '..';
+import t from '../types';
+import { getComponentProp, getComponentProps } from './component';
+import { importPolyfill } from './importPolyfill';
+import { addClassName, fixTagName, getClassName, hasProp, spreadProps } from './jsx';
+import { uniqueIdentifier } from './uniqueIdentifier';
 
 export function CSSPlugin(
   _compiler: any, options: Preset.Options = {}): PluginObj<State> {
@@ -140,7 +139,7 @@ function toCssProperty(name: string, value: any){
     value = value.map(value => {
       if(typeof value == "string" && /^\$/.test(value))
         return `var(--${
-          camelToDash(value.slice(1))
+          value.slice(1).replace(/([A-Z]+)/g, "-$1").toLowerCase()
         })`;
 
       return value;

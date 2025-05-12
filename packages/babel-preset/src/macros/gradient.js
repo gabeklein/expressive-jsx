@@ -1,5 +1,3 @@
-import { camelToDash } from '../helper/util';
-
 import chroma from 'chroma-js';
 import easingCoordinates from 'easing-coordinates';
 
@@ -14,7 +12,7 @@ import easingCoordinates from 'easing-coordinates';
 
 export function easingGradient(direction, from, timing, to, stops = 13){
   direction = direction.replace("-", " ");
-  timing = camelToDash(timing);
+  timing = timing.replace(/([A-Z]+)/g, "-$1").toLowerCase();
   [from, to] = normalize(from, to);
 
   const output = [ direction ];
