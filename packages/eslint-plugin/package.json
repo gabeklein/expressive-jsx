@@ -1,6 +1,6 @@
 {
   "name": "@expressive/eslint-plugin-jsx",
-  "version": "0.2.12",
+  "version": "0.2.14",
   "description": "An ESLint plugin for JSX",
   "publishConfig": {
     "access": "public"
