@@ -1,5 +1,4 @@
 import { createFilter } from '@rollup/pluginutils';
-import path from 'path';
 import { Plugin } from 'rollup';
 
 import { transform } from './transform';
@@ -9,10 +8,21 @@ type Options = {
   exclude?: string | string[];
 };
 
+const STYLE_INJECT_ID = '\0style-inject';
+const STYLE_INJECT = `export default function style(css) {
+  if (!css || typeof window === 'undefined') return;
+  const style = document.createElement('style');
+  style.setAttribute('type', 'text/css');
+  style.appendChild(document.createTextNode(css));
+  document.head.appendChild(style);
+}`;
+
+const importInject = (css: string) => {
+  return `\n\nimport style from '${STYLE_INJECT_ID}';\nstyle(${JSON.stringify(css)});`;
+};
+
 function expressiveJSX(options: Options = {}): Plugin {
   const filter = createFilter(options.include || ['**/*.jsx']);
-  const virtualCssMap = new Map<string, string>();
-  const dotcss = (str: string) => str.replace(/\.[jt]sx?$/, '.x.css')
 
   return {
     name: 'rollup-plugin-expressive-jsx',
@@ -25,24 +35,24 @@ function expressiveJSX(options: Options = {}): Plugin {
       if (!result.css)
         return result;
 
-      const cssFilePath = dotcss(id);
-      virtualCssMap.set(cssFilePath, result.css);
-
       return {
-        code: result.code + `\nimport './${path.basename(cssFilePath)}';\n`,
+        code: result.code + importInject(result.css),
         map: result.map,
       };
     },
 
-    resolveId(source, importer) {
-      if(importer && source === './' + dotcss(path.basename(importer)))
-        return dotcss(importer);
+    resolveId(source) {
+      if (source === STYLE_INJECT_ID)
+        return source;
 
       return null;
     },
 
     load(id) {
-      return virtualCssMap.get(id) || null;
+      if (id === STYLE_INJECT_ID)
+        return STYLE_INJECT;
+
+      return null;
     },
   };
 }
