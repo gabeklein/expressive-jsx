@@ -1,5 +1,3 @@
-// import generate from '@babel/generator';
-// import traverse from '@babel/traverse';
 import { createFilter } from '@rollup/pluginutils';
 import path from 'path';
 import { Plugin } from 'rollup';
@@ -13,6 +11,8 @@ type Options = {
 
 function expressiveJSX(options: Options = {}): Plugin {
   const filter = createFilter(options.include || ['**/*.jsx']);
+  const virtualCssMap = new Map<string, string>();
+  const dotcss = (str: string) => str.replace(/\.[jt]sx?$/, '.x.css')
 
   return {
     name: 'rollup-plugin-expressive-jsx',
@@ -22,28 +22,27 @@ function expressiveJSX(options: Options = {}): Plugin {
 
       const result = await transform(id, code);
 
+      if (!result.css)
+        return result;
+
+      const cssFilePath = dotcss(id);
+      virtualCssMap.set(cssFilePath, result.css);
+
       return {
-        code: result.code,
+        code: result.code + `\nimport './${path.basename(cssFilePath)}';\n`,
         map: result.map,
-        meta: {
-          css: result.css,
-          cssFilename: `./${path.basename(id).replace(/\.[jt]sx?$/, '')}.css`,
-        },
-      }
+      };
     },
 
-    generateBundle(_, bundle) {
-      for (const [fileName, chunk] of Object.entries(bundle)) {
-        const { meta } = chunk as any;
+    resolveId(source, importer) {
+      if(importer && source === './' + dotcss(path.basename(importer)))
+        return dotcss(importer);
 
-        if (chunk.type === 'chunk' && meta?.css && meta?.cssFilename) {
-          this.emitFile({
-            type: 'asset',
-            fileName: path.posix.join(path.dirname(fileName), meta.cssFilename),
-            source: meta.css,
-          });
-        }
-      }
+      return null;
+    },
+
+    load(id) {
+      return virtualCssMap.get(id) || null;
     },
   };
 }
