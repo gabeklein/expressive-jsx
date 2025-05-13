@@ -1,16 +1,18 @@
+import { relative } from 'path';
 import { ModuleGraph, Plugin } from 'vite';
 
 import { transform, TransformOptions, TransformResult } from './transform';
-import { relative } from 'path';
 
 const VIRTUAL_CSS = "\0virtual:css:";
+
 const getCssId = (path: string) => VIRTUAL_CSS + localize(path) + ".css";
 const localize = (path: string) => {
   const cwd = process.cwd();
   return path.startsWith(cwd) ? "/" + relative(cwd, path) : path;
 }
 
-const DEFAULT_SHOULD_TRANSFORM = (id: string) => id.endsWith(".jsx");
+const DEFAULT_SHOULD_TRANSFORM = (id: string) =>
+  !/node_modules/.test(id) && id.endsWith(".jsx");
 
 export interface Options extends TransformOptions {
   test?: RegExp | ((uri: string) => boolean);
@@ -24,18 +26,16 @@ function jsxPlugin(options: Options = {}): Plugin {
         DEFAULT_SHOULD_TRANSFORM;
 
   const CACHE = new Map<string, TransformResult>();
-  const CSS_MAP = new Map<string, string>();
   let moduleGraph!: ModuleGraph;
 
   async function transformCache(id: string, code: string) {
     const result = await transform(id, code, options);
 
-    CACHE.set(id, result);
+    if(result.css)
+      result.code += `\nimport "__EXPRESSIVE_CSS__";`;
 
-    if(result.css) {
-      const cssId = getCssId(id);
-      CSS_MAP.set(cssId, id);
-    }
+    CACHE.set(id, result);
+    CACHE.set(getCssId(id), result);
 
     return result;
   }
@@ -46,50 +46,24 @@ function jsxPlugin(options: Options = {}): Plugin {
     configureServer(server) {
       moduleGraph = server.moduleGraph;
     },
-    resolveId(id) {
-      if(id.startsWith(VIRTUAL_CSS))
-        return id;
-
-      if(CSS_MAP.has(id))
-        return id;
+    resolveId(id, importer) {
+      if(id === "__EXPRESSIVE_CSS__")
+        return getCssId(importer!);
     },
-    load(id) {
-      if(id.startsWith(VIRTUAL_CSS)) {
-        const sourceId = id.slice(VIRTUAL_CSS.length, -4);
-        const result = CACHE.get(sourceId);
+    load(path: string) {
+      const cached = CACHE.get(path);
 
-        if(result && result.css)
-          return result.css;
-      }
-
-      const sourceId = CSS_MAP.get(id);
-  
-      if(sourceId) {
-        const result = CACHE.get(sourceId);
-
-        if(result && result.css)
-          return result.css;
-      }
-
-      return null;
+      if(cached && path.startsWith(VIRTUAL_CSS))
+        return cached.css;
     },
     async transform(code, id) {
-      if(id.startsWith(VIRTUAL_CSS))
-        return null;
+      const result = CACHE.get(id);
 
-      const cached = CACHE.get(id);
+      if(result)
+        return id.startsWith(VIRTUAL_CSS) ? result.css : result;
 
-      if(cached)
-        return cached;
-
-      if(accept(id)){
-        const result = await transformCache(id, code);
-
-        if(result.css)
-          result.code += `\nimport "${getCssId(id)}";`;
-
-        return result;
-      }
+      if(accept(id))
+        return transformCache(id, code);
 
       return null;
     },
