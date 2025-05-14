@@ -3,7 +3,7 @@ import { Function, IfStatement, LabeledStatement } from '@babel/types';
 
 import { onExit } from '.';
 import { parseArgument } from './arguments';
-import { Context } from './context';
+import { Context, hash } from './context';
 import { parseError } from './errors';
 import { getName } from './names';
 import t from './types';
@@ -133,7 +133,10 @@ function createFunctionContext(path: NodePath<Function>){
 
 function createIfContext(path: NodePath<IfStatement>){
   const test = path.node.test;
-  const name = t.isIdentifier(test) ? test.name : "if";
+  const name = t.isIdentifier(test)
+    ? test.name
+    : "if_" + hash(path.get("test").getSource());
+  
   const outer = getContext(path);
   const inner = new Context(path, outer, name);
 

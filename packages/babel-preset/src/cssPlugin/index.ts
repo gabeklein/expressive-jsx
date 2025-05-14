@@ -112,7 +112,11 @@ function toStylesheet(contexts: Iterable<Context>){
   return Array
     .from(contexts)
     .filter(d => d.props.size > 0)
-    .sort((d1, d2) => depth(d1) - depth(d2))
+    .sort((d1, d2) => {
+      const diff = depth(d1) - depth(d2);
+
+      return diff === 0 ? 1 : diff;
+    })
     .map(define => {
       const css = [] as string[];
     
