@@ -94,6 +94,7 @@ var __webpack_exports__ = {};
 (() => {
   __webpack_require__.r(__webpack_exports__);
   var MODULE_0__ = __webpack_require__('./input.jsx.module.css');
+  const classNames = (...args) => args.filter(Boolean).join(' ');
   const Component = (props) =>
     element(
       'div',
