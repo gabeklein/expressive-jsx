@@ -54,7 +54,7 @@ const parse = {
     throw Oops.UnknownArgument(element);
   },
   Identifier(node: Identifier){
-    return node.name;
+    return camelToDash(node.name);
   },
   BooleanLiteral(bool: BooleanLiteral){
     return bool.value;

@@ -68,3 +68,21 @@ it("will drop default macros", async () => {
     }
   `);
 })
+
+it("convert camelCase css values to dash-case", async () => {
+  const output = await parser(`
+    const Component = () => {
+      hello: {
+        boxSizing: border-box;
+      }
+
+      <hello />
+    }
+  `);
+
+  expect(output.css).toMatchInlineSnapshot(`
+    .hello_tla {
+      box-sizing: border-box;
+    }
+  `);
+})
