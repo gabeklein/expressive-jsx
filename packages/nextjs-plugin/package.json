@@ -1,0 +1,20 @@
+{
+  "name": "@expressive/nextjs-plugin",
+  "version": "1.0.0",
+  "description": "Next.js plugin for Expressive JSX",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "files": [
+    "src"
+  ],
+  "dependencies": {
+    "@expressive/babel-preset": "*"
+  },
+  "peerDependencies": {
+    "next": ">=13.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
